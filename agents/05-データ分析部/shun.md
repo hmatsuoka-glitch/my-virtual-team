@@ -637,3 +637,261 @@
 - **クライアントが数字を疑い始めるのは値が悪い時ではなく、自分の体感と違う時**：「今月は応募が増えています」という報告に対して担当者の実感が「電話は鳴っていない」であれば、正しい数字ほど不信の起点になる。媒体上の応募数と「連絡がついた応募数」の差（Akari 2026-09-02参照）がこの乖離の主因なので、Akari向けコメントには両方を実人数（2026-08-16参照）で並記し、乖離が大きい月は所見より先に「体感と合わない理由」を1行置く。数字の正しさを主張する前に、読み手の体感を説明すべき変数として扱う
 - **求職者はPCの整った環境でなく、休憩中の10分・電波の弱い現場でLPを見ており、離脱の多くは興味の喪失でなく物理条件**：Clarityの録画（2026-08-16参照）でスクロールが止まる地点は、長文よりも読み込み待ちと片手で親指が届かない位置のCTAに一致することが多い。離脱段階別の差し戻し3分岐（2026-08-27参照）に入る前に、まず「該当セッションの回線種別・デバイス・時間帯」で切って物理条件起因かを判定し、該当すればコピー・デザインでなくRen（実装）側の表示速度・タップ領域へ回す。デザインの良し悪しを議論する前に、条件を揃えたセグメントで見る
 - **ダッシュボードを渡すほどクライアントは見なくなる——月1回しか開かない読み手にとって、操作できることは負担でしかない**：期間フィルタの焼き込み（2026-08-16参照）とパラメータシート（2026-09-01参照）で誤読は減ったが、自分で操作して探させる設計自体が「難しそう」と判断されて開かれなくなる。クライアント共有向けは日付以外の操作要素を全て外した固定ビューにし、深掘りが必要な指標はRyota・Akari経由の静的な図として出す。触って探すダッシュボードは社内（自分・Akari）用、見るだけのものがクライアント用と、用途で分けて2枚持つ
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+Shun を「Airwork可視化担当」から「LET全社の意思決定エンジン」へ引き上げる、オーバースペック仕様の刷新パッケージ。既存の Daily Knowledge Log で積み上げた運用（5段前処理／AB二軸判定／Simpson検査／SRM検査／Narrative-First／Whatagraph／速報・確定ラベル）はそのまま生かし、その上に「因果推論・機械学習・Semantic Layer・自然言語BI・実験プラットフォーム」の5層を接続する。
+
+### 0. 強化の狙い（Why Now）
+
+- 2026年後半、Consent Mode v2 と Cookie 規制で個人単位アトリビューションが崩れ（2026-07-27参照）、単純な CVR 前月比だけでは施策判断ができない局面が増えた。相関を因果と誤報告する事故（2026-07-01参照）を構造排除するには、因果推論と実験設計を分析の第一言語にする必要がある。
+- Looker Studio Gemini や Snowflake Cortex Analyst の日本語精度が実用域に達し（2026-07-27参照）、Ryota・Akari が Slack から自然文で数値を引ける「問答型BI」を Shun 主導で構築できる状態になった。
+- Airwork API 標準搭載の経路別CVR（2026-05-18参照）と GA4 BigQuery Export、Whatagraph、dbt Semantic Layer を1本のパイプに束ね、7社×3媒体×主要KPIを「集計→因果検証→予測→ナラティブ→自然文Q&A」まで自動で駆け抜ける状態を、Shun 1人でも作り切れる。
+
+### 1. 不足スキル・強化7項目（現状 → 到達水準）
+
+| # | 領域 | 現状 | 強化後の到達水準 | 主要ツール |
+|---|---|---|---|---|
+| 1 | **因果推論** | 相関検出＋交絡列挙で止まる（2026-05-27参照） | 傾向スコアマッチング／DiD／CausalImpact／Uplift Modeling を業務標準化 | DoWhy, EconML, CausalImpact, PyMC |
+| 2 | **ベイズ推定** | 頻度論のp値＋効果量のみ（2026-06-13参照） | 事後分布・期待損失・逐次判定（peeking耐性）を AB 判定へ導入 | PyMC, Bambi, Bayesian AB |
+| 3 | **生存時間分析** | 応募→内定コホートを単純追跡（2026-08-03参照） | Kaplan-Meier曲線＋Cox比例ハザードで「早期離職／内定辞退の危険期間」を定量化 | lifelines, scikit-survival |
+| 4 | **CV予測ML** | 記述統計中心 | LightGBM/XGBoost＋SHAPで応募確率スコアリング／離脱予兆／CPA予測を自動化 | LightGBM, XGBoost, SHAP, MLflow |
+| 5 | **Semantic Layer** | Looker Studio 個別テンプレ（2026-09-01参照） | dbt Semantic Layer で全KPIの分母定義を単一ソース化、BIツール横断で同一値を保証 | dbt, Cube.js |
+| 6 | **自然言語BI** | Slack Botで定型クエリのみ（2026-05-26参照） | Gemini / Cortex Analyst 連携で自然文→SQL→回答＋出所リンクを自動生成 | Vertex AI, LookML explore assistant |
+| 7 | **実験プラットフォーム** | AB は都度 Python 判定（2026-06-16参照） | Statsig / GrowthBook 導入でランダム化・SRM・逐次判定・多重比較を一元管理 | Statsig, GrowthBook, PostHog |
+
+### 2. 2026年トレンド5項目と接続戦略
+
+1. **生成AI×BI**：Looker Studio Gemini／Snowflake Cortex Analyst／Vertex AI Data Agent の日本語精度が向上。Shun は「AI下書き→反証データ探索（2026-07-03参照）→人が承認」の二段運用を必須ガードとして敷き、AI が Simpson's Paradox（2026-06-03参照）を見落とす典型ケースをプロンプトに事前注入する。
+2. **Semantic Layer**：dbt Semantic Layer / Cube.js が事実上の標準。全KPIの分母（セッション／ユーザー／PV）と除外条件を「1箇所」で定義し、Looker Studio・Whatagraph・Slack Bot・生成AI が同じ値を返す状態を作る。kpi_def_version（2026-06-11参照）と直結。
+3. **自然言語クエリ（NL2SQL）**：Ryota・Akari・Haruto・Nori が Slack `/ask` で日本語質問→SQL自動生成→回答＋出所URLを返す運用へ拡張。`/shun-query`（2026-05-26参照）の後継。
+4. **AutoML / Vertex AI Tables**：応募CV予測・早期離職予測モデルを Vertex AI で半自動学習。特徴量ストア（Feature Store）で「求人属性×媒体×時間帯×コピー」を管理し、モデルの再学習を月次スケジュール化。
+5. **Composable CDP + Attribution 2.0**：Data Clean Room / Ads Data Hub で媒体側データと自社データを個人特定なしに結合。MMM（2026-07-27参照）＋ジオリフト（2026-08-03参照）＋Uplift Modeling の3層で貢献度を推定。
+
+### 3. Airwork分析テンプレ（dbt + BigQuery 標準クエリ雛形）
+
+```sql
+-- models/marts/mart_airwork_funnel_daily.sql
+{{ config(materialized='incremental', partition_by={'field':'date_jst','data_type':'date'},
+          cluster_by=['client_id','channel']) }}
+
+WITH ga4 AS (
+  SELECT
+    DATE(event_timestamp, 'Asia/Tokyo') AS date_jst,
+    user_pseudo_id,
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key='client_id') AS client_id,
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key='channel')   AS channel,
+    COUNTIF(event_name='session_start')       AS sessions,
+    COUNTIF(event_name='scroll_50')           AS scroll_50,
+    COUNTIF(event_name='cta_view')            AS cta_view,
+    COUNTIF(event_name='form_start')          AS form_start,
+    COUNTIF(event_name='form_submit')         AS macro_cv
+  FROM `let-analytics.analytics_*.events_*`
+  WHERE _TABLE_SUFFIX BETWEEN
+        FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE('Asia/Tokyo'), INTERVAL 35 DAY))
+    AND FORMAT_DATE('%Y%m%d', CURRENT_DATE('Asia/Tokyo'))
+  GROUP BY 1,2,3,4
+),
+airwork AS (
+  SELECT date_jst, client_id, channel,
+         COUNT(DISTINCT applicant_id) AS applications,
+         COUNTIF(status='interview')  AS interviews,
+         COUNTIF(status='offer')      AS offers,
+         COUNTIF(status='hired')      AS hires
+  FROM {{ ref('stg_airwork_applications') }}
+  WHERE is_duplicate = FALSE AND is_indeed_plus_dup = FALSE
+  GROUP BY 1,2,3
+)
+SELECT
+  g.date_jst, g.client_id, g.channel,
+  g.sessions, g.scroll_50, g.cta_view, g.form_start, g.macro_cv,
+  a.applications, a.interviews, a.offers, a.hires,
+  SAFE_DIVIDE(g.macro_cv, g.sessions)        AS cvr_session,
+  SAFE_DIVIDE(a.hires,    a.applications)    AS hire_rate,
+  SAFE_DIVIDE(g.form_start - g.macro_cv, g.form_start) AS form_dropoff_rate
+FROM ga4 g LEFT JOIN airwork a USING (date_jst, client_id, channel)
+```
+
+- **必須ゲート**：`kpi_def_version` タグを model に付与／`SAFE_DIVIDE` で0除算回避／`_TABLE_SUFFIX` フィルタでスキャン量85%削減（2026-05-19参照）／`is_duplicate` `is_indeed_plus_dup` で二重計上除外（2026-05-18参照）。
+
+### 4. Looker Studio ダッシュボード雛形（3ページ固定構造）
+
+| ページ | 役割 | 主要ウィジェット | 読み手 |
+|---|---|---|---|
+| **P1: エグゼクティブ・ナラティブ** | 今月のストーリー1画面（Narrative-First） | 結論1文／主要KPI3軸比較（業界／前月／目標）／KPIツリー鳥瞰／次月予測レンジ | クライアント経営層 |
+| **P2: ファネル＆質** | 量と質を同時可視化 | 5段ファネル（閲覧→スクロール→CTA→フォーム開始→送信）／応募→面接→内定コホート／マイクロCV代理指標 | 採用担当者 |
+| **P3: 媒体×コスト×因果** | 媒体別ROI＋因果推論結果 | 媒体別CPA（費用定義注記付）／アトリビューション4モデル併記／DiD・ジオリフト実験結果／SRM検査ステータス | Ryota・Haruto |
+
+- 全ページ共通で「データ確定日 YYYY-MM-DD HH:MM JST（確定／速報）」を右上に焼き込み、色覚多様性パレット（2026-07-03参照）を全系列に適用。クライアント共有版は日付以外の操作要素を撤去（2026-09-13参照）。
+
+### 5. 採用KPIツリー（LET標準ツリー）
+
+```
+最終目標: 採用単価×採用人数の最適化 (最上位KPI: 採用ROI = 採用貢献利益 ÷ 採用総コスト)
+├── 量 (応募獲得)
+│   ├── 認知
+│   │   ├── インプレッション (媒体別)
+│   │   └── リーチ / フリークエンシー (Yui連携)
+│   ├── 流入
+│   │   ├── セッション数 (GA4, JST基準)
+│   │   ├── ユーザー数 (Cookie/User-ID)
+│   │   └── (not set)/(other) 比率 ≤5%
+│   └── 転換 (マクロCV)
+│       ├── 応募CVR = 応募数 ÷ セッション
+│       ├── フォーム到達率 (マイクロCV代理)
+│       └── フォーム完了率 = 送信 ÷ 開始
+├── 質 (歩留まり)
+│   ├── 応募→面接率 (コホート・打ち切り3値表示)
+│   ├── 面接→内定率
+│   ├── 内定→入社率
+│   └── 早期離職率 (Cox比例ハザード, 90日/180日)
+└── コスト効率
+    ├── CPA (掲載費+運用費+制作費 定義統一)
+    ├── CPH (Cost per Hire)
+    ├── ROAS = 採用換算売上 ÷ 広告費
+    └── LTV (単純積算 vs DCF 併記)
+```
+
+- 各ノードに `kpi_def_version`／分母定義／営業日補正の有無を dbt メタで紐付け、Semantic Layer から Looker Studio・Whatagraph・Slack Bot が同一値を返す。
+
+### 6. 多変量・因果推論の実務手順（判断アルゴリズム）
+
+```
+[STEP 1] データ準備: 5段前処理パイプライン (2026-05-15参照) + kpi_def_version 確認
+[STEP 2] 記述統計: 分布ヒストグラム＋中央値/四分位/歪度→正規性チェック (2026-09-09参照)
+[STEP 3] 相関検出: Pearson/Spearman/Kendall 3種併記 (歪みが大きい時はSpearman)
+[STEP 4] 交絡因子列挙: DAG (Directed Acyclic Graph) を DoWhy で明示化
+         → 季節性・営業日・広告費・競合出稿・繁忙期フラグを候補に必ず追加
+[STEP 5] 因果推論の手法選択:
+  ├─ ランダム化可能 → A/B テスト (Statsig/GrowthBook, SRM検査必須)
+  ├─ 地域分割可能 → ジオリフト実験 (Google GeoLift, CausalImpact)
+  ├─ 前後比較のみ → CausalImpact (ベイズ構造時系列, Google製)
+  ├─ 対照群あり  → Difference-in-Differences (DiD) + 平行トレンド検証
+  ├─ 観察データ  → 傾向スコアマッチング (EconML CausalForestDML)
+  └─ 個別効果推定 → Uplift Modeling (X-Learner, R-Learner)
+[STEP 6] 効果量翻訳: p値＋Cohen's h／d＋実務単位 (応募+◯件・CPA△◯円) の3段記述
+[STEP 7] 反証データ探索 (2026-07-03参照): 結論と逆方向セグメントの自動列挙クエリ
+[STEP 8] Ryota 3段構成 (結論／原因／選択肢A・B) へ翻訳して納品
+```
+
+### 7. CV予測モデル（LightGBM + SHAP）標準パイプライン
+
+```python
+# scripts/models/train_cv_predictor.py
+import lightgbm as lgb, shap, mlflow, pandas as pd
+from sklearn.model_selection import TimeSeriesSplit
+from sklearn.metrics import roc_auc_score, average_precision_score
+
+def train_cv_predictor(df: pd.DataFrame, client_id: str) -> dict:
+    """応募完了確率を予測 (0-1)。特徴量は Feature Store 経由。"""
+    features = [
+        'channel', 'device_category', 'hour_jst', 'weekday',
+        'scroll_depth_max', 'session_duration_engaged',
+        'is_returning_user', 'referrer_category',
+        'lp_variant_id', 'headline_hash', 'cta_position',
+        'job_wage_median', 'job_location_distance_km',
+        'weather_temp', 'weather_rain',    # 建設業採用の物理条件 (2026-09-13参照)
+        'competitor_ads_index_rui',        # Rui 業界指標連携
+    ]
+    X, y = df[features], df['macro_cv']
+    tscv = TimeSeriesSplit(n_splits=5)     # 時系列CV (通常KFoldは未来漏れリスク)
+
+    params = dict(objective='binary', metric='average_precision',
+                  learning_rate=0.05, num_leaves=63,
+                  feature_fraction=0.8, bagging_fraction=0.8,
+                  min_data_in_leaf=100, is_unbalance=True)
+
+    with mlflow.start_run(run_name=f'cv_predictor_{client_id}'):
+        auc, pr = [], []
+        for tr, va in tscv.split(X):
+            model = lgb.train(params, lgb.Dataset(X.iloc[tr], y.iloc[tr]),
+                              num_boost_round=1000,
+                              valid_sets=[lgb.Dataset(X.iloc[va], y.iloc[va])],
+                              callbacks=[lgb.early_stopping(50)])
+            p = model.predict(X.iloc[va])
+            auc.append(roc_auc_score(y.iloc[va], p))
+            pr.append(average_precision_score(y.iloc[va], p))
+
+        # SHAP でグローバル寄与度 + 個別セッションの説明可能性
+        explainer  = shap.TreeExplainer(model)
+        shap_vals  = explainer.shap_values(X.sample(min(5000, len(X))))
+        mlflow.log_metrics({'auc_mean': sum(auc)/len(auc),
+                            'pr_auc_mean': sum(pr)/len(pr)})
+        mlflow.lightgbm.log_model(model, 'model')
+
+    return {'auc': auc, 'pr_auc': pr, 'top_features': shap_vals}
+```
+
+- **運用**：Vertex AI Pipelines で月次再学習、AUC が前月から-0.03pt 以上劣化したら Slack CRITICAL アラート＋自動ロールバック。特徴量重要度上位10件は Ryota 提案の「なぜこの層が効くか」根拠として自動転記。
+- **限界の明示**：予測値は実測でないため、Ryota 提案根拠は実測CVR＋分母定義を正とし、予測は「参考・母集団拡張の当たり」に降格（2026-08-03参照）。
+
+### 8. ベイズAB（peeking耐性）と生存時間分析（早期離職）
+
+- **ベイズAB**：PyMC で Beta-Binomial 事後分布を逐次更新し、「Bが Aより優れる確率」と「期待損失（Expected Loss）」を毎日算出。頻度論の peeking 問題（2026-06-03参照）を構造排除しつつ、n<100 の小サンプルLP（宮村・翔星）でも意思決定できる。停止基準：期待損失 < 0.5% かつ Bが勝つ確率 > 95%。
+- **生存時間分析**：`lifelines` で Kaplan-Meier 曲線を「応募→内定」「入社→90日離職」「入社→180日離職」で描画。Cox比例ハザードで媒体・LP・給与・職種の危険期間への寄与を係数化。打ち切り（censoring）を無視した誤判定（2026-09-02参照）を構造排除。
+
+### 9. Semantic Layer / 自然言語BI 運用
+
+- **dbt Semantic Layer**：`sl.yml` で `metric: cvr_session, expr: SAFE_DIVIDE(macro_cv, sessions), dimensions: [client_id, channel, date_jst]` を全KPI定義。Looker Studio / Whatagraph / Slack Bot / Cortex Analyst が同一メトリクスを引く。定義変更は PR レビュー必須で kpi_def_version を1増やす。
+- **Slack `/ask` ボット**：Vertex AI Gemini + LookML Explore Assistant で自然文→SQL 生成→BigQuery 実行→回答＋出所URL（dbt lineage）＋確定/速報ラベルを返す。プロンプト先頭に「Simpson's Paradox を疑え／単純平均でなく加重平均／営業日補正の有無を明記」を固定注入。
+
+### 10. 実験プラットフォーム（Statsig / GrowthBook）
+
+- 全AB／多変量／機能フラグを Statsig で一元管理。ランダム化・SRM 自動検査・Bonferroni/FDR 補正・逐次判定を UI で完結。実験ID を dbt モデルに紐付け、後日の「あの施策が何だったか」の追跡を1ホップで完了。
+- 実験カレンダーを Ryota と共有し、他施策との被り（2026-05-13参照）を事前に検知。
+
+### 11. 90日移行ロードマップ
+
+| Week | マイルストーン | 完了判定 |
+|---|---|---|
+| W1-2  | dbt Semantic Layer に主要8KPI 定義移行 | Looker Studio / Slack Bot / Whatagraph が同一値を返す |
+| W3-4  | Statsig 導入・現行AB を全て移行 | SRM検査＋逐次判定が自動化 |
+| W5-6  | CausalImpact / DiD の標準ノートブック整備 | Ryota 提案書に因果推論結果が定型で載る |
+| W7-8  | LightGBM CV予測モデルを宮村・翔星で本番運用 | AUC ≥ 0.75、SHAP寄与度がRyota提案根拠に |
+| W9-10 | Slack `/ask` 自然言語BI を Ryota/Akari/Haruto へ開放 | 定型問い合わせ80%を Bot が自動応答 |
+| W11-12 | Kaplan-Meier / Cox で早期離職ダッシュボード公開 | 90日離職ハザードが媒体別に可視化 |
+
+### 12. データガバナンス強化（プライバシー×正確性の両立）
+
+- **Consent Mode v2 前提の運用**：GA4 のモデリング補完値（同意しないユーザー分）が混在する場合、Airwork 実数を「正」、GA4 を「参照」として二重管理。分母には推計セッション比率を注記（例：`分母=42,300セッション（うちモデリング推計8.1%）`）。
+- **PII マスキング**：応募者氏名・電話番号・メールは Dengのハッシュ化データ（2026-06-11参照）でのみ扱い、素の値を Slack Bot / Looker Studio に流さない。個人特定される粒度の可視化は Data Clean Room 経由の集約値に限定。
+- **アクセス権の四半期棚卸し**：Looker Studio・BigQuery・Statsig・MLflow の閲覧権限を Ryota の窓口棚卸し（2026-07-16参照）と同期し、退職・案件終了時に自動失効させる IAM 運用に移行。
+
+### 13. モニタリング＆アラート（データSRE化）
+
+- **データ品質SLO**：欠損率 ≤ 1%、遅延 ≤ 24h、SRM検出時は自動失効、KPI 前月比 ±20% 超は WARNING、±30% 超は CRITICAL。Cloud Monitoring + Slack Webhook で自動通知（2026-05-08参照）。
+- **モデルドリフト検知**：LightGBM 予測モデルは PSI (Population Stability Index) ≥ 0.2 で再学習トリガー、AUC が前月から-0.03pt 以上劣化で自動ロールバック。特徴量分布の月次差分を SHAP dependence plot で可視化。
+- **クエリコスト監視**：BigQuery スキャン量が日次 100GB 超・月次 800GB 超で警告、パーティション・クラスタリング（2026-05-19参照）逸脱クエリを自動レポート化。無料枠内運用の維持を SLO 化。
+
+### 14. インシデント対応プレイブック
+
+| インシデント種別 | 一次対応（15分以内） | 二次対応（1時間以内） | 事後（24時間以内） |
+|---|---|---|---|
+| GA4 計測欠損／二重計上 | Airwork 実数と突合し欠損時間帯を特定、Slack CRITICAL 通知 | sGTM / タグの実装差分を Ren と合同調査、暫定除外フィルタを適用 | 影響月次レポートの再送＋改定注記 |
+| SRM 検出（AB割当ズレ） | 該当実験を Statsig で一時停止、結果を保留扱いに | bot／社内IP除外・リダイレクト漏れ・タグ二重発火を Deng と分解 | 原因の恒久対策 PR＋再試験開始 |
+| モデルAUC 急落 | 予測モデルを前バージョンへ自動ロールバック | PSI／SHAP で特徴量分布シフトを特定 | 再学習＋モデルカード更新 |
+| ダッシュボード数値乖離 | 確定日ラベルと元データ手計算で照合、影響範囲をSlack共有 | 定義書 vs 実装の突合 MTG を臨時開催 | kpi_def_version を1増やして再納品 |
+
+### 15. 部署横断連携アップグレード（Shun ハブ化）
+
+- **Deng（データ基盤）**：完了フラグ通知＋スキーマハッシュ差分＋kpi_def_version サマリー（2026-06-11参照）を Semantic Layer に直結。Shun の集計は Deng 通知起動、Deng の定義更新は Shun のレビューを経由する双方向ゲート。
+- **Akari（採用広告レポート）**：Narrative-First 自動生成の初稿を Shun→Akari のバトン方式で共有し、Akari が10%手直しで完成させる（2026-05-26参照）運用を Semantic Layer × Gemini で完全自動化。
+- **Ryota（クライアント管理）**：ピークシートに Rui 業界比＋Shun 実績＋Anaの事例KPI照合（2026-08-27参照）を統合。3者納品スロット（火曜9:00 JST）を Semantic Layer 経由で自動集計。
+- **Yui（SNSバズ分析）**：バズ報告48h後のCVR分解検証（2026-07-02参照）を Statsig の post-hoc analysis に組み込み、一過性／継続性判定を自動化。
+- **Kaito・Ren・Sota・Kotone（LP部）**：Clarity デッドクリック × Hana 操作性フラグの3分岐差し戻し（2026-08-27参照）を Slack Bot が自動振り分けする内部ワークフローへ拡張。
+- **Iro（バナー・カラー）**：屋外時間帯（12-13時／17-19時）のCTAクリック率をShun→Iro に自動連携（2026-08-27参照）、APCA Lc のプリセットを実データで更新。
+- **Nao・Riku・Ao・Kuu・Mio（システム開発部）**：CV予測モデル・Statsig 実験基盤の運用を Kuu（インフラ）に委譲、MLflow / Vertex AI Pipelines を Kuu の CI/CD に組み込む。
+
+### 16. Sora QA 通過条件（Shun 新版）
+
+1. 全KPI に kpi_def_version・分母定義・営業日補正・確定/速報ラベルが自動同梱されている
+2. 因果を主張する結論には手法（AB／DiD／CausalImpact／傾向スコア）と対照群設定が明記されている
+3. 効果量が「応募+◯件／月・CPA△◯円」の実務単位で翻訳されている
+4. 反証データ探索の結果が併記されている
+5. 予測値と実測値がラベルで峻別されている
+6. 色覚多様性・軸誠実性・分母の加重平均が全図表で担保されている
+7. 生成AI下書きは人が反証検証を通した後にのみ納品されている
+
+> このアップデートは既存の Daily Knowledge Log と役割定義の上に積み上げる強化パッケージであり、既存運用は全て維持する。移行は W1 から段階的に進める。

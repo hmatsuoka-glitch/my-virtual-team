@@ -542,3 +542,256 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **建設業の転職層は40〜50代が厚く、細ウェイトは「縮小で潰れる」前より先に「滲んで読めない」が来る**：Light/Regular（300〜400）の日本語は実表示 11px 相当まで縮むと画数の多い漢字（「経験」「現場」「資格」）が団子になり、老眼の入る年齢層では距離を取っても解像しない。条件3点とバッジは Medium(500) 以上を既定にし、明朝・ヒゲの細い書体は世界観用の小見出しに限定する。サブセット化する woff2（2026-09-01参照）のウェイト列挙も、使わない 300 を外して 500/700 だけにしておく
 - **1080×1350 の縦バナーは、クライアントが同じ画像をフィード投稿に転用した瞬間にプロフィールのグリッド一覧で正方形中央トリミングされる**：広告配信面では縦全面が出るため設計上は問題ないが、求職者が社名で検索してプロフィールへ飛ぶと、上端の社名ロゴと下端の勤務地が落ちた中央だけが並ぶ。縦サイズでも「中央 1080×1080 に条件3点が収まる」を媒体プリセット（2026-09-01参照）の第2セーフエリアとして持ち、`data-media` に `ig-feed` を付けた案だけこの制約を適用する
 - **求職者はバナーをタップせずスクリーンショットして後から見返す／家族に相談する**：建設業の転職は配偶者への相談を挟むケースが多く、広告からの直接応募でなく数日後の指名検索で戻ってくる。スクショ1枚だけで辿り着ける情報（正式社名の表記＋「◯◯建設 採用」の検索導線、電話応募を受ける案件は番号）を必ず画面内に焼き込む。URL は手打ちされないので載せる価値がなく、その面積を社名の判読性に回す
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+Kana を「HTMLバナーの設計者」から「静止画配信バナー領域の唯一無二の一次生産責任者」へ引き上げるための強化パッケージ。既存の Daily Knowledge Log で積み上げた知見（実表示縮小率・条件3点面積配分・トークン集約・Puppeteer 前提設計）を土台に、2026 Q3〜Q4 の Web プラットフォーム進化を取り込み、オーバースペック領域へ踏み込む。
+
+### 1. 現状スキル洗い出し（既存の強み）
+
+以下は既に Kana が獲得済みで、本アップデートで前提とする土台。ここに触れず、上に積み増す。
+
+- **設計骨格**: CSS Variables 集約、`@layer`（tokens → base → layout → variants）4層アーキ、`data-size` 属性セレクタでの単一 HTML × 多サイズ、`brand-tokens/{client}.json` を単一色ソース化
+- **可変性**: `clamp()` × `cqw` × `text-wrap: balance/pretty` の可変テキスト安全領域、`text-box-trim` による天地中央、`min-width: 0` による flex 見切れ防止
+- **色制御**: HEX/HSL/OKLCH の使い分け、`color-mix()` による派生色生成、`@property` 型付きプロパティによる補間安定化
+- **書体**: Noto Sans JP のウェイト全列挙、可変フォント `wght` 軸、日本語サブセット woff2、`document.fonts.ready` 待機
+- **静止画完結**: `:hover`/`transition`/`vw`/`vh`/`position: fixed`/`sticky` の禁止、絶対座標の親要素基準閉じ込め、外部相対パス排除・data URI or 絶対 https 化
+- **品質ゲート**: 実表示 11px 下限、実配信 35%縮小版での判定、Stark プラグイン色覚シミュ、Lighthouse CI 連動、`HIRO-CHECK` コメントによる Puppeteer 設定申し送り
+- **連携**: Rei（役割タグ＋文字数＋改行禁止位置）、Hiro（`HIRO-CHECK`＋`lossless-selectors`）、iro（`design-tokens.json` 直流用）、nori（`nori-check: pending` 2次ゲート）、Yuna（マスター比率確認・進捗マトリクス）
+
+### 2. 補強スキル 7 項目（不足領域の閉塞）
+
+現状で欠けている、または断片的にしか扱えていない領域を明示的に強化する。
+
+1. **CSS Houdini Paint API / Worklet によるプロシージャル背景生成**
+   - `paint(worklet)` で「グラデーションのバンディングを起こさない知覚均等ノイズ」「求職者が屋外で見ても飛ばない微細テクスチャ」を Chromium ネイティブで描画。Retina 出力時のバンディング対策（従来は多段グラデ + SVG feTurbulence で回避）を Worklet 1 個で恒久化。
+   - Kana は Worklet ソース `paint-worklets/scrim-noise.js` と `paint-worklets/brand-mesh.js` の 2 種を保持し、`background: paint(scrim-noise)` で呼ぶだけの状態にしておく。
+2. **Web Components（Custom Elements + Shadow DOM）によるバナー部品化**
+   - `<banner-card>` `<banner-cta>` `<banner-badge>` `<banner-logo>` の 4 部品を Shadow DOM でカプセル化し、`@scope`（後述）と組み合わせて多重インスタンス時の style 混線を根絶。index HTML（2026-09-01 の俯瞰用ページ）で 20 案並べても `!important` が要らない。
+   - Puppeteer は Shadow DOM を通常通り描画するため出力互換性に影響なし。バリアント差分は属性 `<banner-cta variant="primary" size="lg">` で受ける。
+3. **View Transitions API Level 2（クロスドキュメント遷移）による Yuna 提示体験の向上**
+   - 静止画バナー自体には焼かれないが、社内提示用 index HTML → 詳細個別 HTML の遷移で `view-transition-name` を各カードに付与し、Yuna が「気になる 1 枚を拡大確認」する動線を 0 秒のクロスフェードで滑らかに。判断コストが下がる = 差し戻し 1 往復あたりの時間が縮む。
+4. **Motion One / Rive による「モーションバナー並産」対応**
+   - 静止画 PNG は Kana の主戦場だが、Meta/TikTok の一部枠が MP4/GIF/Lottie を要求する。Motion One（≈ 4KB gzip）で `motion(elem, {opacity:[0,1]})` の宣言的アニメを HTML に埋め、Hiro 側で `page.evaluate` して 60fps キャプチャ→ MP4/WebM/APNG 書き出しへ渡すハンドオフを確立。Rive ファイル（`.riv`）は Runtime を CDN から読み、静止画版と同じ `brand-tokens` を注入する。
+5. **AVIF / WebP プログレッシブ出力を前提とした要素セマンティクス付与**
+   - Hiro の媒体別セマンティック圧縮（テキスト・ロゴは lossless、写真領域は強圧縮）に対応するため、Kana 側の HTML に `data-region="text|logo|photo|decoration"` を全要素へ付与。Hiro の `lossless-selectors` を推定でなく宣言で駆動でき、AVIF/WebP の領域別品質設定が Kana の意図通りに反映される。
+6. **CSS `@scope` によるスタイル漏出防止**
+   - 20 案 index HTML や複数バナーの iframe なし俯瞰で、`@scope (banner-card) to (banner-card banner-card)` により子孫バナーへの伝播を遮断。従来 iframe や Shadow DOM でしか達成できなかった「1 ページに複数バナーの完全独立表示」が 1 CSS ファイルで可能に。
+7. **Accessibility Object Model（AOM）と ARIA を静止画バナーにも適用**
+   - PNG 化されるとアクセシビリティ属性は消えるが、（1）Anima 書き出しで LP 部 ren にそのまま流用される場合、（2）nori のリーガル自動チェッカーが構造を読む場合、に効く。`<banner-cta role="button" aria-label="無料で応募する">` を標準化し、Sora QA 前に axe-core を通す。
+
+### 3. 2026年トレンド 5 項目（先取り採用）
+
+2026 Q3 時点で Baseline 昇格または主要ブラウザ実装が揃った API を、Kana のテンプレへ即取り込む。
+
+1. **CSS Container Queries + `cqi`/`cqw` の完全採用**
+   - Baseline: Widely available。`vw` 禁止ルールの代替として `cqw`（コンテナクエリ幅）を全サイズで採用。`clamp(下限px, 8cqi, 上限px)` の書式をテンプレ既定に。`data-size` 切替時の破綻がゼロ化。
+2. **CSS `@scope`（Chrome/Edge/Safari 対応済み・Firefox 実装完了）**
+   - 上記補強スキル 6 と同じ。index HTML・LP 埋込・提案書挿入の全ユースケースで威力を発揮。
+3. **View Transitions API Level 2（Cross-document、Chrome 126+ で標準）**
+   - 補強スキル 3 と同じ。社内提示 UX を「動的資料」化。
+4. **Motion One 12 / Rive Runtime による軽量モーション**
+   - GSAP は依存が重く Puppeteer 起動時間が伸びるが、Motion One は 4KB。Lottie に代わる Rive も広告制作会社で採用が進む。Kana は「静止画マスター＋モーション版」を並産する体制を作る。
+5. **CSS Anchor Positioning + Popover API**
+   - 静止画では出力に載らないが、Yuna・クライアント確認ページで「バナー内数字にホバーで根拠ツールチップ」（例: 月給35万の内訳）を JS ゼロで実装。承認プロセスの説得力が上がり、確認往復が減る。
+
+### 4. バナーHTMLテンプレ集（各サイズ、Puppeteer 即変換前提）
+
+以下は全て `@layer tokens/base/layout/variants` 前提。`data-size` を切り替えるだけで単一 HTML から全出力される構造の抜粋。
+
+#### 4-1. 共通ヘッダ（全サイズ共通）
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- HIRO-CHECK: viewport={W}x{H} / scale=2 / fonts-preloaded=yes / omit-bg=no / safe-area=center60 / lossless-selectors=.headline,.logo,.cta,.badge -->
+<link rel="preload" as="font" type="font/woff2" href="./assets/fonts/NotoSansJP-Subset.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="./assets/fonts/NotoSansJP-Subset-700.woff2" crossorigin>
+<style>
+  @layer tokens, base, layout, variants;
+  @layer tokens {
+    :root {
+      --primary: #FF6B35; --accent: #C03000; --text: #1A1A1A;
+      --bg: #FFFFFF; --border-subtle: #E5E5E5;
+      --font-heading: "Noto Sans JP", system-ui, sans-serif;
+      --font-body: "Noto Sans JP", system-ui, sans-serif;
+      --font-base: 16px; --font-jump: 2.5;
+      --pad-frame: 6cqi; --gap-block: 3cqi;
+      --scale-headline: 2.5; --scale-cta: 1.2;
+    }
+  }
+  @layer base {
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: transparent; }
+    body { font-family: var(--font-body); color: var(--text); container-type: inline-size; }
+    .headline { font-weight: 900; line-height: 1.2; text-wrap: balance;
+                font-size: clamp(28px, calc(var(--font-base) * var(--scale-headline) * 1cqi / 16px * 100), 96px);
+                text-box: trim-both cap alphabetic; }
+    .subhead { font-weight: 500; line-height: 1.35; text-wrap: pretty; }
+    .cta { font-weight: 700; padding: 1.2cqi 2.4cqi; border-radius: 8px;
+           background: var(--primary); color: #fff; min-height: 44px;
+           box-shadow: 0 0 0 2px color-mix(in oklch, var(--primary) 20%, #fff);
+           display: inline-flex; align-items: center; gap: 0.4em; }
+    .cta::after { content: "›"; font-weight: 900; }
+    .badge { display: inline-block; padding: 0.6cqi 1.2cqi; background: var(--accent);
+             color: #fff; font-weight: 700; letter-spacing: 0; }
+    .logo { display: block; }
+  }
+</style>
+</head>
+```
+
+#### 4-2. サイズ別 `@layer layout`
+
+```css
+@layer layout {
+  body[data-size="1080x1080"] { width: 1080px; height: 1080px; }
+  body[data-size="1080x1350"] { width: 1080px; height: 1350px; }
+  body[data-size="1080x1920"] { width: 1080px; height: 1920px; }
+  body[data-size="1200x628"]  { width: 1200px; height: 628px;  }
+  body[data-size="800x600"]   { width: 800px;  height: 600px;  }
+  body[data-size="728x90"]    { width: 728px;  height: 90px;
+                                 --scale-headline: 1.4; --pad-frame: 2cqi; }
+  body[data-size="300x250"]   { width: 300px;  height: 250px;
+                                 --scale-headline: 1.8; --pad-frame: 3cqi; }
+
+  /* 中央60% セーフエリア（媒体自動クロップ対策） */
+  .safe-center { width: 60cqi; height: 60cqi; margin: auto; }
+
+  /* IG フィード転用対策（縦バナーでも中央 1080x1080 に主訴求を収める） */
+  body[data-size="1080x1350"][data-media~="ig-feed"] .headline,
+  body[data-size="1080x1920"][data-media~="ig-feed"] .headline {
+    max-width: 1080px; margin-inline: auto;
+  }
+}
+```
+
+#### 4-3. 色バリアント `@layer variants`（`brand-tokens/{client}.json` 差し替えで全案生成）
+
+```css
+@layer variants {
+  body[data-variant="orange"] { --primary: #FF6B35; --accent: #C03000; }
+  body[data-variant="navy"]   { --primary: #1E3A8A; --accent: #F59E0B; }
+  body[data-variant="green"]  { --primary: #059669; --accent: #DC2626; }
+  /* CTA と背景の分離帯を color-mix で自動派生 */
+  .cta { box-shadow: 0 0 0 2px color-mix(in oklch, var(--primary) 25%, #fff),
+                     0 4px 12px color-mix(in oklch, var(--primary) 60%, #000 / 0.25); }
+}
+```
+
+#### 4-4. 静止画セーフガード（Puppeteer 前提の禁止事項を CSS 制約で顕在化）
+
+```css
+@layer base {
+  /* 検証時のみ有効化：はみ出しを magenta で可視化 */
+  body[data-debug="true"] * { outline: 1px solid magenta; }
+}
+/* 使用禁止パターン（レビュー用リンター）
+   :hover / :focus / animation / transition
+   position: fixed / sticky
+   vw / vh
+   background-image: url("./relative/path")
+*/
+```
+
+### 5. フォント指示（実配信環境で崩れないための厳格運用）
+
+- **サブセット化必須**: 7 社共通で使う `assets/fonts/NotoSansJP-Subset-{500,700,900}.woff2` を Kana リポジトリに同梱。CDN 依存を廃止し FOUT ゼロ化。
+- **異体字対応**: サブセット入力文字列に「案件クライアント正式社名 + 現場名 + 担当者名」を必ず連結。ローカル `local()` フォールバックは `@font-face` から外し、不足を Kana 環境で顕在化。
+- **可変フォント優先**: `NotoSansJP-VF.woff2` を持ち、`font-weight: 500`〜`900` の連続指定でジャンプ率 `--font-jump` 微調整に対応。
+- **絵文字**: フォントに頼らず SVG インライン。フォント運用する場合は `NotoColorEmoji-Subset.woff2` を同梱し `HIRO-CHECK: emoji-used=yes` を明記。
+- **英数字**: 見出し英字は `letter-spacing: 0.1em`、和文本文は `letter-spacing: 0`。数字ヒエラルキーは `font-variant-numeric: tabular-nums` で桁揃え。
+- **ウェイト列挙ルール**: `@font-face` `src` と `font-weight` の対応表を HTML コメントに固定形式で記載し、Kana セルフチェック 8 点の 1 項目に「使用ウェイト vs 同梱ファイル整合」を追加。
+
+### 6. KPI（強化後の到達目標）
+
+| 指標カテゴリ | 指標 | 現状 | 強化後目標 | 測定方法 |
+|---|---|---|---|---|
+| **生成速度** | 1 バナー（初稿→Hiro 引き渡し） | 12 分 | **8 分** | Notion タイムトラッキング |
+| **生成速度** | 4 サイズ展開（マスター 1 + 派生 3） | 25 分 | **15 分** | 同上（Magic Resize 併用） |
+| **生成速度** | 色違い 20 案（1 マスター × JSON ループ） | 15 分 | **6 分** | Hiro `page.evaluate` 動的注入 |
+| **CTR** | 建設業求人バナー（数字メイン訴求版） | ベースライン | **+35% 以上** | クライアント Meta/Indeed レポート |
+| **CTR** | 屋外閲覧環境での実効視認率（35%縮小 + 輝度 0.8） | 未測定 | **60% 以上判読可能** | Kana セルフチェック |
+| **レンダリング精度** | pixelmatch 差分（Kana ローカル vs Hiro PNG） | 未測定 | **≤ 0.5%** | pixelmatch CLI |
+| **レンダリング精度** | フォント適用ミス（ウェイトフォールバック混入） | 数件/月 | **0 件/月** | サブセット同梱で構造的排除 |
+| **レンダリング精度** | 見切れ・泣き別れ差し戻し | 数件/月 | **0 件/月** | `min-width:0` + `text-wrap` + `nowrap` 徹底 |
+| **品質ゲート** | Sora QA 一発通過率 | 80% | **95%** | 8 点セルフチェック + axe-core + Lighthouse |
+| **品質ゲート** | nori 2 次ゲート差し戻し | 未測定 | **月 2 件以下** | `nori-check: pending` メタ運用 |
+
+### 7. Puppeteer 前提最適化（Hiro 引き渡し規約 v2.0）
+
+Hiro の Puppeteer 変換で 100% 期待通りに焼くための、Kana 側の絶対規約。
+
+#### 7-1. HTML 末尾 `HIRO-CHECK` 必須項目（拡張版）
+
+```html
+<!-- HIRO-CHECK:
+  viewport=1080x1080
+  scale=2
+  fonts-preloaded=yes
+  fonts-subset=NotoSansJP-500-700-900
+  omit-bg=no
+  safe-area=center60
+  lossless-selectors=.headline,.logo,.cta,.badge
+  photo-selectors=.hero-photo,.bg-photo
+  emoji-used=no
+  motion-mode=static
+  cross-doc-transition=no
+  color-space=srgb
+  a11y-checked=axe-core-pass
+  paint-worklets=scrim-noise,brand-mesh
+-->
+```
+
+#### 7-2. 禁止事項（CSS レビュー時に必ず grep）
+
+- `vw`, `vh`（`cqw`/`cqi` へ置換）
+- `position: fixed`, `position: sticky`（親 `relative` + `absolute` へ）
+- `:hover`, `:focus`, `@keyframes`, `transition`（静止画に焼かれない）
+- 相対パス画像（`data:` URI か絶対 `https://`）
+- `@import`（`<link rel="preload">` へ）
+
+#### 7-3. 決定性チェック（同一 HTML を 2 回変換して差分ゼロ）
+
+- グラデ角度・`@property --angle` 型宣言で補間破綻回避
+- ランダム要素禁止（`Math.random()` を含む Worklet は seed 固定）
+- `document.fonts.ready` 明示待機
+- 画像は `naturalWidth` 到達を Promise 化
+
+#### 7-4. 縮小版パイプライン連携
+
+- Kana は `data-preview="35"` を付けたラフを Hiro の縮小版生成レーンへ投げ、35% 実表示相当のプレビュー PNG を 30 秒で受領。ラフ段階での構成可否確定を高速化。
+
+### 8. 運用チェックリスト（強化スキル導入後の Kana セルフゲート 12 点）
+
+Hiro 引き渡し前、以下 12 項目を HTML 末尾コメントに `pass/fail` で明記。1 つでも fail なら差し戻し扱いにして Hiro に渡さない。
+
+1. `@layer` 4 層構造が宣言されているか
+2. 色値が `brand-tokens/{client}.json` 経由で参照されているか（ハードコード禁止）
+3. 全テキストの実表示 11px 下限を満たすか（35%縮小プレビューで確認）
+4. コントラスト比: 条件 3 点 7:1 以上、CTA 5:1 以上、注記 4.5:1 以上
+5. `cqi`/`cqw` 採用済み・`vw`/`vh` ゼロ
+6. `position: fixed`/`sticky` ゼロ
+7. フォントサブセット同梱 + `wght` 列挙整合
+8. `text-box-trim` / `text-wrap: balance,pretty` / `min-width:0` 適用済み
+9. `HIRO-CHECK` コメント 14 項目完備
+10. `nori-check` 状態明記（pending/passed）
+11. axe-core / Lighthouse pass ログ添付
+12. 決定性チェック（同一変換 2 回で pixelmatch ≤ 0.5%）
+
+### 9. 導入ロードマップ（2026-09-22 起点）
+
+| フェーズ | 期間 | 内容 |
+|---|---|---|
+| **Phase 1** | 2026-09-22 〜 09-30 | テンプレ集の `@layer` 4 層 + `cqi` 全面移行、フォントサブセット同梱、`HIRO-CHECK` v2.0 展開 |
+| **Phase 2** | 2026-10-01 〜 10-15 | Web Components 4 部品化、`@scope` index HTML 導入、axe-core / Lighthouse CI 連動 |
+| **Phase 3** | 2026-10-16 〜 10-31 | Houdini Paint Worklet 2 種投入、Motion One モーションバナー並産開始、View Transitions Level 2 提示 UX |
+| **Phase 4** | 2026-11-01 〜 | Rive 統合、AVIF/WebP セマンティック圧縮完全連携、KPI 全項目達成宣言 |
+
+---
+
+> 本アップデートは Kana の既存 Daily Knowledge Log で獲得した「実配信環境重視・トークン集約・静止画完結」の 3 原則を破らずに、それらを構造化・自動化・先取り技術で拡張するものである。既存フローの上書きではなく、上に積む増強である。

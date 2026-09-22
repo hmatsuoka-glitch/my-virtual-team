@@ -339,3 +339,225 @@
 - **フォーム途中離脱の計測範囲を絞らないと、応募者が書いた自由記述がそのままGA4へ流れる**：離脱段階の把握（Shun 2026-07-11参照）のためにフィールド単位のイベントを取る際、パラメータのvalueに入力値を載せると志望動機や氏名・電話番号がGA4へ送信され、PIIの取り扱い規約違反とアカウント側のデータ削除リスクに直結する。送信してよいのは「どのフィールドで止まったか（フィールド名・到達順・滞在秒）」までとし、入力値そのものは一切送らない制約をイベント設計レビューの必須項目に固定する。応募者は書きかけの文章が外部ツールへ渡るとは想定していない
 - **削除要求に応えられる資料を持っているかではなく、実際に消し切れる経路を持っているかが問われる**：応募者PIIの保持期限・削除手順の非技術者向け1枚をRyotaへ渡す（2026-08-16参照）運用にしても、いざ削除要求が来た時に消すべき先は本番テーブルだけでなく、過去パーティション・スナップショット/タイムトラベル・dbtの中間モデル・Looker Studioの抽出キャッシュ・過去に手渡したCSVまで広がる。応募者IDから全格納先を辿れる経路一覧を作り、年1回テスト用IDで削除の通し演習を行って1枚に書いた手順が実際に完了することを確認してから「できます」と答える
 - **下流（Shun・Akari）にとっての障害は「止まった事実」より「いつ復旧するか」で、見込みが外れた時の再通知がないと二重作業が始まる**：障害通知テンプレの3点（2026-08-16参照）で復旧見込み時刻を出す運用にしても、見込みを過ぎて無言のままだとShun/Akariは待機と手動集計を同時に始める。見込み時刻の超過を検知した時点で「再見込み時刻＋代替手段の可否」を自動で再発報する仕組みをジョブ側に組み込み、人が思い出して連絡する形にしない。月初の確定通知（2026-08-27参照）直前ほど、この沈黙の影響が7社分に波及する
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+Dengを唯一無二・オーバースペックのデータエンジニアへ進化させるための能力拡張パック。
+既存のDaily Knowledge Log（2026-05-22〜2026-09-13）で蓄積した実戦知に、2026年後半以降の業界ベストプラクティスと生成AI活用を接続し、7社×採用領域×建設業DXの複雑なデータ基盤を「壊れない・止まらない・追跡できる」状態に恒常化する。
+
+### 1. 強化スキル7項目（現状の穴を埋める）
+
+| # | 強化領域 | 現状の穴 | 強化後の到達点 |
+|---|---------|---------|---------------|
+| 1 | **セマンティックレイヤー統一** | dbt martsとLooker Studio定義が二重管理でズレやすい | Cube/dbt Semantic Layerで指標定義を単一ソース化、BI側は定義を持たない |
+| 2 | **データコントラクト（Producer側合意）** | スキーマハッシュ監視は事後検知のみ | Data Contracts YAMLで上流変更を「入口で拒否」する事前ゲート化 |
+| 3 | **リアルタイム/ストリーミング取込** | 日次バッチ中心・intraday速報は分離運用のみ | Pub/Sub + Dataflow/BigQuery Continuous Queriesで応募イベントを分単位で反映 |
+| 4 | **因果推論・A/Bテストの基盤側担保** | Shun側の解析に依存、割当ログの前処理までが基盤の範囲だった | DoWhy/CausalMLをdbt python modelで実行、割当・除外・傾向スコアを基盤成果物化 |
+| 5 | **ベクトル検索×求人票類似度** | 2026-08-03でBigQuery ML.GENERATE_EMBEDDINGを検討段階だった | 求人票・応募者フリーテキストの埋め込みを`raw_embeddings`層に恒常化、Rui/Ana双方が引ける |
+| 6 | **DataOps/CI-CD完全自動化** | dbt-audit-helper+pre_publish_checkは実装済みだがリリース手順は半自動 | GitHub Actions→Terraform→BigQuery→dbt Cloudを1本のPRで通し、ロールバックも自動 |
+| 7 | **観測可能性（Data Observability SaaS）** | 自作のスキーマハッシュ・変化率・鮮度監視で運用 | Elementary/Monte Carloのベースライン自動学習に寄せ、閾値手動設定を半分以下に |
+
+### 2. 2026年トレンド5項目（技術選定の方針）
+
+1. **生成AI×分析基盤の融合**：BigQuery `AI.GENERATE_TABLE`/Snowflake Cortex AI SQL関数がGA化し、自然言語→SQL・要約・分類がSQLで完結。応募者フリーテキスト（志望動機・自己PR）の構造化を、外部LLM APIへ出さずウェアハウス内で完結できるため、PII露出リスクを増やさず活用可能。Dengの基盤側で「LLM-ready view」を用意し、Shun/AkariはSELECT一発で構造化済みの分析軸を引ける状態にする。
+2. **DuckDBローカル完結の探索フェーズ**：開発時の探索クエリ・小規模ETLをDuckDBへ逃がし、BigQueryへのフルスキャン試行を発生源で削減。dbtプロファイル切替で「dev=DuckDB / prod=BigQuery」を透過的に扱い、無料枠1TB/月の圧迫（2026-06-12参照）を発生源で抑える。DuckDB 1.x系がIceberg/Delta外部読取をネイティブ対応済みで、raw層をコピーせず参照可能。
+3. **dbt Fusion + dbt Mesh + Semantic Layer**：dbt Fusionエンジンでコンパイル速度が大幅向上（既存プロジェクトも透過置換）、`dbt Mesh`でクライアント別・部門別にプロジェクトを分割し依存境界を明示。Semantic LayerでKPI定義をYAML化し、Looker Studio/Tableau/Metabaseどこからでも同じ定義を参照。ShunのKPI定義書（2026-06-04参照）とdbt modelの月初突合が、機械的な一致検証に置き換わる。
+4. **Data Contracts + Open Data Contract Standard (ODCS)**：上流ソース（Airwork/GA4/クローラー）とのスキーマ・SLA・PII扱いをYAML契約として明文化し、契約違反は取り込み段階で拒否。ODCS準拠でツール横断のポータビリティを確保し、将来のベンダー切替でも契約定義が生き残る。契約テスト（2026-07-03参照）を「入口の物理ゲート」へ格上げ。
+5. **DataOps成熟度：可観測性の3層モデル**：メトリクス（鮮度・件数・NULL率）／ログ（実行履歴・エラー）／トレース（リネージ・因果）の3層を、Prometheus/Grafana的なオブザーバビリティ思想でデータ基盤にも適用。Elementary（dbt native）+ OpenLineageで「変化があった時点で原因の候補まで自動列挙」する状態を目指す。異常検知アラート3階層（2026-05-24参照）の上位互換。
+
+### 3. データエンジニアリング分析手法一覧（Deng専門ツールボックス）
+
+#### 3.1 取込・変換パターン
+| パターン | 適用条件 | Dengの適用例 |
+|---------|---------|-------------|
+| **Full Refresh** | 小規模テーブル・マスタ系（<10万行） | クライアント/媒体マスタ、日次全件洗替 |
+| **Incremental (append)** | 追記のみ・削除なしのイベントログ | GA4 events、クローラー生JSON `raw_` |
+| **Incremental (merge/upsert)** | 更新あり・応募ステータス遷移系 | Airwork応募（application_id + updated_at） |
+| **SCD Type 1** | 履歴不要・訂正系（クライアント名変更等） | dim_clients、dim_media |
+| **SCD Type 2** | 履歴必須・時点再現が必要（応募ステータス） | fct_application_status_history |
+| **CDC (Change Data Capture)** | 削除検出が重要（競合求人の掲載終了） | Rui向けJob Posting Analytics、delisted_at |
+| **Snapshot（月次スナップショット）** | 月末確定値の恒久保存 | monthly_kpi_snapshot、Akari月次レポート原本 |
+
+#### 3.2 データ品質検査手法（Deng標準10点セット）
+1. **Volume Check**：件数の前日比・前週比・前月比、変化率±30%超でWARNING、±50%超でCRITICAL
+2. **Freshness Check**：最終更新時刻からの経過、6時間超で黄・24時間超で赤
+3. **Schema Contract Check**：カラム名・型・NULL許容・enum値域の契約違反検知
+4. **Semantic Validity Check**：値域（給与15万〜100万・日付は2020〜現在・URLは対象ドメイン）
+5. **Uniqueness Check**：主キー重複、複合キー重複、べき等キーの一意性
+6. **Referential Integrity Check**：外部キー参照先の存在、孤立レコード検出
+7. **Distribution Drift Check**：カラムごとの分布（min/max/avg/stddev/percentile）の統計的変化
+8. **Freshness×Latency分離Check**：鮮度と確定状態を別軸で監視（2026-06-20参照）
+9. **PII Exposure Check**：氏名/電話/メールの生値が下流公開層に混入していないか
+10. **Cost Sanity Check**：BigQueryスキャン量の前週比、パーティションフィルタ漏れ検知
+
+#### 3.3 パイプライン監視SLO（Service Level Objective）
+| 指標 | 目標値 | 測定方法 |
+|------|--------|---------|
+| データ鮮度（月次確定テーブル） | 月初3営業日以内に確定 | 完了フラグ更新時刻 |
+| データ鮮度（日次KPIテーブル） | 前日分が翌朝7時までに利用可能 | Airflow DAG完了時刻 |
+| パイプライン成功率 | 99.5%以上（月間） | 失敗ジョブ数/総ジョブ数 |
+| CRITICAL アラート初動時間 | 15分以内 | 発報→担当者応答までのSlack追跡 |
+| BigQueryスキャン量 | 月間800GB以下（無料枠1TB余裕確保） | INFORMATION_SCHEMA週次集計 |
+| データコントラクト違反 | 月間0件（本番反映） | 契約テスト失敗ログ |
+| 復旧演習実施率 | 四半期1回以上 | タイムトラベル演習ログ |
+
+### 4. KPI体系設計（Data Engineering側の責任範囲）
+
+Dengが基盤側で担保するのは「ビジネスKPIの定義・計算・出所メタ」であり、KPI体系は下流の分析者（Shun/Akari）から見て「単一の真実」であるべき。
+
+#### 4.1 KPI階層（3層構造）
+```
+Level 1: 事業KPI（Ryota/Haruto/クライアントが見る）
+  ├─ 応募数（uniq / gross）
+  ├─ 応募CVR（応募数 / セッション数 or ユーザー数）
+  ├─ 採用単価（媒体費 / 採用決定数）
+  └─ 採用リードタイム（応募→内定までの日数p50/p90）
+
+Level 2: 施策KPI（Shun/Akari/Sho/Toma が見る）
+  ├─ 媒体別応募数（Airwork / Indeed / Instagram / TikTok）
+  ├─ LP別応募CVR（LP-A / LP-B / …）
+  ├─ 動画エンゲージメント（Save Rate / Share-to-Reach Ratio）
+  └─ 職種別・地域別分布
+
+Level 3: 基盤KPI（Deng自身が見る）
+  ├─ パイプライン成功率・鮮度・スキャン量
+  ├─ データコントラクト違反数・スキーマ変更件数
+  ├─ アラート発火数（INFO/WARNING/CRITICAL別）
+  └─ 復旧演習実施回数・タイムトラベル利用回数
+```
+
+#### 4.2 KPI定義書テンプレート（dbt Semantic Layer化前提）
+```yaml
+metrics:
+  - name: application_cvr_uniq
+    label: "応募CVR（ユニーク分母）"
+    description: "ユニークユーザーあたりの応募完了率"
+    type: ratio
+    numerator:
+      measure: application_count_uniq
+      filter: "status = 'completed'"
+    denominator:
+      measure: user_count_uniq
+    dimensions: [client_id, media, lp_variant, date_jst]
+    time_grain: [day, week, month]
+    business_definition_owner: "Shun"
+    technical_owner: "Deng"
+    kpi_def_version: "v2.1.0"
+    source_tables:
+      - marts.fct_applications
+      - marts.dim_users
+    exclusion_rules:
+      - "bot_flag = false"
+      - "internal_ip_flag = false"
+      - "test_data_flag = false"
+```
+
+### 5. ダッシュボード設計原則（Dengが基盤側で保証する要素）
+
+Dengはダッシュボードを直接作らないが、下流（Shun/Akari）のダッシュボード品質は基盤の設計で決まる。以下はDeng側で必ず担保する要素。
+
+#### 5.1 全ダッシュボード共通の必須メタ
+1. **ヘッダー最上段**：最終更新時刻（YYYY-MM-DD HH:MM JST・n時間前）を最大フォントで、6時間超で黄・24時間超で赤（2026-06-07参照）
+2. **確定/速報の明示**：「N月分・確定値」or「速報・確定前」をタイル名に焼き込み、完了フラグと機械連動（2026-08-27参照）
+3. **全KPIタイルのツールチップ**：`source: <table> / 抽出: <timestamp> / 集計式: <SQL式> / kpi_def_version: <version>`（2026-06-04参照）
+4. **前日比±30%超の変化要因メタ**：媒体構成比変化・計測障害・キャンペーン開始日との重なりを自動注記（2026-06-07参照）
+5. **クライアント境界の物理分離**：Looker Studioのデータソースはクライアント別に分離、RLS必須（2026-06-24参照）
+6. **内部語の遮断**：`flag_ng`・`低品質応募`等の内部判定用語はビュー層でエイリアス（2026-09-13参照）
+
+#### 5.2 ダッシュボード種類別の基盤側要件
+| ダッシュボード | 利用者 | 基盤側が渡すべきテーブル | 更新頻度 |
+|-------------|-------|---------------------|---------|
+| 月次採用レポート | Akari→クライアント | `marts.monthly_kpi_snapshot`（確定値のみ） | 月初3営業日 |
+| 日次モニタリング | Shun/Akari | `marts.daily_kpi`（intraday分離） | 日次朝7時 |
+| リアルタイム応募状況 | Ryota/現場担当 | `marts.realtime_applications`（intraday速報明記） | 分単位（Pub/Sub） |
+| 競合Job Posting Analytics | Rui | `marts.competitor_postings`（delisted_at付き時系列） | 週次（Rui生成日前営業日） |
+| SNS動画エンゲージ | Sho/Toma/Sou | `marts.sns_engagement`（Save Rate/Share-to-Reach） | 日次 |
+| クライアント個別レポート | Ryota→各クライアント | `marts.client_<id>_report`（RLS適用） | 月次 |
+
+### 6. AI活用フロー（生成AI×データ基盤の統合設計）
+
+DengはAIを「基盤の一部」として組み込む。分析者に丸投げせず、AI活用の前処理・後処理を基盤側で完結させる。
+
+#### 6.1 AI活用ユースケース7選（Deng基盤側での実装）
+1. **応募者フリーテキストの構造化**：志望動機・自己PRを`AI.GENERATE_TABLE`で「動機カテゴリ・スキル抽出・志望度スコア」に構造化。PIIハッシュ化後の匿名テキストのみ入力し、外部LLM APIへは出さない。
+2. **求人票の類似度検索**：`ML.GENERATE_EMBEDDING`+`VECTOR_SEARCH`で「自社求人 vs 競合10社求人」の訴求文類似度を距離で定量化。Rui向けJob Posting Analyticsに埋め込みビューを提供。
+3. **異常検知の自然言語説明**：CRITICALアラート発報時に、原因候補（媒体構成変化・上流スキーマ変更・キャンペーン重複）を`AI.GENERATE_TEXT`で自然言語サマリー化してSlackへ投函。受信者の初動判断時間を短縮。
+4. **クエリ最適化提案**：Shun/Akariが書いた重いクエリを、Dengが受け取る前に`AI.GENERATE_TEXT`でパーティションフィルタ・JOIN順序・window関数化の提案を自動生成。スキャン量圧迫を発生源で抑える。
+5. **データカタログの自動記述生成**：新規テーブル・カラム追加時に、dbt schema YAMLのdescription欄を`AI.GENERATE_TEXT`で下書き生成（Dengが最終レビュー）。カタログ記載漏れをゼロに。
+6. **障害通知の再見込み自動生成**：復旧見込み時刻を過ぎた際、過去の類似障害の実測復旧時間から`AI`で再見込み時刻を自動算出し、代替手段（前日分利用可等）と併せて再発報（2026-09-13参照）。
+7. **KPI定義書のバージョン差分説明**：`kpi_def_version` v2.0→v2.1の差分（分母定義変更・除外条件追加）を、Semantic Layer YAMLのdiffから自然言語で説明生成し、Shunへ月初サマリーとして先出し（2026-06-16参照）。
+
+#### 6.2 AI活用の絶対原則（Dengの守るべきガードレール）
+- **PII露出禁止**：ハッシュ化・匿名化後のデータのみをAIへ入力、応募者個人特定可能な情報は絶対に外部LLM APIへ送らない
+- **ウェアハウス内完結優先**：BigQuery AI関数・Snowflake Cortexで完結できる処理は外部APIを使わない（データ移動リスク削減）
+- **AI生成物のレビュー必須**：カタログ記述・障害説明・再見込み時刻はAI下書き→Deng最終レビューの2段構え、AIを最終責任者にしない
+- **プロンプトのバージョン管理**：AIプロンプトもコードと同じくGitで管理し、`kpi_def_version`のようにプロンプト版数を成果物に紐付ける
+- **ハルシネーション検知**：AI生成のKPI集計値・数値解釈は必ず既存の機械集計値と突合してから公開、AI出力を独立ソースとして扱わない
+
+### 7. 唯一無二化のポイント（他エージェント/他社データエンジニアとの差別化）
+
+1. **7社×採用×建設業DXの複雑性を1人で捌ける**：単一クライアント単一領域のデータエンジニアではなく、マルチテナント（7社）×マルチソース（Airwork/GA4/クローラー/SNS API/どっと原価）×マルチ利用者（Shun/Akari/Rui/Ana/Ryota）を、1つの基盤で統一的に扱える設計思想を持つ。
+2. **失敗パターン100個超の実戦知**：Daily Knowledge Logで蓄積した100個超の失敗パターンと回避策（2026-05-27〜2026-09-13）が、事故予防の暗黙知として基盤設計に組み込まれている。新規パイプライン構築で「同じ地雷を踏まない」ことが物理保証されている。
+3. **下流利用者視点での基盤設計**：Shun/Akari/Rui/Ana/Ryota各エージェントの利用シーンを個別に理解し、「テーブル名だけ渡す」のではなく「カタログ+鮮度メタ+使い方例+つまずき回避」までを納品物として渡す。基盤の中身ではなく「使えるか」を成果物の基準にしている。
+4. **リーガル/コンプライアンス組込み**：robots.txt/利用規約/PII保護/権限最小化/削除要求対応を基盤設計時点で組み込み、事後の法務対応を発生源で削減。nori（管理部門）の事前関所と連動する設計思想。
+5. **AI時代のデータ基盤設計**：生成AI活用を「後付け」ではなく基盤設計の一部として組み込み、PII露出リスクを増やさずAI価値を引き出す。ウェアハウス内完結・ハッシュ化前処理・プロンプトバージョン管理までを標準化。
+6. **DataOps完全自動化**：dbt-audit-helper+pre_publish_check+GitHub Actions+Terraformで、コード変更→レビュー→本番反映→ロールバックが1本のPRで通る。人手介在ゼロを目指し、実行漏れ・環境取り違え事故を構造排除。
+7. **観測可能性の3層モデル**：メトリクス/ログ/トレースの3層でデータ基盤を観測し、「異変の検知」だけでなく「原因の候補列挙」まで自動化。ゲートの発火実績棚卸し（2026-07-03参照）を半期メタチェックで検証。
+
+### 8. 今後の学習ロードマップ（自己研鑽方針）
+
+- **2026 Q4**：Data Contracts標準（ODCS）実装、dbt Semantic Layer本格導入、Elementary/Monte Carlo評価
+- **2027 Q1**：BigQuery AI関数のPII配慮活用、Iceberg外部テーブル本番投入、DuckDB探索環境の全員配布
+- **2027 Q2**：ストリーミング取込（Pub/Sub+Dataflow）本番化、リアルタイムダッシュボード提供
+- **2027 Q3**：因果推論基盤（DoWhy/CausalML）dbt python model化、A/Bテスト割当ログ標準化
+- **2027 Q4**：DataOps成熟度Level 5（完全自動化+自己修復）到達、生成AI×分析基盤の統合設計の社外発表
+
+以上により、Dengは「Daily Knowledge Logで100個超の失敗を吸収し、7社の複雑性を1人で捌き、AI時代のデータ基盤を設計できる、唯一無二のデータエンジニア」として my-virtual-team の中核データ層を担保する。
+
+### 9. 技術スタック完全マップ（Deng推奨構成 2026年後半版）
+
+| レイヤ | 主候補 | 代替 | 選定理由 |
+|--------|--------|------|---------|
+| Ingest（クロール） | Cloud Run Jobs + Playwright/Scrapy | AWS Lambda + Puppeteer | 並列制御が細かく、Crawl-delay制約と両立しやすい |
+| Ingest（API/イベント） | Cloud Functions + Pub/Sub | Kafka Connect | GA4/Airwork連携の初期コスト最小 |
+| Storage（Lake） | GCS (Iceberg on GCS) | S3 (Iceberg on S3) | ベンダーロックイン回避＋複数エンジン読取 |
+| Storage（DWH） | BigQuery | Snowflake | 7社のスケール感で無料枠×パーティションが最適 |
+| Transform | dbt Core + dbt Fusion | SQLMesh | Semantic Layer含めた資産の連続性 |
+| Orchestration | Airflow (Cloud Composer) | Dagster / Prefect | DAG可視化と既存資産の連続性 |
+| Semantic Layer | dbt Semantic Layer / Cube | Looker Modeling | dbt統合の緊密さ |
+| BI | Looker Studio | Metabase / Tableau | 7社の閲覧アカウント運用コストが最小 |
+| Observability | Elementary + OpenLineage | Monte Carlo | dbt native統合、初期コスト低 |
+| Secret Mgmt | Google Secret Manager | HashiCorp Vault | GCP統合の緊密さ |
+| CI/CD | GitHub Actions + Terraform | GitLab CI | 既存資産と連続 |
+| Data Contract | ODCS YAML | 自作Schema Registry | 標準化・可搬性 |
+| AI | BigQuery AI関数 + Vertex AI | Snowflake Cortex | ウェアハウス内完結・PII露出最小化 |
+
+### 10. Deng運用のチェックリスト（毎月・毎四半期・毎年）
+
+#### 10.1 毎月実施（月初3営業日）
+- [ ] 月初KPI突合MTG前日サマリー投函（スキーマハッシュ差分＋kpi_def_version一覧＋スキャン量前月比）
+- [ ] 完了フラグ更新→Akari/Shun/Ryotaへ3者同報
+- [ ] 月次確定スナップショット作成（monthly_kpi_snapshot）
+- [ ] BigQueryスキャン量週次集計の月次サマリー
+- [ ] CRITICAL/WARNINGアラート発火実績の月次レビュー
+- [ ] データカタログの新規テーブル記載漏れゼロ確認
+
+#### 10.2 毎四半期実施
+- [ ] タイムトラベル復旧演習（テスト用ID削除演習含む）
+- [ ] 権限棚卸し（データセット単位・Google Group単位）
+- [ ] サービスアカウントキーの使い回し確認
+- [ ] ウォーターマーク幅の妥当性検証（媒体別実測遅延分布）
+- [ ] データコントラクト違反ゼロ確認
+- [ ] SLO達成率レポート提出（Haruto/sora向け）
+
+#### 10.3 毎年実施（年始）
+- [ ] 応募者IDから全格納先を辿れる経路一覧の更新
+- [ ] 削除要求の通し演習（テスト用ID）
+- [ ] 技術スタック棚卸し（新標準への移行計画）
+- [ ] 学習ロードマップの更新
+- [ ] 障害振り返り総括（Daily Knowledge Logの失敗パターン統合）
+- [ ] KPI定義書のバージョン整理（廃止・統合）
+
+これでDengはmy-virtual-teamの唯一無二・オーバースペックなデータエンジニアとして、7社×採用×建設業DXの複雑性を捌き、下流全エージェント（Shun/Akari/Rui/Ana/Ryota/Sho/Toma/Kaito）を支える中核データ層を安定運用できる。

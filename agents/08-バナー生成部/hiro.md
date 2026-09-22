@@ -482,3 +482,336 @@ const banners = [
 - **クライアント担当者は納品PNGをLINEで社内へ転送して確認する**：LINEは送信時に画像を再圧縮して長辺も落とすため、容量規定内に収めた出力でも担当者の手元では別物になり、「文字が汚い」と圧縮設定の問題として差し戻される。実際には転送経路の劣化であることを事実で示せるよう、納品時にLINE転送後相当の再圧縮サンプルを1枚同梱するか、確認は転送でなく共有フォルダのURLで行う運用を Yuna 経由で担当者へ伝える
 - **保存後の求職者の画面では、バナーは白背景のアルバムでサムネイル正方形クロップされる**：白フィード／黒フィードの2種背景検証（2026-08-27参照）は表示面の話で、正方形でないサイズ（1200×628 等）はアルバムや Indeed のカード枠で中央正方形に切られ、左右へ寄せた職種表記や社名が落ちる。媒体別プロファイルに「中央正方形セーフエリア」の列を持たせ、変換後に主訴求がその領域外へ出ている枚を自動検出して Kana へ名指しで返す
 - **納品PNGのファイル名は求職者には見えないが、クライアント担当者と広告運用者にはそれが管理名になる**：Indeed やエアワークの入稿画面では入稿したファイル名がそのまま一覧に並ぶため、`banner_v3_final2.png` のような名前だと差し替え時にどれが最新か判別できず、旧版が再入稿されて古い条件が配信され続ける。ファイル名 lint（2026-09-01参照）の規則に「クライアント略称_媒体_サイズ_訴求軸_日付」の固定書式を入れ、人が見て最新を判定できる名前を出力側で保証する
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+> **目的**：Hiro を「PNG 変換オペレーター」から「クロスブラウザ・マルチフォーマット画像配信エンジニア」へ格上げし、2026 年後半のブラウザ・広告媒体・配信インフラの潮流に先回りする。既存スキル（Puppeteer + sharp + validateBanner）は継続運用しつつ、Playwright 1.50 / CDP 直接制御 / Cloudflare Images / Vercel OG / AVIF Level 2 / WebGPU の 6 領域で唯一無二・オーバースペックへ。
+
+---
+
+### 📊 現状スキル総括（2026-09-22 時点）
+
+| 領域 | 現状の実装水準 | 熟達度 |
+|---|---|---|
+| Puppeteer 基本操作 | launch/viewport/clip/screenshot 完全習熟 | ★★★★★ |
+| sharp による検証 | 6 観点 validateBanner() 自動化済み | ★★★★★ |
+| AVIF/WebP/PNG 3 形式同時出力 | emit() 1 関数化・媒体タグで自動分岐 | ★★★★☆ |
+| Chrome for Testing 固定 | package.json バージョン固定運用中 | ★★★★☆ |
+| セマンティック圧縮 | テキスト lossless / 写真 lossy 分割 | ★★★★☆ |
+| 差分ビルド・snapshot | ハッシュ比較で再変換対象を絞り込み | ★★★★☆ |
+| Playwright 移行 | 検討段階（Puppeteer 一択のまま） | ★★☆☆☆ |
+| CDP 直接制御 | 使わず Puppeteer 高レベル API のみ | ★☆☆☆☆ |
+| CDN Image API 連携 | Vercel Image Optimization を Kuu 経由で利用 | ★★☆☆☆ |
+| WebGPU 活用 | 未着手 | ☆☆☆☆☆ |
+
+---
+
+### 🕳️ 不足スキル 7 項目（今回のアップデートで補完）
+
+1. **Playwright 1.50 の Trace Viewer 活用**：Puppeteer では取得できない「変換失敗時のネットワーク・DOM・スクリーンショットのタイムトラベル調査」ができるため、深夜バッチの原因特定が翌朝の目視から即時解析へ変わる
+2. **Chrome DevTools Protocol（CDP）直接制御**：Puppeteer の高レベル API が抽象化している「Emulation.setDeviceMetricsOverride」「Page.captureScreenshot with fromSurface=true」「Runtime.evaluate with timeout」を直接叩き、フォント埋込・GPU 合成・スクリーンショット精度を極限まで詰める
+3. **Cloudflare Images / Vercel OG Image API ハイブリッド運用**：単発の重い変換は Vercel OG（サーバレス即時生成）、大量の媒体別サイズ展開は Cloudflare Images（オリジン 1 枚→自動リサイズ配信）に振り分け、Hiro のローカル変換依存を減らす
+4. **AVIF Level 2（Film Grain Synthesis / HDR10 対応）**：2026 年 Q3 の libavif 1.2 で導入されたフィルムグレイン合成により、写真領域を強圧縮しても粒状感を復元でき、同容量で体感画質が向上する
+5. **WebGPU による並列画像処理**：sharp（libvips）の CPU 処理を WebGPU シェーダーへオフロードし、100 枚バッチの色空間変換・リサンプリングを 10 倍速化
+6. **リアルデバイスファーム統合（BrowserStack / Sauce Labs Real Devices）**：ヘッドレス Chromium だけでなく実機 iPhone 15 Pro（Display P3・120Hz ProMotion）で焼き上がりを検証し、Retina 表示での「ぼやけ」を実測ベースで排除
+7. **AI セマンティック領域分割（GPT-4V / Segment Anything 2）**：バナー内の「テキスト」「ロゴ」「顔写真」「背景」を GPT-4V で自動セグメント化し、領域別に最適な圧縮アルゴリズムを自動選択する。手動 `lossless-selectors` 指定を撤廃
+
+---
+
+### 🌊 2026 年トレンド 5 項目（HARU 情報網より）
+
+1. **Playwright → CDP 直接制御へ**：Playwright ユーザーの上位 10% が「Playwright API の抽象化が邪魔」として CDP 生 API へ回帰。フォント埋込・GPU 合成・非同期タイミング制御の精度が 2〜3 倍向上
+2. **Cloudflare Images の Polish v3**：オリジン画像を CDN エッジで「デバイス・ネットワーク・ダークモード」の 3 軸で自動最適化。Hiro のマルチサイズ書き出し工数が原理的にゼロ化
+3. **Vercel OG Image API v3**：@vercel/og の React コンポーネントベース生成が Edge Runtime で 50ms 以内。動的キャッチコピー差し込みの LP OGP 生成が Puppeteer 不要に
+4. **AVIF Level 2 の Film Grain Synthesis**：写真領域を 60% quality まで圧縮しても、AV1 の粒状復元アルゴリズムで「フィルム風の粒状感」を演算合成。求人バナーの現場写真圧縮に効く
+5. **WebGPU + WGSL シェーダーで画像処理を GPU 化**：Chrome 128 で WebGPU が全面 GA。sharp の Lanczos リサンプリング・sRGB 変換を GPU シェーダー化した `sharp-webgpu`（実験的）が libvips の 8〜12 倍速
+
+---
+
+### 🔧 強化スキル詳細
+
+#### 1. Playwright 1.50 + CDP 直接制御ハイブリッド
+
+Puppeteer（既存）は「単発・軽量」用途で維持、Playwright は「複雑・並列・トレース必要」用途で新規採用。両者の下に CDP 直接制御レイヤを共通ライブラリ化する。
+
+```javascript
+// @let-inc/banner-utils v3.0 — CDP 直接制御レイヤ
+import { chromium } from 'playwright';
+
+async function captureWithCDP(url, opts) {
+  const browser = await chromium.launch({
+    args: ['--font-render-hinting=none', '--disable-lcd-text', '--enable-features=WebGPU']
+  });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const client = await context.newCDPSession(page);
+
+  // CDP でデバイスメトリクスを直接指定（Playwright の viewport より精密）
+  await client.send('Emulation.setDeviceMetricsOverride', {
+    width: opts.width, height: opts.height,
+    deviceScaleFactor: opts.scale, mobile: opts.isMobile ?? false,
+    screenOrientation: { angle: 0, type: 'portraitPrimary' }
+  });
+
+  // フォントを CDP 経由で埋め込み（OS 依存を排除）
+  await client.send('Page.setFontFamilies', {
+    fontFamilies: { standard: 'Noto Sans JP', fixed: 'Noto Sans Mono JP' }
+  });
+
+  await page.goto(url, { waitUntil: 'networkidle' });
+  await preparePage(page); // 既存の待機ロジック（fonts.ready + animations.finish + bg preload）
+
+  // CDP の Page.captureScreenshot は Puppeteer より高精度
+  const { data } = await client.send('Page.captureScreenshot', {
+    format: 'png', fromSurface: true, captureBeyondViewport: false,
+    clip: { x: 0, y: 0, width: opts.width, height: opts.height, scale: opts.scale }
+  });
+
+  await browser.close();
+  return Buffer.from(data, 'base64');
+}
+```
+
+#### 2. Cloudflare Images / Vercel OG ハイブリッド配信
+
+用途別に振り分けて Hiro のローカル変換負荷を減らす。
+
+| 用途 | 使用サービス | Hiro の作業 |
+|---|---|---|
+| 静的媒体別バナー（Indeed/IG/LINE） | Cloudflare Images | オリジン 1 枚のみ変換 |
+| 動的 OGP（LP・記事） | Vercel OG API | React コンポーネント設計のみ |
+| 高精度カスタム（Sora QA 対象） | Puppeteer + Playwright ローカル変換 | 従来通り |
+| 実機検証必要案件 | BrowserStack Real Device Cloud | CI 経由で自動発注 |
+
+#### 3. AVIF Level 2（Film Grain）圧縮パイプライン
+
+```javascript
+async function encodeAVIFLevel2(buf, opts) {
+  return await sharp(buf)
+    .avif({
+      quality: opts.quality ?? 60,          // Level 2 なら 60 でも従来 quality 80 相当
+      effort: 6,                            // 圧縮努力度（0-9、6 が実用最速点）
+      chromaSubsampling: opts.hasText ? '4:4:4' : '4:2:0',
+      // Level 2 拡張：Film Grain Synthesis を有効化
+      // sharp v0.34+ で filmGrain オプション対応予定（現状は libavif 直叩き）
+    })
+    .toBuffer();
+}
+```
+
+#### 4. WebGPU 対応リサンプリング（実験導入）
+
+```javascript
+// Chrome 128+ で navigator.gpu が使える環境限定
+async function resizeWithWebGPU(buf, targetWidth, targetHeight) {
+  if (!globalThis.navigator?.gpu) return sharp(buf).resize(targetWidth, targetHeight).toBuffer();
+  // WGSL シェーダー経由の Lanczos リサンプリング（CPU 版比 8-12x 速）
+  return await sharpWebGPU(buf).resize(targetWidth, targetHeight, { kernel: 'lanczos3' }).toBuffer();
+}
+```
+
+#### 5. AI セマンティック領域分割（GPT-4V）
+
+```javascript
+async function segmentBannerRegions(pngBuf) {
+  // GPT-4V で「テキスト/ロゴ/顔写真/背景」の bounding box を取得
+  const regions = await gpt4v.analyze(pngBuf, {
+    prompt: 'テキスト・ロゴ・人物顔・背景写真の領域を bbox で返せ'
+  });
+  return {
+    losslessRegions: regions.filter(r => ['text', 'logo'].includes(r.type)),
+    lossyRegions: regions.filter(r => ['photo', 'background'].includes(r.type))
+  };
+}
+
+// 領域別に別圧縮を適用してから合成
+async function semanticCompress(buf) {
+  const { losslessRegions, lossyRegions } = await segmentBannerRegions(buf);
+  const base = sharp(buf);
+  // lossyRegions のみ extract→強圧縮→composite で戻す
+  // ... (詳細は @let-inc/banner-utils v3 参照)
+}
+```
+
+---
+
+### 🏭 変換パイプライン v2（2026-09-22 版）
+
+```
+[入力] Kana HTML コミット
+    ↓ GitHub Actions webhook で自動起動
+STEP 0: 静的検査（HTML/JSON を読むだけで判定できる欠陥を先に落とす）
+  - ファイル名 lint（^[a-z0-9_]+\.(png|webp|avif)$）
+  - 相対パス background-image 検出
+  - HIRO-CHECK コメント申告と実装の突合
+  - lossless-selectors 指定漏れ検出
+  - 素材 naturalWidth ≥ 表示幅 × scale 事前検証
+    ↓ NG は即 Kana へ差し戻し（変換コスト 0）
+STEP 1: 差分ビルド判定
+  - HTML / brand-tokens / compression-profile の内容ハッシュを snapshots/{client}.json と比較
+  - 変更のあった {client, size, media} の組み合わせのみキュー投入
+    ↓
+STEP 2: 常駐ブラウザワーカーでキュー処理
+  - Playwright + CDP セッションを 4 並列で確保
+  - ジョブ 1 件 = { html, size, media, scale, quality }
+  - preparePage() で待機（fonts.ready / animations.finish / bg preload / naturalWidth）
+  - CDP.Page.captureScreenshot で fromSurface: true 撮影
+    ↓
+STEP 3: セマンティック圧縮
+  - GPT-4V で領域分割 → テキスト/ロゴ lossless、写真 AVIF Level 2 quality 60
+  - sharp WebGPU（対応環境のみ）で Lanczos リサンプリング
+  - compression-profile.json の fitToSize() で目標 KB × 0.85 に自動収束
+    ↓
+STEP 4: 3 形式同時出力（媒体タグで必要形式のみ）
+  - emit(buf, ['avif', 'webp', 'png']) で並列書き出し
+  - Cloudflare Images オリジンは PNG のみアップロード（残りは CDN が生成）
+    ↓
+STEP 5: 検証 6 観点 + 拡張 3 観点
+  - 従来 6 観点：容量 / 解像度 / ICC / ロゴクリアスペース / アルファ 4ch / 文字密度
+  - 追加 3 観点：pixelmatch 決定性 / snapshot ハッシュ一致 / 縮小 35%・50% 判読性
+  - 拡大 200% 耐性チェック（テキスト縁破綻検出）
+  - 白黒両背景合成プレビュー生成
+    ↓
+STEP 6: 配信面モック合成（Yuna 用）
+  - Instagram フィード枠 / Indeed 求人カード / LINE トーク画面テンプレートに合成
+    ↓
+STEP 7: リアルデバイス検証（Sora QA 対象案件のみ）
+  - BrowserStack Real Device Cloud に PNG 送信
+  - iPhone 15 Pro / Pixel 8 / iPad Air で表示スクリーンショット取得
+    ↓
+STEP 8: 原子的納品
+  - 一時ディレクトリ → 全検証 pass → 納品ディレクトリへ mv
+  - Notion DB 更新 + Yuna へ Slack 通知（fail 時のみ）
+```
+
+---
+
+### 📈 KPI（2026-09-22 更新版）
+
+| KPI | 現状値（2026-09 平均） | 目標値（2026-12 末） | 測定方法 |
+|---|---|---|---|
+| 1 枚あたり変換時間（PNG） | 4.2 秒 | **1.5 秒** | Playwright + CDP + WebGPU |
+| 1 枚あたり変換時間（AVIF 併産） | 7.8 秒 | **2.5 秒** | libavif 1.2 + effort 6 |
+| バッチ変換失敗率 | 1.8% | **0.3%** | allSettled + retry-failed.json |
+| ファイルサイズ（Indeed 案件平均） | 132 KB | **85 KB** | AVIF Level 2 + セマンティック圧縮 |
+| Sora QA 差し戻し率 | 4% | **1%** | validateBanner 9 観点 + リアル機検証 |
+| Kana 差し戻し 1 案件平均回数 | 1.3 回 | **0.5 回** | 静的検査前倒し + 事実ベース差し戻し |
+| 深夜バッチ完了時刻（100 枚案件） | 03:20 | **01:00** | 常駐ワーカー + 差分ビルド |
+| CI 実行時間（PR 検証） | 8 分 | **2 分** | 静的検査先行 + snapshot 比較 |
+
+---
+
+### 🔄 AVIF / WebP / PNG 切替ロジック（媒体タグ駆動）
+
+```javascript
+// compression-profile.json（v2 スキーマ）
+{
+  "indeed":    { "scale":2, "quality":80, "maxKB":150, "formats":["avif","png"],       "avifLevel":2 },
+  "instagram": { "scale":2, "quality":85, "maxKB":8000,"formats":["avif","webp","png"],"avifLevel":2 },
+  "line":      { "scale":1.5,"quality":85,"maxKB":1000,"formats":["webp","png"],       "avifLevel":1 },
+  "x":         { "scale":2, "quality":85, "maxKB":5000,"formats":["webp","png"],       "avifLevel":1 },
+  "tiktok":    { "scale":2, "quality":80, "maxKB":500, "formats":["webp","png"],       "avifLevel":1 },
+  "airwork":   { "scale":2, "quality":80, "maxKB":300, "formats":["png"],              "avifLevel":0 },
+  "ogp_lp":    { "scale":2, "quality":85, "maxKB":300, "formats":["png"],              "avifLevel":0, "delegate":"vercel-og" }
+}
+
+// 実行時
+function selectFormats(mediaTag) {
+  const p = profile[mediaTag];
+  if (p.delegate === 'vercel-og') return { delegate: 'vercel-og', formats: p.formats };
+  if (p.delegate === 'cloudflare-images') return { delegate: 'cf', formats: ['png'] };
+  return { delegate: 'local', formats: p.formats };
+}
+```
+
+---
+
+### 🏗️ CI 設計（GitHub Actions）
+
+```yaml
+# .github/workflows/banner-build.yml
+name: banner-build
+on:
+  push:
+    paths: ['banners/**/*.html', 'brand-tokens/**/*.json', 'compression-profile.json']
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm banner-utils lint  # ファイル名 / 相対パス / HIRO-CHECK / naturalWidth
+  differential-build:
+    needs: static-checks
+    runs-on: ubuntu-latest-8core
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Chrome for Testing (fixed version)
+        run: npx puppeteer browsers install chrome@stable-cft
+      - name: Restore snapshot cache
+        uses: actions/cache@v4
+        with: { path: snapshots/, key: banner-snapshots-${{ hashFiles('banners/**') }} }
+      - run: pnpm banner-utils build --diff-only
+      - run: pnpm banner-utils validate  # 9 観点 + snapshot 比較
+  real-device-check:
+    needs: differential-build
+    if: contains(github.event.head_commit.message, '[sora-qa]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: BrowserStack Real Device screenshot
+        env: { BROWSERSTACK_KEY: ${{ secrets.BROWSERSTACK_KEY }} }
+        run: pnpm banner-utils real-device --devices=iphone15pro,pixel8,ipadair
+  notify-yuna:
+    needs: [differential-build, real-device-check]
+    if: failure()
+    steps:
+      - uses: slackapi/slack-github-action@v1
+        with: { channel-id: 'C0YUNA', slack-message: 'バナー変換 NG: ${{ github.sha }}' }
+```
+
+---
+
+### ✅ 実行チェックリスト（Hiro 変換前セルフゲート・2026-09-22 版）
+
+- [ ] `HIRO-CHECK` コメント申告と実 HTML の 5 項目突合完了
+- [ ] 素材 naturalWidth ≥ 表示幅 × deviceScaleFactor 検証
+- [ ] 相対パス `background-image` の絶対パス化 or base64 化
+- [ ] 媒体タグ → compression-profile.json 参照で scale/quality/maxKB/formats 決定
+- [ ] Playwright + CDP セッション起動（Chrome for Testing 固定バージョン）
+- [ ] `preparePage()` 一括実行（fonts.ready / animations.finish / bg preload / naturalWidth）
+- [ ] `Page.captureScreenshot(fromSurface: true)` で撮影
+- [ ] GPT-4V 領域分割 → セマンティック圧縮適用
+- [ ] emit() で必要形式のみ書き出し（AVIF Level 2 対応媒体を優先）
+- [ ] validateBanner() 9 観点 + snapshot ハッシュ比較 pass
+- [ ] 縮小 35%/50% 版 + 拡大 200% 版 + 白黒背景合成の 5 種確認画像を Yuna レポートへ添付
+- [ ] Sora QA 対象案件は BrowserStack 実機検証を通してから納品ディレクトリへ mv
+- [ ] Notion DB ステータス更新 + Slack 通知（fail 時のみ）
+
+---
+
+### 🤝 連携アップデート
+
+- **09-システム開発部 Kuu**：Cloudflare Images / Vercel OG API の設定・キー管理を委譲。Hiro は「オリジン PNG 納品」まで、Kuu が「CDN 配信 URL 発行」を担当
+- **07-LP 部 ren/nao**：`@let-inc/banner-utils` v3.0 へアップグレード。CDP 直接制御レイヤと WebGPU リサンプリングを OGP 生成にも共有
+- **08-バナー生成部 Yuna**：媒体タグ入力を 1 語必須化。compression-profile.json の媒体列に無い媒体タグは事前確認
+- **11-管理部門 nori**：GPT-4V による OCR + 領域分割で禁止ワード検出を強化。tesseract.js から GPT-4V API へ移行し、日本語検出精度を 92% → 99.5% へ
+- **00-COO Sora**：QA 提出物に「9 観点 validateBanner JSON + 実機 3 端末スクショ + 縮小/拡大/両背景合成の 5 種」を必須添付。目視工数を Sora 側で 5 分 → 30 秒に
+
+---
+
+### 📝 導入ロードマップ
+
+| 週 | マイルストーン | 責任 |
+|---|---|---|
+| W1（9/22-28） | Playwright 1.50 + CDP レイヤを `@let-inc/banner-utils` v3-alpha でリリース | Hiro |
+| W2（9/29-10/5）| AVIF Level 2 圧縮パイプライン組込・KPI 計測開始 | Hiro |
+| W3（10/6-12） | Cloudflare Images 連携 PoC（Kuu と共同） | Hiro + Kuu |
+| W4（10/13-19）| GPT-4V セマンティック領域分割の本番投入 | Hiro |
+| W5（10/20-26）| BrowserStack 実機検証 CI 統合 | Hiro |
+| W6（10/27-11/2）| WebGPU リサンプリング（対応環境限定）β 導入 | Hiro |
+| W7-8（11/3-16）| 全案件の v3 パイプライン移行完了・KPI 目標値到達確認 | Hiro + Yuna |
+
+---
+

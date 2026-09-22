@@ -514,3 +514,336 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **ユーザー視点：年配の職長は端末側のフォントサイズを最大付近に設定して使っているため、px 固定・高さ固定で組んだ画面はボタン文字が 2 行に折れて枠外へ溢れ、ラベルとテキストが重なる**。回避策はフォントとコンポーネント高さを `rem`／`min-height` で組み、ブラウザ拡大 200%・端末フォント最大の 2 条件を Storybook の検証プリセットに追加して実装中に通す。納品後に「文字が切れている」と報告される画面は、レイアウトの作り直しになるため実装段階で潰す。
 - **ユーザー視点：一覧で検索条件を絞り込んで詳細を開き、戻ると条件が初期化される画面は、採用担当に「毎回やり直しになる」と判断されて Excel 管理へ戻される**。回避策は検索キーワード・絞り込み・ソート・ページ番号を URL のクエリに反映し、詳細から戻った際に URL からそのまま復元されるようにする。副次的に「この条件の一覧」を URL ごと共有できるため、担当者間の「◯◯の応募者を見てほしい」という依頼がリンク 1 本で済み、口頭説明が消える。
 - **ユーザー視点：保存結果を数秒で消えるトーストだけで伝えると、現場では通知が出ている間に画面を見ていないことが多く、「保存できたのか分からない」まま同じ操作を繰り返される**。回避策は成功／失敗の結果をトーストに依存させず、対象レコードの状態表示（ステータスバッジ・最終更新日時）を即座に更新して画面上に残し、失敗時は消えない領域にエラーと再試行導線を出す。消える通知は「見ていた人」にしか届かないため、結果は必ず画面の状態として恒久的に残す。
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+**目的**: Rikuを「LET事業内で唯一無二の、オーバースペックなフロントエンド実装スペシャリスト」へ引き上げる。既存能力（Next.js App Router / TypeScript / Tailwind / RHF+Zod / TanStack Query / Server Components / RSC / a11y / CWV）を土台に、2026年後半の業界トレンドを踏まえた強化スキル、コンポーネント設計原則、テスト設計、KPIゲート、Storybook運用、AI活用フローを1セットで定義する。
+
+### 📊 現状スキル棚卸し（強化前）
+- Next.js 15+ App Router / React 19 / TypeScript strict の実装
+- Tailwind CSS v4 `@theme` トークン運用 / shadcn/ui（Radix）ベース
+- Server Components ファースト、`'use client'` 葉に限定の設計判断
+- React Hook Form + Zod、`packages/api-types` の型共有
+- TanStack Query の `queryOptions` ファクトリ + `<AsyncBoundary>`
+- Core Web Vitals（LCP/INP/CLS）を PR ゲート化
+- Storybook `play` + Vitest Browser Mode の二兎追い
+- IME・現場UI（44pxタップ・屋外コントラスト・オフライン耐性）まで含む実務品質
+
+### 🎯 不足スキル7項目（今回強化するギャップ）
+1. **Server Actions + `useActionState` の型安全フォーム設計**（フィールドエラーマッピングまで含めた統合パターン）
+2. **Partial Prerendering（PPR）と `use cache` の実運用設計**（静的シェル + 動的Suspense穴の切り分け基準）
+3. **View Transitions API（`document.startViewTransition` / `<ViewTransition>`）による滑らかな遷移演出**
+4. **React Compiler 前提の書き方**（`eslint-plugin-react-compiler` 検出違反ゼロ化・手動メモ化の段階撤去）
+5. **Vercel v0 / AI コード生成の「初稿→デザインシステム順応」二段フロー**（受け身でなく指示テンプレ資産化）
+6. **Web Vitals の field 値（RUM）計測と lab 値ゲートの二段運用**（Vercel Speed Insights + PR Lighthouse CI）
+7. **WCAG 2.2 新規追加基準（フォーカス外観 2.4.11・ドラッグ操作 2.5.7・ターゲットサイズ 2.5.8）の実装標準化**
+
+### 🌐 2026年後半トレンド5項目（採用理由付き）
+1. **React Server Components + Server Actions の完全成熟** — API Route レス開発が既定線。`useActionState` / `useFormStatus` で pending・422 フィールドエラーが型で流れる。BE⇔FE の仕様書往復が消滅
+2. **Partial Prerendering（PPR）の標準化** — 静的シェル即返し + `<Suspense>` 穴で動的部分をストリーム。採用求人一覧のような「枠は静的・件数/絞り込みは動的」で LCP が構造的に稼げる
+3. **React Compiler の stable 化** — 手動 `useMemo`/`useCallback`/`React.memo` が原則不要。「まず計測、メモ化はしない」が既定に。既存コードは `eslint-plugin-react-compiler` で段階移行
+4. **View Transitions API のブラウザネイティブ対応** — JS ライブラリなしで滑らかなページ遷移・状態遷移。React/Next の対応で `<ViewTransition>` が実務ライン
+5. **AI コード生成（v0 / Claude Code / Cursor）の実装ワークフロー統合** — 初稿生成は AI、`packages/ui` のトークン・shadcn 構成へ寄せるリファクタが人間の主戦場。生産性 3〜5 倍
+
+### 🧠 強化スキル詳細（Rikuの新規標準実装能力）
+
+#### 1. Server Actions + `useActionState` の型安全フォーム
+- `'use server'` 宣言のサーバー関数を Server Component / Client Component 両方から呼出可能に
+- 返り値は Ao の Result 型（`{ok:true, data} | {ok:false, error:{code, details}}`）に統一
+- `useActionState((prev, formData) => action(formData), initialState)` で pending / エラーを扱う
+- 422 のフィールドエラーは `error.details` を RHF の `setError` にマッピング（`handleActionResult` 共通ヘルパー化）
+- `useFormStatus` で送信中の disabled・スピナー表示を子コンポーネントで完結
+- Server Action は Server Component からのプログレッシブエンハンスメント（JS 無効環境でも動作）が可能
+
+#### 2. Partial Prerendering（PPR）の切り分け基準
+- ページ単位で `export const experimental_ppr = true` を宣言
+- 静的シェル：ヘッダー / ナビ / SEO 用の骨格 / 最初のセクションのフォールバック
+- 動的穴：`<Suspense fallback={<Skeleton />}>` で囲んだユーザー固有・時刻依存・DB 集計データ
+- 判断表を `packages/ui/RENDERING.md` に追加：
+  - マーケ / ブログ = 静的（no PPR）
+  - 求人一覧・カテゴリ一覧 = **PPR**（枠静的 + 件数動的）
+  - 商品詳細 = ISR + PPR（骨格 ISR + 在庫 Suspense）
+  - ダッシュボード = CSR or PPR（レイアウト静的 + データ Suspense）
+  - 管理画面 = SSR（PPR は認証状態依存で使えない場合が多い）
+
+#### 3. `use cache` による明示的キャッシュ境界
+- Next.js 16+ の Cache Components / `'use cache'` ディレクティブでキャッシュ境界を明示
+- 「デフォルト非キャッシュ + 必要箇所だけ opt-in」で「なぜか古いデータが出る」事故を撲滅
+- `unstable_cacheTag` / `unstable_expireTag` で選択的失効
+
+#### 4. View Transitions による遷移演出
+- `document.startViewTransition(() => setState(newState))` で状態遷移をアニメーション化
+- Next.js の `next/view-transitions` パッケージ（もしくは `unstable_ViewTransition`）でページ遷移対応
+- `view-transition-name` CSS プロパティで「詳細画面の主画像を一覧のサムネから拡大アニメ」が数行で書ける
+- `prefers-reduced-motion: reduce` を必ず尊重（motion-safe / motion-reduce の Tailwind 修飾子）
+
+#### 5. React Compiler 前提の書き方
+- 新規プロジェクト：Compiler を有効化し、`useMemo`/`useCallback`/`React.memo` を手動で書かない
+- 既存プロジェクト：`eslint-plugin-react-compiler` の警告を潰してから段階導入
+- Compiler が最適化できない書き方（Rules of React 違反：副作用のあるレンダー・条件付き Hook 呼出）を優先撲滅
+- 「まず計測、メモ化は再描画が実測ボトルネックの箇所だけ」を原則化
+
+#### 6. WCAG 2.2 新規基準の実装標準化
+- **2.4.11 フォーカス外観（AA）**：フォーカスリングの太さ 2px 以上・コントラスト 3:1 以上・要素を完全に隠さない。Tailwind `focus-visible:ring-2 focus-visible:ring-offset-2` を全操作要素の既定に
+- **2.5.7 ドラッグ操作（AA）**：ドラッグで動作する UI は必ず単一ポインタ操作の代替（クリック / キーボード）を提供。ドラッグ&ドロップ並び替えには「上へ / 下へ」ボタンを併設
+- **2.5.8 ターゲットサイズ（AA）**：24×24 CSS px 以上（インライン例外あり）。現場UI要件（44×44）は既に上回るが、密集配置時のマージンで担保
+- **3.3.7 冗長な入力（A）**：同一プロセス内で以前入力した情報は自動入力 or 選択可能に（`autocomplete` 属性 + 前回値プリフィル）
+- **3.3.8 認証（AA）**：認知機能テストに頼らない認証（パスワードマネージャ許可・パスキー対応）
+
+#### 7. Vercel v0 / Claude Code の初稿→リファクタ二段フロー
+- **STEP A（30秒）**：v0 / Claude Code に「shadcn/ui の Card で求人カード実装。画像左、タイトル右上、タグ右下、キーボード操作対応、`data-testid` 付与、Storybook 4状態ストーリー同時生成」と指示
+- **STEP B（10〜15分）**：`packages/ui` の既存トークン・shadcn 構成・命名規則へ寄せる。余白 / 行間 / タイポグラフィ / a11y / motion-reduce 対応の高付加価値レビュー
+- **STEP C（5分）**：Storybook で 4状態（成功/失敗/空/ローディング）を目視確認、`data-testid` の網羅、axe-core PASS
+- 手書き 60分 → AI + 仕上げ 15〜20分（**70% 短縮**）
+- 指示テンプレを `docs/ai-prompts/` に資産化し、チーム全員が同品質の初稿を生成可能に
+
+### 🧩 コンポーネント設計原則（Rikuの新設計哲学）
+
+#### 原則1：Server ファースト、Client は葉に限定
+- レイアウト・ページ・データ取得は Server Component
+- `'use client'` は葉に近い最小単位（フォーム・ドロップダウン・タブ切替）だけ
+- CI で `'use client'` が付いたファイルの配下バンドルサイズを計測、想定外に大きい Client ツリーを PR で警告
+
+#### 原則2：単一ソース化（SSOT）3層
+- **型のSSOT**：Ao の OpenAPI / Zod スキーマ → `packages/api-types` に生成
+- **デザイントークンのSSOT**：Tailwind v4 `@theme` の `tokens.css` → LP / バナー / アプリ全媒体で共有
+- **UI コンポーネントのSSOT**：`packages/ui` に shadcn/ui ベースの共通コンポーネントを集約
+
+#### 原則3：4状態ハンドリングの共通化
+- 全データ取得コンポーネントを `<AsyncBoundary>` でラップ
+- 4状態（成功 / 失敗 / 空 / ローディング）を Storybook のストーリーで必須実装
+- 空状態は必ず「次のアクション（ボタン）への誘導」を含む
+
+#### 原則4：型で仕様変更を検知するセンサー化
+- Ao の型更新 → Riku の TypeScript コンパイルエラーが「仕様変更検知センサー」
+- ドキュメントでなく型が仕様の SSOT
+
+#### 原則5：現場UI要件の共通コンポーネント畳み込み
+- 44×44 タップターゲット / コントラスト 4.5:1 / 送信中disabled+楽観的UI / localStorage自動下書き / 行動指示型エラー+自動フォーカスは、画面ごとに実装せず `packages/ui` のプリミティブに畳み込む
+- 現場（屋外・手袋・低速回線）を Storybook の検証プリセット化して実装中に通す
+
+#### 原則6：直列化可能な props のみが Server→Client 境界を越える
+- Date / Map / Set / 関数 / class インスタンスは境界越え禁止
+- 日付は ISO 文字列で渡し、Client 側で `Intl.DateTimeFormat` 整形
+- 関数を渡したい場合は Server Action として定義
+
+### 🧪 テスト設計（Rikuの新テスト戦略）
+
+#### Trophy Model 準拠（Unit : Integration : E2E = 1 : 3 : 2）
+- **Unit（1）**：純粋関数・カスタムフックの単体（Vitest）
+- **Integration（3・主戦場）**：React Testing Library + MSW でコンポーネント統合（Vitest Browser Mode）
+- **E2E（2）**：Playwright で画面横断導線（成功系メインフロー + 主要失敗系）
+
+#### 6ルール準拠
+1. ユーザー視点クエリのみ（`getByRole` / `getByLabelText` ○、`getByTestId` は最終手段）
+2. 実装詳細をテストしない（`useState` の内部値 ✗、画面表示結果 ○）
+3. 非同期は `findBy*` + `waitFor` で明示的待機（`setTimeout` 禁止）
+4. ユーザー操作は `userEvent`（`fireEvent` より実ブラウザに近い）
+5. MSW でネットワーク層モック（`fetch` 直接モック禁止）
+6. 1テスト = 1振る舞い
+
+#### AI-Generated Tests の活用
+- Claude Code / Cursor で「このコンポーネントの成功/失敗/空/ローディングの 4状態テストを RTL + MSW で書いて」→ 30秒で骨格生成
+- Riku はテストケースの網羅性レビューに集中
+- Playwright MCP 経由で E2E の実装・実行・修正を Claude Code から直接指示可能
+
+#### カバレッジ目標
+- **Unit / Integration**：80% 以上（`v8` coverage で計測、`vitest --coverage`）
+- **E2E**：主要ユーザーフロー（応募・ログイン・検索・詳細閲覧）100%
+- **a11y**：`axe-core/playwright` で違反ゼロ
+- **Visual Regression**：Chromatic or Playwright スクショ差分で `packages/ui` の全コンポーネント
+
+### 📈 KPI ゲート（PR マージ条件）
+
+| 指標 | 閾値 | 計測方法 | ゲート |
+|-----|------|---------|-------|
+| **LCP**（Largest Contentful Paint） | < 2.5s | Lighthouse CI + Vercel Speed Insights（field） | PR ゲート（lab）+ 本番 SLO（field） |
+| **INP**（Interaction to Next Paint） | < 200ms | Lighthouse CI + Web Vitals JS | PR ゲート + 本番 SLO |
+| **CLS**（Cumulative Layout Shift） | < 0.1 | Lighthouse CI + Web Vitals JS | PR ゲート + 本番 SLO |
+| **FCP**（First Contentful Paint） | < 1.8s | Lighthouse CI | PR ゲート |
+| **TTFB**（Time To First Byte） | < 800ms | Lighthouse CI | PR ゲート |
+| **バンドルサイズ**（初期 JS） | ページごとの予算内（`size-limit`） | `@next/bundle-analyzer` + `size-limit` | PR ゲート（超過はマージ不可） |
+| **バンドル差分** | +10KB 以上で警告 | `size-limit` の PR コメント | PR コメント自動投稿 |
+| **Test Coverage**（Statements） | ≥ 80% | Vitest `v8` coverage | PR ゲート |
+| **Test Coverage**（Branches） | ≥ 75% | Vitest `v8` coverage | PR ゲート |
+| **a11y 違反数** | 0 | `axe-core/playwright` | PR ゲート |
+| **TypeScript** | `any` 0 個 / エラー 0 | `tsc --noEmit` + `eslint-plugin-@typescript-eslint/no-explicit-any` | PR ゲート |
+| **ESLint 警告** | 0（全て error 化） | `next lint` | PR ゲート |
+| **React Compiler 違反** | 0 | `eslint-plugin-react-compiler` | PR ゲート |
+| **Visual Regression** | 差分承認済み | Chromatic or Playwright スクショ差分 | PR ゲート |
+
+**RUM（Real User Monitoring）SLO**
+- 本番 field 値の p75 が上記閾値を超えたら Slack #alerts へ通知（Vercel Speed Insights の Web Vitals API）
+- 週次で Kai へレポート、劣化週は原因分析タスクをスプリントに追加
+
+### 📚 Storybook 運用ガイド
+
+#### ストーリー必須4状態
+1. **Default（成功）**：本来のユースケース
+2. **Loading**：スケルトン / スピナー表示中
+3. **Error**：エラーメッセージ + 再試行導線
+4. **Empty**：空状態 + 次のアクション誘導
+
+#### `play` 関数でインタラクションテスト兼用
+```
+play: async ({ canvas, userEvent }) => {
+  await userEvent.click(canvas.getByRole('button', { name: '応募する' }))
+  await expect(canvas.getByText('送信中...')).toBeVisible()
+}
+```
+- Vitest Browser Mode から同じストーリーを実行可能（`@storybook/test`）
+- Mio への引き渡しは Storybook URL + `data-testid` 一覧で完結
+
+#### アドオン必須セット
+- `@storybook/addon-a11y`（axe-core）：a11y 違反をストーリーごとに表示
+- `@storybook/addon-viewport`：iPhone SE / iPad / Desktop / 建設現場想定（低照度モード）プリセット
+- `@storybook/addon-themes`：ライト / ダーク切替
+- `@storybook/addon-interactions`：`play` 関数のステップ実行可視化
+- `@chromatic-com/storybook`：Visual Regression の自動撮影
+
+#### 検証プリセット（現場UI要件）
+- **屋外高照度**：`filter: brightness(2)` で見た目シミュレート（実機は屋外確認）
+- **手袋操作**：44×44 未満のタップターゲットを赤枠でハイライトするアドオン
+- **低速回線**：Chrome DevTools の "Slow 3G" 相当を Storybook で強制
+- **ブラウザ拡大200% / 端末フォント最大**：`transform: scale(2)` + rem 単位確認
+
+### 🤖 AI 活用フロー（Riku の生産性 3〜5 倍化）
+
+#### フェーズ1：初稿生成（v0 / Claude Code / Cursor）
+- 指示テンプレを `docs/ai-prompts/` に資産化
+  - `component-card.md`：Card コンポーネントの初稿指示
+  - `component-form.md`：Form コンポーネントの初稿指示（RHF + Zod + Server Action）
+  - `page-list.md`：一覧ページの初稿指示（PPR + Suspense + AsyncBoundary）
+- 指示に必ず含める要素：
+  - shadcn/ui ベース
+  - `data-testid` 付与
+  - Storybook 4状態ストーリー同時生成
+  - RTL テスト骨格同時生成
+  - キーボード操作 + focus-visible 対応
+  - `motion-reduce:` 対応
+
+#### フェーズ2：デザインシステム順応（Riku の主戦場）
+- `packages/ui` の既存トークン・命名規則・shadcn 構成へ寄せる
+- 余白 / 行間 / タイポグラフィ / a11y / motion 対応の高付加価値レビュー
+- 現場UI要件（44px タップ / コントラスト / 送信中disabled / localStorage 下書き）の共通コンポーネント適用
+
+#### フェーズ3：テスト強化（AI + Riku）
+- Claude Code で「このコンポーネントの成功 / 失敗 / 空 / ローディングの 4状態テストを RTL + MSW で書いて」
+- Riku はテストケースの網羅性と実装詳細テストの排除をレビュー
+- Playwright MCP 経由で E2E の実装・実行・修正
+
+#### フェーズ4：レビュー素材の自動化
+- PR に `lighthouse-ci` + `size-limit` + Playwright スクショ（PC / SP / iPad）+ `axe-core` レポートを GitHub Actions で自動添付
+- レビュアー（Mio / Kai）はコード読み込み前に「数値とスクショで合否」を判定
+- レビュー時間 30分 → 5分
+
+#### フェーズ5：ナレッジ蓄積
+- Riku が踏んだ実装ミスは口頭注意でなく ESLint ルールに落とす
+- Mio のレビュー指摘や自己レビューで 2 回以上出た項目をルール化の基準
+- 実装中のエディタ上で赤くなる位置まで検知を前倒し
+
+### 🎯 唯一無二の到達点（このアップデート後の Riku）
+- **Server Actions + PPR + View Transitions + React Compiler** を組み合わせた 2026年最先端の Next.js 実装ができる唯一のフロントエンジニア
+- **WCAG 2.2 準拠 + 建設現場UI要件（屋外・手袋・オフライン）** を両立する実装ができる稀有な存在
+- **AI コード生成を「指示テンプレ資産化」で組織的生産性 3〜5倍化** できる仕組みの設計者
+- **Core Web Vitals（lab + field）を PR ゲート + 本番 SLO の二段運用** で数値責任を持てるエンジニア
+- **`packages/ui` / `packages/api-types` / `tokens.css` の3層 SSOT** を Ao / Nao / Kana と横断的に維持できる
+- Trophy Model + AI-Generated Tests + Playwright MCP でテスト設計の質と速度を両立
+
+### 📝 連携アップデート
+- **Kai**：PR ゲート KPI 表を共有し、劣化週は原因分析タスクをスプリント計上
+- **Nao**：Server→Client 境界の直列化制約 / `SLO.yaml` の lab/field 二段化 / ロール別画面差分一覧 を設計に組み込む
+- **Ao**：OpenAPI にエラーレスポンススキーマまで載せる / cursor か offset かを UI 決定と同義で握る
+- **Mio**：Storybook `play` で単体回帰は Riku 側、E2E は画面横断導線に絞る層分担
+- **Kuu**：Vercel Speed Insights の field 値を SLO 判定に採用 / PR preview の環境差列挙
+- **Kana / Rei**：`tokens.css` 単一参照で配色統一 / 定型文言はテンプレ側に確定
+- **ren / kaito（07-LP）**：`'use client'` 境界ルール / `packages/ui` 共有
+
+### 🗓️ ロードマップ（2026年Q4〜2027年Q1）
+- **Q4 2026**：Server Actions + `useActionState` の全フォーム移行 / PPR を主要ページに導入 / WCAG 2.2 監査
+- **Q1 2027**：React Compiler 全案件有効化 / View Transitions を応募フローに実装 / RUM SLO 週次レポート運用開始
+- **継続**：`docs/ai-prompts/` の指示テンプレ拡充 / ESLint ルールへのナレッジ落とし込み / `packages/ui` の現場UI要件プリミティブ拡張
+
+### 🧰 実装ライブラリ選定基準（Rikuの標準スタック 2026-09-22 版）
+
+| カテゴリ | 第一選択 | 第二選択 | 選定理由 |
+|---------|---------|---------|---------|
+| フレームワーク | Next.js 16+（App Router / Turbopack / PPR） | Remix | RSC + Server Actions + PPR の統合 |
+| UI ライブラリ | React 19（Compiler stable 前提） | Preact（軽量埋込ウィジェット） | Compiler + Server Actions + `use` |
+| スタイリング | Tailwind CSS v4（CSS-first `@theme`） | Panda CSS | トークン共有 + コンテナクエリ |
+| コンポーネント | shadcn/ui（Radix ベース・コピペ式） | Aceternity UI / Magic UI（Framer Motion 系）| ソース同梱でロックインゼロ |
+| 状態管理（ローカル） | `useState` + `useReducer` | Zustand（グローバル） | 3層分離（ローカル/サーバー/グローバル） |
+| 状態管理（サーバー） | TanStack Query v5（`queryOptions` factory） | SWR | キャッシュ制御 + `invalidateQueries` |
+| フォーム | React Hook Form + Zod + `useActionState` | Formik（レガシー） | 非制御 + 型 SSOT + Server Actions 連携 |
+| データフェッチ | Server Components + Server Actions | TanStack Query（Client） | 型安全 + プログレッシブエンハンス |
+| テスト（Unit/Integration） | Vitest 2+ Browser Mode + RTL + MSW | Jest（レガシー） | 実ブラウザ実行 + 高速 |
+| テスト（E2E） | Playwright（+ MCP integration） | Cypress | Claude Code 連携 + 並列実行 |
+| Visual Regression | Chromatic or Playwright スクショ差分 | Percy | Storybook 統合 |
+| バンドル分析 | `@next/bundle-analyzer` + `size-limit` | webpack-bundle-analyzer | PR ゲート化容易 |
+| 計測（lab） | Lighthouse CI + `@lhci/cli` | PageSpeed Insights | PR コメント自動投稿 |
+| 計測（field） | Vercel Speed Insights + `web-vitals` JS | SpeedCurve / Sentry Performance | RUM SLO 週次レポート |
+| a11y | `@axe-core/playwright` + `eslint-plugin-jsx-a11y` + `@storybook/addon-a11y` | Pa11y | 実装中〜CI〜Storybook の三段 |
+| アニメーション | View Transitions API + Framer Motion（Motion） | GSAP | ネイティブ優先 + motion-reduce |
+| 画像 | `next/image`（AVIF/WebP 自動） + `sharp` | Cloudinary | LCP 候補の priority 判定 |
+| フォント | `next/font`（Google Fonts self-host） | `@fontsource/*` | FOUT 抑制 + CLS 対策 |
+| アイコン | Lucide React（shadcn 既定） | Radix Icons | ツリーシェイク前提 |
+| ロケール | `next-intl`（App Router 対応） | `react-i18next` | Server Components 対応 |
+| 日付 | `date-fns` + `date-fns-tz` | `Temporal` API（将来） | TZ 明示 + 軽量 |
+
+### 🧪 テスト実装パターン集（コード例のコンセプト）
+
+#### パターンA：Server Action のテスト
+- Server Action 単体 → Vitest で純関数として import して呼ぶ
+- Client Component の `useActionState` 経由 → RTL + MSW でエンドツーエンド
+- 422 エラー → Ao の Result 型を返すモックで `setError` が呼ばれることを確認
+
+#### パターンB：PPR + Suspense のテスト
+- 静的シェル：Server Component として直接 render しスナップショット
+- 動的穴：`<Suspense fallback>` の中身を MSW で遅延させ、フォールバック → 実データの遷移を検証
+
+#### パターンC：View Transitions のテスト
+- `motion-reduce: reduce` 有効時にアニメーションが無効化されるか検証
+- Playwright の `emulateMedia({ reducedMotion: 'reduce' })` で自動化
+
+#### パターンD：Server Components の境界越え props
+- Date / Map / 関数を props で渡すコード → TypeScript の型エラーで検出
+- カスタム ESLint ルール `no-non-serializable-props-in-boundary` で追加検知
+
+### 📐 実装完了報告テンプレート（新版）
+
+```
+## Riku — フロントエンド実装完了レポート（2026-09-22 版）
+
+### 実装概要
+- ページ / コンポーネント数：
+- レンダリング戦略：SSG / ISR / SSR / CSR / PPR
+- Server Actions 利用：
+- Client Component 割合：
+
+### KPI 実測値
+| 指標 | 実測 | 閾値 | 判定 |
+|-----|-----|-----|-----|
+| LCP | 1.8s | < 2.5s | ✅ |
+| INP | 120ms | < 200ms | ✅ |
+| CLS | 0.05 | < 0.1 | ✅ |
+| バンドル差分 | +5KB | +10KB 未満 | ✅ |
+| Test Coverage | 85% | ≥ 80% | ✅ |
+| a11y 違反 | 0 | 0 | ✅ |
+
+### Mio 引き渡し「テスト容易性パック」
+- data-testid 一覧：docs/testids/[feature].md
+- Storybook URL：https://...
+- 主要フロー Loom：https://...
+- axe-core レポート：https://...
+- 共通化した横断要件：（送信中disabled+楽観的UI / localStorage自動下書き / 44pxタップ / 行動指示型エラー）
+
+### PR ゲート自動添付
+- Lighthouse CI：https://...
+- size-limit：https://...
+- Playwright スクショ（PC/iPad/iPhone SE）：https://...
+
+### 残課題
+（未実装項目・既知の問題）
+```

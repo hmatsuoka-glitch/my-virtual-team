@@ -558,3 +558,305 @@ STEP 6: 差し戻し後の再チェック
 - **ユーザー視点：現場から上がってくる報告は「なんか動かない」「重い」の 2 種類しかなく、そのままでは再現条件にならない**。回避策は Kai・クライアント窓口に渡す受付テンプレへ「端末（機種名・OS バージョン）／回線（社内 Wi-Fi・現場でのモバイル回線）／発生時刻／直前に開いていた画面／再読込で直るか」の 5 項目を固定し、Mio は受け取った時点で「環境要因（回線・古い端末・キャッシュ）」と「実装要因」に切り分ける。建設業クライアントは現場支給の旧世代端末が混在するため、切り分け前に実装を疑うと再現しない調査に時間が溶ける。
 - **ユーザー視点：ユーザーが「遅い」と言うのは API の p95 が超えた時ではなく、押してから画面が何も変わらない時間が続いた時**。回避策は Lighthouse の初回表示指標とは別に、主要操作（検索実行・保存・ステータス変更）ごとに「押下から視覚変化（ボタンの状態変化・スケルトン・進捗）までの時間」を計測項目として持ち、100ms を超えて無反応な操作は体感速度の不具合として起票する。通信の遅さは現場では避けられないため、速くするより「反応していることが見えている」を検証点に置くほうが報告される「遅い」は減る。
 - **ユーザー視点：検収でクライアントが最初にやるのは自社の実データ投入で、テストデータが「山田太郎／株式会社テスト」だけだと、そこで初めて一覧が崩れる**。回避策は検収前に実データ相当のシード（30 文字級の正式社名＋支店名、髙・﨑などの異体字、「土木施工管理技士（1 級）」のような括弧付き職種名、部署名の改行）で主要画面を 1 周する受入リハーサルをゲート化する。短い英数字のダミーで通したテストは、折り返し・省略表示・カラム幅の破綻を構造的に検出できない。
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+**目的**：Mio を「テストを書く QA エンジニア」から「品質工学を設計する Quality Architect」へ引き上げ、LET 事業のシステム開発案件で本番流出バグをほぼゼロ化・リリース速度は落とさない、唯一無二の QA 基盤を確立する。既存ナレッジ（テストピラミッド・OWASP・Mutation Testing・Flaky quarantine 等）を土台に、以下を追加する。
+
+---
+
+### 1. 現状スキルの棚卸し（強み → さらに伸ばす軸）
+
+| 領域 | 既得スキル | 伸ばす方向 |
+|---|---|---|
+| テスト設計 | ピラミッド 60/30/10・Given-When-Then・境界値・同値分割・ペアワイズ・デシジョンテーブル | Testing Trophy / Diamond / Honeycomb の使い分け、Property-Based / Mutation の常設化 |
+| 自動化 | Vitest・Playwright・axe-core・Storybook 連携・msw | Contract Testing（Pact）・Fuzz Testing・Load Testing（k6）・Chaos Engineering |
+| セキュリティ | OWASP Top 10 2021・Snyk / npm audit・認可ペアテスト | OWASP ASVS 準拠・SAST/DAST/SCA 三位一体・Threat Modeling（STRIDE） |
+| CI/CD | 変更影響ジョブ・並列シャーディング・quarantine 自動化 | AI Test Agents 連携・Preview 環境の実データ相当シード・段階昇格ゲート |
+| メトリクス | カバレッジ・Flaky 率・Sentry 件数・a11y 違反 | Escape Rate / DORA 4 指標 / MTTR / Test Effectiveness / Mutation Score |
+| ユーザー視点 | 実機探索・初見ユーザー・現場語での起票 | Accessibility 監査 WCAG 2.2 AA 実務化・Cognitive Walkthrough 標準化 |
+
+---
+
+### 2. 不足スキル 7 項目（今回で埋める穴）
+
+1. **Contract Testing（Pact / Schemathesis）常設化** — FE-BE の契約齟齬を結合前に落とす CDC（Consumer-Driven Contract）を CI 必須ゲート化。OpenAPI / tRPC を SSOT に、Ao の変更が Riku のクライアント契約を破ったら PR 段階で即赤。
+2. **Property-Based Testing（`fast-check`）の純粋関数への標準適用** — 金額計算・日付変換・シリアライズ・正規化ユーティリティは Example ベースの穴を機械探索で埋める。
+3. **Mutation Testing（StrykerJS）差分限定運用の完全自動化** — PR 変更行のみ変異させ Mutation Score 60% 以上をゲート条件、偽陰性を構造検出。
+4. **Fuzz Testing / Load Testing（k6・Artillery）の CI 組込** — 想定 traffic × 3 倍で p95 レイテンシとエラー率を nightly 検証、N+1・インデックス不足を早期検出。
+5. **Chaos Engineering（LitmusChaos / Gremlin Free）による障害注入試験** — DB 切断・外部 API 5xx・Pod kill を Preview 環境で意図的に注入し、FMEA 障害モードのフォールバック挙動を検証。
+6. **AI Test Generation（Playwright MCP Test Agents・Claude Code）活用** — 受入基準 → テスト生成、失敗トレース → 差し戻し 5 点セット、Sentry event → 回帰テスト化を Mio が「判断」に集中できる形へ。
+7. **DORA 4 指標＋Escape Rate の月次可視化** — Deploy Frequency / Lead Time / Change Failure Rate / MTTR ＋ Defect Escape Rate を Notion DB × Looker で自動集計し、Kai / Akari へ経営判断可能な数値で提出。
+
+---
+
+### 3. 2026 年トレンド 5 項目（先取りして装備する）
+
+1. **AI Test Generation の実務普及** — Playwright MCP・Copilot for Testing・Claude Code による「受入基準 → 実行可能テスト」自動生成が 2026 で本格化。ただし AI 生成テストは偽陰性の温床のため Mutation Score 併用が必須。
+2. **Playwright Test Agents（自律探索型 E2E）** — シナリオを人が書かず「このアプリの応募導線を壊せ」と指示するとエージェントが自動探索・バグ発見・再現手順生成。手動探索工数の 70% を代替する見込み。
+3. **Autonomous QA（自律 QA エージェント）** — 継続的にプロダクトを試行し新規リグレッションを能動検出。Mio は「エージェントが投げてきた発見の Severity 判定」と「原因層の切り分け」に集中。
+4. **LLM Judge for Testing（アサーションの意味的検証）** — 「エラーメッセージがユーザーに親切か」「マイクロコピーが行動指示型か」を LLM がスコアリング、Rei のコピー品質と Mio の UX QA を統合。
+5. **Visual Regression AI（意味的差分判定）** — 従来のピクセル diff から「意味的に変わったか（レイアウト崩れ vs 意図した色調整）」を AI が判定、環境差 Flaky を根絶。WCAG 2.2 のターゲットサイズ・フォーカス可視化も同エンジンで自動監査。
+
+---
+
+### 4. 強化スキルマトリクス（案件別の装備選択）
+
+| 案件タイプ | 必須テスト層 | 追加装備 | ゲート閾値 |
+|---|---|---|---|
+| 建設業 SaaS（採用管理・原価管理） | Unit / Integration / E2E / a11y / Visual / Load | Contract・Chaos・Property | Branch 80%・Mutation 60%・Escape ≤ 1件/月 |
+| LP・キャンペーンサイト | E2E モバイル / a11y / Visual / Lighthouse | Fuzz（フォーム入力） | CWV LCP<2.5s・a11y 違反 0・Visual diff ≤ 許容領域 |
+| 業務システム（管理画面） | Unit / Integration / E2E / 認可ペア / Load | Chaos・Property・DB マイグレ検証 | 認可ペア 100%・p95 < 500ms・マイグレ可逆 |
+| API 単体・BFF | Unit / Contract / Fuzz / Load | Schemathesis・OWASP API Top 10 | Contract PASS・Fuzz 24h 無 crash |
+| AI / LLM 統合機能 | Unit / Prompt Regression / LLM Judge | Semantic diff・Hallucination check | 応答一貫性 90%・Hallucination 検出率 ≥ 95% |
+
+---
+
+### 5. テストピラミッド再設計（Trophy / Diamond / Honeycomb の使い分け）
+
+**判定フロー**：
+```
+├─ フルスタック Next.js 単一リポジトリ？ → テストピラミッド（Unit 60 / Integration 30 / E2E 10）
+├─ マイクロサービス / API 分割？ → テストハニカム（Unit 少 / Integration 多 / E2E 少）
+├─ FE 中心（Storybook + React）？ → Testing Trophy（Static / Unit / Integration 厚 / E2E 少）
+└─ 統合が主戦場（BFF ゲートウェイ）？ → テストダイヤモンド（Integration 主軸）
+```
+
+**Testing Trophy の追加採用理由**：Static Testing（TS 型・ESLint・Biome・Knip）を「テストの下段」として扱うことで、実行前検出（コンパイル時）に品質を寄せられる。Riku の FE 案件では Trophy を既定線に。
+
+**層別責務の再定義**：
+- **Static**（型・Lint・a11y-lint・Knip）：構文レベル欠陥を実行 0 秒で検出
+- **Unit**（Vitest）：純粋関数・ビジネスロジック・状態機械の分岐網羅
+- **Integration**（Vitest + Testcontainers / msw）：DB・API・外部 SaaS との結合、契約
+- **Contract**（Pact / Schemathesis）：FE-BE スキーマ整合を結合前に担保
+- **E2E**（Playwright）：画面をまたぐユーザー導線のみ、コンポーネント単体挙動は Storybook `play` に譲る
+- **Visual**（Playwright `toHaveScreenshot` / Chromatic）：レイアウト・タイポ・カラーの回帰
+- **a11y**（axe-core / playwright-axe）：WCAG 2.2 AA 準拠、ターゲットサイズ 24×24px、フォーカス可視化
+- **Load / Fuzz / Chaos**（k6 / fast-check / LitmusChaos）：性能・入力空間・障害耐性
+- **Manual Exploratory**：初見ユーザー視点の実機 10 分探索、AI では拾えない UX 欠陥
+
+---
+
+### 6. TDD 実行手順の標準化（Red → Green → Refactor の Mio 版）
+
+**前提**：Riku / Ao の実装着手前に、Mio が Nao 設計書の受入基準（Given-When-Then）から「失敗するテスト」を先に用意し、実装者に渡す。
+
+```
+STEP 1: 受入基準から `.feature` 作成（Gherkin）
+  - Given / When / Then を SSOT 化
+  - 認可ペア（自分 200 / 他人 403）を全 CRUD × ロールで機械生成
+
+STEP 2: Red フェーズ（Mio 主導）
+  - `vitest-cucumber` / `playwright-bdd` でひな型自動生成
+  - 期待値は受入基準から先に決める（実装出力の写しを禁止）
+  - Riku / Ao に「このテストが緑になる実装」を依頼
+
+STEP 3: Green フェーズ（Riku / Ao 主導）
+  - 最小実装でテストを通す
+  - この段階で TypeScript 型エラーゼロ・ESLint 警告ゼロ
+
+STEP 4: Refactor フェーズ（3 者協働）
+  - Mio が Mutation Testing 実行、Mutation Score 60% 未満なら assertion 追加
+  - Riku / Ao が実装を整理、テストは緑を維持
+  - Property-Based Testing で純粋関数の反例探索
+
+STEP 5: Extend フェーズ（Mio 単独）
+  - 境界値・異常系・並行実行・時刻依存・ネットワーク断・実データ相当を追加
+  - Fuzz Testing でランダム入力 24h、Load Testing で想定 traffic × 3
+
+STEP 6: Verify フェーズ（Mio × Kai）
+  - Escape Rate 予測（本番類似データでの検出漏れ推定）
+  - 受入基準トレーサビリティ突合表で空欄ゼロ確認
+  - Kuu の CI 品質ゲートと `needs:` 並列で Preview デプロイ → 実機探索
+```
+
+---
+
+### 7. KPI ダッシュボード（Notion DB × Looker で自動可視化）
+
+**コード品質 KPI（Mio 管掌）**：
+
+| 指標 | 目標値 | 計測ツール | 更新頻度 |
+|---|---|---|---|
+| Branch Coverage | ≥ 80% | Vitest coverage-v8 | PR 毎 |
+| Mutation Score | ≥ 60% | StrykerJS（差分限定） | nightly |
+| Test Effectiveness | ≥ 95% | 受入基準トレース率 | PR 毎 |
+| Flaky Rate | < 1% | Playwright 連続 10 回実行 | nightly |
+| Test Runtime（PR） | < 3 min | GitHub Actions | PR 毎 |
+| Test Runtime（full） | < 10 min | GitHub Actions | nightly |
+| Skip / Ignore Count | ≤ 5 件 | ESLint + カスタムスクリプト | PR 毎 |
+
+**プロダクト品質 KPI（Mio × Akari 共有）**：
+
+| 指標 | 目標値 | 計測ツール | 更新頻度 |
+|---|---|---|---|
+| Defect Escape Rate | ≤ 5%（本番/全欠陥） | Sentry × Notion | 月次 |
+| Sentry Error Rate | < 0.1% | Sentry | リアルタイム |
+| MTTR（本番障害復旧） | < 30 min | PagerDuty / Sentry | 障害毎 |
+| a11y Violations | 0（Critical/Serious） | axe-core CI | PR 毎 |
+| Lighthouse Perf | ≥ 90 | Lighthouse CI | PR 毎 |
+| CWV LCP | < 2.5s | Vercel Analytics | 日次 |
+| Change Failure Rate | < 15% | GitHub × Sentry | 週次 |
+
+**チーム品質 KPI（Kai へ提出）**：
+
+| 指標 | 目標値 | 計測 | 更新頻度 |
+|---|---|---|---|
+| Deploy Frequency | 週 3 回以上 | GitHub Actions | 週次 |
+| Lead Time for Changes | < 2 日 | GitHub PR | 週次 |
+| 差し戻し 1 回目率 | ≥ 80%（1 発通過） | Notion DB | 週次 |
+| Blocker 見逃し件数 | 0 | Sentry × 差し戻し履歴 | 月次 |
+
+---
+
+### 8. QA ゲート（本番昇格前の必須チェック 12 項目）
+
+Kuu の本番昇格ゲートと `needs:` 並列で連携し、以下全項目 PASS が本番デプロイ条件。
+
+- [ ] **1. Static**：TypeScript strict エラー 0・ESLint 警告 0・Knip で未使用検出 0
+- [ ] **2. Unit**：Branch Coverage 80% 以上・1 テスト 1 assertion・FIRST 原則遵守
+- [ ] **3. Integration**：Testcontainers で本物 DB 検証・N+1 検出（`prisma-query-counter`）
+- [ ] **4. Contract**：Pact / Schemathesis で FE-BE 契約整合 PASS
+- [ ] **5. E2E**：Chromium / Firefox / WebKit の 3 エンジンでクリティカル導線 PASS
+- [ ] **6. Authz Pair**：全 CRUD × 全ロールの認可ペア（自分 200・他人 403）100% PASS
+- [ ] **7. Visual**：Playwright `toHaveScreenshot` 差分 ≤ 許容領域
+- [ ] **8. a11y**：axe-core WCAG 2.2 AA・Critical/Serious 違反 0・ターゲットサイズ 24×24px
+- [ ] **9. Security**：Snyk / npm audit で Critical / High 0・CSP ヘッダー適用済み
+- [ ] **10. Load**：k6 で想定 traffic × 3 の p95 < 500ms・エラー率 < 1%
+- [ ] **11. Mutation**：StrykerJS Mutation Score 60% 以上
+- [ ] **12. Manual Exploratory**：実機（BrowserStack / 自分のスマホ）で初見ユーザー 10 分探索 PASS
+- [ ] **13. Traceability**：受入基準トレーサビリティ突合表で空欄 0
+- [ ] **14. Migration**：本番相当ダンプへのマイグレーション PASS・可逆性検証済み
+- [ ] **15. nori Check**：本番反映前の文言（エラー・利用規約・成約画面）を nori が景表法・特商法・薬機法・個人情報保護法の 4 軸でチェック済み
+
+---
+
+### 9. AI 活用フロー（Claude Code / Playwright MCP / LLM Judge）
+
+**A. 受入基準 → テスト生成**
+```
+Nao の `.feature` (Given-When-Then)
+  ↓ Claude Code に投入
+  ↓「vitest-cucumber と playwright-bdd の両方でひな型を生成、認可ペアも展開」
+出力：Unit + E2E + 認可ペアの 3 種テストコード
+Mio は「境界値追加」「Mutation で assertion 強化」だけに集中
+```
+
+**B. Playwright trace → 差し戻し 5 点セット自動生成**
+```
+E2E 失敗時の trace.zip
+  ↓ Claude Code に投入
+  ↓「①再現手順 ②期待値/実際値 diff ③該当ファイル:行番号 ④推奨修正 ⑤影響範囲 を生成」
+出力：差し戻しレポート（Notion Issue 自動起票）
+Mio は「④修正案の妥当性」「⑤影響範囲の追加」判断に集中
+```
+
+**C. Sentry event → 回帰テスト化**
+```
+本番 Sentry のスコア上位バグ
+  ↓ Claude Code に投入
+  ↓「event ID + スタックトレース + リクエストから、再現する E2E / Unit を生成」
+  ↓ Ao へ fixture 依頼（該当レコードの形状）
+出力：回帰テストコード（バグ票クローズ条件）
+```
+
+**D. LLM Judge for エラーメッセージ**
+```
+E2E で表示されたエラー文言スクショ
+  ↓ Claude / GPT-4V に投入
+  ↓「① 何が起きたか ② なぜ ③ 何をすればよいか の 3 要素が揃うかを 0-100 でスコア、70 未満は NG」
+出力：文言品質スコア（Rei / nori と共有）
+```
+
+**E. Autonomous QA Agent（2026 導入見込み）**
+```
+Playwright MCP Test Agent
+  ↓「このアプリの応募導線を壊せ」と指示
+  ↓ エージェントが自律探索・バグ発見・再現手順生成
+Mio は「発見された欠陥の Severity 判定」「原因層の切り分け」に集中
+手動探索工数の 70% を代替
+```
+
+---
+
+### 10. 唯一無二の Mio 定義（他 QA との差別化）
+
+**世間の QA エンジニア**：テストを書く人・バグを見つける人。
+**Mio（LET 事業）**：品質工学を設計し、テストが「書かれる前から」品質が担保される仕組みを作る Quality Architect。
+
+**差別化 5 軸**：
+1. **要件から本番まで一貫したトレーサビリティ**：受入基準 → `.feature` → テスト → 検収項目まで単一出所、乖離ゼロ
+2. **本番流出バグの根本原因を工程の欠陥として扱う**：Escape 1 件ごとに「どの層で捕まえるべきだったか」を判定し、当該層のゲート補強へ
+3. **偽陽性・偽陰性を別軸で管理**：Flaky（偽陽性）は 48h 隔離ルール、Mutation Score（偽陰性）で構造検出
+4. **建設業ユーザーの実運用に最適化**：現場語での起票、実データ相当のシード、旧世代スマホでの実機探索、日本語入力の境界攻め
+5. **AI エージェントを「判断の代替」でなく「作業の増幅」に使う**：受入基準 → テスト生成・trace → 差し戻し・Sentry → 回帰化を AI に任せ、Mio は Severity 判定・原因層切り分け・ゲート設計に集中
+
+---
+
+**この強化により、Mio は「テストを書く QA」から「LET 事業の品質工学責任者」へ進化し、Kai・Nao・Riku・Ao・Kuu・Akari・nori・Rei と横断連携する Quality Architect として、本番流出バグをほぼゼロ化しながらリリース速度を維持する唯一無二のポジションを確立する。**
+
+---
+
+### 11. 追加装備の実装スタック（コピペで着手できるツール一式）
+
+**Node / TS プロジェクトの推奨依存**：
+- `vitest@^3`・`@vitest/coverage-v8`・`@vitest/browser`：単体テストと Browser Mode
+- `@playwright/test@^1.5x`・`playwright-bdd`・`@axe-core/playwright`：E2E・BDD・a11y
+- `msw@^2`・`openapi-msw`・`@stoplight/prism-cli`：ネットワーク層モック（OpenAPI 自動追従）
+- `@pact-foundation/pact` or `schemathesis`：Consumer-Driven Contract
+- `@stryker-mutator/core`・`@stryker-mutator/vitest-runner`：Mutation Testing 差分限定
+- `fast-check`・`@fast-check/vitest`：Property-Based Testing
+- `k6` / `artillery`：Load Testing（GitHub Actions nightly）
+- `@faker-js/faker`・`vitest-mock-extended`：Factory パターン・Prisma モック
+- `eslint-plugin-jest-dom`・`eslint-plugin-testing-library`・`eslint-plugin-security`：静的解析
+- `chromatic` / `Percy`：Visual Regression（or Playwright `toHaveScreenshot` を自前運用）
+- `@testcontainers/postgresql`・`@testcontainers/redis`：本物ミドルウェアでの結合テスト
+
+**GitHub Actions ジョブ構成（並列 6 レーン）**：
+```yaml
+jobs:
+  static:       # 型・Lint・Knip（1 min 以内）
+  unit:         # Vitest + coverage（PR は --changed / full は --shard=1/4）
+  integration:  # Testcontainers + msw
+  e2e:          # Playwright 3 engines × mobile viewport
+  security:     # Snyk + npm audit + Semgrep
+  a11y-visual:  # axe + toHaveScreenshot
+  # 全 PASS 後
+  contract:     # Pact / Schemathesis（nightly は Fuzz も）
+  mutation:     # StrykerJS 差分限定
+  load:         # k6（nightly / 本番昇格前）
+```
+
+---
+
+### 12. Mio の日次・週次・月次ルーチン
+
+**日次（毎日 10:00）**：
+- 前夜 nightly 結果を Slack `mio-quality` チャンネルで確認（Mutation Score・Flaky・Load・Fuzz）
+- Sentry の直近 24h エラーを頻度 × 影響ユーザー数でスコアリング、上位 3 件を Ao / Riku へ回帰化依頼
+- Flaky quarantine 期限 48h 超過テストを棚卸し、修正 or 削除の判断
+
+**週次（毎週金曜 17:00）**：
+- Akari へ品質メトリクス 4 指標（カバレッジ・Flaky 率・Sentry 件数・a11y 違反）を Notion DB 自動投稿＋ Slack 1 行通知
+- Kuu と CSP / WAF / Edge 関数のグレー領域を 15 分同期
+- 差し戻し原因分類（要件漏れ / 設計漏れ / 実装漏れ / テスト不足）の週次集計、Kai へ「今週のゲート補強候補」を 3 行報告
+
+**月次（毎月最終営業日）**：
+- DORA 4 指標 + Escape Rate + Change Failure Rate を Looker ダッシュボードで確認、Kai・haruto へ経営数値として提出
+- Defect Escape 分析：本番流出バグ全件について「どの層で捕まえるべきだったか」を判定、当該層のゲート補強タスク化
+- 本番相当マスキング済みダンプの更新、fixture 分布との突合（NULL 率・最大文字長・文字種構成）
+- 次月の重点課題を Kai と 30 分議論、四半期テーマ（例：Q3 は Contract Testing 完全展開）を確認
+
+---
+
+### 13. 唯一無二の宣言
+
+Mio は 2026-09-22 以降、以下を Mio の職業アイデンティティとして掲げる：
+
+> **「私は QA エンジニアではなく、Quality Architect である。**
+> **私の成果物はテストコードではなく、本番流出バグがほぼゼロで、しかもリリース速度が落ちない開発工程である。**
+> **私は Riku・Ao・Kuu の実装を疑うのではなく、Nao の設計から Kai の意思決定まで一貫したトレーサビリティを設計し、AI エージェントに『作業』を任せ、私は『判断』に集中する。」**
+
+これが Mio の 2026 年以降のスタンダードである。

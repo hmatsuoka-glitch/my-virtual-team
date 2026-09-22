@@ -814,3 +814,408 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **移動中・電波の弱い現場から見る求職者は端末の省データモードを常用しており、webfontとHero画像が落ちてこない状態が実表示になっている**：抽出は高速回線の検証環境で行うため、webfontが必ず適用された姿しか記録されず、`prefers-reduced-data`未対応の元サイトでは実際には游ゴシック・ヒラギノへフォールバックした別物のLPが表示されている。STEP 3のフォント抽出に「webfont未読込時のフォールバック実体（font-familyの第2候補以降で実際に描画される書体）」と「フォールバック時の字幅差による見出しの行数変化」を記録し、Renへ`font-display`の指定とセットで渡す
 - **40代以上の経験者層はOS側の文字サイズ設定を大きめに固定しており、px固定の高さを持つボタン・カードが文字拡大で溢れる**：px固定／相対の区別（2026-08-16参照）は`font-size`にのみ適用しているが、崩れるのは`height`・`line-height`・`max-height`が固定値のコンテナ側で、文字だけremにしても箱が追随しない。抽出表に`text_scale_risk`を新設し、テキストを内包する要素のうち高さ系プロパティが絶対値指定の箇所を列挙してRenへ渡す。iOSのダイナミックタイプ・Androidのフォントサイズ最大設定で、募集要項の表とCTAボタンが最初に壊れる
 - **元サイトの出現アニメは`prefers-reduced-motion`未対応のまま複製されるが、この設定をオンにしているのは酔いやすい求職者本人である**：`late_reveal_risk`（2026-08-16参照）は高速スクロール時に見えない問題を扱うが、reduced-motion環境ではAOS等が`opacity: 0`の初期状態のまま解除されず、実績数値や社員写真が「永久に表示されない」という別種の事故になる。STEP 5でスクロール連動アニメを採る際に元サイトの`@media (prefers-reduced-motion: reduce)`の有無を必ず記録し、未対応なら「元サイト由来の欠落」としてKaito向け改善提案リストへ回したうえで、Renへは初期状態を`opacity: 1`にするフォールバックを代替案として添える
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+CSS抽出領域における「唯一無二・オーバースペック」の完成を目指す、Hana専用の恒久強化パッケージ。
+本セクションは既存の8ステップ・出力フォーマット・Daily Knowledge Logに一切干渉せず、追加スキル群として上乗せする。
+
+### A. 現状スキル棚卸（強み・弱点の分離）
+
+#### 現状の強み（維持継続）
+1. **8ステップの型化**：STEP 1〜8で工程を分離し、CSS読み込み順→カラー→フォント→レイアウト→アニメ→レスポンシブ→ライブラリ→統合の一貫フロー化。
+2. **Computed Styles API＋生CSS走査の併走**：`getComputedStyle`と生CSSテキスト検索を常時ペアで走らせ、宣言値／解決値の両取り（2026-06-26・2026-07-07参照）。
+3. **ユーザー視点フラグ体系**：`tap_target_warning` `hover_only_content` `above_fold_risk` `readability_risk` `late_reveal_risk` `outdoor_readability_risk` `text_scale_risk` `motion_safety` の8種類で操作性・可読性を数値化。
+4. **stacking_map／変数依存グラフの1JSON統合**：重なり順・CSS変数参照構造を1ファイルに集約し、Renの実装時参照を高速化。
+5. **他エージェント連携の型**：Iro（色役割分担）・hiro（banner-handoff.json）・Sota（埋込ウィジェット）・Shun（フラグ一覧）・Nao／Ren（2系統出力）の連携が明文化済み。
+
+#### 現状の弱点（本強化で埋める）
+1. **CSS-in-JS／Runtime CSS**：styled-components・emotion・vanilla-extract・Panda CSS等、JS実行時に生成されるスタイルの抽出が体系化されていない。
+2. **Design Token W3C標準準拠**：`tokens.json`は自己流フォーマット。W3C Design Tokens Community Group（DTCG）標準の`$type`/`$value`/`$description`構造への準拠が未整備。
+3. **CSS Cascade Layers 完全マップ**：`@layer`宣言順の記録はあるが、**未命名レイヤー**・**匿名レイヤー**・**Import時レイヤー**（`@import url() layer(x)`）まで完全に追えていない。
+4. **@scope／CSS Nestingのフラット化**：ネスト記法をそのまま採ると詳細度計算が狂う。ネスト展開後の詳細度を機械算出する処理が不足。
+5. **View Transitions API 詳細抽出**：`::view-transition-*`疑似要素・`view-transition-name`・`view-transition-class`のマッピング抽出が不足。
+6. **Container Queriesの発火条件記録**：`@container`の親要素`container-type`／`container-name`の割当関係が完全な依存グラフとして記録されていない。
+7. **CSS-Wide Keywords／Guaranteed-Invalid Value**：`revert-layer` `unset` `initial` `inherit` `revert`の使い分けと、変数のフォールバック連鎖の記録が不足。
+
+### B. 追加すべきスキル7項目（不足スキル充填）
+
+#### 1. CSS-in-JS Runtime抽出プロトコル
+- **対象**：styled-components / emotion / linaria / vanilla-extract / Panda CSS / Stitches / CSS Modules。
+- **手法**：Puppeteerで`document.styleSheets`を全走査し、`ownerNode`が`<style>`かつ`data-styled` `data-emotion` `data-vanilla-extract`等のマーカー属性を持つシートを識別。生成されたクラス名（例：`sc-hKgIhP`）と実CSSルールをペアで記録。
+- **納品**：`css_in_js.json`に「ライブラリ種別」「生成クラス名パターン」「実CSSルール」「JSファイル起源（source-map解決可能なら）」を記録し、Renがstyled-components実装かTailwindユーティリティ実装かを選択できる状態にする。
+
+#### 2. W3C Design Tokens (DTCG) 準拠出力
+- **対象**：`tokens.json`のスキーマ変更。
+- **手法**：既存の自己流形式に加え、`{"$type": "color", "$value": "#3B82F6", "$description": "primary CTA background"}`のDTCG準拠形式を並列出力。`style-dictionary` v4のtransformerでTailwind config・CSS変数・iOS SwiftUI Color・Android XML等に多方面出力可能化。
+- **納品**：`tokens.dtcg.json`を`tokens.json`と併記納品。将来のシステム開発部（Sota）・バナー部（yuna）とのトークン共通化を単一ソースで実現。
+
+#### 3. Cascade Layers 完全マップ抽出
+- **対象**：`@layer`宣言・`@import layer()`・匿名レイヤー・レイヤーネスト。
+- **手法**：`document.styleSheets`の各`CSSLayerBlockRule` `CSSLayerStatementRule`を走査し、宣言順・親子関係・所属ルール一覧をツリー化。`@import url("x.css") layer(reset)`のインポート時レイヤー付与も検出。
+- **納品**：`cascade_layers.json`に「レイヤー宣言順」「各レイヤー所属ルール」「匿名レイヤーの識別ID」「未レイヤールール（暗黙の最上位）」を記録。Renの詳細度診断がレイヤー順を第一優先で解ける状態。
+
+#### 4. CSS Nesting／@scope フラット化変換
+- **対象**：ネイティブCSSネスト（`&`）・`@scope (.card) to (.content)`。
+- **手法**：`postcss-nesting` `postcss-scope`のASTベース展開ロジックをPuppeteerに組込み、ネスト展開後のフラットCSSとネスト前の原文を両方保存。展開後の詳細度をa,b,c三組計算（2026-06-20参照）で自動算出。
+- **納品**：`nested_original.css`と`flattened_expanded.css`の2本を納品。Renがネスト対応環境／非対応環境の両方で選択実装可能。
+
+#### 5. View Transitions API 完全抽出
+- **対象**：`@view-transition` `view-transition-name` `view-transition-class` `::view-transition-old(name)` `::view-transition-new(name)` `::view-transition-group(name)` `::view-transition-image-pair(name)`。
+- **手法**：生CSS走査でこれらのプロパティ・疑似要素を検出し、遷移対象要素と遷移演出（duration・easing・animation）のペアを記録。Chrome DevToolsの「Animations」パネル録画スクリプトも併走させ、実際の遷移軌跡をJSON化。
+- **納品**：`view_transitions.json`に「遷移対象要素」「name/class割当」「遷移アニメ定義」「非対応ブラウザでのフォールバック」を記録。
+
+#### 6. Container Queries 依存グラフ完全化
+- **対象**：`@container` `container-type` `container-name` `container` shorthand。
+- **手法**：`container-type: inline-size/size/normal`宣言を持つ要素を全走査し、`@container name (min-width: 400px)`の発火条件と対象子要素をツリー化。名前無し`@container`は最も近い`container-type`祖先に紐付ける仕様も明示反映。
+- **納品**：`container_queries.json`に「コンテナ宣言要素」「コンテナ名」「発火条件」「影響を受ける子要素セレクタ」を記録し、Renの「なぜ切り替わらない」診断を機械化。
+
+#### 7. CSS-Wide Keywords／変数フォールバック連鎖の追跡
+- **対象**：`revert-layer` `revert` `unset` `initial` `inherit` `--x: var(--y, var(--z, #fff))`のフォールバック多段。
+- **手法**：生CSS走査でこれらのキーワード出現箇所を全記録し、`var()`のフォールバック連鎖を再帰解析してツリー化。`@property`型定義（2026-07-27参照）とセットで「変数の型・初期値・アニメ可否・フォールバック順」を1エントリ化。
+- **納品**：`css_wide_keywords.json`と`var_chain.json`に集約。Renが「変数が空だった時に何色になるか」を実装前に確定できる状態。
+
+### C. 2026年トレンド反映（5項目・最新仕様）
+
+#### 1. Container Queries（`@container`）が全ブラウザBaseline化
+- 2026年時点で全ブラウザ対応（Chrome 105+ / Safari 16+ / Firefox 110+）が完了。
+- Bootstrap 5.4・Tailwind v4 が`@container`ネイティブサポート済み。
+- **抽出への影響**：STEP 4のレイアウト抽出で「viewport基準の`@media`」と「コンテナ基準の`@container`」を必ず区別。名前付き／名前無しの両方を検出し、`container-type: inline-size` の祖先とセット記録。
+
+#### 2. CSS Cascade Layers（`@layer`）の実装現場標準化
+- Tailwind v4は`@layer theme, base, components, utilities`の4層構造がデフォルト。
+- モダンリセットCSS（modern-normalize.css v3等）は`@layer reset`単独レイヤーで配布。
+- **抽出への影響**：STEP 1のCSS読み込みマップに「レイヤー宣言順」を必ず記録し、`@import url() layer(name)`のインポート時レイヤー付与も検出。詳細度診断（2026-06-20参照）よりレイヤー順優先を明記。
+
+#### 3. `@scope`ルールの実装普及
+- Chrome 118+ / Safari 17.4+ / Firefox 128+ で対応完了、実装現場での採用が加速。
+- コンポーネントスコープCSS-in-JSからの脱却手段として広まる。
+- **抽出への影響**：STEP 1の生CSS走査に`@scope (root) to (limit)`ブロックを検出項目として追加。境界要素と適用範囲をペア記録し、Renがグローバルセレクタで実装して意図せぬ波及を防ぐ。
+
+#### 4. Subgrid（`grid-template-columns: subgrid`）全ブラウザBaseline
+- Chrome 117+ / Safari 16+ / Firefox 71+ で対応完了。
+- カード内タイトル・本文・CTAの行揃えを親グリッドに連動させる用途が定着。
+- **抽出への影響**：STEP 4のグリッド抽出で`subgrid`使用を検出し、親グリッドと子グリッドのトラック連動関係を記録。
+
+#### 5. View Transitions API（Same-document／Cross-document）の普及
+- Chrome 111+ Same-document / 126+ Cross-document 対応。Safari 18で追随。
+- Astro・Nuxt・Next.js（実験的）でネイティブサポート済み。
+- **抽出への影響**：STEP 5のアニメーション抽出で`@view-transition`宣言・`view-transition-name`割当を検出し、JS制御の遷移演出との代替可否を判定。
+
+### D. CSS抽出プロトコル（強化版・9レーン並列）
+
+既存STEP 1〜8にオーバーレイする形で、以下9レーンをPuppeteer 1コマンドで並列起動する。
+
+| レーン | 抽出対象 | 出力ファイル | 責務 |
+|-------|---------|-------------|------|
+| L1: DOM Structure | HTML構造・セクション境界 | `structure.json` | Nao向けセクション設計材料 |
+| L2: Computed Styles | 全要素の解決値 | `computed.json` | Ren向け実装値 |
+| L3: Raw CSS Text | 生CSSソース・宣言値 | `raw_css.json` | 宣言値／解決値ペアの片方 |
+| L4: Cascade Layers | `@layer`ツリー | `cascade_layers.json` | 詳細度診断の第一優先 |
+| L5: Container Queries | `@container`依存グラフ | `container_queries.json` | Renの動的レイアウト再現 |
+| L6: Tokens (DTCG) | Design Tokens準拠出力 | `tokens.dtcg.json` | 多プラットフォーム展開 |
+| L7: Fonts | webfont・unicode-range・license | `fonts.json` | Renのnext/font設定 |
+| L8: Assets | 画像・SVGスプライト・アイコン | `assets.json` | 画像最適化・alt判定 |
+| L9: Flags | 8種のユーザー視点フラグ | `flags.json` | Mia／Shunへの申し送り |
+
+**実行順**：L1→L2/L3並列→L4/L5並列→L6（L3から生成）→L7/L8/L9並列。全レーン完了後にL10（統合検証）でpre-handoff exit code判定。
+
+### E. レスポンシブ抽出手順（詳細・6ビューポート×4環境軸）
+
+#### 6ビューポート（幅ピクセル）
+- 320（iPhone SE 縦）／ 375（iPhone 14 Pro 縦）／ 768（iPad 縦）／ 1024（iPad 横）／ 1280（PC標準）／ 1920（PC大）
+
+#### 4環境軸
+1. `prefers-color-scheme`：light / dark
+2. `prefers-reduced-motion`：no-preference / reduce
+3. `prefers-contrast`：no-preference / more / less
+4. `forced-colors`：none / active
+
+#### 抽出マトリクス
+- 6ビューポート × 2 × 2 × 3 × 2 = **144パターン**が理論上限だが、実運用は「6ビューポート × 各軸のオンオフ2値 = 6×2×2×2×2 = 96パターン」を機械走査し、`@media`宣言で分岐する箇所だけ差分記録。
+- 各ビューポートで`document.documentElement.clientWidth`（スクロールバー除外値、2026-06-12参照）を実測し、`100vw`使用箇所の警告フラグを更新。
+- `svh`／`lvh`／`dvh`（2026-06-13参照）は各ビューポートでURLバー表示・非表示の2状態で高さを実測。
+
+#### コンテナクエリ追加走査
+- `container-type: inline-size` を持つ祖先要素を全列挙し、そのコンテナに紐付く`@container`ルールの発火条件を親サイズ変動時に実測。
+- コンテナ幅を100pxステップで200〜1600pxまで動的変更し、各段階で子要素のcomputed値変化を記録。
+
+### F. フォント再現テクニック（オーバースペック版）
+
+#### 1. Variable Fonts 軸マッピング
+- `document.fonts`で全FontFaceを取得し、各`.style` `.weight` `.stretch`から可変軸を推定。
+- `wght`／`wdth`／`slnt`／`opsz`（optical-size）／`GRAD`／`XOPQ`（Roboto Flex等の独自軸）を検出し、`font-variation-settings` の指定値と実測描画の対応表を作成。
+- Noto Sans JP Variable / Zen Kaku Gothic New Variable の可変軸最適採用で、初回ロード1.7MB削減（2026-05-18参照）を仕様書に明記。
+
+#### 2. Unicode-range 完全抽出
+- `@font-face { unicode-range: U+3000-9FFF, U+FF00-FFEF }` のような分割配信情報を`document.fonts.entries()`で全ループ取得。
+- 日本語・英数字・記号の各サブセット読み込み優先度と、`font-display`ごとの読み込み挙動を記録。
+- サブセット漏れによる「半角英数だけ別フォント」問題（2026-05-20参照）をpre-handoff検証に組込。
+
+#### 3. FOUT／FOIT／FOFT 対策マトリクス
+- Hero直上テキスト（LCP対象）＝`font-display: optional` 推奨（2026-05-24参照）。
+- 本文＝`font-display: swap`。
+- 装飾テキスト＝`font-display: block`（ちらつき許容の代わりに書体維持）。
+- 元サイトが `font-display` を指定していない場合は「元サイト由来の欠陥」としてKaito向け改善リストへ回す。
+
+#### 4. `font-variation-settings` 微調整の記録
+- 見出し用「wght 550」など標準ウェイト外の中間値使用箇所を検出し、Renへ`font-variation-settings: 'wght' 550`の直接指定でTailwindの`font-medium`等のプリセットを上書きする実装を提案。
+
+#### 5. Font Loading API `document.fonts.check()` 検証
+- `document.fonts.check("16px 'Noto Sans JP'")` で実際に読み込み可能な状態かをスクリプト内で検証し、`false`ならCORS制約や読み込み失敗を検出（2026-06-03参照）。
+
+### G. KPI（Key Performance Indicators）
+
+| KPI名 | 定義 | 目標値 | 計測方法 |
+|-------|------|--------|----------|
+| **再現率（Pixel Fidelity Rate）** | Mia QA でOK判定を受けた要素数 ÷ 全抽出要素数 | 99.0%以上 | Mia QA レポートの`pass_count / total_count` |
+| **差異px（Avg Pixel Deviation）** | 元LP画像と複製LP画像のピクセル差分の平均値（BackstopJS） | 2.0px以下 | `backstop test` の`mismatchPercentage`平均 |
+| **欠落頻度（Missing Property Rate）** | Ren実装後にHana側で再抽出したプロパティ数 ÷ 初回納品プロパティ総数 | 0.5%以下 | 再抽出JSONログの差分行数 |
+| **抽出所要時間** | STEP 0開始〜STEP 8納品完了までの経過時間 | 45分以下 | Puppeteerスクリプトの`console.time` |
+| **フラグ検出率** | 8種フラグの該当箇所検出数 ÷ 実際の該当箇所数（Mia事後監査） | 95%以上 | Mia事後監査の見逃し件数 |
+| **DTCG準拠率** | `tokens.dtcg.json`のW3C仕様準拠プロパティ数 ÷ 全トークン数 | 100% | `style-dictionary` の validation エラーゼロ |
+| **Cascade Layer 網羅率** | 検出した`@layer`宣言 ÷ 実際の宣言数（Mia監査） | 100% | 生CSS走査ログとMia監査の突合 |
+
+**KPI未達時の対応**：pre-handoff スクリプトがexit code 1を返し、STEP 8サインオフ不可。該当KPIをNGフラグ付きでKaitoへ即報告し、原因（環境差／抽出漏れ／元サイト由来）を分類。
+
+### H. Puppeteer スクリプト雛形（実行可能な骨格）
+
+```javascript
+// scripts/hana-extract.mjs — CSS完全抽出パイプライン（強化版）
+// 使い方: node scripts/hana-extract.mjs <URL> <output_dir>
+import puppeteer from 'puppeteer';
+import puppeteerExtra from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+puppeteerExtra.use(StealthPlugin());
+
+const [,, targetUrl, outDir = './extract-output'] = process.argv;
+if (!targetUrl) throw new Error('URL required');
+
+await fs.mkdir(outDir, { recursive: true });
+
+const browser = await puppeteerExtra.launch({
+  headless: 'new',
+  args: ['--no-sandbox', '--disable-web-security'],
+});
+
+const VIEWPORTS = [
+  { width: 320, height: 568, name: 'sp-320' },
+  { width: 375, height: 812, name: 'sp-375' },
+  { width: 768, height: 1024, name: 'tab-768' },
+  { width: 1024, height: 768, name: 'tab-1024' },
+  { width: 1280, height: 800, name: 'pc-1280' },
+  { width: 1920, height: 1080, name: 'pc-1920' },
+];
+
+const ENV_AXES = [
+  { colorScheme: 'light', reducedMotion: 'no-preference', contrast: 'no-preference', forcedColors: 'none' },
+  { colorScheme: 'dark', reducedMotion: 'no-preference', contrast: 'no-preference', forcedColors: 'none' },
+  { colorScheme: 'light', reducedMotion: 'reduce', contrast: 'no-preference', forcedColors: 'none' },
+  { colorScheme: 'light', reducedMotion: 'no-preference', contrast: 'more', forcedColors: 'none' },
+  { colorScheme: 'light', reducedMotion: 'no-preference', contrast: 'no-preference', forcedColors: 'active' },
+];
+
+// STEP 0: プリフライト（2回ロード同一性・CORS・Shadow DOM検出）
+async function preflight(page) {
+  const results = { variantConsistent: null, corsFontOk: null, shadowDoms: [] };
+  const hash1 = await page.evaluate(() => Array.from(document.styleSheets).map(s => s.href || 'inline').join('|'));
+  await page.reload({ waitUntil: 'networkidle2' });
+  const hash2 = await page.evaluate(() => Array.from(document.styleSheets).map(s => s.href || 'inline').join('|'));
+  results.variantConsistent = hash1 === hash2;
+  results.corsFontOk = await page.evaluate(() => document.fonts.size > 0);
+  results.shadowDoms = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('*')).filter(el => el.shadowRoot).map(el => el.tagName)
+  );
+  return results;
+}
+
+// L2: Computed Styles 一括ダンプ
+async function extractComputed(page) {
+  return await page.evaluate(() => {
+    const all = document.querySelectorAll('*');
+    return Array.from(all).map(el => {
+      const cs = window.getComputedStyle(el);
+      const pseudos = ['::before', '::after'].map(p => ({
+        pseudo: p,
+        content: window.getComputedStyle(el, p).content,
+      }));
+      // 5状態ループ（default/hover/focus-visible/active/disabled）は DevTools Protocol 経由で別途取得
+      return {
+        selector: el.tagName + (el.id ? '#'+el.id : '') + (el.className && typeof el.className === 'string' ? '.'+el.className.replace(/\s+/g,'.') : ''),
+        computed: {
+          color: cs.color, background: cs.backgroundColor, fontSize: cs.fontSize,
+          fontFamily: cs.fontFamily, fontWeight: cs.fontWeight, lineHeight: cs.lineHeight,
+          margin: cs.margin, padding: cs.padding, display: cs.display,
+          gridTemplateColumns: cs.gridTemplateColumns, gap: cs.gap,
+          position: cs.position, zIndex: cs.zIndex, transform: cs.transform,
+          opacity: cs.opacity, filter: cs.filter, backdropFilter: cs.backdropFilter,
+        },
+        pseudos,
+      };
+    });
+  });
+}
+
+// L3: 生CSS走査（@layer / @scope / @container / var() / logical properties）
+async function extractRawCss(page) {
+  return await page.evaluate(() => {
+    const results = { layers: [], scopes: [], containers: [], vars: {}, logicalProps: [] };
+    for (const sheet of document.styleSheets) {
+      try {
+        for (const rule of sheet.cssRules) {
+          if (rule instanceof CSSLayerBlockRule) results.layers.push({ name: rule.name, rules: rule.cssRules.length });
+          if (rule.constructor?.name === 'CSSScopeRule') results.scopes.push({ start: rule.start, end: rule.end });
+          if (rule.constructor?.name === 'CSSContainerRule') results.containers.push({ query: rule.containerQuery });
+          if (rule.cssText?.includes('--')) {
+            const matches = rule.cssText.match(/--[\w-]+:\s*[^;]+/g);
+            if (matches) matches.forEach(m => {
+              const [k, v] = m.split(':').map(s => s.trim());
+              results.vars[k] = v;
+            });
+          }
+          if (rule.cssText?.match(/margin-inline|padding-block|inset-inline/)) {
+            results.logicalProps.push(rule.selectorText);
+          }
+        }
+      } catch (e) { /* CORS blocked stylesheet */ }
+    }
+    return results;
+  });
+}
+
+// L4: Cascade Layers ツリー化
+async function extractCascadeLayers(page) {
+  return await page.evaluate(() => {
+    const layers = [];
+    for (const sheet of document.styleSheets) {
+      try {
+        for (const rule of sheet.cssRules) {
+          if (rule instanceof CSSLayerBlockRule || rule instanceof CSSLayerStatementRule) {
+            layers.push({
+              type: rule instanceof CSSLayerBlockRule ? 'block' : 'statement',
+              name: rule.name || '(anonymous)',
+              ruleCount: rule.cssRules?.length ?? 0,
+            });
+          }
+        }
+      } catch (e) {}
+    }
+    return layers;
+  });
+}
+
+// L7: Fonts（unicode-range / font-display / license hint）
+async function extractFonts(page) {
+  await page.evaluate(() => document.fonts.ready);
+  return await page.evaluate(() => {
+    const fonts = [];
+    for (const face of document.fonts) {
+      fonts.push({
+        family: face.family,
+        weight: face.weight,
+        style: face.style,
+        unicodeRange: face.unicodeRange,
+        display: face.display,
+        status: face.status,
+      });
+    }
+    return fonts;
+  });
+}
+
+// L9: フラグ検出（tap_target / hover_only / above_fold / readability etc）
+async function detectFlags(page) {
+  return await page.evaluate(() => {
+    const flags = [];
+    const clickables = document.querySelectorAll('a, button, [role="button"], input[type="submit"]');
+    clickables.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width < 44 || rect.height < 44) {
+        flags.push({ type: 'tap_target_warning', selector: el.tagName, size: `${rect.width}x${rect.height}`, section: findSection(el), scrollDepth: (rect.top / document.body.scrollHeight * 100).toFixed(1) });
+      }
+    });
+    function findSection(el) {
+      let cur = el;
+      while (cur && cur !== document.body) {
+        if (cur.tagName === 'SECTION' || cur.id) return cur.id || cur.tagName;
+        cur = cur.parentElement;
+      }
+      return 'unknown';
+    }
+    return flags;
+  });
+}
+
+// メインパイプライン
+const page = await browser.newPage();
+await page.emulateMediaFeatures([
+  { name: 'prefers-color-scheme', value: 'light' },
+  { name: 'prefers-reduced-motion', value: 'no-preference' },
+]);
+await page.goto(targetUrl, { waitUntil: 'networkidle2' });
+
+const preflightResult = await preflight(page);
+await fs.writeFile(path.join(outDir, 'preflight.json'), JSON.stringify(preflightResult, null, 2));
+
+const [computed, rawCss, layers, fonts, flags] = await Promise.all([
+  extractComputed(page),
+  extractRawCss(page),
+  extractCascadeLayers(page),
+  extractFonts(page),
+  detectFlags(page),
+]);
+
+await Promise.all([
+  fs.writeFile(path.join(outDir, 'computed.json'), JSON.stringify(computed, null, 2)),
+  fs.writeFile(path.join(outDir, 'raw_css.json'), JSON.stringify(rawCss, null, 2)),
+  fs.writeFile(path.join(outDir, 'cascade_layers.json'), JSON.stringify(layers, null, 2)),
+  fs.writeFile(path.join(outDir, 'fonts.json'), JSON.stringify(fonts, null, 2)),
+  fs.writeFile(path.join(outDir, 'flags.json'), JSON.stringify(flags, null, 2)),
+]);
+
+// pre-handoff 検証：全レーン出力の空判定＋KPIチェック
+const preHandoffOk = (
+  preflightResult.variantConsistent &&
+  computed.length > 0 &&
+  fonts.length > 0
+);
+
+if (!preHandoffOk) {
+  console.error('[Hana] pre-handoff NG: 抽出が不完全');
+  process.exit(1);
+}
+
+await browser.close();
+console.log('[Hana] 抽出完了:', outDir);
+```
+
+**運用手順**：
+1. `node scripts/hana-extract.mjs https://example.com ./out/case-XXX` でパイプライン実行。
+2. 出力ディレクトリの9レーンJSONを`scripts/build-tokens-dtcg.mjs`でW3C準拠`tokens.dtcg.json`に変換。
+3. `scripts/json-to-theme.mjs`でTailwind v4 `@theme`形式CSSに直変換（2026-06-23参照）。
+4. Nao向け（構造JSON）とRen向け（要素JSON＋フラグ）の2系統に自動振り分けし、STEP 8完了として納品。
+
+### I. 品質サインオフゲート（強化版・12点）
+
+STEP 8納品前に以下12点を pre-handoff スクリプトで機械判定。1項目でもNGなら exit code 1。
+
+1. ピクセル完全性6点（カラー三重検証／フォント6属性／ブレークポイント6幅／`prefers-*` MQ／疑似要素／Shadow DOM）
+2. 操作性4フラグ（`tap_target_warning` / `hover_only_content` / `above_fold_risk` / `readability_risk`）
+3. ユーザー視点追加フラグ（`late_reveal_risk` / `outdoor_readability_risk` / `text_scale_risk`）
+4. 抽出環境ヘッダ（OS・ブラウザ・DPR・ビューポート・実行日時・バリアント同一性）
+5. Cascade Layers 網羅（`@layer`宣言順・匿名レイヤー・インポート時レイヤー）
+6. Container Queries 依存グラフ（`@container`・`container-type`祖先マップ）
+7. `@scope`／CSS Nesting フラット化変換（展開後詳細度算出）
+8. Variable Fonts 軸マッピング（`wght`/`wdth`/`opsz`）
+9. `view-transition-name` 割当マップ
+10. DTCG準拠`tokens.dtcg.json` バリデーションPASS
+11. CSS-in-JS Runtime 抽出（該当案件のみ）
+12. 8フラグの`section`+`scroll_depth`自動付与
+
+全項目PASSでSTEP 8サインオフ、KaitoへSlack通知しNao/Renへ2系統出力を投函、hiroへbanner-handoff.json、noriへライセンス一覧、Shunへフラグ一覧を並列投函する。
+

@@ -643,3 +643,404 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **求職者はスマホを横向きにしないが、クライアントの承認者はiPadを横向きに置いて確認している**：検証マトリクスにクライアント確認端末を1枠入れる運用（2026-08-16参照）は機種・ブラウザ・OSバージョンまでしか押さえておらず、向きの指定がないため縦でしか撮っていない。Playwrightのプロジェクト設定（2026-08-18参照）のクライアント端末枠だけはportrait/landscapeの2構成を持ち、横向きでコンテナクエリの分岐が変わって2カラムに割れる／固定CTAが実表示高さを圧迫する崩れを承認前に検出する
 - **求職者の端末は低電力モードで動作しており、出現アニメの初期状態が解除されずCV直結要素が最後まで表示されないことがある**：`prefers-reduced-motion`を有効化した環境ではAOS等が`opacity: 0`のまま止まり、実績数値・社員写真・CTAが「遅れて出る」のではなく「一度も出ない」状態になる。これはスクショ差分では元LPと複製LPの双方が同じく消えるため差分なしで通過する。検証条件（2026-08-18参照）にreduced-motion有効の1構成を追加し、この条件下で主要セクションの主要素が`opacity`・`transform`ともに初期値から解除されているかを`getComputedStyle`で機械判定してから通過させる
 - **片手操作の求職者は画面端スワイプで「戻る」を多用するため、横スクロールの実績カルーセルを送ろうとしてページから離脱する**：タップターゲットの寸法と親指到達域は座標判定で機械化済み（2026-09-01参照）だが、スワイプ操作の競合は寸法にも位置にも現れない。SP幅の実機確認項目に「画面左端24px を起点にした水平スワイプでブラウザバックが発生しないか」を追加し、`overflow-x`のカルーセル・スライダーが画面端まで到達している場合は左右に安全余白を設けるようRenへ差し戻す。機材条件では数値化できない操作系の項目として、人的QAの2項目（2026-09-01参照）と同じ枠で扱う
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+**目的**：Mia を「LP忠実度QAの唯一無二・オーバースペック仕様」へ引き上げる。ピクセル一致・知覚一致・機能一致・アクセシビリティ・パフォーマンス・実ユーザー体験までを一気通貫でゲート化し、Sora 最終 QA でのリジェクト率 <1%・本番クレーム発生率 <0.3% を恒常化する。
+
+### 1. 現状スキル洗い出し（強み）
+
+- 5カテゴリ×95項目チェックリスト運用（レイアウト20/カラー18/フォント15/アニメ12/レスポンシブ20）
+- pixelmatch 4段階しきい値＋領域別2段運用（Hero/CTA/Form 厳格 0.05／装飾 looks-same 知覚判定）
+- Playwright タグ別並列実行（`@layout/@color/@font/@animation/@responsive`）でフルQAを25分→数分に短縮
+- 差し戻しは「セレクタ／現状値／期待値／参考スクショ」4点セット必須化
+- Core Web Vitals（LCP/INP/CLS/TTFB）計測と Lab/Field 乖離モニタリング
+- WCAG 2.2 AA 準拠 axe-core 自動検査＋キーボード＋SR 3層 a11y チェック
+- ハイパーフォーカス3要素（Hero/CTA/Form）と装飾要素の判定分離
+- Nao/Hana/kotone/Kaito との責務別自動振り分け・エスカレ連携
+
+### 2. 不足スキル7項目（本アップデートで補強）
+
+1. **AIビジュアル差分検出（Percy Vision / Chromatic AI）による意図変更 vs バグの自動分類** — 現行は pixelmatch＋looks-same の2段判定に留まり、AI ベースの「意味的差異」検出が未導入
+2. **Container Queries（`@container`）／View Transitions API のQA基準** — Tailwind v4・CSS Nesting・Container Queries を Ren が採用する場合の検証観点が未整備
+3. **Playwright Component Test（Storybook 連携）でのコンポーネント単位VRT** — ページ全画面比較が主で、部品単位のベースライン運用がフロー化されていない
+4. **CPU/Network スロットリング環境下でのINP実測ゲート化** — 4x CPU throttle＋Slow 4G の合否ゲートが `mia.config.json` に固定されていない
+5. **Real Device Cloud（BrowserStack / LambdaTest）自動連携** — エミュレータ中心で、実機マトリクス実行がGitHub Actions matrix化されていない
+6. **INP起因の JavaScript Long Task 検出（`PerformanceObserver('longtask')`）** — 200ms超のタスクを CI で物理検出する仕組みが未実装
+7. **画像最適化検証（AVIF/WebP フォールバック・`fetchpriority="high"`・`decoding="async"`）** — Hero LCP の細粒度チューニング検証が体系化されていない
+
+### 3. 2026年トレンド5項目
+
+1. **Percy AI（AI Visual Diff）と Chromatic AI 判定の「知覚 vs リグレッション」自動分類が業界標準化** — 2026年内に主要SaaS全てが AI 判定エンジンを一般公開、pixelmatch 単体運用は「レガシー」区分へ
+2. **View Transitions API と `@starting-style` のクロスブラウザQA** — Chrome 111+ / Safari 18 / Firefox 130 で対応拡大、ページ遷移アニメの忠実度検証が新項目化
+3. **Container Queries（`@container`）＋Style Queries の実装増加でメディアクエリ依存 QA から脱却** — 親要素基準のレイアウト判定が主流、375/768/1280 の3幅固定検証だけでは不十分
+4. **CV（Computer Vision）差分エンジン `Applitools Eyes` / `Sauce Visual` の日本語UI最適化** — 「見た目は同じ」でも「意味的に異なる」（社名の外字違い等）を検出する OCR＋LLM 判定
+5. **WCAG 3.0 ドラフト APCA（Advanced Perceptual Contrast Algorithm）の任意採用** — 従来コントラスト比 4.5:1 とは異なる Lc 値ベース判定、写真上テキスト・細字の「数値合格・知覚NG」問題を解決
+
+### 4. 強化スキル（本アップデートで追加）
+
+#### 4.1 AI Visual Diff 二層判定プロトコル
+- **Layer A（従来ピクセル判定）**：`pixelmatch@6.x` の閾値を領域別に `mia.config.json` で固定
+  - Hero/CTA/Form: `threshold: 0.05`, `maxDiffPixelRatio: 0.005`
+  - テキスト帯: `threshold: 0.25`, `maxDiffPixelRatio: 0.02`（アンチエイリアス差吸収）
+  - 装飾/背景: `looks-same --ignoreAntialiasing --strict=false`
+- **Layer B（AI 判定）**：`chromatic --auto-accept-changes` のAI判定エンジン、または `applitools eyes` で「意図変更／リグレッション／偽陽性」の3分類自動タグ付け
+- **合否ロジック**：Layer A で NG かつ Layer B で「リグレッション」判定の交差集合のみ差し戻し。「偽陽性」判定は自動スキップし、Mia のレビュー往復を 3 回→1 回に確定
+
+#### 4.2 コンポーネント単位 VRT（Storybook + Playwright Component Test）
+- Ren の共通コンポーネント（Hero/CTA/Form/Card/Nav/Footer）を Storybook 化し、`@playwright/experimental-ct-react` で部品単位ベースラインを取得
+- 各部品に `story.args` で3〜5パターン（最短テキスト／標準／最長テキスト／エラー状態／空状態）を用意し、部品×状態×3ブレークポイントの全組合せを並列比較
+- ページ全画面比較の偽差分（他部品の高さ変動で無関係箇所がNG化）を根本排除、再QA時間を 25分→3分に圧縮
+
+#### 4.3 INP / Long Task 実測ゲート
+- Playwright 実行中に `page.evaluateOnNewDocument(() => { new PerformanceObserver((list) => { window.__longTasks = (window.__longTasks || []).concat(list.getEntries()); }).observe({ entryTypes: ['longtask'] }); })` で 50ms超タスクを収集
+- CPU throttle 4x／Network Slow 4G を CDP で強制した状態で、フォーム入力・アコーディオン開閉・カルーセル遷移の INP を計測
+- 合格基準：**INP p75 ≤ 200ms、Long Task 数 ≤ 3件／セッション**。1つでも超過なら 85 点合格でも 84 点減点
+
+#### 4.4 Container Queries／View Transitions API 検証
+- 親コンテナ基準の `@container (min-width: 480px)` 分岐は 3 幅固定ではなく、代表コンポーネントの親要素幅を 240/320/480/640/800 の 5 段でスクショ撮影
+- View Transitions API（`document.startViewTransition`）使用箇所は `page.evaluate` で `::view-transition-*` 疑似要素の存在確認と、`prefers-reduced-motion` 有効時のフォールバック挙動検証
+
+#### 4.5 Real Device Cloud マトリクス実行
+- BrowserStack SDK を GitHub Actions matrix（`browser × device × orientation`）で並列起動
+- 必須マトリクス：`iOS Safari 17/18 × iPhone 13/15 Pro × portrait/landscape` ＋ `Android Chrome × Pixel 8 / Galaxy S24 × portrait` ＋ `Edge × Windows 11 × 表示倍率 125%/150%`
+- クライアント確認端末構成（2026-08-16参照）を Kaito 経由で受領し、`browserstack.config.yml` に案件着手時に自動書込
+
+### 5. QAプロトコル v3（`npm run qa:full` 一発実行の 12 段階ゲート）
+
+```
+STEP 0: 合格ライン事前合意（Kaito×Sora 経由で標準85 / 高難度90）
+STEP 1: baseline 凍結（元 LP を DPR 1/1.25/1.5/2 × 幅 320/375/414/768/1024/1280/1920 = 28 枚バッチ撮影）
+STEP 2: レイアウト忠実度（pixelmatch 領域別 + looks-same 知覚判定）
+STEP 3: カラー忠実度（HEX 完全一致 + WCAG AA 4.5:1 + APCA Lc >= 60 の3軸）
+STEP 4: フォント忠実度（family/weight/line-height/letter-spacing + サブセット外字レンダリング + font-display 値）
+STEP 5: アニメーション忠実度（duration/easing/delay 数値照合 + reducedMotion 停止検証 + hover/focus-visible/active/loading 5状態）
+STEP 6: レスポンシブ忠実度（3幅 + 境界±1px 狭間 + landscape + container query 親要素幅5段）
+STEP 7: a11y 3層（axe-core violations 0件 + Tab 全 CTA フォーカス + VoiceOver 見出し階層読上）
+STEP 8: Core Web Vitals（Lighthouse Performance/A11y/BestPractices/SEO 全 4カテゴリ 85+）
+STEP 9: INP / Long Task 実測（CPU 4x throttle + Slow 4G で p75 ≤ 200ms）
+STEP 10: フォーム E2E（ダミー応募→サンクス→自動返信→GA4 発火）
+STEP 11: 事実整合（kotone 正解表との文字列突合、外字・数値・固有名詞 0/100 二値）
+STEP 12: 本番ドメイン最終確認（?cache_bust + Disable cache ハードリロード + ETag 最新確認）
+```
+
+**カテゴリ別下限ゲート**：総合 85 点でも各カテゴリ下限（レイアウト 12/20・カラー 12/20・フォント 10/15・アニメ 8/12・レスポンシブ 12/20）割れなら通過不可。1カテゴリ致命崩れの平均化ごまかしを禁止。
+
+### 6. ビジュアル Regression テスト設計
+
+#### 6.1 テストピラミッド
+
+```
+                       ┌───────────────────┐
+                       │  Manual Sora QA   │ 5%（体感・識別性）
+                       └─────────┬─────────┘
+                    ┌────────────┴────────────┐
+                    │  E2E フォーム / CV フロー │ 15%（Playwright）
+                    └────────────┬────────────┘
+              ┌──────────────────┴──────────────────┐
+              │ Full Page VRT + a11y + Lighthouse   │ 25%（3ブラウザ×3幅）
+              └──────────────────┬──────────────────┘
+     ┌────────────────────────────┴────────────────────────────┐
+     │ Component VRT（Storybook + Playwright CT） 55%（部品×状態×幅） │
+     └─────────────────────────────────────────────────────────┘
+```
+
+#### 6.2 実行トリガー
+
+| トリガー | 実行内容 | 所要時間 |
+|---------|---------|---------|
+| PR 作成 | Component VRT のみ（変更部品と依存部品） | 2〜4 分 |
+| PR label `qa:full` | 全ピラミッド | 6〜8 分（10 並列） |
+| main マージ | 全ピラミッド ＋ 本番ドメイン最終確認 | 8〜10 分 |
+| 納品後 7 日 | Field Data（CrUX）取得＋ Lab 乖離検知 | 1 分／日 |
+
+#### 6.3 差分承認フロー
+
+1. AI Layer B が「意図変更」と判定 → Saki の申請と Nao 設計書の変更履歴を突合、両方あれば baseline 部分更新
+2. AI Layer B が「リグレッション」と判定 → 責務判定（Hana/Ren/Saki）で自動エスカレ
+3. AI Layer B が「偽陽性」と判定 → 自動スキップ、`mia.config.json` の該当セレクタに mask 追加を提案
+
+### 7. KPI（数値目標）
+
+| 指標 | 現状 | 目標（2026 Q4） | 測定方法 |
+|-----|-----|---------------|---------|
+| 平均差異ピクセル数（全画面） | 未計測 | ≤ 500 px（1920×1080 中） | `pixelmatch` diff count 集計 |
+| 検出率（本番後クレーム検知率） | 92% | ≥ 99.5% | Sora QA 通過後の本番クレーム数 / QA 実施件数 |
+| 偽陽性率（False Positive Rate） | 約 18% | ≤ 3% | AI Layer B 偽陽性判定数 / 全 NG 判定数 |
+| 偽陰性率（False Negative Rate） | 約 5% | ≤ 0.5% | Sora リジェクト数 / Mia 通過数 |
+| フル QA 所要時間 | 25 分（直列） | ≤ 4 分（10 並列） | `time npm run qa:full` |
+| Sora QA リジェクト率 | 15%→2%（2026-06） | ≤ 1% | Sora 差し戻し数 / Mia 通過数 |
+| 差し戻しレポート発行時間 | 15 分 | ≤ 30 秒（自動起票） | Mia レポート提出時刻 - QA 完了時刻 |
+| INP p75（CPU 4x throttle） | 未計測 | ≤ 200ms | `PerformanceObserver('event')` |
+| Lighthouse 4 カテゴリ最低点 | 平均 85 | 全カテゴリ ≥ 90 | `lhci autorun` |
+| WCAG 2.2 AA 違反件数 | 平均 3 件／案件 | 0 件 | `@axe-core/playwright` violations |
+
+### 8. Playwright スクリプト雛形
+
+#### 8.1 `playwright.config.ts`（プロジェクト設定 1 箇所固定）
+
+```typescript
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests/qa',
+  fullyParallel: true,
+  workers: 10,
+  reporter: [['html'], ['json', { outputFile: 'qa-results.json' }]],
+  use: {
+    baseURL: process.env.PREVIEW_URL,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+  projects: [
+    // モバイル（縦）
+    { name: 'iPhone-13-portrait', use: { ...devices['iPhone 13'] } },
+    { name: 'iPhone-15Pro-portrait', use: { ...devices['iPhone 15 Pro'] } },
+    { name: 'Pixel-8-portrait', use: { ...devices['Pixel 7'] } },
+    // モバイル（横）
+    { name: 'iPhone-15Pro-landscape', use: { ...devices['iPhone 15 Pro landscape'] } },
+    // タブレット
+    { name: 'iPad-Air-portrait', use: { ...devices['iPad (gen 7)'] } },
+    { name: 'iPad-Air-landscape', use: { ...devices['iPad (gen 7) landscape'] } },
+    // デスクトップ（DPR 4 段）
+    { name: 'Desktop-Chrome-1x', use: { ...devices['Desktop Chrome'], deviceScaleFactor: 1 } },
+    { name: 'Desktop-Chrome-1.25x', use: { ...devices['Desktop Chrome'], deviceScaleFactor: 1.25 } },
+    { name: 'Desktop-Chrome-1.5x', use: { ...devices['Desktop Chrome'], deviceScaleFactor: 1.5 } },
+    { name: 'Desktop-Chrome-2x', use: { ...devices['Desktop Chrome'], deviceScaleFactor: 2 } },
+    // クロスブラウザ
+    { name: 'Safari', use: { ...devices['Desktop Safari'] } },
+    { name: 'Firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'Edge', use: { ...devices['Desktop Edge'] } },
+    // reduced-motion / dark-mode
+    { name: 'reduced-motion', use: { ...devices['Desktop Chrome'], reducedMotion: 'reduce' } },
+    { name: 'dark-mode', use: { ...devices['Desktop Chrome'], colorScheme: 'dark' } },
+    // 低速環境
+    { name: 'slow-4g-cpu4x', use: {
+      ...devices['Pixel 7'],
+      launchOptions: { args: ['--force-effective-connection-type=slow-2g'] },
+    }},
+  ],
+});
+```
+
+#### 8.2 レイアウト忠実度テスト（`@layout` タグ）
+
+```typescript
+import { test, expect } from '@playwright/test';
+import pixelmatch from 'pixelmatch';
+import { PNG } from 'pngjs';
+import fs from 'fs';
+import config from '../mia.config.json';
+
+test.describe('@layout レイアウト忠実度', () => {
+  test('Hero セクション pixel-perfect', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForLoadState('networkidle');
+    // lazy image 全ロード待機
+    await page.evaluate(async () => {
+      window.scrollTo(0, document.body.scrollHeight);
+      await new Promise(r => setTimeout(r, 500));
+      window.scrollTo(0, 0);
+      await new Promise(r => setTimeout(r, 200));
+    });
+    const hero = page.locator('[data-qa="hero"]');
+    const buf = await hero.screenshot();
+    const baseline = PNG.sync.read(fs.readFileSync(`./baseline/hero-${test.info().project.name}.png`));
+    const actual = PNG.sync.read(buf);
+    const diff = new PNG({ width: baseline.width, height: baseline.height });
+    const diffPx = pixelmatch(baseline.data, actual.data, diff.data, baseline.width, baseline.height, {
+      threshold: config.thresholds.hero, // 0.05
+    });
+    const ratio = diffPx / (baseline.width * baseline.height);
+    expect(ratio, `差異率 ${(ratio * 100).toFixed(3)}%`).toBeLessThanOrEqual(config.maxRatio.hero); // 0.005
+  });
+
+  test('横スクロール発生禁止', async ({ page }) => {
+    await page.goto('/');
+    const hasOverflow = await page.evaluate(() =>
+      document.documentElement.scrollWidth > document.documentElement.clientWidth
+    );
+    expect(hasOverflow).toBe(false);
+  });
+});
+```
+
+#### 8.3 INP / Long Task 実測（`@perf` タグ）
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('@perf INP / Long Task', () => {
+  test('CPU 4x throttle 環境で INP p75 <= 200ms', async ({ page, context }) => {
+    const client = await context.newCDPSession(page);
+    await client.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+    await page.goto('/');
+    await page.evaluateOnNewDocument(() => {
+      (window as any).__events = [];
+      new PerformanceObserver((list) => {
+        (window as any).__events.push(...list.getEntries());
+      }).observe({ type: 'event', buffered: true, durationThreshold: 40 });
+    });
+    // フォーム操作を10回シミュレート
+    for (let i = 0; i < 10; i++) {
+      await page.locator('input[name="name"]').fill(`ダミー${i}`);
+      await page.locator('input[name="tel"]').fill('09012345678');
+      await page.locator('[data-qa="submit"]').hover();
+    }
+    const inps = await page.evaluate(() =>
+      (window as any).__events.map((e: any) => e.duration).sort((a: number, b: number) => a - b)
+    );
+    const p75 = inps[Math.floor(inps.length * 0.75)];
+    expect(p75, `INP p75 = ${p75}ms`).toBeLessThanOrEqual(200);
+  });
+});
+```
+
+### 9. BackstopJS 雛形（Storybook 連携によるコンポーネント VRT）
+
+```json
+{
+  "id": "mia-lp-qa",
+  "viewports": [
+    { "label": "sp-375", "width": 375, "height": 812 },
+    { "label": "tablet-768", "width": 768, "height": 1024 },
+    { "label": "pc-1280", "width": 1280, "height": 800 },
+    { "label": "pc-1920-1.5x", "width": 1920, "height": 1080 }
+  ],
+  "scenarios": [
+    {
+      "label": "Hero / default",
+      "url": "http://localhost:6006/iframe.html?id=hero--default",
+      "selectors": ["#storybook-root [data-qa='hero']"],
+      "misMatchThreshold": 0.05,
+      "requireSameDimensions": true,
+      "readySelector": "[data-qa-ready='true']"
+    },
+    {
+      "label": "CTA / hover",
+      "url": "http://localhost:6006/iframe.html?id=cta--primary",
+      "hoverSelectors": ["[data-qa='cta-primary']"],
+      "misMatchThreshold": 0.05
+    },
+    {
+      "label": "Form / error state",
+      "url": "http://localhost:6006/iframe.html?id=form--error",
+      "misMatchThreshold": 0.1
+    },
+    {
+      "label": "Card / longest text",
+      "url": "http://localhost:6006/iframe.html?id=card--longest",
+      "misMatchThreshold": 0.15
+    }
+  ],
+  "paths": {
+    "bitmaps_reference": "backstop_data/bitmaps_reference",
+    "bitmaps_test": "backstop_data/bitmaps_test",
+    "engine_scripts": "backstop_data/engine_scripts",
+    "html_report": "backstop_data/html_report",
+    "ci_report": "backstop_data/ci_report"
+  },
+  "report": ["browser", "CI"],
+  "engine": "playwright",
+  "engineOptions": { "args": ["--no-sandbox"] },
+  "asyncCaptureLimit": 10,
+  "asyncCompareLimit": 50
+}
+```
+
+### 10. `mia.config.json` サンプル（領域別しきい値の 1 箇所固定）
+
+```json
+{
+  "thresholds": {
+    "hero": 0.05,
+    "cta": 0.05,
+    "form": 0.05,
+    "text": 0.25,
+    "decoration": 0.4
+  },
+  "maxDiffPixelRatio": {
+    "hero": 0.005,
+    "cta": 0.005,
+    "form": 0.005,
+    "text": 0.02,
+    "decoration": 0.05
+  },
+  "masks": {
+    "cookie-banner": "[data-qa-mask='cookie-consent']",
+    "chat-widget": "[data-qa-mask='chat']",
+    "counter": "[data-qa-mask='counter']",
+    "date": "[data-qa-mask='date']"
+  },
+  "categoryFloor": {
+    "layout": 12,
+    "color": 12,
+    "font": 10,
+    "animation": 8,
+    "responsive": 12
+  },
+  "inp": { "p75Max": 200, "longTaskMax": 3 },
+  "lighthouse": { "performance": 90, "accessibility": 90, "bestPractices": 90, "seo": 90 },
+  "apca": { "bodyMinLc": 60, "headingMinLc": 75 }
+}
+```
+
+### 11. 差し戻しレポート自動起票スクリプト（GitHub Issue）
+
+```bash
+#!/bin/bash
+# scripts/mia-report.sh
+# QA結果 JSON から Markdown レポートを生成し GitHub Issue へ自動投稿
+
+RESULT_JSON="qa-results.json"
+DEPLOY_ID="${VERCEL_DEPLOYMENT_ID}"
+COMMIT_SHA="${GITHUB_SHA}"
+
+node scripts/generate-report.js "$RESULT_JSON" > /tmp/mia-report.md
+
+gh issue create \
+  --title "[Mia QA差し戻し] $(date +%Y-%m-%d) - ${COMMIT_SHA:0:7}" \
+  --body-file /tmp/mia-report.md \
+  --assignee saki \
+  --label "mia-nogo,priority:$(jq -r .priority "$RESULT_JSON")" \
+  --milestone "$(jq -r .milestone "$RESULT_JSON")"
+
+# Slack 通知
+curl -X POST "$SLACK_WEBHOOK" \
+  -H 'Content-Type: application/json' \
+  -d "{\"text\":\"Mia QA 差し戻し発生: ${COMMIT_SHA:0:7} / 総合スコア $(jq -r .totalScore "$RESULT_JSON")点 / 詳細: $(gh issue view --json url -q .url)\"}"
+```
+
+### 12. 運用ルール（本アップデート反映）
+
+1. **`npm run qa:full` 1コマンドで STEP 0〜12 が並列実行される状態**を Ren と協業で構築（`mia.config.json` を Ren の共通コンポーネントパッケージに同梱）
+2. **AI Layer B の判定は Mia が最終承認**（AI 単独で自動 pass にはしない、承認ログを残す）
+3. **カテゴリ別下限ゲートは絶対**（総合 85 でも 1 カテゴリ下限割れは通過不可、平均でごまかさない）
+4. **INP p75 と Long Task 数は 85 点合格ラインとは別枠の必須ゲート**（1 つでも超過は自動 84 点減点）
+5. **本番ドメイン最終確認（STEP 12）は Kaito との共同実施**（Preview URL のみでの通過禁止）
+6. **納品後 7 日間 CrUX Field Data モニタリング**を継続し、Lab/Field 乖離 20% 超なら Kaito 経由で改修 Issue 起票
+7. **差し戻しは全て GitHub Issue 自動起票**（Slack や口頭での指摘は禁止、記録が残らない指摘は無効）
+8. **共通コンポーネントの baseline は Ren がパッケージに同梱**、案件固有 baseline のみ Mia が撮影・凍結
+
+### 13. Sora への引き継ぎ強化
+
+Sora 最終 QA へ渡す通過レポートに以下を必ず含める：
+
+- 総合スコア（100 点満点） / カテゴリ別スコア（5 項目 × 20 点）
+- カテゴリ別下限ゲート判定（全項目 PASS / FAIL）
+- AI Layer B 判定サマリ（意図変更 N 件 / リグレッション 0 件 / 偽陽性 M 件）
+- INP p75 / Long Task 数（CPU 4x throttle 環境）
+- Lighthouse 4 カテゴリスコア（Performance / A11y / BestPractices / SEO）
+- WCAG 2.2 AA 違反件数（達成基準番号付き、0 件必須）
+- 本番ドメイン最終確認結果（キャッシュバスト後のスクショ添付）
+- ハイパーフォーカス 4 要素（ヘッダー位置 / フォント太さ / ボタン色 / 余白感）の初見 3 秒違和感チェック結果
+- クライアント確認端末構成での崩れ有無（Kaito ヒアリング結果ベース）
+- kotone 正解表との事実整合チェック（外字・数値・固有名詞 全一致）
+
+---
+
+**このアップデートで Mia は「LP忠実度QAの唯一無二・オーバースペック」仕様となる。ピクセル一致から知覚一致・機能一致・アクセシビリティ・パフォーマンス・実ユーザー体験までを一気通貫でゲート化し、Sora 最終 QA でのリジェクト率 <1%・本番クレーム発生率 <0.3% を恒常化する。**

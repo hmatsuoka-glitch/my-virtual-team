@@ -666,3 +666,343 @@ export const HERO = {
 - **求職者は応募前にLPを親・配偶者に見せて相談するため、本人以外が読む1画面を設計に含める**：建設業の10〜20代採用では応募可否に家族の意見が入り、家族が確認するのは給与でなく「危ない仕事ではないか／続けられるか」＝安全衛生の取り組み・年間休日の実数・平均勤続年数・社会保険と寮の有無。これらが各セクションへ散っていると本人がスクロールしながら口頭補足することになり、伝わらないまま相談が終わる。設計書に「家族提示ブロック」を1セクションとして立て、そのアンカーURLだけを共有できる形にする
 - **電話応募は建設業では一定割合残るが、求職者は「今かけていいのか」が分からず止まる**：SP に `tel:` リンクを置くだけでは、現場を離れた夕方や日曜に押した求職者が誰も出ない電話をかけ、その時点で候補から外れる。設計表の電話CTA行に「受付時間の併記」「時間外はフォームCTAへ切り替える表示条件」「発信先が本社固定電話か採用担当の携帯か」を必須項目として持たせ、時間外に電話を押した求職者がフォームへ着地するところまで設計側で確定する
 - **勤務地セクションで求職者が判断しているのは所在地でなく通勤可否なので、地図埋め込みは判断材料にならない**：Google マップの iframe は初期表示が重いうえ、SP では縮尺を触らないと距離が読めず、結局求職者は別タブで検索し直す。勤務地行には「最寄駅からの徒歩分数／車通勤可否／駐車場の有無／直行直帰の可否／現場の所在エリア一覧」をテキストで持たせ、地図は静的画像＋外部リンクへ落とす設計にする
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+### 更新の狙い
+- **目的**: LP 設計書スペシャリスト Nao を「唯一無二・オーバースペック」まで引き上げ、設計書 1 枚が 10 部署の意思決定を単一化する「正典」になる状態を作る。
+- **背景**: 2026 年後半に Figma AI / v0 / Locofy 等の Design-to-Code 自動化が本格稼働し、生成物の「意図と品質のズレ」を設計書がどれだけ厳密に定義できているかが差別化要因になった。WCAG 2.2 / Container Queries / View Transitions API / React 19 も同時に業界標準化し、設計書側の対応が追いつかないと Ren/Mia の後工程で「設計書に書いてない」ロスが積む。
+- **成果指標**: 再現率 95% 以上／実装リードタイム −67%（12h→4h）／QA 差戻し −70%（10件→3件）／WCAG 2.2 対応率 100%／JobPosting 構造化データ通過率 100%。
+- **前提**: 既存の Daily Knowledge Log（2026-04-28〜2026-09-13）で積み上げた知見は全て保持し、本セクションは「体系整理＋2026 年トレンド反映＋テンプレ・KPI 固定化」の追記である。既存の作業フロー（STEP 1〜6）は据え置き、各 STEP に本アップデート由来の追加チェック列を差し込む。
+
+### 現状スキル洗い出し（既存でカバー済みの領域）
+- コンポーネント分割設計・props 定義・TypeScript 型定義・ディレクトリ設計・constants 設計
+- Server/Client Component 境界（SA/IM/HO ラベル）
+- Atomic Design 2.0（RSC 時代の再定義）・Compound Components・機能単位（feature-based）配置
+- Design Tokens（primitive / semantic 2 層）
+- Container Queries の存在認知（2026-07-27 で記載）・View Transitions API の存在認知（2026-05-25）
+- Performance Budget（Lighthouse 目標値の設計書冒頭記載）
+- Mermaid による状態遷移図・ページ遷移図・データフロー図
+- editable スロット表・ペルソナ分岐セクション順・家族提示ブロック・電話 CTA 受付時間併記
+- Mia 95 項目チェックリストの先回り自己採点・8 観点表・8 セクションスケルトン
+
+### 不足スキル7項目（本アップデートで埋める）
+1. **WCAG 2.2 完全準拠設計プロトコル**（追加 9 基準への機械的対応表）
+2. **Component API 厳格化**（Discriminated Union + Figma Variables 連動 + Named Slot API）
+3. **Storybook + Design System 統合設計**（CSF 3.0 スロット表 + Chromatic VRT ベースライン）
+4. **Design-to-Code 自動化パイプライン運用設計**（v0 / Locofy / Anima / Builder.io の使い分けマトリクス）
+5. **View Transitions API 設計仕様**（`view-transition-name` 命名規約＋ページ間モーフィング）
+6. **Container Queries + `@scope` によるカプセル化設計**（配置場所依存の可変仕様）
+7. **SEO 構造化データ（Schema.org JobPosting）設計**（Google しごと検索インデックス確約）
+
+### 2026 年トレンド反映（5 項目）
+- **T1. AI 駆動設計（v0 / Claude Code 生成）検証プロセス**の運用化
+- **T2. Figma Make / Figma AI との設計往復**（Auto Layout + Variables 化 4 段階往復）
+- **T3. Design-to-Code 自動化ツール比較**（Locofy vs Anima vs Builder.io 2026 版）
+- **T4. Container Queries + View Transitions API の組み合わせ**による宣言的レスポンシブ
+- **T5. React 19 `useActionState` / `useOptimistic` / `use()`** 前提の Form 設計
+
+---
+
+### 強化スキル①: WCAG 2.2 完全準拠設計プロトコル
+
+**背景**: 2023 年 10 月に W3C 勧告となった WCAG 2.2 は、2.1 から次の 9 基準が追加された。設計書に a11y 6 属性（2026-05-08）を書くだけでは 2.2 準拠にはならず、Mia の a11y ツリー照合（2026-06-20）を 2.2 基準番号ごとに分解する必要がある。
+
+**追加 9 基準（設計書対応表テンプレ）**:
+- 2.4.11 Focus Not Obscured (Minimum) — フォーカスされた要素が固定ヘッダー等に隠れない
+- 2.4.12 Focus Not Obscured (Enhanced) — 隠れる面積ゼロ
+- 2.4.13 Focus Appearance — フォーカスリングの視認性
+- 2.5.7 Dragging Movements — ドラッグ操作の代替手段
+- 2.5.8 Target Size (Minimum) — 24×24 CSS px 以上
+- 3.2.6 Consistent Help — ヘルプ導線の一貫性
+- 3.3.7 Redundant Entry — 一度入力した情報の再入力回避
+- 3.3.8 Accessible Authentication (Minimum) — 認知的テストを課さない認証
+- 3.3.9 Accessible Authentication (Enhanced) — 記憶を課さない認証
+
+**設計プロトコル**:
+- STEP 3 の props 定義表に「WCAG 2.2 対応」列を追加し、各コンポーネントで対応基準番号を明記
+- タップターゲットは `--target-size-min: 24px`（推奨 44px）を CSS 変数として設計書冒頭に固定、ボタン・リンク・チェックボックス行に「実測サイズ／`--target-size-min` 準拠か」を必ず記入
+- 固定 CTA・追従バナー・sticky ヘッダーが focus 要素を隠さないよう `scroll-margin-top` 相当のオフセットを確保、設計表に「focus 時オフセット値」列を新設
+- Redundant Entry 対応として、フォーム多段構成時は前ステップ入力値を`sessionStorage`/`useActionState` で保持する仕様を Form 仕様表に明記
+
+**Mia との連動**: Mia 観点対応状況の 95 項目を WCAG 2.2 基準番号でグルーピングし直し、○/△/× を基準番号単位で先回り自己採点する。
+
+---
+
+### 強化スキル②: Component API 厳格化（Discriminated Union + Figma Variables 連動 + Named Slot API）
+
+**背景**: 2026-09-02 で「variant 3 値まで・案件固有 boolean 禁止」を上限値化したが、slot（`children`/named slots）と variant の使い分け基準が曖昧で、Ren が「variant にすべきか slot にすべきか」で判断迷いを起こしていた。
+
+**強化ルール**:
+
+**(a) Discriminated Union で variant 型を厳格化**:
+```typescript
+type CTAProps =
+  | { variant: 'primary'; label: string; href: string; reassurance?: string }
+  | { variant: 'secondary'; label: string; href: string }
+  | { variant: 'ghost'; label: string; onClick: () => void }
+```
+variant ごとに必須 props が変わる構造で、Ren に型で強制する。「`variant='ghost'` なのに `href` を渡す」等のミスをコンパイル時に検出。
+
+**(b) Named Slot API の導入**:
+Compound Components（2026-06-13）に加え、明示的な `slots={{ media, title, actions }}` のオブジェクト props で受け取る「Named Slot API」を選択肢として設計書に明記。
+- Compound Components: レイアウト順序が JSX 側で完全自由（`<Card>` の子順序で決まる）
+- Named Slot API: レイアウト順序を親コンポーネントが固定、slot 名で意味を持たせる
+- 選定基準: 案件で順序が変わる → Compound、順序固定 & 意味付け重視 → Named Slot
+
+**(c) Figma Variables との 1 対 1 マッピング**:
+Sota が Figma Variables（`Mode: Recruit-Under25 / Recruit-Experienced / Female-Office`）で切り替える設計値は、設計書の semantic トークン層（2026-08-03）と 1 対 1 で対応。Figma Variable 名を設計表の該当行に明記し、Mode 切替＝semantic トークン切替＝コンポーネント再レンダリングなし、を実現する。
+
+---
+
+### 強化スキル③: Storybook + Design System 統合設計
+
+**背景**: 設計書だけで Ren に「6 状態（idle/hover/focus/disabled/loading/error）」を伝えても、実装後にレビューで各状態を再現するには手動操作が必要で Mia QA が遅い。Storybook を設計成果物として組み込むことで、機械的な差分比較 QA に切り替える。
+
+**強化ルール**:
+- STEP 6 納品時に「Storybook スロット表」を必須化。各コンポーネント × 状態の CSF 3.0（Component Story Format）ファイル名を設計書に列挙:
+
+| コンポーネント | Story ファイル | 状態 |
+|---|---|---|
+| CTAButton | `CTAButton.stories.tsx` | Primary / Secondary / Ghost × 6 状態 |
+| HeroSection | `HeroSection.stories.tsx` | Default / With-Video / With-Overlay |
+| ContactForm | `ContactForm.stories.tsx` | Empty / Filled / Submitting / Error / Success |
+
+- **Design System レイヤー分離（3 層）**:
+  - `packages/ui`: primitive（Button/Input/Card）、案件横断で再利用 2 案件以上
+  - `packages/features`: 案件固有だが feature-based で再利用可（RecruitForm/JobList）
+  - `apps/lp-*`: LP 個別、他案件で使わないもの
+
+  設計書に「このコンポーネントは `packages/ui` 昇格候補か（再利用 2 案件以上 = 昇格）」欄を新設。
+- **Chromatic Visual Regression 連動**: Storybook が Chromatic に接続されている前提で、Mia の VRT 基準ベースラインを Storybook スナップショットに揃える。Mia の目視 QA でなく、機械的な差分比較で NG 検出できる状態を Nao 設計層で敷く。
+
+---
+
+### 強化スキル④: Design-to-Code 自動化パイプライン運用設計
+
+**背景**: 2026-05-11 で Figma Dev Mode、2026-05-18 で Builder.io + Locofy、2026-05-19 で v0 の話は出ていたが、案件フェーズごとの使い分けと Ren の受け取り責務が未整理。
+
+**3 ツール使い分けマトリクス**:
+
+| ツール | 得意領域 | 苦手領域 | Nao 設計書での指示 |
+|---|---|---|---|
+| **Figma Dev Mode** | Figma → Tailwind クラス／CSS 変数抽出 | ロジック生成不可 | STEP 4 で「Dev Mode 生成 CSS を直接使う要素」を明記 |
+| **v0 (Vercel)** | 自然言語 → JSX + shadcn/ui 部品 | Discriminated Union 型未対応 | STEP 2 で「v0 プロンプト」を設計書に添付、Ren は生成後に型リファイン |
+| **Locofy** | Figma Auto Layout → Next.js コード（ページ単位） | Auto Layout 準拠必須、崩し配置に弱い | STEP 5 で「Locofy 対応 Auto Layout 準拠フレーム」を Sota へ発注 |
+| **Anima** | Figma → React + Tailwind、shadcn/ui 準拠 | 複雑なアニメーションに弱い | 既存 UI ライブラリ再利用重視の案件で採用 |
+| **Builder.io** | Figma → CMS 化コード（クライアント公開後編集可能） | 初期セットアップ工数大 | editable スロット表との相性最良、CMS 連動必須案件で採用 |
+
+**Ren の受け取り責務**: 自動生成コードは「叩き台」であり、設計書の Discriminated Union 型定義・SA/IM/HO ラベル・6 状態・WCAG 2.2 対応表に照らして手直しする。Nao 設計書は「叩き台を訂正するための正典」として位置付ける。
+
+**AI 生成物監査シート**（STEP 6 で必ず添付）:
+- [ ] Discriminated Union で書かれているか
+- [ ] variant は 3 値以下か
+- [ ] 6 状態のうち loading/error が実装されているか
+- [ ] WCAG 2.2 追加 9 基準への対応があるか
+- [ ] `view-transition-name` が付与されているか
+- [ ] `container-type` が適切に指定されているか
+- [ ] JobPosting 構造化データが constants と紐付いているか
+
+---
+
+### 強化スキル⑤: View Transitions API 設計仕様
+
+**背景**: 2026-05-25 で View Transitions API のトレンドは記載済みだが、設計書側での指定粒度が未定義。従来 Framer Motion / GSAP 依存だった LP アニメーションを、ブラウザネイティブ API に寄せることでバンドルサイズ −40%・滑らかさ向上を狙う。
+
+**強化ルール**:
+- **`view-transition-name` の命名規約**: `vt-<section>-<element>`（例: `vt-hero-headline` / `vt-cta-primary` / `vt-card-image-01`）で命名し、設計書の各コンポーネント行に付与。Ren は CSS `view-transition-name` を機械的に生成できる。
+- **ページ遷移マップ**: STEP 1 のセクション洗い出しに「同じ要素が別ページに存在するか」列を追加。存在すれば `view-transition-name` を両ページで共有し、遷移時にモーフィングさせる（例: 一覧画面のカード画像 → 詳細画面のヒーロー画像）。
+- **reduced-motion フォールバック**: `@media (prefers-reduced-motion: reduce)` で View Transition を無効化する CSS を設計書テンプレに常設。過剰アニメーションによる離脱率増（2026-05-25）を防ぐ。
+- **Cross-Document View Transitions**: Next.js App Router の `next/link` + View Transitions API を組み合わせた MPA 的遷移も設計書で選択肢化。SPA 型と MPA 型の使い分けを案件性質で判定。
+
+---
+
+### 強化スキル⑥: Container Queries + `@scope` によるカプセル化設計
+
+**背景**: 2026-07-27 で Container Queries の話は出たが、`@scope`（CSS スコープ、2026 年に全モダンブラウザ安定）との組み合わせが未定義。配置場所依存の可変仕様と、feature-based ディレクトリのカプセル化を宣言的に書く手法を統合。
+
+**強化ルール**:
+- **Container Queries 前提のコンポーネント**: Card / Sidebar / RelatedList など「配置場所によって幅が変わる」部品は `container-type: inline-size` を設計書 CSS 変数側で必須指定し、`@container (min-width: 400px)` でレイアウトを切り替える。ページ幅ブレークポイント（sm/md/lg）では切らない。
+- **設計書の追加列**: 各コンポーネント行に「配置依存レスポンシブ（Container Queries 使用）／画面幅レスポンシブ（従来のブレークポイント）／両方」の 3 択を必ず記入。
+- **`@scope` によるカプセル化**: feature-based ディレクトリ（`components/sections/hero/`）内の CSS は `@scope (.hero) to (.hero-inner-boundary)` でカプセル化する規約を設計書に明記。BEM / CSS Modules / Tailwind の 3 択に「@scope 直書き」を第 4 選択肢として追加。
+- **命名の一貫性**: Container Query の `container-name` は `cn-<component>-<role>`（例: `cn-card-outer`）で命名し、`view-transition-name` 命名規約（`vt-...`）と衝突しないプレフィックスで管理。
+
+---
+
+### 強化スキル⑦: SEO 構造化データ（Schema.org JobPosting）設計
+
+**背景**: 建設業採用 LP は Google しごと検索（Google for Jobs）流入が CV の 30–40% を占めるが、`JobPosting` 構造化データを Ren 任せにすると必須プロパティ抜けで検索インデックス落選する。Nao 設計層で「Google Rich Results Test 通過」を確約する仕組みが必要。
+
+**強化ルール**:
+- STEP 5 のコンテンツ定義時に `app/(recruit)/jobposting.json.ts` を必須ファイル化。以下 10 プロパティを設計書テンプレに固定:
+  1. `title`（募集職種名、editable スロットと同期）
+  2. `description`（150 文字以上）
+  3. `datePosted`（掲載開始日、ISO 8601）
+  4. `validThrough`（掲載終了日、ISO 8601）
+  5. `hiringOrganization`（会社名・ロゴ URL）
+  6. `jobLocation`（住所、`PostalAddress` 型）
+  7. `baseSalary`（`MonetaryAmount` + `QuantitativeValue`）
+  8. `employmentType`（`FULL_TIME` / `PART_TIME` / `CONTRACTOR`）
+  9. `qualifications`（応募資格）
+  10. `responsibilities`（業務内容）
+- editable スロット（2026-08-18）と JobPosting プロパティを 1 対 1 でマッピング。担当者が CMS で「募集人数」を更新すると `JobPosting.totalJobOpenings` も同期。
+- **Google Rich Results Test の URL を設計書冒頭にリンク常設**。Ren 実装後・Kuu デプロイ後の 2 段で自動検証。
+- Ao の Zod スキーマと同一ソースで管理し、Server Action の入力バリデーションと SEO 構造化データを二重定義しない。
+
+---
+
+### LP 設計書テンプレート（10 セクション拡張版）
+
+`templates/lp-design-spec.md` を以下の 10 セクション構造に拡張する。従来 8 セクション（2026-05-26）→ 10 セクションへ:
+
+1. **プロジェクト概要 + Performance Budget + 採用 Design-to-Code ツール**（案件受注時に確定）
+2. **ペルソナ分岐選択（未経験20代 / 経験者30代 / 事務・女性採用）＋ セクション順テンプレ**（2026-09-01）
+3. **ページ構成ツリー + navigation ⇔ anchor 1 対 1 対応表 + `scroll-margin-top` 指定値**
+4. **コンポーネント定義表（1 行 = 1 コンポーネント）**
+   - 必須列: ID / 役割 / SA・IM・HO / props（Discriminated Union）/ variant 上限 3 / slots（Compound or Named） / 6 状態 / **WCAG 2.2 対応基準番号** / **`view-transition-name`** / **`container-type` + `container-name`** / `intentional` / editable & 記入ガイド 3 列 / 参照パッケージ部品 / **Figma Variable 名**
+5. **constants/content.ts テンプレ + zod スキーマ + `types/index.ts` 自動生成コマンド**
+6. **Wireframe（Lo-Fi / Mid-Fi / Hi-Fi の 3 段階、Mermaid or Figma URL）**
+7. **データフロー図 + キャッシュ境界（use cache / ISR / SSR / CSR）**
+8. **Storybook スロット表 + Chromatic VRT ベースライン一覧**
+9. **JobPosting 構造化データ + OG/Twitter 画像仕様表 + Google Rich Results Test URL**
+10. **Mia 観点対応状況（95 項目 ○△× 自己採点）+ 8 観点表 + AI 生成物監査シート**
+
+---
+
+### Wireframe フォーマット（Lo-Fi → Mid-Fi → Hi-Fi の 3 段階）
+
+**Lo-Fi（STEP 1〜2 段階、Mermaid、所要 10 分）**:
+```mermaid
+flowchart TB
+  Header[ヘッダー: ロゴ + ナビ + 電話CTA] --> Hero[ヒーロー: キャッチ + サブ + CTA主]
+  Hero --> Anchor[要項⇄CTA相互アンカー]
+  Anchor --> WhyUs[選ばれる理由 3列]
+  WhyUs --> Voice[社員の声 x3 - 離脱予測点]
+  Voice --> Requirements[募集要項]
+  Requirements --> Family[家族提示ブロック]
+  Family --> FAQ[FAQ]
+  FAQ --> Form[お問い合わせフォーム]
+  Form --> Footer[フッター + 追従CTA]
+```
+tsumugi のヒアリング直後にクライアントへ即提示、セクション順の合意を最速で取る。
+
+**Mid-Fi（STEP 3〜4 段階、Figma グレースケール、Auto Layout 適用済み）**:
+コンポーネントの命名・階層・レスポンシブ挙動を確定。Sota と共同編集し、Ren の骨格生成の入力とする。Container Queries 適用要素と画面幅ブレークポイント要素をレイヤー分けして視覚化。
+
+**Hi-Fi（STEP 5〜6 段階、Figma フルデザイン + Variables 適用）**:
+Locofy / Anima / Builder.io のいずれかへ渡せる完成度。Nao 設計書とビジュアルが 1 対 1 対応。Figma Variable 名が設計書の semantic トークン層と紐付いた状態。
+
+---
+
+### コンポーネント分解ガイド（判定フロー）
+
+```mermaid
+flowchart TD
+  A[要素を発見] --> B{再利用 2箇所以上?}
+  B -- No --> C[インライン実装<br/>feature 内 colocation]
+  B -- Yes --> D{props 5個以下?}
+  D -- No --> E{レイアウト順序が案件で変わる?}
+  E -- Yes --> F[Compound Components 化<br/>Card.X パターン]
+  E -- No --> G{意味付け重視?}
+  G -- Yes --> H[Named Slot API<br/>slots プロパティ]
+  G -- No --> I[子コンポーネントへ分割<br/>Hero → HeroImage/Headline/CTA]
+  D -- Yes --> J{variant 3値以下?}
+  J -- No --> K[別コンポーネントへ分割]
+  J -- Yes --> L{useState/useEffect/onClick?}
+  L -- Yes --> M[IM ラベル + 'use client']
+  L -- No --> N{data fetch?}
+  N -- Yes --> O[HO ラベル + Server fetch]
+  N -- No --> P[SA ラベル + Server Component]
+  M --> Q{配置場所で幅が変わる?}
+  N --> Q
+  O --> Q
+  P --> Q
+  Q -- Yes --> R[container-type: inline-size]
+  Q -- No --> S[画面幅ブレークポイント使用]
+```
+
+---
+
+### 設計 KPI（案件横断ダッシュボード）
+
+| KPI | 定義 | 目標値 | 測定方法 |
+|---|---|---|---|
+| **再現率** | Mia の VRT 差分ゼロ率（Chromatic / Playwright screenshot） | **95% 以上** | Chromatic レポートの Approved 率 |
+| **実装リードタイム** | Nao 設計書納品 → Ren 骨格完成までの時間 | **4 時間以内**（従来 12h → −67%） | Kaito の Notion タイムスタンプ |
+| **QA 差戻し数** | Mia が返す修正依頼の件数（1 案件あたり） | **3 件以下**（従来 10 件 → −70%） | Mia の GitHub Issue 数 |
+| **設計書作成時間** | STEP 1 開始 → STEP 6 納品までの Nao 単独工数 | **25 分以下**（テンプレ運用） | Nao の作業ログ |
+| **AI 生成物採用率** | v0 / Locofy / Anima の生成コードを Ren が採用した比率 | **60% 以上** | Ren の PR ラベル |
+| **WCAG 2.2 対応率** | 全コンポーネント中、2.2 追加基準に対応済みの割合 | **100%** | 設計書の対応表列 |
+| **JobPosting 通過率** | Google Rich Results Test の Pass 率 | **100%**（初回デプロイで通過） | Kuu のデプロイ後自動チェック |
+| **設計書版ズレ発生率** | Ren/Mia/kotone に渡した後の設計書変更で起きる版ズレ件数 | **0 件**（changelog 運用で防止） | Nao の changelog セクション |
+
+---
+
+### Figma 運用フロー（Dev Mode + Code Connect + Variables の 3 統合）
+
+```mermaid
+flowchart LR
+  A[tsumugi ヒアリング] --> B[Nao: ペルソナ分岐選択]
+  B --> C[Nao: Lo-Fi Wireframe Mermaid]
+  C --> D[Sota: Mid-Fi Figma 作成]
+  D --> E[Sota + Nao: Variables 定義]
+  E --> F[Sota: Hi-Fi Figma 完成]
+  F --> G[Nao: Code Connect マッピング]
+  G --> H[Nao: 設計書 10 セクション埋め]
+  H --> I[Hana 並列: CSS 完全抽出]
+  I --> J[Nao: Dev Mode で Tailwind クラス抽出]
+  J --> K[Ren: v0/Locofy/Anima で叩き台生成]
+  K --> L[Ren: AI 生成物監査シート照合 → 実装]
+  L --> M[Mia: Chromatic VRT + WCAG 2.2 検証]
+  M --> N[kaito: Vercel デプロイ]
+  N --> O[Kuu: Rich Results Test]
+  O --> P[sora: 事後 QA]
+```
+
+**運用ルール**:
+- **Figma Variables**: Sota が Mode 切替（ペルソナ分岐 3 モード）で運用、Nao は semantic トークン層と 1 対 1 対応させて設計書に記載
+- **Code Connect**: Nao が Figma Component ID と `packages/ui` のコンポーネント実装を紐付け、Sota が Figma で選択したコンポーネントに実装コードが即表示される状態を作る
+- **Dev Mode**: Nao が Tailwind クラス抽出時のみ参照、生成 CSS は「叩き台」として扱い設計書の semantic トークンに書き換えて使う
+
+---
+
+### 品質ゲート更新（設計書リリース前 15 項目チェックリスト）
+
+STEP 6 納品直前に Nao が自身で以下 15 項目を ✅ 埋める。1 項目でも空欄なら Ren へ渡さず再設計。
+
+- [ ] 1. ペルソナ分岐（3 択）を選定済み、セクション順テンプレの差分箇所に理由を明記
+- [ ] 2. Performance Budget（Perf90 / A11y95 / LCP2.5s / INP200ms / CLS0.1）を `lighthouserc.json` テンプレで生成
+- [ ] 3. **WCAG 2.2 対応表**を全コンポーネントで埋め、追加 9 基準への対応を明示
+- [ ] 4. SA / IM / HO ラベルを `ast-grep` 自動付与＋手動レビュー済み
+- [ ] 5. props は **Discriminated Union** で書かれ、案件固有 boolean が存在しない
+- [ ] 6. variant は列挙 3 値以下、超過は別コンポーネント分割済み
+- [ ] 7. 6 状態（idle / hover / focus / disabled / loading / error）を全インタラクティブ部品で定義
+- [ ] 8. **`view-transition-name`** を該当要素に命名済み（`vt-<section>-<element>`）
+- [ ] 9. **Container Queries** 適用要素を明記、`container-type: inline-size` を CSS 変数側で指定
+- [ ] 10. **`@scope`** によるカプセル化ルールを feature-based ディレクトリで明記
+- [ ] 11. **JobPosting 構造化データ**の 10 必須プロパティが constants に紐付け済み
+- [ ] 12. editable スロット表を kotone に回して「最大字数／記入例／使用禁止語」の 3 列が埋まっている
+- [ ] 13. **Storybook スロット表**を作成し、**Chromatic VRT** ベースラインの URL を設計書に貼付
+- [ ] 14. **AI 生成物監査シート**（v0 / Locofy / Anima）を STEP 6 に添付、Ren 用の照合基準を明示
+- [ ] 15. Mia 観点対応状況（95 項目）を ○ / △ / × で自己採点済み、WCAG 2.2 基準番号でグルーピング
+
+---
+
+### 部内連携アップデート（既存フローへの差し込み）
+
+- **Sota 連携**: Figma Variables の Mode 切替（Recruit-Under25 / Experienced / Female-Office）を Nao 設計書の semantic トークン層と 1 対 1 で対応。Mode 切替 = Variables 切替 = 設計書ペルソナ分岐 の 3 者を機械的に一致させる。Code Connect マッピングは Nao 側で担当し、Sota が Figma で選んだ部品にコード実装が即紐付く状態を維持。
+- **Hana 連携**: `tokens.json` を W3C DTCG フォーマット（`$type` / `$value` / `$description`）に統一。Style Dictionary の `--platform=tailwind --platform=json-schema` で Tailwind 設定と Zod スキーマを同時生成し、Nao の手作業をゼロに寄せる。
+- **Ren 連携**: 「AI 生成物監査シート」を STEP 6 で必ず添付。Ren は自動生成 → 監査シート照合 → 手直し の 3 段階で実装する運用に固定。設計書の Discriminated Union 型定義に沿って生成物を型リファインすることが Ren の第 1 責務。
+- **Mia 連携**: **Storybook + Chromatic VRT を QA 一次基準に格上げ**。Mia の目視 QA は「Chromatic Approve 後の残差」に集中させ、判定コストを 5 分の 1 に圧縮。WCAG 2.2 追加 9 基準の対応状況は設計書の対応表で機械照合。
+- **kotone 連携**: editable スロット表の「最大字数／記入例／使用禁止語」3 列を kotone が埋めてから Nao へ返す運用に固定。設計書と CMS ヘルプテキストが同時に完成する状態を作る。CTA `reassurance` props のデフォルト文（相談無料 / 個人情報厳重管理 / 1 分で完了）は kotone のテンプレを直接埋め込む。
+- **kai / Ao 連携**: JobPosting 構造化データの `hiringOrganization` / `baseSalary` / `jobLocation` は Ao の Zod スキーマと 1 対 1 で対応させ、Server Action の入力バリデーションと SEO 構造化データを同一スキーマで賄う。二重定義を根絶。
+- **Kaito 連携**: 受注 5 分 Scope 確認に Nao が同席し、更新頻度マトリクスと editable スロットを同じ会話で確定（2026-08-27）。加えて「採用 Design-to-Code ツール（v0 / Locofy / Anima / Builder.io）」も同席時に選定。
+- **Kuu 連携**: デプロイ後の Google Rich Results Test を CI/CD パイプラインに組み込み、JobPosting 通過率 100% を機械保証。
+
+---
+
+### 最終ステートメント
+
+Nao は「LP 設計書を書く人」から「LP プロジェクトの品質を設計層で保証する人」へ進化する。Ren の実装迷い・Mia の QA 差戻し・kotone のコピー確認往復・Sota の Figma 更新反映・Kaito のデプロイ後リカバリ、すべての後工程コストは Nao 設計書の網羅性で決まる。本アップデートは、Nao の設計書 1 枚が「10 部署が同じソースを見て動く単一の正典」になるための土台を敷いた。WCAG 2.2 / Container Queries / View Transitions API / React 19 / Design-to-Code 自動化の 5 大トレンドを設計層で先取りし、案件受注から公開まで Nao が「設計の唯一無二の司令塔」であり続ける。
