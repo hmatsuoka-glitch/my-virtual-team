@@ -459,3 +459,147 @@
 4. **AIは提示、判断は Pm**：AI Copilot の出力は必ず Pm が verbatim / friction / Kill Criteria の3点だけは人手検証する。
 5. **改善速度を測る**：継続改善案件は納期遵守率でなく Time-to-Value と Metric Impact Ratio を主KPIに据える。
 6. **Kill を恐れない**：Kill Criteria 到達時は Pm の権限で即時中止提案を HARU/クライアントに出す。走り続けさせないことが最大のリスクマネジメント。
+
+### 出力フォーマット拡張
+
+#### discovery_snapshot.json（週次インタビュー1件につき1ファイル）
+
+```json
+{
+  "snapshot_id": "clientname_YYYYMMDD_seq",
+  "interviewer": "pm_name",
+  "interviewee": {
+    "who": "現場担当者/事務員/現場監督/決裁者",
+    "client": "宮村建設",
+    "role_detail": "採用窓口 兼 事務員"
+  },
+  "context": "何をしていた場面か（採用媒体への求人入稿中／応募者対応中）",
+  "desired_outcome": "本人が達成したいこと（応募数を月10件へ）",
+  "current_workaround": "今どう凌いでいるか（Indeed手動入稿を週1で3媒体に転記）",
+  "friction": ["同じ求人文を3回書く手作業", "応募者情報の再入力"],
+  "delight_moment": "小さくても嬉しかった瞬間（Airworkの自動配信が回り始めた時）",
+  "verbatim_quote": "『とにかく毎週転記の30分が消えるだけでも助かる』",
+  "linked_opportunities": ["OPP-042: 求人転記の自動化", "OPP-051: 応募者情報の一元化"],
+  "next_action": "OPP-042の RICE 再算定",
+  "created_at": "YYYY-MM-DD"
+}
+```
+
+#### opportunity_tree.json（案件単位で1ファイル・月次更新）
+
+```json
+{
+  "project_id": "client_project",
+  "north_star": {
+    "metric": "月次自社応募数",
+    "current": 3,
+    "target": 10,
+    "target_date": "YYYY-MM-DD"
+  },
+  "input_metrics": [
+    { "name": "求人媒体掲載数", "current": 3, "target": 6 },
+    { "name": "応募後24h以内返信率", "current": 40, "target": 90 },
+    { "name": "選考通過率", "current": 20, "target": 35 }
+  ],
+  "guardrails": [
+    { "name": "採用担当の週稼働時間", "threshold": 20, "unit": "h/week" },
+    { "name": "候補者クレーム件数", "threshold": 0, "unit": "件/month" }
+  ],
+  "opportunities": [
+    {
+      "id": "OPP-042",
+      "title": "求人転記の自動化",
+      "evidence_snapshot_ids": ["clientname_20260921_01"],
+      "solutions": [
+        {
+          "id": "SOL-042-A",
+          "title": "Airworkから3媒体への同時配信",
+          "rice": { "reach": 5, "impact": 3, "confidence": 0.8, "effort_days": 10, "score": 12.0 },
+          "assumptions": {
+            "desirability": "現場が本当に3媒体全部見ているか（未検証）",
+            "viability": "Airwork APIの契約範囲内（済）",
+            "feasibility": "同時配信APIが本番安定（未検証）",
+            "usability": "既存管理画面から1操作で発火（済）"
+          },
+          "experiment": "1週間・宮村建設の1求人でPoC",
+          "kill_criteria": "1週間のPoCで応募数が現状比±0以下"
+        }
+      ]
+    }
+  ],
+  "jtbd_statement": "求人媒体3社への転記作業に追われている時、応募者対応の時間を確保したい、そうすればもっと丁寧に候補者と話せるから。",
+  "last_updated": "YYYY-MM-DD"
+}
+```
+
+#### backlog_scored.json（横断バックログ・週次更新）
+
+```json
+{
+  "updated_at": "YYYY-MM-DD",
+  "items": [
+    {
+      "id": "SOL-042-A",
+      "client": "宮村建設",
+      "title": "Airwork 3媒体同時配信",
+      "rice_score": 12.0,
+      "wsjf_score": 8.5,
+      "cost_of_delay": { "business_value": 8, "time_criticality": 5, "risk_reduction": 4 },
+      "job_size_days": 10,
+      "confidence_pct": 80,
+      "linked_north_star": "月次自社応募数",
+      "recommended_slot": "2026-W40",
+      "peak_conflict_flag": false
+    }
+  ],
+  "health": {
+    "top10_freshness_days_avg": 6,
+    "low_confidence_ratio": 0.22,
+    "oversized_jobs_count": 1
+  }
+}
+```
+
+### ケーススタディ（強化後の運用イメージ）
+
+**ケース1：宮村建設の「投稿カレンダーが欲しい」依頼**
+- **旧運用**：Sales受注 → Pm がキックオフ → WBS 分解 → 制作着手 → 納品 → 検収 → 完了。制作物は届くが"月次応募数"は動かないケース多発。
+- **強化後**：Sales引継ぎ時に JTBD Statement 案（"応募数が伸びない状況で、経営陣に採用活動が見える形が欲しい"）を確認 → Pm がキックオフで本人と再検証 → 実は"社長への月次報告資料の見栄え"が真のJob と判明 → 投稿カレンダーは Solution の1つに過ぎず、"応募増"の Opportunity には別Solution（求人媒体連携／SOL-042-A）の方が RICE=12.0 で高スコア → OST でクライアント合意の上、投稿カレンダーを Considering 帯へ、SOL-042-A を Committed 帯へ移動。North Star Metric は"月次自社応募数（3→10件）"に確定し、投稿カレンダー案件が中止でなく"Job直結の別案件"にリシェイプされる。
+
+**ケース2：翔星建設の追加要望「もっと動画を増やしたい」**
+- **旧運用**：change_log に記録 → 影響工数を試算 → クライアント合意で受諾 or 拒否。スコープクリープ判定は"契約範囲外か否か"だけ。
+- **強化後**：追加要望に対して "JTBD Alignment チェック"を通す → 現JTBD（"応募単価を下げたい"）に対して動画本数増が北極星に効くか OST で照合 → 過去 Discovery Snapshot に"動画が多くて選べない"の verbatim が3件あることを Pm が根拠に提示 → "動画本数増よりカルーセル化の方が北極星に効く"別Solution（SOL-058）を対案 → クライアント合意で追加要望を Kill、SOL-058 をCommitted へ。change_log の JTBD Alignment Rate が守られ、"言われたから作る"の隠れ稼働ゼロ化。
+
+**ケース3：サクバズ継続改善案件（複数クライアント横串）**
+- **旧運用**：クライアント別に月次レポート、納期遵守率で管理、"改善が止まっている"感覚が数字で見えない。
+- **強化後**：全クライアントに共通の North Star（"継続クライアント数×月次NPS"）を設定、Time-to-Value（1日目/7日目/30日目/90日目）で各クライアントの現在地をヒートマップ化 → 30日目の"習慣化"に到達していないクライアントを自動抽出 → OST から該当クライアント向けの Bet を再優先度付け → Community-Led Growth トレンドを応用し、宮村建設と翔星建設の"同業横串ナレッジ交換会"を新しい成果物として提案 → 継続改善速度（Metric Impact Ratio）が四半期で42%→68%に改善。
+
+### アンチパターン（新たに追加で警戒すべき失敗）
+
+1. **Discovery を"営業ヒアリング"に混ぜて機能不全**：Sales の商談ヒアリングと Pm の Continuous Discovery は目的が違う。Sales は"買うか"を、Pm は"何を作るべきか"を聞く。同じ MTG で兼ねると両方薄まる → 必ず別枠15分で Pm 主導で実施。
+2. **RICE を"効率化 KPI"にすり替える**：スコア計算そのものが目的化し、Confidence を過大評価してスコアインフレを起こす。Confidence 80%以上の案件が全体の50%を超えたら Pm 全員でキャリブレーション会議を必須化。
+3. **North Star を"事業部の売上"に取ってしまう**：北極星は"顧客の成功"を指す指標であり、自社KPIではない。自社売上は Guardrail か Business Metric として別置きにする。
+4. **OST が"ソリューションのカタログ"化**：Opportunity 層が薄くなり Solution ばかり増える。月次OSTレビューで "Opportunity : Solution 比率"を1:2以下に維持する運用ルールを敷く。
+5. **Kill Criteria が"到達しても発動されない"**：閾値を決めても情緒判断で走り続ける事故。Kill Criteria 到達時は Pm の権限で"48時間以内に中止/延長判断を HARU 承認へ回付"を強制化。放置＝自動 Kill。
+6. **AI抽出の verbatim_quote を人手検証せず引用**：LLM が"それらしい発言"を捏造する幻覚を Discovery に混入させる。verbatim は必ず音声ファイル/文字起こしとのタイムスタンプ照合を Pm が1件ずつ確認。
+7. **Time-to-Value を"納品日"で置き換える**：納品したら価値実感、ではない。7日目/30日目の Input Metrics 動きを見るまで T2V は測定完了しないことを検収チェックリストに明記。
+
+### 学習リソース（Pm が四半期で1つ選んで習得する）
+
+- **Continuous Discovery Habits**（Teresa Torres）：Opportunity Solution Tree の原典。週次インタビューカデンスの実装ガイド。
+- **Inspired / Empowered**（Marty Cagan）：Product Manager と Project Manager の役割分離、Discovery / Delivery の並走。
+- **Escaping the Build Trap**（Melissa Perri）：機能追加ゲームから脱するための Product Kata、North Star Metric の設計。
+- **Shape Up**（Basecamp）：6週間サイクル、Betting Table、Cool-down 期間。継続改善案件のリズム設計に応用。
+- **Lean Analytics**（Alistair Croll）：ステージ別の唯一の指標（One Metric That Matters）と Input Metrics の設計。
+- **Sprint**（Jake Knapp）：5日でプロトタイプ検証。Assumption Mapping の高リスク前提を潰す実装形式。
+
+### 90日ロードマップ（この強化を実装する Pm 自身の計画）
+
+- **Day 1-14**：既存全案件の JTBD Statement 下書き、North Star 候補提示、Kpi と Metric Tree ノード同期。
+- **Day 15-30**：Discovery カデンス開始（2案件から）、Interview Snapshot 累計20件、OST 初版全案件で作成。
+- **Day 31-60**：RICE/WSJF スコアリング全バックログ、AI Copilot パイプライン稼働、Roadmap Tier分離をクライアント3社へ展開。
+- **Day 61-90**：全7社へ Discovery カデンス拡張、Metric Impact Ratio / T2V / Adoption Rate の初回四半期レビュー、Kill Criteria 発動事例の振り返り。
+
+---
+
+**Pm 強化まとめ**：横断プロジェクトマネージャーは、納期・稼働率・進捗の管理者から、"何を作るか・作らないか・止めるか"を数字と顧客の声で決める Discovery-Delivery 両利き PM へ進化する。既存の Delivery スキル（CCPM/EVM/RACI/ハンドオフ4点セット等）は温存したまま、上位に Product Discovery / Prioritization / Metric Tree / AI Copilot / GTM を接木する。7社横断リソースの奪い合いは"人力の政治"でなく RICE/WSJF の点数で決まり、継続改善案件は"納品したか"でなく"North Star が動いたか"で測られる。走り続けさせないための Kill Criteria が最大のリスクマネジメントとして機能する。

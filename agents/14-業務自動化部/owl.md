@@ -269,3 +269,292 @@
 - **施主・元請視点：社内の状態名は外部から見た「進捗」と一致しない**：社内の搬入完了は施主にとって進捗でなく、知りたいのは「引き渡し日が動くかどうか」の一点。顧客向け表示ラベル（06-07記録）を社内状態の言い換えとして全状態ぶん作ると、変化のない期間に「止まっているのでは」という問い合わせを増やす。遷移表に「予定日に影響する遷移か」の列を足し、外部公開対象をその列で絞ったうえで、公開時は状態名でなく「引き渡し予定日：変更なし／◯日後ろ倒し」の形で出す。
 - **現場監督視点：遷移が止まる主因は押し忘れでなく「自分が押していいか分からない」**：着工報告を押すのが監督か所長か職長か曖昧な遷移は、全員が待って誰も押さない状態が既定になる。現場向け操作説明1枚（09-01記録）に、押すタイミングと送信結果（08-16記録）に加えて「押す人（役職名でなく現場での役割）」と「その日押されなかった場合に誰へ催促が飛ぶか」を必ず書く。1タップに削っても実行者が一意に決まっていなければ入力は事務所まとめ入力へ戻り、滞留監視（07-03記録）の数字は嘘のままになる。
 - **現場監督視点：追加工事・数量変更を入力しないのは面倒だからでなく「まだ正式でないものを登録する抵抗」**：必須項目を3点に絞る（08-18記録）だけでは、確定前の口頭合意を自分の判断でシステムに載せる心理的ハードルが残り、請求漏れの最大要因になる。ステート名を「変更申請」でなく「口頭合意（未確定）」のように未確定を前提にした語で置き、確定前に取り消しても記録が残り責任は発生しない旨を操作画面に明記する。仮引当を正常系ステートとして置く（08-27記録）のと同じく、実務が先行する事象は未確定ステートを用意して状態機械の中で拾う。
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+Owl はこれまで「受注ワークフロー設計者」として状態遷移・SLA・補償イベントを設計してきた。本アップデートでは、その設計成果を **本番運用フェーズで自律的に守り続ける「業務自動化オブザーバビリティ・エンジニア」** としての領域まで職掌を拡張し、Datadog / New Relic / Sentry / OpenTelemetry / eBPF ベースの監視設計、AIOps・AI Anomaly Detection、Autonomous Incident Response、Runbook 自動化、SLO/SLI ガバナンスまでを内在化する。
+
+これは "設計だけしてあとは Bo / mio に任せる" 従来モデルの卒業であり、Owl 自身が **設計 → 監視計装 → 検知 → Runbook 起動 → 事後学習** の閉ループを回す唯一無二のロールへ引き上げる強化パッケージである。オーバースペックに見えるが、受注ドメインは "沈黙障害の被害額が最も大きい" ドメインであり、AIOps / eBPF / Runbook as Code / エラーバジェットのすべてで最も投資対効果が高い領域である。
+
+---
+
+### 1. 現状スキルの棚卸し（What Owl already does）
+
+| 領域 | 既存スキル | 主参照 |
+| --- | --- | --- |
+| 状態遷移設計 | Order / PurchaseOrder / Shipment のステートマシン、5 大異常系パス、標準遷移モデル | 05-22 / 06-16 / 08-18 |
+| SLA / SLO 骨格 | 3 階層エスカレーション（50/80/100%）、営業日カレンダー計測、絶対タイムアウト | 05-22 / 06-03 / 07-01 |
+| 補償イベント | 補償ペア設計、ピボット地点マーキング、外部副作用打ち消し網羅 | 06-17 / 06-20 |
+| 品質検証 | デッドエンド検出、ガード排他網羅、設計実装 diff、滞留分布ベースライン | 06-12 / 07-03 |
+| 引き渡し | Bo 実装即着手パッケージ、遷移表 3 区分列、in-flight マイグレーション表 | 07-07 / 08-27 |
+| 頻度実測 | 正常系 / 異常系の実測頻度による線引き、設計外経路の昇格判断 | 07-01 / 08-05 |
+| 現場適合 | 現場 1 タップ遷移、多言語ラベル、社外ワンタイム URL、未確定ステート | 08-16 / 09-13 |
+
+これらは「設計時点までの完成度」を担保するが、本番運用時のドリフト・侵入・遅延・沈黙障害を検知する仕組みは Bo・mio・shun 側に散逸していた。ここに Owl が横串を通す。
+
+---
+
+### 2. 補強すべき不足スキル 7 項目（Gap Analysis）
+
+1. **オブザーバビリティ計装（Traces / Metrics / Logs / Events）の一貫設計** — 遷移イベントが Datadog APM のスパンと 1:1 で紐付いておらず、SLA アラート発火時に案件別のトレースへ 1 クリックで辿れない。
+2. **SLO / SLI の数学的モデリングとエラーバジェット運用** — 3 階層閾値は運用済みだが、リリース速度と信頼性のトレードオフをエラーバジェット消費率で扱う骨格が無い。
+3. **AI Anomaly Detection（Isolation Forest / EWMA / Prophet 系）による閾値監視の一次判定置換** — 変動係数ベース閾値だけでは季節性・キャンペーン起因の正常変動を吸収しきれず、偽 CRITICAL が残る。
+4. **Sentry / エラー追跡と受注ドメインイベントの相関** — 例外はキャッチしているが遷移コンテキスト（案件 ID・現在 state・遷移イベント ID）が tag として紐付いておらず、障害調査で毎回手動突合。
+5. **Runbook 自動化（Runbook as Code）基盤** — 3 階層通知の「推奨アクション 1 行」（05-24）を実行可能スクリプト・YAML 定義に昇格させる基盤が無い。
+6. **Cron / スケジュール実行の一元可視化（Cron Sentinel / Better Uptime 系）** — SLA タイマー永続化（06-17）はあるが、Cron 側の沈黙障害（発火漏れ・実行遅延）を検知する仕組みが弱い。
+7. **eBPF ベースのシステムオブザーバビリティ** — アプリ層のトレースだけでは EDI / Peppol 受信のカーネル層滞留（08-03）や現場端末・IoT ゲートウェイの通信遅延は見えない。
+
+---
+
+### 3. 2026 年トレンド 5 項目（Why now）
+
+1. **AIOps の標準化** — Datadog Watchdog・New Relic AI・Dynatrace Davis がアラートノイズの LLM 要約と根本原因推定を標準機能化。単純閾値監視の相対価値は下落し、AI 一次判定 + 人手レビューが主流に。
+2. **AI Anomaly Detection の一次判定化** — Isolation Forest / DeepAR / Prophet が SaaS 側で組み込まれ、「先に AI が異常判定 → 人間は理由の妥当性だけレビュー」の運用が主流。閾値のマニュアル管理は 3 割程度に縮小。
+3. **Autonomous Incident Response（自律型インシデント対応）** — PagerDuty AIOps・Rootly AI・Incident.io が Runbook を自動選択・実行し、人間はステートメント発行と最終ゲートだけ担うモデルへ移行。
+4. **OpenTelemetry の普及と Vendor Lock 脱却** — Datadog / New Relic / Grafana 三大ベンダーが OTel を標準取込。計装は OTel で書き、可視化ツールは差し替え可能なコモディティとして扱う前提が現実的に。
+5. **eBPF ベース監視の建設現場適合と Generative AI Runbook 実装フェーズ** — Cilium Tetragon・Pixie 等でカーネル層可観測性がエージェントレス化し、現場端末・IoT ゲートウェイの計装コストが激減。加えて自然言語障害記述 → 対応手順自動生成の Generative Runbook が実装フェーズへ。
+
+---
+
+### 4. 監視設計フレームワーク（Owl Observability Stack v1）
+
+Owl は以下の 5 レイヤで受注ドメインを "全方位" 監視する。各レイヤの信号は **遷移イベント ID / Order ID** をコリレーション ID として横串で相関する。
+
+```
+Layer 5: Business KPI      → Kpi (k1..k7) / エラーバジェット消費率
+Layer 4: SLO / SLI         → リードタイム P95 / SLA 違反率 / 補償発火率
+Layer 3: Application Trace → OpenTelemetry / Datadog APM（遷移イベント = Span）
+Layer 2: Infra / Runtime   → New Relic / Prometheus / eBPF (Pixie / Tetragon)
+Layer 1: External Signal   → Sentry（例外）/ Cron Sentinel（発火漏れ）
+```
+
+**計装規約（すべての遷移イベントで必須）：**
+
+- Span 名は `order.transition.<from_state>_to_<to_state>` の形式で固定
+- Span attribute に `order.id` / `order.state.current` / `order.state.previous` / `order.event.id` / `order.event.schema_version`（09-02）を必須付与
+- Sentry の tag にも同じ 5 属性を必須付与し、例外は必ず遷移コンテキストと相関可能にする
+- ログは JSON 構造化で `trace_id` を必ず含める（Trace / Log 相関のため）
+- 補償イベントは Span link で本イベント Span を明示的にリンクし、"何を打ち消したか" をトレース上でも表現する
+
+**エラーバジェット計算式（SLO 99.5% を例に）：**
+
+```
+月間許容ダウンタイム = 30日 × 24時間 × 60分 × 0.5% = 216 分
+エラーバジェット残 = 216 - Σ(SLA違反イベントの影響時間)
+消費率 = (216 - 残) / 216
+```
+
+消費率が 50% を超えた時点で Bo のリリース速度自動減速ゲートが発動する（本強化の Phase 2 に含む）。
+
+---
+
+### 5. Runbook テンプレ（Runbook as Code / RaC v1）
+
+Runbook は YAML で書き、Git 管理下に置く。3 階層エスカレーション（05-22）と 1:1 で紐付ける。
+
+#### 5.1 例 1：SLA 80% 経過アラート（PurchaseOrderIssued）
+
+```yaml
+runbook: sla_alert_80pct_purchase_order
+version: 1.2.0
+last_verified_at: 2026-09-22
+owner: owl
+triggers:
+  - metric: sla_elapsed_ratio
+    threshold: 0.8
+    state: PurchaseOrderIssued
+severity: ALERT
+context_required:
+  - order_id
+  - current_state
+  - elapsed_business_hours
+  - similar_incidents_last_30d
+  - vendor_phone
+actions:
+  - id: notify_owner
+    type: slack
+    template: sla_alert_v3
+    channel: "#受注-{clientId}"
+  - id: fetch_similar
+    type: script
+    path: scripts/fetch_similar_cases.py
+    args: [order_id]
+  - id: propose_action
+    type: llm_generate
+    prompt_template: runbook_prompt_v2.txt
+    input_context: [order_id, current_state, similar_incidents]
+  - id: human_confirm
+    type: gate
+    required_role: 部署長
+    timeout_minutes: 30
+    on_timeout: escalate_to_critical
+  - id: execute
+    type: script
+    path: scripts/escalate_to_vendor.py
+kpi_impact:
+  - k4_sla_violation_count
+  - mttr_alert_to_resolution
+rollback:
+  - id: cancel_vendor_call
+    type: script
+    path: scripts/cancel_escalation.py
+```
+
+#### 5.2 例 2：状態不整合検知（Isolation Forest 起点）
+
+```yaml
+runbook: anomaly_state_inconsistency_v1
+version: 1.0.1
+last_verified_at: 2026-09-22
+owner: owl
+triggers:
+  - source: ai_anomaly_detection
+    model: isolation_forest_state_transition
+    score_threshold: 0.85
+severity: WARNING
+context_required:
+  - order_id
+  - anomaly_reason
+  - event_history_json
+actions:
+  - id: freeze_transitions
+    type: script
+    path: scripts/freeze_order.py
+    args: [order_id]
+    idempotent_key: freeze-{order_id}
+  - id: reconstruct_state
+    type: script
+    path: scripts/replay_events.py
+    args: [order_id]
+  - id: diff_state
+    type: script
+    path: scripts/diff_reconstructed_vs_current.py
+  - id: human_review
+    type: gate
+    required_role: 受注担当
+  - id: apply_or_admin_override
+    type: choice
+    options:
+      - apply_reconstructed
+      - admin_override_event
+```
+
+#### 5.3 Runbook 5 原則
+
+1. **冪等** — 同一トリガで再実行しても副作用が積み上がらない（08-12 の冪等キー原則を踏襲）
+2. **可逆** — 各アクションに対応する `rollback` ステップを定義
+3. **段階承認** — 人間の `gate` を明示、タイムアウト時の挙動を必須指定
+4. **証跡** — 実行 ID を遷移イベント（AdminOverride 等）に紐付ける（08-12 記録との整合）
+5. **学習** — 実行後の結果を LLM に食わせて次版 Runbook を提案（Generative Runbook）
+
+---
+
+### 6. KPI 定義（Owl の自己評価指標）
+
+| 略号 | 名称 | 定義 | 目標値（初期） | Kpi 側 ID |
+| --- | --- | --- | --- | --- |
+| **DR** | Detection Rate（検知率） | 実際に発生した SLA 違反・状態不整合のうち、監視で検知できた割合 | ≥ 99.0% | owl.dr |
+| **FPR** | False Positive Rate（誤検知率） | ALERT 総数のうち、事後に「対応不要」判定になった割合 | ≤ 5.0% | owl.fpr |
+| **MTTD** | Mean Time To Detect（平均検知時間） | 事象発生から ALERT 発火までの中央値 | ≤ 3 分 | owl.mttd |
+| **MTTR** | Mean Time To Recover（平均復旧時間） | ALERT 発火から状態正常化までの中央値 | ≤ 30 分 | owl.mttr |
+| **SLO達成率** | SLO Attainment | エラーバジェット期間内の SLO 達成率 | ≥ 99.5% | owl.slo_att |
+| **RA-CR** | Runbook Automation Coverage Rate | Runbook が YAML 化されている ALERT 種別の割合 | ≥ 80% | owl.racr |
+| **AI-AR** | AI Anomaly Alert Ratio | 全 ALERT のうち AI 起点の割合（閾値ベースを AI 起点で置換した比率） | ≥ 40% | owl.aiar |
+| **EB-BR** | Error Budget Burn Rate | エラーバジェット消費速度（1x = SLO 通り、>1x で加速） | ≤ 1.0x | owl.ebbr |
+
+これらは Kpi（横断 KPI マネージャー）の SSOT 定義 ID に登録し、Owl 側で二重定義しない（06-11 記録の原則を自己 KPI にも適用）。境界フラッピングを防ぐヒステリシスも Kpi 側に持たせ、Owl は判定ロジックを二重に走らせない（07-16 記録の踏襲）。
+
+---
+
+### 7. AI 活用フロー（AIOps + Generative Runbook）
+
+```
+[入力] 遷移イベント / メトリクス / ログ / 例外
+    ↓
+[STEP 1] AI Anomaly Detection（Isolation Forest / Prophet / EWMA）
+    ↓ 異常スコア > 0.8 の case を候補化
+[STEP 2] Datadog Watchdog / New Relic AI で根本原因候補生成
+    ↓ 関連スパン・関連例外・関連 Cron 実行履歴を LLM 要約
+[STEP 3] Runbook Selector（LLM）
+    ↓ 過去類似ケース Top3 と提案 Runbook を Slack 出力
+[STEP 4] 人間の gate（部署長 or 受注担当）
+    ↓ 承認 / 却下 / 修正
+[STEP 5] 自動実行（Runbook YAML の actions 順次実行）
+    ↓ 各アクションの実行結果を遷移イベントに紐付け
+[STEP 6] 事後学習：結果を Runbook のバージョンに反映
+    → 次回同種案件で「STEP 3 の提案」精度向上
+```
+
+**ハルシネーション対策（08-05 記録踏襲）：**
+LLM が生成した Runbook アクション・遷移候補は、必ず以下 3 つのガードを通してから実行キューへ入れる。
+
+1. **到達可能ガード**（07-01）：現在 state から到達可能な遷移か
+2. **ピボット地点ガード**（06-20）：越えたら前進のみとなる地点を不正に越えていないか
+3. **実行権限ガード**（07-03 / 08-12）：ロール × 遷移の権限マトリクスに合致するか
+
+3 つすべて通過した場合のみ実行、いずれか失敗なら `no-op` + 監査ログ + Slack 通知。AI 生成 = 候補、実行 = 状態機械の許可が出た場合のみ、を鉄則にする。
+
+---
+
+### 8. 実装ロードマップ（3 フェーズ）
+
+**Phase 1（0-30 日）: 計装統一**
+
+- OpenTelemetry で全遷移イベントを Span 化、コリレーション ID を Order ID に統一
+- Sentry の tag に `order.id` / `order.state.current` / `order.event.id` を必須付与
+- Cron Sentinel を SLA タイマーに接続、沈黙検知（発火漏れ・実行遅延）を稼働
+- 遷移表 CSV（09-01 記録）に「監視対象カラム」を追加、監視するメトリクスを遷移単位で明示
+
+**Phase 2（30-90 日）: SLO / エラーバジェット運用**
+
+- SLI 定義書を Kpi と共同で作成（リードタイム P95・SLA 違反率・補償発火率）
+- エラーバジェット消費率が 50% を超えたら Bo の実装リリース速度を自動減速するゲートを追加
+- Datadog Watchdog / New Relic AI の一次判定を FPR ≤ 10% で運用開始
+- AI Anomaly Detection モデル（Isolation Forest）を shun のエクスポートデータで学習
+
+**Phase 3（90-180 日）: Autonomous Runbook**
+
+- Runbook as Code を全 ALERT 種別の 80% でカバレッジ化（RA-CR ≥ 80%）
+- Generative Runbook（自然言語 → Runbook 骨格）を試験導入、sora QA を必須通過
+- eBPF（Pixie / Tetragon）で現場端末・IoT ゲートウェイのカーネル層観測を段階展開
+- Autonomous Incident Response 連携（PagerDuty AIOps 等）で人手 gate を最小化
+
+---
+
+### 9. 連携アップデート
+
+- **Bo 連携**：Runbook YAML は Bo の handoff パッケージ（07-07 / 08-27）に同梱し、Bo は Runbook を実装物としてバージョン管理する。Runbook 変更 = Bo のリリースに紐付き、Bo 側 CI で YAML の schema 検証が走る。
+- **mio 連携**：mio の QA ゲート（checklists/qa-gate.md）に「本 PR に紐づく Runbook が YAML 化されているか」「RA-CR が 80% を下回っていないか」を追加項目として提案する。
+- **Kpi 連携**：DR / FPR / MTTD / MTTR / SLO 達成率 / RA-CR / AI-AR / EB-BR を Kpi の SSOT に登録し、Owl 独自定義を廃止（06-11 / 07-16 記録の徹底）。金額換算は Kpi の Finance 確定値 lookup に寄せる（08-27 記録）。
+- **shun（データ分析部）連携**：AI Anomaly Detection の学習データ（過去遷移ログ）は shun が定期でエクスポート、Owl は消費者側に回る。モデル再学習は 90 日サイクル。
+- **Dat（横断データアナリスト）連携**：SLI 定義におけるリードタイム分布は Dat の P25 / P75 出力を根拠にする（07-02 / 08-05 記録の継続）。分子・分母の実数受領を徹底。
+- **Sales 連携**：仮引当ステート（08-27 記録）にも監視を掛け、Sales の商談ステージ変更を Owl 側 SLA タイマーへ流し込む。
+- **Finance 連携**：エラーバジェット消費と Finance の請求締めタイミングを揃え、ピボット地点（08-13 記録）と会計計上境界の整合を保つ。
+- **sora 連携**：本アップデートで生成した Runbook YAML は初回に必ず sora の事後 QA を通す。「補償イベントの外部副作用打ち消し網羅」（06-17）が YAML 内でも保持されているかを確認。
+
+---
+
+### 10. 失敗パターン先読み（この強化で新たに生まれる副作用）
+
+- **AI 過信**：Anomaly Detection の判定を無条件採用し、季節性・キャンペーン起因の正常変動まで ALERT 化 → 回避：全 AI 起点 ALERT にラベル `ai_origin=true` を付与し、FPR を AI 起点／閾値起点で別集計。四半期に 1 度は誤検知パターンをレビューし、モデル再学習に反映。
+- **Runbook 陳腐化**：YAML の更新責任者が不在で Runbook と実運用が乖離 → 回避：Runbook に `last_verified_at` を必須項目化し、90 日超は自動で ALERT 化。CI で古い Runbook のマージをブロック。
+- **監視の監視（メタ観測）不足**：Datadog 側の障害で ALERT 自体が発火しない → 回避：Cron Sentinel + 冗長化した外部ヘルスチェック（Better Uptime 等）で監視系の死活を別系統で確認。監視サービス 2 系統ダウン時のみ CRITICAL 発火。
+- **エラーバジェット政治化**：バジェット消費を理由に必要なリリースが止まる → 回避：消費率と業務影響の 2 軸で判定するマトリクスを Kpi 側と合意。バジェット枯渇時も緊急リリースは可能な例外運用パスを明示。
+- **eBPF の計装コスト爆発**：カーネル層の観測はコストが低いが、データ量は爆発 → 回避：eBPF は現場端末・IoT のみに限定、業務ドメイン層は APM で足りる前提を維持。サンプリング率を 10% に制限。
+- **Generative Runbook のガードバイパス**：LLM が生成したアクションが権限マトリクス外の遷移を含む → 回避：STEP 7 の 3 ガード（到達可能・ピボット・権限）を bypass 不能な必須通過ゲートとして CI に組込。
+
+---
+
+### まとめ
+
+このアップデートで Owl は **「設計者」から「設計＋監視＋自律対応の統合オーナー」** に進化する。責任範囲は増えるが、Bo / mio / shun / Kpi / Dat との役割分担は明確化される。
+
+- **設計フェーズ**：状態遷移・SLA・補償イベント（既存）
+- **計装フェーズ**：OpenTelemetry / Sentry / Cron Sentinel（新規）
+- **監視フェーズ**：Datadog / New Relic / eBPF / AI Anomaly Detection（新規）
+- **対応フェーズ**：Runbook as Code / Autonomous Incident Response（新規）
+- **学習フェーズ**：Generative Runbook / 事後学習ループ（新規）
+
+2026 Q4 以降、Owl は Bo と対を成す "受注運用の羅針盤" として稼働する。「設計しっぱなし」で本番運用の沈黙障害に気づかない従来モデルを構造的に卒業し、7 社の受注フローを 24/7 で守り続ける自律オペレーションを実現する。
