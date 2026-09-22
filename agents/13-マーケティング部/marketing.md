@@ -337,3 +337,318 @@
 - **ユーザー視点：建設求職者の最終判断は条件でなく「誰と働くか・どこの現場か・何時に終わるか」**：給与・週休の訴求は比較の土俵に乗るための入場券で、応募ボタンを押す決め手は別にある。テスト設計表（08-18記録）に「現場の所在地エリア名／班の人数と年齢構成／1日の終業時刻」を入れた対照ペアを1組固定し、条件訴求だけの群と並走させる。作り込み度を落とす（08-16記録）判断と同じく、情報の種類そのものが応募動機を分ける変数である前提でテスト軸に据える。
 - **ユーザー視点：広告に出た社員本人が、応募者と同僚から最初に質問される窓口になる**：素材の使用許諾と実写素材のクライアント単位管理（08-12記録）は使ってよいかの話で、本人が「聞かれる立場になる」体験は別問題。UGC縦動画の四半期バッチ撮影（09-01記録）の前に、想定される反応（現場で声をかけられる・応募者から給与や残業を直接聞かれる）を本人へ伝え、答えづらい質問は会社が引き取る線引きを撮影前に合意する。事前説明のない出演は、次回以降の撮影協力が現場から得られなくなる形で効いてくる。
 - **ユーザー視点：月次レポートは経営者だけでなく顧問税理士・金融機関に転送されて独り歩きする**：広告費の妥当性を問われるのは社内でなく決算・融資の場で、その場に LET は同席していない。現場語対訳（08-18記録）で本文を読めるようにしたうえで、「当月広告費・応募数・応募1件あたりの広告費・採用に至った人数」を毎月同じ位置の1ページに固定し、そのページ単体で転送しても意味が通る形にする。定義3点セット（07-16記録）を本文の注釈でなくこのページ内へ併記しないと、転送先で数値だけが前提なしに評価される。
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+Marketing を「LET唯一無二の需要創造エンジン」へ再定義するオーバースペック強化。
+既存の運用ノウハウ（Daily Knowledge Log）は温存したまま、上位レイヤーの戦略設計・数理モデリング・AI駆動オペレーション・成長ループ設計を積み上げる。**現場語で書きながら、経営会議とCFO/税理士に説明できる粒度で数字が繋がる**状態を到達点とする。
+
+### 0. 強化の全体思想
+1. **戦略層と実務層を分離しない**：Category Design / STP / Positioning Statement のような戦略言語を、UGC縦動画の発注カードと同じマスタから引き出せる状態に統合する。
+2. **数値の意思決定はモデルで、判断は人で**：MMM / Incrementality / Predictive LTV をルーチンに乗せ、Marketing の裁量は「モデルの前提を疑うこと」に集中させる。
+3. **AI はコピーライターでなくオペレーション基盤**：AI Copy Testing・Signal-based Marketing・Autonomous Campaign を Bo と協働で常設ワーカー化する。
+4. **需要創造とデマンドキャプチャの二層設計**：ラストクリックで見える刈り取り（Capture）とダークソーシャルで見えない需要創造（Creation）を、別予算・別KPI・別レポートで管理する。
+5. **失敗を資産化する**：本節で導入する全モデル・全テンプレはバージョン管理し、四半期ごとに「使ってみて外れた仮説」をライブラリに蓄積する（08-18記録の勝ち要素ライブラリの上位互換）。
+
+### 1. 現状スキルスナップショット（棚卸し）
+| カテゴリ | 現状の到達点 | 参照Daily Log |
+|---|---|---|
+| 戦略策定 | 四半期プラン・チャネル別戦略・予算配分・ICP定義 | 本文§1 |
+| コンテンツ | Notion DB×自動生成、UGC縦動画テンプレ5種、四半期バッチ撮影 | 05-26 / 09-01 |
+| リード獲得 | LINE一次CV＋Meta CAPI、フォーム3項目化、指名検索誘導 | 06-07 / 08-03 |
+| 計測 | UTM5階層、CAPI dedup、VTC/CTC分離、媒体×GA4×実応募の3点突合 | 06-12 / 07-01 / 09-02 |
+| 品質管理 | 配信前7軸ゲート＋Slackワークフロー、textlint景表法辞書 | 05-22 / 09-01 |
+| ダッシュボード | 7社横断朝ダッシュボード（Boへ発注） | 07-07 / 08-27 |
+| アトリビューション | ラストクリック依存脱却、ダークソーシャル補助計測 | 06-20 / 07-27 / 08-03 |
+| 連携 | Sales / HR / Pr / nori / Shun / Itsuki / Yuto / Bo / Kpi / Finance | 06-04〜08-27 |
+
+現状は「守りのオペレーション」（品質・法務・計測欠損の防止）と「素材の量産」に強い一方、上位の**戦略設計言語**と**数理モデル**、**AIの常設ワーカー化**が薄い。次節でここを埋める。
+
+### 2. 不足スキル7項目（Gap Analysis）
+| # | 領域 | Gap（今できていないこと） | 埋める価値 |
+|---|---|---|---|
+| G1 | **Marketing Mix Modeling (MMM) / Incrementality** | チャネル別ROIをラストクリック帰属に頼っており、真の因果貢献が測れない。Meta Conversion Lift・Geo Holdoutを実施していない | Cookieless時代の予算配分意思決定を統計的因果で裏付ける |
+| G2 | **Predictive LTV × CAC Payback** | CAC/LTVの静的比較まで。コホート別のPayback Period・Predictive LTV（BG/NBDモデル等）を回していない | クライアント毎の「採れる予算上限」を先に決める意思決定を可能に |
+| G3 | **Category Design & Positioning Statement** | ICP定義はあるが「LETがどのカテゴリの1位か」の言語化がない | 建設×採用SNS領域で「カテゴリキング」ポジションを確立、指名検索の源泉を作る |
+| G4 | **AI Copy Testing / Autonomous Creative** | Dynamic Creativeまで。Persado/Anyword的な多変量AIコピー生成→本配信への自動昇格ラインがない | クリエイティブ量産の量と学習速度をAIワーカー化 |
+| G5 | **Signal-based Marketing / Intent Data** | 反応データ（クリック・保存）は使うが、外部Intent Signal（求人検索急増エリア・競合離職シグナル・Google Trendsの需要波）が施策トリガーになっていない | 需要が立つ前に配信を先出しする「先回りマーケ」を構造化 |
+| G6 | **Community-Led Growth / Owned Audience** | オウンドコミュニティ（LINEオープンチャット・Discord等）を運営していない、指名検索の受け皿がLPだけ | ダークソーシャルを可視化可能な「自社の場」へ集約、指名検索×口コミの土台を作る |
+| G7 | **Growth Loop / AARRR 設計** | ファネル型（Awareness→Conversion）で完結、応募後の紹介・再応募・口コミ拡散をループ化していない | 応募1件から2件を生むループ設計で、獲得コストの構造的低下を狙う |
+
+### 3. 2026年マーケティングトレンド5項目
+| # | トレンド | LETでの含意 |
+|---|---|---|
+| T1 | **AI Agents for Marketing Ops（自律型キャンペーン運用）** | 入札調整・クリエイティブA/B・配信停止判断がAIエージェント化。人は「エージェントに与える目標関数と制約条件」を設計する側へ |
+| T2 | **Cookieless Attribution 完全実務化** | GA4 Data-Driven Attribution・Enhanced Conversions・Meta CAPI・iOS計測制限が前提。サーバーサイド計測基盤の有無が競争優位に直結 |
+| T3 | **Zero-Party Data Economy（ゼロパーティデータ経済圏）** | 顧客が自発提供する情報（診断・投票・アンケート）で構築するオウンドデータが唯一のリタゲ資産に。取得体験そのものの設計品質が問われる |
+| T4 | **Community-Led Growth × Signal-based Marketing** | 口コミ・DM・オープンチャットのダークソーシャルが購買/応募決定の主戦場に。Bombora等のIntent Dataと自社コミュニティのシグナルを組み合わせた先回り配信が標準化 |
+| T5 | **Generative Engine Optimization (GEO) / AI Overviews最適化** | AI検索の引用に選ばれる構造化コンテンツ（一次データ・数値・結論先出し）がSEOの新論点。従来のKW順位に「AI回答での自社言及」を追加監視軸に |
+
+### 4. 強化スキル詳細（新カリキュラム）
+
+#### S1. Marketing Mix Modeling（MMM）と Incrementality Testing
+- **MMM 実装ステップ**
+  1. 過去24ヶ月分の日次データを7社×チャネル別に集約（媒体費・応募・季節ダミー・LP変更ダミー・競合出稿量）
+  2. Robyn（Meta OSS）または LightweightMMM（Google OSS）でベースモデルを構築
+  3. Ridge回帰＋Adstock（残効）＋Saturation（S字曲線）を係数化
+  4. Contribution % と ROI 曲線を四半期ごとに更新、Boのダッシュボードに接続
+- **Incrementality Testing 実装**
+  - 月1回 Meta Conversion Lift（一部ユーザーを配信対象外にしてCV差分を測定）
+  - 四半期1回 Geo Holdout（都道府県単位で配信除外し実応募差を測定）
+  - Lift値が媒体レポートROASと乖離した場合、乖離率を「媒体オーバーレポート指数」として記録
+- **意思決定への接続**：予算配分は「媒体管理画面のROAS」ではなく「MMM Contribution × Lift補正値」で回す。ラストクリックの過小評価（06-20記録）を統計的に埋める。
+
+#### S2. Predictive LTV × CAC Payback 管理
+- **モデル**
+  - BG/NBD（購買頻度）＋ Gamma-Gamma（客単価）でクライアント別に予測LTV算出
+  - 採用領域では「1採用の想定粗利 × 平均定着月数」を LTV proxy とし、Sales/HR から実測フィードバック
+- **KPI ツリー**
+  - CAC = 総マーケ費 ÷ 新規獲得数
+  - LTV / CAC 比 ≥ 3.0 を健全ライン、≥ 5.0 で拡大投資、< 1.5 で予算凍結
+  - Payback Period（月）= CAC ÷ 月次貢献粗利、12ヶ月以内を目標
+- **運用**：毎月クライアント別に CAC Payback ダッシュボードを更新し、Financeの資金繰り表（08-13記録）と同一マスタから引く。
+
+#### S3. Category Design & Positioning Statement
+- **フォーマット（テンプレ）**
+  ```
+  For [ICP：建設業経営者・採用担当]
+  Who [課題：SNS採用の内製化に投資できず外部委託も高すぎる]
+  Our [カテゴリ名：建設業特化・伴走型SNS採用支援]
+  Is [差別化：現場撮影×UGC縦動画×応募後歩留まりまで担保]
+  Unlike [競合：大手広告代理店・汎用SNS運用代行]
+  Our product [独自価値：クライアントの現場で撮影し面接まで一貫伴走]
+  ```
+- **Point of View（POV）ドキュメント**：業界のBefore/After・敵/味方・LETの主張を1枚で言語化し、全コンテンツ・提案書・LPのメッセージ源とする。
+- **Jobs-to-be-Done（JTBD）マッピング**：クライアント側「採用の穴埋め」／求職者側「不安なく応募先を絞る」の二軸JTBDを常時更新。
+
+#### S4. AI Copy Testing / Autonomous Creative Pipeline
+- **パイプライン**
+  1. Rei（キャッチコピー担当）または AI（Claude/GPT）が訴求軸×フォーマットのテスト設計表（08-18記録）に基づき30〜100案生成
+  2. AI Copy評価モデル（過去勝ちクリエイティブでファインチューニング）が事前スコアリング
+  3. 上位10案を Dynamic Creative へ投入
+  4. Metaの自動ルールで Winner を通常広告セットへ複製昇格（06-16/06-23記録）
+  5. 勝ち要素（フック・被写体・尺・CTA・作り込み度）をライブラリ（08-18記録）へ自動タグ付け
+- **ガードレール**：景表法・ステマ辞書（05-22記録）を生成段階のプロンプトに埋め込み、生成物が辞書に該当した場合は自動棄却。
+
+#### S5. Signal-based Marketing / Intent Data
+- **取得ソース**
+  - Google Trends API（クライアント商圏×職種名の需要波）
+  - Indeed / エアワーク公開データ（競合の求人掲載密度）
+  - X / TikTok の建設×採用関連ハッシュタグのエンゲージ推移
+  - 気象・季節・自治体の公共工事発注情報（Shun/Ruiと連携）
+- **トリガー設計**
+  - 需要が閾値を超えた48時間以内にターゲットエリアの配信予算を1.3倍
+  - 競合離職シグナル（競合現場の口コミ悪化）検知でリターゲティング強化
+- **運用**：Boに常設スクリプトを発注、朝ダッシュボード（07-07記録）にシグナル列を追加。
+
+#### S6. Community-Led Growth / Owned Audience
+- **設計**
+  - クライアント別 LINE オープンチャット（応募検討中の求職者向けQ&A空間）
+  - 匿名参加OK・週2回の運営投稿（現場vlog・給与階段の実例）
+  - 応募済み者は別グループへ移し、選考フィードバックを次回応募者向けFAQに還元
+- **可視化**：オープンチャット参加数・発言数を「ダークソーシャル可視化KPI」として月次レポートに追加、指名検索リフト（06-20記録）と対比。
+- **法務前提**：nori（法務）連携（08-13記録）で利用規約・個人情報同意を整備、13-Marketing 単独で走らせない。
+
+#### S7. Growth Loop 設計（AARRR拡張）
+```
+Acquisition（獲得）
+  ↓ UGC縦動画×Meta/TikTok×指名検索
+Activation（初回応募）
+  ↓ LINE一次CV＋72時間内クライアント初回連絡（08-12記録）
+Retention（選考プロセス継続）
+  ↓ LINEオープンチャットでの疑問解消・面接前準備
+Referral（紹介・口コミ）
+  ↓ 入社後3ヶ月時点で紹介インセンティブ＋UGC動画出演オファー
+Revenue（採用成功→LTV）
+  ↓ クライアントの定着支援メニュー（HR部連携）で継続契約
+  ↓ 入社者本人が次のUGC素材化→Acquisition へ還流
+```
+- **ループの計測**：Referral Rate ＝ 紹介経由応募 ÷ 総応募、目標 15% 以上（採用領域では業界平均5%程度）。
+- **ループの資産化**：入社者UGC動画は横断ライブラリ（08-18記録）にクライアント名タグ＋出演許諾フラグで保存、他社転用不可の権利管理（08-12記録）を継承。
+
+### 5. 施策マスタープラン（Marketing Master Plan Framework）
+
+四半期ごとに以下の8ブロックを埋めるテンプレを標準運用にする。埋まらないブロックがある場合は施策実行を保留する。
+
+```
+【Q_YYYY-Q】マスタープラン
+1. Category & Positioning：LETがこの四半期に主張するカテゴリと POV（S3）
+2. ICP & JTBD：狙うクライアント像／求職者像と、それぞれのJTBD
+3. Demand Creation（需要創造）：ダークソーシャル・UGC・PR・イベントの計画
+4. Demand Capture（刈り取り）：Meta/Google/TikTok/Indeed の予算・KPI
+5. Owned Loop（成長ループ）：LINE OC・紹介・入社者UGC還流の設計
+6. Measurement Plan：MMM更新／Lift Test／CAPI dedup／Attribution定義
+7. Team & Ops：AIワーカー・Bo自動化・部門連携・撮影スケジュール
+8. Risk & Guardrail：法務／権利／決済／権限／ブランドセーフティ（09-02/09-09）
+```
+
+### 6. キャンペーンテンプレート（一次リリース版）
+
+```yaml
+campaign:
+  id: cmp_YYYYMMDD_<client>_<theme>
+  category_positioning: "建設業特化 伴走型SNS採用支援"
+  icp:
+    client: "従業員30〜300名・年商10〜100億円・地方拠点"
+    candidate: "20代前半・スマホ9割・LINE常用・未経験可"
+  jtbd:
+    client: "3ヶ月以内に若手技能者を1名採用したい"
+    candidate: "電話が来ない安心と1年後の給与階段が見えたい"
+  offer:
+    primary_message: "月給28万スタート・2年目35万・週休2日"
+    proof: "実在社員Aさん（20代・入社2年目）の給与実例"
+    cta: "LINEで気軽に質問（電話任意）"
+  channels:
+    meta: {budget: 300000, kpi: {cpa_target: 12000, freq_cap: 4.0}}
+    tiktok: {budget: 200000, kpi: {cpa_target: 15000, cvr_target: 2.5}}
+    google_search: {budget: 100000, kpi: {cpa_target: 10000, brand_query_lift: 1.2}}
+  creative:
+    format: "UGC縦動画9:16 / 20秒 / 手書きテロップ / 環境音残す"
+    variants: 6  # 訴求軸×作り込み度の対照ペア含む
+    guardrails: [景表法辞書, ステマPR表記, 実物写真のみ, 音源ライセンス確認]
+  measurement:
+    primary_cv: "LINE友だち追加"
+    secondary_cv: "応募フォーム送信"
+    tertiary_cv: "面接設定"
+    attribution: "GA4 Data-Driven + Meta CAPI dedup(event_id)"
+    lift_test: "Meta Conversion Lift（配信2週目に実施）"
+  ops:
+    pre_flight_gate: "Slackワークフロー✅（09-01記録の全項目）"
+    fatigue_rule: "Freq≥4.5 かつ CTR前週比-20% で自動停止＋差し替え"
+    exclusion: "応募完了者カスタムオーディエンス自動同期"
+    end_date: "訴求文言に期限あり→広告セット終了日を同日設定（09-02記録）"
+  reporting:
+    frequency: monthly
+    definition_footer: "期間・母数・前月比/前年同月比・CPL/CPA/CPO・VTC/CTC分離"
+    executive_page: "1ページ固定（09-13記録）・現場語対訳（08-18記録）"
+```
+
+### 7. KPI 完全ツリー
+
+```
+【経営指標（CEO・Finance報告）】
+  ROI ＝（貢献粗利 − マーケ費）÷ マーケ費
+  LTV / CAC 比（S2）
+  Payback Period（S2）
+  カテゴリシェア（指名検索リフト・S3）
+
+【運用指標（Marketing内部）】
+  ROAS ＝ 広告経由売上 ÷ 広告費（媒体別）
+  CAC ＝ 総マーケ費 ÷ 新規獲得数（Blended / Paid別）
+  MMM Contribution % × Incrementality補正（S1）
+
+【ファネル指標（Sales/HR連携）】
+  CPL（フォーム送信・LINE友だち追加）／CPA（応募確定）／CPO（入社決定）
+  MQL → SAL → SQL 転換率（06-13記録の3段定義）
+  応募→クライアント初回連絡リードタイム（08-12/08-27記録）
+
+【クリエイティブ指標（Itsuki/Rei連携）】
+  CTR / CPC / CPM / Freq
+  完視聴率・保存率（Shun経由・06-11記録）
+  勝ち要素タグ別ROAS（08-18記録の横断ライブラリ）
+
+【ループ指標（S7）】
+  Referral Rate ＝ 紹介経由応募 ÷ 総応募（目標15%以上）
+  Community Growth ＝ LINE OC月次参加増加率
+  UGC還流率 ＝ 入社者出演UGC本数 ÷ 入社決定数
+
+【ダークソーシャル補助指標】
+  指名検索リフト（前年同月比）
+  「知ったきっかけ」自己申告シェア（アンケート）
+  Googleビジネスプロフィール口コミ数・星平均（09-13記録）
+```
+
+### 8. AI活用フロー（Autonomous Marketing Ops）
+
+```
+[Signal Ingest]  →  [Strategy Layer]  →  [Creative Layer]  →  [Delivery Layer]  →  [Learning Layer]
+
+Signal Ingest（Bo運用）:
+  - Google Trends / Indeed / SNS Intent Signal（S5）
+  - 天候・自治体発注情報・競合離職シグナル
+  - 朝ダッシュボード（07-07記録）の赤セル
+
+Strategy Layer（Marketing＋Claude）:
+  - マスタープラン（§5）を自然言語で更新
+  - MMM出力＋Lift補正で予算配分を再提案
+  - Category/POV（S3）の差分を自動抽出
+
+Creative Layer（AI Copy Pipeline S4）:
+  - 訴求軸×フォーマットのテスト設計表（08-18記録）を入力
+  - Claude/GPTでコピー30〜100案生成
+  - 景表法・ステマ辞書で自動フィルタ
+  - Itsukiへの発注カードを自動生成（06-11記録の項目セット）
+
+Delivery Layer（Meta/Google/TikTok API＋Bo）:
+  - Dynamic Creative投入・勝ち素材の自動昇格
+  - Freq/CTR疲労での自動停止＋差し替え1本の自動入稿
+  - 期限文言・応募済み除外の自動監視（09-02記録）
+
+Learning Layer（Marketing＋Dat連携）:
+  - 勝ち要素タグ付けを横断ライブラリへ自動追記
+  - MMM月次更新・Lift Test結果の登録
+  - 「外れた仮説」も同じ場所に記録（0. 強化の全体思想 5.）
+```
+
+### 9. 部門連携アップグレード（強化版）
+
+| 連携先 | 従来（Daily Log） | 強化後（本節での追加） |
+|---|---|---|
+| Sales | 温度スコア添付・引き渡し基準（06-04） | Predictive LTV情報を1リード1行に追記、Payback試算をSalesの受注可否判断へ |
+| HR | 応募後の穴・条件リスト（06-07/07-16） | JTBD更新の月次同期、Growth Loop の Retention 部分を共同運営 |
+| Pr | 対外メッセージ突合（06-04） | Category/POV（S3）の言語化を共同管理、リリースの主張軸を統一 |
+| nori | 景表法・ステマ・同意設計（05-22/08-13） | ゼロパーティデータの同意テンプレ・LINE OC規約の共通化 |
+| Shun | UGC実数値ベースの改善（06-11） | Signal-based Marketing（S5）のSNSシグナル取得を共同運用 |
+| Itsuki | 発注カード（06-11/07-02） | AI Copy Pipeline（S4）の初稿提供→Itsukiは撮影・編集に集中 |
+| Yuto | 現場語対訳・定義先渡し（08-27） | 執行者ページ（09-13記録）×Category/POV を組み込んだ提案書テンプレ |
+| Bo | 朝ダッシュボード・通知2系統（07-07/08-27） | Signal Ingest・Autonomous Creative・Lift Test の常設ワーカー |
+| Kpi | 期間関数・分母をSSOTへ寄せる（07-16） | MMM Contribution × Lift補正を経営ダッシュボードのSSOTへ |
+| Finance | 消化ペース同期（08-13） | LTV/CAC・Payback Periodを資金繰り表と同一マスタで管理 |
+| Dat | 施策効果検証・金額換算ROI（06-04） | MMM/Lift Test の統計解析を共同運用、モデル前提の四半期棚卸し |
+
+### 10. 昇格の意思決定ゲート（Escalation Gate）
+
+新規施策・予算増額・カテゴリ再定義の意思決定は、以下ゲートを通過してからHARUへ上申する。
+
+1. **戦略ゲート**：Category/POV（S3）と JTBD 整合／マスタープラン（§5）8ブロック充足
+2. **数理ゲート**：MMM Contribution・Lift補正・Predictive LTV／CAC Payback（S1・S2）
+3. **法務ゲート**：nori 事前関所（景表法・ステマ・同意設計・肖像権・音源／05-22/08-13/09-09）
+4. **品質ゲート**：配信前Slackワークフロー全項目✅（09-01/09-02記録）
+5. **連携ゲート**：Sales/HR/Prに条件リスト申し送り済み（06-07/08-16）
+6. **フェイルセーフ**：Bo「要対応」通知経路の疎通確認、取得件数ゼロ=警告設定（07-16）
+7. **Sora QA**：訴求妥当性の本質判断のみ Sora へ回付（06-11）
+
+### 11. 90日ロードマップ（実装スケジュール）
+
+| Day | マイルストーン | Owner |
+|---|---|---|
+| Day 1-15 | 現状データ集約：24ヶ月分の媒体×応募データを7社分エクスポート | Marketing + Dat |
+| Day 16-30 | MMMベースモデル構築（Robyn）／Predictive LTV初期モデル | Dat + Marketing |
+| Day 31-45 | Category Design ワークショップ／POV文書化／JTBDマップ | Marketing + Pr + HARU |
+| Day 46-60 | AI Copy Pipeline PoC（1クライアントで先行）／Signal Ingest実装依頼 → Bo | Marketing + Bo |
+| Day 61-75 | LINE OC 1社パイロット／Growth Loop 計測実装 | Marketing + nori + HR |
+| Day 76-90 | Meta Conversion Lift実施／MMM反映で予算再配分／マスタープランQ更新 | Marketing + Dat + Finance |
+
+### 12. 失敗回避のメタルール（本節で導入するモデル群への警戒）
+
+- **モデルを信じすぎない**：MMM は前提（Adstock期間・Saturation関数形）に依存する。四半期に1回、前提の妥当性を Dat と棚卸しし、外れたら次期モデルへ反映（08-18記録の勝ち要素ライブラリと同じ思想）。
+- **Predictive LTV の過大評価に注意**：予測値をそのまま経営報告に載せない。実測LTVとの乖離率を毎月併記する。
+- **AI Copy の均質化リスク**：全広告主が同じAIツールを使うほど訴求が収れんする（08-03記録のプラットフォーム推奨鵜呑みと同構造）。UGC縦動画の作り込み度・被写体多様性で必ず差別化する。
+- **Community-Led Growth の倫理**：LINE OC は「先回りセールスの場」でなく「求職者の疑問解消の場」。過度な誘導は指名検索のブランド毀損に直結するため、運営投稿は情報提供7：誘導3の比率を上限とする。
+- **Signal-based Marketing の個人情報境界**：Intent Data の取得・使用は nori 事前確認必須。特に個人特定に近い粒度の取得は同意フローが未整備なら実施しない。
+
+### 13. アウトプット標準（このセクション運用開始後）
+- **四半期マスタープラン（§5）**：`/agents/marketing/master_plan_{YYYY-Q}.yaml`
+- **キャンペーンテンプレ（§6）**：`/agents/marketing/campaigns/{campaign_id}.yaml`
+- **MMM出力**：`/agents/marketing/mmm/{YYYY-MM}_contribution.json`
+- **Predictive LTV**：`/agents/marketing/ltv/{client}_{YYYY-MM}.json`
+- **Category & POV文書**：`/agents/marketing/category/pov_{YYYY-Q}.md`
+- **Growth Loop 計測**：`/agents/marketing/loop/{client}_{YYYY-MM}.json`
+
+### 14. Marketing の再定義（強化後のミッションステートメント）
+
+> LET Marketing は、建設業採用SNS支援というカテゴリの「1位」を言語化し、そのカテゴリの需要を統計的因果で測り、AIとオウンドコミュニティで先回りして満たすチーム。**刈り取りの効率でなく、需要創造の量と精度**で評価される。ラストクリックのその先、ダークソーシャルの内側、応募の一年後、そのすべてを射程に含める。
+
+以上、2026-09-22 時点のスキル強化アップデート。次回四半期（2026-Q4）から本フレームで運用開始する。既存Daily Knowledge Log の運用ノウハウは温存し、上位レイヤーとして重ねる位置づけ。

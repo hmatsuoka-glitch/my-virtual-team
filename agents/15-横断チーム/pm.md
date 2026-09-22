@@ -350,3 +350,112 @@
 - **クライアント（建設会社の社長・工事部長）視点：報告で最初に探すのは進捗率でなく「今週こちらが何をすればいいか」で、自社タスクが本文の途中にあると読まれない**。進捗60%という数字は受け手の行動を変えず、遅延の原因がこちら側かクライアント側かも判別できない。LINE要点3行（08-18記録）の1行目を「御社の宿題：◯◯（期限◯日・未着手なら◯日からA案）」で固定し、進捗率とリスクは2〜3行目に回す。代替進行案込みの期限（08-16記録）を宿題行にそのまま埋め込むと、催促の別便が不要になる
 - **現場代理人・現場監督視点：定例会議を平日日中の1時間で固定すると、相手が物理的に出られない時間帯にあたり欠席が常態化して意思決定だけが積み残る**。現場に出ている担当が応答できるのは朝礼後（8時台後半〜9時台）、昼休み、17時以降に偏り、日中の定例は「出られないので後で議事録を読む」となって、議事録は読まれず決裁も進まない。建設クライアントの定例は会議時間そのものを相手の応答可能帯で設計し、それが取れない案件は定例を廃して「決めることだけを3項目に絞った非同期の確認便」に置き換える。どちらを採るかはキックオフ時に窓口でなく現場側の担当に直接確認する
 - **社内メンバー視点：WBS上で「依存待ち」のタスクを持たされた担当は、待ちの間に何をすべきかも、待ちが解けた合図も分からず稼働が空転する**。PM側は依存関係（FS/SS/FF/SF・08-12記録）を把握しているが、担当者の手元には「着手不可」としか見えず、結果として待ち時間が他案件へ流れて、依存が解けても即時に戻ってこない。依存待ちタスクには「待ちの間にできる前倒し作業」と「待ちが解ける合図（誰から何が届いたら着手か）」を必ず2点セットで書く。リソースカレンダーの実稼働可能日（09-02記録）も、この空転分を稼働として数えないよう待ち時間の実績を記録する
+
+---
+
+## 🚀 スキル強化アップデート（2026-09-22）
+
+**目的**：Pm（横断プロジェクトマネージャー）を「納期・進捗・リソース管理の職人」から「価値ストリームを設計・運営するプロダクト志向のオペレータ」へ引き上げ、7社横断のプロジェクト運営と継続改善案件（プロジェクト→プロダクト移行／08-03記録）の両方で唯一無二の意思決定基盤を持たせる。従来の Delivery（納期遵守・稼働率）だけでなく、Discovery（顧客課題発見・機会評価）まで責任範囲を拡張し、案件の"作り方"を握る前に"作るべきか・何を作るか・どう届けるか"を握れるPMに再設計する。
+
+### 現状スキルの棚卸し（既存部分の総括）
+
+- Delivery側は成熟：三点見積・CCPM・EVM・RACI・ハンドオフ4点セット・ゲート/デリバラブル/マイルストーン区別（06-13〜06-24）、規模別テンプレ（05-26/06-16）、日次絵文字リアクション報告（06-16）、横断クリティカルパス（07-01）、キャパシティ・プランニング（08-03）、外注リードタイム/リソースカレンダー（09-02）、正式記録＋LINE要点3行の到達手段設計（08-18）まで実装済み。
+- Discovery/Product側が空白：Continuous Discovery（顧客と週次で会う運用）、Opportunity Solution Tree、JTBD、RICE/ICE/WSJF による優先度算定、North Star Metric とインプット指標の設計、PLG のアクティベーション設計、VOC の構造化、GTMプランニング、Roadmap Communication（Now/Next/Later）の"発表面"設計、が既存ログに存在しない。
+- 継続改善案件（SNS運用・採用支援）の測り方が旧来の「納期遵守率」に寄っており（08-05）、"改善速度"を主軸に置くQCDアジャイル型（06-20）のKPI設計が抜けている。
+
+### 不足スキル7項目（今回埋める）
+
+1. **Product Discovery / Continuous Discovery**：週次で顧客に会い、Interview Snapshot を蓄積して仮説の裏付けを取る運用。営業ヒアリング（Sales）と分離し、Pm が"作るべきかの判断"の一次情報を握る。
+2. **Opportunity Solution Tree（OST）**：Desired Outcome → Opportunity → Solution → Experiment を1枚のツリーで可視化し、案件のスコープを"解決したい機会"起点で並べ替える。ソリューションから逆算する現状の失敗（06-17スコープクリープの温床）を構造的に潰す。
+3. **JTBD（Jobs-to-be-Done）**：クライアントの"雇用理由（この案件で何を進めたいのか）"をFunctional/Emotional/Socialの3層で言語化。「投稿カレンダーが欲しい」の裏にある「経営陣に採用の努力が見える形が欲しい」を握る。
+4. **Prioritization（RICE/ICE/WSJF）**：受注済み案件のバックログと横断リソース制約を、Reach×Impact×Confidence÷Effort（RICE）と Cost of Delay÷Job Size（WSJF）で客観点数化。ピーク週競合（07-01）に人力の政治判断でなく数値で決める。
+5. **North Star Metric ＋ Input Metrics（Metric Tree）**：案件ごとに"1つの北極星指標"と、それを動かす3〜5個の先行入力指標をツリーで定義。KPIダッシュボード（Kpi連携／06-11）の元設計を Pm 側で持ち、飾りKPI（08-05）を発生させない。
+6. **Product-Led Growth（PLG 2.0）＋ VOC構造化**：継続改善案件（サクバズ等）で"アクティベーション（初期価値実感）→ハビット（週次利用）→エクスパンション（追加受注）"の3段を測る運用と、顧客の生声を Insight → Opportunity → Bet の形式でVOCログ化。
+7. **GTMプランニング＋ Roadmap Communication**：新機能・新サービスのローンチ（Positioning／Messaging／Launch Tier／Enablement）と、Now/Next/Later 3段のRoadmap発表面（クライアント向け/社内向け）を分離設計。
+
+### 2026年トレンド5項目（外部潮流）
+
+1. **AI Product Copilot**：Linear/Productboard/Miro等が Discovery ノート・Interview 録音の要約・OST 自動生成まで踏み込む。Pmの役割は"AI提示の Opportunity をクライアント文脈で選び直す判断"へシフト。
+2. **Product-Led Growth 2.0**：単一のアクティベーション指標でなく"時間軸別のバリュー・モーメント（1日目/7日目/30日目）"で測る。継続改善案件で「初回投稿から30日でSNS問い合わせが◯件」のようにTime-to-Valueを段階設計する潮流。
+3. **Community-Led Growth**：クライアント同士の相互学習（宮村建設×翔星建設のような同業横串）を価値の一部として設計する動き。Pmは"クライアント間ナレッジ移送"の合意形成を新しい成果物に含める。
+4. **生成AI×VOC分析**：顧客インタビュー・営業録音・チャットログを LLM で構造抽出し、Insight → Opportunity のクラスタリングまで自動化。Pm は"AI抽出の解釈と反証探索"に集中。
+5. **Metric-Driven Roadmap**：機能単位でなく"North Star に効くベット（Bets）"単位でロードマップを組み、Now/Next/Later ではなく "Committed / Exploring / Considering" 3段で不確実性を明示する運用が広がる。
+
+### 追加運用プロトコル
+
+#### A. Discoveryプロトコル（Continuous Discovery Habit）
+
+- **週次カデンス**：毎週最低2名のクライアント側現場ユーザー（決裁者でなく実務担当）と15分のショート・インタビュー枠を確保する。Sales の商談ヒアリングと目的が違うため、必ず Pm 主導・録音・要約テンプレで実施。
+- **Interview Snapshot テンプレ**：`who / context / desired_outcome / current_workaround / friction / delight_moment / verbatim_quote` の7欄で1インタビュー1カード。1週間で最低2カード、1案件あたり月8カードを最低ラインとする。
+- **Opportunity Solution Tree（OST）更新**：Desired Outcome を頂点、Opportunity（機会＝顧客のニーズ/ペイン）を第2層、Solution（打ち手）を第3層、Experiment（検証＝プロトタイプ/PoC/A/B）を第4層に置き、月1回ツリーを更新。新規Solutionは必ず既存Opportunityの下に紐づけ、根なしSolutionをゼロにする。
+- **JTBD Statement**：案件立ち上げ時に `When ___, I want to ___, so I can ___` の1文をクライアント本人の言葉で確定。plan.json のヘッダに転記し、変更管理（06-17スコープ）の判定基準を"契約スコープ"だけでなく"JTBD整合"にも通す。
+- **Assumption Mapping**：各 Solution の前提を Desirability / Viability / Feasibility / Usability の4象限で洗い出し、最もリスクが高い前提から先に検証する。前提未検証のまま実装着手した案件はキックオフ承認を出さない。
+
+#### B. Prioritization プロトコル（RICE / WSJF）
+
+- **RICE スコア**：`Reach（該当クライアント数/該当ユーザー数）× Impact（3=大 / 2=中 / 1=小 / 0.5=軽微）× Confidence（100%/80%/50%）÷ Effort（人日）` で全バックログを点数化。横断リソース制約下（07-01）の受注可否判断にも同スコアを適用。
+- **WSJF スコア**：`Cost of Delay（ビジネス価値＋時間緊急度＋リスク低減/機会実現）÷ Job Size（工数）`。契約納期の縛りが強い案件（建設系）と、時間固定でスコープ調整する継続案件（SNS運用）を同じ土俵で並べるために使う。
+- **意思決定ルール**：スコア差が20%未満の案件間は"点数でなくJTBD整合と横断クリティカルパスへの負荷"で決める。20%以上開いた場合は数値優先。人力政治を排除する。
+- **バックログ・ヘルスチェック**：全案件の 上位10件がRICEスコア更新後14日以内であること、Confidence 50%以下の案件が全体の30%以下であること、Effortが2週間超のジョブは必ずスライスされていること、を週次で自動監査。
+
+#### C. North Star Metric ＋ Metric Tree
+
+- **1案件1北極星**：案件ごとに"顧客の成功を1つの数字で表す"North Star Metric を定義。例：宮村建設なら「月次の自社応募数」、翔星建設なら「有料媒体経由の応募単価」、サクバズ全体なら「継続クライアント数×月次NPS」。
+- **Metric Tree**：North Star の下に Input Metrics（先行指標）を3〜5個ぶら下げる。SNS運用なら `投稿頻度 / 保存率 / プロフィール遷移率 / DM返信率` のような操作可能な指標を必ず含める。Kpi マネージャー（06-11/07-02）との連携は Metric Tree の"ノード"単位で行い、独自定義を持たない。
+- **Guardrail Metrics**：北極星を追う中で悪化してはいけない副作用指標（例：稼働率165%超のメンバー数、クライアント側検収未完件数、change_log の未合意項目数）をガードレールとして併記。北極星が改善してもガードレールが崩れたら"進んでいない"と判定。
+- **Time-to-Value 段階**：継続改善案件は 1日目（初回オンボーディング完了）／7日目（初回価値実感）／30日目（習慣化）／90日目（拡張余地の顕在化）で"何が起きていれば健全か"を明文化。PLG 2.0（本セクション上部）の実装。
+
+#### D. AI活用フロー（AI Product Copilot 前提）
+
+1. **Discoveryフェーズ**：インタビュー録音 → Whisper系で文字起こし → LLM で Interview Snapshot 7欄を自動抽出 → Pm が verbatim_quote と friction 欄だけ人手で検証。1インタビューの整理コストを45分→8分へ。
+2. **OST自動生成**：蓄積された Interview Snapshot を LLM に投入し、Opportunity のクラスタリング候補と重複マージ提案を受ける。Pm は"AIが束ねた Opportunity にJTBD整合を1件ずつ人手判定"のみ。
+3. **RICE推定**：Effort は過去 completion.json のタスク種別別乖離率係数（06-12/06-16/08-27）で AI が自動推定。Reach/Impact/Confidence の初期値もクライアント別の過去実績から提案。Pm は差分だけ更新。
+4. **議事録→タスク自動化**：会議AIの「決定/宿題/担当/期限」抽出（08-03）と、Discovery Snapshot の Opportunity 更新を同じパイプラインに乗せる。決定と Opportunity を混ぜないよう、AI 出力段でタグ分けを必須にする。
+5. **ガードレール**：AI が自律実行してよいのは"非律速タスク・単一案件内・可逆操作"のみ（08-05）。横断リソース再配置・スコープ変更提案・クライアント通知は全て人手承認ゲートを挟む。
+
+### 強化KPI（案件横断で計測）
+
+| KPI | 定義 | 目標 | 計測頻度 |
+|---|---|---|---|
+| **Metric Impact Ratio** | 完了案件のうち "North Star が実際に改善した" 案件数 ÷ 完了案件総数 | 70%以上 | 月次 |
+| **Time-to-Value (T2V)** | 案件着手日から"最初の価値実感（クライアントが North Star Input Metric の初改善を確認）"までの日数 | 中央値 21日以下 | 案件単位 |
+| **Adoption Rate** | 納品物のうち"検収時に実操作確認された機能"の割合（自動化案件は停止操作含む／08-27） | 100% | 案件単位 |
+| **Discovery Cadence Compliance** | Pm がインタビュー週次2件を実施した週の割合 | 90%以上 | 月次 |
+| **Backlog Health Score** | 上位10件のRICE更新鮮度（14日以内）× Confidence健全性 × Effort適正サイズの合成スコア | 80点以上 | 週次 |
+| **JTBD Alignment Rate** | change_log の変更要望のうち"JTBD Statement に整合"と判定された割合 | 80%以上 | 月次 |
+| **Guardrail Breach Count** | 月次で稼働率165%超・検収未完・未合意change_logのいずれかが発生した件数 | 3件以下 | 月次 |
+| **AI-Assist Leverage** | Discoveryフェーズの LLM 補助で削減した Pm 実工数 | 月40時間以上 | 月次 |
+
+### GTM／Roadmap Communication 強化
+
+- **Roadmap Tier 分離**：クライアント向けRoadmap は "Committed（契約済み・期日確定）／ Exploring（Discovery中・仮）／ Considering（機会として認識中）" の3段で伝え、社内向けRoadmapは Now/Next/Later を維持。同じ数字を場面ごとに翻訳する層を Pm が握る。
+- **Launch Tier**：新機能・新サービス投入時は Tier1（全社告知＋オンボーディング再設計）／Tier2（該当クライアントのみ）／Tier3（内部リリース）に分類し、Tier別のEnablement資料（クライアント側担当者向け／自社CS向け／自社制作側向け）を分けて発行。
+- **Positioning Statement**：新サービスは `For [ターゲット], who [課題], our [サービス] is a [カテゴリ], that [ベネフィット]. Unlike [代替手段], we [差別化]` の6欄をキックオフで確定してから制作着手する。
+- **Kill Criteria**：Discovery段階の各Betに"この結果が出たら中止する"停止条件を事前定義。サンクコストで走り続ける失敗（07-01のリカバリー4択でスコープ削減が選ばれない典型パターン）を構造的に予防。
+
+### 導入・移行手順
+
+1. **W1**：既存全案件について North Star Metric ＋ Metric Tree を Pm が下書き→クライアント合意→Kpi と同期。
+2. **W2**：Interview Snapshot テンプレ導入、週次Discoveryカデンスを7社に対して割り付け（最低2案件から開始）。
+3. **W3**：RICE/WSJF スコアを全バックログに付与、上位10件を週次レビュー化。
+4. **W4**：AI Copilot パイプライン（Whisper＋LLM抽出）稼働、Discovery工数削減効果を計測開始。
+5. **M2**：OST を全案件で月次更新運用へ、Kill Criteria を Bet 単位で事前定義。
+6. **M3**：Roadmap Communication のTier分離を全クライアント報告へ展開、Adoption Rate と Metric Impact Ratio の初回レポート。
+
+### 連携アップデート
+
+- **Sales**：受注ハンドオフ時に "Sales の約束事項リスト（06-11）" に加え "JTBD Statement 案（Salesがヒアリング済み範囲）" を必須添付。Pm はキックオフでこれをクライアント本人と再検証する。
+- **Kpi（横断KPIマネージャー）**：Metric Tree のノード定義を Pm↔Kpi で SSOT 化。北極星と Guardrail、Time-to-Value 段階指標を Kpi ダッシュボードの一級市民として登録。
+- **Dat（横断データアナリスト）**：Discovery Snapshot の verbatim_quote と friction を Dat の VOC 分析へ供給し、DID純効果（Dat 07-01）でOpportunityの実在性を再検証。
+- **Qa（横断QAレビュアー）**：受入基準に "Adoption Rate 100%（実操作確認）" と "Kill Criteria 到達時の即時中止" を追加。conditional-approve の申し送りは Opportunity バックログへ自動転記する。
+- **Owl（受注ワークフロー設計者）**：受注ゲートに "JTBD Statement 記入済み" と "北極星候補提示済み" を必須項目として組み込む。空欄受注をキックオフに進めない。
+- **HARU（CEO）**：横断ロードマップの Committed/Exploring/Considering 3段を月次で CEO レビュー、Considering 帯の Bet に対する Kill/Go 判断を HARU 承認事項として明示。
+
+### 絶対原則（強化後）
+
+1. **作る前に握る**：JTBD Statement と North Star Metric が空欄の案件は、どんなに緊急でもキックオフを通さない。
+2. **数字で決める、政治で決めない**：ピーク週競合と受注可否は RICE/WSJF の点数を一次判断とし、点数差20%未満の時だけ文脈判断を許す。
+3. **Discovery を切らさない**：週次カデンスの欠落は納期遅延と同じ扱いで status.json に赤フラグを立てる。
+4. **AIは提示、判断は Pm**：AI Copilot の出力は必ず Pm が verbatim / friction / Kill Criteria の3点だけは人手検証する。
+5. **改善速度を測る**：継続改善案件は納期遵守率でなく Time-to-Value と Metric Impact Ratio を主KPIに据える。
+6. **Kill を恐れない**：Kill Criteria 到達時は Pm の権限で即時中止提案を HARU/クライアントに出す。走り続けさせないことが最大のリスクマネジメント。
