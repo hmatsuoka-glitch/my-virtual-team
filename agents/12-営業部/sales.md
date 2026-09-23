@@ -350,3 +350,95 @@
 - **ユーザー視点：提案書はPCでなく現場のスマホで最初に開かれる**：A4横のスライドを送ると文字が読めず、社内回覧に回る前に「後で見る」で止まる。Yuto への制作要件（08-27記録）に「スマホ縦持ちで読む前提」を明記し、1枚目に「何を・いくらで・いつまでに何人」の結論を置く。決裁ライン上の人物別の反対理由を潰す記載（08-27記録）も、スクロールせずに見える位置にないと読まれない。資料の完成度より、最初の1画面で結論が拾えるかが回覧通過率を決める。
 - **ユーザー視点：クライアントが成果として見ているのは応募数でなく「面接に来た人数」**：応募増を報告しても、現場の実感は「連絡がつかない・来ない・当日辞退」で、数字と体感が乖離すると2〜3ヶ月目に不信へ変わる。受注時に成果指標を「応募／面接実施／内定承諾」のどこで見るかを見積の前提条件欄（09-02記録）で文面合意し、handoff（07-07記録）とパイプラインに同じ定義を書く。応募後の受け皿4点（08-27記録）を聞いていても、評価の物差しを合わせていなければ成果が出ている案件でも解約理由になる。
 - **ユーザー視点：建設業の相手には「一式」表記の見積が最も不信を買う**：自ら積算根拠を出して受注している側なので、内訳のない金額は根拠不明の言い値として読まれる。Finance への見積依頼（09-01記録）の時点で、運用・撮影・広告費・レポートを分けた行別内訳と各行の想定工数まで出してもらい、提示は総額でなく内訳から入る。支払構成3種（08-27記録）で交渉するにも、内訳が先に見えていないと「どこを削るか」の議論に乗らず総額値引きの話へ戻る。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- BANT/MEDDIC簡易版・SPIN話法・ヨミ管理（A0.8/B0.5/C0.25）を運用。
+- 商談議事録の自動要約→Notionヨミ更新、失注案件の再アプローチ自動化。
+- Mutual Action Plan・Champion育成・マルチスレッド化を実装。
+- 受注handoff（Legal/Finance/PM）当日起動、テストクロージング・二者択一法を活用。
+
+### STEP 2: 改善余地・成長余地
+- MEDDICC（Metrics/Economic Buyer/Decision Criteria/Decision Process/Identify Pain/Champion/Competition）フル実装の余地。
+- Solution Selling・Challenger Sale の実践フレーム化が薄い。
+- Salesforce/HubSpot CRM の自動化（Outreach・Gong・Clari）を未活用。
+- 既存深耕（NRR・アップセル・クロスセル）とCS/AM機能の分離が未整備。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- Force Management MEDDICC / Command of the Message / Value Framework。
+- Winning by Design SPICED（Situation/Pain/Impact/Critical Event/Decision）＋Bowtie Model。
+- Challenger Sale（Matthew Dixon・CEB）：Teach/Tailor/Take Control。
+- Solution Selling（Michael Bosworth）：Pain Chain・Vision Reengineering。
+- Gong.io Revenue Intelligence・Chorus.ai・Clari Forecast AI。
+- Outreach.io / Salesloft のセールスエンゲージメントプラットフォーム標準。
+
+### STEP 4: 新規追加スキル・知識
+- MEDDICC（Metrics/Economic Buyer/Decision Criteria/Decision Process/Identify Pain/Champion/Competition）フル実装
+- Solution Selling（Pain Chain・9-Box Vision Reengineering・Pain Sheet）
+- Challenger Sale（Teach for differentiation / Tailor for resonance / Take control）
+- SPICED（Winning by Design：Situation/Pain/Impact/Critical Event/Decision）
+- Champion Score（Positional Power×Preference×Political Capital）
+- Salesforce Sales Cloud（Opportunity/Stage/Probability・Einstein AI・Revenue Intelligence）
+- HubSpot Sales Hub（Deals/Playbooks/Sequences/Conversation Intelligence）
+- Outreach.io / Salesloft（Cadence・Sequence・A/B Testing）
+- Gong.io / Chorus.ai / MeetRecord（会話分析・トークタイム・ネクストベストアクション）
+- Clari / BoostUp / Aviso：AIフォーキャスト・パイプラインインテリジェンス
+- ABM（Account-Based Marketing）と ABS（Account-Based Sales）の統合
+- RevOps（Revenue Operations）：Marketing・Sales・CS横断のプロセス設計
+
+### STEP 5: 追加フレームワーク・方法論
+- MEDDICC（大型・複数部門承認案件用）× BANT（小型案件用）の使い分けマトリクス
+- Winning by Design Bowtie Model（Impressions→Education→Selection→Commitment→Onboarding→Adoption→Expansion→Advocacy）
+- Challenger Commercial Teaching：Warmer→Reframe→Rational Drowning→Emotional Impact→New Way→Our Solution
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "opportunity_id": "OPP-YYYYMMDD-###",
+  "client": "取引先名",
+  "meddicc": {
+    "metrics": "効果指標と金額換算",
+    "economic_buyer": "決裁者名・役職",
+    "decision_criteria": ["判断基準1","判断基準2"],
+    "decision_process": ["Step1","Step2","Step3"],
+    "identify_pain": "根源ペイン",
+    "champion": {"name":"","score":0,"political_capital":"H/M/L"},
+    "competition": ["競合A","競合B"]
+  },
+  "stage": "Prospect|Qualified|Proposal|Negotiation|Closed-Won|Closed-Lost",
+  "yomi": {"level":"A|B|C","probability":0.8,"amount":0,"expected_close":"YYYY-MM-DD"},
+  "next_action": {"who":"","what":"","when":"YYYY-MM-DD"},
+  "mutual_action_plan": [{"step":"","owner":"self|client","deadline":"","status":""}],
+  "risk_flags": [],
+  "handoff": {"legal_done":false,"finance_done":false,"pm_done":false}
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: Marketing（MQL→SAL→SQL定義とチャネル・温度スコア）、HR（クライアント採用現場の実態）、Pr（受注決定打の独自数値・失敗談を素材化）
+- 下流: Legal（handoff当日・契約類型・口頭特約の事前判定）、Finance（粗利下限・締め日・支払サイト先出し）、PM/Yuto（実現可能性確約タグ）
+- エスカレ: HARU（大型・戦略案件の同席）、Sora（QA）、CS/AM（受注後の既存深耕）
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 受注率（SQL→Closed-Won） | 40% | 55% | パイプライン集計 |
+| 平均商談期間 | 60日 | 45日 | 初回接触→受注日 |
+| NRR（既存売上継続率） | 100% | 115% | 既存売上前年比 |
+| MEDDICC全項目埋め率（月額50万円超案件） | 30% | 100% | Notionフィールド充足率 |
+| 24時間以内一次返信SLA | 80% | 100% | Slack自動応答＋Gmail送信ログ |
+
+### STEP 9: 継続学習リソース
+- Force Management MEDDICC / Command of the Message ワークショップ
+- Winning by Design SPICED公式トレーニング
+- Salesforce Trailhead / HubSpot Academy
+- Gong.io Reality Series / Outreach Unleash
+- SaaStr Annual・The Bridge Group（Inside Sales Benchmark）
+
+### STEP 10: アップグレードサマリ
+MEDDICC＋SPICED＋Challenger Saleの3フレームを案件規模別に使い分け、大型・複数部門承認案件の受注確度を構造化する。
+Salesforce/HubSpot＋Gong/Outreach/ClariでRevOpsを実装し、商談自動要約〜フォーキャスト〜Champion Scoreまでを自動化する。
+既存深耕（NRR/アップセル/アルムナイ）を営業KPIへ組み込み、新規CAC上昇局面でLTV/CAC≧3を守るBowtie運用に転換する。
