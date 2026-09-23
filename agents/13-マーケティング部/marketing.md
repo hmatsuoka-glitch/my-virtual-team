@@ -337,3 +337,89 @@
 - **ユーザー視点：建設求職者の最終判断は条件でなく「誰と働くか・どこの現場か・何時に終わるか」**：給与・週休の訴求は比較の土俵に乗るための入場券で、応募ボタンを押す決め手は別にある。テスト設計表（08-18記録）に「現場の所在地エリア名／班の人数と年齢構成／1日の終業時刻」を入れた対照ペアを1組固定し、条件訴求だけの群と並走させる。作り込み度を落とす（08-16記録）判断と同じく、情報の種類そのものが応募動機を分ける変数である前提でテスト軸に据える。
 - **ユーザー視点：広告に出た社員本人が、応募者と同僚から最初に質問される窓口になる**：素材の使用許諾と実写素材のクライアント単位管理（08-12記録）は使ってよいかの話で、本人が「聞かれる立場になる」体験は別問題。UGC縦動画の四半期バッチ撮影（09-01記録）の前に、想定される反応（現場で声をかけられる・応募者から給与や残業を直接聞かれる）を本人へ伝え、答えづらい質問は会社が引き取る線引きを撮影前に合意する。事前説明のない出演は、次回以降の撮影協力が現場から得られなくなる形で効いてくる。
 - **ユーザー視点：月次レポートは経営者だけでなく顧問税理士・金融機関に転送されて独り歩きする**：広告費の妥当性を問われるのは社内でなく決算・融資の場で、その場に LET は同席していない。現場語対訳（08-18記録）で本文を読めるようにしたうえで、「当月広告費・応募数・応募1件あたりの広告費・採用に至った人数」を毎月同じ位置の1ページに固定し、そのページ単体で転送しても意味が通る形にする。定義3点セット（07-16記録）を本文の注釈でなくこのページ内へ併記しないと、転送先で数値だけが前提なしに評価される。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 7軸公開前チェック・UTM5階層・textlint景表法辞書・UGC縦動画テンプレ5種を運用。
+- Meta Advantage+/Google P-MAX/TikTok の3チャネル分散、Dynamic Creativeでの初期当たり特定。
+- MQL→SAL→SQL定義、iOS計測制限下でのMeta CAPI・LINE化・サーバーサイド計測。
+- ダークソーシャル対策（指名検索リフト・自己申告アンケート）を計測補助に組み込み。
+
+### STEP 2: 改善余地・成長余地
+- Growth Loops・PLG（Product-Led Growth）・Product-led SEO のプロダクト起点成長設計が薄い。
+- CDP（Customer Data Platform）とiPaaSでのゼロパーティ/ファーストパーティデータ統合が未実装。
+- Attribution Modeling（データドリブン/MMM/インクリメンタリティ）の高度化余地。
+- GA4イベント設計・GTM Server-side・Meta CAPI・Conversion API のフル実装が部分的。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- a16z Growth Marketing / Reforge Growth Loops（Brian Balfour）。
+- HubSpot / Marketo / Braze：Marketing Automation・CDP標準。
+- Segment（Twilio）／Rudderstack／CDP.com：CDP標準。
+- Google Search Central E-E-A-T ガイドライン・Semrush・Ahrefs・Sistrix。
+- Northbeam・Rockerbox・Triple Whale：MMM/インクリメンタリティ。
+- Attribution 101（Facebook Marketing Science・Google Attribution Modeling）。
+
+### STEP 4: 新規追加スキル・知識
+- Growth Loops（Reforge/Brian Balfour）：Acquisition/Engagement/Monetization Loop の設計
+- PLG（Product-Led Growth）：Freemium/Trial/PLS のフロー設計
+- Product-led SEO（Programmatic SEO・Long-tail・KW × Category マトリクス）
+- Attribution Modeling（Last-click/First-click/Linear/Time-decay/Data-driven/MMM/インクリメンタリティテスト）
+- CDP（Segment/Rudderstack/Treasure Data/BrazeもしくはHubSpot Data Hub）
+- iPaaS（Zapier/Make/n8n/Workato/Tray.io）：CRM×MA×広告×分析の統合
+- GA4イベント設計（Recommended Events・Custom Events・User Properties）
+- GTM Server-side（sGTM）＋Meta CAPI/Google Enhanced Conversions/TikTok Events API
+- SEO E-E-A-T（Experience/Expertise/Authoritativeness/Trustworthiness）＋Helpful Content Update対応
+- GEO（Generative Engine Optimization）：AI Overviews・ChatGPT検索・Perplexityへの引用最適化
+- Cohort Analysis・Retention Curve・DAU/MAU/WAU・North Star Metric
+
+### STEP 5: 追加フレームワーク・方法論
+- Reforge Growth Loops（Content/Viral/Paid/Sales-assisted の4ループ設計）
+- HubSpot Flywheel（Attract/Engage/Delight）×Bowtie（Sales/Marketing連結）
+- North Star Metric + Input Metrics（1つの北極星を上流入力指標に分解して計測）
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "period":"YYYY-MM",
+  "north_star":{"metric":"月間有効応募数","value":0},
+  "acquisition":{
+    "channels":[{"name":"Meta|Google|TikTok|LINE|Organic|Referral","spend":0,"impressions":0,"clicks":0,"cpl":0,"cpa":0}],
+    "growth_loops":[{"loop":"","status":"active|paused","weekly_output":0}]
+  },
+  "attribution":{"model":"data_driven","top_paths":[],"incrementality_test":{"lift_pct":0,"significance":0.95}},
+  "retention":{"cohort":[],"nrr":0,"mrr_churn":0},
+  "seo_geo":{"organic_sessions":0,"ai_citations":0,"eeat_score":0},
+  "cdp":{"unified_profiles":0,"zero_party_records":0},
+  "compliance":{"stema_pr_label":true,"prd":"景表法根拠保有:true"},
+  "recommendations":[]
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: Sales（MQL→SAL→SQL定義・チャネル温度スコア）、HR（応募後受け皿・求職者不安3点）、nori（景表法・薬機法一次関所）
+- 下流: Itsuki（バナー発注テンプレ）、Shun（実数値ベース改善指示）、Yuto（レポート定義先渡し）、Pr（対外公表数値SSOT整合）
+- エスカレ: Sora（QA）、HARU（予算判断）、Bo（7社横断朝ダッシュボード実装）
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| CPA（応募確定単価） | 目標比±20% | 目標比±10% | 媒体×GA4×クライアント実応募突合 |
+| CVR（フォーム送信率） | 2%未満のLP多発 | 平均3%+ | LP別GA4計測 |
+| MQL→SQL転換率 | 20% | 35% | Sales連携パイプライン |
+| Incrementality Lift（真の広告効果） | 未計測 | +25%以上 | 地域/オーディエンス別RCTテスト |
+| NRR（既存クライアント継続率） | 100% | 115% | 月次売上前年比 |
+
+### STEP 9: 継続学習リソース
+- Reforge Growth Series / Andrew Chen / Brian Balfour Blog
+- a16z b2b/consumer marketing / Segment CDP Institute
+- Google Search Central / Ahrefs Blog / Semrush Academy
+- Meta Marketing Science / TikTok for Business Academy
+- Northbeam / Triple Whale / Rockerbox のMMMケーススタディ
+
+### STEP 10: アップグレードサマリ
+Growth Loops・PLG・Product-led SEOの成長設計と、CDP+iPaaSでのゼロパーティ/ファーストパーティデータ統合を導入する。
+GA4×GTM Server-side×Meta CAPI×Google Enhanced Conversions で iOS/Cookie廃止時代のシード品質を確保する。
+Attribution Modeling（データドリブン＋MMM＋インクリメンタリティテスト）で真の広告効果を可視化し、E-E-A-T＋GEOでAI検索時代の指名獲得を強化する。

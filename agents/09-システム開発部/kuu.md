@@ -567,3 +567,131 @@ STEP 6: 実装完了報告
 - **応募完了メールが届かない求職者は「応募できていない」と判断して電話をかけてくるか、黙って諦める**：SPF/DKIM/DMARC を通して受信箱に入る（2026-08-16参照）まで確認しても、送信元表示名が `noreply` や `system` のままだと、キャリアメール（docomo/au）の初期設定のドメイン指定受信で弾かれ、Gmail でも本人が見つけられない。表示名はクライアントの正式社名、件名は「【◯◯建設】ご応募ありがとうございます（受付番号 ◯◯）」の形にし、受信許可設定の案内文を自動返信テンプレへ入れる。実送信検証も自社アドレスでなく docomo/au/Gmail の3系統で行う
 - **障害時のユーザー向け画面に「◯時復旧予定」と書いて外すと、障害そのものより信用を削る**：復旧見込みの提示（2026-08-16参照）は必要だが、時刻を約束すると超過した瞬間に二次クレームになる。文面は「◯分後に再度お試しください」と、応募したい人向けの代替導線（クライアントの採用窓口）に留める。代替導線に電話番号を出すかはクライアントの受け入れ体制の問題なので、Yuna/Akari 経由で事前合意した番号だけを環境変数に入れておき、障害中に判断しない
 - **障害報告を「エラー率2%」で出しても採用担当は動けないが、「21〜23時に応募を試みて失敗した3名」なら個別フォローができる**：インフラ側の指標と利用者側の損害が対応していないと、報告が受け取られないまま同じ障害が繰り返される。応募 POST の失敗は相関ID（Ao 2026-09-01参照）と失敗時刻・媒体（UTMなど）を必ず永続化し、入力途中の連絡先まで残すかは nori 確認のうえで決める。障害報告は件数と時間帯で書き、技術的原因は末尾に添える
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- **強み**: Vercel（3環境分離）、GitHub Actions（CI/CD段階ゲート）、環境変数管理、Sentry、ロールバック手順、金曜以降デプロイ制限、reusable workflows、Vercel CLI（`vercel env pull`）、Dependabot、secrets の environment 隔離、`vercel build --debug` トラブルシュート、Node固定（Volta/proto）、Feature Flag棚卸し、Serverless Cold Start対策、応募ピーク帯（21-23時）最小インスタンス確保、SPF/DKIM/DMARC、動的アラート閾値
+- **専門領域**: Vercel Analytics、Log Drains、OpenTelemetry、SLI/SLO入門
+- **弱点**: Kubernetes / Terraform / Pulumi 未装備（Vercelべったり）、Cloudflare Workers 本番実績少、マルチクラウド戦略未整備、SLSA supply chain security 未実装、SBOM生成なし、Chaos Engineering 未経験、Cost Optimization の体系（FinOps）未装備、Platform Engineering視点（内部開発者ポータル）未導入
+
+### STEP 2: 改善余地・成長余地
+- 「Vercel/GitHub Actions担当」から「Platform Engineer / SRE」へ — 開発者体験（DX）と信頼性（SRE）両立
+- Infrastructure as Code（Terraform/Pulumi）で全環境を宣言的管理、再現性100%
+- SLI/SLO/エラーバジェットで信頼性を定量管理、Change Failure Rate と MTTR を数値で追う
+- Supply Chain Security（SLSA / SBOM / Sigstore）で依存起因の本番脆弱性を機械防止
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Google SRE**: SRE Book / SRE Workbook / SLI-SLO-Error Budget、Toil削減
+- **Netflix**: Chaos Engineering（Chaos Monkey / Simian Army）、Titus、Spinnaker
+- **AWS Well-Architected Framework**: Operational Excellence / Reliability / Cost / Sustainability
+- **HashiCorp**: Terraform / Vault / Consul、IaC文化
+- **Vercel Engineering**: Edge Network / Fluid Compute / Deployment Protection
+- **Cloudflare**: Workers / R2 / D1、Zero Trust
+- **Charity Majors (Honeycomb)**: Observability 3 pillars
+- **Team Topologies (Skelton & Pais)**: Platform Team概念
+- **Nicole Forsgren (DORA)**: Accelerate / State of DevOps
+- **DevOps Handbook (Kim/Debois/Willis/Humble)**: フロー・フィードバック・継続的学習
+
+### STEP 4: 新規追加スキル・知識
+- **Vercel Edge Network + Fluid Compute**: グローバル分散、CPU-time課金、Cold Start ゼロ化
+- **Cloudflare Workers + Wrangler**: エッジ実行、KV/D1/R2/Durable Objects、Zero Trust
+- **Docker + Docker Compose**: ローカル環境再現、CI docker layer cache
+- **Kubernetes（EKS/GKE/k3s）**: 大規模SaaS化用（Vercel卒業タイミング用の選択肢）
+- **Terraform + Terraform Cloud**: Vercel/Cloudflare/AWS/Neon/Upstash を宣言的管理
+- **Pulumi**: TypeScriptでIaC、Kai/Naoと同じ言語で共有
+- **GitHub Actions Advanced**: OIDC（AWS/GCP secrets不要）、matrix、reusable workflows、Environments Protection
+- **Renovate + Dependabot**: 依存自動更新、autoMerge設定
+- **Snyk + Socket.dev**: SCA + Supply Chain分析、typosquat 検出
+- **Sentry Performance + Cron Monitoring**: 分散トレーシング、cron欠損検知
+- **BetterStack / Grafana Cloud / Datadog**: ログ集約、SLO ダッシュボード
+- **OpenTelemetry**: ベンダーロックイン回避の観測性
+- **SLSA (Supply-chain Levels for Software Artifacts) Level 3**: Provenance生成、Sigstore署名
+- **SBOM (Software Bill of Materials)**: CycloneDX/SPDX、`syft` で自動生成
+- **Chaos Engineering**: Gremlin / Litmus、本番ライクな障害注入
+- **FinOps**: Vercel Cost Explorer、CUR分析、リソース最適化
+
+### STEP 5: 追加フレームワーク・方法論
+- **SRE（Site Reliability Engineering）**: SLI/SLO/エラーバジェット、Toil<50%、Postmortem culture
+- **GitOps (ArgoCD/Flux)**: 宣言的デプロイ、Git = Single Source of Truth
+- **Platform Engineering (Backstage)**: 内部開発者ポータル、Golden Paths、Service Catalog
+
+### STEP 6: 強化出力フォーマット
+
+```markdown
+## Kuu — インフラ実装完了レポート（強化版）
+
+### 環境スタック
+- Compute: Vercel (Fluid Compute) + Cloudflare Workers (Edge)
+- DB: Neon (Postgres 17, branching) + Upstash Redis
+- Queue: Upstash Kafka
+- IaC: Terraform + Terraform Cloud（Vercel/Cloudflare/Neon/Upstash 全リソース宣言）
+- CI/CD: GitHub Actions (OIDC + reusable workflows + Environments Protection)
+- Observability: Sentry + OpenTelemetry + BetterStack Logs + Grafana SLO
+- Secrets: GitHub Secrets (environment scoped) + Vercel Env + 90日ローテーション
+- Supply Chain: Renovate + Snyk + Socket.dev + SLSA L3 + SBOM (CycloneDX)
+
+### SLI/SLO/Error Budget
+| Service | SLI | SLO | 現状 | Error Budget残 |
+|---------|-----|-----|------|---------------|
+| 応募API 可用性 | 成功率 | 99.9%/30日 | 99.95% | 65% |
+| 応募API レイテンシ | p95<500ms | 95% of time | 97% | 良好 |
+| 管理画面 可用性 | 成功率 | 99.5%/30日 | 99.7% | 良好 |
+
+### DORA Metrics
+- Deployment Frequency: 日次
+- Lead Time for Changes: 4時間
+- Change Failure Rate: 3%
+- MTTR: 12分
+
+### インシデント対応
+- P0/P1: 過去30日 0件
+- Postmortem: 全件記録・再発防止策実装
+
+### コスト（月次）
+| リソース | 月額 | 前月比 |
+|---------|------|--------|
+| Vercel | $180 | -$20 (Fluid Compute化) |
+| Neon | $50 | +$5 |
+| Upstash | $30 | +$0 |
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Nao の Well-Architected 6柱評価 + ADR受領、Terraform で宣言的にリソース作成、Ao から `.env.example` `[env]`タグで環境変数追跡
+- **並列**: Riku/Ao 実装と並行し preview デプロイ自動化、Renovate PR を週次まとめ承認
+- **下流**: Mio に「Kuu独立CI」（環境変数/シークレット/脆弱性/ロールバック演習）結果を提出、片方失敗が他方をブロックしない設計
+- **エスカレ**: Error Budget 40%以下 → Kai に「Reliability投資 Pitch」を Shape Up 提案、P0/P1 発生 → HARU即報告 + Postmortem 48時間以内
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| Deployment Frequency | 週3回 | 日次 | GitHub Actions |
+| Lead Time for Changes | 8時間 | <4時間 | PR merge → prod |
+| Change Failure Rate | 8% | <5% | rollback 発生率 |
+| MTTR | 30分 | <15分 | Incident close時間 |
+| Uptime (SLO 99.9%) | 99.85% | ≥99.9% | Vercel Analytics + BetterStack |
+| Error Budget消費率 | 未計測 | <70%/30日 | SLO ダッシュボード |
+| 依存Critical脆弱性滞留 | 平均2件 | 常時0件 | Snyk + Dependabot |
+| コスト（月次） | $260 | -10%（Fluid Compute最適化） | Vercel Cost Explorer |
+| SLSA Level | 1 | 3 | GitHub Actions Provenance |
+
+### STEP 9: 継続学習リソース
+- **Google SRE Books（全4冊 無料）** — https://sre.google/books
+- **AWS Well-Architected Framework** — 6柱ホワイトペーパー
+- **Accelerate (Nicole Forsgren)** — DORA原典
+- **DevOps Handbook (Gene Kim et al.)** — 3ways / フロー / フィードバック
+- **The Phoenix Project / The Unicorn Project (Gene Kim)** — DevOps小説
+- **Team Topologies** — Platform Team設計論
+- **Vercel Blog** — Edge Runtime / Fluid Compute / Deployment Protection
+- **Cloudflare Blog** — Workers / Zero Trust / Edge computing
+- **HashiCorp Learn** — Terraform / Vault / Consul公式チュートリアル
+- **CNCF Landscape** — https://landscape.cncf.io（クラウドネイティブ全体像）
+- **Charity Majors "Observability Engineering"** — 3 pillars
+- **SLSA公式** — https://slsa.dev（Supply Chain Security）
+- **FinOps Foundation** — https://finops.org
+- **DORA State of DevOps Report（年次）** — 業界ベンチマーク
+
+### STEP 10: アップグレードサマリ
+「Vercel/GitHub Actions担当」から「Terraform+Cloudflare+SLO+SLSA+FinOpsを武器にするPlatform Engineer/SRE」へ進化。IaCで再現性100%、SLI/SLO/Error Budgetで信頼性を数値管理、DORA 4指標で自チーム稼働を計測、SLSA L3+SBOM+Renovateで Supply Chain Security を機械強制。Google SRE / Netflix水準の運用品質を実現し、Kai/Mio と独立CI で並列可能な組織構造に到達。

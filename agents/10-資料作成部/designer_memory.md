@@ -365,3 +365,121 @@
 | 日付 | 変更内容 | 対象テンプレ |
 |------|---------|------------|
 | 2026-04-23 | 初回学習。11テンプレート全文解析、パターン抽出 | 全11ファイル |
+| 2026-09-23 | スキルアップグレード計画（オーバースペック化）追記。Design Tokens/Style Dictionary/Atomic Design/Storybook運用の設計方針を追加 | 全11ファイル + 運用体系 |
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+> このセクションは Souma のテンプレ運用メモリ本体（1〜11章）に対する **運用アップグレード仕様書**。designer_memory.md はテンプレ学習の一次記憶であるため、本アップグレードは「テンプレ管理・デザインシステム化・自動同期」の観点で追記する。
+
+### STEP 1: 現状スキル棚卸し
+- 11ファイル（完成テンプレ5＋パーツライブラリ6）を全章詳細記憶
+- 案件タイプ判定→テンプレ選定→パーツ引用→共通ブランド規則適用の4段フロー
+- 共通ブランド規則（カラー運用・タイポグラフィ・レイアウト・必須要素・頻出文字列・禁止事項）を明文化
+- テンプレ更新時の差分学習履歴を蓄積
+
+### STEP 2: 改善余地・成長余地
+- テンプレ仕様がMarkdownテキスト記述に留まり、機械可読なDesign Tokens（W3C仕様）に変換されていない
+- Figma Variables / Tokens Studioとの双方向同期パイプラインが未構築
+- Style Dictionary（Amazon）による多形態変換（pptx/gs-theme/CSS/JSON）未対応
+- Atomic Design階層でパーツライブラリを再構造化できていない
+- Storybook + Chromaticでの視覚回帰テストが未実装
+- Google Slides API / Pitch API / Beautiful.ai APIによるプログラマティック生成が未整備
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Salesforce Lightning Design System / IBM Carbon / Google Material 3 / Apple HIG**: グローバル大企業のデザインシステム
+- **Figma Config「Variables & Modes」**: 単一トークンからライト/ダーク/密度別を自動生成
+- **Amazon Style Dictionary**: color/typography/spacing/motionを全プラットフォームへ変換
+- **Brad Frost『Atomic Design』**: Atoms/Molecules/Organisms/Templates/Pagesの5階層
+- **Storybook + Chromatic**: 視覚回帰テストの業界標準
+- **Nathan Curtis『Modular Web Design』**: デザイントークン運用ベストプラクティス
+- **Nancy Duarte『Slide:ology / Data Story』**: スライドデザインの理論書
+- **Edward Tufte全著作**: データ可視化の原典
+
+### STEP 4: 新規追加スキル・知識（テンプレ運用の高度化項目）
+- W3C Design Tokens Community Group仕様（$type/$value/$description）でテンプレ仕様を再記述
+- Style Dictionary変換パイプライン（pptx-theme / gs-theme出力）構築
+- Figma Variables + Tokens Studio連携（テンプレ更新→pptx反映を自動化）
+- Atomic Design 5階層への11ファイル再分類
+- Storybookでスライドパーツをカタログ化、Chromaticで視覚回帰テスト
+- Google Slides API / Pitch API による自動テンプレ複製・流し込み
+- WCAG 2.2 AA準拠のトークン設計（コントラスト4.5:1をトークンレベルで保証）
+- OKLCH色空間による知覚均等な配色トークン
+- Variable Fontsを前提としたタイポグラフィトークン設計
+- Bento Grid / Glassmorphism / Motion Design トレンドをテンプレへ組み込む
+
+### STEP 5: 追加フレームワーク・方法論
+- **Design Tokens W3C × Style Dictionary**: designer_memory.md本体をJSON化しSSOT化、pptx/gs/Figma/Webへ多形態変換
+- **Atomic Design 5階層再構築**: 現11ファイルを Atoms（色/フォント/アイコン）／Molecules（見出し/箇条書き）／Organisms（KPIカード/組織図）／Templates（章扉/本文）／Pages（完成デッキ）に再分類
+- **Storybook駆動テンプレ管理**: 全スライドパーツをStorybookに登録、Chromaticで差分テスト、Figma Variables JSONと同期
+
+### STEP 6: 強化出力フォーマット（テンプレ仕様のトークン化）
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$meta": {
+    "source": "designer_memory.md",
+    "last_sync": "2026-09-23",
+    "figma_variables": "figma://variables/emocri-templates"
+  },
+  "color": {
+    "brand": {
+      "primary": { "$value": "#1E3A8A", "$type": "color" },
+      "accent": { "$value": "#F59E0B", "$type": "color" }
+    },
+    "neutral": {
+      "text": { "$value": "#222222", "$type": "color" },
+      "subgrey": { "$value": "#F5F5F5", "$type": "color" }
+    }
+  },
+  "typography": {
+    "heading": { "fontFamily": "Noto Sans JP", "weight": 900, "size": 44, "lineHeight": 1.3 },
+    "body":    { "fontFamily": "Inter Variable", "weight": 400, "size": 12, "lineHeight": 1.6 }
+  },
+  "spacing": {
+    "grid": { "columns": 12, "gutter": 20, "margin": 60 },
+    "safeArea": "5%",
+    "bleed": "3mm"
+  },
+  "atomic": {
+    "atoms": ["01_cover", "01_section_divider"],
+    "molecules": ["02_toc_numbered", "03_list_5items"],
+    "organisms": ["04_mvv", "05_kpi_dashboard"],
+    "templates": ["proposal_10slides", "company_deck_7slides"],
+    "pages": ["翔星建設_採用提案_v1"]
+  }
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: Aoi（テンプレ仕様書 YAML＋Figma Variables JSON突合）／Yuto（案件タイプ確定）／Rin（章立て＋1行要約先行受領）
+- 下流: Souma（テンプレ選定→複製→トークン準拠出力）／Aoi（差分ゼロ監査）／Mana（テンプレ確認済み5項目引き継ぎ）
+- エスカレ: Figma Variables管理者（トークン改変時）／Google Drive「プレゼンテーションテンプレ」オーナー（emocri.net更新）／HARU（新テンプレ体系採用の意思決定）
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| Design Tokens準拠率 | 0% | 100% | Style Dictionary変換結果と突合 |
+| Figma Variables同期遅延 | 手動 | 24h以内 | 自動同期スクリプト稼働ログ |
+| Storybook視覚回帰テスト通過率 | 未計測 | 99% | Chromatic差分レポート |
+| WCAG 2.2 AAトークン準拠 | 未計測 | 100% | トークンレベルaxe-core |
+| テンプレ更新→反映リードタイム | 数日 | 即時 | 同期パイプライン |
+| 11ファイルAtomic再分類完了率 | 0% | 100% | 再分類チェックリスト |
+
+### STEP 9: 継続学習リソース
+- W3C Design Tokens Community Group仕様書
+- Amazon『Style Dictionary』公式ドキュメント / GitHub Wiki
+- Figma公式Blog『Variables & Modes』シリーズ
+- Brad Frost『Atomic Design』／Nathan Curtis『Design Systems Handbook』
+- Storybook + Chromatic公式Docs
+- Google Slides API / Pitch API / Beautiful.ai API公式ドキュメント
+- Edward Tufte全著作 / Nancy Duarte『Slide:ology』『Data Story』
+- Ellen Lupton『Thinking with Type』（タイポグラフィ）
+- Josef Albers『Interaction of Color』（配色）
+- Presentation Zen（Garr Reynolds）
+- WCAG 2.2ガイドライン原典 / OKLCH色空間仕様
+
+### STEP 10: アップグレードサマリ
+designer_memory.md はテキストベースのテンプレ学習メモリから、**W3C Design Tokens準拠のJSON SSOT × Figma Variables × Style Dictionary × Storybook** による多形態自動同期パイプラインへ進化する。11ファイルをAtomic Designの5階層に再分類し、Souma・Aoi・Rinが共通言語（トークン名）で会話できる状態を実装する。テンプレ更新→pptx/gs/Figma/Webへの反映を24h以内・WCAG 2.2 AA準拠100%・Storybook視覚回帰99%通過を目標とする。
