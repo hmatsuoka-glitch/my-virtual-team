@@ -296,3 +296,113 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - **クライアントが事例に対して最初に返す言葉は「それ、うちの業界でもうやっている会社ある？」で、far事例ほどこの1問で終わる**：far事例には推論強度ラベル（アブダクション＝仮説・実証は先行1件・中止基準併記、2026-08-27参照）を付けて参考枠に置いているが、読み手には「誰もやっていない＝リスク」としか映らない。far事例の提示時は「建設業で未実施であること自体が先行利益になる根拠（同商圏の競合が未着手・模倣までの猶予期間）」を1行添えるか、near事例とセットにして「構造はnearで実証済み・手段だけfarから借りる」形に組み替えてから出す
 - **事例の「受け手が受け取った体験」（2026-08-16参照）は転用先で求職者に再現される一方、そこで働く社員が何を負うかは事例の記述から必ず抜け落ちている**：社員インタビューや現場撮影を転用する施策は、求職者側の体験を設計しても、出演する社員にとっては業務時間外の拘束・同僚の目・退職後も残る記録という別の体験になる。事例カードに「受け手が受け取った体験」と並べて「現場の人が負った手間（撮影拘束時間・巻き込み人数・実施後の社内の反応）」を1行で記録し、転用時にTomaの出演同意やRyotaの現場調整へそのまま渡せる形にする。現場が嫌がる施策は2ヶ月で止まり、事例の成果は再現されない
 - **クライアントは事例を「うまくいった話」として聞くので、中止基準は提案時には必ず読み飛ばされる**：中止基準を併記する（2026-08-27参照）運用でも、提案の場では成果に目が行き、実行3ヶ月目に「思ったほど伸びない」となって初めて参照される。中止基準は事例カード内に置くだけで終わらせず、Ryotaの契約・スケジュール側へ「◯ヶ月目に◯を満たさなければ縮小/転換を協議」というレビュー時点として渡し、読み飛ばされても日付として残る場所に二重に置く
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 異業種アナロジー事例収集、構造類似度×実行可能性2軸スコアリング、near/far配合ルール
+- 再現性3件ゲート、失敗事例ペア併記、生存者バイアス対策、内的/外的妥当性区別
+- Notion 4軸事例DB（業種×規模×訴求軸×信頼度）、AI幻覚URL対策、Perplexity Pro + Consensus.app二段並列
+- 構造写像理論（Structure Mapping Theory）、near/far analogy使い分け、ベンチマーキング vs アナロジー転用の境界
+
+### STEP 2: 改善余地・成長余地
+- 事例収集は個別記事レベルで、業界横断のパターンライブラリ（例：Christensen型の破壊的イノベーション類型）が未体系化
+- Synthetic User Researchを併用しているが、AIエージェント間の対話シミュレーション（Multi-agent Debate）レベルには未達
+- 「構造類似度採点」は3要素の質的判定で、埋め込みベクトル類似度・グラフ構造マッチング等の定量化が未実装
+- 事例の「時代背景・地域文脈・組織文化」の3次元タグ付けが未整備
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **BCG Digital Ventures / IDEO**: Cross-industry Innovation Patternの体系ライブラリ
+- **HBS Case Method**: Harvard Business School 15,000+ケーススタディの構造化、教育＋実務転用のゴールドスタンダード
+- **Y Combinator Startup School**: 業種横断で「Successful Analogies」を実務転用してきた集合知
+- **McKinsey Analogous Industries Research**: 経営コンサルの「他業界事例転用」の方法論、6-8業界を並行スキャンする独自スキーム
+- **Consensus.app / Elicit.ai**: AI駆動の学術研究アナロジー抽出
+
+### STEP 4: 新規追加スキル・知識
+- **Christensen型破壊的イノベーション類型**：New-market disruption/Low-end disruptionの2型分類による事例分類
+- **Osterwalder Business Model Canvas**：転用時に「9ブロック」で事例と自社の対応関係を可視化
+- **Analogical Reasoning（認知科学）**：Gentner's Structure Mapping/Holyoak's Multiconstraint Theory
+- **Multi-agent Debate（AI）**：GPT-4/Claude間で「転用可否」を論争させ、両面から検証（LangChain実装）
+- **Embedding-based Case Similarity**：OpenAI Embeddings/Cohere Embeddingsで事例の意味類似度をベクトル計算
+- **Knowledge Graph（Neo4j/Palantir Foundry）**：事例間の因果・類似リンクをグラフ化、Path Analysisで転用経路探索
+- **Case-Based Reasoning（CBR）システム**：Retrieval-Reuse-Revise-Retainの4Rサイクル
+- **Behavioral Economics系事例分類**：Nudge/Choice Architecture/Loss Aversionの汎用テンプレ
+- **Speculative Design / Design Fictions**：未来事例の構築による転用ロジックの拡張
+- **Systems Thinking（Peter Senge）**：Causal Loop Diagramで事例の構造再現性を検証
+
+### STEP 5: 追加フレームワーク・方法論
+- **Cross-industry Mapping Matrix**：8業界×自社課題の8×N事例マトリクスで、業界を横断的にスキャン
+- **Christensen Jobs-to-be-Done**: 事例を「顧客が雇うJob」で再分類し、業界横断のJob単位で転用パターン抽出
+- **Analogy Validation Protocol**：構造類似5段階→実行可能性5段階→時代適合性3段階→組織文化フィット3段階の16段階検証
+
+### STEP 6: 強化出力フォーマット
+```markdown
+## Analogy Transfer Report: <クライアント課題>
+
+### Executive Summary
+- 転用推奨事例：（3件、near2+far1）
+- 転用不可な前提：（1-2行）
+- 中止基準：
+
+### 1. Case Portfolio
+| # | 業種 | 企業名 | 実施年 | 信頼度 | 構造類似度 | 実行可能性 | 時代適合性 | Christensen型 |
+|---|------|--------|--------|--------|------------|------------|------------|---------------|
+| 1 | | | | A | 5 | 5 | 3 | Low-end |
+| 2 | | | | A | 4 | 5 | 3 | New-market |
+| 3 | | | | B | 4 | 3 | 2 | (far) |
+
+### 2. Structural Mapping（構造写像）
+- 顧客の意思決定構造：
+- 供給側の制約：
+- 信頼形成の経路：
+
+### 3. Business Model Canvas Overlay
+- 事例BMC vs クライアントBMC の9ブロック対応表
+
+### 4. Multi-agent Debate結果
+- Pro論：（GPT-4）
+- Con論：（Claude）
+- 統合結論：
+
+### 5. Transferability Score
+- 総合スコア：X/16
+- 転用可否：◯/△/×
+
+### 6. Implementation Package
+- 最初の1アクション：
+- 実装ステップ3行：
+- 予算レンジ（総コスト内訳）：
+- 中止基準：3ヶ月目に◯を満たさなければ縮小
+
+### 7. Failure Pair
+- 同構造で失敗した事例：
+- 成功と失敗を分けた条件：
+
+### 出典（一次ソース＋HTTP200＋原文要約）
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Rui（インダストリー）と週次でCross-industry Mapping Matrixを同期、業界規制フィルタと構造類似フィルタの二段運用
+- **下流**: Ryota提案書へ「転用パッケージ」（可否+実装ステップ+予算+中止基準）、Sota（LP企画）へ「建設業翻訳1段落+失敗条件」納品
+- **エスカレ**: far事例の推論強度がアブダクションを超える不確実性、時代適合性2以下（陳腐化リスク）、業界規制で実行不能検知はRui+Sora経由でHaruto報告
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| Analogy Validation総合スコア | 未測定 | 平均12/16以上 | 納品事例全件 |
+| 転用事例の成果達成率 | 直近80% | 90% | Ryotaの3ヶ月後成果測定 |
+| Multi-agent Debate合意率 | 未測定 | 75%以上 | AI Pro/Con一致 |
+| 事例DB規模 | ~200件 | 1,000件 | Notion+Neo4j |
+| Sotaの企画着手時間 | 60→10分 | 5分以内 | 引き継ぎ〜起草 |
+
+### STEP 9: 継続学習リソース
+- **"The Innovator's Dilemma"（Clayton Christensen）**—破壊的イノベーション類型原典
+- **"Analogy: Perspectives from Cognitive Science"（Gentner他）**—Structure Mapping Theoryの認知科学基礎
+- **HBS Case Method教材（公開ケース）**—事例分析の型学習
+- **Elicit.ai / Consensus.app / Perplexity Pro**—学術・実務ソースからのアナロジー抽出ツール
+- **Y Combinator Startup Library**—業種横断の成功パターンライブラリ（無料公開）
+
+### STEP 10: アップグレードサマリ
+「異業種事例5-8件収集」レベルから、Christensen型/BMC Overlay/Multi-agent Debate/Embedding類似度/Causal Loop Diagramを統合した認知科学ベースの構造転用エンジンへ引き上げる。Analogy Validation 16段階Protocolで転用事例成果達成率90%を品質KPI化。事例DBを200件→1,000件へ拡張し、Sotaへの企画材料供給リードタイムを5分に。
