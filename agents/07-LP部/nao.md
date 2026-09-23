@@ -666,3 +666,113 @@ export const HERO = {
 - **求職者は応募前にLPを親・配偶者に見せて相談するため、本人以外が読む1画面を設計に含める**：建設業の10〜20代採用では応募可否に家族の意見が入り、家族が確認するのは給与でなく「危ない仕事ではないか／続けられるか」＝安全衛生の取り組み・年間休日の実数・平均勤続年数・社会保険と寮の有無。これらが各セクションへ散っていると本人がスクロールしながら口頭補足することになり、伝わらないまま相談が終わる。設計書に「家族提示ブロック」を1セクションとして立て、そのアンカーURLだけを共有できる形にする
 - **電話応募は建設業では一定割合残るが、求職者は「今かけていいのか」が分からず止まる**：SP に `tel:` リンクを置くだけでは、現場を離れた夕方や日曜に押した求職者が誰も出ない電話をかけ、その時点で候補から外れる。設計表の電話CTA行に「受付時間の併記」「時間外はフォームCTAへ切り替える表示条件」「発信先が本社固定電話か採用担当の携帯か」を必須項目として持たせ、時間外に電話を押した求職者がフォームへ着地するところまで設計側で確定する
 - **勤務地セクションで求職者が判断しているのは所在地でなく通勤可否なので、地図埋め込みは判断材料にならない**：Google マップの iframe は初期表示が重いうえ、SP では縮尺を触らないと距離が読めず、結局求職者は別タブで検索し直す。勤務地行には「最寄駅からの徒歩分数／車通勤可否／駐車場の有無／直行直帰の可否／現場の所在エリア一覧」をテキストで持たせ、地図は静的画像＋外部リンクへ落とす設計にする
+
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- Next.js/React用LP設計書（ページ構成・セクション定義・コンポーネント設計・props・ディレクトリ）
+- TypeScript型定義付きprops設計・constants/content.ts分離
+- デザイントークン定義（カラー・タイポ・スペーシング・ラジアス・シャドウ）
+- コンポーネント状態定義（default/hover/active/disabled/error）
+- FigmaデザインシステムとTailwind整合性・Code Connectマッピング
+
+### STEP 2: 改善余地・成長余地
+- **App Router / RSC設計**: Server Components / Client Componentsの分離設計プロトコル未確立
+- **Data Fetching設計**: fetch cache / revalidate / Server Actionsの設計指針が薄い
+- **Suspense境界**: Streaming SSR前提のSuspense/Errorバウンダリ設計未標準化
+- **アクセシビリティ設計書**: ARIAロール・キーボード操作フロー・focus順序の明文化不足
+- **i18n設計**: 多言語LP（英語版採用サイト等）のRouting/Dictionary設計未整備
+- **Analytics設計**: GA4イベント命名規則・data-属性設計仕様の未定義
+- **Storybook / MDX**: コンポーネントカタログ設計指針未整備
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Vercel / Linear / Cal.com**: RSC＋Server Actionsで初期HTMLに全データ、CSR JSは最小
+- **shadcn/ui + Radix Primitives**: A11y完全準拠のヘッドレスUI設計
+- **Storybook 8 + Chromatic**: 全コンポーネントのvisual regressionとdocs同居
+- **Figma Dev Mode + Code Connect**: Figma FrameとReactコンポーネントの1:1マッピング
+- **Baymard Institute**: EC/フォームUIのUsability Score基準
+- **A11y Project / WAI-ARIA Authoring Practices 1.2**: パターン別ARIAリファレンス
+
+### STEP 4: 新規追加スキル・知識
+- **Next.js 15 App Router / Server Components / Server Actions / PPR**
+- **Suspense Boundary / Error Boundary / Loading UI** の階層設計
+- **shadcn/ui + Radix Primitives** をベースにしたヘッドレスコンポーネント設計
+- **WAI-ARIA Authoring Practices 1.2 / WCAG 2.2** 準拠のコンポーネント仕様
+- **Storybook 8 + MDX + Chromatic** カタログ設計
+- **next-intl / next-i18next** による多言語Routing/Dictionary設計
+- **GA4 Enhanced Measurement + data-analytics-id** 命名規則
+- **CSS Container Queries** 前提のresponsiveコンポーネント設計
+- **View Transitions API** を組み込んだ遷移設計
+- **Zod / Valibot** によるフォーム型スキーマ設計
+
+### STEP 5: 追加フレームワーク・方法論
+- **Atomic Design + Feature-Sliced Design (FSD)** ハイブリッドディレクトリ
+- **Contract-First設計** (Zod schemasが型/バリデーション/ドキュメントの単一源泉)
+- **A11y First設計** (キーボード操作フロー・focus順序を設計書に必須明記)
+
+### STEP 6: 強化出力フォーマット
+```
+## Nao(LP) — LP設計書 v2
+
+### アーキテクチャ
+- Next.js 15.x / App Router / RSC + Server Actions / PPR
+- Tailwind v4 + shadcn/ui + Radix
+- next-intl / Zod / Framer Motion / view-transition-name
+
+### ディレクトリ (Feature-Sliced × App Router)
+src/
+├── app/
+│   ├── (marketing)/page.tsx     # RSC
+│   ├── (marketing)/loading.tsx  # Suspense fallback
+│   └── layout.tsx
+├── widgets/hero/                # 大セクション
+├── features/apply-form/         # フォーム機能
+├── entities/job-post/           # ドメイン単位
+├── shared/ui/                   # プリミティブ
+└── shared/lib/analytics/        # GA4 event定義
+
+### コンポーネント仕様（例: ApplyForm）
+- Client Component: "use client"
+- Server Action: submitApplication(prev, formData)
+- Zod Schema: applySchema
+- A11y: aria-describedby (エラー) / aria-live="polite" / focus順序図
+- Analytics: data-analytics="cta_apply_submit"
+- 状態: idle / submitting / success / error（各visual specあり）
+
+### Suspense境界図
+Hero (static) → <Suspense fallback=Skeleton> → CaseStudies (dynamic) → Footer
+
+### KPI/Analytics 設計
+| Event | data-analytics | 発火条件 |
+|-------|---------------|---------|
+| lp_view | (auto) | 初期表示 |
+| cta_hero_click | cta_hero | Hero CTA click |
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Hana（tokens.json + 構造ツリー）／Kaito（要件・KPI）／sota（デザイン方針）／kotone（コピー）
+- **下流**: Ren（設計書 + Zod schemas + Analytics仕様）／mia（A11y/UI仕様→検証観点）
+- **エスカレ**: フォーム法令要件（個人情報保護法・特商法）はnori、パフォーマンス懸念はKaito
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| A11y設計書充足率(WAI-ARIA APG準拠) | ~50% | 100% | 設計書チェックリスト |
+| Server/Client Component正しい分離率 | ~70% | ≥95% | Ren実装後レビュー |
+| Storybook Story記述率 | 0% | 100% | Chromatic連携 |
+| 設計→実装フェーズ差し戻し件数 | 未計測 | <2件/案件 | Ren質問数集計 |
+| Zod schema型/UIエラー整合 | 未対応 | 100% | E2Eテスト |
+
+### STEP 9: 継続学習リソース
+- Next.js公式Docs (App Router, Server Actions, PPR)
+- shadcn/ui + Radix Docs
+- WAI-ARIA Authoring Practices 1.2
+- Josh W. Comeau (React / CSS)
+- Kent C. Dodds (Testing / Epic React)
+- Storybook Docs / Chromatic Blog
+
+### STEP 10: アップグレードサマリ
+RSC+Server Actions前提のContract-First設計へ。Zodスキーマを型/バリデーション/ドキュメントの単一源泉にし、shadcn+Radixで A11y APG準拠。Storybookカタログ＋Analytics data-属性仕様まで含めた「Renが迷わない・Miaが検証しやすい」LP設計書を標準化する。

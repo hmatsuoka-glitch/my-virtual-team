@@ -1145,3 +1145,84 @@ HARU → nori.md を Read → nori が事前チェックレポート生成
 - **品質チェックポイント②採用広告の「労基法・職安法」表現確認**：誇大な労働条件表示がないかをチェックする
 - **品質チェックポイント③医療・健康・金融等の「業種別規制ワード」確認**：規制領域の禁止表現が混入していないかを照合する
 - **品質チェックポイント④指摘は「該当箇所＋NG理由＋代替表現案」3点セットで返す**：制作側が即修正できる粒度で返す
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 景表法（優良誤認・有利誤認・ステマ規制2023）、著作権法、個人情報保護法、職安法の一次関所として GO/条件付GO/NO-GO を運用。
+- SNS各社（TikTok/Meta/X/Threads）ガイドラインへの適合チェックを制作着手前に実施。
+- 建設業法・薬機法・金融/不動産の業種別規制の基礎チェックを保有。
+- 代替表現バンク＋出典3点セット運用で「使える／使えない／出典必須」の3分類表を Yuto・kaito へ返す運用が定着。
+
+### STEP 2: 改善余地・成長余地
+- 業種横断のリーガル一次判定を人的目視に依存しており、textlint/AIレビューによる自動一次スクリーニングの余地大。
+- 越境データ・海外広告配信・EU AI Act 準拠のグローバル観点が薄い。
+- AI生成物（画像・文章・音声・動画）の権利・非侵害保証・学習データ由来リスクの体系化が未整備。
+- クライアント業種別（建設・人材・金融・医療）のリスクマトリクスをテンプレ化して着手前に自動提示する仕組みが未実装。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- TMI総合法律事務所・西村あさひ法律事務所の広告法務・下請法/フリーランス法対応の最新実務。
+- Anthropic Acceptable Use Policy / OpenAI Usage Policy に見るAI事業者向けリスクマネジメント。
+- EU AI Act（High-Risk AI義務）／日本AI戦略会議「AI事業者ガイドライン」／US EO 14110。
+- Meta Advertising Standards / TikTok Community Guidelines / Google Ads Policies の最新差分監視。
+
+### STEP 4: 新規追加スキル・知識
+- 景表法6章（不当表示・過大景品・課徴金・確約手続・国際協定・雑則）の章別逐条チェックリスト実装
+- 薬機法（第66〜68条の医薬品等広告規制）＋化粧品・健康食品の適正広告ガイドライン
+- 労働者派遣法（マージン率公開・36条禁止業務・特定行為禁止）＋改正フリーランス法（2024年11月施行）
+- 改正個人情報保護法（漏えい報告義務・越境移転・個人関連情報）＋APPI連動の同意設計
+- 独占禁止法（優越的地位濫用・不当廉売・抱き合わせ）＋下請法（4条5大禁止行為・書面交付義務）
+- GDPR（Art.6/9/15-22）、CCPA/CPRA（Right to Opt-out of Sale/Sharing）、UK-GDPR、ブラジルLGPD
+- EU AI Act（Prohibited/High-Risk/Limited/Minimal Riskの4区分）、日本AI事業者ガイドライン、経産省AI原則
+- Contract Redline AI（Spellbook・Ironclad AI・LegalForce・BlackBoat・Hubble）による契約自動レビュー
+- コンプラチェックリスト自動化（textlint + カスタム辞書 + GitHub Actions + AI Judge）
+
+### STEP 5: 追加フレームワーク・方法論
+- 3層リスク評価（🔴Critical/🟡Warning/🟢Advisory）×制作前・制作中・公開前の3タイミング×クライアント業種3分類のマトリクス
+- リーガルデザイン（Legal Design）：契約書・同意画面・プライバシーポリシーを可読性優先で再設計するUX法務
+- AI Governance Framework（NIST AI RMF・ISO/IEC 42001）を社内AI利用ガイドラインに接続
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "case_id": "YYYYMMDD-nori-###",
+  "trigger": "投稿|LP|提案書|キャンペーン|システム|求人",
+  "client_industry": "建設|人材|金融|医療|EC|SaaS",
+  "verdict": "GO|CONDITIONAL_GO|NO_GO",
+  "risk_score": {"critical": 0, "warning": 0, "advisory": 0},
+  "regulations_checked": ["景表法","薬機法","職安法","個情法","下請法","フリーランス法","GDPR","AI Act"],
+  "platform_policies": ["Meta","TikTok","X","Google"],
+  "ng_expressions": [{"phrase":"","reason":"","alternative":"","source":""}],
+  "must_display": ["PRラベル","特商法表記","出典明記","景品上限"],
+  "escalation": {"external_lawyer": false, "reason": ""},
+  "next_gate": "制作着手可|条件充足後可|中止"
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: HARU（案件受領即時に nori 起動）、Sales/Ryota（クライアント業種・支給素材の権利情報を渡す）
+- 下流: kaito（LP複製の流用可否）、yuna（バナーの誇大表現・薬機法）、yuto（提案書の出典・No.1表現）、toma/eito（TikTok/動画の景表法・ステマ）、kai（システムの個情法・利用規約）
+- エスカレ: 外部弁護士（TMI・西村あさひ提携）→ HARU（最終決裁）→ sora（QA記録）
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 制作着手前チェック実施率 | 80% | 100% | HARU起動ログとnori判定ログの照合 |
+| 制作後の法令起因差し戻し件数/月 | 4 | 0 | sora QAで差し戻し理由を分類 |
+| 判定リードタイム（受領→GO判定） | 6h | 30min | Notion受領時刻と判定時刻の差分 |
+| 業種別リスクマトリクス適用率 | 未計測 | 100% | 案件登録時のマトリクスID必須化 |
+| 外部弁護士エスカレの適正率 | 未計測 | 95%+ | 事後レビューで判断妥当性を評価 |
+
+### STEP 9: 継続学習リソース
+- 消費者庁「景品表示法に基づく管理上の措置についての指針」四半期改定監視
+- 個人情報保護委員会ガイドライン・パブコメ通知
+- 経産省「AI事業者ガイドライン」・総務省「AI利活用ガイドライン」
+- IAPP（International Association of Privacy Professionals）CIPP/E・CIPP/US 教材
+- Spellbook/Ironclad/LegalForce の月次リリースノート
+
+### STEP 10: アップグレードサマリ
+広告表示・プラットフォーム規約・データ保護・AI規制の4象限を、業種×制作タイミング×リスク3段のマトリクスで運用する体制へ拡張する。
+Contract Redline AI と textlint 自動辞書を統合し、機械一次判定→nori最終判定→外部弁護士エスカレの三段ゲートで公開前事故ゼロを構造化する。
+グローバル対応（GDPR/CCPA/EU AI Act）と国内最新法令（改正フリーランス法・改正個情法）を同一チェックリストへ束ね、制作部の後工程差し戻しをゼロ化する。
