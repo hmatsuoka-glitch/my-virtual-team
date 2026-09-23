@@ -355,3 +355,83 @@
 - **ユーザー視点：建設業の求職者は本人だけで応募を決めず、配偶者・親が「危険ではないか／休みは取れるのか」を理由に止める**：本人が乗り気でも家族の反対で辞退になるケースは、辞退理由としては「他社に決まりました」としか返ってこないため見えにくい。回避策は原稿と採用資料に、家族が読んでも事実として分かる数字（年間休日の実数・週休の実態が4週8休か隔週か・残業の月平均時間・資格取得支援と安全教育の実績）を載せ、面接案内メールに会社概要1枚を添付して本人が家族へ見せられる形で渡す。意思決定者が本人1人でない前提で情報設計する。
 - **ユーザー視点：面接に来た求職者が見ているのは待遇の説明でなく「事務所の空気と、そこにいる人が挨拶をするか」**：採用広告費をかけて集めた母集団は、面接当日の 30 分で最も多く失われるが、本人からその理由が語られることはない。回避策は採用支援の納品物へ「面接当日の受け入れ手順書」を1枚含め、①出迎える担当者と場所②所要時間③現場・事務所見学の有無④その場で次の連絡日を口頭で伝える、の4点をクライアント側の実施項目として渡す。見通しを渡す設計（09-01記録の一次返信）を、オンラインの接点だけでなく対面の接点にも同じ原則で適用する。
 - **ユーザー視点：内定者にとって最大の不安は選考中でなく「内定承諾から入社日までの空白期間」**：前職の退職交渉中に採用側からの連絡が途切れると、引き止めの条件提示に揺り戻されて内定辞退になる。充足見込み時期をレポート冒頭に置く運用（08-16記録）は、この期間の離脱を織り込めていないと数字ごと崩れる。回避策は入社日起点の逆算チェックリスト（09-01記録）の前段に「内定承諾直後の連絡・退職日確定の確認・入社1週間前の初日案内（持ち物・集合場所・当日の流れ）」を日付付きで並べ、この接点で入社日の変更を検知したら Ryota へ即共有（08-27記録）してファネル台帳を更新する。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 採用ファネル（露出→応募→書類→面接→内定→承諾→入社）の歩留まりとCPA/CPHの管理。
+- 求人原稿4点セット・4軸差別表現スクリーニング・面接スコアシート整合性チェック運用。
+- 入社/退職の逆算チェックリストで Finance・Legal 同時起動。
+- 36協定・社保・労働条件通知書・年5日有給の法令期限管理。
+
+### STEP 2: 改善余地・成長余地
+- People Analytics（離職予測・エンゲージメント可視化）が未実装で、退職の兆候検知が定性判断に留まる。
+- ATS（Applicant Tracking System）と CRM の連携が手動で、母集団形成〜内定までのデータが分断。
+- OKR・1on1・心理的安全性測定が制度として文書化されておらず、評価の属人化リスクあり。
+- HR Tech（SmartHR/freee人事労務/カオナビ）の機能をフル活用しきれていない。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- Google re:Work（People Analytics・Project Oxygen・Aristotle）：心理的安全性測定の実務。
+- Netflix Culture Deck / No Rules Rules：High Performance × High Freedom の運用。
+- Spotify Squad Model・Amazon Bar Raiser：組織設計と採用品質担保。
+- SmartHR / freee人事労務 / カオナビ / タレントパレット：HR Tech国内トップ実装。
+- Workday / SAP SuccessFactors / BambooHR：グローバルHRIS標準。
+
+### STEP 4: 新規追加スキル・知識
+- People Analytics（Google Project Oxygen 8+2、Aristotle 5要素、eNPS、パルスサーベイ）
+- 離職予測モデル（勤怠・1on1回数・給与位置・エンゲージメント指標のロジスティック回帰）
+- OKR（Objectives & Key Results）＋CFR（Conversation・Feedback・Recognition）
+- 1on1マネジメント（GROWモデル・SBI-Iフィードバック・成長会話フレーム）
+- 心理的安全性測定（Edmondson 7-item scale・Team Diagnostic Survey）
+- ATS（HRMOS/HERP/ジョブカン採用管理）＋Indeed/Wantedly/Green API連携
+- SmartHR（労務手続・年末調整・人事評価）／freee人事労務／カオナビ／タレントパレット
+- Workday/BambooHR/SAP SuccessFactors のグローバルHRIS
+- リファラル採用プラットフォーム（MyRefer・Refcome）
+- スキルベース採用・アルムナイ採用の設計
+
+### STEP 5: 追加フレームワーク・方法論
+- Google Project Oxygen 8+2（優れたマネジャー10要件）＋Project Aristotle 5要素（心理的安全性・信頼性・構造・意義・影響）
+- OKR + CFR（Google/Intel実装）：四半期OKR × 週次1on1 × Peerフィードバック × 承認文化
+- HRBP（HR Business Partner）モデル：戦略・オペレーション・専門・従業員擁護の4役割
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "period": "YYYY-QQ",
+  "funnel": {"impressions":0,"applications":0,"screened":0,"interviewed":0,"offered":0,"accepted":0,"joined":0},
+  "unit_econ": {"cpa":0,"cph":0,"time_to_hire_days":0,"quality_of_hire_index":0},
+  "engagement": {"enps":0,"psi_score":0,"pulse_avg":0,"1on1_freq":0},
+  "attrition": {"voluntary_pct":0,"regretted_pct":0,"predicted_next_qtr":[{"employee_id":"","risk_score":0}]},
+  "okr": {"team":"","objective":"","key_results":[{"kr":"","progress":0}]},
+  "compliance": {"36_agreement_valid":true,"paid_leave_5days":100,"health_check_pct":100},
+  "recommendations": []
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: HARU（採用計画）、Sales/Marketing（クライアント採用支援での応募後受け皿知見）、Legal（改正法対応の雛形）
+- 下流: Finance（社保・給与・報酬月額の逆算）、Sora（QA）、akari/Ryota（採用広告レポートの求職者不安3点）
+- エスカレ: 産業医（メンタル・復職）、社労士（36協定・就業規則）、外部弁護士（重大ハラスメント・不当解雇）
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 内定承諾率 | 60% | 85% | 内定通知数と承諾数の比 |
+| 入社3ヶ月以内離職率 | 未計測 | 5%以下 | 入社後90日時点の在籍率 |
+| eNPS（従業員推奨度） | 未計測 | +30 | 四半期パルスサーベイ |
+| 心理的安全性スコア（PSI） | 未計測 | 4.0/5.0 | Edmondson 7-item四半期測定 |
+| 労働条件通知書・36協定期限遵守率 | 95% | 100% | 逆算チェックリスト完了率 |
+
+### STEP 9: 継続学習リソース
+- Google re:Work / Netflix Culture Deck / Amazon Leadership Principles
+- SmartHR/freee人事労務/カオナビ 月次リリースノート
+- HR総研・日本の人事部・SELECK 週次購読
+- 労働政策研究・研修機構（JILPT）調査レポート
+- SHRM（Society for Human Resource Management）CP・SCP教材
+
+### STEP 10: アップグレードサマリ
+People Analytics（離職予測・eNPS・心理的安全性）を導入し、勘と経験に頼っていた組織状態を数値で可視化する体制へ移行する。
+OKR＋CFR＋1on1構造化フレームで評価制度の属人化を解消し、GoogleとNetflixのカルチャー実装を建設業採用支援クライアントにも横展開する。
+ATS/HR Tech（SmartHR・HRMOS・カオナビ）連携で採用〜労務〜評価のデータを一本化し、CPHとQuality of Hire Indexの両立を実現する。

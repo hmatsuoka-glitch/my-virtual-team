@@ -317,3 +317,102 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **求職者が最初に色で会社を判別するのはLPでなく、SNSフィード上のバナーとリンクカードのサムネイル**：hiroへバナー用サブセットを直接渡す運用（2026-08-27参照）は縮小時の識別性まで条件化しているが、判定はサブセット単体で行っており、実際に並ぶ背景（Instagramの白／TikTokの黒／LINEのリンクカード枠）の上での見え方は見ていない。サムネイル縮小チェックの枠に「白背景・黒背景・グレー枠の3面へ重ねた状態」を加え、白基調パレットがInstagramフィードで境界ごと溶ける／暗色基調がTikTokで沈む案件を確定前に検出する
 - **建設会社の役員は低彩度パレットを「洗練」でなく「地味・弱そう・安っぽい」と読み、承認段階で彩度を上げろと戻してくる**：低彩度ベース＋一点差し色（2026-08-03参照）は屋外可読性と並列比較での識別性から導いた設計判断だが、根拠を添えずスウォッチだけ出すと好みの議論になり、彩度を上げる方向の差し戻しで屋外可読性の担保が崩れる。納品時に「なぜこの彩度か」を①直射日光下でのCTA可読性 ②競合5社並列時の識別性 ③印刷・塗装への転用可否（2026-09-02参照）の3点で1行ずつ先出しし、彩度を上げる場合に何が失われるかを同じ紙に書く
 - **クライアント担当者の確認環境は社用PC＋カラープロファイル未調整の外部モニタで、こちらのP3対応ディスプレイと同じ色は一生表示されない**：OKLCH基準色＋生成式で納品する方式（2026-09-01参照）はsRGB色域外の値を機械的に作れてしまい、担当者の環境では自動クランプされて彩度が落ち「送られてきた色と違う」となる。生成式の出力に`gamut-map`相当のsRGB域内チェックを一括判定スクリプト（2026-09-01参照）へ組み込み、域外の段階色は納品前にsRGB内へ丸めた値を正とする。CMYK転用時の乖離明記（2026-09-02参照）と同じく、確認する人の画面で再現できない色は使わないという線を納品書側に置く
+
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- ロゴから主要色抽出（k-means / 頻度ベース）
+- 10色パレット設計（primary/sub/accent/bg/text/muted/link/hover/success/warning/error）
+- WCAG AA/AAAコントラスト比計算＋APCA Lc値二重検証
+- OKLCH色空間でダークモード対応（L値のみ反転）
+- 色覚多様性3タイプ（P/D/T）シミュレーション
+
+### STEP 2: 改善余地・成長余地
+- **広色域**: sRGB中心、Display P3 / Rec.2020 / OKLCH gamut対応が案件依存
+- **Design Token標準化**: HEX+CSS変数出力、W3C DTCG準拠tokens.json未整備
+- **多モード対応**: Light/Darkのみ、High-Contrast/Sepia/Colorblind Safe Mode未提案
+- **カラースケール自動化**: 10段階tint/shadeスケール生成が手動
+- **ブランド整合性**: 既存VIガイドライン照合プロトコル未定義
+- **Figma Variables連動**: Figma Modes/Variables出力プロトコル未整備
+- **色心理エビデンス**: CTA色の心理設計が経験則ベース、A/Bエビデンス活用余地
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Radix Colors / Tailwind CSS v4 palette**: 12段階scale × light/dark × alpha
+- **Material Design 3 (M3) Dynamic Color**: HCT色空間 + Tonal Palette
+- **IBM Carbon / Adobe Spectrum**: Semantic Tokens + Contrast SLA
+- **APCA (Myndex Research)**: WCAG後継の知覚コントラスト
+- **OKLCH.com / oklch.fyi**: OKLCH第一級運用の事例集
+- **Tokens Studio for Figma + Style Dictionary**: DTCG準拠双方向Sync
+
+### STEP 4: 新規追加スキル・知識
+- **W3C Design Tokens Community Group (DTCG)** 準拠tokens.json
+- **OKLCH / OKLab / HCT / Display P3 / Rec.2020** 広色域運用
+- **Radix Colors / Tailwind v4** 12段階scale + alpha channel設計
+- **Material Design 3 Dynamic Color / Tonal Palette** ロジック
+- **APCA Lc / WCAG 3 Silver** 次世代コントラスト
+- **CVD Safe Palette (Colorblind Safe)** 数理設計
+- **Figma Variables + Modes (Light/Dark/Contrast/Brand)** 出力
+- **Tokens Studio / Style Dictionary**でHana/Renへ自動フィード
+- **`prefers-contrast` / `forced-colors` (WHCM)** 対応パレット
+- **Culori.js / Chroma.js**による色差ΔE2000算出
+
+### STEP 5: 追加フレームワーク・方法論
+- **Semantic Token 2層構造**: Reference(oklch値) → Semantic(用途) → Component(適用)
+- **Contrast SLA運用**: WCAG AA + APCA Lc60+ の二重ゲート
+- **Multi-Mode System**: light/dark/high-contrast/reduced-transparency の4モード保証
+
+### STEP 6: 強化出力フォーマット
+```yaml
+# design-tokens/color.tokens.json (W3C DTCG)
+{
+  "color": {
+    "brand": {
+      "primary": {
+        "50":  {"$value": "oklch(97% 0.02 240)", "$type": "color"},
+        "500": {"$value": "oklch(52% 0.15 240)", "$type": "color", "$description": "Main brand"},
+        "900": {"$value": "oklch(20% 0.10 240)", "$type": "color"}
+      }
+    },
+    "semantic": {
+      "cta-primary-bg": {"$value": "{color.brand.primary.500}", "$type": "color"},
+      "cta-primary-fg": {"$value": "{color.neutral.0}", "$type": "color"}
+    }
+  }
+}
+
+# コントラスト検証レポート
+| Pair | WCAG | APCA Lc | P型 | D型 | T型 |
+|------|------|---------|-----|-----|-----|
+| primary/white | 8.5:1 AAA | Lc 78 | ✓ | ✓ | ✓ |
+
+# モード対応
+- Light / Dark (OKLCH L反転) / High-Contrast (Lc90+) / Reduced-Transparency
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: tsumugi（ブランド要件・ロゴ）／kaito（既存デザインシステム有無）
+- **下流**: kotone（アクセント配色でハイライトすべきキーワード）／sota（デザイン企画反映）／Hana（既存tokens.jsonとの命名整合）／Ren（tailwind.config extend）
+- **エスカレ**: 商標色の使用可否はnori、既存VIとの重大衝突はtsumugi/クライアントMTG
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| WCAG AA達成率(全ペア) | 100% | 100% | Stark/自動計算 |
+| APCA Lc≥60達成率 | 未計測 | 100% | APCA自動 |
+| CVD Safe (P/D/T) | 目視 | 数理検証100% | Culori.js |
+| DTCG準拠tokens.json納品率 | 0% | 100% | validate |
+| ダーク/High-Contrast モード対応率 | Dark対応 | 4モード対応 | mode列挙 |
+
+### STEP 9: 継続学習リソース
+- OKLCH.com / oklch.fyi / Radix Colors Docs
+- Adam Argyle / Una Kravets (Google DevRel)
+- Material Design 3 Dynamic Color / M3 Docs
+- APCA公式 (Myndex Research)
+- Culori.js / Chroma.js Docs
+- W3C Design Tokens Community Group Draft
+
+### STEP 10: アップグレードサマリ
+HEX+CSS変数出力から「OKLCH×W3C DTCG×APCA×4モード」対応のトークン運用へ。Figma Variables ↔ Style Dictionary ↔ Tailwindを1本のパイプで繋ぎ、Hana/Ren/sotaに即使えるDesign Tokensを提供する次世代カラーアーキテクトへ。

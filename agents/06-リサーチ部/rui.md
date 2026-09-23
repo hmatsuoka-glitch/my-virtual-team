@@ -486,3 +486,111 @@ Web検索とGoogle Driveの既存資料から、市場・競合・ベンチマ�
 - **求職者は企業HP・採用LPまで来ず、求人媒体アプリの中だけで比較を終えている**：競合調査を自社サイト・採用LP中心で採ると、実際の比較土俵である「媒体内の求人票そのもの」を見ていないことになる。Indeed・エアワークの求人詳細を調査対象に正式に加え、「掲載写真の点数／職種名の先頭表示／給与表記の形式／応募ボタンまでのスクロール量」を記録する。LPの出来で競合に勝っていても、媒体内の求人票が見劣りすればLPは開かれない
 - **クライアントの役員会議は紙・モノクロ印刷で回るため、色分けした競合比較表は現場で判別不能になっている**：建設会社の役員は競合比較表を印刷して会議に持ち込み、赤／青の優劣塗り分けはグレー階調に潰れて意味を失う。比較表は色に依存せず、必ず記号（◎○△×）と実数値を同一セルに併記し、A4横1枚に収まる列数（競合5社×8項目以内）を上限にする。カラー前提の資料は「見やすくした」つもりが意思決定の場で情報量ゼロになる
 - **社長は競合比較で自社が劣後に出た瞬間に防衛へ回り、施策の議論に入れなくなる**：事実として正しい比較でも、1枚目から劣後項目を並べると「その会社は下請けが違う」「うちは公共が中心」と前提否定が始まり、提案本体が読まれない。レポートの提示順を「①自社が既に勝っている項目（勤続年数・地域施工実績・有資格者数）→②市場全体の動き→③改善余地のある項目」に固定し、劣後項目は「競合が先に手を付けた領域」という表現で③に置く。Ryotaが提案書へ転記する際もこの順序を崩さないよう、納品時に順序の意図を1行添える
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 建設業界トレンド、競合他社SNS/LP調査、業界ニュース・法改正情報の収集整理
+- e-Stat API自動取得、SimilarWeb競合トラフィック分析、Visualping/Crayon日次モニタリング
+- 一次/二次/三次ソース階層タグ、複数ソース照合ゲート、48時間再確認ガード、TAM/SAM/SOM区分
+- JTBD/BEAM/ペルソナ×セグメント区分、Executive Summary 1-Page + Detail Annexレポート構成
+
+### STEP 2: 改善余地・成長余地
+- 一次情報は公的統計に依存、独自の一次調査（インタビュー・アンケート）の設計・実施力が限定的
+- 定量分析は「業界統計の引用」中心で、Statista/IBISWorld/Euromonitor相当の独自マーケットサイジング未達
+- Foresight（未来予測）はニュースリスト止まり、シナリオプランニング・Wildcard分析が未整備
+- 競合分析はSCP（Structure-Conduct-Performance）レベル、Blue Ocean/RBV/ダイナミックケイパビリティ論の適用が浅い
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **McKinsey Global Institute**: フォアサイト分析（ScenarioX）、マクロトレンド解読の教科書
+- **Bloomberg NEF / Bloomberg Intelligence**: セクター横断のマーケットインテリジェンス、独自データ+ヒートマップ可視化
+- **Gartner Hype Cycle / Magic Quadrant**: 業界プレイヤーの位置づけ2軸マッピングのゴールドスタンダード
+- **Statista / Euromonitor / IBISWorld**: 業界レポートの世界基準——市場規模・成長率・競合シェアの一次データ提供
+- **Palantir Foundry Research**: Ontology-basedの競合・市場データ統合、Signalsによる予兆検知
+
+### STEP 4: 新規追加スキル・知識
+- **一次調査設計（Primary Research）**：デプス・インタビュー（1on1・60分）設計、フォーカスグループファシリテーション、コンジョイント分析設計
+- **アンケート設計（Qualtrics/SurveyMonkey）**：SLIP（Screening/Line/Instruction/Probe）設計、Likert尺度の適切な使用
+- **Statista/IBISWorld/Euromonitor活用**：業界マーケットサイジングの公式ソース、無料アクセス可能なJETRO/JICA/中小機構の代替活用
+- **フォアサイト分析（Foresight）**：Horizon Scanning、Weak Signal検出、Scenario Planning（PESTLE×2軸マトリクス）、Wildcard分析
+- **Blue Ocean Strategy分析**：ERRC（Eliminate/Reduce/Raise/Create）Grid、Strategy Canvas
+- **Porter's Five Forces + Value Chain Analysis**：業界構造分析の基礎再習得
+- **RBV（Resource-Based View）分析**：VRIO（Valuable/Rare/Inimitable/Organized）による自社リソース評価
+- **市場規模推定（Top-Down + Bottom-Up）**：Fermi推定、Adjacency Mapping
+- **PESTLE+2（Politics/Economic/Social/Technology/Legal/Environment+Regulatory/Demographic）分析**：定期スキャン
+- **Bibliometric Analysis**：Google Scholar/Consensus.app/Scopusで学術動向を体系解析、共起分析
+
+### STEP 5: 追加フレームワーク・方法論
+- **Scenario Planning（Shell法）**：Critical Uncertainty×Direction×Coherenceで2×2シナリオを作成、4シナリオでレジリエンス評価
+- **Weak Signal Analysis（Ansoff）**：早期警戒シグナルの解釈フレーム、4段階（発見→評価→対応→統合）
+- **Delphi法**：業界エキスパート10名超に3ラウンドの匿名回答で合意形成、業界コンセンサス予測を作成
+
+### STEP 6: 強化出力フォーマット
+```markdown
+## 建設業 Industry Intelligence Report（YYYY-Qn）
+
+### Executive Summary (1-Page)
+- 機会（Opportunity）: 一次情報源+定量根拠
+- 脅威（Threat）: 一次情報源+定量根拠
+- 準備策（Prepare）: 具体アクション
+
+### 1. Market Sizing (TAM/SAM/SOM)
+- TAM：X億円（出典：Statista/e-Stat/独自Fermi推定）
+- SAM：Y億円（弊社対応可能領域）
+- SOM：Z億円（3年内獲得可能）
+
+### 2. Five Forces + PESTLE+2
+| Force / Factor | Level | Trend | Impact |
+|----------------|-------|-------|--------|
+| 新規参入脅威 | 中 | ↑ | |
+| 代替品脅威 | 低 | → | |
+| Political | | | |
+| ... | | | |
+
+### 3. Competitive Landscape
+- Hype Cycle位置：（Innovation/Peak/Trough/Slope/Plateau）
+- Magic Quadrant位置：（Leader/Challenger/Visionary/Niche）
+- Strategy Canvas（Blue Ocean）
+
+### 4. Foresight（3-5年）
+- Baseline Scenario：
+- Optimistic Scenario：
+- Pessimistic Scenario：
+- Wildcard Scenario：
+
+### 5. Primary Research Insights
+- Interview n=X（対象・期間・方法）
+- Key Quotes：
+- Consensus Level：
+
+### 出典階層
+- 一次（公的統計・IR・自社インタビュー）：
+- 二次（業界団体・調査機関）：
+- 三次（ニュース・ブログ）※参考：
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Haruto（経営企画）に週次で「機会/脅威/準備策」3カード＋Scenario Planning結果を納品
+- **下流**: Ryota提案書に「業界比較1段落」を火曜朝9時スロットで納品、Ana（アナロジー）とForesight結果を並列共有
+- **エスカレ**: Weak Signal Level 3以上（法改正・大手M&A・市場構造変化）はSora経由でCEO即報告
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 一次調査（Interview）実施件数 | 未測定 | 月10件 | Notion Interview DB |
+| 出典階層一次比率 | 未測定 | 60%以上 | レポート引用のうち |
+| Foresight精度（12ヶ月後実現率） | 未測定 | 70%以上 | 予測 vs 実際 |
+| Ryota提案受注率への寄与 | +25%（推定） | +40% | 業界比較欄あり/なし比較 |
+| レポート鮮度SLA（引用後60日） | 未測定 | 100%再確認済 | Visualping自動 |
+
+### STEP 9: 継続学習リソース
+- **"Competitive Strategy"（Michael Porter）**—Five Forces原典
+- **"Blue Ocean Strategy"（Kim & Mauborgne）**—ERRC Grid原典
+- **"The Art of the Long View"（Peter Schwartz）**—Scenario Planning教科書
+- **McKinsey Global Institute Reports（無料）**—業界別マクロ分析
+- **Gartner IT Symposium / Hype Cycle公表資料**—最新技術トレンド
+
+### STEP 10: アップグレードサマリ
+公的統計＋二次レポート引用中心の現状から、一次調査（Interview/Delphi/Survey）＋Foresight（Scenario/Wildcard）を核とした戦略インテリジェンスへ引き上げる。Porter/RBV/Blue Oceanの世界水準フレームで競合分析を体系化し、Ryotaの提案受注率+40%寄与を品質KPI化。7社×建設業の"未来を先取り"できるリサーチ体制へ。

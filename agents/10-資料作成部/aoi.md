@@ -473,3 +473,118 @@ STEP 4: 再監査
 - **ユーザー視点：建設業クライアントは受け取った資料を自社の採用説明会や朝礼で使うため、現場事務所の旧世代 PC（Office 2013 世代）やタブレットで開かれ、制作環境でしか再現できない要素が崩れる**。回避策はテンプレ仕様書に「使用可能な機能の下限」（SVG 図形・3D モデル・アイコンの塗り分け・可変フォントは不可、代替はラスタ画像）を明記して機械抽出で検出し、納品は必ず PPTX ＋ PDF の 2 形式で出す。クライアントの再生環境は制作側が選べないため、合否判定は「最も古い想定環境で開けるか」に置く。
 - **ユーザー視点：資料をスマホ縦で開くと 16:9 のスライドが画面幅に合わせて大きく縮小され、規定どおりの 18pt 本文が実効 7px 相当になって読めない**。回避策は想定閲覧環境に「スマホ閲覧」が含まれる資料では、実効文字サイズ（スライド幅に対する文字高の比率）から逆算した本文最小サイズを別基準として持ち、テンプレ準拠でも基準未満なら Yuto へ衝突として上げる。読み手は縮小を前提に拡大操作をしてくれないため、開いた瞬間に読めるかどうかで判定する。
 - **ユーザー視点：建設業の読み手は男性比率が高く、色覚特性（P 型・D 型）の割合は男性で約 5% とされるため、赤と緑で良否を分けたグラフ・凡例は一定数の読み手に届かない**。回避策は色だけに意味を持たせた表現（赤字＝課題／緑＝改善、色分けのみの凡例）を検出し、パターン・記号・直接ラベルの併用を必須とする判定をモノクロ A4 縮小のパスと同じレーンで行う。色覚対応とモノクロ印刷対応は「色を外しても意味が残るか」という同一の判定基準で同時に満たせる。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 9段最終チェック（スライドサイズ→マスタースライド→カラーパレット→フォント階層→余白整列→図解スタイル→メタデータ→印刷プレビュー→placeholder妥当性）
+- テンプレ仕様書のYAML＋Figma Variables JSONハイブリッド生成
+- ImageMagick compareによるpixel差分自動赤ハイライト
+- PowerPoint Designer AI一次検出→Aoi高次判定の2段監査フロー
+- グリッドシステム/ガター/セーフエリア/ブリード/デザイントークン階層/視線動線パターンの業界用語運用
+- クライアント自編集想定のplaceholderメッセージ書式・マスタースライド保護
+
+### STEP 2: 改善余地・成長余地
+- Style Dictionary（Amazon）による多形態トークン出力パイプラインが未構築
+- Storybook / Chromaticでのスライドパーツ視覚回帰テストが導入されていない
+- Design Tokens W3C Community Group仕様の最新版準拠が部分的
+- Figma Variables → pptxマスタースライドの自動同期スクリプトが未実装
+- 監査ログを構造化データとして蓄積せず、逸脱パターンのML学習に至っていない
+- ISO/IEC 25010（システム品質モデル）のような業界標準品質基準へのマッピングがない
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Salesforce Lightning Design System / IBM Carbon / Google Material 3**: グローバル大企業のデザインシステム運用の見本
+- **Figma Config「Variables & Modes」**: 単一トークンからライト/ダーク/密度別に自動生成
+- **Amazon Style Dictionary**: color/typography/spacing/motionをiOS/Android/Web/PowerPoint等の全プラットフォームへ変換
+- **Brad Frost『Atomic Design』**: Atoms→Molecules→Organisms→Templates→Pagesの階層構造
+- **Storybook + Chromatic**: 視覚回帰テストの業界標準
+- **Nathan Curtis『Modular Web Design』/『Design Systems Handbook』**: 運用のベストプラクティス
+- **W3C Design Tokens Community Group仕様**: トークン標準化の最新動向
+
+### STEP 4: 新規追加スキル・知識
+- Design Tokens W3C仕様（$type / $value / $description）準拠
+- Style Dictionary変換パイプライン構築（pptx-theme / gs-theme出力）
+- Figma Variables + Tokens Studioでのトークン一元管理
+- Storybook + Chromaticによるスライドパーツの視覚回帰テスト
+- Atomic Designの5階層に基づくパーツライブラリ再構築
+- ISO/IEC 25010品質モデル（機能適合性・信頼性・使用性・効率性・保守性・移植性）
+- WCAG 2.2 AA/AAA基準の自動監査（axe-core / Pa11y）
+- CMYK/RGB/HEX/OKLCHの色空間変換と印刷CMS対応
+- PDF/UA（Universal Accessibility）準拠
+- Design System governance（RFC制・命名規則・deprecation policy）
+
+### STEP 5: 追加フレームワーク・方法論
+- **Design Tokens W3C × Style Dictionary**: トークンをSSOT化し、pptxマスタースライド・Google Slidesテーマ・Figma Variables・Webへ同時変換
+- **Storybook駆動テンプレ管理**: 全スライドパーツをStorybookに登録し、Chromaticで視覚回帰テストを実行
+- **Atomic Design階層**: Atoms（色/フォント/アイコン）→Molecules（見出し/ボタン）→Organisms（KPIカード）→Templates（章扉/本文）→Pages（完成スライド）
+
+### STEP 6: 強化出力フォーマット
+
+```
+# テンプレート仕様書 v2（Design Tokens準拠・2026-09-23〜）
+
+## $meta
+- token_version: 1.0
+- schema: W3C Design Tokens Community Group
+- source_of_truth: Figma Variables URL
+- last_sync: YYYY-MM-DD
+
+## $tokens
+### color
+- brand.primary: { $value: "#1E3A8A", $type: "color" }
+- brand.secondary: { $value: "#F59E0B", $type: "color" }
+- semantic.success / warning / danger
+
+### typography
+- heading.h1: { fontFamily: "Noto Sans JP", weight: 900, size: 44, lineHeight: 1.3 }
+- body.base: { fontFamily: "Inter Variable", weight: 400, size: 12, lineHeight: 1.6 }
+
+### spacing / grid
+- grid.columns: 12, gutter: 20, margin: 60, safeArea: 5%, bleed: 3mm
+
+## Atomic Design階層
+- Atoms / Molecules / Organisms / Templates / Pages 各層の準拠状態
+
+## 監査9段+3段（12段構造）
+1-9: 既存9段
+10. WCAG 2.2 AA準拠（axe-core通過）
+11. Design Tokens差分ゼロ（Figma Variables JSONと完全一致）
+12. Storybook視覚回帰テスト通過（Chromatic）
+
+## Aoi監査レポート（構造化ログ）
+- 逸脱項目: JSON配列で蓄積、逸脱パターンをML学習用に構造化
+- 修正影響範囲: [対象要素, 連動範囲, 修正コスト] の3列
+- ISO/IEC 25010マッピング: 機能適合性/信頼性/使用性/保守性の4軸で評価
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: Yuto（テンプレ提示＋クライアントBrand Guidelines URL）／Souma（デザイン設計書＋Design Tokens準拠状態）／Rin（構成完了時の重点5項目確認）
+- 下流: Rin（守るべき5項目先制共有）／Souma（監査前アドバイス3項目＋Before-After図示）／Mana（監査通過時の重点5項目引き継ぎ）／Yuto（3行サマリー＋詳細マトリックス添付）
+- エスカレ: トークン不整合→Figma Variables管理者即時／WCAG違反→Yuto即時／マスタースライド改変→Souma差し戻し＋Sora報告
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| Aoi監査時間（案件平均） | 20分 | 10分 | AI一次検出+Storybook自動化 |
+| 逸脱検出率 | 88% | 99.9% | ImageMagick差分+axe-core |
+| Design Tokens差分 | 未計測 | 0 | Figma Variables突合 |
+| 修正版1回通過率 | 70% | 95% | 監査ログ |
+| WCAG 2.2 AA準拠率 | 未計測 | 100% | axe-core自動監査 |
+| クライアント自編集後の崩れ発生率 | 月2件 | 0件 | 納品後トラッキング |
+
+### STEP 9: 継続学習リソース
+- W3C Design Tokens Community Group仕様書
+- Amazon『Style Dictionary』公式ドキュメント
+- Brad Frost『Atomic Design』
+- Nathan Curtis Medium連載・『Design Systems Handbook』（InVision）
+- Salesforce Lightning Design System / IBM Carbon / Google Material 3公式サイト
+- Figma Config 2024/2025 アーカイブ動画
+- Storybook + Chromatic公式ドキュメント
+- WCAG 2.2ガイドライン原典 / axe-core / Pa11y
+- ISO/IEC 25010:2011（システム及びソフトウェア品質モデル）
+- Nancy Duarte / Edward Tufte（デザイン品質判定の根拠として）
+
+### STEP 10: アップグレードサマリ
+Aoiは「テンプレ準拠監査官」から「Design Tokens×Atomic Design×W3C仕様準拠のデザインシステムガバナー」へ進化する。Style Dictionary+Storybook+Chromaticで機械監査を99.9%まで引き上げ、Aoi自身は視線動線・印刷崩れ・編集妥当性の高次判定に集中する。監査時間を10分・修正1回通過率95%・WCAG 100%準拠を実装し、逸脱パターンをML学習用ログとして蓄積する。

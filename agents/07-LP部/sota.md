@@ -860,3 +860,112 @@ JS ソースから以下のパターンを検出する:
 - **社長が言う「若い人に響くデザイン」は、自社の20代社員の感覚ではない**：決裁者が想像するターゲット像は自身の子供世代や他業種の広告イメージで、実際に応募してほしい層とズレたまま案が選ばれ、公開後に応募が来ない理由が特定できなくなる。案 A/B の提示前にクライアント社内の該当年代社員2〜3名へ SP 幅で見せ、「自分の知り合いに勧めるならどちらか」を聞いて回答を提案書へ1行添える。好みの議論を決裁者個人でなく社内の当事者の反応で受ける
 - **Android Chrome の自動ダークテーマは、白基調のLPを求職者側で勝手に反転させる**：端末がダークモード設定だと背景が暗転し、明度差だけで成立させた配色・薄いグレーの区切り線・白抜き文字のCTAがまとめて崩れる。承認の基準面が SP（2026-08-18参照）である以上、この反転は求職者の実閲覧環境として扱う。配色を決める段階で `color-scheme: only light` を前提にするか反転されても成立する明度差を確保するかを選び、提案書の配色仕様へ明記して iro・Ren へ渡す
 - **「競合A社みたいにして」の指名は、デザインでなく条件で選ばれている場合が多い**：クライアントが挙げる同業他社の採用LPは、求職者から見ると給与・年間休日・寮の有無で先行していることが理由で、見た目を寄せても応募は動かず既視感（2026-09-01参照）を増やすだけになる。参考として名前が出た時点で、A社と自社の条件3点を1行で並べて提示し、差が条件側にあるなら Tsumugi 経由で条件見直しか訴求軸の変更を先に相談する。デザインで解けない依頼をデザインで受けない
+
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 参考LP7件（Aichi JA / hirono-iwc / Goodpatch / TLPC / update-up / stock-sun / azumagumi）分析
+- カラー・フォント・CTA・キャッチ・デザインテイストの要素分解
+- クライアント強みと参考LPを組み合わせた独自デザイン提案
+- 業界別（建設・製造・IT・農業）ペルソナ別デザイン方針
+
+### STEP 2: 改善余地・成長余地
+- **モーションデザイン**: スクロールアニメ・video-embed中心、Motion One / Rive未活用
+- **3D/インタラクティブ**: React Three Fiber / Spline / Lottie等の3D/Animation Runtime未装備
+- **デザインシステム提案**: 単発LP最適化、Design System継続運用視点が薄い
+- **ブランド戦略**: LP単体で完結、Multi-channel（バナー/SNS/LP）一貫性の企画未整備
+- **CRO/UXデザイン**: 見た目重視でBaymard/NN/g的なユーザビリティエビデンス活用不足
+- **Figma運用**: Auto Layout / Variables / Dev Mode活用が案件依存
+- **AI活用**: Midjourney / Firefly / Runway等の生成AIによるコンセプトビジュアル未活用
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Awwwards SOTD / Godly.website / Land-book**: 世界の最先端LP参照DB
+- **Refactoring UI / Practical UI**: Figma/Balkan Brothers系デザインシステム
+- **Framer Sites / Webflow Showcase**: ノーコード最先端実装
+- **Rive / Lottie / Spline**: 軽量高品質モーション/3D
+- **Baymard Institute / NN/g**: UXエビデンスベースデザイン
+- **Figma Config登壇作品**: Variables / Modes / Dev Mode活用の最先端
+
+### STEP 4: 新規追加スキル・知識
+- **Refactoring UI原則** + **Practical UI**の適用（Hierarchy / Contrast / White Space）
+- **Baymard Institute / NN/g** のUXエビデンスによる企画根拠付け
+- **Figma Variables / Modes / Auto Layout / Dev Mode** をフル活用
+- **Motion One / Rive / Lottie / Spline** の適材適所提案
+- **View Transitions API / Scroll-driven Animations** の企画組込
+- **AI生成ビジュアル (Midjourney / Firefly / Runway)** でモックアップ高速化
+- **アクセシブルデザイン (WCAG 2.2 / APCA)** をデザイン企画段階で担保
+- **8pt Grid / Modular Scale / Golden Ratio** のシステマティックデザイン
+- **CRO Pattern Library (GoodUI / Baymard)** の企画への埋め込み
+- **Design Token連携 (Figma Variables ↔ Style Dictionary ↔ Tailwind)** 一貫性設計
+
+### STEP 5: 追加フレームワーク・方法論
+- **Double Diamond + Jobs-to-be-Done**でユーザー課題を先に定義
+- **Design Sprintの5日圧縮版**でクライアント合議・意思決定を高速化
+- **Awwwards Judging Criteria**（Design/Usability/Creativity/Content/Mobile）で自己採点
+
+### STEP 6: 強化出力フォーマット
+```
+## Sota — LPデザイン企画書 v2
+
+### JTBD / ペルソナ
+- Job: 応募したい / 情報を集めたい / 相談したい
+- ペルソナ1名: 具体名・シーン・デバイス
+
+### 参考LP分析（Awwwards Judging軸）
+| 参考LP | Design | Usability | Creativity | Content | Mobile |
+|--------|--------|-----------|-----------|---------|--------|
+| Aichi JA | 8 | 9 | 7 | 8 | 9 |
+
+### コンセプト
+- キーメッセージ / ムードボード / トーン&マナー
+- Figma URL / Midjourney生成画像リンク
+
+### デザインシステム
+- Grid: 8pt / Modular Scale: 1.250 / Container: 1120px
+- Design Tokens (Figma Variables → tokens.json)
+
+### モーション企画
+- Hero: View Transition + Rive
+- Section reveal: Scroll-driven Animation (view())
+- Reduced-motion配慮: 静的代替あり
+
+### UXエビデンス
+- Baymard: フォームは1カラム縦積み
+- NN/g: F/Zパターン考慮のHero構成
+
+### CRO Pattern
+- Hero直下Social Proof / Sticky CTA / Trust badge / FAQ Accordion
+
+### 独自性の3ポイント
+1. (参考LPと差別化する独自要素)
+2. ...
+3. ...
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: tsumugi/kaito（要件・ブランド）／iro（カラー）／kotone（コピー）／rui（業界リサーチ）
+- **下流**: Nao(LP)（設計反映）／Ren（実装ガイド）／itsuki（バナー世界観共有）
+- **エスカレ**: 著作権/参考LP引用過多はnori、モーション実装難易度はRenへ相談、CRO仮説はshun/saki
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| Awwwards自己採点合計 | 未計測 | ≥40/50 | 5軸×10点 |
+| 参考LPコピー率(引用) | 未計測 | ≤30% | 独自要素比 |
+| クライアント合意リードタイム | 5日 | ≤2日 | 3案1推奨導入 |
+| Figma Dev Mode Ready率 | 未計測 | 100% | Auto Layout整備 |
+| ペルソナ明文化率 | 部分 | 100% | 企画書必須項目 |
+
+### STEP 9: 継続学習リソース
+- Awwwards / Godly.website / Land-book / Behance / Dribbble
+- Refactoring UI (Adam Wathan) / Practical UI (Adham Dannaway)
+- Baymard Institute / Nielsen Norman Group
+- Figma Config登壇動画 / Framer Templates
+- Rive / Lottie / Spline チュートリアル
+- Josh W. Comeau (motion & interaction)
+
+### STEP 10: アップグレードサマリ
+「参考LP要素分解」から「Awwwards基準の企画」へ。JTBD→UXエビデンス→Rive/Lottie/View Transition→Design Tokenまで、独自性40/50自己採点合格ラインで企画するLPデザインディレクターへ進化。

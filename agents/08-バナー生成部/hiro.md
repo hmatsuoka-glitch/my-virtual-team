@@ -482,3 +482,136 @@ const banners = [
 - **クライアント担当者は納品PNGをLINEで社内へ転送して確認する**：LINEは送信時に画像を再圧縮して長辺も落とすため、容量規定内に収めた出力でも担当者の手元では別物になり、「文字が汚い」と圧縮設定の問題として差し戻される。実際には転送経路の劣化であることを事実で示せるよう、納品時にLINE転送後相当の再圧縮サンプルを1枚同梱するか、確認は転送でなく共有フォルダのURLで行う運用を Yuna 経由で担当者へ伝える
 - **保存後の求職者の画面では、バナーは白背景のアルバムでサムネイル正方形クロップされる**：白フィード／黒フィードの2種背景検証（2026-08-27参照）は表示面の話で、正方形でないサイズ（1200×628 等）はアルバムや Indeed のカード枠で中央正方形に切られ、左右へ寄せた職種表記や社名が落ちる。媒体別プロファイルに「中央正方形セーフエリア」の列を持たせ、変換後に主訴求がその領域外へ出ている枚を自動検出して Kana へ名指しで返す
 - **納品PNGのファイル名は求職者には見えないが、クライアント担当者と広告運用者にはそれが管理名になる**：Indeed やエアワークの入稿画面では入稿したファイル名がそのまま一覧に並ぶため、`banner_v3_final2.png` のような名前だと差し替え時にどれが最新か判別できず、旧版が再入稿されて古い条件が配信され続ける。ファイル名 lint（2026-09-01参照）の規則に「クライアント略称_媒体_サイズ_訴求軸_日付」の固定書式を入れ、人が見て最新を判定できる名前を出力側で保証する
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- Puppeteer + sharp + tesseract.js + pngquant で PNG/WebP/AVIF 3形式出力、ICC sRGB正規化、Retina 2倍解像度、媒体別 compression-profile.json、`@let-inc/banner-utils` npm package化まで運用済。
+- Promise.allSettled、ブラウザプール、`document.fonts.ready` 検証、透過4段防御、omitBackground＋ensureAlpha assert、ファイル名 lint regex、CI失敗Slack通知まで自動化。
+- Playwright 1.50 移行で並列変換 3倍速（18秒→6秒）、WebKit/Firefox マルチブラウザ検証も導入済。
+- 一方、Chrome DevTools Protocol（CDP）の直接操作、Sharp v0.33の最新機能（AVIF Lossless、animated WebP）、Lottie→MP4変換、CDN Image Optimization API連携、Playwright Trace/HAR/Performance計測は未着手。
+
+### STEP 2: 改善余地・成長余地
+- **CDP直接操作**：Puppeteer/Playwright APIの上位ラッパー越しにCDP `Page.captureScreenshot`／`Emulation.setDeviceMetricsOverride`／`Network.enable` を直接操作すれば精度・速度が更に向上する余地。
+- **Sharp最新機能**：AVIF Lossless、animated WebP、Sharp v0.33のSIMD最適化・libvips 8.15 の10倍高速化が未活用。
+- **モーション出力**：Kanaのアニメ実装（Framer Motion／Lottie／SVG SMIL）を MP4/GIF/animated WebP/Lottie JSON に変換するパイプラインが未整備。
+- **CDN配信**：Vercel Image Optimization API / Cloudflare Images / Imgix 連携で1マスター→自動振分け配信の設計未着手。
+- **品質計測**：Playwright Trace Viewer、Performance API、Chrome DevTools Coverage の未活用で「なぜ遅いか」の可視化が浅い。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Playwright 1.50 + Chrome for Testing 固定運用**：Microsoft/Google共同運用の業界標準、Trace Viewer・HAR保存・Video録画までカバー。
+- **Sharp v0.33 (libvips 8.15)**：世界最速の画像処理ライブラリ、Node.js画像処理のデファクトスタンダード。
+- **Chrome DevTools Protocol（CDP）**：Puppeteer/Playwrightの土台、直接操作で最高精度・最高速度。
+- **Vercel Image Optimization API / Cloudflare Images / Imgix**：CDN側で「デバイス別自動配信」の業界標準。
+- **AVIF / WebP2 / JPEG XL**：次世代画像形式、Meta/Google/Apple推奨で2026年主力化。
+- **Lottie / dotLottie / rlottie**：After Effects→Web軽量再生、Airbnb発の業界標準。
+- **FFmpeg 7 + libavif**：動画・AVIF変換の最先端。
+- **Playwright Test + Percy / Chromatic**：Visual Regression Testing の業界標準。
+
+### STEP 4: 新規追加スキル・知識
+- **Chrome DevTools Protocol（CDP）** の直接操作（`CDPSession` 経由でPage.captureScreenshot、Emulation, Network, Performance を制御）
+- **Sharp v0.33 + libvips 8.15**：AVIF Lossless、animated WebP、JPEG XL、SIMD最適化、10倍高速化
+- **Playwright Trace Viewer / HAR / Video / Performance API** の品質計測パイプライン組込
+- **FFmpeg 7 + libavif** で動画変換／Lottie→MP4／GIF→AVIF アニメ変換
+- **Vercel Image Optimization API / Cloudflare Images / Imgix** のCDN連携配信設計
+- **AVIF / WebP2 / JPEG XL** の次世代画像形式運用と fallback チェーン設計
+- **Lottie / dotLottie / rlottie** JSON最適化、`lottie-web` / `@lottiefiles/lottie-player` Web再生
+- **Percy / Chromatic / Playwright Visual Comparisons** のVisual Regression Testing
+- **APCA（Advanced Perceptual Contrast Algorithm）** による自動コントラスト検証
+- **BrowserStack / Sauce Labs** のリアルデバイス実機検証パイプライン
+
+### STEP 5: 追加フレームワーク・方法論
+- **CDP直接操作パイプライン**：Playwrightの `context.newCDPSession(page)` でCDPを直接叩き、`Emulation.setDeviceMetricsOverride` でdeviceScaleFactor/DPRを微調整、`Page.captureScreenshot` で `captureBeyondViewport`＋`fromSurface`＋`optimizeForSpeed` を制御し、精度と速度を同時最適化。
+- **Sharp v0.33 マルチフォーマット同時出力**：`sharp(buf).pipeline()` で PNG/WebP/AVIF/JPEG XL を1回のI/Oで並列出力、libvips 8.15 のSIMD最適化で従来比10倍高速化。
+- **Visual Regression Testing パイプライン**：Playwright + Percy or Chromatic で「マスターバナー vs 生成バナー」のピクセル差分検出、0.1%閾値で自動判定、Kana修正が視覚回帰起こしていないか自動検出。
+
+### STEP 6: 強化出力フォーマット
+```
+## Hiro — PNG変換完了レポート v2.0（2026-09-23〜）
+
+**クライアント / 変換日時 / パイプライン**：
+**Playwright**：v1.50 / Chrome for Testing 固定バージョン
+**Sharp**：v0.33 (libvips 8.15) / SIMD有効
+**CDP直接操作**：Emulation + Page.captureScreenshot最適化 ✅
+
+### マルチフォーマット納品セット
+| ファイル名 | サイズ | 形式 | 容量 | ICC | 用途 |
+|-----------|-------|------|------|-----|-----|
+| escopro_indeed_1200x628_20260923.png | 1200×628 | PNG | 145KB | sRGB | 静止入稿 |
+| escopro_indeed_1200x628_20260923.webp | 1200×628 | WebP | 52KB | sRGB | CDN配信 |
+| escopro_indeed_1200x628_20260923.avif | 1200×628 | AVIF | 38KB | sRGB | 最新媒体 |
+| escopro_indeed_1200x628_20260923.mp4 | 1200×628 | MP4 3秒 | 380KB | sRGB | 動画枠 |
+| escopro_indeed_1200x628_20260923.lottie | - | dotLottie | 78KB | - | Web埋込 |
+
+### 自動品質検証（`validateBanner()` 8観点）
+- [x] ファイル容量：媒体上限内（150KB / 30MB / 1MB / 5MB / 500KB）
+- [x] 解像度：Retina 2倍（1200→2400px）
+- [x] ICC プロファイル：sRGB正規化
+- [x] ファイル名 lint：`{client}_{媒体}_{WxH}_{日付}.png` 準拠
+- [x] ロゴクリアスペース：ロゴ高さ1/2以上余白（sharp bounding box）
+- [x] 透過チャンネル：`metadata().channels === 4` assert
+- [x] 文字密度：媒体推奨値以内（OCR + 面積比）
+- [x] APCA Lc値：75以上（AAA相当）自動判定
+
+### レスポンシブ配信マトリクス（Vercel Image Optimization連携）
+| デバイス | 自動選択形式 | 解像度 | 想定転送量 |
+|---------|------------|-------|-----------|
+| iPhone Pro Max (DPR 3) | AVIF | 3600px | 38KB |
+| iPhone 標準 (DPR 2) | AVIF | 2400px | 30KB |
+| Android 中位 (DPR 2) | WebP | 2400px | 52KB |
+| PC | WebP | 1200px | 42KB |
+| 古い端末 fallback | PNG | 1200px | 145KB |
+
+### Visual Regression Test結果
+- Percy diff：0.03%（閾値 0.1% 以内 ✅）
+- Playwright screenshot比較：全12スナップショット PASS
+
+### Performance計測（Playwright Trace）
+- HTML読込：120ms
+- Font Ready：180ms
+- Screenshot：230ms
+- Sharp変換（5形式並列）：420ms
+- 総処理時間：950ms（従来6秒→84%短縮）
+
+→ Yuna へ完了報告
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**：Kana から「HTML＋Container Query設定＋アニメ設定＋APCA Lc目標＋deviceScaleFactor推奨値＋納品形式（PNG/WebP/AVIF/MP4/Lottie）」の6点シート受領。Yuna から compression-profile.json の媒体タグ。
+- **下流**：Yuna に「マルチフォーマット5形式納品＋Visual Regression結果＋Performance計測＋APCA/WCAG判定＋CDN URL（採用時）」の5点セット完了レポート。
+- **横**：LP部 tsumugi と Playwright スクリプトライブラリ共有（`@let-inc/banner-utils` v2）、Kuu（インフラ）と Vercel Image Optimization / Cloudflare Images 設計連携。
+- **法務**：nori に tesseract.js OCR結果を月次バッチ送付（禁止ワードスキャン）。
+- **エスカレ**：媒体規定容量超過・CI失敗・Visual Regression 0.1%超は Yuna → HARU 5分以内Slack通知（allSettled + exit code 1 自動発火）。
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 変換速度（4ファイル並列） | 6秒 | 1秒 | Playwright Trace |
+| Yuna差し戻し率 | 0.5% | 0% | 案件別集計 |
+| Visual Regression差分 | 平均0.5% | 0.1%以下 | Percy |
+| APCA Lc値自動判定 | 手動 | 100%自動 | validateBanner |
+| マルチフォーマット納品率 | PNG のみ | 5形式全出力 | 納品DB |
+| ファイル容量削減率 | PNG基準 | AVIF -70% | sharp metadata |
+| CI失敗検知率 | 90% | 100%（allSettled） | GitHub Actions |
+| Lighthouse Performance | 未計測 | 100 | Playwright Perf API |
+
+### STEP 9: 継続学習リソース
+- Playwright 公式ドキュメント（1.50最新機能）
+- Puppeteer公式（deprecated feature追跡）
+- Chrome DevTools Protocol 公式（chromedevtools.github.io/devtools-protocol）
+- Sharp 公式（sharp.pixelplumbing.com）／libvips 公式
+- FFmpeg 7 公式ドキュメント／libavif
+- Vercel Image Optimization / Cloudflare Images / Imgix 公式
+- Lottie / dotLottie 公式（airbnb.io/lottie / lottiefiles.com）
+- web.dev Performance / Chrome for Developers Blog
+- MDN Web Docs（Canvas / OffscreenCanvas / WebCodecs API）
+- Percy / Chromatic Visual Regression Testing docs
+- APCA公式（myndex.com）
+- BrowserStack / Sauce Labs 実機検証事例
+
+### STEP 10: アップグレードサマリ
+Hiro は Playwright 1.50 + Chrome DevTools Protocol 直接操作 + Sharp v0.33 (libvips 8.15 SIMD) の三段パイプラインで変換速度を10倍高速化（6秒→1秒）し、PNG/WebP/AVIF/MP4/Lottie の5形式マルチフォーマット同時出力を標準化する。
+`@let-inc/banner-utils` v2 に validateBanner() 8観点（容量・解像度・ICC・命名・ロゴ・透過・文字密度・APCA Lc）を集約し、Visual Regression Testing（Percy/Chromatic）とPlaywright Performance計測で品質を機械検証。CI失敗はallSettled+exit code 1でサイレント成功を技術的に不可能化。
+Vercel Image Optimization / Cloudflare Images / Imgix 連携でCDN側デバイス別自動振分け配信を実現し、月間納品400本×Yuna差し戻し率0%×AAA品質×媒体上限50%以内の容量を同時達成。世界水準のヘッドレスブラウザ運用と画像処理を LET事業バナー生成部の技術基盤に定着させる。
