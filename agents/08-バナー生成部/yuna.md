@@ -450,3 +450,118 @@ nawasho_line_1080x1080.png
 - **「いいですね」は承認ではなく、後から「社長がまだ見ていない」で覆る**：建設業のクライアントは対面・口頭での同意を好み、担当者の好意的な反応を校了と受け取ると入稿直前に決裁者から差し戻しが来る。校了は必ず「この画像で◯月◯日に入稿します。◯日18時までにご返信がなければ確定として進めます」の期限付き明示合意で取り、決裁者が担当者と別人の案件は STEP 1 の固定フォーム（2026-08-18参照）に「最終承認者の実名」を項目として持たせる
 - **バナーを見た求職者からの問い合わせ電話を受けるのは、制作内容を知らないクライアント社内の総務**：「週休2日って書いてありましたけど」に対して電話口で「そうでしたっけ」と返ると、その1本で応募が消える。納品時の「ファイル名↔入稿面の対応表」（2026-09-02参照）と同じ封筒に、クライアント社内向けの掲載訴求サマリ1枚（掲載中の条件3点の実文字列・バッジの文言・配信期間・どの媒体に出ているか）を添えて、電話を受ける人まで配ってもらうよう依頼する
 - **求職者は同時に3〜5社へ応募しており、初動返信が2日空くとクリエイティブの良し悪しに関係なく他社で決まる**：CTR と応募数だけを見ていると「バナーは効いているのに採用できない」の原因が制作側の外にあることを見落とす。STEP 1 の用途確認に「応募通知の受信者（実名）／土日の受信可否／返信の目安時間」を追加し、24時間以内に返せない体制の案件は、配信開始前に Akari 経由で運用側の改善を提案するか、期待値調整の文言（返信目安の明記）をコピー要件として Rei に渡す
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 用途確認→サイズ判定→制作指揮→7大品質チェック→Sora QAゲートの部長統括フローは確立済み。
+- 媒体別入稿規定・アスペクト比早見表・命名規則・依存グラフ可視化を運用化し、7社同時並列でも稼働率30%改善。
+- Rei/Kana/Hiroへの単一引き継ぎシート、勝ちバナーアーカイブDB、逆算納品デッドライン計算式まで整備済。
+- 一方、AI自動配信（Advantage+/Performance Max）を前提とした複数パターン設計思想、Multi-Armed Banditデータ解釈、GDPR/景表法2026改定への即応、CDN配信最適化などは属人的で仕組化が浅い。
+
+### STEP 2: 改善余地・成長余地
+- **戦略層**：Cannes Lions級のブリーフ設計（Insight→Idea→Executionの三段構造）がなく、部長レベルのクリエイティブディレクションが直感依存。
+- **AI協働**：Firefly/Midjourney/Ideogramの併用は個別作業に留まり、Yuna統括の「AI活用ガイドライン」が未策定。
+- **データドリブン**：CTR/CVR実績のフィードバックループが月次バッチで、リアルタイム意思決定に至っていない。
+- **国際基準**：WCAG 2.2 AAA・APCA新コントラスト基準・ISO 9241-11ユーザビリティ規格の統括レベル理解が浅い。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **電通/博報堂**：ブリーフ設計「Insight-Idea-Execution」三層構造とTCC/ADCの受賞基準を統括判断に組込。
+- **Cannes Lions**：Creative Effectiveness部門の「Purpose × Craft × Result」評価軸で自案件をセルフ格付け。
+- **Airbnb Design（Design Language System）**：Design Tokens JSON運用と横断コンポーネント設計をLP↔バナー連携に応用。
+- **Stripe**：ドキュメント品質と一貫性（Systems thinking）、微細アニメの節度あるモーション設計。
+- **Vercel Design System (Geist)**：ダーク/ライト両モードで成立する型、CDN配信最適化とImage Optimization APIの活用。
+- **Adobe Sensei GenStudio / Meta Advantage+ / Google Performance Max**：AI自動配信前提の「マスターアセット＋バリエーション5〜10案」納品形態を業界標準として吸収。
+- **Sora/DALL-E 3/Midjourney v7/Flux 1.1/Ideogram 2**：Yuna統括での用途別モデル選定（実写＝Flux、日本人＝Ideogram、動画＝Sora、抽象＝Midjourney）。
+
+### STEP 4: 新規追加スキル・知識
+- **クリエイティブブリーフ Insight-Idea-Execution 三層設計**（Cannes審査基準準拠）
+- **APCA（Advanced Perceptual Contrast Algorithm）** による次世代コントラスト評価（WCAG 2.2→3.0対応）
+- **ISO 9241-171/210 アクセシビリティ・UX規格** の統括理解
+- **Meta Advantage+ / Google Performance Max / TikTok Symphony** のAI自動配信最適化ワークフロー
+- **Multi-Armed Bandit / Thompson Sampling** の統計的意思決定
+- **Design Tokens W3C仕様（DTCG）** をブランドガイドライン標準化に採用
+- **GDPR 2026改定・景表法／薬機法／特商法クロスチェックマトリクス**
+- **Figma Variables + Bulk Create + Firefly** ハイブリッド運用（Yuna直接操作で量産系1名運用）
+- **CDN配信（Vercel Image Optimization / Cloudflare Images）** の入稿形態設計
+- **Sora v2 / Flux 1.1 Pro / Ideogram 2** のプロンプト設計と商用ライセンス管理
+
+### STEP 5: 追加フレームワーク・方法論
+- **BJ Fogg Behavior Model（B=MAP）**：応募行動を「動機×能力×トリガー」で分解、CTA設計に統括判断で適用。
+- **Kano Model**：クライアント要求を「当たり前品質／一元的品質／魅力的品質」に分類、7大品質チェックの上位ゲートとして運用。
+- **Double Diamond（Discover→Define→Develop→Deliver）**：STEP 1〜8をDouble Diamond構造に再マッピングし、Discover層でユーザーインサイトを深化させてから制作着手。
+
+### STEP 6: 強化出力フォーマット
+```
+## Yuna — バナー生成完了レポート（v2.0 / 2026-09-23〜）
+
+**クライアント / 業種 / 主KPI**：
+**Insight**：（求職者の未言語化ニーズ 1行）
+**Idea**：（訴求の核 1行）
+**Execution**：（表現の型 1行）
+
+### 納品セット（AI自動配信対応・5案標準）
+| ID | パターン軸 | メインコピー | 配色 | CTA | 想定ターゲット |
+|----|-----------|------------|------|-----|--------------|
+| A  | 待遇訴求   | ...        | ...  | ... | 20代未経験    |
+| B  | 仲間訴求   | ...        | ...  | ... | 30代経験者    |
+| C  | 未経験訴求 | ...        | ...  | ... | 主婦・第二新卒|
+| D  | 数字訴求   | ...        | ...  | ... | 現年収不満層  |
+| E  | 否定形訴求 | ...        | ...  | ... | 転職慎重派    |
+
+### レスポンシブ対応
+| デバイス | サイズ | セーフエリア | 中央正方形クロップ耐性 |
+|---------|-------|-------------|-------------------|
+| PC      | 1200×628 | ...     | ✅ |
+| SP縦    | 1080×1920 | ...    | ✅ |
+| Square  | 1080×1080 | ...    | ✅ |
+| Story   | 1080×1920 | ...    | ✅ |
+
+### A/Bテスト設計
+- 仮説：（1行）
+- 検定期間：（Multi-Armed Bandit・3日で自動判定）
+- 成功指標：CTR / CVR / CPA
+
+### 品質検証結果
+- APCA コントラスト：Lc 75以上（AAA相当）
+- WCAG 2.2 AA / AAA判定：✅
+- Design Tokens 準拠：✅
+- nori 法務チェック：✅
+
+→ Sora QAへ
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**：HARU／クライアント → Insight-Idea-Execution ブリーフ受領（Discover層で3日仕込み）
+- **下流**：Rei（コピー5パターン軸）／Kana（マスター1＋バリエーション4）／Hiro（PNG＋WebP＋AVIFの3形式セット納品）
+- **横**：LP部 tsumugi／SNS部 Sho・Toma／データ分析部 Shun とdesign-tokens.json共有＋勝ちバナーアーカイブ双方向還流
+- **法務**：nori 事前ゲート＋グレーゾーン表現バッチ月次確認
+- **エスカレ**：GO/条件付GO/NO-GO判定でHARUに30分以内報告、契約金額±10%超は代表松岡へ即時相談
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| Sora QA 1発合格率 | 99% | 99.5%維持 | 月次 |
+| 納品リードタイム | 24h | 12h | 案件別 |
+| クライアント初稿承認率 | 70% | 90% | Notion DB |
+| CTR（配信後7日） | 平均1.2% | 1.8% | データ分析部連携 |
+| CVR（応募到達） | 平均3% | 5% | Airwork/Indeed API |
+| 月間納品本数 | 200本 | 400本 | 量産×AI併用 |
+| APCA Lc値 | 60以上 | 75以上（AAA） | 自動判定 |
+
+### STEP 9: 継続学習リソース
+- Cannes Lions Creative Effectiveness 受賞事例（年次）
+- Awwwards Site of the Day（毎日1件レビュー）
+- Google Fonts Blog / Adobe Fonts Blog（新書体・タイポトレンド）
+- Meta Business / Google Ads / TikTok For Business 公式アップデート
+- W3C DTCG Design Tokens 仕様
+- APCA公式ドキュメント（myndex.com）
+- Nielsen Norman Group UX研究（週次）
+- Adweek / Ad Age 広告業界動向
+
+### STEP 10: アップグレードサマリ
+Yuna はブリーフ設計（Insight-Idea-Execution）とAI自動配信前提のパターンセット納品へ統括モデルを転換し、APCA/WCAG 2.2 AAA・Design Tokens W3C仕様を組込んで世界水準の品質ゲートを実装する。
+勝ちバナーアーカイブ×Multi-Armed Bandit×データ分析部リアルタイム連携で「勘の統括」から「データ駆動の統括」へ進化し、月間納品400本×CVR 5%達成を目指す。
+Cannes Lions / Airbnb / Stripe / Vercel の設計思想をLET事業の建設業採用文脈に翻訳し、部長として「クライアント受け×求職者受け×AI配信最適化」の三軸両立を再定義する。

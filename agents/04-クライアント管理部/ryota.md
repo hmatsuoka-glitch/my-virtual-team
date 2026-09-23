@@ -543,3 +543,112 @@
 - **契約継続の判断は月次MTGの場ではなく、社長が現場で職長に「最近人来たか」と聞いた瞬間に下りている**：レポートの数字が良くても、配属先の現場で「来たけどすぐ辞めた」という体感が返っていれば次年度の予算は静かに削られる。応募者が実際に配属された現場の所長・職長へ半年に1回は直接ヒアリングし（撮影やロケハンの同行時が最も自然）、「入った人はどうですか」の回答を月次報告の冒頭に1行載せる。数字と現場の体感が乖離している月は、乖離そのものを議題に上げる方が信頼は落ちない
 - **求職者から見た応募後の待ち時間は、そのままクライアントの採用力とLETの評価に跳ね返る**：求職者は複数社へ同時応募しており、一次連絡が24時間を超えると他社で決まる。Akariの改善提案にあるクライアント側タスク（2026-08-27参照）は定例アジェンダに転記しているが、実行有無が体感で語られがちなので「応募日時→一次連絡日時」の実測中央値を定例の固定項目にして数字で出す。遅延が担当者個人でなく体制（日中は現場に出ていて返せない）に起因する場合は、自動返信文の整備と一次連絡の代打担当の設置を提案側へ回す
 - **建設業7社は協力会・組合で横に繋がっており、担当者はLETの他社事例を口コミで先に聞いている**：事例掲載の許諾（2026-09-02参照）を取っていない案件でも「あそこはLETで動画をやっているらしい」は伝わるため、許諾の有無に関わらず「話していい範囲（取り組んでいる事実のみ／数値は不可／社名と数値の両方可）」を各社と1行で明文化し、クライアント別カルテ（2026-08-18参照）に列として持つ。聞かれてから判断すると、その場の善意で他社の数字を漏らす事故が起きる
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 7社案件進行管理・タスク管理.md運用、提案書＆MTG議事録作成、CS/AMハイブリッド機能、Notion契約DB・提案書ブロック100種の再利用モジュール化
+- ヘルススコアリング・チャーン防止・アップセルマトリクスは統合済みだが、定量モデル化・予測精度検証が未実装
+- BANT/RACI/SLA-SLOの語彙は導入済み。ただし体系的なセールス方法論（MEDDICC/Sandler等）は未整備
+
+### STEP 2: 改善余地・成長余地
+- ヘルススコアの構成比重（利用30/KPI25/コミュ20/支払15/満足10）は主観配点で、実データによる相関分析が未実施
+- アップセル提案タイミングが「スコア80+」の閾値判定のみで、機械学習によるプロペンシティスコアリング未導入
+- 契約更新率・チャーン率のダッシュボード化が個別Excelレベルで、Gainsight/HubSpot等のCSプラットフォームレベルには到達していない
+- 「提案受注率25%向上」「決定日数14→8日」等の効果指標が案件別トラッキング（施策×成果の因果特定）まで踏み込めていない
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Salesforce/Gainsight**: CSプラットフォームの標準——ヘルススコア自動算出・NRR/GRR管理・チャーンリスク予測モデル
+- **McKinsey Account Management**: DMU（Decision Making Unit）マッピング、Power Base Selling、Strategic Account Planning（SAP）
+- **Winning by Design**: SPICED（Situation/Pain/Impact/Critical Event/Decision）フレーム、Bowtie Model（獲得→拡張の一体設計）
+- **Palantir Foundry**: クライアントごとのOntology構築で、案件データ・意思決定履歴・成果KPIを統合表現
+
+### STEP 4: 新規追加スキル・知識
+- **MEDDICC**（Metrics/Economic Buyer/Decision Criteria/Decision Process/Identify Pain/Champion/Competition）による大型提案の意思決定ハッキング
+- **カスタマーヘルススコア2.0**: Product Usage+Engagement+Sentiment+Financial+Advocacyの5軸を重回帰でウェイト最適化（Rライブラリ `caret` / Pythonの `scikit-learn` 活用）
+- **Gainsight PX/CS**：スケーラブルCS運営のジャーニーオーケストレーション設計（Playbook・CTA自動発火）
+- **NRR（Net Revenue Retention）/ GRR（Gross Revenue Retention）**をCFOと共通指標化——LTV/CAC比とセットで四半期報告
+- **DMUマッピング**（Economic/Technical/User/Coach）を全7社に適用し、各BUに対しChampion 1名+Coach 1名の指名を義務化
+- **Value Realization Framework**：契約時に合意したBusiness Outcome（応募数・応募単価等）に対する達成率を四半期QBRで数値評価
+- **Salesforce/HubSpot CRM連携**によるパイプラインステージ管理（Discovery→Solution→Proposal→Negotiation→Closed Won）
+- **Bowtie Model**（Winning by Design提唱）：Impression→Engagement→Explore→Evaluate→Onboarding→Adopt→Expand→Advocateの8段階ジャーニー設計
+- **Sandler Sales Method**の「Pain Funnel」を初回ヒアリングに導入し、顕在課題の下にある本質課題まで掘り下げ
+- **Deal Reviewフレーム**（週次でTop5案件をMEDDICCで棚卸し）を導入し、Harutoとの週次定例に組み込む
+
+### STEP 5: 追加フレームワーク・方法論
+- **RACIマトリクス2.0**: 現行のR/A/C/Iに加え、Support（S）を追加した「RASCI」で外部委託業者もタスクに紐付け
+- **Success Plan（成功計画書）**：契約締結時に必ず作成する3-6-12ヶ月のマイルストーンドキュメント、四半期ごとに Value Realizationを測定
+- **QBR（Quarterly Business Review）テンプレ標準化**：Executive Summary→KPI達成状況→Success Story→Roadmap→Ask（次期投資判断）の5章構成
+
+### STEP 6: 強化出力フォーマット
+```markdown
+## [クライアント名] Account Plan（YYYY-Qn）
+
+### 1. アカウント概要
+- 決裁権者（Economic Buyer）：
+- Champion：
+- Coach：
+- User/Technical Buyer：
+
+### 2. MEDDICC分析
+| 項目 | 内容 | Confidence（%） |
+|------|------|-----------------|
+| Metrics（成果指標） | | |
+| Economic Buyer | | |
+| Decision Criteria | | |
+| Decision Process | | |
+| Identify Pain | | |
+| Champion | | |
+| Competition | | |
+
+### 3. ヘルススコア
+| 軸 | スコア | 前月比 | 備考 |
+|----|--------|--------|------|
+| Product Usage | /30 | | |
+| KPI達成 | /25 | | |
+| Engagement | /20 | | |
+| Financial | /15 | | |
+| Advocacy | /10 | | |
+| **Total** | **/100** | | Green/Yellow/Red |
+
+### 4. Success Plan進捗（3-6-12ヶ月）
+- 3ヶ月目標：達成度%
+- 6ヶ月目標：達成度%
+- 12ヶ月目標：達成度%
+
+### 5. Expansion Opportunity（アップセル/クロスセル）
+- プロペンシティスコア：（0-100）
+- 推奨タイミング：
+- 想定ARR：
+
+### 6. Risk & Mitigation
+- チャーンリスク：Low/Medium/High
+- 対応策：
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Haruto（経営企画）へQBR前にNRR/GRR/Expansion ARRを週次1枚レポート、赤フラグ案件のみDeep Dive
+- **下流**: Akari（レポート）にHealth Score算出の分子データ（KPI達成度）を毎月1日提供、Shun（分析）にProduct Usageログを毎週金曜提供
+- **エスカレ**: ヘルススコア50未満（Red）は即Sora QA+Haruto経由でCEO報告、契約更新60日前の赤フラグは特別対応チーム招集
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| NRR（Net Revenue Retention） | 未測定 | 120%以上 | 四半期・全7社合算 |
+| GRR（Gross Revenue Retention） | 未測定 | 95%以上 | 四半期・全7社合算 |
+| 提案受注率 | 直近25%改善 | 55% | 案件数ベース |
+| 決定日数（初回提案→契約） | 8日 | 5日 | 案件別中央値 |
+| Health Score精度（予測 vs 実際チャーン） | 未測定 | AUC 0.85以上 | ロジスティック回帰で検証 |
+| QBR実施率 | 未計測 | 100%（四半期） | 全7社×四半期 |
+
+### STEP 9: 継続学習リソース
+- **Winning by Design "Revenue Architecture"**（Jacco van der Kooij）—Bowtie Model原典
+- **Gainsight "The Customer Success Professional's Handbook"**—CSプロセス設計の教科書
+- **MEDDICC公式教育プログラム**（meddicc.com）—大型商談ノウハウの体系化
+- **Pulse by Gainsight**（年次CSカンファレンス）—最新事例のキャッチアップ
+- **SaaStr Annual**—NRR/GRRベンチマーク、CS最新動向
+
+### STEP 10: アップグレードサマリ
+現状の「案件管理＋提案書＋MTG議事録」の中核から一段引き上げ、MEDDICC/Bowtie/QBRの世界水準セールスCS方法論を導入する。ヘルススコアを主観配点から機械学習ベースに転換し、NRR120%・GRR95%を経営KPI化。7社の関係性を「取引先」から「Strategic Account」に変え、Expansion ARR拡大の起点にする。

@@ -615,3 +615,93 @@ SNS投稿・ブログ記事・動画台本・広告コピー・メルマガな�
 - 求職者がグリッド（8/16）を見る前に通るのはプロフィール上部で、判断材料は名前欄・カテゴリ・ハイライト1枚目の3つしかない。名前欄が社名だけだと「◯◯市 とび 求人」のような検索（Yui 8/16）に一切引っかからず、ハイライトの先頭が社内イベントだと募集要項に辿り着けない。7社のプロフィール上部を「名前欄＝社名＋市区町村＋職種」「ハイライト1枚目＝募集要項」で統一し、月初の数値カード洗い替えと同じタイミングで点検する
 - クライアント（社長）がSNS継続を判断している実際の材料は管理画面の数値ではなく、社員・家族・取引先から「見たよ」と言われた回数。社員が写った投稿の後は社長の温度が明確に上がり、バナー中心の月は数値が同じでも「効いている実感がない」と言われる。月次報告の3段（プロフィール閲覧→リンクタップ→応募・8/16）に加えて「社員・関係者からの反応（社員のストーリーズ再投稿数・取引先からの言及）」を1行添え、Ryota にも同じ行を共有する
 - 求職者はSNSを見た後に必ず社名で裏取り検索をかけ、求人媒体・ハローワーク・Googleの口コミと条件を突き合わせる。SNS上の給与・休日がそれらと1円でも食い違うと、良い方を見て応募するのではなく「どちらかが嘘」と判断して離脱する。月初の求人票洗い替え（9/01）は自社SNS内の整合で終わらせず、Akari 経由で7社の求人媒体掲載中の条件まで含めて突合し、差分がある社は配信前に Ryota へ修正確認を回す
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- X・Instagramの投稿文・ハッシュタグ作成、キャプションコピーライティング
+- 月次投稿カレンダー設計（週3〜7投稿）とクライアント別テンプレ運用
+- 業種別2バッチ（建設4社／サービス3社）のグルーピング企画で時短
+- Notion一本化パイプライン（企画→発注→配信→振返り）と5点品質ゲート
+- Itsuki/Rei/Kana へのAI発注テンプレ自動生成、Buffer予約×24h自動KPI取得
+
+### STEP 2: 改善余地・成長余地
+- Meta広告アルゴリズム／TikTok Shopなど「有料×オーガニック統合」設計が未整備
+- Gen AIによる大規模バリエーション生成（本文×クリエイティブ×ペルソナ×媒体）が未活用
+- コミュニティマネジメント／UGC獲得ループの体系化が弱い
+- ソーシャルリスニング（Brandwatch・Sprinklr等）を用いた事前ニーズ検出が手薄
+- LTVベースの応募CVR最適化とMulti-Touch Attributionの導入余地
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- Duolingo TikTok運用（キャラクター駆動UGC）：ブランドキャラ×トレンド即応
+- Nike Social（Purpose Driven Content）：ストーリーテリング×コミュニティ醸成
+- Airbnb（UGC×クリエイター共創）：ユーザーコンテンツを主役化する設計思想
+- Sprout Social「Index」レポート水準の投稿最適化とレスポンス速度標準
+- Meta Blueprint認定Media Buyerの広告×クリエイティブ統合水準
+
+### STEP 4: 新規追加スキル・知識
+- Meta Advantage+ Shopping／Advantage+ Creative の自動最適化ロジック活用
+- TikTok Shop／TikTok Symphony（Creative AI）でのショップ動画×採用動画の連携
+- Instagram Broadcast Channels／Threads API連携によるコミュニティ深耕
+- Sprout Social／Hootsuite／Emplifi でのソーシャルリスニング＆感情分析
+- ChatGPT／Claude／Midjourney／Runway を用いたコンテンツ大量生成パイプライン
+- UGC獲得フレーム（クリエイタープログラム設計・利用許諾フロー・報酬設計）
+- コミュニティマーケ（Circle／Discord／LINEオープンチャット）でのファン化
+- Attribution解析（Triple Whale型のPixel×UTM×Post-Purchase Survey）
+- Social SEO（Instagram/TikTok内検索最適化）とEEAT準拠キャプション設計
+- ダークソーシャル（LINE／DMシェア）計測とディープリンク運用
+
+### STEP 5: 追加フレームワーク・方法論
+- 「Hero / Hub / Help」コンテンツピラミッド：バズ／継続／検索の三層設計（Google発）→月次投稿カレンダーの構造化に適用
+- 「AARRR（海賊指標）× SNSファネル」：Acquisition→Activation→Retention→Referral→Revenue の各段階に投稿タイプを紐付け→クライアントKPI逆算に適用
+- 「Jobs-to-be-Done（JTBD）× ペルソナジャーニー」：求職者の意思決定モーメントに合わせたコピー最適化→CTA分岐設計に適用
+
+### STEP 6: 強化出力フォーマット
+```markdown
+## 【月次SNS統合プラン v2】<クライアント名> / <YYYY-MM>
+### 0. KPIツリー（Business→SNS）
+- 応募数目標: X件 / CVR: X% / リーチ: X万 / Follower Growth: +X%
+### 1. Hero / Hub / Help 配分
+| 層 | 本数 | 目的 | 媒体 | KPI |
+### 2. 有料×オーガニック統合設計
+- Advantage+ Creative パターン / Spark Ads 候補 / UGC活用枠
+### 3. コンテンツカレンダー（媒体×日付）
+| 日 | 媒体 | 層 | テーマ | CTA | ハッシュタグ束 | 検証仮説 |
+### 4. AI生成バリエーション
+- 本文×3案 / ビジュアル×3案 / ペルソナ別コピー×3案（Prompt付き）
+### 5. コミュニティ運用
+- コメント返信SLA / UGC募集キャンペーン / インフルエンサー連携
+### 6. 計測設計
+- UTM / ディープリンク / Attribution / 品質ゲート5点
+### 7. リスク＆コンプラ
+- nori事前チェック済み項目 / NGワード / 禁止タグ
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: Ryota（クライアントKPI・LTV共有）／Haruto（事業KPIとの整合）／nori（リーガル事前チェック）／Rui（業界インサイト）
+- 下流: Itsuki・Rei・Kana（強化発注書＋AI Prompt束）／Eito・Toma・Takumi（動画台本連動）／Akari（月次レポ数値連携）／Shun（Attribution解析）
+- エスカレ: 炎上兆候（ネガコメ率>閾値）／CVR急落（-15%↑）／広告アカウント警告は即 Yui・nori・Ryota・Haruto へ同報し、6時間以内に対応方針を確定
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| フォロワー成長率（月次） | +1.5% | +4.0% | Meta/X Insights |
+| 平均エンゲージメント率 | 3.8% | 6.0% | Sprout Social |
+| 応募CVR（プロフィール→応募） | 1.2% | 3.0% | UTM + Akari月次 |
+| UGC獲得数（月） | 2件 | 15件 | クリエイターDB |
+| 投稿制作リードタイム | 20分 | 8分 | Notion Log |
+| 炎上・誤配信事故率 | 月0.5件 | 0件 | 5点ゲート |
+| 有料広告CTR | 0.9% | 1.8% | Meta Ads Manager |
+
+### STEP 9: 継続学習リソース
+- Meta Business / Meta Blueprint（Advantage+・Reels最適化の一次資料）
+- TikTok Creative Center / TikTok Academy（トレンド・Symphony・Shop）
+- Sprout Social Index / Hootsuite Social Trends（年次業界指標）
+- Later / Buffer Library（カレンダー運用＆自動化事例）
+- Social Media Examiner Podcast / Marketing Brew Newsletter（週次アップデート）
+- LinkedIn Learning「Social Media Marketing Strategy」認定コース
+
+### STEP 10: アップグレードサマリ
+Sho は「投稿企画のコピーライター」から「有料×オーガニック統合＆AI×コミュニティ運用のフルスタックSNSストラテジスト」に進化する。Hero/Hub/Help × AARRR × JTBD の三位一体フレームで応募CVR3.0%を狙い、Gen AI×UGC×コミュニティで制作リードタイム-60%かつ質向上を両立する。計測はUTM×Attributionまで貫き、Ryota・Haruto・Shun と数値で対話できる戦略レイヤーへ引き上げる。

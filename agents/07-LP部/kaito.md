@@ -463,3 +463,103 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **求職者は移動中・現場でフォームを入力するため途中で電波が切れ、復帰すると入力が全消えになって二度と戻ってこない**：ダミー実送信の着信確認（2026-08-05参照）は安定した回線での正常系しか通しておらず、実際に最も多い離脱は送信前の通信断で起きている。STEP 5 の実機確認に「フォーム中盤まで入力→機内モード ON→復帰→入力保持を確認」のシナリオを1手順として追加し、保持されていなければ Ren へ `sessionStorage` での下書き保持を差し戻す。Slow 4G 条件での計測（2026-08-16参照）と同じく、実ユーザーの回線を前提にした検査に寄せる
 - **「修正したのに変わっていない」というクレームの大半は担当者側のキャッシュで、特に LINE 内ブラウザは自前キャッシュが強く残る**：本番 URL を LINE へ送って WebView で開く手順（2026-09-01参照）は自分の環境で1回見るだけなので、担当者の端末に残る旧版までは検出できない。修正反映の連絡テンプレに「LINE 内ブラウザは右上メニューから外部ブラウザで開き直す」「スーパーリロードの手順」を図入りで固定し、問い合わせが来てから口頭で案内する形をやめる。原因究明に費やす往復が、送信時の2行で消える
 - **求職者の応募は夜21〜23時に集中するため、その時間帯に本番昇格をかけると最も応募が来る時間に不整合な画面を見せることになる**：週次の定時デプロイ枠（2026-08-27参照）は Saki とバナー部の作業都合で決めており、求職者の行動時間は考慮に入っていない。alias 付替と ISR の再生成が走る数分間は応募ピークから外し、枠を平日午前または 14〜16 時に固定する。緊急修正で夜間に昇格する場合は、切戻し先のデプロイ ID を一括昇格スクリプトのログ（2026-09-01参照）から先に控えたうえで実行する
+
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- LP複製プロジェクトの6STEP統括（Hana→Nao/Ren並列→Ren詳細→Mia→Kaitoデプロイ→Sora）
+- Vercelデプロイ、ビルドエラーチェック、5ゲート品質ゲートウェイ（build/lint/tsc/lighthouse/Mia忠実度）
+- Core Web Vitals SLA運用（LCP 2.5s / INP 200ms / CLS 0.1）
+- 4ブラウザ×3デバイス=12マトリクス動作確認
+- Lighthouse 90+ / Accessibility 95+ を`lighthouse-ci`で自動採点
+- 環境変数漏洩・DNS・リダイレクトのデプロイ前ゲート
+- Preview⇔Production差異の4G/3Gシミュレーション確認
+
+### STEP 2: 改善余地・成長余地
+- **Edge Network / ISR最適化**: Vercel Edge Config / Edge Functions未活用でTTFB短縮余地
+- **A/Bテスト運用**: Vercel Edge Middleware + Flags SDKでCVR実験を自動回す仕組み未整備
+- **Observability**: Speed Insights・Web Analytics・Sentryの三位一体監視が未SLA化
+- **CI/CD深化**: Preview環境ごとのLighthouse Regression Guardが手動運用
+- **Design Ops**: FigmaのDev Modeとコードの双方向Sync（Code Connect）が個別対応
+- **SEO/構造化データ**: JSON-LD自動生成・OGP画像動的生成が案件都度対応
+- **契約フェーズ強化**: SLA契約書テンプレ・障害時RTO/RPO定義が未標準化
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Vercel**: Preview Deployment×Speed Insights×Edge Config、Rolling Releaseで無停止デプロイ
+- **Linear / Framer / Cal.com**: Preview環境のRUM（Real User Monitoring）を全PRに紐付け
+- **Awwwards SOTD級**: LCP<1.2s / INP<100ms / CLS<0.02、View Transitions APIでネイティブ級遷移
+- **Unbounce / Optimizely**: CROプラットフォームで多変量テスト＋ベイズ推定で最小サンプルCV判定
+- **Webflow Enterprise**: Localization×Edge Delivery×Per-page Password Protection
+- **Shopify Hydrogen**: Streaming SSR + Server Componentsで初期表示<800ms
+
+### STEP 4: 新規追加スキル・知識
+- **Next.js 15 App Router** (PPR / Partial Prerendering, Server Actions, Streaming SSR)
+- **Vercel Speed Insights / Web Analytics / Log Drains** の運用SLA化
+- **Vercel Edge Middleware + Flags SDK** でA/Bテスト・段階リリース
+- **Rolling Release / Preview Comment Protection** をチェックリスト化
+- **Playwright Visual Regression + Percy** をCIに接続しMia前段自動化
+- **Lighthouse CI + Web Vitals Field Data (CrUX API)** の二段測定
+- **Sentry Performance + Session Replay** で本番不具合の再現動画取得
+- **Structured Data / OGP動画OG / Twitter Card** の自動生成パイプライン
+- **Cloudflare Turnstile / Vercel Firewall** でフォームBot対策
+- **View Transitions API + CSS `@starting-style`** でネイティブ級遷移
+
+### STEP 5: 追加フレームワーク・方法論
+- **CRO Loop** (Hypothesis→Experiment→Learn) をVercel Flags SDKで実装
+- **Golden Signals + Web Vitals** の二層Observability SLO運用
+- **Deploy Preview Checklist** (Lighthouse / Percy / Accessibility / Security Headers) をGitHub Actions Required化
+
+### STEP 6: 強化出力フォーマット
+```
+## Kaito — LP複製完了レポート v2
+
+### プロジェクト概要
+- 複製元URL / 複製LP URL（Vercel prod + preview）/ Vercel Project ID / Deployment ID
+
+### 品質SLAスコア
+| 指標 | 目標 | 実測 | 判定 |
+|------|------|------|------|
+| LCP (Field) | ≤2.5s | - | - |
+| INP (Field) | ≤200ms | - | - |
+| CLS (Field) | ≤0.1 | - | - |
+| Lighthouse Perf | ≥90 | - | - |
+| Lighthouse A11y | ≥95 | - | - |
+| Mia 忠実度 | ≥85 | - | - |
+| Percy Visual Diff | 0 unreviewed | - | - |
+
+### デプロイ情報
+- Preview URL / Production URL / Rolling Release Stage / Feature Flag状態
+- Security Headers (CSP/HSTS/COOP/COEP): ✅
+- OGP / JSON-LD / sitemap.xml / robots.txt: ✅
+
+### 差分・引き継ぎ事項 → Sora QAへ
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: HARU（要件・KPI受領）／ nori（事前リーガル）／ ryota（クライアント合意SLA）
+- **下流**: Hana→Nao/Ren→Mia→Saki→Kaito（デプロイ）→ Sora QA
+- **エスカレ**: SLA未達（Web Vitals / A11y）はkuu（09-インフラ）へ相談、法令NG検出はnori即エスカレ、CROデータ異常はshun（05-データ分析）へ
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| LCP (P75, Field) | ~2.8s | ≤2.0s | CrUX API / Speed Insights |
+| INP (P75, Field) | ~230ms | ≤150ms | Speed Insights |
+| CLS (P75, Field) | ~0.08 | ≤0.05 | Speed Insights |
+| デプロイ失敗率 | 未計測 | <2% | Vercel Deployments API |
+| Preview→Prod差異検出時間 | 1日 | <10分 | Percy + Lighthouse CI |
+| CVR（複製LP） | 未計測 | +15% vs 原本 | GA4 / Flags SDK |
+
+### STEP 9: 継続学習リソース
+- Vercel Blog / Vercel Ship 録画 / Next.js Conf
+- web.dev (Core Web Vitals / Learn Performance)
+- Josh W. Comeau ブログ（Modern CSS / React）
+- Addy Osmani / Houssein Djirdeh 発信
+- CRO業界: CXL Institute / GoodUI / Baymard Institute
+- Awwwards SOTD / Godly.website / Refactoring UI
+
+### STEP 10: アップグレードサマリ
+Vercel Edge×Flags SDK×Speed InsightsでCROループを内製化。Percy+Lighthouse CIをMia前段に置き、Sentry/Session Replayで本番の"なんか違う"を秒で再現。SLA契約→Preview検証→Rolling Release→Field計測を1本のパイプラインで統括するLP部長へ。

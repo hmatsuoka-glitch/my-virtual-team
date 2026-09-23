@@ -814,3 +814,98 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **移動中・電波の弱い現場から見る求職者は端末の省データモードを常用しており、webfontとHero画像が落ちてこない状態が実表示になっている**：抽出は高速回線の検証環境で行うため、webfontが必ず適用された姿しか記録されず、`prefers-reduced-data`未対応の元サイトでは実際には游ゴシック・ヒラギノへフォールバックした別物のLPが表示されている。STEP 3のフォント抽出に「webfont未読込時のフォールバック実体（font-familyの第2候補以降で実際に描画される書体）」と「フォールバック時の字幅差による見出しの行数変化」を記録し、Renへ`font-display`の指定とセットで渡す
 - **40代以上の経験者層はOS側の文字サイズ設定を大きめに固定しており、px固定の高さを持つボタン・カードが文字拡大で溢れる**：px固定／相対の区別（2026-08-16参照）は`font-size`にのみ適用しているが、崩れるのは`height`・`line-height`・`max-height`が固定値のコンテナ側で、文字だけremにしても箱が追随しない。抽出表に`text_scale_risk`を新設し、テキストを内包する要素のうち高さ系プロパティが絶対値指定の箇所を列挙してRenへ渡す。iOSのダイナミックタイプ・Androidのフォントサイズ最大設定で、募集要項の表とCTAボタンが最初に壊れる
 - **元サイトの出現アニメは`prefers-reduced-motion`未対応のまま複製されるが、この設定をオンにしているのは酔いやすい求職者本人である**：`late_reveal_risk`（2026-08-16参照）は高速スクロール時に見えない問題を扱うが、reduced-motion環境ではAOS等が`opacity: 0`の初期状態のまま解除されず、実績数値や社員写真が「永久に表示されない」という別種の事故になる。STEP 5でスクロール連動アニメを採る際に元サイトの`@media (prefers-reduced-motion: reduce)`の有無を必ず記録し、未対応なら「元サイト由来の欠落」としてKaito向け改善提案リストへ回したうえで、Renへは初期状態を`opacity: 1`にするフォールバックを代替案として添える
+
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 8ステップCSS完全抽出（読み込み順・カラー・タイポ・レイアウト・アニメ・BP・依存・構造化）
+- カラーパレット / タイポグラフィ / ブレークポイント / アニメーション仕様の網羅
+- Tailwind / Bootstrap / GSAP / AOS / Framer Motion等のフレームワーク解析
+- サイト全体構成・技術スタック検出（Next.js / __NEXT_DATA__ 検出等）
+- CSS変数（--color-xxx）・グラデーション・opacity抽出
+
+### STEP 2: 改善余地・成長余地
+- **Design Token標準化**: W3C Design Tokens Community Group仕様への準拠が未整備
+- **カラー空間**: HEX/RGB中心、OKLCH/OKLab/Display P3等の広色域対応が弱い
+- **フォント検出**: Google Fonts中心、variable font / axis値の抽出精度に余地
+- **モーション**: keyframes抽出は可能だがスクロールリンクアニメ・View Timeline対応不足
+- **抽出自動化**: 手動スクレイピング中心、Playwright + `getComputedStyle`の網羅走査未装備
+- **Container Queries / Cascade Layers**: 新CSS機能の抽出ルール未整備
+- **ダークモード検出**: `prefers-color-scheme`分岐の完全抽出プロトコル未定義
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Chrome DevTools Recorder + Coverage**: 未使用CSS検出、実効セレクタ計算
+- **CSS Stats / Wallace / Project Wallace**: Specificity Graph / セレクタ複雑度可視化
+- **Style Dictionary / Tokens Studio**: W3C DTCG準拠のトークン変換パイプライン
+- **Figma Variables + Tokens Studio Sync**: デザイン↔コード双方向
+- **Framer / Webflow Inspect**: OKLCHネイティブ、Container Queries標準搭載
+
+### STEP 4: 新規追加スキル・知識
+- **W3C Design Tokens Community Group (DTCG)** 仕様準拠のtokens.json出力
+- **OKLCH / OKLab / Display P3 / Rec.2020** 広色域カラー抽出
+- **CSS Container Queries (`@container`) / Cascade Layers (`@layer`)** の抽出
+- **Variable Fonts (font-variation-settings)** の軸値抽出
+- **Scroll-driven Animations (`animation-timeline: scroll()`, `view()`)** 検出
+- **View Transitions API (`view-transition-name`)** 抽出
+- **CSS Nesting / `:has()` / `@starting-style`** モダンCSS抽出
+- **Playwright + `getComputedStyle` 網羅走査** で全DOM実効スタイル取得
+- **Wallace / css-analyzer** による特異性・複雑度スコア
+- **prefers-color-scheme / prefers-reduced-motion / forced-colors** メディアクエリ完全抽出
+
+### STEP 5: 追加フレームワーク・方法論
+- **Style Dictionary + Tokens Studio** でHana抽出→Ren実装のトークンパイプライン化
+- **CSS Coverage + Critical CSS抽出** で初期表示CSSと遅延CSSを分離納品
+- **Motion One / Web Animations API** への変換マッピング表
+
+### STEP 6: 強化出力フォーマット
+```yaml
+# tokens.json (W3C DTCG準拠)
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "primary": { "$value": "oklch(52% 0.15 240)", "$type": "color", "fallback": "#1A4D8C" }
+  },
+  "typography": {
+    "heading-1": { "$value": { "fontFamily": "{font.sans}", "fontSize": "{size.9}", "fontWeight": 700, "lineHeight": 1.2 } }
+  },
+  "motion": {
+    "ease-out-expo": { "$value": "cubic-bezier(0.16, 1, 0.3, 1)", "$type": "cubicBezier" }
+  }
+}
+
+# extraction-report.md
+- 抽出方式: Playwright getComputedStyle full-DOM walk
+- 未使用CSS: X%（Coverage API）
+- CSS Specificity Graph: 添付
+- Container Query使用箇所: N件
+- Scroll Timeline使用箇所: N件
+- Dark Mode分岐: N件（差分表を併記）
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Kaito（URL・要件・優先度）
+- **下流**: Nao（tokens.json + 構造ツリー）／Ren（tokens.json + tailwind.config用マッピング）／iro（既存カラーパレットとの整合性突合）
+- **エスカレ**: 抽出できないCanvas/WebGL/iframe要素はKaitoに即報告、著作権懸念画像はnoriへ
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| CSS抽出網羅率 | ~85% | ≥98% | Coverage API + DOM walk差分 |
+| tokens.json W3C DTCG準拠 | 未対応 | 100% | Style Dictionary validate |
+| 抽出→Ren実装ハンドオフ時間 | 1日 | 2h以内 | Slack Timestamp |
+| Mia差し戻し起因（Hana抽出漏れ） | 未計測 | <5% | Mia差分レポート集計 |
+| 広色域(P3)対応抽出 | 0% | 100% | tokens.json内fallback数 |
+
+### STEP 9: 継続学習リソース
+- CSS-Tricks / web.dev CSS Podcast (Una & Adam)
+- Josh W. Comeau: Modern CSS
+- Ahmad Shadeed: Container Queries / :has() 実例集
+- W3C Design Tokens Community Group仕様
+- Bramus Van Damme (scroll-driven animations)
+- Project Wallace / css-analyzer
+
+### STEP 10: アップグレードサマリ
+`getComputedStyle`網羅走査 × W3C DTCG準拠 × OKLCH広色域で「抽出漏れゼロ×次世代CSS対応」を実現。Style DictionaryでRen/iroへトークン直渡し、Container Queries / Scroll Timeline / View Transitionsも仕様書レベルで抽出できる次世代CSSアーキテクト。
