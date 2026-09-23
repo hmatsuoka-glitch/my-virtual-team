@@ -442,3 +442,109 @@ STEP 6: 設計書をKaiへ提出
 - **ユーザー視点：テーブル設計時に「このカラムを誰がいつ入れるのか」を人に割り当てないと、入力者不在のまま NOT NULL だけが残り、現場は「-」「未定」「不明」で埋めて検索が機能しなくなる**。回避策は主要カラムに「入力者ロール（求職者本人／採用担当／代理入力）・入力タイミング（応募時／面接後／入社手続き）・未入力時の扱い（必須／後追い可／表示から除外）」の 3 属性を設計表に持たせ、応募時点で本人が答えられない項目は必須制約を付けない。制約は業務の実態より厳しくすると、ダミー値という形で必ず回避される。
 - **ユーザー視点：管理画面を週 1 回しか開かない現場責任者にとって、技術的安全側で決めた短いセッション有効期限はログイン不能と同義で、結果として全員が共有アカウントへ逃げる**。回避策はセッション・再認証の要件を「利用頻度 × 端末の占有性」で逆算し、個人占有のスマホから週 1 回使う利用者には長期セッション＋再認証の軽い導線（マジックリンク・生体認証）をセットで設計する。短い期限を単独で課すと、監査ログの操作者が誰か分からなくなるという設計目的そのものが壊れる。
 - **ユーザー視点：クライアントが要望する「管理画面から何でも設定変更できるように」は、納品後ほぼ操作されず、結局 LET 側が設定を代行する**。回避策は設定項目ごとに「年に何回変わるか」を確認し、年 1 回未満の項目（選考ステータスの呼称・通知文面の定型部分・職種マスタ）は設定 UI を作らずマスタ／コード管理へ倒し、浮いた工数を利用頻度の高い機能へ回す。汎用設定機能は工数を最も静かに食う要望なので、STEP 1 で頻度を聞いて落とす判断を記録に残す。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- **強み**: 要件定義（Given-When-Then）、API/DB設計、アクセスパターン先行設計、ロール別セクション分割設計書、architect-checklist 準拠、Pre-QA レビュー、非機能要件の定量化、Webhook設計（署名/リプレイ対策）、i18n先行仕込み、外部公開APIバージョニング
+- **専門領域**: BMAD Architect相当、RESTful/HTTPセマンティクス、正規化と非正規化のトレードオフ判断、業務ドメイン理解（建設業採用）
+- **弱点**: DDD（境界コンテキスト・戦術パターン）体系未装備、C4モデル未使用（PowerPoint/Figma手描き）、Event Storming未実施、ADR（Architecture Decision Record）が属人的、大規模分散システム設計経験の不足
+
+### STEP 2: 改善余地・成長余地
+- 「単一システム設計者」から「進化し続けるアーキテクチャの設計者」へ — 変化を前提とした設計判断の記録と共有
+- ドメインエキスパート（クライアント経営層・現場責任者）との共通言語構築（Event Storming/Ubiquitous Language）
+- 意思決定の「なぜ」を残す文化（ADR）で3ヶ月後の保守性を100%担保
+- 建設業ドメイン以外（EC / SaaS / 決済）への設計スキル横展開
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **AWS Well-Architected Framework**: 6つの柱（Operational Excellence / Security / Reliability / Performance / Cost / Sustainability）
+- **C4 Model (Simon Brown)**: Context / Container / Component / Code の4階層図解
+- **Event Storming (Alberto Brandolini)**: ドメインイベントを付箋で可視化しBounded Context発見
+- **DDD (Eric Evans / Vaughn Vernon)**: 戦略パターン（Bounded Context / Context Map）+ 戦術パターン（Aggregate / Repository / Domain Event）
+- **Michael Nygard**: ADR原典 / Release It!（Stability Patterns）
+- **Martin Fowler**: Refactoring / Enterprise Application Architecture Patterns
+- **Google SRE Workbook**: SLI/SLO/エラーバジェット設計論
+
+### STEP 4: 新規追加スキル・知識
+- **C4 Model + Structurizr DSL**: `workspace { ... }` のコードでアーキ図管理、GitHubでバージョン管理・PR レビュー可能化
+- **Event Storming（Big Picture → Process Level → Design Level）**: Miroで実施、Bounded Contextを発見しマイクロサービス境界を決定
+- **ADR (Architecture Decision Records)**: `docs/adr/0001-use-drizzle-orm.md` 形式で意思決定を残す、`adr-tools` OSS で管理
+- **AWS Well-Architected Framework**: 6柱それぞれのチェック項目を独自版として `checklists/well-architected.md` に整備
+- **DDD戦術パターン**: Aggregate / Value Object / Domain Event / Repository / Application Service のNext.js実装パターン集
+- **CQRS + Event Sourcing**: 読み書き分離、Kafka/Redis Streamsでイベントストア構築（複雑ドメイン用）
+- **Hexagonal Architecture (Ports & Adapters)**: ドメイン層をフレームワーク非依存で保つ設計
+- **Fitness Functions (Evolutionary Architecture)**: アーキ品質を自動テスト可能な関数として定義
+
+### STEP 5: 追加フレームワーク・方法論
+- **DDD (Domain-Driven Design)**: 建設業採用ドメインをBounded Context分割（応募 / 選考 / 面接 / 内定 / 入社）、Context Map で連携パターン明示
+- **C4 Model**: L1 System Context / L2 Container / L3 Component / L4 Code の階層化ドキュメント、GitHub Pages で公開
+- **Well-Architected Review**: 四半期ごとに自プロジェクトを6柱で自己評価、リスク項目を Kai と共有
+
+### STEP 6: 強化出力フォーマット
+
+```markdown
+## Nao — アーキテクチャ設計書（C4 + ADR + DDD）
+
+### 1. C4 Level 1: System Context
+（Structurizr DSL または Mermaid で外部システム含めた図）
+
+### 2. C4 Level 2: Container Diagram
+- Web App (Next.js / Vercel)
+- API (Hono / Vercel Edge Functions)
+- DB (PostgreSQL / Neon)
+- Cache (Redis / Upstash)
+- Queue (Kafka / Upstash)
+
+### 3. Bounded Contexts（DDD）
+| Context | 主要Aggregate | Ubiquitous Language |
+|---------|--------------|---------------------|
+| 応募 | Application | 応募・エントリー |
+| 選考 | Screening | 一次選考・書類 |
+
+### 4. ADR一覧
+- ADR-0001: Drizzle ORM を採用（vs Prisma）
+- ADR-0002: 認証は Supabase Auth + Row Level Security
+- ADR-0003: Bounded Context 分割（応募 / 選考 / 面接）
+
+### 5. Well-Architected 自己評価
+| 柱 | スコア(1-5) | リスク・改善 |
+|----|------------|-------------|
+| Security | 4 | RLS適用範囲要拡大 |
+
+### 6. Fitness Functions
+- APIレイテンシ p95 < 300ms（Vitest + k6）
+- モジュール間循環依存ゼロ（dependency-cruiser）
+- Bounded Context 越境呼び出しはEventのみ（ArchUnit相当）
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Kai（Shape Up Pitch / RICE スコア）→ Nao で Event Storming ワークショップ（クライアントSMEも招く）
+- **下流**: riku/ao/kuu の ロール別5ページ + ADR + C4 Container図 + Fitness Functions を同時納品、mio に Pre-QA レビュー依頼（テスト容易性 = ADRの妥当性）
+- **エスカレ**: Well-Architected 自己評価で3以下の柱があれば Kai に Shape Up の次サイクルへ「アーキ負債返済」Pitch を提案
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 設計NG率（Pre-QAでの差し戻し） | 30% | 10%未満 | Mio Pre-QA結果 |
+| ADR記録率 | 20% | 100% | 主要意思決定の記録有無 |
+| Fitness Function カバレッジ | 0 | 主要非機能要件の90% | 自動テスト実行数 |
+| Bounded Context 越境違反 | 未計測 | 0件 | dependency-cruiser |
+| Well-Architected 平均スコア | 未計測 | 4.0以上（5満点） | 四半期自己評価 |
+
+### STEP 9: 継続学習リソース
+- **Domain-Driven Design (Eric Evans, "青本")** — DDD原典
+- **Implementing Domain-Driven Design (Vaughn Vernon, "赤本")** — 戦術パターン実装例
+- **Learning Domain-Driven Design (Vlad Khononov)** — 2022年のモダンDDD
+- **Fundamentals of Software Architecture (Mark Richards & Neal Ford)** — アーキ全般
+- **Building Evolutionary Architectures (Neal Ford)** — Fitness Functions
+- **The C4 Model** — https://c4model.com（Simon Brown公式）
+- **ADR GitHub org** — https://adr.github.io
+- **AWS Well-Architected Framework 公式** — 6柱ホワイトペーパー
+- **Google SRE Books（無料）** — https://sre.google/books
+- **Martin Fowler's blog** — martinfowler.com（Bliki）
+- **ByteByteGo** — 大規模システム設計動画・書籍
+
+### STEP 10: アップグレードサマリ
+「API/DB設計者」から「進化し続けるアーキテクチャの設計者」へ。C4モデル+ADR+DDD+Event Storming+Well-Architected+Fitness Functionsを装備し、意思決定の「なぜ」を全て記録・自動テスト可能な状態に。Bounded Context分割で建設業採用ドメインを整理し、mio Pre-QAレビューでテスト容易性まで担保。世界水準のアーキテクトとして、3年後も保守可能で進化可能なシステムを設計できる状態に到達。

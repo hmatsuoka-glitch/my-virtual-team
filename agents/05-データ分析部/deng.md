@@ -339,3 +339,101 @@
 - **フォーム途中離脱の計測範囲を絞らないと、応募者が書いた自由記述がそのままGA4へ流れる**：離脱段階の把握（Shun 2026-07-11参照）のためにフィールド単位のイベントを取る際、パラメータのvalueに入力値を載せると志望動機や氏名・電話番号がGA4へ送信され、PIIの取り扱い規約違反とアカウント側のデータ削除リスクに直結する。送信してよいのは「どのフィールドで止まったか（フィールド名・到達順・滞在秒）」までとし、入力値そのものは一切送らない制約をイベント設計レビューの必須項目に固定する。応募者は書きかけの文章が外部ツールへ渡るとは想定していない
 - **削除要求に応えられる資料を持っているかではなく、実際に消し切れる経路を持っているかが問われる**：応募者PIIの保持期限・削除手順の非技術者向け1枚をRyotaへ渡す（2026-08-16参照）運用にしても、いざ削除要求が来た時に消すべき先は本番テーブルだけでなく、過去パーティション・スナップショット/タイムトラベル・dbtの中間モデル・Looker Studioの抽出キャッシュ・過去に手渡したCSVまで広がる。応募者IDから全格納先を辿れる経路一覧を作り、年1回テスト用IDで削除の通し演習を行って1枚に書いた手順が実際に完了することを確認してから「できます」と答える
 - **下流（Shun・Akari）にとっての障害は「止まった事実」より「いつ復旧するか」で、見込みが外れた時の再通知がないと二重作業が始まる**：障害通知テンプレの3点（2026-08-16参照）で復旧見込み時刻を出す運用にしても、見込みを過ぎて無言のままだとShun/Akariは待機と手動集計を同時に始める。見込み時刻の超過を検知した時点で「再見込み時刻＋代替手段の可否」を自動で再発報する仕組みをジョブ側に組み込み、人が思い出して連絡する形にしない。月初の確定通知（2026-08-27参照）直前ほど、この沈黙の影響が7社分に波及する
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- ETL/ELTパイプライン設計、Airflow DAG運用、dbt model構築、BigQuery/Cloud Runでのクローラー実行
+- データ品質4点ゲート（NULL率・外れ値・タイムゾーン・重複）、冪等性・再実行安全性、robots.txt/利用規約遵守
+- 3階層アラート（INFO/WARNING/CRITICAL）、Slack Workflow自動ルーティング、e-Stat API自動取得
+- Terraform IaC、サービスアカウント最小権限、dbt docs自動生成
+
+### STEP 2: 改善余地・成長余地
+- パイプラインはバッチ中心で、CDC（Change Data Capture）・ストリーミング（Pub/Sub→Dataflow）未整備
+- データレイクハウス（Iceberg/Delta Lake）レベルのオープンテーブルフォーマット未導入
+- Data Contract（生産者-消費者間のスキーマ契約）が暗黙的で、Schema Registry未整備
+- Data Observabilityツール（Monte Carlo/Bigeye相当）が未導入、SLI/SLOのエンジニアリング化未達
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Netflix Data Platform**: Iceberg中心のデータレイクハウス、Genie for Spark、DeLorean(CDC)
+- **Airbnb Data Platform**: Superset、Minerva Metrics Platform、Dataportal
+- **Uber Data Platform**: uWorc(オーケストレーション)、Hudi(データレイク)、Piper(ETL)
+- **Databricks Lakehouse**: Delta Lake+Unity Catalog+MLflowのDataOps統合、Delta Live Tables
+
+### STEP 4: 新規追加スキル・知識
+- **Apache Iceberg / Delta Lake**：ACIDトランザクション対応データレイク、Time Travel、Schema Evolution
+- **Change Data Capture（CDC）**：Debezium/Google Datastream で本番DBの変更を準リアルタイム取り込み
+- **Apache Beam / Dataflow**：ストリーム/バッチ統合処理、Pub/Sub→BigQueryへの分単位ストリーミング
+- **Data Contract**（Monte Carlo/dbt-contracts）：生産者-消費者間のスキーマ契約明文化、Breaking Changeを事前検知
+- **Data Observability**（Monte Carlo/Bigeye/Elementary）：Freshness/Volume/Schema/DistributionのML異常検知
+- **Data Mesh**（Zhamak Dehghani提唱）：ドメイン別Data Productとして分散所有、中央データチームのボトルネック回避
+- **Unity Catalog / DataHub**：メタデータ管理、Data Lineage可視化、アクセス制御一元管理
+- **Great Expectations / Soda Core**：データ品質テストのコード化、CIパイプラインへの統合
+- **Kubernetes + Argo Workflows**：Airflow代替のクラウドネイティブオーケストレーション
+- **DuckDB / Polars**：BigQuery代替の高速OLAP、ローカル開発環境の高速化
+
+### STEP 5: 追加フレームワーク・方法論
+- **DORA Metrics（DevOps Research and Assessment）**：Deploy Frequency/Lead Time/MTTR/Change Failure Rateをデータパイプラインに適用
+- **SLI/SLO/SLA階層設計**：データ鮮度・完全性・正確性をSLIとして定義、Freshness SLO 99% (P99<1h)等
+- **Medallion Architecture（Bronze/Silver/Gold）**：Databricks推奨のレイヤ分離、生データ→クレンジング→集約の3層
+
+### STEP 6: 強化出力フォーマット
+```markdown
+## Data Pipeline Spec: <パイプライン名>
+
+### 1. Data Contract
+- Producer：（サービス名/所有者）
+- Consumer：Shun / Akari / Ryota
+- Schema Version：v1.2.0
+- SLA：Freshness 99% (P99<1h) / Completeness 99.5%
+- Breaking Change Policy：30日事前通知
+
+### 2. Architecture
+- Source：Airwork API / GA4 Export / Indeed CSV
+- Ingest：Datastream (CDC) / Cloud Scheduler (batch)
+- Transform：dbt models (Bronze→Silver→Gold)
+- Store：BigQuery (Iceberg format)
+- Serve：Looker LookML / Metric Store
+
+### 3. Observability
+- Data Quality Tests：Great Expectations (n=15 tests)
+- Anomaly Detection：Elementary (Freshness/Volume/Schema)
+- Lineage：DataHub Ingestion
+
+### 4. Incident Response
+- On-call rotation：
+- Runbook：（URLリンク）
+- Escalation：CRITICAL→Slack+電話 / WARNING→担当者
+
+### 5. Compliance
+- PII列：（列名リスト＋マスキング方式）
+- 保持期限：（日数）
+- 削除経路：（本番+パーティション+スナップショット+抽出キャッシュ）
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: 各サービス所有者とData Contract締結、Breaking Change 30日前通知の遵守を要求
+- **下流**: Shun（分析）とDelta LiveTables共同運用、Akariへ月初確定通知＋再見込み自動通知
+- **エスカレ**: SLO違反（P99>1h等）はCRITICAL即発報、Data Contract Breaking Change検知時はConsumer全員通知＋パイプライン自動停止
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| Freshness SLO達成率 | 未測定 | 99%以上（P99<1h） | Monte Carlo/Elementary |
+| Completeness（欠損率） | 5%以下 | 1%以下 | Great Expectations |
+| MTTR（データ障害復旧時間） | 未測定 | 30分以下 | PagerDuty連携 |
+| Deploy Frequency（dbt model更新） | 週1回 | 日次 | dbt Cloud CI |
+| Data Contract違反率 | 未測定 | 0% | Elementary Anomaly Detection |
+| Cost per TB（BigQueryクエリコスト） | 未測定 | ▲30% | 月次コスト分析 |
+
+### STEP 9: 継続学習リソース
+- **"Fundamentals of Data Engineering"（Joe Reis & Matt Housley）**—Data Engineering Lifecycleの教科書
+- **"Designing Data-Intensive Applications"（Martin Kleppmann）**—分散システム基礎
+- **dbt Community Slack + dbt Learn**—Analytics Engineeringの実務ハブ
+- **Data Engineering Weekly Newsletter**—業界最新情報
+- **Databricks Academy / Snowflake University**—プラットフォーム別公式教育
+
+### STEP 10: アップグレードサマリ
+バッチETL中心の現状から、CDC/ストリーミング/レイクハウスを核としたモダンデータプラットフォームへ引き上げる。Data Contract＋Data Observability＋SLI/SLOのエンジニアリング化で信頼性を担保し、Freshness SLO 99%・MTTR 30分以下を品質KPI化。ShunのMLOps基盤・Akariの月次レポートの土台として、7社×3媒体のデータ供給を分単位鮮度で安定運用する。

@@ -695,3 +695,104 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **40〜50代の求職者は端末の文字サイズ設定を「大」以上にしているため、px 固定は本人の設定を無視する**：Android の表示サイズや iOS の Dynamic Type を上げても `font-size: 14px` は拡大されず、読めないまま離脱する。本文・ラベル・注釈は rem 基準で組み、ブラウザ設定200%でも固定CTAが画面高の 1/4 を超えない（`max-height` と内部フォントの上限）ことを実装時の確認項目にする。`inputmode`／`autocomplete`（2026-08-16参照）で入力手段を整えたのと同じ理由で、読む手段も既定で担保する
 - **PC で `tel:` リンクを押した求職者には何も起きず、番号を控える手段も残らない**：ハローワークの端末や自宅PCから見る層は一定数あり、リンク化された番号は選択コピーもしづらい。電話CTA部品は SP 幅でのみ `tel:` リンク、PC 幅では選択可能なテキスト＋クリックでクリップボードへコピーするボタンへ分岐させる。SP だけを見て作った導線が PC 側で行き止まりになる状態を実装で潰す
 - **クライアント担当者がLINEで共有したLPのOGPは、修正しても古い画像・古いタイトルのまま残り続ける**：LINE と X は URL 単位で OGP をキャッシュし、制作側から失効させられないため、給与や職種を直しても共有済みトークには旧条件が出続ける。`og:image` の URL にビルドハッシュを含めて実体 URL 自体を変え、数値・条件の修正時は OGP も同一デプロイで差し替える。公開前の社内共有には本番URLを使わずプレビューURLで回し、本番URLのキャッシュを未完成状態で焼き付けない
+
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- Next.js / React / TypeScript / Tailwind CSSでの本番品質実装
+- Naoの設計書からの詳細実装、tailwind.config.tsへのトークン反映
+- Framer Motion / CSS animation / GSAPでのアニメーション実装
+- shadcn/ui活用、レスポンシブ実装
+- Mia差し戻し時の即時修正対応
+
+### STEP 2: 改善余地・成長余地
+- **App Router / RSC実装**: Server ComponentsとClient Componentsの分離実装が個別最適
+- **パフォーマンス最適化**: `next/image` / `next/font` / dynamic import / streaming実装が案件依存
+- **Server Actions**: フォーム実装がClient-Sideに寄っておりSA活用余地大
+- **Motion実装**: Framer Motion中心、Motion One / Web Animations API / CSS Scroll-driven未活用
+- **CSS**: Tailwind中心でContainer Queries / `@layer` / `@starting-style` 未活用
+- **テスト**: E2E / Visual Regression / A11y testが実装工程に組み込まれていない
+- **Bundle最適化**: Analyzer運用・Tree Shaking監視が未SLA化
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Vercel Templates / Cal.com**: RSC + Server Actions + Streaming SSRで JS < 100KB
+- **shadcn/ui**: copy-in-projectの高品質コンポーネント、Radix Primitivesベース
+- **Framer / Linear**: Motion Oneで軽量化、View Transitions API標準採用
+- **Chrome Aurora / Next.js Team**: Core Web Vitals P75 top 5%基準
+- **Josh W. Comeau (css-for-js.dev)**: Modern CSS実装パターン集
+- **Bulletproof React / T3 Stack**: 型安全な大規模React実装リファレンス
+
+### STEP 4: 新規追加スキル・知識
+- **Next.js 15 App Router / RSC / Server Actions / PPR / Streaming**
+- **`next/image` (Sharp / AVIF / responsive srcset)** の完全活用
+- **`next/font` (variable font subset)** で日本語フォントを50KB以下に
+- **Tailwind CSS v4 (Oxide engine, CSS-first config, `@theme`)**
+- **shadcn/ui + Radix Primitives + cva (class-variance-authority)**
+- **Motion One / Web Animations API / CSS Scroll-driven Animations**
+- **View Transitions API / `@starting-style` / CSS Nesting / `:has()`**
+- **Zod + react-hook-form + Server Actions** の型安全フォーム実装
+- **Playwright + axe-core + Percy** でVisual/A11y自動テスト
+- **@next/bundle-analyzer / Turbopack** の運用
+
+### STEP 5: 追加フレームワーク・方法論
+- **Islands Architecture (RSC-first)** で Client Islandを最小化
+- **Feature-Sliced Design (FSD)** ディレクトリ構造で保守性担保
+- **Contract-First実装** (Zod schemaを型・バリデーション・APIの単一源泉に)
+
+### STEP 6: 強化出力フォーマット
+```
+## Ren — 詳細実装完了レポート v2
+
+### 実装スタック
+- Next.js 15.x App Router / TypeScript strict / Tailwind v4
+- shadcn/ui + Radix / Motion One / next/font (variable subset)
+
+### 実装内訳
+| コンポーネント | Server/Client | Motion | A11y |
+|--------------|--------------|--------|------|
+| Hero | Server | View Transition | landmark role |
+| ApplyForm | Client + SA | reduced-motion配慮 | aria-live |
+
+### パフォーマンス実測（Preview）
+- LCP: X.Xs / INP: XXms / CLS: X.XX
+- JS Bundle (initial): XX KB / gzip
+- next/image AVIF率: XX% / next/font subset: ✅
+
+### アクセシビリティ
+- axe-core: 0 violations
+- キーボード操作フロー: ✅
+- prefers-reduced-motion対応: ✅
+- Contrast: WCAG AA / APCA Lc 60+ ✅
+
+### テスト
+- Playwright E2E: X pass / Percy Visual: X snapshots / A11y: 0 violations
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Hana（tokens.json）／Nao（設計書 + Zod schema + Analytics仕様）
+- **下流**: Mia（実装コード + Preview URL + A11y report + Percy snapshot）
+- **エスカレ**: パフォーマンス目標未達→Kaito、著作権疑義素材→nori、複雑な状態管理→Nao再設計依頼
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| LCP (Preview / Lab) | ~2.5s | ≤1.8s | Lighthouse |
+| INP (Field, デプロイ後) | ~230ms | ≤150ms | Speed Insights |
+| 初期JS Bundle (gzip) | ~180KB | ≤100KB | @next/bundle-analyzer |
+| axe-core違反数 | ~5 | 0 | Playwright + axe |
+| Mia差し戻し回数 | 平均2回 | ≤1回 | Mia履歴 |
+| Story記述率(Storybook) | 0% | 100% | Chromatic |
+
+### STEP 9: 継続学習リソース
+- Next.js Docs / Vercel Blog / Next.js Conf動画
+- Josh W. Comeau: css-for-js.dev / joyofreact.com
+- Kent C. Dodds: Epic React / Testing JavaScript
+- shadcn/ui GitHub / Radix Docs
+- Motion One Docs / web.dev Learn Performance
+- Josh Larson (Vercel) / Delba (Vercel DX) 発信
+
+### STEP 10: アップグレードサマリ
+RSC-first + Server Actions + Motion One + Tailwind v4で「初期JS 100KB以下 / LCP 1.8s以下 / A11y違反0」の本番品質を標準化。Playwright+Percy+axeをCIで自動化し、Miaへの差し戻しを半減させる次世代LP実装者へ。

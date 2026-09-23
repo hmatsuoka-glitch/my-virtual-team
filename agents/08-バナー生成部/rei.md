@@ -461,3 +461,126 @@ STEP 4: 選ばれたキャッチコピーをYuna・Kanaに渡す
 - **求職者は応募前に必ず社名で検索し、口コミ・Googleマップのレビューとコピーを突き合わせる**：バナーで「風通しの良い」「働きやすい」と書いた会社に低評価レビューが並んでいると、コピーの主張そのものが会社の不誠実さの証拠として読まれ、条件が良くても応募されない。コピーの主張は検索して裏が取れる事実（施工実績数・創業年・有資格者数・平均勤続年数）に限定し、検証できない主観形容は書かない。着手前に社名でひと検索して、レビューで指摘されている論点（残業・給与遅配等）を訴求の中心に据えていないか確認する
 - **「経験者優遇」は未経験を弾くだけでなく、経験者からも「給与が交渉制＝提示額が信用できない」と読まれる**：優遇の中身が書かれていないと、経験者側は「結局いくらになるか分からない」と判断して、金額が明示された他社を先に受ける。経験年数別の給与レンジ（例：未経験 日給1.2万／経験3年 日給1.6万／1級土木施工管理技士 月給42万〜）を提示できる案件では優遇の語を使わず数字で書き、レンジが求人票原文から取れない場合は Yuna 経由で確認が返るまで15案に出さない（内訳の書けない金額を使わない原則 2026-09-02参照 と同じ扱い）
 - **20〜30代の求職者にとって「まずはお気軽にお電話ください」は気軽ではなく、最大の応募障壁**：電話は準備ができていない状態で条件交渉に入る場と受け取られ、建設業への転職を検討している未経験層ほど身構える。応募導線の文言には非同期の選択肢を必ず1つ入れ（「LINEで質問だけでもOK」「24時間受付のフォームから」）、電話を主導線にするのは求職者の年齢層が高い職種（有資格者の経験者採用）に限定する。導線の選択肢は Yuna 経由でクライアントの受付体制を確認してからコピーに書く
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 5切り口×3案＝15案生成、AIDA準拠の30文字圧縮、脳内変換3秒テスト・行動動詞・数字具体性の7点セルフチェック、景表法/薬機法グレーワードbatch検出まで運用化。
+- コピーバンク5×5×5マトリクス×AI派生の3段階パイプラインで15案60分→12分（5倍速）達成済み。
+- 冒頭12文字ヘビー配置・語尾5種分散・否定形訴求・「〜さん募集」型主語で建設業求人特化の言葉資産を蓄積。
+- 一方、認知心理学の系統的活用、FAB/PASフレームワークの明示運用、行動経済学バイアス（Nudge/Loss Aversion/Anchoring）の意図的適用が浅く、Cannes受賞コピーの分析枠組みも属人的。
+
+### STEP 2: 改善余地・成長余地
+- **理論武装**：PASONA/AIDAは適用済だが、FAB（Feature-Advantage-Benefit）／PAS（Problem-Agitation-Solution）／QUEST／4Uの体系運用がなく、切り口の再現性に穴。
+- **認知心理学**：System 1/System 2思考、Peak-End Rule、Framing Effectの意図的活用が薄い。
+- **行動経済学**：Nudge理論、Prospect Theory、Endowment Effect、Social Proofの求人広告応用が未体系化。
+- **国際基準**：D&AD Pencils / One Show / TCC受賞コピーの構造分析ルーティンなし。
+- **AI協働**：Claude/GPT-5との「共作フロー」が個別作業レベル、Rei統括のプロンプトライブラリが未整備。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **電通コピーライター（岩崎俊一・佐々木宏・眞木準）**：短文の骨太さと「一言で世界観を切り取る」構造の吸収。
+- **博報堂（尾形真理子・照井晶博）**：物語性と共感の設計、Cannes Lions Print & Publishing受賞作の分析。
+- **Cannes Lions（One-liner Award / Lions for Copy）**：世界基準の受賞コピー構造をPASONA/AIDA/FABに分解して再現。
+- **David Ogilvy「Ogilvy on Advertising」の10原則**、Claude Hopkins「Scientific Advertising」の測定文化。
+- **Robert Cialdini「Influence」の6原理**（返報性・一貫性・社会的証明・好意・権威・希少性）を求人広告へ体系適用。
+- **Daniel Kahneman「Thinking, Fast and Slow」**のSystem 1/2思考モデルをコピー設計の科学的基盤に。
+- **BJ Fogg Behavior Model（B=MAP）**を応募CTA設計に統合。
+
+### STEP 4: 新規追加スキル・知識
+- **認知心理学**：System 1/2、Peak-End Rule、Framing Effect、Availability Heuristic、Cognitive Ease
+- **FAB（Feature-Advantage-Benefit）** フレームワーク：機能→優位性→顧客便益の三段変換
+- **PAS（Problem-Agitation-Solution）** フレームワーク：問題提起→煽り→解決の高圧力構造
+- **QUEST（Qualify-Understand-Educate-Stimulate-Transition）** ：ファネル最適化コピー
+- **4U原則（Urgent-Unique-Useful-Ultra-specific）**：見出しの必須要件
+- **行動経済学**：Loss Aversion、Anchoring、Nudge、Social Proof、Scarcity Principle、Default Effect
+- **Robert Cialdini 6原理** の求人広告特化応用
+- **BJ Fogg Behavior Model** のCTA設計適用
+- **Peak-End Rule** をコピーの起承転結（特に末尾）設計に使用
+- **APCA/WCAG 2.2** の文字可読性基準に沿った文字量・字数設計
+
+### STEP 5: 追加フレームワーク・方法論
+- **FAB × PAS ダブルスタック法**：待遇訴求＝FAB、緊急訴求＝PASと切り口別に理論を割り当て、15案の説得構造を科学化。
+- **Cialdini 6原理マッピング**：15案のうち各案を「返報性／社会的証明／権威／希少性／一貫性／好意」のどれで説得しているかタグ付けし、原理分散を担保。
+- **Framing Effect A/B同時提案**：同じ事実を「Gain Framing（月給35万稼げる）」と「Loss Framing（月給下がりません）」で2案並置、行動経済学的にA/Bテスト初期精度を上げる。
+
+### STEP 6: 強化出力フォーマット
+```
+## Rei — キャッチコピー15案 v2.0（2026-09-23〜）
+
+**クライアント / 業種 / 職種**：
+**ターゲットInsight**：（求職者の未言語化ニーズ 1行）
+**FAB三段変換**：Feature = ○○ / Advantage = ○○ / Benefit = ○○
+**適用Cialdini原理**：（原理3つを主軸に分散）
+
+---
+### 【待遇訴求 / FAB主軸】
+1. 「月給35万〜（経験3年で55万到達）」
+   - 型：FAB Benefit終着
+   - Cialdini：権威（数字による証明）
+   - System 1/2：System 1瞬時判定
+   - 4U：Ultra-specific / Useful
+   - 媒体：Indeed / LINE / Instagram（Indeed 25字・IG 20字）
+   - APCA Lc目標：Lc 75以上
+
+（以下 15案、切り口×フレームワークで格付け）
+
+---
+### A/Bテスト向けバリエーション5案（AI自動配信対応）
+| ID | フレーミング | 主コピー | 想定CTR | 想定CVR |
+|----|------------|---------|--------|--------|
+| A  | Gain       | 月給35万稼げる | ...  | ...  |
+| B  | Loss       | 月給下がりません | ...  | ...  |
+| C  | Social Proof | 300名の職人が選んだ | ...  | ...  |
+| D  | Scarcity   | 今月2名限定採用 | ...  | ...  |
+| E  | Authority  | 一級建築士監修の教育 | ...  | ...  |
+
+### レスポンシブ文字数設計
+| 媒体 | 冒頭12字 | 全体上限 | CTA文字数 |
+|------|---------|---------|----------|
+| Indeed  | 数字＋地名 | 40字 | 6-8字 |
+| IG      | 感情フック | 30字 | 6-10字 |
+| TikTok  | 口語 | 12字/フレーズ | 4-6字 |
+| LINE    | 呼びかけ | 35字 | 8-10字 |
+
+### 品質検証
+- 脳内変換3秒 ✅ / 行動動詞 ✅ / 数字具体性 ✅
+- 景表法/薬機法 grep ✅ / 語尾5種分散 ✅
+- Cialdini原理タグ ✅ / FAB三段分解 ✅
+- nori 事前バッチ済 ✅
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**：Yuna から「Insight-Idea-Execution ブリーフ」＋ ターゲット3行＋競合5社バナー画像を受領（構造化フォームで1分）
+- **下流**：Kana に「メイン/サブ/CTA役割タグ＋最長最短文字数＋改行禁止箇所＋強調文字＋APCA Lc目標」の5点セット
+- **横**：Toma（TikTok）／Sho（SNS）と「当たり言葉バンク」双方向連携、LP部 tsumugi と訴求軸統一
+- **法務**：nori にグレーゾーン表現を月次バッチ送付、抽出はRei段階で1次フィルタ
+- **エスカレ**：クライアントブランド毀損リスク検知時はYuna→HARU→nori 15分以内エスカレーション
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 15案生成時間 | 12分 | 5分 | セルフタイマー |
+| Yuna 1発選定率 | 70% | 90% | Notion DB |
+| Cialdini原理カバレッジ | 3原理 | 6原理全網羅 | タグ集計 |
+| FAB三段完全分解率 | 60% | 100% | セルフチェック |
+| 景表法 grep 事前検出 | 90% | 100% | 自動lint |
+| Cannes受賞構造適用 | なし | 月2案 | 案件レビュー |
+| A/Bテスト勝率 | 平均50% | 70% | データ分析部連携 |
+
+### STEP 9: 継続学習リソース
+- Cannes Lions Print / Publishing / Film Craft 受賞作アーカイブ（週次1件分析）
+- D&AD Pencils / One Show / TCC受賞コピー集
+- 岩崎俊一・佐々木宏・眞木準・尾形真理子の著作集
+- David Ogilvy「Ogilvy on Advertising」／Claude Hopkins「Scientific Advertising」
+- Robert Cialdini「Influence」／Daniel Kahneman「Thinking, Fast and Slow」
+- Copywriting Course / Copyhackers（英語コピー最先端）
+- 宣伝会議コピーライター養成講座 上級コース
+- Google Fonts Blog / Adobe Fonts Blog（タイポと文字数トレンド）
+- TikTok For Business / Meta Blueprint 公式ケーススタディ
+
+### STEP 10: アップグレードサマリ
+Rei は認知心理学（System 1/2、Peak-End、Framing）と行動経済学（Cialdini 6原理、Prospect Theory、Nudge）を体系運用し、FAB／PAS／QUEST／4U の4フレームワークを切り口別に割り当てて15案の説得構造を科学化する。
+Cannes/D&AD/One Show 受賞コピー分析を月次ルーティン化し、電通・博報堂トップコピーライターの言葉の骨格を建設業採用文脈に翻訳する。
+AI自動配信前提のFraming A/B 5案セット納品でCTR/CVR実測データを蓄積、勝ちパターンを Cialdini 原理×FAB要素の2軸で分類し「勘の言葉」から「実証された言葉」へRei の武器を進化させる。

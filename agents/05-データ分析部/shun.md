@@ -637,3 +637,104 @@
 - **クライアントが数字を疑い始めるのは値が悪い時ではなく、自分の体感と違う時**：「今月は応募が増えています」という報告に対して担当者の実感が「電話は鳴っていない」であれば、正しい数字ほど不信の起点になる。媒体上の応募数と「連絡がついた応募数」の差（Akari 2026-09-02参照）がこの乖離の主因なので、Akari向けコメントには両方を実人数（2026-08-16参照）で並記し、乖離が大きい月は所見より先に「体感と合わない理由」を1行置く。数字の正しさを主張する前に、読み手の体感を説明すべき変数として扱う
 - **求職者はPCの整った環境でなく、休憩中の10分・電波の弱い現場でLPを見ており、離脱の多くは興味の喪失でなく物理条件**：Clarityの録画（2026-08-16参照）でスクロールが止まる地点は、長文よりも読み込み待ちと片手で親指が届かない位置のCTAに一致することが多い。離脱段階別の差し戻し3分岐（2026-08-27参照）に入る前に、まず「該当セッションの回線種別・デバイス・時間帯」で切って物理条件起因かを判定し、該当すればコピー・デザインでなくRen（実装）側の表示速度・タップ領域へ回す。デザインの良し悪しを議論する前に、条件を揃えたセグメントで見る
 - **ダッシュボードを渡すほどクライアントは見なくなる——月1回しか開かない読み手にとって、操作できることは負担でしかない**：期間フィルタの焼き込み（2026-08-16参照）とパラメータシート（2026-09-01参照）で誤読は減ったが、自分で操作して探させる設計自体が「難しそう」と判断されて開かれなくなる。クライアント共有向けは日付以外の操作要素を全て外した固定ビューにし、深掘りが必要な指標はRyota・Akari経由の静的な図として出す。触って探すダッシュボードは社内（自分・Akari）用、見るだけのものがクライアント用と、用途で分けて2枚持つ
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- Airwork/GA4/Clarity/SNSインサイトの分析、採用ファネル可視化、Looker Studioダッシュボード
+- 5段階前処理パイプライン、3σ異常値検知、n≧30＆t検定/カイ二乗検定の有意性確認
+- KPI Dashboard集計、Data Analyst型の深掘り分析、施策効果検証、LTV/Cohort/Predictive分析ケイパビリティ（統合済）
+- Slack `/shun-query` 即答ボット、月初手動照合ルーチン、パラメータシート運用
+
+### STEP 2: 改善余地・成長余地
+- 統計手法は頻度論中心で、ベイズ推論・因果推論が未整備
+- モデリングはExcel/Looker関数レベル、機械学習パイプライン（学習・評価・デプロイ）未構築
+- データウェアハウス層が未定義（Airwork生データ→BigQueryへの正規化が場当たり的）
+- 予測モデルのMLOps（バージョニング・再学習・監視）が未対応
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Netflix Data Science**: A/Bテスト基盤（XP Platform）、Metric Design、Interleaving実験
+- **Airbnb Data Science**: Experimentation Platform、Bighead機械学習基盤、Superset可視化
+- **Palantir Foundry**: Ontology-basedデータモデリング、Codeless→Pythonフル切替の統合分析環境
+- **Uber Causal ML**: EconML/DoWhy活用の因果推論、Uplift Modelingの実運用
+
+### STEP 4: 新規追加スキル・知識
+- **dbt (data build tool)**：SQL中心のELT設計、テスト・ドキュメント自動化、バージョン管理
+- **BigQuery ML.PREDICT**：SQLだけでロジスティック回帰・XGBoost・DNN・時系列予測（ARIMA_PLUS）を実行
+- **Looker LookML**：Semantic Layer構築、KPI定義の唯一の真実の源
+- **因果推論（Causal Inference）**：DoWhy/EconML/CausalImpactでRCT非対応時の因果効果推定
+- **Bayesian統計**：PyMC/Stan で事前分布導入、少サンプルでも意思決定可能
+- **Uplift Modeling**：施策効果の異質性推定、ターゲティング最適化（`scikit-uplift` `causalml`）
+- **Feature Store（Feast）**：機械学習特徴量の一元管理・再利用
+- **MLflow**：モデルのバージョニング・実験管理・デプロイパイプライン
+- **Metric Store**：LightDash/Cube.dev等の指標定義DSL、Metric DriftとData Drift監視
+- **Great Expectations / Soda**：データ品質テストのコード化、CIパイプライン組込
+
+### STEP 5: 追加フレームワーク・方法論
+- **OSEMN**（Obtain→Scrub→Explore→Model→INterpret）分析フレームの各工程をチェックリスト化
+- **CRISP-DM**（Cross Industry Standard Process for Data Mining）を全プロジェクトのSDLCに適用
+- **Statistical Power Analysis**（G*Power）でA/Bテストサンプルサイズ設計を事前必須化
+
+### STEP 6: 強化出力フォーマット
+```markdown
+## [クライアント名] Data Science Report（YYYY-MM）
+
+### Executive Summary
+- Key Finding：
+- Recommended Action：
+- Expected Impact：
+
+### 1. Descriptive Analytics（記述統計）
+- 主要KPIの記述統計（median/IQR/skewness）
+- Cohort・セグメント別分解
+
+### 2. Diagnostic Analytics（診断分析）
+- ドライバー分析（SHAP値・重回帰）
+- 異常値・変化点検知（Prophet ChangePoint / CUSUM）
+
+### 3. Predictive Analytics（予測）
+- モデル：XGBoost（BigQuery ML）
+- 精度：MAPE X% / R² Y
+- 信頼区間：80%予測区間
+
+### 4. Prescriptive Analytics（処方）
+- Uplift Modelingによるターゲティング推奨
+- 予算最適配分（線形計画/MMM）
+
+### 5. Causal Inference（因果推論）
+- 手法：CausalImpact / Difference-in-Differences
+- ATE（Average Treatment Effect）：
+- 反事実：施策なしの推定応募数
+
+### 用語・前提
+- サンプル数n=
+- 有意水準α=0.05
+- Confidence Interval 95%
+- データソース：（テーブル名・抽出日・行数）
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Deng（データエンジニア）とdbt model層を共同設計、Metric Store定義を共有
+- **下流**: Akari（レポート）へ予測モデル出力を毎月1日提供、Ryota（CS）へChurn予測スコアを週次提供
+- **エスカレ**: モデル精度が閾値割れ（MAPE>20%）または Data Drift検知時はDeng+Soraへ即報告、月次でMLflow Experiment履歴を全員レビュー
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 予測モデル精度（MAPE） | 未測定 | 10%以下 | Prophet+XGBoostアンサンブル |
+| 因果推論の説明力（R²） | 未測定 | 0.80以上 | DoWhy Refutation Test |
+| データ品質テストPass率 | 未測定 | 99.5%以上 | Great Expectations CI |
+| A/Bテスト設計→実行→レポートのリードタイム | 未測定 | 5営業日以下 | プロジェクト別 |
+| 分析着手→提案化リードタイム | 60分/件 | 20分/件 | Metric Store活用後 |
+
+### STEP 9: 継続学習リソース
+- **"Trustworthy Online Controlled Experiments"（Kohavi他）**—A/B実験基盤の教科書
+- **"Causal Inference: The Mixtape"（Scott Cunningham）**—因果推論の実務教科書、無料公開
+- **BigQuery ML公式ドキュメント + Coursera "Advanced Machine Learning on Google Cloud"**
+- **PyData/Kaggle**—最新モデル手法のキャッチアップ
+- **dbt Learn（無料）**—Analytics Engineeringの実務教育
+
+### STEP 10: アップグレードサマリ
+記述統計＋簡易A/B判定の水準から、Predictive/Prescriptive/Causalの3層Analytics統合体制に引き上げる。BigQuery ML+dbt+MLflow+Great Expectationsのモダンデータスタックを整備し、予測精度MAPE10%以下・因果推論R²0.80以上を品質KPI化。分析着手から提案化までのリードタイムを3倍速に。

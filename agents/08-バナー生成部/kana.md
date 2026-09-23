@@ -542,3 +542,160 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **建設業の転職層は40〜50代が厚く、細ウェイトは「縮小で潰れる」前より先に「滲んで読めない」が来る**：Light/Regular（300〜400）の日本語は実表示 11px 相当まで縮むと画数の多い漢字（「経験」「現場」「資格」）が団子になり、老眼の入る年齢層では距離を取っても解像しない。条件3点とバッジは Medium(500) 以上を既定にし、明朝・ヒゲの細い書体は世界観用の小見出しに限定する。サブセット化する woff2（2026-09-01参照）のウェイト列挙も、使わない 300 を外して 500/700 だけにしておく
 - **1080×1350 の縦バナーは、クライアントが同じ画像をフィード投稿に転用した瞬間にプロフィールのグリッド一覧で正方形中央トリミングされる**：広告配信面では縦全面が出るため設計上は問題ないが、求職者が社名で検索してプロフィールへ飛ぶと、上端の社名ロゴと下端の勤務地が落ちた中央だけが並ぶ。縦サイズでも「中央 1080×1080 に条件3点が収まる」を媒体プリセット（2026-09-01参照）の第2セーフエリアとして持ち、`data-media` に `ig-feed` を付けた案だけこの制約を適用する
 - **求職者はバナーをタップせずスクリーンショットして後から見返す／家族に相談する**：建設業の転職は配偶者への相談を挟むケースが多く、広告からの直接応募でなく数日後の指名検索で戻ってくる。スクショ1枚だけで辿り着ける情報（正式社名の表記＋「◯◯建設 採用」の検索導線、電話応募を受ける案件は番号）を必ず画面内に焼き込む。URL は手打ちされないので載せる価値がなく、その面積を社名の判読性に回す
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- HTML/CSS/Google Fonts/CSS Variables/Grid/Flexboxでピクセルパーフェクト設計、Z字/F字視線誘導、コントラスト比4.5:1、ジャンプ率2.5倍、Kerning/Trackingまで運用済。
+- CSS Container Queries、CSS Font Loading API、CSS Anchor Positioning、Tailwind v4 Oxide エンジン、ダークモード `prefers-color-scheme` を取り込み済。
+- design-tokens JSON連携、brand-tokens.schema.json、Figma Variables → CSS Variables 自動同期、HIRO-CHECK仕様書まで整備。
+- 一方、Framer Motion／Lottie／SVGアニメの体系運用は薄く、静止画バナーへのマイクロインタラクション（2026業界標準）が未着手。CSS Container Queries もサイズ別テンプレの一部でしか活用しておらず、モーション設計・アクセシビリティAAA・APCA新基準への理解が浅い。
+
+### STEP 2: 改善余地・成長余地
+- **モーション設計**：Static+Micro-Animation（CTR+38%）が2026業界標準だが、Kanaのアニメスキルは未体系化。
+- **モダンCSS**：Container Queries、`:has()`、Scroll-driven animations、CSS Nesting、View Transitions API の実運用が浅い。
+- **アニメライブラリ**：Framer Motion／Lottie／GSAPの選定基準・パフォーマンス設計が未確立。
+- **アクセシビリティ**：APCA Lc値、WCAG 2.2 AAA、`prefers-reduced-motion` 対応が個別対応レベル。
+- **デザインシステム**：Airbnb DLS／Vercel Geist／Stripe相当のTokens運用まで昇華していない。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Airbnb Design Language System（DLS）**：Design Tokens、Component API、TypeScript型定義まで統合したデザインシステム設計。
+- **Stripe**：微細で節度あるモーション、Craft Quality、8pxグリッド原則。
+- **Vercel Design System (Geist)**：ダーク/ライト完全対応、CSS Variables運用、`prefers-color-scheme`+`prefers-reduced-motion`の両立。
+- **Figma / Framer**：Auto Layout、Variables、Advanced Prototyping、Framer Motionのdeclarativeアニメ設計。
+- **Lottie（Airbnb発）**：After Effects→JSON→軽量Web再生の業界標準。
+- **Awwwards Site of the Day**：SVGアニメーション・Scroll-driven Animations・View Transitions APIの最先端実装。
+- **CSS Container Queries + `:has()`**：メディアクエリ不要のコンポーネント駆動レスポンシブ。
+
+### STEP 4: 新規追加スキル・知識
+- **Tailwind CSS v4 Oxide エンジン** の10倍高速ビルド × 複数バリエーション量産
+- **Framer Motion v11** の declarative animation × `layout` prop / `AnimatePresence`
+- **Lottie / dotLottie** の After Effects → JSON export × Web軽量再生
+- **GSAP 3.12 + ScrollTrigger** の高精度スクロール連動アニメ
+- **CSS Container Queries + `:has()` + CSS Nesting** のコンポーネント駆動設計
+- **CSS Scroll-driven Animations / View Transitions API** の2026標準実装
+- **SVG SMIL / SVG Filters（`<feTurbulence>` / `<feGaussianBlur>` / `<feColorMatrix>`）** でノイズ・グラデ・エフェクト
+- **APCA（Advanced Perceptual Contrast Algorithm）** Lc値 75以上（AAA相当）
+- **`prefers-reduced-motion` / `prefers-contrast`** 対応の必須実装
+- **Design Tokens W3C DTCG仕様** 準拠のブランドガイドライン標準化
+
+### STEP 5: 追加フレームワーク・方法論
+- **Static + Micro-Animation 設計原則**：静止画バナーに3〜5秒の微細アニメ（テキストフェード・数字カウントアップ・CTAパルス）を加え、CTR+38%を狙う。HTML→PNG納品と並行してMP4/GIF/Lottie JSON形式も出力可能に。
+- **Component-Driven Design（Atomic Design × Container Queries）**：バナーをMolecule→Organism→Templateで階層化し、Container QueriesでサイズごとにCTAサイズ・余白が自動調整される「1テンプレ多サイズ」設計。
+- **APCA + WCAG 2.2 AAA ダブル判定**：CSS `color-contrast()` 関数とAPCA計算式を並行運用し、Lc 75以上（AAA相当）を全案件で担保。ダークモード・淡色グラデ・小フォント全て自動チェック。
+
+### STEP 6: 強化出力フォーマット
+```html
+<!-- Kana HTMLバナー v2.0（2026-09-23〜） -->
+<!DOCTYPE html>
+<html lang="ja" data-media="ig-feed">
+<head>
+<meta charset="UTF-8">
+<title>escopro_ig_20260923_1080x1080</title>
+
+<!-- Design Tokens W3C DTCG -->
+<style>
+  @import url("./tokens/escopro.css"); /* design-tokens */
+
+  :root {
+    --primary: var(--brand-primary);
+    --lc-target: 75;
+    --grid: 8px;
+    --jump-ratio: 2.5;
+  }
+
+  /* Container Queries でサイズ自動対応 */
+  @container banner (min-width: 1080px) {
+    .headline { font-size: clamp(48px, 6cqi, 96px); }
+  }
+
+  /* prefers-reduced-motion / prefers-contrast 準拠 */
+  @media (prefers-reduced-motion: no-preference) {
+    .cta-pulse { animation: pulse 2s ease-in-out infinite; }
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: var(--brand-bg-dark); }
+  }
+
+  /* CSS Nesting + :has() */
+  .banner:has(.badge) .headline { padding-top: 2rem; }
+</style>
+
+<!-- Google Fonts preload + wght全列挙 -->
+<link rel="preload" href="..." as="font" crossorigin>
+</head>
+<body>
+  <main class="banner" style="container-type: inline-size">
+    <!-- Static + Micro-Animation：3秒アニメ -->
+    <div class="cta-pulse">応募する</div>
+
+    <!-- Lottie（採用時） -->
+    <lottie-player src="./anim/hero.json" autoplay></lottie-player>
+
+    <!-- SVG Filter でバンディング解消 -->
+    <svg><filter id="grain"><feTurbulence baseFrequency="0.9"/></filter></svg>
+  </main>
+</body>
+</html>
+```
+
+**納品セット（マルチフォーマット）**
+| 形式 | 用途 | ファイルサイズ目標 |
+|------|-----|-----------------|
+| PNG  | 静止入稿 | 媒体上限の50% |
+| WebP | CDN配信 | PNG×0.35 |
+| AVIF | 最新媒体 | PNG×0.25 |
+| MP4  | 動画枠 | 3-5秒 |
+| Lottie JSON | Web埋込 | 100KB以下 |
+
+**レスポンシブ対応マトリクス**
+| デバイス | Container Query | 適用型 |
+|---------|----------------|-------|
+| PC 1200×628  | @container (min-width:1200px) | Z字横長 |
+| SP縦 1080×1920 | @container (min-width:1080px) and (aspect-ratio:9/16) | F字縦長 |
+| Square 1080×1080 | @container (aspect-ratio:1/1) | 中央集約 |
+| Story 1080×1920 | @container (aspect-ratio:9/16) | セーフエリア中央60% |
+
+**品質検証（自動lint）**
+- APCA Lc値：75以上（AAA相当）
+- WCAG 2.2 AA / AAA：全項目 ✅
+- prefers-reduced-motion / prefers-contrast 対応 ✅
+- Design Tokens W3C DTCG準拠 ✅
+- Container Queries全サイズ動作確認 ✅
+- Lighthouse Accessibility 100点 ✅
+
+### STEP 7: 連携プロトコル更新
+- **上流**：Rei から「メイン/サブ/CTA役割タグ＋最長最短文字数＋改行禁止＋強調＋APCA Lc目標」の5点セット受領。Yuna から design-tokens/brand-tokens JSON。
+- **下流**：Hiro に「HTML＋Container Query設定＋アニメ設定（Static/Micro-Animation可否）＋Lc目標＋deviceScaleFactor推奨値」の5点シート。マルチフォーマット納品要否も明示。
+- **横**：LP部 tsumugi と `design-tokens.json` 完全共通化、SNS Sho/Toma とアニメJSON共有、Itsuki（コンテンツ制作部）とバナーマスター相互流用。
+- **エスカレ**：ブランドガイドライン競合検知時は Yuna → nori → HARU 15分以内。フォント商用ライセンス懸念は nori 事前確認。
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| APCA Lc値 | 60〜70 | 75以上（AAA） | 自動判定 |
+| Lighthouse Accessibility | 90 | 100 | CI自動 |
+| Hiro差し戻し率 | 3% | 0.5% | 案件別集計 |
+| HTMLテンプレ→PNG時間 | 15分 | 5分 | セルフタイマー |
+| Container Query活用率 | 30% | 100% | コード監査 |
+| Static+Micro-Animation採用率 | 0% | 60% | Yuna提案 |
+| Lottie/SVG納品数 | 0 | 月20件 | 納品DB |
+
+### STEP 9: 継続学習リソース
+- Awwwards Site of the Day（毎日1件レビュー）
+- Framer Motion 公式ドキュメント / Framer Learn
+- Lottie / dotLottie 公式（airbnb.io/lottie）
+- CSS-Tricks / web.dev / MDN Web Docs（最新CSS仕様）
+- Josh W. Comeau CSS course
+- Vercel Design System (Geist) GitHub
+- Airbnb Design Blog / Stripe Blog
+- APCA公式（myndex.com）
+- W3C DTCG Design Tokens 仕様書
+- Google Fonts Blog / Adobe Fonts Blog
+
+### STEP 10: アップグレードサマリ
+Kana は CSS Container Queries × `:has()` × Nesting をベースにコンポーネント駆動設計へ転換し、Framer Motion／Lottie／SVGアニメを取り込んで Static+Micro-Animation で2026業界標準（CTR+38%）を実装する。
+APCA Lc 75以上（AAA相当）＋ WCAG 2.2 AAA ダブル判定を全案件で担保し、`prefers-reduced-motion` / `prefers-contrast` / ダークモードを標準実装。Airbnb DLS ／ Stripe ／ Vercel Geist の設計思想を LET事業ブランドトークン運用に翻訳する。
+納品形態を PNG／WebP／AVIF／MP4／Lottie JSON のマルチフォーマット化し、CDN配信最適化と媒体別自動振分けに対応。1マスター→多媒体多形式の量産体制で Kana の付加価値作業（タイポ・余白・コントラスト微調整）に時間集中させ、月間納品400本×AAA品質を実現する。

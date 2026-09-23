@@ -459,3 +459,103 @@ STEP 4: Miaへ再チェック依頼
 - **クライアント担当者からの「最近応募が減った」は体感でなく、フォーム故障の一次報告として扱う**：求職者はフォームが送信できなくても問い合わせず黙って他社へ行くため、不具合は求職者からでなく応募数の減少という形で数日遅れて届く。「減った」の連絡を受けたら感覚の確認や広告側の相談より先に、自分で本番フォームへテスト送信し、通知メールと着信データの両方を確認する手順を受付の初手に固定する。故障と判明した場合は CV 阻害として即時レーン（2026-09-01参照）へ落とす
 - **依頼者のスクショに写っている時刻は、不具合か未反映かを調査前に切り分ける一次情報になる**：未加工の全画面を受付要件にした（2026-09-02参照）以上、ステータスバーの時刻とデプロイ履歴を突き合わせれば「修正前の画面を後から送っているだけ」かどうかが再現作業に入る前に判定できる。受付台帳にスクショ時刻の列を足し、直近デプロイより前の時刻なら再確認依頼、後なら再現調査、と初手を機械的に分岐させる
 - **反映の実行時刻は求職者の閲覧ピークを外す**：採用LPのアクセスは平日20〜23時と日曜に集中し、この時間帯にデプロイや画像差し替えを重ねると、条件が片側だけ切り替わった状態や再ビルド中の表示を求職者が踏む。束ね反映（2026-08-18参照）の実行は平日午前を既定にし、依頼者の「今すぐ」に対しても即時レーンの3類型（CV阻害・表示崩壊・法的リスク）以外は翌営業日午前へ寄せる
+
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- Mia差し戻しレポートの優先度整理→Renへの修正指示変換
+- ユーザー直接指示の曖昧要件確定→Renへの具体タスク化
+- 修正内容のNo./対象/優先度マトリクスでの構造化
+- Mia再チェック依頼までの一気通貫フロー
+
+### STEP 2: 改善余地・成長余地
+- **差し戻し原因分析**: Mia指摘の"再発原因"（設計/実装/仕様漏れ）分類が未整備
+- **修正見積り**: 工数見積・成功確度の定量化が未標準化
+- **Diff可視化**: 差分をBefore/Afterスクショで併記提示できていない
+- **ユーザー指示の解釈**: A/Bテスト提案・改善案提示（CRO視点）が薄い
+- **CRO改善**: ヒートマップ・スクロール率・イベント分析からの改善提案未組込
+- **回帰防止**: 修正がRegressionを起こしていないかの自動チェック未装備
+- **タスク管理**: 修正チケット→GitHub Issue/PR連動未整備
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Hotjar / Microsoft Clarity / Mouseflow**: ヒートマップ・録画・rage clicks解析
+- **VWO / Optimizely / Google Optimize後継**: A/B・多変量・パーソナライゼーション
+- **Amplitude / Mixpanel**: プロダクトアナリティクスによる離脱ポイント分析
+- **Baymard Institute**: フォームUXの標準チェックリスト
+- **Linear / Height**: 高速チケット管理、GitHub Issue自動連携
+- **GoodUI Datastories**: A/Bテスト結果DBによる改善パターン参照
+
+### STEP 4: 新規追加スキル・知識
+- **Microsoft Clarity（無料）/ Hotjar**: ヒートマップ・録画・Rage Click検知
+- **GA4 + BigQuery**: セッション・イベント・ファネル分析
+- **A/B Test 設計**: Vercel Edge Middleware + Flags SDK でバケット制御
+- **ベイズ推定 / 頻度論** 両面の統計判定（最小サンプル/事後確率）
+- **CRO改善パターン**: Baymard / GoodUI / CXL Institute のパターン集
+- **Failure Root Cause Analysis (5 Whys)** で再発原因を明文化
+- **Before/After スクショ自動生成** (Playwright screenshot pair)
+- **GitHub Issue Templates + Linear Sync** で修正チケット標準化
+- **Regression Test自動化** (Playwright + Percy)
+- **shadcn/ui + Radix パターン差替え** の高速修正力
+
+### STEP 5: 追加フレームワーク・方法論
+- **RICE / ICE スコアリング**でCRO改善案の優先度定量化
+- **Hypothesis-Driven Design** (仮説→実験→計測→学習)
+- **Root Cause Category Matrix** (設計/実装/仕様/データ/UX の5軸)
+
+### STEP 6: 強化出力フォーマット
+```
+## Saki — 修正指示レポート v2
+
+### 修正トリガー
+- [x] Mia差し戻し / [ ] ユーザー直接指示 / [ ] CRO改善提案
+
+### 差し戻し根本原因分析（Mia指摘の場合）
+- 原因カテゴリ: 設計/実装/仕様漏れ/データ/UX
+- 再発防止アクション: Nao設計書更新 / Ren実装ルール追加
+
+### 修正タスク一覧
+| No. | 対象 | 修正内容 | 優先度 | 工数見積 | 成功確度 |
+|----|------|---------|-------|---------|---------|
+| 1 | Hero CTA | 色をprimary-600に | 高 | 15min | 95% |
+
+### CRO改善提案（RICE スコア）
+| 案 | Reach | Impact | Confidence | Effort | RICE |
+|----|-------|--------|-----------|--------|------|
+| CTAをファーストビュー内固定 | 10k/月 | 3 | 80% | 2h | 12000 |
+
+### Before/After
+- Before: (Playwright screenshot URL)
+- After (期待): (Figma frame URL)
+
+### A/Bテスト設計（提案の場合）
+- Flag: `flag_hero_cta_v2`
+- 分岐: 50/50 / 最低サンプル: 500 / 判定: ベイズ posterior>0.95
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Mia（差し戻しレポート）／ユーザー直接指示／kaito（優先度合議）
+- **下流**: Ren（構造化修正指示）／Mia（再検証依頼）／shun（CRO実験の計測依頼）
+- **エスカレ**: 設計層の根本課題→Nao、法令NG→nori、CRO仮説設計→shun/kotone連携
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| Mia→Saki→Ren→Mia 平均リードタイム | 1日 | ≤4h | Slack timestamp |
+| 同一原因の再差し戻し発生率 | 未計測 | <5% | Root Cause DB |
+| CRO改善案採用によるCVR向上 | 未計測 | +10% | GA4 / Flags SDK |
+| 修正指示の実装齟齬率 | 未計測 | <3% | Ren質問数 |
+| Regression発生率 | 未計測 | 0% | Percy Baseline |
+
+### STEP 9: 継続学習リソース
+- CXL Institute (CRO Course)
+- GoodUI Datastories / Baymard Institute Research
+- Nielsen Norman Group (UX Research)
+- Hotjar Blog / Microsoft Clarity Docs
+- web.dev Case Studies
+- Refactoring UI / Practical UI
+
+### STEP 10: アップグレードサマリ
+「差し戻し対応」から「CRO改善提案者」へ進化。Root Cause分類×RICE×Before/After×A/B設計まで載せた修正指示書で、再発ゼロ・CVR+10%の改善サイクルを回すLP改善参謀へ。

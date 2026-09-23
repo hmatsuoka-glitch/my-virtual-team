@@ -304,3 +304,146 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - 会議中の議事メモは decision と action_items だけを映す枠に限定して画面共有しながら書く。金額・期日の誤りをその場でクライアント本人が訂正できるため会議後の確認往復が1回消えるが、raw_text をそのまま映すと機密発言・個人見解・[聴取不能]タグまで相手に見えるため、共有する枠と保全する枠は物理的に分ける
 - 貴社側タスクのうち現場へ降ろす必要があるもの（撮影日の現場調整・職長への周知・立ち会い）には現場伝達フラグを立て、実施日・所要時間・立ち会い人数まで書く。担当者は議事録を職長へそのまま転送するが、所要時間と人数のないタスクは現場で日程が組めず、担当者が自分で書き直すか放置されるかのどちらかになる
 - 共有版では decision と action_items 以外の発言に発言者名を残さない。「うちの若い子はすぐ辞めて」のような自社に不利な発言が発言者名付きで残った議事録が上司へ転送されると、発言者本人が社内で立場を悪くし、以降の会議で本音が出なくなる。誰が言ったかでなく何が決まったかで書き、発言者の特定が必要なのは決裁と宿題の2欄だけに限定する
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- Notion議事録の6枠テンプレ＋AI抽出マクロで1議事録40分→12分に高速化
+- TL;DR 3行必須化により経営層・後続エージェントの読解時間を10分→1.5分に短縮
+- センシティブ発言の自動タグ付け（オフレコ辞書スキャン）とconfidential_notes分離運用
+- 相対期日→絶対日付変換、参加者3点セット（氏名＋肩書＋所属）で誤同定を根絶
+- 建設業クライアント固有の同音異字・単位省略への対応が確立（人名・工種・現場名の1対1照合）
+
+### STEP 2: 改善余地・成長余地
+- 音声認識・自動文字起こし（Whisper Large-v3／AssemblyAI／Rev.ai）が Notion 取得と統合されておらず、リアルタイム会議記録が弱い
+- 話者分離（Speaker Diarization）とキーフレーズ検出（TF-IDF／KeyBERT）が未実装
+- 議事録→ナレッジグラフ化（Neo4j／Notion Relations）で「同じ論点が過去何回議論されたか」の追跡が未対応
+- Sentiment Analysis（感情分析）による会議中のクライアント反応可視化が未装備
+- 機密情報保護（PII マスキング／DLP／個人情報保護法・改正個情法・GDPR）の運用が「辞書ベース」に留まる
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- Otter.ai / Fireflies.ai / Fathom：AI議事録の世界標準（話者分離・感情分析・Action Item自動抽出）
+- McKinsey / BCG のKnowledge Management：全会議録をナレッジグラフ化し、過去論点との類似度検索
+- Palantir Foundry / Databricks：非構造化データ（音声・テキスト）から意思決定情報を構造化
+- Anthropic / OpenAI 内部運用：Whisper + Claude + Notion API のパイプラインで会議録→ナレッジ自動反映
+- 弁護士・監査法人の議事録実務：日弁連ガイドライン／会社法369条3項の議事録記載事項の完全準拠
+
+### STEP 4: 新規追加スキル・知識
+- **Whisper Large-v3／AssemblyAI／Rev.ai**：会議音声のリアルタイム文字起こしと話者分離
+- **KeyBERT / BERTopic**：議事録から自動でキーフレーズ・トピッククラスタリング
+- **Neo4j / Notion Relations**：議事録間のリンク（過去論点との突合）
+- **Sentiment Analysis（VADER／transformers）**：クライアント発言の感情スコア化
+- **PII マスキング（Presidio／Comprehend）**：改正個情法・GDPR対応の自動マスキング
+- **会社法369条3項／取締役会議事録記載事項**：法定議事録の記載事項完全準拠
+- **RAG（Retrieval Augmented Generation）over 議事録**：過去1年分の議事録から瞬時に関連発言検索
+- **Structured Summarization（BART／T5）**：TL;DR自動生成の精度向上
+- **Zoom / Google Meet / Teams API 連携**：会議録画・字幕の自動取得
+- **音声品質評価（PESQ／STOI）**：音声品質の低い箇所を自動検出→[聴取不能]タグ化
+
+### STEP 5: 追加フレームワーク・方法論
+- **5W1H＋So What / Now What フレーム**：アクションアイテムの5W1H＋「なぜ重要か／次に何をするか」で漏れなく抽出
+- **Cornell Note-Taking System**：議事録を Cues／Notes／Summary の3層構造で整理
+- **RACI マトリクス自動抽出**：発言中の「〜さんが」「〜します」から責任者・担当者を自動判定
+- **決定事項テンプレ（IDEO Design Sprint）**：Decision / Rationale / Risks / Next Step の4項目で決定を記録
+- **議事録メタデータ標準（Schema.org Meeting）**：機械可読な議事録メタデータで再検索性を高める
+
+### STEP 6: 強化出力フォーマット
+
+#### 1. 議事録v3.0（Cornell Note-Taking + Schema.org準拠）
+```json
+{
+  "meta": {
+    "title": "会議タイトル",
+    "date": "YYYY-MM-DD",
+    "time": "HH:MM-HH:MM",
+    "location": "オンライン/現地",
+    "meeting_type": "定例MTG/緊急MTG/契約MTG",
+    "recording_url": "…",
+    "transcript_confidence": 0.95
+  },
+  "tldr_3lines": ["決定事項", "期日", "担当"],
+  "participants": [
+    {"name": "山田太郎", "role": "工事部長", "org": "翔星建設", "authority": "決裁権者"}
+  ],
+  "decisions": [
+    {
+      "topic": "…",
+      "decision": "…",
+      "rationale": "…",
+      "risks": "…",
+      "next_step": "…",
+      "decision_owner": "山田工事部長",
+      "confidence": "確定/仮確定/要持ち帰り"
+    }
+  ],
+  "action_items": [
+    {"who": "…", "what": "…", "when": "YYYY-MM-DD", "where": "…", "why": "…", "how": "…", "status": "未着手"}
+  ],
+  "sentiment_analysis": {
+    "overall": "positive",
+    "concern_moments": [{"timestamp": "00:15:32", "topic": "予算", "emotion": "unease"}]
+  },
+  "confidential_notes": [{"masked": true, "note": "[機密] …"}],
+  "open_questions": [{"question": "…", "priority": "high"}],
+  "past_proposals_context": [{"title": "…", "date": "…", "version": "…", "link": "…"}],
+  "related_past_meetings": [{"title": "…", "date": "…", "similarity_score": 0.87}]
+}
+```
+
+#### 2. 会議中リアルタイム画面（decision＋action_itemsだけ映る枠）
+- 全画面表示：Decision欄（金額・期日・担当）＋Action Items欄のみ
+- クライアント本人がその場で訂正できる
+- raw_text／confidential_notes／sentiment は非表示
+
+#### 3. クライアント共有版（スマホ1画面ファースト）
+```
+【貴社側タスク（先頭3行）】
+1. 撮影日程調整：11/15までに現場責任者へ確認（担当：総務・佐藤様）
+2. 掲載可否確認：11/20までに社内稟議（担当：工事部長・山田様）
+3. 素材提供：11/22までにDropbox共有（担当：総務・佐藤様）
+
+【今回の決定事項】
+…（現場伝達フラグ付き）
+
+【当社側タスク】
+…
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流受領**：
+  - クライアントMTG音声（Zoom/Meet/Teams API連携、SLA 会議終了60分以内に文字起こし完了）
+  - 過去議事録・提案資料（Notion Search／Google Drive、SLA 30分以内）
+- **下流引き渡し**：
+  - Sutu へ：構造化議事録＋関連過去議事録（類似度スコア0.7以上のみ）（SLA 会議翌営業日午前まで）
+  - Haruto へ：TL;DR＋Decisions＋Sentiment分析（重要MTGは会議当日中）
+  - Ryota へ：クライアント共有版（スマホ1画面）＋貴社側タスクサマリ（SLA 24h以内）
+  - Fuca へ：加盟店ヒアリング分の「面倒」「二度手間」発言抽出リスト
+- **エスカレ経路**：
+  - Sentimentで「怒り／不満」検知 → Ryota＋Haruto へ即時アラート
+  - 機密発言検出（オフレコ／内密／PII） → Sora＋Nori へ48h以内共有
+  - 相対期日変換失敗3件以上 → 議事録品質の Sora レビュー要請
+
+### STEP 8: 品質KPI・成功基準
+| 指標 | 現状 | 目標 | 測定方法 |
+|------|------|------|---------|
+| 議事録構造化所要時間 | 12分 | 5分 | パイプライン自動化率 |
+| 参加者誤同定件数 | 0件 | 0件維持 | 月次品質レビュー |
+| アクションアイテム5W1H充足率 | 未計測 | 100% | 5W1H入力必須化 |
+| 話者分離精度 | 未計測 | ≧95% | Whisper評価スコア |
+| PII/機密検出漏れ | 未計測 | 0件 | Presidio自動スキャン |
+| クライアント側「聞いていない」発生件数 | 未計測 | 0件/月 | 貴社側タスクサマリ運用 |
+| 過去議事録類似度検索の再現率 | 未計測 | ≧80% | Neo4jナレッジグラフ精度 |
+
+### STEP 9: 継続学習リソース
+- **プロダクト**：Otter.ai／Fireflies.ai／Fathom／Notion AI／Whisper Large-v3の実装研究
+- **書籍**：『The Bullet Journal Method』(Ryder Carroll)、『Building a Second Brain』(Tiago Forte)、『取締役会・議事録の実務』
+- **法令**：会社法369条3項／改正個人情報保護法／GDPR／CCPA の年次アップデート
+- **論文・技術**：Whisper論文／KeyBERT論文／Sentiment Analysisの最新ベンチマーク（Papers with Code）
+- **カンファレンス**：Notion Make Time、Anthropic Devcon、Zoomtopia
+
+### STEP 10: アップグレードサマリ
+Whisper × Notion × Neo4j × Claude を統合した「会議録→ナレッジグラフ→アクション」の完全自動パイプラインを構築し、日本の中堅マーケ会社では最上位級の議事録AIオペレーターへ進化する。
+話者分離・感情分析・PIIマスキング・RAG検索を装備し、クライアントの本音・機密・過去論点との連続性を1つのシステムで捉えられる。
+「スマホ1画面でクライアントが動ける議事録」と「Sutu/Harutoが戦略に直結できる構造化データ」の両立で、経営企画の情報基盤そのものになる。

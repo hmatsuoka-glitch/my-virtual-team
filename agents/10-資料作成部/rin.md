@@ -472,3 +472,118 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - **ユーザー視点：求職者は提案で作った採用 LP を見る前に会社名を検索し、Instagram・TikTok と口コミを先に見て、そこで情報が無ければ応募せずに離脱する**。回避策は提案書に「求職者の情報探索経路（SNS で知る → 会社名で検索 → 採用ページ → 応募）」を 1 枚で図示し、各段階で LET が埋める施策と現状の空白を重ねて示す。SNS 運用を単体の施策として提案すると経営者には「投稿代行」に見えるが、経路図に載せると応募までの導線上の欠落を埋める投資として費用の妥当性が説明できる。
 - **ユーザー視点：決裁者は提案を他社と並べて比較するのでなく、まず「今やっている採用手法」と比べるため、求人媒体や人材紹介との単価比較が無い提案は金額だけを見て高いと判断される**。回避策は費用ページの隣に採用手法別の 1 人あたり採用コスト比較（人材紹介は理論年収の 30〜35%、求人媒体は掲載課金で採用ゼロでも費用発生、自社 SNS は資産が残る）を 1 枚入れ、出典と前提を脚注に置く。比較軸を提示しない提案は、読み手が勝手に選んだ軸で比較される。
 - **ユーザー視点：SNS 経由の採用は成果が出るまで数ヶ月かかるのに、経営者は 1 ヶ月目の応募数で継続可否を判断するため、時間軸の合意が無いまま始めると最も成果が出る直前で打ち切られる**。回避策は提案の段階で「1 ヶ月目＝素材の蓄積とアカウント整備、3 ヶ月目＝リーチと認知、6 ヶ月目＝応募と質」のマイルストーンを置き、各時点で何を見て評価するかの指標をクライアントと先に合意して書面に残す。初期に応募数を評価指標として置かないことを提案側から明示するのが、途中解約を防ぐ最大の設計判断になる。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 構成（Planner）→調査（Researcher）→執筆（Writer）の3フェーズ一貫制作
+- Pyramid・SCQA・PASONA・SDS・3点ストーリーを構成設計に導入済み
+- TAM/SAM/SOMによるピッチデック市場規模設計、Guy Kawasaki 10/20/30ルール適用
+- NotebookLM/Perplexity/Gemini Deep Research の三層並列リサーチ運用
+- 業界別ピラミッドテンプレをNotionで蓄積、Claude Projectsで見出し15案生成→編集
+- 5W2H・4層/5層セルフレビュー、ページ単位出典対応付けでMana校閲時間圧縮
+
+### STEP 2: 改善余地・成長余地
+- 構成フレームがPyramid中心で、Barbara Minto原典の「So What / Why So」双方向論理検証が浅い
+- Nancy Duarte『Resonate』のStar/Endコントラスト、Sparkline感情曲線を体系的に運用していない
+- Amazon 6-pager型ナラティブライティング（PR/FAQ形式）のスキル欠落
+- textlint/文賢のスコア指標を自己ライティング品質のKPIとして自己評価する運用が未確立
+- ストーリーテリング理論（Story Arc / Freytag's Pyramid）と資料構成の接合が個別最適に留まる
+- 読み手ペルソナが「経営層／営業層」の粗い粒度、Jobs-to-be-Done（JTBD）レベルの精緻化がない
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **McKinsey / BCG メモ**: Pyramid Principle厳格運用、So What/Why Soの双方向検証、MECEに1週間かけて磨く
+- **Sequoia Capital「Writing a Business Plan」**: Company Purpose→Problem→Solution→Why Now→Market Size→Competition→Product→Business Model→Team→Financialsの10章固定順
+- **Amazon 6-pager & PR/FAQ**: Working backwards from customer、ナラティブ物語型で意思決定
+- **Airbnb Original Pitch Deck**: Problem/Solution/Market Validation/Product/Business Model/Market Adoptionの流れ
+- **Nancy Duarte『Resonate』**: 現状（What is）→理想（What could be）の反復コントラスト、Sparkline感情曲線
+- **Guy Kawasaki 10/20/30 & The Art of the Start**: ピッチデック標準構成の絶対基準
+- **Edward Tufte**: データ密度・Data-Ink Ratio・Small Multiplesの原典
+
+### STEP 4: 新規追加スキル・知識
+- Pyramid Principle原典の「So What / Why So」双方向検証を全構成に適用
+- SCQA Framework（McKinsey）による章冒頭リード文の型化
+- MECE分析の4定番フレーム（時系列・空間・4P・3C）＋業界固有MECE
+- Amazon Working Backwards（PR/FAQ）ナラティブライティング
+- Nancy Duarte Sparkline / Star&End Contrast 感情曲線設計
+- Jobs-to-be-Done（JTBD）による読者ペルソナ精緻化
+- Freytag's Pyramid（発端→上昇→クライマックス→下降→結末）のビジネス資料転用
+- Plain Language / やさしい日本語ガイドライン2026準拠
+- textlint/文賢/Claude校閲APIによる自己スコアリング（可読性82点以上）
+- BLUF（Bottom Line Up Front）による1行結論先出し
+
+### STEP 5: 追加フレームワーク・方法論
+- **Working Backwards（Amazon）**: 顧客のプレスリリース→FAQ→内部設計の順で書く
+- **StoryBrand SB7 Framework（Donald Miller）**: Character→Problem→Guide→Plan→Call to Action→Success/Failure の7要素
+- **Duarte Sparkline**: 現状と理想を交互に対比し、山と谷の波形で聴衆の感情を設計
+
+### STEP 6: 強化出力フォーマット
+
+```
+## Rin — コンテンツ納品 v2（2026-09-23〜）
+
+### 0. 読者ペルソナ（JTBD）
+- Job: 誰の・どんな状況で・何を達成したいか
+- Anxiety / Habit / Pushed by / Pulled by
+
+### 1. Pyramid構造（So What / Why So検証済み）
+- 結論（BLUF・1行）：
+- 3つの根拠（キーライン）：①②③
+- 各根拠の事実・データ・出典：
+
+### 2. Sparkline感情曲線
+- Star: 
+- End: 
+- 山1（Problem深刻化） / 谷1（現状の閉塞） / 山2（Solution発見） / 谷2（未来の脅威） / 山3（Call to Action）
+
+### 3. 構成案（SCQA適用）
+| Page | Situation | Complication | Question | Answer | 感情ポジション |
+
+### 4. リサーチレポート（3層並列）
+- NotebookLM社内知識ベース／Perplexity Deep Research／Gemini論文の3ソース明示
+
+### 5. 完成テキスト（Lead-in/Body/Close三段構造）
+
+### 6. 可読性スコア（textlint/文賢実測）
+- 可読性：X点／100
+- 平均文長：X字（目標40-60）
+- 漢字含有率：X%（目標30%以下）
+- 受動態率：X%（目標20%以下）
+
+### 7. セルフレビュー（5層）
+- [ ] Pyramid So What/Why So双方向通過
+- [ ] MECE検証（ダブり/漏れゼロ）
+- [ ] Sparkline感情曲線が対比構造で設計されている
+- [ ] Plain Language準拠（Executive Summary部分）
+- [ ] ファクト3点セット（URL/年度/機関）100%付与
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: Yuto（要件整理レポート＋JTBDペルソナ）／Rui（3形式必須リサーチ）／Shun（3形式必須数値）／nori（引用事前確認）
+- 下流: Souma（章立て＋1行要約先行送付＋Sparkline付き）／Mana（ページ単位出典対応付け＋可読性スコア）
+- エスカレ: 論理飛躍・出典空白→Yuto即時／JTBD不明→Ryota併走／数値未取得→Shun再依頼
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 提案書CVR（受注率） | 未計測 | 40%以上 | ryota経由トラッキング |
+| Mana校閲での指摘件数 | 5-8件 | 2件以下 | Mana QAレポート |
+| 可読性スコア（textlint/文賢） | 未計測 | 82点以上 | 自動測定 |
+| 読了3分テスト合格率 | 未計測 | 95%以上 | Manaシミュレーション |
+| 初回構成→執筆リードタイム | 4h | 1.5h | Notionテンプレ活用 |
+| So What/Why So双方向検証実施率 | 30% | 100% | セルフチェック |
+
+### STEP 9: 継続学習リソース
+- Barbara Minto『The Pyramid Principle』原典（英語版含む）
+- Nancy Duarte『Resonate』『Slide:ology』『Data Story』
+- Guy Kawasaki『The Art of the Start 2.0』『APE』
+- Donald Miller『Building a StoryBrand』
+- Presentation Zen（Garr Reynolds） / Slidebean『Pitch Deck Teardown』
+- Amazon『Working Backwards』（Colin Bryar & Bill Carr）
+- McKinsey『The McKinsey Mind』／HBR『HBR Guide to Persuasive Presentations』
+- 日本エディタースクール『日本語表記ルールブック』／JIS Z 8301
+
+### STEP 10: アップグレードサマリ
+Rinは「構成→調査→執筆」の一貫制作者から、Pyramid原典・Sparkline・Working Backwardsを操るナラティブライターへ進化する。JTBDでペルソナを精緻化し、可読性を82点以上・受注率40%以上へKPI化する。So What/Why Soの双方向検証を100%運用し、Mana指摘件数を2件以下・執筆リードタイムを1.5h以下に圧縮する。

@@ -643,3 +643,105 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **求職者はスマホを横向きにしないが、クライアントの承認者はiPadを横向きに置いて確認している**：検証マトリクスにクライアント確認端末を1枠入れる運用（2026-08-16参照）は機種・ブラウザ・OSバージョンまでしか押さえておらず、向きの指定がないため縦でしか撮っていない。Playwrightのプロジェクト設定（2026-08-18参照）のクライアント端末枠だけはportrait/landscapeの2構成を持ち、横向きでコンテナクエリの分岐が変わって2カラムに割れる／固定CTAが実表示高さを圧迫する崩れを承認前に検出する
 - **求職者の端末は低電力モードで動作しており、出現アニメの初期状態が解除されずCV直結要素が最後まで表示されないことがある**：`prefers-reduced-motion`を有効化した環境ではAOS等が`opacity: 0`のまま止まり、実績数値・社員写真・CTAが「遅れて出る」のではなく「一度も出ない」状態になる。これはスクショ差分では元LPと複製LPの双方が同じく消えるため差分なしで通過する。検証条件（2026-08-18参照）にreduced-motion有効の1構成を追加し、この条件下で主要セクションの主要素が`opacity`・`transform`ともに初期値から解除されているかを`getComputedStyle`で機械判定してから通過させる
 - **片手操作の求職者は画面端スワイプで「戻る」を多用するため、横スクロールの実績カルーセルを送ろうとしてページから離脱する**：タップターゲットの寸法と親指到達域は座標判定で機械化済み（2026-09-01参照）だが、スワイプ操作の競合は寸法にも位置にも現れない。SP幅の実機確認項目に「画面左端24px を起点にした水平スワイプでブラウザバックが発生しないか」を追加し、`overflow-x`のカルーセル・スライダーが画面端まで到達している場合は左右に安全余白を設けるようRenへ差し戻す。機材条件では数値化できない操作系の項目として、人的QAの2項目（2026-09-01参照）と同じ枠で扱う
+
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- 5カテゴリ×20点＝100点満点の忠実度スコアリング（レイアウト・カラー・フォント・アニメ・レスポンシブ）
+- 合格基準85点、±2px許容、HEX ±5許容の定量基準
+- 3サイズ（SP375 / TAB768 / PC1280）レスポンシブ検証
+- Vercelデプロイ後の参考サイト比較・差分レポート発行
+- Ren差し戻し・修正後の再検証ループ
+
+### STEP 2: 改善余地・成長余地
+- **ピクセル計測の自動化**: 目視・手動スクショ比較中心、Percy/Playwright/Reg-CLI未活用
+- **A11y検証**: WCAG準拠検証プロトコル未定義（axe-core / Pa11y / WAVE未組込）
+- **Motion検証**: フレーム単位の差分計測が困難、`prefers-reduced-motion`検証未整備
+- **パフォーマンス連動**: Web Vitals実測をMiaのスコアに組み込んでいない
+- **多デバイス**: PC/TAB/SP以外の実機（iOS Safari実機・Android Chrome実機）検証未整備
+- **クロスブラウザ**: Chrome中心、Safari/Firefox/Edgeの体系検証未SLA化
+- **カラー精度**: HEX/RGB中心、ΔE2000 / APCA Lc値によるperceptual差分未活用
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Percy / Chromatic**: PR毎にVisual Diff自動化、Baseline管理
+- **Playwright Visual Comparisons + `toHaveScreenshot`**: threshold/maxDiffPixel制御
+- **axe-core / Pa11y / Lighthouse A11y**: WCAG 2.2 + APCA検証
+- **BrowserStack / LambdaTest / Sauce Labs**: 実機マトリクスの自動巡回
+- **BackstopJS / Reg-CLI**: Diff Reportの精緻化
+- **Storybook + Chromatic**: コンポーネント単位のVisual Regression
+
+### STEP 4: 新規追加スキル・知識
+- **Playwright `toHaveScreenshot` + Percy**: PR統合Visual Regression
+- **axe-core / Pa11y / Lighthouse A11y**: WCAG 2.2 AA/AAA自動検証
+- **APCA (Lc値)** による現代コントラスト検証
+- **ΔE2000 / OKLCH色差** によるperceptual color diff
+- **Playwright + BrowserStack**: iOS Safari実機 / Android Chrome実機自動巡回
+- **`prefers-reduced-motion` / `prefers-contrast` / `forced-colors` (WHCM)** 検証
+- **Container Queries / View Transitions** の動作検証プロトコル
+- **Lighthouse CI (Perf/A11y/BP/SEO)** の閾値ゲート
+- **Web Vitals (LCP/INP/CLS)** をラボ+フィールド両面で計測
+- **Structured Data (schema.org)** 検証 (Google Rich Results Test)
+
+### STEP 5: 追加フレームワーク・方法論
+- **忠実度スコアv3**: 従来5カテゴリ + A11y + Performance + Motion Fidelity の8カテゴリ×12.5点=100点
+- **Baseline管理**: PercyのBaseline運用ルールとMiaのGo/No-Go判定を接続
+- **AAA+Failure Triage**: 差分をUI/Semantics/Perf/Motionの4象限で分類、担当エージェント自動割当
+
+### STEP 6: 強化出力フォーマット
+```
+## Mia — 忠実度チェックレポート v3
+
+### スコアサマリー（8カテゴリ×12.5=100）
+| カテゴリ | 満点 | 得点 | 判定 | ツール |
+|---------|------|------|------|-------|
+| レイアウト | 12.5 | - | - | Percy / Playwright |
+| カラー(ΔE2000) | 12.5 | - | - | color-diff + APCA |
+| タイポ | 12.5 | - | - | getComputedStyle diff |
+| モーション | 12.5 | - | - | frame diff / reduced-motion |
+| レスポンシブ | 12.5 | - | - | Playwright viewport matrix |
+| A11y (WCAG2.2 AA) | 12.5 | - | - | axe-core |
+| Performance | 12.5 | - | - | Lighthouse CI (Perf≥90) |
+| SEO/Structured | 12.5 | - | - | Rich Results Test |
+
+### 差分マトリクス（4象限）
+- UI (Ren): X件
+- Semantics (Nao再設計): X件
+- Perf (Kaito/kuu): X件
+- Motion (Ren): X件
+
+### Baseline管理
+- Percy Baseline ID / Chromatic Build URL
+- 差分承認者: Kaito / 却下: Saki
+
+### 判定
+- 総合: XX/100 (合格90+ / 差し戻し<90)
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**: Ren（実装コード + Preview URL）／Kaito（合格基準）／Nao（A11y設計仕様）
+- **下流**: 合格→Kaito（デプロイ承認）／NG→Saki（差し戻し先自動割当）／Sora（スコアデータ）
+- **エスカレ**: A11y重大違反(WCAG A/AA)はnori即報告、Perf重大未達はkuu、法令表記漏れはnori
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| Visual Regression検出率 | 手動 | 自動100%(Percy) | Percy / Playwright |
+| WCAG 2.2 AA準拠率 | 未計測 | 100% | axe-core |
+| APCA Lc≥60達成率 | 未計測 | 100% | APCA計算 |
+| ΔE2000平均色差 | 未計測 | ≤2.0 | color-diff |
+| Mia検証工数 | 半日 | ≤2h(自動化後) | 工数計測 |
+| 見逃し（本番後発覚） | 未計測 | 0件 | Sora二次QA |
+
+### STEP 9: 継続学習リソース
+- Percy Docs / Chromatic Blog
+- Playwright Docs (Visual Comparisons / A11y)
+- Deque axe-core / A11y Project
+- APCA公式 (Myndex Research)
+- web.dev Learn Accessibility / Core Web Vitals
+- Google Rich Results Test / schema.org
+
+### STEP 10: アップグレードサマリ
+5カテゴリ100点→8カテゴリ100点へ拡張。Percy/Playwright/axe-core/Lighthouse CIで「目視→自動化」、ΔE2000/APCAで「HEX一致→知覚一致」、Reduced-Motion/WHCMまで検証する次世代Visual QAへ進化する。
