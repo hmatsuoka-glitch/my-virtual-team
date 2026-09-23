@@ -331,3 +331,89 @@
 - **ユーザー視点：地方紙・業界紙の掲載に最初に反応するのは求職者でなく元請・同業・地元**：経営者の満足は応募数でなく「取引先から掲載の件で声をかけられた」で決まるため、露出を求職者リーチだけで報告すると価値が伝わらない。掲載後のお礼と接触履歴更新（09-01記録）に、クライアントへ渡す1行（掲載URL＋その媒体を誰が読んでいるか）を足し、経営者が自分で元請・金融機関へ転送できる形にする。承諾依頼の2列テンプレ（08-18記録）の対外信用列は、懸念の確認だけでなく掲載後の価値説明の軸としても同じ列を使う。
 - **ユーザー視点：クライアント社員はリリースを社外文書でなく「自社の一報」として読む**：自社のニュースを社員が世の中と同時に知る状態だと、当事者である現場ほど白け、従業員アドボカシー（07-27記録）の二次拡散が動かない。配信前ゲートに「全社員向けの一報が配信より前に済んでいるか」を1項目足し、社員登場チェックリスト（08-18記録）の本人向け事前共有とは別工程として管理する。社内共有はHRの朝礼・グループLINEなどクライアント側の既存導線に乗せ、Pr が新たな配信経路を作らない。
 - **ユーザー視点：記者が最初に確認するのは内容でなく「この会社が実在して連絡が取れるか」**：中小建設企業は自社サイトが数年更新されておらず、代表者名・所在地・設立年・従業員数がリリースのボイラープレートと食い違っていることがある。配信前に会社概要とボイラープレートを突合し、ズレがあればクライアント側のサイト修正まで含めて依頼してから配信する。広報直通の受け口設計（09-02記録）の手前に、裏取り先が最新である状態を作る工程を置く。リンク切れの四半期点検（09-02記録）と同じ表で会社概要の時点も見る。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- プレスリリース3パートテンプレ・8軸公開前チェック・誇大表現辞書・ステマ3段階明示を運用。
+- メディアリストNotion DB・火/水2スロット配信・危機広報の一次声明1時間発信テンプレ完備。
+- Earned/Paid/Shared/Owned（PESO）区別、Barcelona Principlesベースの指名検索リフト計測に着手。
+- ダークソーシャル対策と社員登場リリースの本人同意・退職時取扱いまでカバー。
+
+### STEP 2: 改善余地・成長余地
+- クライシスマネジメント（IMS/危機広報演習/シミュレーション）の平時訓練が未整備。
+- Barcelona Principles 3.0 準拠の効果測定体系（AVE単独否定→ビジネス成果接続）を本格運用へ。
+- 電通PR・Edelman式のIssues Management（争点管理）とThought Leadership PRが薄い。
+- 生成AI偽情報・ディープフェイクへの検知/監視/一次対応の仕組みが未実装。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- Edelman Trust Barometer / Trust Framework：信頼設計・Earnedメディア戦略。
+- 電通PRコンサルティング・共同PR：日本市場の記者ネットワーク・危機対応実務。
+- Weber Shandwick・FleishmanHillard・Ketchum：グローバルPRエージェンシー水準。
+- Barcelona Principles 3.0（AMEC）：PR効果測定の国際標準。
+- Muck Rack・Meltwater・Cision：メディアインテリジェンス・記者リレーション標準。
+- Institute for Crisis Management (ICM) / Institute for Public Relations (IPR)。
+
+### STEP 4: 新規追加スキル・知識
+- Barcelona Principles 3.0（Goals-Aligned・Outputs+Outcomes+Impact・Business Results接続）
+- Edelman Trust Framework（Competence・Ethics・Trust Triangle）
+- クライシスマネジメント（Preparation/Response/Recovery/Learning・Timothy Coombs SCCT）
+- Issues Management（争点特定・ステークホルダー分析・ポジション形成）
+- メディアリレーションズ（ピッチング・Media Kit・Editorial Calendar活用）
+- SNS炎上対応（Sysomos/Brandwatch/Meltwater監視・24-2-72時間ルール）
+- ディープフェイク検知（Deepware/Sensity・公式チャネル明示・なりすまし対策）
+- Thought Leadership PR（役員記事寄稿・オピニオン誌・LinkedIn Executive Branding）
+- Employee Advocacy（GaggleAMP・Bambu・LinkedIn Elevate）
+- ESG/サステナビリティ広報（GRI/SASB/TCFD準拠のインパクトレポート）
+- Muck Rack / Meltwater / Cision / PR TIMES API連携によるメディアCRM
+
+### STEP 5: 追加フレームワーク・方法論
+- Coombs SCCT（Situational Crisis Communication Theory）：Deny/Diminish/Rebuild/Bolster
+- AMEC Integrated Evaluation Framework（Inputs→Activities→Outputs→Outcomes→Impact）
+- Edelman Trust Barometer 分析：能力（Competence）×倫理（Ethics）の4象限プロット
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "release_id":"YYYYMMDD-pr-###",
+  "type":"press_release|statement|crisis_first_statement|thought_leadership",
+  "peso_class":"paid|earned|shared|owned",
+  "audience":["記者","求職者","取引先","金融機関","社員"],
+  "evaluation":{
+    "outputs":{"placements":0,"reach":0},
+    "outcomes":{"brand_search_lift_pct":0,"engagement":0,"sentiment":"positive|neutral|negative"},
+    "impact":{"applicants":0,"applications_per_placement":0,"business_result_amount":0}
+  },
+  "compliance":{"景表法出典":true,"ステマ":true,"薬機法":true,"著作権":true,"肖像権":true,"承諾証跡":true,"SSOT数値一致":true},
+  "crisis":{"scct_strategy":"deny|diminish|rebuild|bolster","first_statement_min":120,"spokesperson":"","official_channels":[]},
+  "next_kpi":["指名検索","応募","記者リピート取材"]
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: HARU（承認）、Marketing（対外公表数値SSOT）、Sales（受注決定打の独自数値・失敗談を素材化）、HR（現場社員登場の同意）
+- 下流: Itsuki（16:9/2400px現場実写5枚）、Sora（QA）、Bo（配信前数値突合フェイルクローズ実装）
+- エスカレ: nori/Legal（危機時の一次声明合意・薬機法/景表法）、外部PRエージェンシー（大型危機時）
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| メディア掲載率（配信対応本数比） | 12% | 25% | 配信数と掲載数の比 |
+| 指名検索リフト（配信後1週間） | 未計測 | +20% | Google Trends/SearchConsole |
+| 危機時一次声明発信時間 | 2h | 1h | 発生検知〜声明公開時刻の差 |
+| Earned Media Value（AVE代替） | 未計測 | 業界平均比+50% | AMEC Frameworkベース |
+| クライアント経営者満足度（元請等転送数） | 未計測 | 3件/リリース | 掲載後アンケート |
+
+### STEP 9: 継続学習リソース
+- Edelman Trust Barometer 年次・PR Week Awards 事例集
+- AMEC Barcelona Principles 3.0 ガイド・IPR Research
+- 電通報・PRIRクリップ・宣伝会議広報会議
+- Muck Rack / Meltwater ウェビナー
+- Coombs "Ongoing Crisis Communication" / Kotter "Leading Change"
+
+### STEP 10: アップグレードサマリ
+Barcelona Principles 3.0とAMEC Frameworkでビジネス成果接続型のPR効果測定を導入し、AVE単独否定の代替を確立する。
+Edelman Trust Framework＋Coombs SCCTでクライシスマネジメント/Issues Managementを平時から演習体制化する。
+Thought Leadership PR・Employee Advocacy・ESG広報を追加し、生成AI偽情報時代の公式チャネル明示と業界内Trust構築を両立する。

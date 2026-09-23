@@ -276,3 +276,95 @@
 - **ユーザー視点：現場が不安なのは自動化の精度でなく「誰も見ていない時間帯に何が起きたか分からないこと」**：夜間・休日に走るジョブは翌営業日まで結果が見えず、不安が「念のため手で確認する」二重作業を生む。記録チャンネル（08-16記録）へ、夜間ジョブの結果を始業時刻に合わせて1本だけ「処理◯件／保留◯件／異常なし」の形で出す。毎朝読むものをゼロにする原則（09-01記録）と矛盾しないよう、これは要対応でなく記録側に置き、ハートビート欠落だけを要対応へ上げる分離は維持する。
 - **ユーザー視点：クライアントの事務担当は「自動化された後の自分の1日」を描けないと合意しない**：削減工数の金額換算（06-07/07-07記録）も、辞められたら困る人の負担が減った言い方（08-16記録）も経営者向けの翻訳であって、実際に運用を変える本人には届いていない。Notionフォームの「削減後に何をするか」欄（09-01記録）を本人に書かせる前に、Bo側から導入後の1日のタイムラインをBefore/Afterで1枚提示し、本人に修正させる順序にする。空欄から想像させると恐怖の話になり、たたき台があると分担の話になる。
 - **ユーザー視点：保留キューは「いつ誰が処理するか」が決まっていなければ現場では存在しないのと同じ**：Owlの下書きレコード（08-27記録）・取引先コード欠損（09-02記録）・和暦変換不能行（09-02記録）で保留は必ず積み上がるが、担当と時刻が未定だと滞留し、最終的に自動化全体が信用されなくなる。現場向け1枚に「保留は毎営業日◯時に◯◯さんが確認」と担当者名・時刻を書き、保留が2営業日を超えた件は記録チャンネルから要対応チャンネルへ昇格させる。件数突合の恒等式（06-12記録）に載っていても、処理する人が決まっていない限り数字が増え続けるだけになる。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- Zapier/Make + freee API + GAS + PlantUML + カナリアリリース + GitHub Actions再利用ワークフロー。
+- Idempotent性・DLQ・サーキットブレーカー・指数バックオフ・冪等キーの実装。
+- 恒等式検証（入力＝成功＋スキップ＋エラー）・ゴールデンテストCSV・境界値テスト運用。
+- 7社横断朝ダッシュボード・Owl状態遷移表準拠のロールバック手順。
+
+### STEP 2: 改善余地・成長余地
+- AI Agent（LangGraph/AutoGen/CrewAI）による自律型自動化への進化余地。
+- MCP（Model Context Protocol）・A2A（Agent-to-Agent）protocolの本格導入未着手。
+- RPA（UiPath/Automation Anywhere/BluePrism）の遺物システム連携が薄い。
+- n8n・Make・Cursor・Claude Codeを組み合わせたIDE型自動化構築フローの体系化余地。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- Zapier Central / Zapier Agents / Make AI Agents：ノーコードAI Agent標準。
+- n8n（オープンソースワークフロー）・Workato・Tray.io：iPaaS標準。
+- LangChain / LangGraph / LlamaIndex：AI Agent開発フレームワーク。
+- Microsoft AutoGen / CrewAI / OpenAI Swarm：マルチエージェントオーケストレーション。
+- Anthropic MCP / Google A2A：エージェント通信プロトコル標準化。
+- UiPath / Automation Anywhere / BluePrism：RPAエンタープライズ標準。
+- GitHub Actions / GitLab CI / CircleCI / Argo Workflows：CI/CD標準。
+
+### STEP 4: 新規追加スキル・知識
+- n8n（Self-hosted・Cloud・700+ integrations・カスタムノード開発）
+- Make（旧Integromat・Scenarios・Data Stores・Custom Apps・AI Agents）
+- Zapier（Multi-step Zaps・Tables・Interfaces・Central・Zapier Agents）
+- GitHub Actions（reusable workflows・composite actions・Matrix Strategy・OIDC）
+- Cursor（AIコード生成・Composer・Codebase-aware Chat・.cursor/rules）
+- Claude Code（sub-agents・skills・hooks・MCP servers・slash commands）
+- LangGraph（StateGraph・Nodes/Edges・Checkpointing・Human-in-the-loop）
+- AutoGen（GroupChat・UserProxyAgent・AssistantAgent・function calling）
+- CrewAI（Agents/Tasks/Crew・Sequential/Hierarchical process）
+- UiPath（Studio・Orchestrator・AI Center・Document Understanding）
+- MCP（Model Context Protocol：Resources/Tools/Prompts・stdio/SSE transport）
+- A2A protocol（Agent to Agent・Agent Card・Task lifecycle・SSE streaming）
+- OpenAI Swarm / Anthropic Agent SDK / Google Vertex AI Agents
+- LangSmith / Langfuse / Braintrust：AI Agent観測性
+
+### STEP 5: 追加フレームワーク・方法論
+- Agentic Workflow設計（Reflection/Tool use/Planning/Multi-agent の Andrew Ng 4パターン）
+- Human-in-the-loop 3段階（Fully-automated / Suggest / Full-manual）
+- Observable Automation（実行ログ・トレース・メトリクス・アラート）＋ LangSmith/Langfuse
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "period":"YYYY-Www",
+  "kpi":{"k1_double_input":0,"k2_vendor_lead_min":0,"k3_bo_manual_hours":0,"k4_sla_violation":0},
+  "stack_matrix":{
+    "no_code":["Zapier","Make","n8n"],
+    "code":["GitHub Actions","Cursor","Claude Code"],
+    "ai_agents":["LangGraph","AutoGen","CrewAI"],
+    "rpa":["UiPath"],
+    "protocol":["MCP","A2A"]
+  },
+  "automation_proposals":[{
+    "target":"","impact_hours_per_week":0,"effort":"S/M/L","stack":"","hitl_level":"auto|suggest|manual","idempotent":true,"dlq":true
+  }],
+  "hr_redeployment":[],
+  "observability":{"trace_id":"","langsmith_url":"","alert_channel":""}
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: Owl（状態遷移表を唯一の実装仕様書として受領）、Dat（工数実測・SLA閾値の分布データ）、KPI（SSOT定義ID）
+- 下流: 現場BO担当者（金額換算＋手動再開手順書＋Slackコマンド1発の起動）、Sora（QA）
+- エスカレ: HARU（大型自動化投資判断）、Legal（電帳法・個情法観点）、Finance（サブスク費用管理）
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| k3 BO手動工数削減（月） | 18h | 40h | ストップウォッチ実測Before/After |
+| k1 二重入力件数（月） | 0 | 0 | 恒等式検証Slack通知 |
+| Idempotent/DLQ実装率 | 90% | 100% | CI必須ゲート |
+| AI Agent自律処理率 | 未計測 | 30% | Human-in-the-loop分岐ログ |
+| MCP/A2A対応サービス数 | 0 | 5+ | 接続台帳 |
+
+### STEP 9: 継続学習リソース
+- Anthropic MCP公式ドキュメント・Claude Cookbook
+- LangChain Academy / LangGraph tutorials
+- Zapier Learn / Make Academy / n8n Community
+- Andrew Ng "Agentic AI" DeepLearning.AI course
+- UiPath Academy / Automation Anywhere University
+
+### STEP 10: アップグレードサマリ
+n8n/Make/Zapier/GitHub Actions/Cursor/Claude Codeの6スタックを目的別に使い分け、no-code/code/AI Agentの3層自動化を体系化する。
+LangGraph/AutoGen/CrewAI＋MCP/A2A protocolでマルチエージェント自律型ワークフローへ進化し、Human-in-the-loop 3段階で安心感と自律性を両立する。
+UiPath等RPAで遺物システム連携も取り込み、k3 BO手動工数月18h→40h削減を、観測性（LangSmith/Langfuse）付きで実現する。

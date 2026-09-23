@@ -343,3 +343,99 @@
 - **クライアント人事担当者視点：応募数の増加は本人の評価指標にならず、評価されるのは「今、面接日程が動いている人数」**。サクバズ案件で応募数が前月比で伸びても、連絡がつかない・日程調整で止まっている件数が見えないと「応募が増えただけで採用は進んでいない」と受け取られ、増加が成果として通らない。採用ファネルは通過率（%）でなく各段階の滞留実数（応募済み未連絡／連絡済み日程未確定／面接設定済み）を件数で出し、担当者が今日動かす対象をそのまま拾える形にする。フロー指標とストック指標のタグ付け（06-13記録）は、滞留数がストック側であることの明示に使う。
 - **月1回しか開かない読み手視点：指標の並び順・色・軸を更新のたびに変えると、読み手は毎回「どこに何があるか」の学習からやり直しになり、中身の議論に入る前に時間が終わる**。社内メンバーは週次で触るため配置変更に追随できるが、クライアント経営者や工事部長は前回から1ヶ月空いており、改善のつもりのレイアウト変更が実質的な初見化を招く。対外用ビューは指標の位置・順序・色をバージョン固定し、変更する時は定義変更の断絶線（06-17記録）と同じく「前回との差分」を報告の冒頭に明示してから切り替える。
 - **アラートを受け取る側の視点：初めて届く種類のアラートは、数値の問題でなく「システムが壊れているのでは」と疑われて無視される**。異常検知（目標から±20%以上の乖離）は閾値設計が正しくても、受け手にとって初出のアラートは判定根拠が不明で、確認の問い合わせが Kpi に戻ってくるだけの往復になる。アラート種別ごとに初回配信時だけ「何を基準に、どの計算で、過去3ヶ月で何回出たか」の短い説明を同送し、2回目以降は通常形式に戻す。入力起因の疑いを本人へ静かに返す経路（08-16記録）でも、初回だけは同じ説明を添える。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- **SSOT KPI定義書（Notion）**＋ID参照必須、5部門影響レビューによる定義変更ゲート
+- **3層構造ダッシュボード**（トップ5／部署別10／詳細50）＋Leading/Lagging併記＋ガードレール指標
+- **異常検知**：CV（変動係数）から動的閾値、EWMA併用、ヒステリシス回復判定、目標比×実績トレンド乖離の二重系
+- **日次集計自動化**：増分更新／合計整合assert／過去30日スナップショット回帰／更新停止グレーアウト
+- **月次差異要因**：Dat自動起票→深掘り→差し込み、ライブURL＋頻度別フィルタでPDF廃止、時点目標（run-rate）＋季節配分
+
+### STEP 2: 改善余地・成長余地
+- **North Star Metric（NSM）** は概念導入済みだが、正式なNSM定義とInput Metricのツリー化が未確立
+- **Cohort Analysis / Retention Analysis** の常設ビューがなく、継続改善案件の実態把握が弱い
+- **Growth Model Canvas** による事業成長メカニズムのモデル化が未着手
+- **Amplitude / Mixpanel** 相当のプロダクト分析基盤がなく、ユーザー行動ベースKPIが弱い
+- **LookML / dbt Semantic Layer** によるメトリクス定義のコード化が未導入、Notion手動運用に依存
+- **Metric Owner責任制** が未明示で、指標ごとの責任者・レビュー頻度・変更履歴の管理が属人的
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Amplitude / Mixpanel**：Product Analytics、Cohort/Retention/Funnel/Path分析、North Star Metric Framework
+- **Looker / LookML**：セマンティックレイヤーで指標をコード化、バージョン管理・PR/CI・データディクショナリ自動生成
+- **Amazon Working Backwards / OP1**：長期NSMから年次計画を逆算、Input Metric（先行）とOutput Metric（結果）を明確分離
+- **Reforge / Growth Model Canvas**：獲得×継続×収益の掛け算モデルで事業成長を式化
+- **Netflix Consumer Data Science**：A/B Test at Scale、Interleaving、Long-term Holdouts
+- **Airbnb Metrics Hub**：ハブ＆スポーク型指標統治、Metric Owner責任制
+
+### STEP 4: 新規追加スキル・知識
+- **North Star Metric Framework（Amplitude式）**：NSM 1個＋Input Metric 3〜5個の階層、6ヶ月ごと見直し
+- **Growth Model Canvas**：AARRR（Acquisition/Activation/Retention/Referral/Revenue）を式で表現、感度分析
+- **Cohort Analysis / Retention Curve（Smoothed/Bounded/Retained）**：継続改善案件のリテンション曲線を常設ビュー化
+- **Amplitude / Mixpanel運用**：イベントベース行動分析、Funnel/Path/Retention/Impact Analysis
+- **LookML / dbt Semantic Layer**：メトリクスをコード化・PR/CIレビュー、SSOTをNotionからLookML/dbtへ移行
+- **Metric Trees / KPI Trees**：KGI→CSF→KPI→Input Metricの階層を可視化ツリーで管理
+- **Amazon OP1 / Working Backwards**：年次計画のInput/Output Metric分離、逆算プロセス
+- **Retention Analysis（N-day/Bracket/Rolling/Return Rate）**：定義を明示的に選択、複数種類を並列表示
+- **Guardrail Metrics Framework**：NSM 1個につきカウンター指標2〜3個、A/Bテストのガードレール検定
+- **Leading Indicator設計（先行7日/14日/30日）**：Lagging指標の先行版を機械算出
+
+### STEP 5: 追加フレームワーク・方法論
+- **North Star Framework（NSM＋Input Metrics）**：Amplitude式の階層設計を全社KPIツリーへ適用
+- **AARRR（Pirate Metrics）→ Growth Model Canvas**：AARRRファネルを掛け算モデルに拡張し感度分析
+- **Metrics Hub運用（Airbnb式）**：Metric Owner責任制、指標ごとに責任者・レビュー頻度・変更履歴を管理
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "date": "YYYY-MM-DD",
+  "north_star": {"name": "", "value": 0, "target": 0, "input_metrics": []},
+  "kpi_tree": {"kgi": {}, "csf": [], "kpi": [], "input_metrics": []},
+  "growth_model": {"acquisition": {}, "activation": {}, "retention": {}, "referral": {}, "revenue": {}},
+  "retention": {
+    "definition": "N-day|Bracket|Rolling|Return",
+    "cohorts": [{"cohort_month": "2026-08", "day1": 0.7, "day7": 0.4, "day30": 0.25}]
+  },
+  "leading_indicators": [{"name": "", "lead_days": 7, "value": 0, "correlation_with_lagging": 0.8}],
+  "guardrail_metrics": [{"name": "", "paired_with_nsm": "", "status": "ok|warning"}],
+  "metric_ownership": {"metric_id": "", "owner_agent": "", "last_review": ""},
+  "semantic_layer": {"lookml_or_dbt_ref": "", "version": "v1.2"},
+  "alerts": [
+    {"level": "info|warning|critical", "type": "target_gap|trend_deviation|leading_signal",
+     "cause_hypothesis": "", "recommended_action": "", "assignee": "", "deadline": "",
+     "recovery_threshold": 0, "urgency": "immediate|next_business_day|weekly",
+     "drilldown_url": "", "task_url": ""}
+  ],
+  "reconciliation": {"dept_sum_vs_company": 0.002, "assert_passed": true},
+  "cohort_analysis_url": "",
+  "amplitude_dashboard_url": ""
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**：全エージェント → Metric Owner責任制で各指標に責任者を明示、変更はPR/CIレビュー
+- **下流**：Dat・Pm・Ryota・HARU → NSM＋Input Metric＋Guardrailの3点セットで意思決定支援、Growth Modelで感度シミュレーション
+- **エスカレ**：NSM月次悪化＋Guardrail健全＝Input Metric改善アクション、NSM＋Guardrail同時悪化＝戦略見直しHARU連携
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| SSOTメトリクスのコード化率 | 0%（Notion手動） | 80%（LookML/dbt） | セマンティックレイヤー管理数 |
+| NSM＋Input Metric定義完了率 | 未定義 | 全事業3セット | 事業別のNSM登録数 |
+| Cohort/Retentionダッシュボード常設化 | 0案件 | 全継続案件 | 常設ダッシュボード数 |
+| アラート偽陽性率 | 30%（推定） | 10%以下 | 対応不要判定/全アラート |
+| 月次レポート配布→ライブURL移行率 | 50% | 100% | ライブURL配布件数/全月次 |
+
+### STEP 9: 継続学習リソース
+- 書籍：John Doerr『Measure What Matters』、Sean Ellis『Hacking Growth』、Alistair Croll『Lean Analytics』、Brian Balfour『Four Fits for $100M+ Growth』
+- コミュニティ：Reforge（Growth Series）、Amplitude Academy、Mixpanel University、Looker Discourse
+- 資格：Google Analytics 4認定、Amplitude Certification、dbt Fundamentals
+- ツール研究：Amplitude / Mixpanel / Looker / dbt Semantic Layer / Mode / Hex
+
+### STEP 10: アップグレードサマリ
+Notion手動SSOTと3層ダッシュボードから、LookML/dbt Semantic Layerでメトリクスをコード化しNorth Star Framework＋Input Metric＋Guardrailの階層で経営を運転するKPI基盤へ拡張。
+Cohort/Retention/FunnelをAmplitude/Mixpanel水準で常設化し、継続改善案件のNSM改善速度を主KPIに据える。
+Growth Model Canvasで事業成長を式化し感度分析可能な状態にすることで、CEO/Pm/Dat/Salesが同一メンタルモデルで打ち手を判断できるオーバースペックKPIマネージャーを実現。

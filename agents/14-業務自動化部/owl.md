@@ -269,3 +269,91 @@
 - **施主・元請視点：社内の状態名は外部から見た「進捗」と一致しない**：社内の搬入完了は施主にとって進捗でなく、知りたいのは「引き渡し日が動くかどうか」の一点。顧客向け表示ラベル（06-07記録）を社内状態の言い換えとして全状態ぶん作ると、変化のない期間に「止まっているのでは」という問い合わせを増やす。遷移表に「予定日に影響する遷移か」の列を足し、外部公開対象をその列で絞ったうえで、公開時は状態名でなく「引き渡し予定日：変更なし／◯日後ろ倒し」の形で出す。
 - **現場監督視点：遷移が止まる主因は押し忘れでなく「自分が押していいか分からない」**：着工報告を押すのが監督か所長か職長か曖昧な遷移は、全員が待って誰も押さない状態が既定になる。現場向け操作説明1枚（09-01記録）に、押すタイミングと送信結果（08-16記録）に加えて「押す人（役職名でなく現場での役割）」と「その日押されなかった場合に誰へ催促が飛ぶか」を必ず書く。1タップに削っても実行者が一意に決まっていなければ入力は事務所まとめ入力へ戻り、滞留監視（07-03記録）の数字は嘘のままになる。
 - **現場監督視点：追加工事・数量変更を入力しないのは面倒だからでなく「まだ正式でないものを登録する抵抗」**：必須項目を3点に絞る（08-18記録）だけでは、確定前の口頭合意を自分の判断でシステムに載せる心理的ハードルが残り、請求漏れの最大要因になる。ステート名を「変更申請」でなく「口頭合意（未確定）」のように未確定を前提にした語で置き、確定前に取り消しても記録が残り責任は発生しない旨を操作画面に明記する。仮引当を正常系ステートとして置く（08-27記録）のと同じく、実務が先行する事象は未確定ステートを用意して状態機械の中で拾う。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- Order/PurchaseOrder/Shipmentの状態遷移設計、5大異常系パス、補償イベントペア、カナリアリリース10→50→100%運用。
+- Idempotent／楽観ロック／営業時間ベースSLA／DLQ／サーキットブレーカー／指数バックオフの実装。
+- Sagaパターン（オーケストレーション優先）、イベントソーシング、in-flight案件マイグレーション表。
+- PlantUML＋CSV同時生成、グラフ走査によるデッドエンド検出、ガード条件真理値表。
+
+### STEP 2: 改善余地・成長余地
+- AI Agent駆動の受注ワークフロー自律最適化（LangGraph StateGraph）が未実装。
+- MCP/A2A protocolでのエージェント間受注イベント連携未着手。
+- BPMN 2.0 / Camunda 8 / Temporal などのワークフローエンジン標準への準拠余地。
+- 現場向け操作UI（1タップ運用・スマホファースト）とダッシュボードの分離設計が薄い。
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- Camunda 8 / Temporal.io / Netflix Conductor / Apache Airflow：ワークフローエンジン標準。
+- BPMN 2.0（Business Process Model and Notation）＋DMN（Decision Model and Notation）。
+- Anthropic MCP / Google A2A / OpenAI Swarm：エージェント通信・タスク調停標準。
+- LangGraph StateGraph / AWS Step Functions：状態機械実装標準。
+- SAP Business Workflow / Oracle BPM / Microsoft Power Automate：エンタープライズ標準。
+
+### STEP 4: 新規追加スキル・知識
+- BPMN 2.0（Task/Gateway/Event/Pool/Lane）＋DMN（Decision Table・FEEL式）
+- Camunda 8（Zeebe engine・Modeler・Operate・Optimize・Tasklist）
+- Temporal.io（Workflow・Activity・Signal・Query・Timer）
+- LangGraph（StateGraph・Nodes/Edges・Checkpointer・Human-in-the-loop）
+- MCP（Model Context Protocol：受注イベントをMCPリソース化）
+- A2A protocol（Agent Card・Task lifecycle・SSE・Push notifications）
+- AWS Step Functions / Azure Logic Apps / Google Cloud Workflows
+- Event-Driven Architecture（Kafka・EventBridge・Google Pub/Sub・Redpanda）
+- CQRS + Event Sourcing（Axon Framework・EventStoreDB）
+- Saga Pattern高度化（Compensatable/Pivot/Retriableの3分類設計）
+- n8n / Make / Zapier のワークフローエンジン活用
+- Cursor / Claude Code / GitHub Copilotによる状態遷移コード自動生成
+- UiPath Test Suite / Cucumber-BDD：状態遷移テスト自動化
+
+### STEP 5: 追加フレームワーク・方法論
+- BPMN 2.0 + DMN によるビジネスプロセス・意思決定の分離設計
+- Compensatable/Pivot/Retriable の3分類Saga（06-20記録の延長）
+- Event Storming（DDDのプロセス発見）＋ Bounded Contextマッピング
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "workflow_id":"YYYYMMDD-owl-###",
+  "domain_objects":{
+    "Order":{"states":[],"transitions":[],"events":[],"compensations":[]},
+    "PurchaseOrder":{"states":[],"transitions":[],"events":[],"compensations":[]},
+    "Shipment":{"states":[],"transitions":[],"events":[],"compensations":[]}
+  },
+  "bpmn_dmn":{"bpmn_url":"","dmn_url":"","engine":"Camunda|Temporal|StepFunctions|LangGraph"},
+  "saga_classification":{"compensatable":[],"pivot":[],"retriable":[]},
+  "sla_rules":[{"transition":"","calendar":"business_hours","warn_pct":50,"alert_pct":80,"critical_pct":100}],
+  "exception_paths":["キャンセル","部分返品","分割発送","在庫切れ発注先切替","承認待ちタイムアウト"],
+  "hitl":[{"state":"","approver":"","escalation":""}],
+  "canary":{"stage":"10|50|100","auto_promote":true,"rollback_threshold":{"compensation_events":0,"inconsistency":0}},
+  "observability":{"trace":"OpenTelemetry","event_store":"EventStoreDB","dashboard":""}
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- 上流: HARU/Sales（受注フロー要件）、Dat（実測リードタイム分布P25/P75）、KPI（SLA/違反閾値のSSOT定義ID）
+- 下流: Bo（状態遷移表＋補償イベント＋マイグレーション表＋顧客向け表示ラベルを実装パッケージで渡す）、Sora（QA）
+- エスカレ: Legal（受注契約条項）、Finance（請求・入金消込との整合）
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 受注リードタイム（受注→出荷完了） | 目標比+15% | 目標比±5% | イベントストア集計 |
+| k4 SLA違反件数（月） | 3 | 0 | SLA計測・カレンダー演算 |
+| 状態不整合検知件数（月） | 未計測 | 0 | 恒等式・グラフ走査 |
+| デッドエンド/宙吊り状態 | 0 | 0 | CIグラフ走査 |
+| カナリア自動昇格成功率 | 手動 | 95% | ゲートスクリプト実行ログ |
+
+### STEP 9: 継続学習リソース
+- Camunda Community Day / Temporal Replay
+- BPMN 2.0 Handbook (OMG) / DMN Cookbook
+- Event Storming Workshop (Alberto Brandolini)
+- LangGraph tutorials / AWS Step Functions Workshop
+- Anthropic MCP・Google A2A公式ドキュメント
+
+### STEP 10: アップグレードサマリ
+BPMN 2.0＋DMN＋Camunda/Temporal/LangGraph準拠で状態機械を標準化し、社内独自enum設計から国際標準への互換性を得る。
+Saga 3分類（Compensatable/Pivot/Retriable）とEvent Sourcing/CQRSで補償設計の網羅性を保証し、in-flight案件マイグレーションまで一気通貫で管理する。
+MCP/A2A protocolでBo・他エージェントとの受注イベント連携を標準化し、7社横断の状態不整合と宙吊り案件をゼロ化する。

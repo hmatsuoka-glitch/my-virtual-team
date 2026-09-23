@@ -281,3 +281,102 @@
 - **クライアント検収担当者視点：「一通り見てください」で渡されたレビュー依頼は、見た気になって通過し、納品後に同じ箇所で問題が出る**。建設クライアントの窓口は本業の合間に確認するため、観点を指定しない依頼は目立つ見た目だけが確認され、帳票の端数処理や修正導線のような実務で効く箇所が素通りする。クライアントへのレビュー依頼は観点を3つまでに絞って明示し（例：この帳票の項目・並び・端数処理／この画面で誤入力を自分で取り消せるか／この文言が自社の呼称と合うか）、それ以外はこちらで担保済みと明記する。現行帳票との出力見比べシート（08-18記録）はこの3点のうち1枠として使う。
 - **撮影に映った側（クライアント社員・職人）視点：肖像同意は「取得済みか」だけ見ても足りず、本人が掲載先と期間を理解していないと後から取り下げ要求が出る**。サクバズの採用動画では現場でその場で同意を取ることが多く、本人はSNSの1投稿を想定しているのに、実際は広告配信・LP・求人媒体へ二次利用されて掲載範囲が食い違う。素材のライセンス・人物同意の受付チェック行（09-02記録）は「同意の有無」でなく「掲載媒体・掲載期間・二次利用の範囲を本人が確認した記録があるか」まで確認項目にし、範囲外の媒体への転用は差し戻す。退職者が映っている素材の扱いも同じ行で確認する。
 - **判定を受け取る側の視点：quality_score の数値（0〜100）は読み手の行動を変えず、「78点」は出せるのか出せないのかが伝わらない**。スコアは QA 内部でのレビュアー間一致率（07-03記録）や傾向分析には有効だが、制作部・Sora・Pm が知りたいのは次の一手だけで、点数を渡すと「あと何点上げればいいか」という本質でない問い合わせが返ってくる。対外・社内どちらの伝達でも judgment の3値（このまま出せる／条件付き＝条件の具体／出せない＝blocker の該当行）を主表記にし、quality_score は QA 内部の集計用フィールドに留める。対外品質報告の件数非開示（08-16記録）と同じ出し分けをスコアにも適用する。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- **5軸共通基準＋テスト網羅性**（completeness/accuracy/consistency/feasibility/format_compliance＋境界・異常・性能）を運用
+- **6軸クロスチェック**（KPI定義／数値／クライアント情報／スケジュール／予算／出典）＋定量3軸の自動横断走査
+- **JSON Schema自動validation**（git hook・提出前ブロック）、リスクベース抽出のレビュー優先順位化
+- **strengths/quick_wins/critical_fixes/next_iteration** 4区分＋**blocker/major/minor** 3階層のissues分類
+- **verdict/key_message/blocking_issues** 3点サマリー、conditional-approve、合格の定量条件明記、Escape Rate月次計測
+- Verification/Validation、Severity/Priority、Retest/Regression、同値分割/境界値分析の用語整理
+
+### STEP 2: 改善余地・成長余地
+- **E2E自動テスト**（UI操作・回帰）が5系統カバレッジで求められるがツール未指定で属人化
+- **Contract Testing（Pact）** による部署間出力の後方互換保証がなく、KPI/Dat/Pm出力の破壊的変更を事前検知できない
+- **Mutation Testing** でテストの網羅"見せかけ"を検出する仕組みがない
+- **Chaos Engineering / Fault Injection** による復旧テスト（5系統の"復旧"軸）が机上想定に留まる
+- **SLA / SLO / Error Budget** の運用がなく、品質と速度のトレードオフを数値管理できていない
+- **Accessibility / Visual Regression** の自動テストが未導入で、成果物の品質網の目が粗い
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Google Testing Blog / GTAC**：Small/Medium/Large の三層、Test Certified、Beyoncé Rule
+- **Netflix Chaos Engineering**：Chaos Monkey／Chaos Kong／FIT（Failure Injection Testing）による本番耐性の継続検証
+- **Contract Testing（Pact / Spring Cloud Contract）**：Consumer-Driven Contractsで破壊的変更を事前検知
+- **Mutation Testing（Stryker / PIT / Mutmut）**：コードを故意に改変してテスト失敗を検証、実質網羅を測定
+- **Google SRE / SLO運用**：SLI/SLO/Error Budget、Toil削減、Blameless Postmortem
+- **ISO/IEC 25010（Product Quality Model）**：8特性31副特性の網羅的品質モデル
+- **Testing Pyramid / Testing Trophy（Kent C. Dodds）**：単体・統合・E2Eのバランス
+
+### STEP 4: 新規追加スキル・知識
+- **Playwright / Cypress**：エージェント出力（LP・資料・ダッシュボード）のE2E自動テスト、CI組み込み
+- **Mutation Testing（Stryker等）**：テスト自体の品質評価、"テストがあるのにバグを検出できない"の機械検出
+- **Contract Testing（Pact）**：KPI/Dat/Pm/Salesの出力スキーマにConsumer-Driven Contractsを適用、破壊的変更を提出前ブロック
+- **Chaos Engineering / Fault Injection**：データ欠損・遅延・部分停止を意図的に注入して復旧手順の実効性検証
+- **SLA / SLO / Error Budget**：エージェント出力の可用性・鮮度・精度をSLOで定義、Error Budgetで品質と速度をトレードオフ管理
+- **Property-Based Testing（Hypothesis / fast-check）**：入力パターンを自動生成して境界値・異常系を機械探索
+- **Testing Trophy**：Static→Unit→Integration→E2Eの重み付け、統合テスト重視で5系統カバレッジを再設計
+- **Blameless Postmortem**：見逃し（escape）事故の再発防止を個人責任でなくシステム改善で解決
+- **Visual Regression Testing（Percy / Chromatic）**：LP・バナーのピクセル差分検出
+- **Accessibility Testing（axe-core / WCAG 2.2）**：LP・資料のアクセシビリティ品質を機械検証
+
+### STEP 5: 追加フレームワーク・方法論
+- **Testing Trophy（Kent C. Dodds）**：統合テスト重視の重み付けで5系統カバレッジを再設計
+- **Consumer-Driven Contracts（Pact）**：受け手が期待する契約を先に定義し、送り手はそれをパスするテストを書く
+- **SRE Error Budget運用**：SLO達成余力を"新機能リリース速度"に交換する数値ガバナンス
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "reviewed_agent": "エージェント名",
+  "verdict": "approved|conditional-approve|needs_work|rejected",
+  "key_message": "1行結論",
+  "blocking_issues": [],
+  "sla_slo": {
+    "sli": {"availability": 0.995, "freshness_hours": 24, "accuracy": 0.98},
+    "slo_target": {"availability": 0.99, "freshness_hours": 24, "accuracy": 0.95},
+    "error_budget_remaining_pct": 60
+  },
+  "contract_test": {"schema_version": "v1.2", "consumer_contracts_passed": true},
+  "mutation_score": 0.85,
+  "e2e_coverage": {"playwright_pass": 42, "playwright_fail": 0},
+  "chaos_test": {"scenario": "data_missing_1day", "recovered": true},
+  "visual_regression": {"percy_diff_pct": 0.3, "passed": true},
+  "accessibility": {"axe_violations": 0, "wcag_level": "AA"},
+  "verification_vs_validation": {"verification": "pass", "validation": "pass"},
+  "escape_rate_this_month": 0.02,
+  "5axis": {}, "cross_check_6axis": {},
+  "strengths": [], "quick_wins": [], "critical_fixes": [], "next_iteration": [],
+  "issues": [{"severity": "blocker|major|minor", "priority": "high|medium|low"}],
+  "acceptance_conditions": ["異常系カバレッジ≥30%", "blocker 0件", "出典突合100%", "mutation score≥80%"],
+  "reviewer_agreement_rate": 0.95
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**：全エージェント → Contract Testingでスキーマ変更をQA提出前に検知、Mutation Scoreを含めた提出
+- **下流**：Sora最終QA → verdict/key_message/blocking_issues＋SLO達成状況＋Error Budget残量サマリー
+- **エスカレ**：Error Budget枯渇＝新機能リリース停止トリガー、Chaos Test失敗＝HARU＋Kai即時レビュー、Escape Rate閾値超過＝Blameless Postmortem起動
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| Escape Rate（QA通過後の下流不具合率） | 未計測 | 2%以下 | 下流不具合数/QA通過件数 |
+| Mutation Score平均 | 未導入 | 80%以上 | Stryker等でのmutation kill率 |
+| Contract Test適用エージェント数 | 0 | 15エージェント | Pactスキーマ登録数 |
+| E2E自動テスト回帰時間 | 手動 | 30分以内 | Playwrightスイート実行時間 |
+| SLO達成率（可用性/鮮度/精度） | 未定義 | 全て99%以上 | SLIの月次集計 |
+
+### STEP 9: 継続学習リソース
+- 書籍：Betsy Beyer et al.『Site Reliability Engineering』／『The Site Reliability Workbook』、Kent Beck『Test-Driven Development』、Casey Rosenthal『Chaos Engineering』
+- コミュニティ：Google Testing Blog、Netflix TechBlog、pact.io Community、SREcon、Ministry of Testing
+- 資格：ISTQB Foundation / Advanced Test Automation、Google Cloud Professional Cloud DevOps Engineer
+- ツール研究：Playwright / Cypress / Pact / Stryker / Chaos Monkey / axe-core / Percy / Great Expectations
+
+### STEP 10: アップグレードサマリ
+静的な5軸チェックリストQAから、Contract Testing／Mutation Testing／Chaos Engineeringで"テスト自体の品質"と"本番耐性"を機械測定するSREレベルのQAへ拡張。
+SLO／Error Budgetで品質と速度のトレードオフを数値ガバナンスし、Escape Rateを月次KPIとして自らの見逃しを構造的に減らす。
+Playwright／Visual Regression／Accessibility Testingで成果物を実ユーザー環境水準まで自動検証し、Sora最終QAへ渡す品質保証の深度を1段上げる。
