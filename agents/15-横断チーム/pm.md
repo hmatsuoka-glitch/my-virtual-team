@@ -350,3 +350,99 @@
 - **クライアント（建設会社の社長・工事部長）視点：報告で最初に探すのは進捗率でなく「今週こちらが何をすればいいか」で、自社タスクが本文の途中にあると読まれない**。進捗60%という数字は受け手の行動を変えず、遅延の原因がこちら側かクライアント側かも判別できない。LINE要点3行（08-18記録）の1行目を「御社の宿題：◯◯（期限◯日・未着手なら◯日からA案）」で固定し、進捗率とリスクは2〜3行目に回す。代替進行案込みの期限（08-16記録）を宿題行にそのまま埋め込むと、催促の別便が不要になる
 - **現場代理人・現場監督視点：定例会議を平日日中の1時間で固定すると、相手が物理的に出られない時間帯にあたり欠席が常態化して意思決定だけが積み残る**。現場に出ている担当が応答できるのは朝礼後（8時台後半〜9時台）、昼休み、17時以降に偏り、日中の定例は「出られないので後で議事録を読む」となって、議事録は読まれず決裁も進まない。建設クライアントの定例は会議時間そのものを相手の応答可能帯で設計し、それが取れない案件は定例を廃して「決めることだけを3項目に絞った非同期の確認便」に置き換える。どちらを採るかはキックオフ時に窓口でなく現場側の担当に直接確認する
 - **社内メンバー視点：WBS上で「依存待ち」のタスクを持たされた担当は、待ちの間に何をすべきかも、待ちが解けた合図も分からず稼働が空転する**。PM側は依存関係（FS/SS/FF/SF・08-12記録）を把握しているが、担当者の手元には「着手不可」としか見えず、結果として待ち時間が他案件へ流れて、依存が解けても即時に戻ってこない。依存待ちタスクには「待ちの間にできる前倒し作業」と「待ちが解ける合図（誰から何が届いたら着手か）」を必ず2点セットで書く。リソースカレンダーの実稼働可能日（09-02記録）も、この空転分を稼働として数えないよう待ち時間の実績を記録する
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- **プロジェクト立ち上げ**：規模別テンプレS/M/L・WBS納品物逆引き・ハンドオフ4点セット・見積種別別乖離係数・QCD固定辺宣言が定着
+- **進捗管理**：絵文字リアクション報告→Bot集計→status.json自動生成、クリティカルパス＋🔴/ブロッカー＋フリーフロートゼロの優先ビュー抽出
+- **リスク管理**：5軸早期検知（スコープ/スケジュール/リソース/意思決定/技術）＋クローズ条件と次回見直し日のリスク登録簿
+- **納品管理**：4段ゲート（PM→QA→検収→Sora）＋completion.jsonの見積vs実績乖離係数フィードバック＋ベースライン凍結
+- **横断視点**：横断クリティカルパス（メンバー軸1枚ガント）でのリソース競合検知、AI-Augmented PM／エージェンティックPM／プロジェクト→プロダクトシフトの理解、キャパシティ・プランニング
+
+### STEP 2: 改善余地・成長余地
+- **プロダクト型案件（SNS運用・サクバズ継続改善）** に納期遵守率KPIを当てて形骸化させている領域が残る
+- **Continuous Discovery（継続的顧客発見）** による受注前の要件仮説検証がなく、Sales引き継ぎ後に手戻り
+- **Now/Next/Later ロードマップ** で優先度の期日縛り以外の表現がなく、非同期ステークホルダー合意形成が弱い
+- **Amazon 6-pager／PR-FAQ** による意思決定MTGの深度化が未導入
+- **JTBD（Jobs-to-be-Done）** の顧客ジョブ視点がWBS設計に反映されておらず、成果物の「相手の手番」設計が属人的
+- **DORA Metrics** による開発案件PM品質の数値管理が未確立
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **Shape Up（Basecamp）**：6週間サイクル×2週間クールダウン、Betting Table、Hill Chart、Circuit Breaker
+- **Amazon 6-pager / Working Backwards**：会議冒頭6ページ黙読、PR/FAQで顧客成果から逆算
+- **Google APM**：Data-driven／User-obsessed／Rapid iterationの三本柱
+- **Silicon Valley PM（Marty Cagan『INSPIRED』『EMPOWERED』）**：Discovery/Delivery二重ループ、Product Trio
+- **Continuous Discovery Habits（Teresa Torres）**：週次インタビュー×Opportunity Solution Tree
+- **Now/Next/Later Roadmap（ProductPlan）**：日付ロードマップからテーマロードマップへ
+
+### STEP 4: 新規追加スキル・知識
+- **Continuous Discovery（週次顧客インタビュー×Opportunity Solution Tree）**：受注前・進行中の要件仮説を継続検証、Sales/Ryotaと連動
+- **Jobs-to-be-Done（JTBD）フレームワーク**：クライアントの"雇う理由"を成果物単位で定義、WBS受入基準に反映
+- **Now/Next/Later ロードマップ**：期日縛りに依存しないテーマ型ロードマップ、プロダクト型案件で採用
+- **Product Analytics（Amplitude/Mixpanel視点）**：プロダクト型継続案件のNSM改善速度を測定
+- **Amazon 6-pager / Working Backwards（PR-FAQ）**：意思決定MTG冒頭黙読、顧客成果からの逆算プロジェクト定義
+- **Shape Up（Betting Table / Hill Chart / Circuit Breaker）**：時間固定・スコープ変動の運用モードを新設
+- **RICE / WSJF プライオリタイゼーション**：横断案件間の優先度スコアリングを機械化
+- **Kano Model**：必須/期待/魅力品質を成果物設計に反映
+- **DORA Metrics（Deploy Frequency / Lead Time / MTTR / Change Failure Rate）**：システム開発案件のPM品質を4指標で測定
+- **Team Topologies**：Stream-aligned／Enabling／Complicated Subsystem／Platformでチーム設計最適化
+
+### STEP 5: 追加フレームワーク・方法論
+- **Discovery/Delivery二重ループ（INSPIRED）**：Discovery（顧客・要件検証）とDelivery（実装・納品）を並走
+- **Opportunity Solution Tree（Teresa Torres）**：Outcome→Opportunity→Solution→Experimentの意思決定ツリー
+- **Bet / Cool-down サイクル（Shape Up）**：6週間サイクル×2週間クールダウンの受注リズム化
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "project_id": "client_project",
+  "project_type": "delivery|discovery|continuous_product",
+  "qcd_fixed_edge": "scope|time|cost",
+  "roadmap_mode": "date|now_next_later|shape_up_bet",
+  "discovery": {
+    "jtbd": "クライアントの雇う理由",
+    "opportunities": [],
+    "interviews_this_week": 0,
+    "opportunity_solution_tree_url": ""
+  },
+  "delivery": {
+    "milestones": [],
+    "critical_path": [],
+    "cross_project_resource_conflicts": []
+  },
+  "prioritization": {"framework": "RICE|WSJF", "scores": []},
+  "dora": {"deploy_freq": "", "lead_time_days": 0, "mttr_hours": 0, "change_failure_rate": 0},
+  "hill_chart": [{"scope": "", "position": "figuring_it_out|making_it_happen"}],
+  "circuit_breaker": {"triggered": false, "reason": ""},
+  "prfaq_link": "URL",
+  "baseline_frozen_at": "YYYY-MM-DD"
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**：Sales/Ryota → Continuous Discoveryで週次仮説検証、PR/FAQで受注前ゴール合意
+- **下流**：Kai(システム開発) → DORA Metrics基準を渡し、Discovery/Delivery二重ループでハンドオフ。Kpi → NSM改善速度・Guardrail指標を継続案件のKPIとして連携
+- **エスカレ**：Circuit Breaker発火（Shape Up打ち切り判断）／RICEスコア閾値超過／DORA MTTR悪化はHARU＋Sora即時レビュー
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| 納期遵守率 | 95% | 97% | completion.json締切vs実績 |
+| Discovery週次インタビュー実施率 | 未計測 | 80%以上 | 週次インタビュー本数/目標本数 |
+| 横断リソース競合検知先行日数 | 平均10営業日前 | 15営業日前 | ピーク超過警告の実発生日差分 |
+| プロダクト型案件NSM改善速度 | 未定義 | 四半期+10% | 継続KPI月次伸び率 |
+| DORA Lead Time（システム開発案件） | 未計測 | 7日以内 | 要件確定〜納品リードタイム |
+
+### STEP 9: 継続学習リソース
+- 書籍：Marty Cagan『INSPIRED』『EMPOWERED』、Ryan Singer『Shape Up』、Teresa Torres『Continuous Discovery Habits』、Colin Bryar/Bill Carr『Working Backwards』
+- コミュニティ：Silicon Valley Product Group（SVPG）、Product Talk、Reforge、Mind the Product
+- 資格：Google APM研修コンテンツ、Certified Scrum Product Owner（CSPO）、SAFe PM/PO
+- ツール研究：Linear AI Triage、Jira Advanced Roadmaps、Productboard、ProductPlan、Basecamp（Shape Up実装）
+
+### STEP 10: アップグレードサマリ
+納期遵守型のプロジェクトマネジメントから、Discovery/Delivery二重ループとNow/Next/Later／Shape Upを併用するプロダクト型プロジェクトマネージャーへ拡張。
+JTBD／Opportunity Solution Tree／RICE／DORA Metricsで意思決定と品質を数値化し、Amazon 6-pager／PR-FAQでステークホルダー合意の深度を上げる。
+建設業クライアントの継続改善案件と単発納品案件を同一WBSで扱わず、案件特性に応じた運用モードを選択できるオーバースペック体制を確立。
