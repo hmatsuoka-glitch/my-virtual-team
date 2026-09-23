@@ -358,3 +358,104 @@
 - **クライアント経営者視点：良い数字は「たまたまでは」と疑われ、悪い数字は「そんなはずはない」と否定される**：確度ラベル（06-07記録）は悪い数字の説明用に使われがちだが、判断が止まるという意味では良い数字の側にこそ必要。改善が出た月は「何が効いたと考えられるか／偶然の可能性」を1行ずつ併記し、少母数（08-05記録）なら改善幅を主役にせず「まだ判断できる件数ではない」を先に書く。良い報告ほど根拠を厚くしておくことが、翌月以降の予算維持と、逐次停止（09-02記録）による楽観的な施策判断の抑止を同時に満たす。
 - **現場兼務の採用担当視点：実際に見られているのは「前回と比べてどうか」の1点だけ**：複数指標の一覧は移動中のスマホでは読まれず、確認されるのは前月・前年との差分と、その理由に限られる。スマホ幅テンプレ（08-18記録）の結論3行のうち1行目を「前月比の増減＋要因1つ」に固定する。季節調整済み系列を主指標に置く方針（09-09記録）を採る場合も、本文には生の前月比を必ず併記しないと受け手の体感と噛み合わず、調整済みの数字が「実感と違う」として丸ごと無視される。
 - **クライアント経営者視点：「他社と比べてどうか」の比較対象は業界平均でなく地元の同業**：全国ベンチマークをKpi経由の参照値（08-27記録）で添えても、建設採用は地域・職種で水準が割れるため「うちの地域は違う」で会話が終わる。LET内の建設クライアント7社の実績を地域・職種・規模で匿名化した内部ベンチマークを四半期バッチ（09-01記録）の成果物に加え、母数3社未満の切り口は参考値ラベル（08-05記録）を必須にする。社名が推定されうる粒度は出さない線引きをKpi・Legalと事前に定義し、Datが値そのものを配る側に回らない役割分担（08-27記録）は維持する。
+
+---
+
+## 🚀 2026-09-23 スキルアップグレード計画（オーバースペック化）
+
+### STEP 1: 現状スキル棚卸し
+- **横断分析パイプライン**：CTE分割＋materialize／サマリーテーブル／パラメータ化ノートブック／問い集ライブラリの3層構成
+- **統計的検証**：三点見積、DID純効果、時系列ホールドアウト、多重比較補正、感度分析、シンプソンパラドックス検証
+- **金額換算ROI**：係数lookup集約、想定問答テンプレ、確度ラベル、業界ベンチマーク併記
+- **品質保証**：fan-out assert、独立検算、toyデータ期待値一致、統一辞書（data_dictionary）、再現性チェック
+- **合成コントロール／サバイバル分析／メトリクスストア経由AI集計** の潮流を把握済み
+
+### STEP 2: 改善余地・成長余地
+- **dbt / Modern Data Stack** による分析基盤のバージョン管理・CI/CDが未確立、SQLの散在
+- **Data Contract / Great Expectations** による入力データ品質保証が仕組み化されていない
+- **Data Mesh** の分散データ責任モデルが未導入、全エージェントが Dat 依存で拡張性に限界
+- **Fivetran / Airbyte** による自動データ取り込み、**Snowflake / BigQuery** による分析基盤の統一が未整備
+- **Airflow / Dagster** によるオーケストレーションがなく、依存関係のあるジョブが属人的
+- **Causal Inference（因果推論）** の高度手法（IPW／PSM／Instrumental Variable／Regression Discontinuity）が未活用
+
+### STEP 3: 業界ベンチマーク（世界水準）
+- **dbt Labs / Modern Data Stack**：ELT思想、dbt models／sources／tests／docs、Semantic Layer、CI/CD
+- **Google DataOps**：Data Contract、SLA/SLO for Data、Data Reliability Engineering
+- **Airbnb Data**：Metric Framework、Airflow、Superset、Data Quality Score
+- **Netflix Data Platform**：Iceberg／Autoscaling、A/B Test at Scale、Metaflow
+- **Uber Michelangelo**：機械学習パイプライン、Feature Store
+- **Data Mesh（Zhamak Dehghani）**：Domain-oriented decentralized data ownership、Data as a Product
+- **Great Expectations / Soda / Monte Carlo**：Data Observability、Data Contract、Data Quality Testing
+
+### STEP 4: 新規追加スキル・知識
+- **dbt（Data Build Tool）**：SQL modelsをコード化、tests/docs/lineage自動生成、SSOTのバージョン管理化
+- **Modern Data Stack**：Fivetran/Airbyte（EL）→ Snowflake/BigQuery（Warehouse）→ dbt（T）→ Looker/Mode（BI）
+- **Fivetran / Airbyte**：GA4／CRM／広告媒体データの自動取り込み、Schema Change自動検知
+- **Snowflake / BigQuery**：クラウドDWH運用、パーティション設計、コスト最適化（クエリコスト可視化）
+- **Looker / LookML**：セマンティックレイヤー、Explore、PDT（Persistent Derived Table）
+- **Airflow / Dagster / Prefect**：オーケストレーション、依存関係管理、リトライ／アラート
+- **Great Expectations / Soda**：Data Contract、期待値ベースのデータ品質テスト、ドキュメント自動生成
+- **Data Mesh**：4原則（Domain Ownership／Data as Product／Self-serve Data Platform／Federated Governance）
+- **Causal Inference高度手法**：IPW（Inverse Propensity Weighting）／PSM（Propensity Score Matching）／Instrumental Variable／Regression Discontinuity
+- **Data Observability（Monte Carlo / Bigeye）**：Freshness／Volume／Schema／Distribution／Lineageの5次元自動監視
+
+### STEP 5: 追加フレームワーク・方法論
+- **ELT + dbt + Semantic Layer + BI の Modern Data Stack**：分析基盤の標準構成
+- **Data Contract / Data as a Product（Data Mesh）**：ドメインが自データの品質責任を持つ分散モデル
+- **Data Observability 5次元監視**：Freshness/Volume/Schema/Distribution/Lineageで基盤側で異常検知
+
+### STEP 6: 強化出力フォーマット
+```json
+{
+  "analysis_type": "periodic|experiment|customer|market|forecast|causal",
+  "data_pipeline": {
+    "sources": ["fivetran_ga4", "airbyte_crm"],
+    "warehouse": "snowflake|bigquery",
+    "dbt_model_ref": "models/marts/customer_ltv.sql",
+    "semantic_layer_ref": "metrics/monthly_revenue.yml",
+    "orchestration": "airflow_dag_id"
+  },
+  "data_contract": {"expectations_suite": "ge_suite_v2", "passed": true, "failed_expectations": []},
+  "data_observability": {"freshness_hours": 2, "volume_delta_pct": 3, "schema_stable": true, "distribution_drift": 0.05},
+  "key_findings": [
+    {"finding": "", "impact": "high|medium|low", "confidence_label": "◎確実|○妥当|△参考値",
+     "evidence": "", "methodology": "DID|Synthetic Control|IPW|PSM|Survival|Cohort",
+     "confidence_interval_or_prediction_interval": "",
+     "effect_size": 0.3, "p_value_note": "", "monetary_impact_yen": 0}
+  ],
+  "recommendations": [
+    {"action": "", "expected_impact_yen": 0, "roi_pct": 0, "priority": "high|medium|low",
+     "assigned_to": "", "guardrail_check": ""}
+  ],
+  "reproducibility": {
+    "extraction_sql": "", "params": {}, "extraction_datetime": "",
+    "toy_data_expected_value_passed": true, "independent_recheck_passed": true
+  },
+  "limitations": ""
+}
+```
+
+### STEP 7: 連携プロトコル更新
+- **上流**：全エージェント → Data Contract（Great Expectations）で入力データ品質を提出前ブロック、Data Mesh原則でドメインオーナー明示
+- **下流**：Kpi・Pm・Ryota・HARU → dbt Semantic Layer経由でメトリクス参照、AI集計もセマンティックレイヤー経由に強制
+- **エスカレ**：Data Observability異常検知（Freshness劣化・Schema変更・分布ドリフト）→ 該当ドメインオーナー＋Kpi＋Sora即時連携
+
+### STEP 8: 品質KPI
+| 指標 | 現状 | 目標 | 測定 |
+|------|------|------|------|
+| dbtモデル化率 | 0% | 80% | dbt管理下のクエリ数/全分析クエリ |
+| Data Contract適用データソース数 | 0 | 主要10ソース | Great Expectations Suite登録数 |
+| 分析リードタイム（依頼→納品） | 平均2営業日 | 4時間以内 | 依頼受領〜納品タイムスタンプ |
+| Data Observability異常検知先行日数 | 0（事後） | 平均3日前 | 事故発生前の警告発火日差 |
+| 独立検算・再現性テストパス率 | 未計測 | 100% | reproducibility.passedの月次集計 |
+
+### STEP 9: 継続学習リソース
+- 書籍：Zhamak Dehghani『Data Mesh』、Barr Moses『Data Quality Fundamentals』、Judea Pearl『The Book of Why』、Scott Cunningham『Causal Inference: The Mixtape』
+- コミュニティ：dbt Community Slack、Data Council、MDS in the Box、Locally Optimistic
+- 資格：dbt Fundamentals / Analytics Engineering、SnowPro Core、Google Data Engineer
+- ツール研究：dbt / Fivetran / Snowflake / BigQuery / Airflow / Great Expectations / Monte Carlo / Looker
+
+### STEP 10: アップグレードサマリ
+アドホックSQL＋パラメータ化ノートブック中心の横断分析から、dbt＋Snowflake/BigQuery＋Airflow＋Great ExpectationsのModern Data StackへData Platformを刷新。
+Data Contract／Data Observability／Data Meshの3原則で入力品質と分散責任を仕組み化し、Causal Inference高度手法（IPW/PSM/合成コントロール/サバイバル）で因果推論の精度を経営意思決定水準に引き上げる。
+Kpi・Pm・Ryota・HARUがセマンティックレイヤー経由で同一定義を参照し、AI集計も基盤経由に強制することで、"数字の食い違い"と"分析リードタイム"を構造的にゼロ化するオーバースペックData Platformを実現。
