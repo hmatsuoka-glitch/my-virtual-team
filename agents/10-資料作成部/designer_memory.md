@@ -365,3 +365,217 @@
 | 日付 | 変更内容 | 対象テンプレ |
 |------|---------|------------|
 | 2026-04-23 | 初回学習。11テンプレート全文解析、パターン抽出 | 全11ファイル |
+
+---
+
+## 🚀 オーバースペック強化 v2026 — Design Memory Ops 2026
+
+**追加日**: 2026-09-24
+**強化バージョン**: v2026.1
+**対象領域**: デザインナレッジ管理・Design System・Design Ops・Antipattern収集・Design Review自動化
+
+---
+
+### 🎯 2026年 Design Memory Ops のミッション
+
+デザインメモリは「テンプレの倉庫」ではなく **"組織のデザイン知能"** である。Souma がクリエイティブ判断を下すたびに、その判断ロジック（Why選んだか）まで含めて構造化蓄積し、次回の類似案件で **3秒以内に再現可能な状態** に保つことがミッション。2026年時点で目指すべきは以下3点：
+
+1. **Retrieval-First Design**: 新規デザインは "0から作る" のではなく "過去の最適解を検索して合成する" 前提。RAG的アプローチをスライド制作に導入する。
+2. **Decision Graph 化**: なぜこのテンプレを選んだか、なぜこの配色を採用したかの **判断分岐** を構造化保存し、後続案件で参照可能にする。
+3. **Antipattern Registry**: NG事例（Sora差戻し、クライアント修正指示、Mia NG）を全て **失敗ログ** として構造化し、同じミスを組織として二度と踏まない。
+
+**KGI**: デザイン制作リードタイム −60%（初稿完成までの時間） / Sora一発通過率 90%+ / 過去案件からの再利用率 70%+。
+
+---
+
+### 📚 必読リファレンス（Design Memory Ops 2026）
+
+デザインメモリを更新・運用する際、Souma と Aoi は必ず以下を参照する。年1回の棚卸しで最新版に差し替える。
+
+1. **Nielsen Norman Group — Design System 成熟度モデル 2026版**
+   共有可能デザイン言語の "Level 0-5" 評価軸。自組織の成熟度を毎四半期セルフ診断し、次のLevelに進むためのアクションを策定する。
+
+2. **Notion — Design DB Playbook 2026**
+   Notion をデザインナレッジベースとして使うテンプレート集。Relational Property でパターンとコンポーネントを紐付ける手法が2026年業界標準。
+
+3. **Figma Config 2026 — Design System Ops セッション録**
+   Airbnb / Shopify / Stripe / Uber の Design System チームによる Ops 事例。Component Audit の自動化、Token Governance、AI駆動命名規則が主要トピック。
+
+4. **IBM Carbon Design System v12 — Docs**
+   Foundation → Component → Pattern → Template の階層設計のリファレンス実装。命名規則・バージョニング・非推奨化フローが世界最高水準で整備されている。
+
+5. **Anthony Hobday — Visual Design Rules（改訂版 2025）**
+   ロジックで説明可能なデザイン規則集。ブランド規則を "感覚" ではなく "言語化" して蓄積する際の下敷き。
+
+6. **Design Systems Handbook（InVision） + Storybook 8 Docs**
+   コード連携済みDesign Systemの運用リファレンス。スライドテンプレをコンポーネント化する際のメンタルモデル移植元。
+
+7. **Ken Norton — Design Ops 101 / Kate Kaplan — Design Ops Maturity**
+   Design Operations の役割定義。デザインメモリの管理者（=Souma+Aoi）が担うべき責務のスコープ確定に使う。
+
+---
+
+### 🛠️ ツールチェーン（Design Memory Ops 2026 標準装備）
+
+Designer Memory の運用は以下7ツールで構成する。全て2026-Q3時点で選定した最適解。
+
+| ツール | 役割 | 使いどころ |
+|-------|------|----------|
+| **Notion（Design DB）** | メタデータ・関係性管理 | パターン⇔コンポーネント⇔案件のRelational DB。タグ検索の中枢 |
+| **Google Drive + Google Slides** | 実ファイル格納 | 完成テンプレ・パーツライブラリの原本置き場（現状の運用継続） |
+| **Figma FigJam** | 判断分岐の可視化 | Decision Graph を Node/Edge で描画。誰でも読めるフロー資産に |
+| **Storybook 8 + Chromatic** | コンポーネント・ビジュアル回帰 | LP/Web案件用のUIパターン管理。差分検知に使用 |
+| **Airtable / Coda（Antipattern Registry）** | NG事例・失敗ログ | 失敗パターンを Category × Root Cause × Fix でスコア化 |
+| **Claude Projects + Cowork Skill** | Retrieval-First 実装 | このmemoryファイルを RAG的に検索・合成する司令塔 |
+| **Loom + Descript** | 制作ログ動画化 | 判断過程を1本の説明動画にして次案件へ引継ぎ |
+
+**運用ルール**: Google Slides の実体は動かさない。Notion がメタデータの正、Google Drive がバイナリの正。**両者の同期は月次で Aoi が担当する。**
+
+---
+
+### 🏆 2026年 Design Memory ベストプラクティス
+
+Souma が実案件で採用すべき、業界最先端の設計原則を7つ厳選。
+
+1. **Atomic Design × Slide Template 移植**
+   Brad Frost の Atomic Design を Google Slides に適用。Atom（アイコン・数値・引用符）→ Molecule（KPIカード・見出し+本文）→ Organism（KPIダッシュボード・組織図）→ Template（会社紹介・提案書）→ Page（実案件成果物）の階層で分類し、Notion に登録する。
+
+2. **Design Token Governance**
+   カラー・タイポ・余白を "デザイントークン" として一元管理する。テンプレ毎に定義した Navy #1A2E4A / Deep Red #B4231C / Orange #E96A2C 等は、必ず Notion Token DB で **1件1レコード** として管理し、Semantic name（primary / danger / accent）と Reference name（navy-900 等）を両方持たせる。
+
+3. **Decision Log（判断分岐の記録）**
+   案件納品時、必ず以下3項目を Notion に記録する：
+   ①なぜこのテンプレを選んだか
+   ②他候補と比較して何が優位だったか
+   ③クライアント固有の制約は何だったか
+   これがなければ次案件で "なんとなく同じ選択" になり組織知として蓄積されない。
+
+4. **Component Audit（月次1回）**
+   全パーツライブラリを月次でチェックし、①使用頻度が0のパーツを非推奨化 ②類似パーツの統合 ③新規追加候補の起票 を行う。Aoi の月次業務として組み込む。
+
+5. **Antipattern Registry（NG事例の資産化）**
+   Sora差戻し・クライアント修正指示・Mia NG は全て **失敗ログ** として Airtable に構造化保存する。Category（配色/レイアウト/文字量/フォント/情報過多）× Root Cause × Fix の3軸で分類し、月次で頻出Top5をSoumaが再学習する。
+
+6. **Design Review Rubric（採点表）**
+   スライド完成後、Sora QA前にセルフレビューする採点表を導入。10項目 × 各10点 = 100点満点で自己採点し、80点未満は自動的にSoumaに差戻す仕組み。項目例: ①メッセージ1行の明瞭さ ②アクセントカラーの節制 ③余白 ④視線導線 ⑤フォント階層 ⑥数値強調 ⑦本文文字数 ⑧図解の必然性 ⑨ブランド遵守 ⑩情報密度。
+
+7. **AI-Assisted Retrieval**
+   Souma は新規案件着手時、必ずこのmemoryファイル全文をClaudeにコンテキスト投入し、"最も近い過去案件3件" を出させてから制作に入る。ゼロから考える時間を最小化する。
+
+---
+
+### 📊 Design Memory KPIs（2026年下期目標）
+
+Souma と Aoi は毎週金曜、以下7指標を集計する。
+
+| 指標 | 目標値 | 測定方法 |
+|------|-------|---------|
+| **テンプレ再利用率** | 70%+ | 案件納品時、既存テンプレ複製ベースの割合 |
+| **初稿完成時間** | 平均4時間以内 | ヒアリング完了 → 初稿v0.1提出までの実測時間 |
+| **Sora一発通過率** | 90%+ | Sora QAで一発OKになった案件の比率（差戻しなし） |
+| **クライアント修正回数** | 平均1回以下 | 初稿→FIX確定までのラウンド数 |
+| **Antipattern重複率** | 月次3件以内 | 過去NG事例と同じ根本原因のミスが再発した件数 |
+| **Design Token追加数** | 月次5件以上 | Notion Token DB への新規登録数（活発な運用の指標） |
+| **Decision Log記録率** | 100% | 納品案件のうち Decision Log を記入した比率 |
+
+---
+
+### 🤝 関連エージェント連携（Design Memory Ops の Hub 構造）
+
+Designer Memory は10-資料作成部の中央神経系。以下の連携パスを常時稼働させる。
+
+- **Souma ⇄ Aoi**: Aoi がテンプレ監査・Token Governance を実施。Souma は実案件でメモリを引き出す。週次同期MTGでナレッジ吸い上げ。
+- **Souma ⇄ Rin**: Rin の構成案が確定した瞬間に、Souma はこのmemoryから該当テンプレを引き当てる。「A/B/C/D どれに該当するか」の判定はRinのアウトプットから決まる。
+- **Souma ⇄ Mana**: Mana校閲でNG指摘があれば、Antipattern Registryに即登録。同じミスを次案件で回避。
+- **Souma ⇄ Yuto**: Yuto（部長）は月次でこのmemoryの成熟度をチェック。Level評価をNielsen Norman成熟度モデルで実施。
+- **Souma ⇄ Kaito（LP部）**: LP案件のスライド版が発生した場合、LP部のCSS抽出データからスライド用トークンを逆生成する。
+- **Souma ⇄ Sora**: Sora QAでの差戻し理由は必ず Antipattern Registry へ。SoraはQA基準として本memoryを参照する。
+- **Souma ⇄ Nori**: 制作前のリーガルチェックで指摘があった表現ルールも、Design Memory の "禁止表現DB" に登録して次案件で自動回避。
+
+---
+
+### 🧠 Design Memory メンタルモデル（Souma が肚落ちさせるべき5つの視点）
+
+1. **メモリは "検索できて初めて資産"**
+   蓄積するだけでは意味がない。3秒以内に該当パーツURLに辿り着ける状態を維持することが本質。タグ設計と命名規則が命。
+
+2. **"1回使ったら1回改善する" ラチェット原則**
+   案件で使ったテンプレは、その案件から得た学び（配置微調整・数値強調の工夫・クライアントからの追加要望）を必ず反映してから戻す。使うほど資産価値が上がる。
+
+3. **判断の言語化＝再現性**
+   "なんとなくこの色にした" は組織知にならない。必ず "業界イメージがXXX系だから、Navy #1A2E4A を選択" のように言語化してNotionに記録する。
+
+4. **失敗こそ最高の学習データ**
+   成功事例より失敗事例のほうが学びが深い。Sora差戻し・クライアントNGは "組織の教科書" として積極収集する。恥ずかしがらず登録する文化を作る。
+
+5. **メモリの寿命は6ヶ月**
+   デザイントレンドは半年で入れ替わる。半年前のパターンは "旧パターン" タグを付けて非推奨化する運用を貫く。腐敗した知識は組織の判断を鈍らせる。
+
+---
+
+### ⚠️ Antipattern（絶対に踏んではいけないNG）
+
+過去のSora差戻し・クライアント修正・Mia NG事例から抽出した典型的失敗パターン。
+
+1. **カラー乱用（3色以上のアクセント混在）**
+   テンプレのアクセント色は1つ。Navy案件にDeep Redを差し込むと視線が散り、ブランド訴求が弱まる。**セクション9の共通ブランド規則を絶対遵守。**
+
+2. **数値・図解の "配置しただけ" 症候群**
+   KPIカードや組織図を貼るだけでは価値ゼロ。**必ず "上部メッセージ1行" で "この数字が意味すること" を明示する。** メッセージなき数値はSora一発NG。
+
+3. **本文文字量の暴走（150字超）**
+   スライド1枚の本文が150字を超えた瞬間、視聴者は読まなくなる。分割 or 図解 or 削除の3択で処理する。
+
+4. **テンプレ選定ミス（企画提案書テンプレを月次報告に流用）**
+   案件タイプの判定を誤ると、ストーリー構造が破綻する。**セクション2の対応表を必ず参照してから制作着手。** Sora QAで最も指摘されやすい。
+
+5. **Photo / LOGO プレースホルダーの放置**
+   `Photo` / `LOGO` の文字がそのまま納品されるのは論外。差替えできないなら抽象背景・アイコンへの切替が必須。**Mana校閲で最頻出のNG項目。**
+
+6. **フォント混在（明朝＋ゴシック＋Sans-Serif）**
+   1スライドに3系統以上のフォントを使うと素人っぽくなる。見出し=1系統、本文=1系統の "2フォント原則" を厳守。
+
+7. **Decision Logを書かずに案件クロージング**
+   納品時のDecision Log記入をサボると、3ヶ月後の類似案件で "なんでこの選択したっけ？" となり組織知が積み上がらない。**Yuto部長は納品時にDecision Log記入を必ずチェック。**
+
+8. **旧テンプレの惰性使用**
+   6ヶ月以上更新されていないテンプレを使い続けると、業界トレンドとズレる。半年ごとに全テンプレのトレンド適合度を再評価する。
+
+---
+
+### 🎓 継続学習ルート（Design Memory Ops として2026年に押さえるべき）
+
+Souma は年間4回、以下カテゴリの学習ソースをローテーションで消化し、本memoryを更新する。
+
+- **Q1（1-3月）**: Nielsen Norman Group + Design Systems Handbook 精読 → 成熟度診断
+- **Q2（4-6月）**: Figma Config 参加 or 録画視聴 + Storybook Docs → コンポーネント設計手法アップデート
+- **Q3（7-9月）**: 業界カンファレンス（Config Japan / IA Summit / UX DAYS TOKYO）→ 最新パターン収集
+- **Q4（10-12月）**: 年次棚卸し + Antipattern Registry 集計 + 次年度Token Governance方針策定
+
+**年間必読書（2026年版）**:
+- 『Design Systems』 Alla Kholmatova（原著改訂版）
+- 『Refactoring UI』 Adam Wathan & Steve Schoger
+- 『Non-Designer's Design Book』 Robin Williams（Slide制作の基礎再確認用）
+- 『Storytelling with Data』 Cole Nussbaumer Knaflic（数値可視化の教科書）
+- 『デザイン組織のつくりかた』 Peter Merholz & Kristin Skinner
+
+**推奨ニュースレター**: Refactoring UI / Design Systems Weekly / UX Collective / Sidebar.io
+
+---
+
+### 💎 my-virtual-team における差別化ポイント
+
+このDesigner Memoryが他社のデザインナレッジベースと決定的に違う点。
+
+1. **Sora QA との自動連動**
+   全案件が納品前に必ずSora品質チェックを通過するため、Antipattern Registry へのNG事例流入が構造的に保証される。他社では "気づいた人が登録" だが、我々は "全案件が自動的に登録機会に晒される" 構造。
+
+2. **クライアント固有DBとの結合**
+   Cowork Projects で管理する `/Users/matsuokahideto/claude LET/クライアント情報/` 配下のクライアント別ナレッジと、本Design Memoryが結合可能。翔星建設案件で採用した Navy 濃度は次回の翔星建設案件で自動レコメンドされる。
+
+3. **BMAD準拠のシステム開発部との架け橋**
+   09-システム開発部 kai/nao と連携し、Web/アプリ案件の Design System をコード側（Storybook）とスライド側（Google Slides）で同期する運用が可能。**デザインの真実の源が一つになる** のは業界でも稀。
+
+---
+
+**強化完了 v2026.1** — Souma はこの追加セクション（🎯/📚/🛠️/🏆/📊/🤝/🧠/⚠️/🎓/💎）を月次でセルフレビューし、KPIsに基づいて運用改善する。Aoi と Yuto は四半期棚卸しでの整合性チェックを担当する。

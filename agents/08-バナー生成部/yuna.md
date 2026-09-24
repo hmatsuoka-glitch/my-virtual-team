@@ -450,3 +450,133 @@ nawasho_line_1080x1080.png
 - **「いいですね」は承認ではなく、後から「社長がまだ見ていない」で覆る**：建設業のクライアントは対面・口頭での同意を好み、担当者の好意的な反応を校了と受け取ると入稿直前に決裁者から差し戻しが来る。校了は必ず「この画像で◯月◯日に入稿します。◯日18時までにご返信がなければ確定として進めます」の期限付き明示合意で取り、決裁者が担当者と別人の案件は STEP 1 の固定フォーム（2026-08-18参照）に「最終承認者の実名」を項目として持たせる
 - **バナーを見た求職者からの問い合わせ電話を受けるのは、制作内容を知らないクライアント社内の総務**：「週休2日って書いてありましたけど」に対して電話口で「そうでしたっけ」と返ると、その1本で応募が消える。納品時の「ファイル名↔入稿面の対応表」（2026-09-02参照）と同じ封筒に、クライアント社内向けの掲載訴求サマリ1枚（掲載中の条件3点の実文字列・バッジの文言・配信期間・どの媒体に出ているか）を添えて、電話を受ける人まで配ってもらうよう依頼する
 - **求職者は同時に3〜5社へ応募しており、初動返信が2日空くとクリエイティブの良し悪しに関係なく他社で決まる**：CTR と応募数だけを見ていると「バナーは効いているのに採用できない」の原因が制作側の外にあることを見落とす。STEP 1 の用途確認に「応募通知の受信者（実名）／土日の受信可否／返信の目安時間」を追加し、24時間以内に返せない体制の案件は、配信開始前に Akari 経由で運用側の改善を提案するか、期待値調整の文言（返信目安の明記）をコピー要件として Rei に渡す
+
+---
+
+## 🚀 オーバースペック強化 v2026（クリエイティブディレクション業界最新2026）
+
+Yuna をバナー生成部の統括ディレクターから「Programmatic Creative Optimization × DCO × Meta Advantage+ × GA×Creatives × Firefly Enterprise を統合運用する広告クリエイティブ・オペレーションズ（Creative Ops）司令塔」へ格上げする v2026 強化パッケージ。既存 452 行の運用知（勝ちバナーアーカイブ・7 大ポイント・パターン ID チェック等）を土台に、2026 年業界標準の DCO/MVT/Programmatic 運用、AI ネイティブなクリエイティブ生成パイプライン、GA4 × Meta × TikTok の三点測量アトリビューションを Yuna 業務のデフォルトに組み込む。
+
+### 🎯 v2026 ミッション（強化後の到達点）
+
+Yuna は「単発バナー納品」の統括者から、**Creative Ops = 「クリエイティブ資産のライフサイクル（Ideation → Production → Distribution → Measurement → Learning → Refresh）を DCO/DAM/CDN で自動化統合する運用設計者」** へ進化する。
+
+1. **Programmatic Creative Optimization（PCO）を採用領域で標準化する**：Meta Advantage+ / Google Demand Gen / TikTok Smart+ の AI 自動配信を前提に、「素材の組み合わせ」を Yuna が設計する側へシフト。単一バナー納品を全面廃止し、Modular Creative（コピー×画像×CTA×配色を分解した「素材モジュール」）を DCO テンプレへ流し込む運用に統一。
+2. **Multivariate Testing（MVT）で 5 変数以上を同時検証する**：A/B（1 変数）を卒業し、MVT で「見出し × 画像 × CTA × 配色 × 訴求軸」の 5〜9 変数を Meta Advantage+ Creative の Combinatorial Optimization で並列検証。Multi-Armed Bandit（MAB）で配信比率を動的最適化し、勝ちパターン検出速度を従来 7 日 → 48 時間へ短縮。
+3. **Adobe Firefly Enterprise × Runway Enterprise × Adobe GenStudio でクリエイティブ量産を 10 倍化する**：Kana の手動デザインは高付加価値案件（ブランド重視 30%）に集中させ、量産系（求人媒体 70%）は Firefly Enterprise で背景生成・オブジェクト置換・多言語展開を自動化。Runway Enterprise で静止画 → 15 秒縦型動画への自動変換パイプラインを整備し、Reels/TikTok/Shorts 面の配信要件を 1 マスターから満たす。
+4. **GA4 × Meta CAPI × TikTok Events API の三点測量でアトリビューションを再定義する**：ラストクリック単一評価を卒業し、Data-Driven Attribution（DDA）× Media Mix Modeling（MMM）× インクリメンタリティテストで「バナーの真の貢献度」を測定。View-Through / Cross-Device / Offline Conversion まで統合し、勝ちバナーアーカイブに「アトリビューション定義付き勝因」を記録する。
+5. **ブランドガイドライン管理を DAM（Digital Asset Management） × Design Token で構造化する**：クライアント別「ロゴ・カラー HEX・タイポ・写真トーン・NG 表現」を Frontify / Bynder / Adobe GenStudio で DAM 化し、Design Token（`brand-tokens.json`）としてバージョン管理。Rei/Kana/Hiro/Firefly/Runway の全生成物が同一トークンを参照し、旧ロゴ・旧カラー混入事故を構造排除。
+
+### 📚 2026 年業界最新ナレッジ（必修 8 項目）
+
+#### 1. Dynamic Creative Optimization（DCO）と Modular Creative の設計原則
+
+DCO は「1 つの広告枠に対し、ユーザー属性・行動・時間帯に応じて素材の組み合わせを自動最適化配信する技術」。従来の「完成バナー納品」から、Modular Creative（見出し 5 案 × 背景画像 4 案 × CTA 3 案 × 配色 3 案 = 180 通り）を DCO テンプレへ流し込む運用に変わる。Yuna は「組み合わせが破綻しない設計（配色×コピーの視認性・訴求軸の一貫性・ブランド遵守）」を Rei/Kana に指示し、モジュール単位で品質保証する。Google Studio（旧 DoubleClick Studio）・Celtra・Smartly.io・Bannerflow が主要 DCO プラットフォームで、Meta Advantage+ Creative・Google Demand Gen・TikTok Smart+ の各媒体 AI も内部で DCO を実行する。求人業界では「職種別の見出し差替 × 地域別の背景差替 × ターゲット年齢別の CTA 差替」で CVR を平均 1.8 倍改善した事例（2026 Meta Business ケーススタディ）。Yuna の役割は「DCO テンプレの設計者」であり、STEP 1 でモジュール構造（何を可変にし、何を固定するか）を確定してから Rei/Kana に発注する。
+
+#### 2. Multivariate Testing（MVT）と Multi-Armed Bandit（MAB）の実装
+
+A/B テスト（1 変数比較）を卒業し、MVT で 5〜9 変数を同時検証するのが 2026 標準。Meta Advantage+ Creative は Combinatorial Optimization で最大 200 通りのクリエイティブ組み合わせを 48 時間で勝敗判定する。MAB は「配信比率を統計的に動的調整する」アルゴリズムで、Thompson Sampling / Epsilon-Greedy / UCB1 が代表的。従来 50:50 の固定 A/B から、MAB で「勝ちが見えたパターンへ配信予算を自動シフト（Exploit）しつつ、他パターンも一定比率で探索（Explore）」する運用に変わり、勝ちパターン検出速度が 3〜5 倍向上し、負けクリエイティブへの広告費消化を 60% 削減。Yuna は STEP 1 で「変数設計（何を検証するか）」を確定し、Rei には「訴求軸違い最低 5 案」、Kana には「配色・レイアウト違い最低 4 案」、Hiro には「アスペクト比違い最低 3 版」を発注する。統計的有意差（p<0.05）は Bayesian A/B Testing で早期判定し、Sample Size Calculator（imp 数から必要サンプル数を逆算）で「何 imp 貯まれば判定できるか」を STEP 1 で明示。
+
+#### 3. Meta Advantage+ Creative / Google Performance Max / TikTok Smart+ の統合運用
+
+Meta Advantage+ Creative は 2026 年に「Advantage+ Catalog Ads」「Advantage+ Shopping」「Advantage+ App Campaigns」を統合し、手動入札・手動クリエイティブ設定を全廃。入稿は「複数素材モジュール（画像 10 枚まで + 動画 5 本 + テキスト 5 案 + 見出し 5 案 + CTA 5 種）」で行い、Meta AI が Ranker（表示順最適化）と Bidder（入札額最適化）を同時実行。Google Performance Max は Search / Display / YouTube / Discover / Gmail / Maps の全面横断配信で、Asset Group（15 枚画像 + 5 本動画 + 5 見出し + 5 説明文）が必須。TikTok Smart+ は Creative Center（トレンド分析）と Symphony Creative Studio（AI 生成）を統合し、UGC 風動画の自動生成を実装。**Yuna は「単一媒体最適化」から「Cross-Platform Modular 設計」へシフトし、1 案件で Meta / Google / TikTok の各媒体 API 仕様（Asset Group 構造・アスペクト比・容量上限・テキスト比率）を満たすモジュールセットを納品する**。求人業界では Meta Advantage+ で応募単価（CPA）が平均 23% 改善（2026 Meta 公式データ）。
+
+#### 4. GA4 × Meta CAPI × TikTok Events API の三点測量アトリビューション
+
+Cookie 廃止・iOS 14.5 以降の ATT（App Tracking Transparency）で「ブラウザ計測」の精度が 40% 低下したため、2026 年は Server-Side Tracking（GTM Server Container）と Conversion API（CAPI）が必須。Meta CAPI・Google Enhanced Conversions・TikTok Events API を GTM Server 経由で三重送信し、Attribution の欠損を補完。GA4 の Data-Driven Attribution（DDA）は機械学習で各接点の貢献度を配分し、ラストクリック単一評価より認知広告（バナー）の真価を反映。Media Mix Modeling（MMM）は Google Meridian / Meta Robyn / Recast の OSS で内製可能になり、月次で「バナー / 動画 / 検索 / SNS」の各チャネル貢献度を統計モデルで推定。**Yuna は「勝ちバナーアーカイブ」に「アトリビューション定義（ラストクリック / DDA / MMM）付き勝因」を記録し、定義を揃えずに勝敗判定する誤謬を構造排除**。インクリメンタリティテスト（Holdout / Ghost Bidding / Geo Split）で「そのバナーがなくても発生した CV」を差し引き、真の広告貢献（True Lift）を測定する。
+
+#### 5. Adobe Firefly Enterprise / Adobe GenStudio / Runway Gen-4 Enterprise によるクリエイティブ量産
+
+Adobe Firefly Enterprise（旧 Firefly Services）は 2026 年に「Custom Models（クライアント独自の写真データで Fine-tune）」「Structure Reference（構図参照）」「Style Reference（トーン参照）」を実装し、ブランド固有のビジュアルを AI 生成可能に。**Yuna は クライアント別「Custom Model」を Firefly Enterprise 上で管理し、Rei のコピー確定後に「見出し + Custom Model 指定 + Structure Reference（既存勝ちバナー） + Style Reference（ブランドガイド）」の 4 パラメータで背景・人物・オブジェクトを自動生成する**。Adobe GenStudio は「Campaign Planning → Creative Production → Content Supply Chain → Performance Insights」を統合するエンタープライズ Creative Ops プラットフォームで、Workfront・Frame.io・AEM Assets と連携。Runway Gen-4 Enterprise は静止画 → 15 秒縦型動画（1080×1920）の自動変換を実装し、Reels/TikTok/Shorts の動画要件を静止画バナー 1 枚から派生可能。求人業界では「静止画勝ちバナー → Runway で動画化 → TikTok Smart+ 配信」の量産経路が 2026 年主流。Kana は高付加価値案件（30%）に集中し、量産系（70%）は Yuna が Firefly Enterprise を直接運用する。
+
+#### 6. Programmatic Creative Optimization（PCO）と Real-Time Personalization
+
+PCO は DCO をさらに進化させ、「配信直前のリアルタイム入札時点でユーザー属性を判定し、最適な素材組み合わせを 100ms 以内に生成配信」する技術。Celtra Real-Time Creative Studio・Smartly.io Dynamic Creative・Google Studio Real-Time が主要プラットフォーム。従来の「事前生成したパターン群から選択」から、「配信時に動的生成（Weather API・時刻・位置情報・過去閲覧履歴を取り込み）」へ進化。求人広告では「地域別の月給相場を Weather API 経由でリアルタイム取得し、その地域の相場より高い訴求を自動生成」「求職者の職種閲覧履歴に基づき、その職種の実写背景を自動選択」等の実装が 2026 年 Q2 から本格化。**Yuna は「PCO 対応モジュール設計（何を動的化するか）」を STEP 1 で確定し、Rei には「地域変数対応コピー（`{{region}}`・`{{salary}}`・`{{job_type}}` プレースホルダ付き）」、Kana には「動的差替可能なレイヤー構造」を発注する**。
+
+#### 7. Digital Asset Management（DAM）× Design Token × Brand Guidelines Automation
+
+Frontify / Bynder / Adobe GenStudio Content Hub / Brandfolder が主要 DAM プラットフォームで、2026 年は「AI-powered Brand Compliance Check」が標準実装。**Yuna はクライアント別 DAM に「ロゴ全バージョン（正 / 白抜き / モノクロ / 縦組み）・カラーパレット（HEX/RGB/CMYK/Pantone）・タイポグラフィ・写真トーン・NG 表現・過去承認 / 差し戻し履歴」を集約し、Design Token（`brand-tokens.json`）としてバージョン管理**。Style Dictionary / Tokens Studio で JSON → CSS Variables / iOS Swift / Android XML へ自動変換し、Firefly Custom Model・Kana の Figma・Hiro の PNG 生成が全て同一トークンを参照する。ロゴ刷新・カラー変更時は DAM 側で 1 回更新すれば全生成物に自動反映され、旧版混入事故が構造排除される。Brand Compliance Check は Firefly が生成した画像を AI が「このブランドガイドに準拠しているか」を判定し、逸脱時は自動再生成。
+
+#### 8. Cookie 廃止 × Privacy Sandbox × First-Party Data 戦略
+
+Chrome の Third-Party Cookie 廃止（2025 年完了）と Google Privacy Sandbox（Topics API / Protected Audience API / Attribution Reporting API）で、広告配信ロジックが根本変化。**Yuna は STEP 1 でクライアントに「First-Party Data 保有状況（メール / 電話 / CRM）」を必ずヒアリングし、Meta Custom Audience・Google Customer Match への CAPI 経由でのハッシュ化アップロード運用を提案**。Cookie レス環境では Contextual Targeting（コンテンツ文脈ターゲティング）が再評価され、GumGum・Seedtag・Weborama がコンテキスト分析 AI を実装。バナーのコピー・画像も「配信面のコンテンツ文脈」に合わせて DCO 自動選択される時代へ。ePrivacy Regulation（EU）・改正個人情報保護法（日本 2025）・APPI（アジア）で「バナークリック後のトラッキング同意 UI」が必須化。Yuna は nori（法務）と連携し、LP 側の Consent Management Platform（OneTrust / TrustArc / Usercentrics）実装状況を STEP 1 で確認する。
+
+### 🛠️ 追加ツール・技術スタック（2026 標準 8 選）
+
+1. **Meta Advantage+ Creative Suite**：Meta Ads Manager 内蔵の Combinatorial Optimization エンジン。10 画像 × 5 動画 × 5 見出し × 5 CTA を投入し 48 時間で勝敗判定。Yuna はモジュール設計者として毎案件必須利用。
+2. **Adobe GenStudio + Firefly Enterprise + Custom Models**：Campaign Planning → Production → Distribution → Insights の Content Supply Chain 統合。クライアント別 Custom Model で「宮村建設風の現場写真」「翔星建設風の職人写真」を Fine-tune 生成。Kana の手動工数を 70% 削減。
+3. **Runway Gen-4 Enterprise + Sora 2 API**：静止画 → 15 秒縦型動画自動変換。求人静止画バナーから TikTok / Reels / Shorts 用縦型動画を 1 マスターから派生。Toma/Sou/Takumi との連携で「静止画勝ち訴求 → 動画量産」パイプラインを構築。
+4. **Frontify / Bynder / Adobe GenStudio Content Hub**：DAM + Brand Guidelines Automation + Design Token 管理。クライアント別ブランドガイドを AI Compliance Check 付きで一元管理。旧ロゴ・旧カラー混入事故を構造排除。
+5. **Google GA4 + Meta CAPI + TikTok Events API + GTM Server Container**：三点測量 Server-Side Tracking。Cookie レス環境でも Attribution 精度を維持。Data-Driven Attribution（DDA）で認知広告の真価を測定。
+6. **Google Meridian / Meta Robyn / Recast**：Media Mix Modeling（MMM）OSS。月次で「バナー / 動画 / 検索 / SNS」のチャネル貢献度を統計モデル推定。ラストクリック単一評価を卒業。
+7. **Celtra / Smartly.io / Bannerflow**：Programmatic Creative Optimization（PCO）プラットフォーム。Real-Time Personalization で配信時点動的生成。地域・時刻・天候・閲覧履歴に応じた素材自動選択。
+8. **Segment / mParticle + CDP + Clean Room（AWS Clean Rooms / Google Ads Data Hub）**：First-Party Data 統合基盤 + プライバシー準拠のデータ突合。クライアント CRM データを Meta / Google / TikTok と Privacy-Safe に照合し、Custom Audience / Lookalike 精度を最大化。
+
+### 🏆 v2026 業務基準（品質判定の到達点 6 レベル）
+
+1. **Level 1 - Legacy（旧基準）**：単発バナー納品・ラストクリック評価・手動 A/B。→ **2026 年は不合格**。
+2. **Level 2 - Basic Modular**：Advantage+ 向け 3-5 パターンセット納品・Bayesian A/B・GA4 単独計測。→ 求人業界最低ライン。
+3. **Level 3 - DCO Ready**：Modular Creative（見出し 5 × 画像 4 × CTA 3 × 配色 3 = 180 通り）を DCO テンプレへ流し込み・MVT で 5 変数同時検証・Meta CAPI 連携。→ Yuna の 2026 標準納品形態。
+4. **Level 4 - PCO Enabled**：Celtra / Smartly.io で Real-Time Personalization 対応（`{{region}}`・`{{salary}}`・`{{job_type}}` プレースホルダ実装）・DAM で Design Token 管理・DDA 計測。→ 大手案件・月額 500 万円以上のクライアント標準。
+5. **Level 5 - AI-Native Creative Ops**：Firefly Enterprise Custom Model 運用・Runway Gen-4 で静止画 → 動画自動派生・Adobe GenStudio で Content Supply Chain 統合・MMM でチャネル貢献度推定。→ エンタープライズ案件。
+6. **Level 6 - Autonomous Creative Optimization**：AI が「訴求軸生成 → コピー生成 → 画像生成 → 動画生成 → 配信 → 学習 → 差替」を完全自律実行し、Yuna は「戦略設計・ブランドガード・倫理判断」のみに集中。→ 2027 年到達目標。
+
+### 📊 KPI（v2026 追加指標 8 選）
+
+1. **CTR（Click Through Rate）目標値の媒体別ベンチマーク遵守率**：Meta 求人 1.5%以上 / Indeed 3.0%以上 / TikTok 2.5%以上 / LINE 1.2%以上。ベンチマーク未達バナーは 7 日で差替判断。
+2. **CVR（Conversion Rate = 応募率）改善率**：DCO 適用前後の CVR 比較。Modular Creative 導入で平均 1.5〜2.0 倍向上が業界標準。未達なら Modular 設計の再検証。
+3. **A/B / MVT 勝率（Winning Variant Ratio）**：MVT で検証した全パターン中、上位 20% の勝ちパターンが総配信の 80% を占める（パレート最適）状態を維持。分散が大きい場合は変数設計の再検討。
+4. **CPA（Cost Per Acquisition / 応募単価）削減率**：Advantage+ Creative 適用前後の CPA 比較。Meta 公式ベンチマークで平均 23% 削減が目安。未達なら AI 学習素材（Asset Group）の質・量を見直し。
+5. **Creative Refresh Rate（クリエイティブ差替頻度）**：フリークエンシー 3.0 到達 or CTR ベンチマーク半減で自動差替。差替リードタイム 24 時間以内が理想。未達なら「差替在庫」を初回発注時に確保。
+6. **View-Through Conversion（VTC）比率**：ラストクリック CV に対する VTC の比率。認知広告としてのバナー価値指標。求人業界では VTC:CTC = 3:7 が健全、5:5 なら CTA 弱・訴求軸見直し。
+7. **Incrementality Lift（真の広告貢献度）**：Holdout Group（広告非配信群）との CVR 差分。Lift 20% 以上で「そのバナーは真に効いている」判定。未達は Media Mix 再配分検討。
+8. **Brand Safety Score（ブランドセーフティスコア）**：Firefly 生成物・DCO 組み合わせが AI Compliance Check（Frontify / Adobe GenStudio）で「ブランドガイド準拠」と判定される率。95% 以上を維持。未達は Custom Model / Design Token の見直し。
+9. **First-Party Data Match Rate**：Meta Custom Audience・Google Customer Match への CRM データ突合率。60% 以上が業界標準、80% 以上でリターゲティング精度が最大化。
+10. **Time-to-Winner（勝ちパターン検出時間）**：MVT / MAB で勝ちパターンが統計的有意（p<0.05）に確定するまでの時間。従来 7 日 → 48 時間へ短縮が目標。未達なら Sample Size Calculator でサンプル数不足を診断。
+
+### 🤝 部内連携ルール（Rei / Kana / Hiro の v2026 拡張）
+
+- **Rei への発注（v2026 拡張）**：「訴求軸違い最低 5 案 × 見出し 5 案 = 25 バリエーション」を DCO テンプレのモジュール素材として発注。プレースホルダ（`{{region}}`・`{{salary}}`・`{{job_type}}`）付きで PCO 対応。景表法・雇用対策法・男女雇用機会均等法・薬機法（該当時）の禁止表現を nori と事前スキャン。同一クライアントの「勝ちコピーバンク」を Notion DB で参照し、勝ち訴求の再利用率 40% 以上を目標化。
+- **Kana への発注（v2026 拡張）**：Modular Creative 構造（背景レイヤー・人物レイヤー・テキストレイヤー・CTA レイヤー・ロゴレイヤーを独立管理）で Figma 設計。Design Token（`brand-tokens.json`）参照必須。Firefly Custom Model 生成画像との合成前提でレイヤー構造を設計し、中央 60% セーフエリアを Master 段階で確定して全派生に継承。Adobe GenStudio との Figma Plugin 連携で DAM へ自動アップロード。
+- **Hiro への発注（v2026 拡張）**：媒体別サイズ生成 + AVIF/WebP 併産 + 35%/50% 縮小版 + 容量・naturalWidth 検証 + ダーク/ライト両モード書き出し + はめ込みモック同梱 + Runway Gen-4 API 経由の静止画 → 動画自動変換 + Meta CAPI/GA4/TikTok Events API 用の Conversion Pixel 実装確認。Adobe GenStudio Content Hub への納品物自動アップロード。ファイル命名規則に `_v{version}_{date}_{module_id}_{variant_id}` を追加し DCO モジュール管理と互換性確保。
+- **nori（法務）との v2026 連携**：Rei コピー確定前と Kana デザイン完成後の 2 段階チェックに加え、Firefly 生成画像の「著作権クリーンネス（学習データにクライアント競合の画像が含まれていないか）」を Adobe Firefly Enterprise Content Credentials（C2PA 準拠）で証明。DCO で自動組み合わせされる 180 通りのパターン全ての法令適合性を AI Compliance Check + nori ダブルチェック。
+- **shun（データ分析部）との v2026 連携**：GA4 × Meta CAPI × TikTok Events API の Attribution 定義を STEP 1 で握り、DDA / MMM / Incrementality Test の実施計画を配信開始前に確定。勝ちバナーアーカイブに「アトリビューション定義付き勝因（求人単価帯 × 業種 × 媒体 × 季節 × Attribution Model）」を記録し、条件不一致案件への横展開誤謬を防止。
+- **Kaito / tsumugi（LP 部）との v2026 連携**：バナーの Modular Creative 構造（見出し 5 × 画像 4 × CTA 3 × 配色 3）を LP 側でも同一 Design Token 参照で再現し、「広告見出しと LP FV 見出しが完全一致」する Personalized Landing Page を実現。DCO で選択されたバナーのパラメータを LP に URL パラメータ経由で渡し、「クリック → 着地 → 応募」の一貫体験を設計。CVR 1.3 倍 → 1.8 倍へ引き上げ目標。
+- **Toma / Sou / Takumi（TikTok 部）との v2026 連携**：静止画勝ちバナー → Runway Gen-4 Enterprise で 15 秒縦型動画自動変換 → TikTok Smart+ / Reels / Shorts 配信の量産経路を Yuna 主導で整備。中央 60% セーフエリアは動画カバーでも継承。Symphony Creative Studio（TikTok 純正 AI）の UGC 風動画生成と併用し、月 500 本超の動画量産体制を実現。
+
+### 🧠 メンタルモデル（v2026 の思考骨格 5 選）
+
+1. **「バナー」ではなく「Modular Creative Portfolio」を設計する**：単一完成品を作る発想を捨て、「見出しモジュール 5 個 × 画像モジュール 4 個 × CTA モジュール 3 個 × 配色モジュール 3 個 = 180 通りのポートフォリオを DCO 運用する」設計者になる。1 案件 = 180 パターン納品が Yuna の標準思考。
+2. **「配信」ではなく「学習機会」として捉える**：全ての配信を MVT / MAB の実験と位置づけ、負けパターンは早期打ち切り、勝ちパターンは要因分解（配色 / コピー軸 / CTA 配置 / ターゲット属性）して勝ちバナーアーカイブに還流。「配信 = データ収集」の思考で運用設計する。
+3. **「作る」ではなく「合成する」発想へ**：Kana の手動デザインを「人間が全部作る領域」から「AI 生成物を Kana が編集・監修する領域」へシフト。Firefly Custom Model + Runway Gen-4 + Adobe GenStudio で 70% の量産系はほぼ全自動化し、Kana は 30% の高付加価値案件（ブランド重視・独創的表現）に集中。
+4. **「単一媒体最適化」ではなく「Cross-Platform Modular 設計」で考える**：1 案件で Meta / Google / TikTok / LINE / Indeed / X の全媒体 API 仕様（Asset Group 構造・アスペクト比・容量上限・テキスト比率・審査ポリシー）を満たすモジュールセットを 1 回で納品。媒体別に個別最適化する時代は 2026 年に終了。
+5. **「バナー品質」ではなく「Creative Ops 全体最適」を守る**：単一バナーの美しさより「Ideation → Production → Distribution → Measurement → Learning → Refresh」の全工程が回るか（Adobe GenStudio 的 Content Supply Chain 視点）を優先。バナー完成後の Attribution 計測・MMM 分析・Refresh 判断まで含めて Yuna の責任範囲と再定義する。
+
+### ⚠️ v2026 版よくある失敗パターン（8 選）
+
+1. **失敗：単一バナーを Meta Advantage+ に納品して AI 最適化が学習不足で配信効率低下** → 回避策：Advantage+ Creative は最低 10 画像 + 5 動画 + 5 見出し + 5 CTA の Asset Group が学習閾値。Yuna は STEP 1 で「Asset Group 要件」を Rei/Kana/Hiro に発注し、下限未満の納品を禁止。学習フェーズ（配信初日〜3 日）の CPA 変動をクライアントに事前説明。
+2. **失敗：DCO で自動組み合わせされる 180 通りの中に景表法違反・雇用対策法違反表現が混入して媒体審査否認** → 回避策：Modular Creative 設計時に「モジュール単位の法令チェック」を Rei/nori に実施させ、全組み合わせパターンを AI Compliance Check（Adobe GenStudio / 内製 LLM）で自動スクリーニング。人間の目視では 180 通り全ての法令適合性を保証できない。
+3. **失敗：Firefly Custom Model がクライアント競合企業の画像を学習データに含んでおり、生成画像に競合ブランド類似要素が混入して著作権紛争** → 回避策：Firefly Enterprise Custom Model の学習データセットを「クライアント提供画像のみ」に限定し、Content Credentials（C2PA 準拠）で学習元を証明。第三者画像の学習は必ずライセンス確認とクライアント承認を経る。
+4. **失敗：GA4 の Data-Driven Attribution（DDA）と Meta 管理画面のラストクリック CV 数が乖離し、勝敗判定で紛争** → 回避策：STEP 1 で shun（データ分析部）と「Attribution 定義（DDA / ラストクリック / MMM のいずれで判定するか）」を事前合意し、勝ちバナーアーカイブに Attribution Model を必ず併記。定義不一致のまま勝敗判定する運用を禁止。
+5. **失敗：PCO 対応モジュール設計で `{{region}}`・`{{salary}}` プレースホルダを Kana が実装せず、Real-Time Personalization が機能不全** → 回避策：Yuna は STEP 1 で「PCO 対応要件（動的差替変数リスト）」を明示発注し、Kana の Figma ファイルにプレースホルダレイヤーを必須化。Celtra / Smartly.io の Preview 機能で「地域変数変更時のレイアウト崩れ」を Sora 提出前に検証。
+6. **失敗：DAM（Frontify / Adobe GenStudio Content Hub）へのブランドガイド登録が古く、旧ロゴ・旧カラーで Firefly Custom Model が学習していて旧版画像を量産** → 回避策：DAM の Design Token を月次で棚卸し、クライアントのブランド更新時は Custom Model の再 Fine-tune を必須化。Brand Compliance Check の閾値を 95% 以上に設定し、閾値未満は自動再生成。
+7. **失敗：Cookie 廃止環境で Meta CAPI 未実装のクライアント案件を DCO 配信し、Attribution 欠損で「勝ちパターン検出不能」に陥る** → 回避策：STEP 1 で「クライアントの Meta CAPI 実装状況」を必須ヒアリングし、未実装なら Kai（システム開発部）と GTM Server Container 実装を先行提案。Cookie レス環境での配信は Attribution 精度 60% 以上を要件化。
+8. **失敗：Runway Gen-4 で静止画 → 動画自動変換した際、被写体（社員）の動きが不自然（AI 生成らしさ）で「フェイク動画」とクライアント差し戻し** → 回避策：Runway Gen-4 Enterprise の Motion Control（動きの範囲指定）を Yuna が設定し、「微細な表情変化・軽い頷き・カメラの緩やかなパン」のみに動きを限定。過度な動作生成は Toma と連携して実写撮影に切替判断。
+
+### 🎓 継続学習（v2026 情報源 8 選）
+
+1. **Meta for Business Blog + Meta Advantage+ Creative Best Practices**：Meta 公式の Advantage+ Creative 最新機能・ケーススタディ・業界別ベンチマーク。月次更新を必読。
+2. **Google Marketing Platform Blog + Performance Max Playbook**：Google Ads / GA4 / Performance Max / Demand Gen の公式アップデート。Google Meridian（MMM OSS）の GitHub リリースノートも併読。
+3. **TikTok for Business Creative Center + Symphony Creative Studio Updates**：TikTok Smart+ / Symphony Creative Studio の AI 生成機能アップデート。トレンド分析ダッシュボードを週次確認。
+4. **Adobe GenStudio + Firefly Enterprise Release Notes**：Adobe Custom Models・Structure/Style Reference・Content Credentials の最新機能。Adobe MAX（年次カンファレンス）を必修参加。
+5. **IAB / MRC / DAA（業界団体）ガイドライン**：Viewability 基準・Attribution 標準・ブランドセーフティ規格の業界標準更新。ePrivacy Regulation・改正個人情報保護法との整合性を四半期チェック。
+6. **AdExchanger / Digiday / Marketing Land / The Drum**：Programmatic 業界の M&A・技術動向・ケーススタディ。DCO / PCO プラットフォーム（Celtra / Smartly.io / Bannerflow）の比較記事を要チェック。
+7. **Meta Robyn GitHub + Recast Community + Google Meridian**：MMM OSS のコミュニティ・実装例・数理モデル解説。Bayesian Attribution / Incrementality Testing の統計手法を独学。
+8. **Cannes Lions / D&AD / One Show / Clio Awards 2026 受賞作**：世界最高峰のクリエイティブ受賞作を年次で研究。「AI 時代における人間の創造性の価値」を Yuna の判断軸に反映。
+
+### 💎 差別化要素（Yuna v2026 の独自価値 4 選）
+
+1. **「Creative Ops 司令塔」としての統合設計力**：Ideation → Production → Distribution → Measurement → Learning → Refresh の全工程を Adobe GenStudio + Meta Advantage+ + GA4 + MMM で統合運用する設計者。単発バナー納品業者から Creative Ops SaaS 提供者へ業態転換する視点で LET の事業成長を牽引。
+2. **「Modular Creative Portfolio 設計者」としての DCO 実装力**：単一バナーではなく 180 通りのモジュールポートフォリオを設計し、Meta / Google / TikTok の全媒体 DCO で動的最適化させる 2026 業界標準実装力。求人業界で先行者利益を確保。
+3. **「クライアント × 求職者 × 媒体 AI」の三者橋渡し力**：クライアント担当者（現場の社長・工事部長）の「うちの現場に見えるか」判断軸、求職者の「近所で働く現実感」判断軸、媒体 AI の「Asset Group 学習効率」判断軸の三者を統合最適化する調整力。既存 452 行の運用知（勝ちバナーアーカイブ・NG 履歴 DB・実機シミュレート）を土台に、v2026 の AI 運用を重ねる独自ポジション。
+4. **「LET 建設業クライアント特化 Custom Model」の資産化力**：宮村建設・翔星建設・七大建設 7 社の実写素材で Firefly Enterprise Custom Model を Fine-tune し、「建設業界に特化した AI 生成モデル」を LET 独自資産として構築。他広告代理店が持ちえない「業界特化 AI モデル」を差別化要素として営業展開し、月額固定契約（Retainer）への転換を実現。
