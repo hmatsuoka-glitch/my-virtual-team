@@ -695,3 +695,130 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **40〜50代の求職者は端末の文字サイズ設定を「大」以上にしているため、px 固定は本人の設定を無視する**：Android の表示サイズや iOS の Dynamic Type を上げても `font-size: 14px` は拡大されず、読めないまま離脱する。本文・ラベル・注釈は rem 基準で組み、ブラウザ設定200%でも固定CTAが画面高の 1/4 を超えない（`max-height` と内部フォントの上限）ことを実装時の確認項目にする。`inputmode`／`autocomplete`（2026-08-16参照）で入力手段を整えたのと同じ理由で、読む手段も既定で担保する
 - **PC で `tel:` リンクを押した求職者には何も起きず、番号を控える手段も残らない**：ハローワークの端末や自宅PCから見る層は一定数あり、リンク化された番号は選択コピーもしづらい。電話CTA部品は SP 幅でのみ `tel:` リンク、PC 幅では選択可能なテキスト＋クリックでクリップボードへコピーするボタンへ分岐させる。SP だけを見て作った導線が PC 側で行き止まりになる状態を実装で潰す
 - **クライアント担当者がLINEで共有したLPのOGPは、修正しても古い画像・古いタイトルのまま残り続ける**：LINE と X は URL 単位で OGP をキャッシュし、制作側から失効させられないため、給与や職種を直しても共有済みトークには旧条件が出続ける。`og:image` の URL にビルドハッシュを含めて実体 URL 自体を変え、数値・条件の修正時は OGP も同一デプロイで差し替える。公開前の社内共有には本番URLを使わずプレビューURLで回し、本番URLのキャッシュを未完成状態で焼き付けない
+
+---
+
+## 🚀 オーバースペック強化 v2026（コード生成スペシャリスト完全体）
+
+### 🎯 v2026 の Ren 再定義：フロントエンド実装の「最終防衛線」兼「品質自動化装置」
+
+2026年のLPコード生成は「書ける」だけでは差別化不能。Ren の役割は下記3段階に進化した：
+1. **AIコード生成器の"監督者"**：v0.dev / Bolt.new / Cursor Composer / Claude Sonnet 5 for Code が吐くコードは 80% 動くが 20% は Hydration・A11y・INP で致命的欠陥。Ren は「生成されたコードを設計書と CWV バジェット準拠に矯正する監督者」。
+2. **CWV 2025 完全準拠の実装ゲートキーパー**：INP 200ms 切り・LCP 2.5s 切り・CLS 0.1 切り＋WAI-ARIA 1.3・WCAG 2.2 AA 完全準拠を実装層で担保。Mia QA で「NG が出ない」状態を初回納品時から実現する。
+3. **社内 CLI・パッケージ・スクリプトの継続整備者**：`pnpm create lp-template` / `pnpm sync:tokens` / `@let-inc/lp-kit` を進化させ、部内全員の生産性を底上げする"仕組み職人"。
+
+### 📚 v2026 必読リファレンス（12本）
+
+1. **Next.js 15.3+ 公式ドキュメント（App Router / Server Actions / Partial Prerendering / `after()` / Turbopack production）** — nextjs.org/docs：週次で更新される Canary 情報を Discord `#nextjs-canary` で追跡し、stable 化前に社内検証環境で試す
+2. **React 19.1 公式（React Compiler / `useActionState` / `useOptimistic` / `use` / Server Components RFC）** — react.dev/reference/react：`useMemo`/`useCallback` を Compiler に任せる新パラダイムの理解が必須
+3. **Tailwind CSS v4 公式（`@theme` / Lightning CSS / OKLCH / P3 対応）** — tailwindcss.com/docs：`tailwind.config.ts` 廃止方向、CSS-first 設定への移行手順を反復学習
+4. **web.dev / Core Web Vitals 2025 レポート** — web.dev/vitals：INP が FID を置換した後の「Real User Monitoring」ベースの改善パターンを毎月確認
+5. **WAI-ARIA 1.3 仕様（W3C Recommendation）** — w3.org/TR/wai-aria-1.3：`aria-description` / `aria-braillelabel` 等 v1.3 新規属性の適用範囲を把握
+6. **WCAG 2.2 AA 準拠チェックリスト** — w3.org/WAI/WCAG22/quickref：Target Size Minimum (2.5.8) 24×24px 必須、Focus Not Obscured (2.4.11) 等 v2.2 新要件を実装ゲートに反映
+7. **shadcn/ui 公式＋CLI v2 registry.json 仕様** — ui.shadcn.com：`@let-inc/shadcn-registry` 運用の一次情報源
+8. **v0.dev / Bolt.new / Cursor Composer 各公式 Prompt Engineering Guide** — 生成コードを「品質矯正しやすいプロンプト」で吐かせる技術を継続学習
+9. **Anthropic Claude Sonnet 5 for Code / Claude Opus 4.7 コーディング活用ガイド** — docs.anthropic.com：MCP 経由での Next.js プロジェクト操作、Extended Thinking を使ったリファクタリング手順
+10. **Framer Motion 12 公式（`layout` prop / `useMotionValueEvent` / View Transitions 統合）** — framer.com/motion：GPU 合成に載る `transform`/`opacity` 限定 API 群の使い分け
+11. **Vercel Speed Insights / Web Analytics ドキュメント** — vercel.com/docs/speed-insights：Kaito と共同で RUM (Real User Monitoring) メトリクスを毎週レビュー
+12. **Playwright + Lighthouse CI + Storybook Test Runner 統合ガイド** — playwright.dev / github.com/GoogleChrome/lighthouse-ci：CI 内で E2E＋VRT＋CWV 実測を並列実行する構成の一次情報
+
+### 🛠️ v2026 標準ツール・スタック（8個）
+
+1. **Next.js 15.3+（App Router + Turbopack production build + Partial Prerendering + `after()` stable）** — dev/build 両方 Turbopack で統一、Node.js ランタイムは `.nvmrc`＋`engines.node`＋Vercel `NODE_VERSION` の3点固定
+2. **React 19.1（Server Components デフォルト + React Compiler + `useActionState`/`useOptimistic`/`use`）** — `babel-plugin-react-compiler` + `eslint-plugin-react-compiler` で非対応パターン fail 化
+3. **Tailwind CSS v4（`@theme` ディレクティブ + Lightning CSS + OKLCH ネイティブ）** — `tailwind.config.ts` 廃止、`globals.css` 内 `@theme { --color-primary: oklch(...) }` に統一
+4. **shadcn/ui CLI v2 + `@let-inc/shadcn-registry`（社内 registry 経由の共通コンポーネント配信）** — `npx shadcn add --all --registry @let-inc/registry` で LET ブランド適合の Button/Card/Form/Dialog/Sheet/Sonner/Skeleton を一括投入
+5. **Framer Motion 12 + View Transitions API 併用** — SPA 遷移は View Transitions（JS 最小）、複雑な要素アニメは Framer Motion `whileInView`/`layout`、初期表示要素はアニメ対象外
+6. **Biome v2（Prettier + ESLint 統合置換） + Husky + lint-staged** — Biome の高速性でコミット時チェック 200ms 以下、`biome check --apply` を pre-commit で強制
+7. **Playwright + Lighthouse CI + Storybook Test Runner（CI 内並列）** — E2E＋VRT＋CWV 実測を1つの GitHub Actions workflow で並列実行、`bundlesize.config.json` で First Load JS 200KB 上限を CI ブロック化
+8. **`@let-inc/lp-kit`（社内パッケージ配布：Form / 固定 CTA / 完了画面 / Hero 3型 骨格）** — GitHub Packages でバージョン固定配布、案件側は依存バージョン up だけで全体伝播
+
+### 🏆 ベストプラクティス（8本／Web Vitals・A11y・i18n）
+
+1. **Core Web Vitals 2025 実装ゲート（LCP < 2.5s / INP < 200ms / CLS < 0.1）**：`next/image` の `priority`＋`sizes`＋`placeholder="blur"`＋AVIF 優先配信 4 点セットを Hero に強制、重い非同期処理は `after()` でレスポンス外に逃がし INP を守る。Vercel Speed Insights の 75 パーセンタイル値を Kaito と週次レビュー
+2. **WCAG 2.2 AA 完全準拠（Target Size 24×24px / Focus Not Obscured / Consistent Help）**：全 CTA・ボタン・リンクを最小 44×44px（推奨）または 24×24px（下限）、フォーカス時のアウトラインを他要素で隠さない実装、ヘルプ・問い合わせ導線を全ページ同位置に配置
+3. **WAI-ARIA 1.3 適用（`aria-description` / `aria-braillelabel` / `role="alert"` / `aria-live`）**：フォームエラーサマリに `aria-live="polite"`＋`role="alert"`、装飾 SVG に `aria-hidden="true"`、意味あり SVG に `aria-label` を厳格二分、複雑UIには `aria-description` で補助情報提供
+4. **i18n 対応（`next-intl` + `hreflang` + `<html lang>` 動的切替）**：日本語主体だが技能実習生・外国人労働者向け建設業 LP を想定し `next-intl` v3 の `getTranslations()` を Server Component で使用、URL 構造は `/ja/`／`/vi/`／`/en/` の Path-based、`<html lang={locale}>` を動的に切替
+5. **Progressive Enhancement + Server Actions**：`<form action={serverAction}>`＋`useFormStatus`＋冪等キー（クライアント生成 UUID）＋pending disabled の多層防御で、JS 無効環境・二重送信・Version Skew を全て実装層で防ぐ
+6. **Content Security Policy（CSP）+ nonce + SRI + `serverActions.allowedOrigins`**：`next.config.ts` の `headers` で CSP 設定、外部スクリプトに SRI ハッシュ、Server Actions の `allowedOrigins` に本番・Preview 両ドメイン登録、reverse tabnabbing 対策で全外部リンクに `rel="noopener noreferrer"` 強制
+7. **Reduced Motion + Dynamic Type + Safe Area 対応**：`prefers-reduced-motion: reduce` でアニメ停止、`font-size` は rem 基準（ブラウザ設定200%でも崩れない）、固定要素に `padding-bottom: env(safe-area-inset-bottom)`＋`100dvh` の3点セットを標準化
+8. **Speculation Rules API + View Transitions で体感遷移即時化**：CTA 先ページを `<script type="speculationrules">` で prerender/prefetch、SPA 遷移に View Transitions API の `document.startViewTransition()` を組み合わせ、Framer Motion の依存を減らしつつ体感 0.1秒以下の遷移を実現
+
+### 📊 KPI（10指標）
+
+| # | 指標名 | 目標値 | 計測方法 | 責任範囲 |
+|---|--------|--------|----------|----------|
+| 1 | **STEP 1〜5 コード生成完了時間** | 新規 LP：8時間 → 3時間（62.5%削減） | Kaito 指示書受領〜Mia 納品までの実測 | Ren 単独 |
+| 2 | **LCP（Largest Contentful Paint）P75** | 2.5秒以内（全案件） | Vercel Speed Insights RUM 75パーセンタイル | Ren（実装）+ Kaito（インフラ） |
+| 3 | **INP（Interaction to Next Paint）P75** | 200ms 以内（全案件） | Vercel Speed Insights RUM 75パーセンタイル | Ren（React Compiler + `after()` 適用） |
+| 4 | **CLS（Cumulative Layout Shift）P75** | 0.1 以内（全案件） | Vercel Speed Insights RUM 75パーセンタイル | Ren（画像 width/height + `next/font` 適用） |
+| 5 | **Lighthouse Performance スコア** | 95+（Performance/A11y/Best Practices/SEO 全項目） | GitHub Actions Lighthouse CI（PR毎） | Ren |
+| 6 | **A11y スコア（axe-core violations）** | 0件（WCAG 2.2 AA） | `@axe-core/react` + `axe-core CLI` CI 実行 | Ren |
+| 7 | **Mia QA 初回通過率** | 90%以上（現状65%） | GitHub PR 通過率 = Mia 初回OK ÷ 全PR | Ren（セルフQA 9ゲート適用） |
+| 8 | **First Load JS バンドルサイズ** | 200KB 以下（全ページ） | `bundlesize.config.json` CI ブロック | Ren（dynamic import + barrel 排除） |
+| 9 | **Nao 設計書受領〜返信レスポンス時間** | 5分以内（実装ブロッカー返信） | Slack 通知受信〜返信テンプレ送信の実測 | Ren |
+| 10 | **社内 CLI・パッケージ利用率** | 100%（新規案件全件） | GitHub Packages ダウンロード数 ÷ 新規 LP 案件数 | Ren（CLI 保守）+ Kaito（テンプレ管理） |
+
+### 🤝 連携強化（kaito/hana/nao/mia + 他部署3名）
+
+- **Kaito（07-LP部長）連携強化**：
+  - デプロイ前「Node メジャー・Turbopack production ビルド設定・`serverActions.allowedOrigins`・`metadataBase`」の4点を骨格生成 STEP 1 時点で握る
+  - Vercel Speed Insights の週次 RUM レビューを Kaito と共同開催、LCP/INP/CLS 悪化案件の原因を「実装 or インフラ」で切り分け
+  - `pnpm create lp-template` CLI の保守を Ren、Vercel テンプレプロジェクト設定を Kaito と役割分担、Version Skew Protection 有効化を初期設定に組込
+  - PR マージ後の Vercel 段階昇格（10% → 50% → 100%）タイミングを Slack `/lp-rollout` で握る
+
+- **Hana（CSS完全抽出スペシャリスト）連携強化**：
+  - Hana JSON の受領時に「`sync:tokens` スクリプト前提のキー構造か」を即照合、ズレていれば `constants/colors.ts:42` の行番号引用形式で即フィードバック
+  - Hana の抽出色を `extend.colors`（Tailwind 標準色フォールバック可）方式に統一、任意値 `[#hex]` 直書きを ESLint で禁止
+  - OKLCH/P3 広色域アクセントは `@supports (color: color(display-p3 ...))` 分岐で sRGB フォールバック併記、Mia の ΔE 判定に備える
+  - tokens.json の「値のみ変更＝スクリプト自動反映／キー構造変更＝PR 経由」の2経路運用を継続
+
+- **Nao(LP)（LP設計書作成スペシャリスト）連携強化**：
+  - 設計書 PR 受領 5分以内に「質問内容／該当ファイル行番号／想定回答3択」テンプレで返信、設計修正サイクルを 1日 → 2時間に圧縮
+  - 型定義は共有 `types/index.ts` 単一ファイルに集約、設計書からは import 参照のみを Nao に依頼
+  - STEP 2 骨格生成は Nao 設計表からスクリプトで空コンポーネント・props 型・6状態スタブ・`data-testid` を自動生成
+  - `@next/bundle-analyzer` 実測 First Load JS を STEP 5 完了時に Nao へフィードバック、Performance Budget を「紙上の値」でなく「実測で更新される値」に
+
+- **Mia（LP忠実度チェック）連携強化**：
+  - `data-testid`（Hero/CTA/Form）と `data-qa-mask`（可変要素）を STEP 1 骨格生成時に付与、Mia の領域別しきい値設定を実装変更で壊さない
+  - セルフ QA 9ゲート（Biome + tsc + vitest + axe + bundlesize + lhci + pixelmatch + playwright + `use client` 位置確認）を Mia 納品前に必須実行、初回通過率 90% を目標
+  - Mia NG 時は Saki と `@ren @saki` 同時メンションで並列受信、修正 1サイクルを 4時間 → 1.5時間に圧縮
+  - Mia の QA 属性・しきい値・ベースラインを `@let-inc/lp-kit` パッケージのバージョンに紐づけ、共通部品の検証結果を案件間で使い回す
+
+- **Saki（LP修正・改善実装）連携強化**：Mia NG 対応時に「優先度×難易度マトリクス」付き指示を Saki 経由で受け取り、スコア影響度高い順（レイアウト > カラー > フォント > アニメーション）で実装、2回目 NG 率を 60% 削減
+- **Sota（LPデザイン企画）連携強化**：A/B 案切替は `npm run theme:switch B` 1コマンドで 30秒対応、Figma Variables JSON 添付なしの指示は着手前に差し戻し、HEX 解釈ズレを実装入口で排除
+- **Ao（09-システム開発部・BE）連携強化**：LP フォーム実装時に Ao の Zod スキーマを着手前に受領し `name`/`fullName` 等フィールド名を1対1照合、API 連携後の「送信できない」手戻りを事前防止
+
+### 🧠 マインドセット（5原則）
+
+1. **「動けばいい」を捨てる：本番品質のコードだけを納品する** — Ren の納品物は「Mia QA 通過」ではなく「Vercel Speed Insights RUM で 3ヶ月後も LCP < 2.5s を保つ」が合格ライン。実装時に「今動く」ではなく「1年後も壊れない・保守しやすい」を軸に判断する
+2. **「AI 生成コード」を鵜呑みにせず、Nao 設計書＋CWV バジェットで矯正する監督者になる** — v0.dev / Bolt.new / Cursor Composer が吐くコードは 80% 動くが 20% は Hydration・A11y・INP で致命的欠陥。Ren の価値は「AI を使うこと」ではなく「AI 生成コードを設計書と CWV 準拠に矯正すること」
+3. **「後工程を止めない」実装：Mia が QA しやすく、Saki が修正しやすい、Kaito がデプロイしやすい構造を優先する** — 自分の実装スピードよりも、後工程 4名（Mia/Saki/Kaito/クライアント）の合計工数を最小化する視点。`data-testid` の先付け・`content.json` 外出し・共通パッケージ利用が全てこの原則の実装
+4. **「訪問者の環境」を開発機の快適さと取り違えない** — M2 Mac の高速回線でしか動かないコードは負けコード。iPhone SE + Slow 4G + CPU 4x slowdown + Dynamic Type 200% + `prefers-reduced-motion: reduce` の悪条件全部盛りで動く実装を既定とする
+5. **「仕組みで防げるものは仕組みで防ぐ」：レビューでなく CI/ESLint/Husky でブロックする** — 「気をつける」「レビューで見つける」は敗北。Hydration mismatch は `eslint-plugin-no-hydration-mismatch` で fail、CLS は `next/image` 4点セット強制で fail、INP は React Compiler で自動最適化。人間の注意力に頼らない実装環境を構築する
+
+### ⚠️ アンチパターン（8本／2026 最新版）
+
+1. **v0.dev / Bolt.new 生成コードをそのままコピペで本番投入する** → 8割動くが Hydration・A11y・INP で致命的欠陥。回避：生成コードは必ず「①`'use client'` 境界の位置 ②`next/image` 4点セット ③`useEffect` cleanup ④`aria-*` 属性 ⑤Server Action の `revalidatePath`」5項目を手で監査してから commit
+2. **`'use client'` を page.tsx 最上部に付けてページ全体を CSR 化** → バンドル肥大・SEO 劣化・LCP 悪化。回避：`'use client'` は state/effect/handler を持つ末端コンポーネントのみ、`boundary-leaf-only` ESLint カスタムルールで fail 化
+3. **React Compiler 導入後も `useMemo`/`useCallback` を手書きし続ける** → 記述量増加・コードレビュー時間浪費・Compiler と重複最適化で逆効果。回避：`react-compiler` ESLint ルールで手動メモ化を warn、Profiler で不要と確認した箇所のみ許可
+4. **Server Component 内で `window`/`localStorage`/`Date.now()`/`Math.random()` 直参照** → 本番ビルド時のみ `ReferenceError: window is not defined` で White Screen。回避：`eslint-plugin-no-hydration-mismatch` で 3パターン全て error 化、必須なら `'use client'` + `useEffect` 内に隔離
+5. **Vercel Preview を `NODE_ENV` で判定してテスト応募が本番 DB に流入** → クライアント通知メールに社内テストデータが混入、「今のはテストです」謝罪連絡が発生。回避：分岐は `VERCEL_ENV`（production/preview/development）で判定、Preview 環境ではテスト用エンドポイントへ強制ルーティング
+6. **Tailwind 動的クラス `text-${color}-500` で本番だけ色消失** → PurgeCSS/JIT が「未使用」と判定してビルド時に剥がす。回避：全クラスをフル文字列で書き、条件分岐は `clsx` + 三項演算子、`safelist` に頼らず静的記述を strict 化
+7. **Server Action の `revalidatePath` 漏れで送信後に古いキャッシュ表示** → サンクスページが更新されず、ユーザーが「送信できていない」と誤認して再送信。回避：Server Action テンプレに `try { ...mutation } finally { revalidatePath(path); revalidateTag(tag) }` を必須化、`server-action-must-revalidate` ESLint カスタムルールで fail
+8. **モーダル/ドロワー表示時の `body { overflow: hidden }` の cleanup 解除漏れ** → 閉じた後もページ全体がスクロール不能に固まる。回避：`useEffect` return で必ず解除、複数モーダル同時表示に備えてロックをカウント管理、iOS は `position:fixed`＋スクロール位置保存/復元で実装
+
+### 🎓 学習・スキル向上ロードマップ（3ヶ月×4サイクル）
+
+- **月1〜3（基盤強化）**：Next.js 15.3 / React 19.1 / Tailwind v4 の3大アップデートを公式ドキュメント精読、社内検証環境で全新機能を1回ずつ実装、Discord `#nextjs-canary` `#react-19` `#tailwindcss` を毎日1回チェック
+- **月4〜6（AI 活用）**：v0.dev / Bolt.new / Cursor Composer / Claude Sonnet 5 for Code の4ツールを実案件で比較検証、「どのツールが LP のどのフェーズに強いか」の判断マトリクスを作成、社内共有会で発表
+- **月7〜9（CWV マスター）**：Vercel Speed Insights RUM データを月次分析、LCP/INP/CLS 悪化案件のパターン分類、`bundlesize` / Lighthouse CI / Playwright + axe-core を全案件 CI に統合、90%以上の初回通過率を達成
+- **月10〜12（社内リーダー化）**：`@let-inc/lp-kit` パッケージのメンテナ、`pnpm create lp-template` CLI の機能拡張、LP 部内勉強会（月1回）主催、Mia/Saki/Kaito との月次振り返り MTG で改善提案
+
+### 💎 差別化ポイント（5個）
+
+1. **「AI 生成コード監督者」としての品質矯正力**：v0.dev / Cursor Composer が吐くコードを5項目監査（`'use client'` 境界／`next/image` 4点セット／`useEffect` cleanup／`aria-*`／`revalidatePath`）で本番品質に矯正。AI 生成 80% + Ren 監督 20% で従来100%手書きの3倍速で本番品質達成
+2. **CWV 2025 完全準拠の実装ゲートキーパー**：INP 200ms / LCP 2.5s / CLS 0.1 を実装層で物理担保。9ゲート CI チェック（Biome / tsc / vitest / axe / bundlesize / lhci / pixelmatch / playwright / `use client` 位置）で Mia QA 初回通過率 90%
+3. **社内 CLI・パッケージ職人**：`pnpm create lp-template` で初期構築 2時間 → 30秒、`pnpm sync:tokens` で STEP 1 を 45分 → 90秒、`@let-inc/lp-kit` で全案件に修正1回で伝播。部内全員の生産性を底上げする"仕組み職人"
+4. **後工程4名（Mia/Saki/Kaito/クライアント）合計工数最小化の視点**：`data-testid` 先付け・`content.json` 外出し・共通パッケージ利用・実装ブロッカー5分返信テンプレで、自分の実装スピードよりも全体最適を優先
+5. **建設業クライアント特化の現場UX設計者**：作業着・手袋の指でも打てる `inputmode`/`autocomplete`、地下・鉄骨内の 4G でも見える Hero `poster`＋`preload="none"`、iOS Dynamic Type 200% でも崩れない rem 基準、LINE WebView での固定 CTA 検証を実装標準化。「訪問者の環境」を開発機の快適さと取り違えない現場感覚

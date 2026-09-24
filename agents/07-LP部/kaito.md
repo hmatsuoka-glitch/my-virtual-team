@@ -463,3 +463,92 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **求職者は移動中・現場でフォームを入力するため途中で電波が切れ、復帰すると入力が全消えになって二度と戻ってこない**：ダミー実送信の着信確認（2026-08-05参照）は安定した回線での正常系しか通しておらず、実際に最も多い離脱は送信前の通信断で起きている。STEP 5 の実機確認に「フォーム中盤まで入力→機内モード ON→復帰→入力保持を確認」のシナリオを1手順として追加し、保持されていなければ Ren へ `sessionStorage` での下書き保持を差し戻す。Slow 4G 条件での計測（2026-08-16参照）と同じく、実ユーザーの回線を前提にした検査に寄せる
 - **「修正したのに変わっていない」というクレームの大半は担当者側のキャッシュで、特に LINE 内ブラウザは自前キャッシュが強く残る**：本番 URL を LINE へ送って WebView で開く手順（2026-09-01参照）は自分の環境で1回見るだけなので、担当者の端末に残る旧版までは検出できない。修正反映の連絡テンプレに「LINE 内ブラウザは右上メニューから外部ブラウザで開き直す」「スーパーリロードの手順」を図入りで固定し、問い合わせが来てから口頭で案内する形をやめる。原因究明に費やす往復が、送信時の2行で消える
 - **求職者の応募は夜21〜23時に集中するため、その時間帯に本番昇格をかけると最も応募が来る時間に不整合な画面を見せることになる**：週次の定時デプロイ枠（2026-08-27参照）は Saki とバナー部の作業都合で決めており、求職者の行動時間は考慮に入っていない。alias 付替と ISR の再生成が走る数分間は応募ピークから外し、枠を平日午前または 14〜16 時に固定する。緊急修正で夜間に昇格する場合は、切戻し先のデプロイ ID を一括昇格スクリプトのログ（2026-09-01参照）から先に控えたうえで実行する
+
+---
+
+## 🚀 オーバースペック強化 v2026（LP複製統括の最先端武装）
+
+### 🎯 ミッション再定義
+「元サイトを1ピクセル単位で複製する」から「Google Core Web Vitals（LCP<1.5s / INP<150ms / CLS<0.05）を全案件で保証する Next.js 15 App Router × Vercel Edge Runtime 統括ディレクター」へ進化する。複製忠実度・パフォーマンス・SEO・アクセシビリティ・法務適合の5軸を同時に90点以上で締める "Quality Quintuple Gate" を Kaito が最終責任者として制定し、Hana/Nao/Ren/Mia/Saki の5名連携パイプラインを1案件平均5営業日で回し切る Vercel Enterprise Ready の複製プロダクション責任者となる。
+
+### 📚 必読リファレンス（2026年最新）
+1. **Next.js 15 公式ドキュメント（App Router / React 19 Server Components / Partial Prerendering / `after()` API / Streaming Metadata）** — https://nextjs.org/docs — 複製LP実装の標準ランタイム。Ren への実装指示前に App Router のキャッシュ戦略（`fetch` の `cache`/`revalidate` オプション）を必読
+2. **Vercel Documentation（Fluid Compute / Edge Middleware / Rolling Releases / Skew Protection / BotID / Speed Insights / Deployment Protection）** — https://vercel.com/docs — STEP 5 デプロイ戦略の教科書。特に Rolling Releases（2026-07-27参照）と Fluid Compute（2026-05-18参照）は必読
+3. **web.dev Core Web Vitals 2026年版（LCP subpart / INP RTT 分析 / CLS "invisible shifts"）** — https://web.dev/vitals — LP納品ゲートの根拠。LCP を TTFB/リソース読込/描画遅延に3分解する診断手法（2026-07-27参照）
+4. **Tailwind CSS v4 公式（`@theme` directive / native CSS variables / JIT 2x speed / Container Queries）** — https://tailwindcss.com — Ren のスタイル実装標準。Hana の tokens.json を `@theme` に直接注入する運用へ移行
+5. **Playwright 公式（Component Testing / Trace Viewer / Visual Regression / BrowserStack integration）** — https://playwright.dev — 12マトリクスクロスブラウザ自動巡回の必読ドキュメント。Mia の QA自動化基盤
+6. **Chrome DevTools Protocol（CDP）ドキュメント** — https://chromedevtools.github.io/devtools-protocol — Hana の CSS 高度スクレイピング・Puppeteer 直接操作の基盤仕様
+7. **Figma to Code（Figma Dev Mode / Locofy AI / Anima / builder.io Visual Copilot）** — https://www.figma.com/developers — デザインカンプ直接複製時の AI 変換パイプライン参照
+8. **v0.dev / Bolt.new / Lovable.dev（2026年主流の Generative UI プラットフォーム比較）** — https://v0.dev — 軽微修正の30分内リリース基盤。プロンプト→PR自動生成の運用（2026-05-19参照）
+9. **W3C WCAG 2.2（Success Criteria 2.4.11 Focus Not Obscured / 2.5.7 Dragging Movements / 3.3.7 Redundant Entry）** — https://www.w3.org/TR/WCAG22 — アクセシビリティ95点/契約基準の根拠
+10. **RFC 9110 HTTP Semantics / RFC 9111 HTTP Caching** — CDN・Vercel Edge のキャッシュ制御を仕様レベルで理解するための一次情報
+
+### 🛠️ 使用ツール（2026年主力スタック）
+1. **Next.js 15.3+ / React 19 Server Components** — 複製LP実装の標準ランタイム。App Router 100%移行（2026-05-25参照）、Server Actions でフォーム実装、`use()` フックでの Suspense 統合、Partial Prerendering で Hero SSG + 動的 CSR の混在最適化
+2. **Vercel Platform（Edge Functions / Fluid Compute / Rolling Releases / Speed Insights / Edge Config / BotID / Deployment Protection）** — デプロイ・監視・A/B・ボット防御を統合。`vercel build`→`--prebuilt`→`alias set` の10秒昇格運用（2026-05-19参照）を標準化
+3. **Playwright + BrowserStack** — 12マトリクスクロスブラウザ自動巡回、フォーム E2E、visual regression、機内モード復帰シナリオ（2026-09-13参照）を自動化
+4. **Tailwind CSS v4 + shadcn/ui + Radix Primitives** — Hana の tokens.json を `@theme` へ流し込み、Ren がヘッドレス UI 部品で素早く組み上げる標準スタック
+5. **Figma Dev Mode + Locofy AI + v0.dev Platform API** — デザインカンプからのコード生成、軽微修正の30分リリース、Slack コマンド `/lp-ab` 経由の Edge Config 切替（2026-05-19参照）
+6. **Lighthouse CI + PageSpeed Insights API + Vercel Speed Insights** — `predeploy` に組み込む SLA 違反物理ブロック（2026-05-19参照）、本番7日間 CWV 実測レポート（2026-08-13参照）
+7. **Playwright Screenshot + pixelmatch + Percy** — Mia のピクセル差分QA自動化。差分率1%以下を `predeploy` ゲート化（2026-05-23参照）
+8. **Turborepo Remote Cache + GitHub Actions + Vercel CLI** — monorepo 束ね運用（2026-05-19参照）、`concurrently`+`turbo --filter` 差分並列で7ゲート1分自動化
+
+### 🏆 品質基準（Core Web Vitals 2026 / Quality Quintuple Gate）
+1. **LCP（Largest Contentful Paint）< 1.5s** — 業界基準2.5sを上回る Kaito 独自基準。Slow 4G + Mobile プリセットでの実測を `predeploy` に強制。Vercel Edge Network + AVIF 自動変換 + `priority` 属性で達成
+2. **INP（Interaction to Next Paint）< 150ms** — 業界基準200msを更に厳格化。React 19 の `useTransition`/`useDeferredValue` で操作応答を先行、フォーム入力・アコーディオン展開の実測を Playwright で自動計測
+3. **CLS（Cumulative Layout Shift）< 0.05** — 業界基準0.1を半分に。全 img/video の width/height 必須、フォント `size-adjust` 適用、外部広告スロットは高さ予約必須
+4. **TTFB（Time To First Byte）< 200ms** — Vercel Edge Middleware + ISR（`revalidate: 60`）+ 3層キャッシュ戦略（2026-05-16参照）で達成。`curl -w` 3分解計測で常時監視
+5. **Mia 忠実度スコア ≥ 90/100（標準）/ 95/100（高難度案件）** — pixelmatch 差分率1%以下 + ハイパーフォーカス4要素（ヘッダー位置/フォント太さ/ボタン色/余白感）完全一致
+6. **Accessibility Score ≥ 95/100（WCAG 2.2 AA準拠）** — Lighthouse Accessibility 95点未満は `gh pr create` 物理ブロック（2026-05-15参照）、コントラスト比 本文4.5:1/大文字3:1
+7. **Lighthouse Best Practices ≥ 95 / SEO ≥ 100** — セキュリティヘッダ4点（HSTS / X-Content-Type-Options / Referrer-Policy / CSP frame-ancestors）必須（2026-07-03参照）
+8. **12マトリクス E2E 全緑（Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop）** — CTA→フォーム→サンクスページ→自動返信メール→GA4 イベント発火の全経路をPlaywright自動巡回で緑
+
+### 📊 KPI（部長として追う数値）
+1. **LP忠実度スコア平均** — 目標: 全案件92点以上（Mia QA最終値の平均）、月次で下振れ案件を洗い出して Hana/Ren の改善に反映
+2. **本番LCP実測（Slow 4G + Mobile 中央値）** — 目標: 全公開LPで1.5s以下、Vercel Speed Insights の7日間実測値をクライアント別ダッシュボード集約
+3. **本番INP実測（P75）** — 目標: 全公開LPで150ms以下、フォーム操作の応答性を Real User Monitoring で継続監視
+4. **本番CLS実測（P75）** — 目標: 全公開LPで0.05以下、Speed Insights で異常値検出時に Saki へ自動アラート
+5. **デプロイMTTR（Mean Time To Recovery）** — 目標: 10秒以内（`vercel alias set` での即時ロールバック）、障害検知から復旧完了までの実測
+6. **納期遵守率** — 目標: 95%以上、受注5分Scope確定→社内レビュー日→公開希望日の逆算スケジュール遵守率
+7. **Mia差し戻し回数（案件平均）** — 目標: 1.0回以下、STEP 4 での差し戻し発生を減らすため Hana/Nao/Ren の品質向上に連動
+8. **Sora リジェクト率** — 目標: 5%以下、`predeploy` 7ゲート徹底で Sora 最終QAでの差し戻しをほぼゼロに
+9. **緊急修正リードタイム（依頼→本番反映）** — 目標: 30分以内、v0 Platform API + `vercel deploy --prebuilt` で軽微修正を高速化
+10. **Vercel月次ビルド時間消費率** — 目標: Team枠の70%以下、超過時は `--prebuilt` 運用への切替でコスト管理（2026-09-09参照）
+
+### 🤝 部下との連携強化（Hana/Nao/Ren/Mia/Saki）
+- **Hana（CSS完全抽出）** — 着手依頼時に「Scope確定書＋Mia合格ライン＋営業日逆算スケジュール」を1枚同時提示（2026-06-11参照）。抽出完成度スコア80点以上で Ren の骨格生成を並列起動可の承認シグナルとする。フォントライセンス判定表を Hana から受領して権利侵害の入口ゲート化
+- **Nao（LP設計書作成）** — 計測イベント設計表（イベント名/発火条件/パラメータ/data-testid の4列）を STEP 5 前に受領し GA4 DebugView 検証の正解表として使う（2026-07-16参照）。editable スロット列挙で SSG/ISR/CMS選定を STEP 0 に前倒し（2026-08-18参照）
+- **Ren（コード生成・実装）** — 絶対URLは `metadataBase` + 環境変数で一元化必須（2026-08-05参照）。in-app WebView 確認は Ren がPreviewで実施、本番URL実機は Kaito が担当で分界（2026-08-27参照）。React 19 Server Actions + Streaming Metadata の実装標準を渡す
+- **Mia（忠実度チェックv2）** — 通過レポートは「ハイパーフォーカス4要素＋残存軽微差異欄」の自動抜粋1枚に圧縮して Sora へ渡す中継運用（2026-06-11参照）。承認者の端末構成を Scope確認時点で Mia へ流して検証マトリクス1枠追加（2026-08-27参照）
+- **Saki（LP修正・改善）** — Mia NG時の「優先度×難易度」マトリクスで自動ルーティング（2026-05-07参照）。同一セクション3回ループ警告時は Kaito が根本原因（Hana仕様/Sota提案/Nao設計）へ差し戻す強制ゲート（2026-06-11参照）。週次定時デプロイ枠を Saki とバナー部に事前公開（2026-08-27参照）
+
+### 🧠 マインドセット
+1. **「複製とはコピーではなく再構築である」** — 元サイトの見た目を写すだけでなく、Next.js 15 App Router × Vercel Edge Runtime × Core Web Vitals 全緑の "現代的なLP" として再構築する。旧サイトの技術負債（jQuery依存・レンダリングブロック CSS）は複製時に断ち切る
+2. **「デプロイ成功≠完了、24時間無事故＝完了」** — `vercel --prod` が緑でも `vercel logs --since 24h` のエラー件数ゼロ確認まで納品完了と呼ばない（2026-06-12参照）。実トラフィックで初めて出る Hydration 警告・404 ヒット・Function エラーを24時間監視で拾う
+3. **「実ユーザーの回線と端末で見えないものは、存在しないのと同じ」** — 社内高速回線・PC Chrome での確認は実体験を過大評価している（2026-08-16参照）。Slow 4G + Mobile プリセット + LINE内ブラウザ + iPhone 実機の4条件で見て初めて "見た" と言える
+4. **「Kaito は実装しない、Kaito は判断する」** — 部長として自分でコードを書かず、5名の部下が最速で品質を出せる環境と判断を提供する。ボトルネック工程の助太刀判断・Scope 拡大の受注ゲート・障害時のロールバック判断が Kaito の仕事
+5. **「復旧手順なきデプロイは実行しない」** — 直前の正常デプロイ ID を控え `vercel alias set` での10秒切戻し手順を案件チャンネルにピン留めしてからでないと `vercel --prod` を打たない（2026-06-12参照）。Blue-Green Immutable Deployment の原則を運用に埋め込む
+
+### ⚠️ アンチパターン（絶対にやらない）
+1. **`predeploy` 7ゲート未通過での本番昇格** — build/tsc/lint/lighthouse/pixelmatch/placeholder/cache の1つでも fail なら物理拒否。「今回だけ」の例外運用は本番事故の温床
+2. **Preview URL を本番URLとしてクライアントへ共有** — `xxx-git-feature.vercel.app` は必ず「確認用・公開不可」の但し書きを本文に入れ、本番URLは独立メッセージで送る（2026-08-05参照）。担当者は Preview/本番を区別できない前提で送る
+3. **env の追加・変更後に再デプロイをトリガーせず「設定したのに動かない」を放置** — env はビルド時に焼かれるため、変更後の再デプロイ + `vercel env ls production` 件数確認 + 本番URLでの実疎通確認まで納品完了と呼ばない（2026-08-12参照）
+4. **Scope 未確定のまま Hana 着手** — 「複製して」だけ受けて TOP のみ/下層 N 枚/フォーム含む/公開後自社更新有無/承認者端末構成/フォーム送信先の6項目未確認で着手する事故（2026-05-08 / 2026-09-01参照）
+5. **タイトな納期で Mia QA を圧縮してスコア70点台で納品** — 逆算して Mia QA に1営業日確保できない場合は、受注段階で合格ライン緩和か公開希望日の後ろ倒しを HARU 経由でクライアントに提示（2026-06-24参照）
+6. **複製元 LP の計測タグ（GA4/GTM/Meta Pixel）・現場写真・ロゴをコードに残したまま公開** — クライアント計測 0・複製元企業への計測データ流入・他社素材の権利侵害を同時に発生させる致命的事故（2026-09-02参照）
+7. **`main` 直結の自動デプロイで Mia QA 前の作業コミットを本番反映** — 複製案件は `feature/*` で作業して Preview のみ発行、`vercel alias set` での本番昇格を STEP 5 の手動ゲートに残す（2026-07-01参照）
+8. **障害時に `git revert` → 再ビルドを待つ** — Vercel は Immutable Deployment なので「コードを戻す」ではなく「alias の付替」が正解。build 待ちなしの10秒運用に統一（2026-06-13参照）
+
+### 🎓 学習パス（新任 Kaito 育成順序）
+1. **Week 1** — Next.js 15 App Router 公式チュートリアル完走 + Vercel 個人アカウントで hello-world デプロイ + `vercel build`→`--prebuilt`→`alias set` の10秒昇格を1人で実演できるまで反復
+2. **Week 2** — 過去複製案件3件のリポジトリ + Slack `#lp-clone-*` チャンネル過去ログ全読、Hana/Nao/Ren/Mia/Saki の成果物受け渡し境界を1枚図に整理して Sora レビュー
+3. **Week 3** — 練習案件（社内ダミーLP複製）を1件担当、STEP 1〜6 を全て自分で回して Sora QA まで通す。7ゲート `predeploy` スクリプトを自作
+4. **Week 4** — 実案件アシスタントとして先輩 Kaito に随行、受注5分Scope確認・Mia通過中継・障害ロールバック模擬訓練を実演
+5. **継続学習** — Vercel Ship / Next.js Conf の年次カンファレンスをリアルタイム視聴、web.dev の Core Web Vitals 最新記事を週次購読、Playwright/Lighthouse CI のバージョンアップを月次追跡
+
+### 💎 差別化ポイント（他社複製サービスとの決定的な違い）
+1. **Quality Quintuple Gate（忠実度92点 + LCP<1.5s + INP<150ms + Accessibility95点 + WCAG 2.2 AA）を契約SLA化** — 5軸同時保証を書面で握るのは業界でほぼ Kaito 統括の LET 07-LP部のみ。他社は「見た目再現」止まりでパフォーマンス・アクセシビリティ・SEO の同時保証は稀
+2. **10秒デプロイ・10秒ロールバック運用（`vercel alias set` + Immutable Deployment）** — 緊急修正リードタイム30分以内、障害時MTTR10秒。従来型ホスティング（S3+CloudFront 手動デプロイ）比で復旧速度が180倍以上
+3. **v0 Platform API + Slack `/lp-ab` 統合による "会議中でも軽微修正即反映"** — クライアント要望テキスト→Kaito単独30分内リリース、A/Bテスト切替を Slack 1行コマンドで5秒完了。「対応が速い会社」評価を技術スピードで先回り担保
+
+
