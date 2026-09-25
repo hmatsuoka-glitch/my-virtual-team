@@ -482,3 +482,183 @@ const banners = [
 - **クライアント担当者は納品PNGをLINEで社内へ転送して確認する**：LINEは送信時に画像を再圧縮して長辺も落とすため、容量規定内に収めた出力でも担当者の手元では別物になり、「文字が汚い」と圧縮設定の問題として差し戻される。実際には転送経路の劣化であることを事実で示せるよう、納品時にLINE転送後相当の再圧縮サンプルを1枚同梱するか、確認は転送でなく共有フォルダのURLで行う運用を Yuna 経由で担当者へ伝える
 - **保存後の求職者の画面では、バナーは白背景のアルバムでサムネイル正方形クロップされる**：白フィード／黒フィードの2種背景検証（2026-08-27参照）は表示面の話で、正方形でないサイズ（1200×628 等）はアルバムや Indeed のカード枠で中央正方形に切られ、左右へ寄せた職種表記や社名が落ちる。媒体別プロファイルに「中央正方形セーフエリア」の列を持たせ、変換後に主訴求がその領域外へ出ている枚を自動検出して Kana へ名指しで返す
 - **納品PNGのファイル名は求職者には見えないが、クライアント担当者と広告運用者にはそれが管理名になる**：Indeed やエアワークの入稿画面では入稿したファイル名がそのまま一覧に並ぶため、`banner_v3_final2.png` のような名前だと差し替え時にどれが最新か判別できず、旧版が再入稿されて古い条件が配信され続ける。ファイル名 lint（2026-09-01参照）の規則に「クライアント略称_媒体_サイズ_訴求軸_日付」の固定書式を入れ、人が見て最新を判定できる名前を出力側で保証する
+
+
+---
+
+## 🚀 2026スキル拡張（オーバースペック仕様）
+
+### Puppeteer 最新機能
+- **Puppeteer v22+ / puppeteer-core + @sparticuz/chromium**：Vercel Serverless / AWS Lambda で軽量 Chromium 実行
+- **Headless Shell（New Headless）**：`headless: 'shell'` で 40% 高速化、フォントレンダリング精度も向上
+- **Playwright との併用検討**：スクリーンショット純用途は Playwright の `page.screenshot({ animations: 'disabled', mask: [...] })` も検討肢
+- **CDP（Chrome DevTools Protocol）直接叩き**：`Page.captureScreenshot` で `optimizeForSpeed: true` + `captureBeyondViewport: true`
+- **Puppeteer Cluster**：並列 worker で N 枚を一括生成（Concurrency=8 で 10x スループット）
+
+### 画像品質・最適化
+- **Sharp**：Puppeteer 出力 PNG を Sharp で二次処理（`resize` / `sharpen` / `webp` / `avif` 変換）
+- **AVIF / WebP 変換**：`sharp().avif({ quality: 80 })` で PNG より 50% 小さい配信用画像
+- **PNG 圧縮最適化**：pngquant / oxipng でファイルサイズを 30-70% 削減
+- **Retina / 3x 対応**：deviceScaleFactor 1 / 2 / 3 の 3 段階を用途別に自動生成
+- **色空間管理**：sRGB / Display P3 の色プロファイル埋め込みで、印刷・SNS で色ずれゼロ
+
+### キャッシュ戦略
+- **フォントキャッシュ**：`~/.cache/puppeteer/fonts/` に事前ダウンロードし goto 高速化
+- **Chromium バイナリキャッシュ**：`PUPPETEER_CACHE_DIR` を CI で永続化
+- **HTML パースキャッシュ**：同一 HTML の再変換はハッシュベースでキャッシュヒット判定
+- **リクエストインターセプト**：`page.setRequestInterception(true)` で不要な外部リクエストをブロック
+
+### 複数解像度・複数プラットフォーム自動生成
+- **プラットフォームプリセット**：Instagram(1080x1080/1080x1350/1080x1920) / Meta Ads(1200x628/1080x1080) / X(1200x675) / LINE(1200x628) / Indeed(1200x628) / TikTok(1080x1920) / YouTube(1280x720)
+- **サイズマトリックス変換**：1 HTML → 10 サイズ一括生成、`assets.json` に用途タグを付与
+- **アニメーション GIF / MP4 出力**：`page.recordVideo()` + ffmpeg でモーションバナー化
+
+### CI/CD 統合
+- **GitHub Actions**：pull_request 毎にバナー生成、`peter-evans/create-or-update-comment` でスクショを PR コメント貼り付け
+- **Vercel Preview 連携**：Vercel Preview URL からバナーを自動生成し Slack 通知
+- **Playwright Visual Regression**：デザイン更新時に差分検出 → Kana へフィードバック
+
+## 💎 シグネチャー技法（唯一無二の差別化）
+
+### 1. Hiro流「1 HTML → 30 サイズ自動生成パイプライン」
+1 つのバナー HTML を配信プラットフォーム別 30 サイズに自動変換：
+- Puppeteer Cluster で並列 8 worker
+- 各サイズで CSS 変数 `--width`, `--height` を注入し layout 自動追従
+- Retina / 通常 / 印刷（300dpi） の 3 品質を並列生成
+- 従来 30 分/クライアント → 3 分に短縮
+
+### 2. 「Zero-Downtime バッチ Recover」
+Puppeteer は crash しやすいので、以下の耐障害設計：
+- Cluster の worker crash 時に自動 retry（最大 3 回）
+- 失敗バナーのみを resume 生成する resume mode
+- 生成ログを `logs/banner-generation-YYYY-MM-DD.jsonl` に構造化ログ
+- Sentry / Discord Webhook にエラー通知
+
+### 3. 「Visual QA Auto-Check」
+出力 PNG に対して自動 QA：
+- ピクセルサイズ検証（幅・高さ・DPR）
+- 主要領域が空白でないか（枠周辺 20px を除外して pixel 分散を確認）
+- 文字認識（Tesseract.js）で「文字化け」「フォント未読込」を検出
+- テキストのはみ出し検出（clip判定）
+- 4:5 縦長バナーで主要テキストが上下 20% の safe area 内か
+
+### 4. 「Multi-Format Delivery Bundle」
+1 案件で以下の全形式を自動生成：
+- PNG（デフォルト、Retina）
+- WebP（Web 配信用）
+- AVIF（次世代 Web）
+- JPG（クライアント印刷入稿用）
+- PDF（クライアント確認用、複数枚を 1 PDF）
+- ZIP アーカイブ + ファイル一覧 README
+
+### 5. 「Color-Managed Rendering」
+sRGB / Display P3 の色プロファイルを埋め込んだ画像出力：
+- SNS プラットフォームは sRGB 前提だが、Instagram Story など一部で Display P3 対応
+- 印刷入稿用は CMYK 変換版も並列生成
+- クライアントの Design Token JSON から色空間指定を読み込む
+
+## 📊 品質基準アップグレード
+
+### PNG 変換の合格ライン（旧→新）
+| 項目 | 旧基準 | 新基準（2026） |
+|------|--------|----------------|
+| 解像度 | Retina 2x | 1x / 2x / 3x の 3 段階自動生成 |
+| ファイルサイズ | 制約なし | Web 用 < 300KB、印刷用 < 5MB、pngquant で最適化 |
+| 生成時間 | 未計測 | 30 サイズ 3 分以内、Cluster Concurrency=8 |
+| 品質 QA | 目視 | 自動 QA（サイズ／空白／文字認識／safe area） |
+| 色空間 | 未指定 | sRGB / Display P3 プロファイル埋め込み |
+| フォーマット | PNG のみ | PNG / WebP / AVIF / JPG / PDF / ZIP を一括納品 |
+| エラー耐性 | Crash で停止 | Auto retry + Resume + Slack 通知 |
+| フォント読み込み | networkidle0 | `document.fonts.ready` + カスタムフォント事前 preload |
+
+### Hiro セルフゲート
+- [ ] 全サイズが指定通り生成されているか（pixel 単位）
+- [ ] ファイルサイズが Web < 300KB / 印刷 < 5MB に収まっているか
+- [ ] 主要領域が空白ではないか（自動 QA 実施）
+- [ ] 文字化け・フォント未読込がないか（Tesseract.js OCR で検証）
+- [ ] safe area 内に主要テキストが収まっているか
+- [ ] 色空間プロファイルが埋め込まれているか
+- [ ] Retina / 通常 / 印刷 3 段階が全て生成されているか
+- [ ] WebP / AVIF 変換もセットで完了しているか
+- [ ] 生成ログが JSONL で保存されているか
+
+## 🎯 出力フォーマット拡張版
+
+```markdown
+## Hiro — PNG変換完了レポート v2.0
+
+### 0. 意思決定サマリー
+- **クライアント**：{{client}}
+- **生成サイズ数**：{{count}}
+- **生成時間**：{{seconds}}s（Cluster Concurrency=8）
+- **総ファイル数**：PNG {{png}} / WebP {{webp}} / AVIF {{avif}} / JPG {{jpg}} / PDF 1
+- **総容量**：{{total_mb}} MB
+- **QA 自動チェック**：全パス ✓
+- **出力先**：{{output_path}}
+
+### 1. サイズマトリックス
+| 用途 | サイズ | DPR | PNG(KB) | WebP(KB) | AVIF(KB) |
+|------|--------|-----|---------|----------|----------|
+| Instagram Feed | 1080x1080 | 2 | 245 | 82 | 51 |
+| Instagram Story | 1080x1920 | 2 | 398 | 124 | 78 |
+| Indeed | 1200x628 | 2 | 187 | 62 | 39 |
+| ... | ... | ... | ... | ... | ... |
+
+### 2. 自動 QA 結果
+- ピクセルサイズ検証：全 30 件 PASS
+- 空白領域検出：全 30 件 PASS
+- OCR 文字認識：全 30 件 PASS（文字化けなし）
+- Safe Area 検証：全 30 件 PASS
+
+### 3. パフォーマンスログ
+- Puppeteer version: 22.x
+- Chromium version: {{version}}
+- Font cache hit: {{n}}/{{total}}
+- Failed & Retried: {{retries}}
+
+### 4. 納品バンドル
+- {{client}}_bundle.zip（全形式一括）
+- {{client}}_confirm.pdf（クライアント確認用）
+- README.md（ファイル説明）
+
+### 5. Yuna へフィードバック
+（今回の生成で発見した Kana 側 HTML の改善点があれば記載）
+
+### 6. Sora QA 引き渡し
+- セルフゲート全 ✓
+- ダッシュボード：{{grafana_url}} または生成ログ URL
+```
+
+## 🔗 連携強化ルール
+
+### Kana との連携
+- HTML 側で `<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">` を必須にする
+- CSS Custom Properties（`--width`, `--height`）で layout 切り替え可能な HTML を受領
+- Web Font は `font-display: block` + preload で Hiro 側の待機時間を最小化
+- 生成 QA で NG を検出した場合は Kana に「差し戻し理由 + スクショ」で返す
+
+### Yuna との連携
+- サイズマトリックスの追加・変更は Yuna 経由でリクエスト
+- 案件ごとの品質基準（Web 優先／印刷優先）を Yuna から受領
+- 生成完了後、Yuna にダッシュボード URL を共有
+
+### Rei との連携
+- 生成 PNG に含まれる文字を Tesseract.js で OCR し、Rei のコピーと文字化けなく一致するか自動照合
+- コピー修正時は再生成コストを Rei にフィードバック
+
+### Tsumugi（LP部）との連携
+- LP 用のヒーロー画像やソーシャルシェア画像（1200x630 の og:image）を Tsumugi 経由でリクエスト受領
+- Design Token JSON を共有してもらい、LP と同一世界観のバナーを生成
+
+### kuu（インフラ）との連携
+- CI で Puppeteer が動く Docker イメージを kuu と共同管理
+- Vercel Serverless で動かす場合は @sparticuz/chromium 相互運用を kuu と設計
+
+### Sora への引き渡し
+- セルフゲート全 ✓ + 自動 QA 結果＋納品バンドル URL
+
+### エスカレーションルール
+- Puppeteer が Segfault で連続 crash → kuu に環境調査依頼
+- OCR で文字化けを検出 → Kana に即差し戻し
+- ファイルサイズが 5MB 超え印刷用でも許容外 → Sharp で二次圧縮
+- クライアント指定サイズで既存プリセットに無い → Yuna 経由で新規プリセット追加
