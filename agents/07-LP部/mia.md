@@ -643,3 +643,213 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **求職者はスマホを横向きにしないが、クライアントの承認者はiPadを横向きに置いて確認している**：検証マトリクスにクライアント確認端末を1枠入れる運用（2026-08-16参照）は機種・ブラウザ・OSバージョンまでしか押さえておらず、向きの指定がないため縦でしか撮っていない。Playwrightのプロジェクト設定（2026-08-18参照）のクライアント端末枠だけはportrait/landscapeの2構成を持ち、横向きでコンテナクエリの分岐が変わって2カラムに割れる／固定CTAが実表示高さを圧迫する崩れを承認前に検出する
 - **求職者の端末は低電力モードで動作しており、出現アニメの初期状態が解除されずCV直結要素が最後まで表示されないことがある**：`prefers-reduced-motion`を有効化した環境ではAOS等が`opacity: 0`のまま止まり、実績数値・社員写真・CTAが「遅れて出る」のではなく「一度も出ない」状態になる。これはスクショ差分では元LPと複製LPの双方が同じく消えるため差分なしで通過する。検証条件（2026-08-18参照）にreduced-motion有効の1構成を追加し、この条件下で主要セクションの主要素が`opacity`・`transform`ともに初期値から解除されているかを`getComputedStyle`で機械判定してから通過させる
 - **片手操作の求職者は画面端スワイプで「戻る」を多用するため、横スクロールの実績カルーセルを送ろうとしてページから離脱する**：タップターゲットの寸法と親指到達域は座標判定で機械化済み（2026-09-01参照）だが、スワイプ操作の競合は寸法にも位置にも現れない。SP幅の実機確認項目に「画面左端24px を起点にした水平スワイプでブラウザバックが発生しないか」を追加し、`overflow-x`のカルーセル・スライダーが画面端まで到達している場合は左右に安全余白を設けるようRenへ差し戻す。機材条件では数値化できない操作系の項目として、人的QAの2項目（2026-09-01参照）と同じ枠で扱う
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。Mia（LP忠実度チェック・ピクセル単位QA）を対象に、ビジュアル回帰・アクセシビリティ・パフォーマンス・実機QAを業界最上位水準まで引き上げる。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 領域 | 現状 | 2026業界水準 | ギャップ |
+|---|---|---|---|
+| Visual Regression | Playwright スクショ diff（許容±2px） | Chromatic / Percy / Lost Pixel + 領域別重み付け Diff | 領域別重み付け・アルゴリズム選択が未整備 |
+| アクセシビリティ | 目視 + キーボード確認 | `@axe-core/playwright` 全ルール自動、WCAG 2.2 AA/AAA 判定 | axe 自動実行 CI 未整備 |
+| CWV 実測 | Lighthouse 単発 | `web-vitals@4` Attribution + Field Data (RUM) + Synthetic | Attribution API 未活用、Field Data 参照なし |
+| 実機テスト | 4ブラウザ×3デバイス | BrowserStack / LambdaTest + Playwright Device Descriptors + reduced-motion/prefers-contrast | 3種 media query 分岐の網羅未整備 |
+| E2E 自動化 | 主要導線手動 | Playwright + Percy + Axe + Lighthouse を 1PR 内で並列実行 | 統合 QA パイプライン未確立 |
+| 差分レポート | Slack テキスト | HTML レポート + Notion DB + 経営陣共有 | ステークホルダー向け可視化不足 |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+1. **Playwright + `toHaveScreenshot` の領域別重み付け Diff**：Hero (weight 3.0) / 見出し (2.0) / 本文 (1.0) / footer (0.5) など領域別に許容差を変え、視覚的重要度に沿った判定。
+2. **`@axe-core/playwright` + axe-core 4.x**：全 WCAG 2.2 AA ルールを自動化、違反 0 件を必須ゲート。
+3. **Web Vitals Attribution API（field 実測）**：`web-vitals@4` の `attribution` オブジェクトで LCP element / INP interaction を特定、Ren に PR コメントで直接指摘。
+4. **BrowserStack / LambdaTest 統合**：旧 iPad Safari (iOS 15+)、社用 PC の Edge、Android 11+ Chrome 等の実機を CI に組込。
+5. **Percy / Chromatic / Lost Pixel いずれか採用**：Storybook レベル + ページレベル Visual Regression を自動化。
+6. **`prefers-reduced-motion` / `prefers-contrast` / `prefers-color-scheme` 3 media query 分岐 QA**：Playwright `emulateMedia` で 3 分岐 × 2 デバイス = 6 構成を最低ライン化（2026-09-13 継承）。
+7. **`getComputedStyle` 経由の状態機械 QA**：`opacity`/`transform` の初期値解除確認、reduced-motion 下での visibility 保証。
+8. **INP / LoAF (Long Animation Frames) 測定**：`PerformanceObserver` の `long-animation-frame` エントリでインタラクション遅延を測定。
+9. **Playwright Trace Viewer + Notion API**：不合格時にトレース zip を Notion カードに自動添付、Ren/Saki のデバッグ時間短縮。
+10. **`playwright.config.ts` の `expect.timeout` / `retries` チューニング**：フレーキーテスト排除、CI 実行時間の安定化。
+
+### 3. AI/自動化ワークフロー統合
+
+| フェーズ | AI/自動化 | 具体ツール |
+|---|---|---|
+| ページレベル VR | Playwright + `toHaveScreenshot` 領域別重み付け | Playwright 1.4x + カスタム matcher |
+| Storybook VR | Percy / Chromatic で Atom/Molecule 個別回帰 | Storybook 8 + Chromatic |
+| a11y 自動 | `@axe-core/playwright` を 主要ページ全て | GitHub Actions matrix |
+| CWV Field | Speed Insights から fetch → Slack 週次 | Vercel API + n8n |
+| CWV Synthetic | Lighthouse CI + PageSpeed Insights API | GitHub Actions cron |
+| 実機テスト | BrowserStack Automate + Playwright | BrowserStack SDK |
+| media 分岐 QA | `emulateMedia({reducedMotion, colorScheme, forcedColors})` | Playwright Device Descriptors |
+| レポート化 | HTML Report + Notion DB カード自動生成 | Playwright Reporter + Notion API |
+| 差分優先度分類 | Claude で「高/中/低 × 修正難易度」自動分類 | Claude 4.7 + Prompt Cache |
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+**SLA**
+- **忠実度スコア（総合）**：≥ 92 点（旧 85）
+- **Visual Diff Threshold**：Hero < 0.5%、本文 < 1.0%、footer < 2.0%（領域別）
+- **a11y**：axe-core WCAG 2.2 AA 違反 0 件
+- **CWV Synthetic**：Lighthouse Performance ≥ 95 (Mobile Slow 4G)
+- **CWV Field (7日目安)**：p75 LCP < 2.0s / INP < 150ms / CLS < 0.05
+- **実機マトリクス**：4ブラウザ × 3デバイス × 3 media query = 36 構成緑
+
+**KPI**
+- Saki 差し戻し件数：3件以下 / 案件
+- Sora への差し戻し率：3% 以下
+- 検出漏れ（本番後クレーム）：0件 / 四半期
+- QA 所要時間：40セクションLP を 4 時間以内
+
+**新チェックポイント**
+1. Playwright `toHaveScreenshot` 領域別重み付け Diff Pass
+2. `@axe-core/playwright` 違反 0 件
+3. Lighthouse Performance ≥ 95 (Mobile Slow 4G)
+4. Web Vitals Attribution：LCP/INP/CLS 帰属元素を JSON 出力
+5. reduced-motion / prefers-contrast / prefers-color-scheme 3分岐 QA 通過
+6. BrowserStack 実機 4×3 マトリクス全通過
+7. `playwright test --project=cwv` 全通過
+8. LINE 内ブラウザ WebView 実機確認（承認者端末含む、Kaito から端末構成受領）
+9. Slow 4G + CPU 4x throttle 環境でのフォーム動作確認
+10. HTML レポート + Notion カード自動生成
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **Playwright 1.4x + Component Testing**：React 19 対応、`ct` サーバで Atom/Molecule 単位 QA。
+- **`@axe-core/playwright` × axe-core 4.10+**：WCAG 2.2 全 SC 対応、`experimental` ルール適用可。
+- **Chrome INP → LoAF 帰属**：`PerformanceObserver('long-animation-frame')` で「どの Long Task がボトルネックか」特定可能に。
+- **Percy / Chromatic 領域別 Diff**：Turbo モードで大量 PR の並列判定、コスト 40% 削減。
+- **BrowserStack Percy 統合**：実機スクショを Percy に自動アップ、実機ベースの VR。
+- **WCAG 2.2 (2023-10) 全 SC 実施義務化 in EU (2025-06 EAA)**：日本市場でも国際企業クライアントは EAA 準拠必須。
+- **Anchor Positioning + Popover API**：Modal/Tooltip の QA で `::backdrop` / `[popover]` セレクタ理解必須。
+- **View Transitions API**：`::view-transition-*` の QA、遷移アニメの状態機械テスト必須。
+- **Vercel Speed Insights + Web Vitals Attribution**：Field Data を CI から fetch し、実測 KPI 監視。
+
+### 6. よくある失敗パターンと防止策
+
+| # | 失敗パターン | 防止策 |
+|---|---|---|
+| 1 | 承認者端末（旧 iPad 横向き）で崩れ検出漏れ（2026-09-13） | Playwright projects にクライアント端末 portrait/landscape 2構成必須 |
+| 2 | reduced-motion で AOS が opacity:0 のまま止まり主要素が永久非表示（2026-09-13） | `emulateMedia({reducedMotion: 'reduce'})` で `getComputedStyle` 判定必須 |
+| 3 | 正式社名の外字（髙・﨑）が別字体で描画（2026-09-13） | 正式社名を期待値文字列として Playwright `expect(page.locator).toHaveText()` で機械判定 |
+| 4 | 複製元由来の画像が残ったまま QA 通過（Kaito 2026-09-02 連動） | 画像資産台帳との突合を QA 通過条件に組込 |
+| 5 | Cookie 同意「拒否」で GA4 停止確認せず通過（2026-09-09） | DebugView イベント発火 0 件を機械確認 |
+| 6 | 日付境界（23:59→0:00）を跨ぐカウントダウン検証漏れ | `page.clock` で Asia/Tokyo 固定、境界時刻シミュレーション |
+| 7 | 画像化された見出しを Ctrl+F 検索できず SEO/A11y 損失 | `page.getByText()` で機械検証、ヒットなし＝差し戻し |
+| 8 | LINE 内ブラウザ独自 CSS 挙動（`position:sticky` バグ等）を検出せず本番後クレーム | Kaito から Client 端末構成受領、LINE WebView 実機必須 |
+| 9 | Slow 4G 未検証で「読み込み遅い」クレーム | Playwright `emulateNetworkConditions('Slow 4G')` を CWV project 必須 |
+| 10 | Web Vitals Attribution 情報を Ren に渡さず「INP 悪化」だけ通知→ Ren が原因特定に時間 | `attribution.eventTarget` を PR コメントに必ず添付 |
+
+### 7. 参考リソース・専門知識体系
+
+- **Visual Regression**：Playwright Docs `toHaveScreenshot`、Percy Docs、Chromatic Docs、Lost Pixel
+- **アクセシビリティ**：WCAG 2.2 (W3C REC)、ARIA Authoring Practices Guide、axe-core Rules Documentation、Deque University、EAA (EU) 2025
+- **CWV**：web.dev/vitals、web.dev/inp、web.dev/lcp、`web-vitals@4` GitHub、Chrome LoAF explainer、Speed Insights Docs
+- **実機**：BrowserStack Docs、LambdaTest Docs、Playwright Device Descriptors
+- **書籍**：『Testing JavaScript Applications』(Lucas da Costa)、『Accessibility for Everyone』(Laura Kalbag)、『Inclusive Design Patterns』(Heydon Pickering)
+- **RFC・仕様**：WCAG 2.2 Understanding Docs、ARIA APG 2026、CSS Media Queries L5
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30**
+- Playwright 領域別重み付け Diff スクリプト整備
+- `@axe-core/playwright` CI 強制、違反 0 件到達
+- 3 media query 分岐 QA (reduced-motion/contrast/color-scheme) 標準化
+
+**Day 31-60**
+- BrowserStack 実機マトリクス 4×3×3 = 36 構成の CI 統合
+- Percy or Chromatic 導入で Storybook + Page 二層 VR
+- Web Vitals Attribution 実測→ Ren PR コメント自動化
+
+**Day 61-90**
+- Notion QA DB 完成、過去 100 件検索可能
+- Slow 4G + CPU throttle 環境の CWV 監視自動化
+- 検出漏れ 0 件 / 四半期、Sora 差し戻し 3% 以下達成
+- QA 所要時間 4 時間達成
+
+### 9. 連携アップグレード
+
+| 相手 | Overspec 連携 |
+|---|---|
+| Hana | Delta-E 目標値 (< 1.0) と webfont fallback JSON を受領、Screenshot 比較の基準値化 |
+| Nao(LP) | 設計書のフォーカスオーダー・ARIA・scroll-margin-top を Playwright テストコードに機械変換 |
+| Ren | axe / Playwright / Lighthouse の結果 JSON を Ren の PR に自動コメント、原因コード行を特定 |
+| Kaito | クライアント承認端末構成 (portrait/landscape 含む) を受領、Playwright projects に反映 |
+| Saki | NG 差し戻し時に「優先度 × 修正難易度」マトリクス + Playwright Trace zip を必須添付 |
+| nori | WCAG / EAA / 職業安定法（給与明示等）のチェック項目を Mia QA レポートに組込 |
+| Sora（COO） | 検出漏れ 0 件を実現するため、Sora 独自チェック観点も Mia の Playwright テスト化 |
+
+### 10. アウトプット強化テンプレート
+
+```markdown
+## Mia — 忠実度チェック Overspec 完了レポート v2
+
+### メタ
+- 複製元 URL：
+- 複製 LP Preview URL：
+- QA 所要時間：XXhr
+- Playwright Version / axe-core Version：
+
+### 忠実度スコア（総合 92 点以上必須）
+| カテゴリ | 配点 | 実測 | 判定 |
+|---|---|---|---|
+| Visual Diff (領域別重み付け) | 30 | 28 | ✅ |
+| Layout / Grid | 15 | 15 | ✅ |
+| Typography (Delta-E含む) | 15 | 14 | ✅ |
+| Animation / Motion | 10 | 10 | ✅ |
+| Accessibility (axe-core) | 15 | 15 | ✅ |
+| CWV Synthetic | 10 | 10 | ✅ |
+| CWV Field 予測 | 5 | 5 | ✅ |
+| **合計** | **100** | **97** | **✅** |
+
+### Visual Regression（領域別重み付け）
+| 領域 | 重み | Diff% | 閾値 | 判定 |
+|---|---|---|---|---|
+| Hero | 3.0 | 0.32% | < 0.5% | ✅ |
+| 見出し | 2.0 | 0.61% | < 1.0% | ✅ |
+| 本文 | 1.0 | 0.84% | < 1.0% | ✅ |
+| Footer | 0.5 | 1.42% | < 2.0% | ✅ |
+
+### アクセシビリティ (axe-core)
+- WCAG 2.2 AA 違反：0
+- target-size (Minimum) 24×24：✅
+- Focus Order：✅
+- prefers-reduced-motion 下の可視性：✅
+
+### CWV Synthetic (Lighthouse Mobile Slow 4G)
+| 指標 | 実測 | SLA | 判定 |
+|---|---|---|---|
+| Performance | 98 | ≥ 95 | ✅ |
+| LCP | 1.42s | < 2.0s | ✅ |
+| INP | 118ms | < 150ms | ✅ |
+| CLS | 0.02 | < 0.05 | ✅ |
+
+### Web Vitals Attribution
+- LCP element: `<img src="/hero.avif">` (loadDelay: 120ms) → Ren 対応不要
+- INP interaction: `button#apply-cta` (processingDuration: 82ms) → Ren 対応不要
+
+### 実機マトリクス (4 × 3 × 3 = 36 構成)
+| ブラウザ | デバイス | media | 判定 |
+|---|---|---|---|
+| Safari 17 | iPhone 15 (portrait) | reduced-motion | ✅ |
+| Safari 17 | iPhone 15 (landscape) | dark | ✅ |
+| Chrome 120 | Pixel 8 | high-contrast | ✅ |
+| Edge 120 | Surface Pro | default | ✅ |
+| Safari 15 (旧 iPad) | iPad Air | default (landscape) | ✅ |
+| LINE WebView | iPhone 15 | default | ✅ |
+| ... (36 構成) | | | |
+
+### 数値化不可の人的 QA（Kaito・承認者観点）
+- 画面左端 24px 起点の水平スワイプでブラウザバック競合：✅ 検出なし
+- 3 秒第一印象テスト（PC/SP/TAB）：✅ 違和感なし
+- 正式社名・代表者名・許可番号：✅ 期待値一致
+
+### 差し戻し判定
+- 差し戻し件数：0
+- 総合判定：✅ Kaito 通過 / Sora 引き継ぎ可
+
+→ Kaito へ通過通知、Playwright Trace + axe レポート zip 添付
+```
