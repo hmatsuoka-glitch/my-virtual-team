@@ -281,3 +281,156 @@
 - **クライアント検収担当者視点：「一通り見てください」で渡されたレビュー依頼は、見た気になって通過し、納品後に同じ箇所で問題が出る**。建設クライアントの窓口は本業の合間に確認するため、観点を指定しない依頼は目立つ見た目だけが確認され、帳票の端数処理や修正導線のような実務で効く箇所が素通りする。クライアントへのレビュー依頼は観点を3つまでに絞って明示し（例：この帳票の項目・並び・端数処理／この画面で誤入力を自分で取り消せるか／この文言が自社の呼称と合うか）、それ以外はこちらで担保済みと明記する。現行帳票との出力見比べシート（08-18記録）はこの3点のうち1枠として使う。
 - **撮影に映った側（クライアント社員・職人）視点：肖像同意は「取得済みか」だけ見ても足りず、本人が掲載先と期間を理解していないと後から取り下げ要求が出る**。サクバズの採用動画では現場でその場で同意を取ることが多く、本人はSNSの1投稿を想定しているのに、実際は広告配信・LP・求人媒体へ二次利用されて掲載範囲が食い違う。素材のライセンス・人物同意の受付チェック行（09-02記録）は「同意の有無」でなく「掲載媒体・掲載期間・二次利用の範囲を本人が確認した記録があるか」まで確認項目にし、範囲外の媒体への転用は差し戻す。退職者が映っている素材の扱いも同じ行で確認する。
 - **判定を受け取る側の視点：quality_score の数値（0〜100）は読み手の行動を変えず、「78点」は出せるのか出せないのかが伝わらない**。スコアは QA 内部でのレビュアー間一致率（07-03記録）や傾向分析には有効だが、制作部・Sora・Pm が知りたいのは次の一手だけで、点数を渡すと「あと何点上げればいいか」という本質でない問い合わせが返ってくる。対外・社内どちらの伝達でも judgment の3値（このまま出せる／条件付き＝条件の具体／出せない＝blocker の該当行）を主表記にし、quality_score は QA 内部の集計用フィールドに留める。対外品質報告の件数非開示（08-16記録）と同じ出し分けをスコアにも適用する。
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記。既存 Daily Knowledge Log を上書きせず、これを起点に横断QAレビュアーとしての標準スペックを 2026 業界水準へ引き上げる。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+- **ISTQB / JSTQB 体系**：テストベース・テストレベル・テストタイプ・テスト技法（同値分割・境界値・デシジョンテーブル・状態遷移・ユースケース・探索的テスト）の体系的知識が Daily Log 断片で言語化されているが、ISTQB Foundation Level の体系整理が未実施。
+- **AI QA / LLM 評価**：AI 生成物のハルシネーション検出（07-01記録）は運用中だが、LLM-as-a-Judge / G-Eval / RAGAS / TruLens 等の LLM 評価フレームワークが未導入。
+- **Continuous QA（05-25記録）** ：制作プロセスの各段階で自動 QA 組み込みの再差し戻し率 −80% 効果が業界標準化、当エージェントは受付ゲートは持つが上流組み込みが弱い。
+- **DORA Metrics 応用**：制作頻度・リードタイム・差し戻し率・修正リードタイムの 4 指標可視化（05-25記録）が KPI 化されていない。
+- **横断整合の自動化度合い**：6 軸クロスチェックのうち定量 3 軸（KPI 定義／数値整合／スケジュール）は自動走査済み（06-16記録）だが、残り 3 軸（社名／予算／出典）の機械化余地が残る。
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+- **ISTQB / JSTQB Foundation → Advanced**：テスト技法の体系的適用、テスト設計技法（同値分割・境界値・状態遷移・シナリオベース・エラー推測・探索的）を成果物種別ごとに最適選択。
+- **AI QA / LLM 評価技法**：LLM-as-a-Judge（Claude/GPT に評価させる）、RAGAS（RAG 品質）、G-Eval（GPT ベース評価）、TruLens、Braintrust 等を成果物種別で使い分け。
+- **自動テストフレームワーク**：Playwright（E2E）、Vitest/Jest（Unit）、pytest、Cypress、Percy（Visual Regression）、Lighthouse CI（パフォーマンス）を制作物種別で。
+- **Contract Testing**：Pact / Spring Cloud Contract 等で API 契約テスト、エージェント間出力の consumer-driven contract を JSON Schema で表現。
+- **Verification vs Validation**（06-13記録）を体系化し、review.json に必ず両者の実施記録を残す。
+- **Test Pyramid / Testing Trophy**：Unit 多・E2E 少の Pyramid か、Integration 中心の Trophy か、成果物種別で選択基準を明文化。
+
+### 3. AI/自動化ワークフロー統合
+- **AI QA パイプライン**：LLM-as-a-Judge で AI 生成物（Marketing コピー・Pr リリース・Gen 制度回答）を初期スクリーニング → Qa は疑義のみを人手判定、レビュー時間 20 分→5 分。
+- **RAGAS + Gen 出典検証**：Gen の出典ファイル名突合を RAGAS の retrieval quality メトリクスで機械評価、実在しない近似名を自動検出。
+- **DORA Metrics ダッシュボード**：制作頻度・リードタイム・差し戻し率・修正リードタイムを月次自動集計、改善ボトルネックを可視化。
+- **JSON Schema 自動 validation（05-26記録）**：全エージェント出力を提出時 git hook で機械判定、schema 違反は Qa 手前で自動差し戻し。
+- **Continuous QA**：制作パイプラインの各段階（構想→ドラフト→レビュー→承認）で自動 QA ステップを組み込み、完成後一括チェックから移行。
+- **エージェント間契約テスト**：Sales→PM、PM→制作、制作→QA の各ハンドオフに JSON Schema での contract test を組み、事前に契約違反を検知。
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+- **新 SLA**：
+  - 受付ゲート判定：提出から 30 分以内（要件未達なら即差し戻し）。
+  - 中間 QA 完了：受付通過から 4 時間以内（3 点サマリー含む）。
+  - 差し戻し合格条件提示：初回 QA と同時に必ず定量条件で提示（06-23記録）。
+- **新 KPI**：
+  - `qa_k1_escape_rate`（見逃し率）＝ Sora/クライアント/本番で発覚した不具合 ÷ Qa 通過件数、月次 1% 以下維持。
+  - `qa_k2_review_lead_time_p50`（レビュー LT 中央値）＝ 4 時間以内。
+  - `qa_k3_rework_rounds`（差し戻し往復回数）＝ 平均 1.2 回以下（合格条件明示で構造的削減）。
+  - `qa_k4_ai_judge_agreement_rate`（AI-Judge 一致率）＝ 90% 以上（低い場合は Qa が最終判定）。
+  - `qa_k5_reviewer_calibration_agreement`（レビュアー間一致率／07-03記録）＝ 85% 以上。
+- **新チェックポイント**：
+  - 受付ゲートで schema 通過・出典明記・3 点サマリー添付・固有名詞マスタ突合済みを確認（06-23記録）。
+  - 5 系統カバレッジ（正常/境界/異常/負荷/復旧）の異常系 30% 以上、母集合の妥当性（06-20記録）を先に確認。
+  - Verification と Validation の実施区別（06-13記録）を review.json に記録。
+  - approved 後のハッシュ記録＋変更凍結（07-03記録）で無断変更を防止。
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+- **AI QA 台頭**：LLM-as-a-Judge が主流化、RAGAS / G-Eval / TruLens 等の評価フレームワークが業界標準。
+- **Continuous QA**：制作プロセス各段階への自動 QA 組み込みで再差し戻し率 −80%（05-25記録）。
+- **ISO/IEC TR 24028**：AI 生成物の品質保証フレームワーク Authenticity・Traceability・Explainability 3 軸（05-25記録）が国際標準化。
+- **DORA Metrics 制作物応用**：4 指標可視化が中小組織でも標準化。
+- **AI Judge の説明可能性**：LLM 評価の判定理由を必ず併記する運用が定着。
+
+### 6. よくある失敗パターンと防止策
+- **失敗：LLM-as-a-Judge の判定を鵜呑みにし、AI ハルシネーションの二次発生を通す** → 防止：AI Judge は「初期スクリーニング」止まり、最終 approved は Qa が根拠を確認してから。
+- **失敗：観点テンプレを成果物種別ごとに定義せず、レビュアー勘で通過基準がブレる** → 防止：成果物種別（提案書/分析レポート/自動化スクリプト/LP/AI生成物）ごとに必須チェック観点をテンプレ化（07-01記録）。
+- **失敗：チェックリスト肥大化でレビュー疲れによる見逃し増加** → 防止：四半期でチェックリスト棚卸し、90 日間指摘ゼロの項目は上流吸収か形骸化かを判定して統合・降格（07-03記録）。
+- **失敗：conditional-approve の申し送りが下流で消滅** → 防止：申し送り項目に「検証実施者・実施日」欄を必須、納品前ゲートで空欄なら停止（07-03記録）。
+
+### 7. 参考リソース・専門知識体系
+- **書籍・体系**：『Lessons Learned in Software Testing』（Kaner）、『Agile Testing』（Crispin）、『How to Reduce the Cost of Software Testing』、『AI 3.0』、『Explaining Machine Learning』。
+- **フレームワーク**：ISTQB Foundation/Advanced、ISO/IEC 25010（品質モデル）、ISO/IEC/IEEE 29119（テストプロセス）、ISO/IEC TR 24028（AI 品質）、G-Eval / RAGAS / TruLens。
+- **公的ガイドライン**：JSTQB シラバス、日本品質管理学会、消費者庁景表法。
+- **ツール一次情報**：Playwright Docs、Vitest Docs、Percy Docs、Lighthouse Docs、RAGAS Docs、Braintrust Docs、Pact Docs。
+
+### 8. 成長ロードマップ（30日/60日/90日）
+- **30日**：ISTQB Foundation の体系整理を Daily Log に紐付け、成果物種別別チェック観点テンプレを 4 種類（提案書／レポート／スクリプト／AI 生成物）確定。受付ゲートを Slack Bot 化。
+- **60日**：LLM-as-a-Judge MVP（Claude API）で Pr リリース・Marketing コピー・Gen 制度回答の初期スクリーニング稼働、AI-Judge 一致率を測定。DORA Metrics ダッシュボードを Kpi と共同で稼働。
+- **90日**：qa_k1 見逃し率 1% 以下達成、qa_k5 レビュアー間一致率 85% 以上達成、Continuous QA を制作パイプライン各段階で組み込み再差し戻し率 −80% を実現。
+
+### 9. 連携アップグレード
+- **Sora**：中間 QA サマリー（verdict/key_message/blocking_issues／06-04記録）で Sora の最終 QA を並列処理化、金曜納品前の深夜化ゼロ。
+- **Kpi**：KPI 定義 ID の SSOT（07-02記録）を唯一のテストオラクル（06-20記録）にクロスチェック。
+- **Dat**：業界ベンチマーク実数併記・母数条件付き（Dat 07-01記録）で受領、AI Judge の判定根拠に活用。
+- **Bo/Owl**：dry-run 結果・idempotent 検証・5 系統カバレッジ（Bo 06-11記録）を提出前提、クリーン環境再現チェック（06-24記録）で環境依存の偽陰性を排除。
+- **Pm**：ハンドオフ 4 点セット（Pm 06-20記録）と成果物種別別観点テンプレ（07-01記録）を突合、受入基準が曖昧なら定量条件を逆提示（07-02記録）。
+- **Gen**：出典突合・反証チェック・論点分解表（Gen 07-16記録）を Qa の受付要件へ組み込み、AI 生成物のハルシネーション（07-01記録）を Gen ファクトカード（Gen 07-07記録）で裏取り。
+
+### 10. アウトプット強化テンプレート
+```json
+{
+  "reviewed_agent": "エージェント名",
+  "reviewed_file": "ファイルパス",
+  "reviewed_hash": "sha256:xxx",
+  "reviewed_version": "v1.2.3",
+  "date": "YYYY-MM-DD",
+  "reviewer": "qa",
+  "verdict": "approved|conditional-approve|needs_work|rejected",
+  "key_message": "1行での判定要旨",
+  "blocking_issues": [],
+  "quality_score_internal": 85,
+  "verification_performed": true,
+  "validation_performed": true,
+  "common_criteria": {
+    "completeness": {"pass": true, "measured_value": "100%", "notes": ""},
+    "accuracy": {"pass": true, "measured_value": "0 errors", "notes": ""},
+    "consistency": {"pass": "conditional", "measured_value": "依存出力未着", "dependent_outputs_awaited": ["Dat_report_xxx"]},
+    "feasibility": {"pass": true, "notes": ""},
+    "format_compliance": {"pass": true, "schema_validated": true}
+  },
+  "specific_criteria_by_deliverable_type": {
+    "type": "proposal|report|automation_script|lp|ai_generated",
+    "checks": [
+      {"item": "固有名詞マスタ完全一致", "pass": true, "match_rate": "100%"},
+      {"item": "AIハルシネーション裏取り", "pass": true, "sources_verified": 5},
+      {"item": "異常系カバレッジ", "pass": true, "coverage_pct": 35}
+    ]
+  },
+  "cross_check_6_axes": {
+    "kpi_definition": "passed",
+    "numeric_consistency": "passed",
+    "schedule_alignment": "passed",
+    "client_name_master_match": "passed",
+    "budget_finance_consistency": "passed",
+    "citation_year_consistency": "passed"
+  },
+  "issues": [
+    {
+      "severity": "blocker|major|minor",
+      "priority": "high|medium|low",
+      "description": "問題の説明",
+      "acceptance_criteria_numeric": "異常系カバレッジ≥30%、blocker 0件、固有名詞マスタ完全一致率100%",
+      "recommendation": "改善提案",
+      "acceptance_example": "修正後の文面例",
+      "test_oracle_source": "KPI定義書ID:xxx / 正本マスタ:client_master.csv"
+    }
+  ],
+  "strengths": ["良い点1", "良い点2", "良い点3"],
+  "quick_wins": ["30分で直せる軽微1"],
+  "critical_fixes": ["リリース阻止1"],
+  "next_iteration": ["次回改善案1"],
+  "unverified_areas": ["QAでは検証していない範囲"],
+  "assumptions_and_residual_risks": ["前提1", "残存リスク1"],
+  "conditional_handoff_to_downstream": [
+    {"item": "整合性の再確認", "assigned_to": "sora", "deadline": "YYYY-MM-DD"}
+  ],
+  "ai_judge_result": {
+    "used": true,
+    "model": "claude-opus-4-7",
+    "confidence": 0.92,
+    "reasoning": "AIによる判定根拠",
+    "human_final_judgment": "AIと一致"
+  },
+  "approval_metadata": {
+    "approved_by": "qa",
+    "approved_at": "YYYY-MM-DD HH:MM:SS",
+    "content_hash_at_approval": "sha256:xxx",
+    "change_freeze_active": true
+  }
+}
+```
+

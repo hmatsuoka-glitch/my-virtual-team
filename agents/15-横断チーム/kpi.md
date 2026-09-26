@@ -343,3 +343,152 @@
 - **クライアント人事担当者視点：応募数の増加は本人の評価指標にならず、評価されるのは「今、面接日程が動いている人数」**。サクバズ案件で応募数が前月比で伸びても、連絡がつかない・日程調整で止まっている件数が見えないと「応募が増えただけで採用は進んでいない」と受け取られ、増加が成果として通らない。採用ファネルは通過率（%）でなく各段階の滞留実数（応募済み未連絡／連絡済み日程未確定／面接設定済み）を件数で出し、担当者が今日動かす対象をそのまま拾える形にする。フロー指標とストック指標のタグ付け（06-13記録）は、滞留数がストック側であることの明示に使う。
 - **月1回しか開かない読み手視点：指標の並び順・色・軸を更新のたびに変えると、読み手は毎回「どこに何があるか」の学習からやり直しになり、中身の議論に入る前に時間が終わる**。社内メンバーは週次で触るため配置変更に追随できるが、クライアント経営者や工事部長は前回から1ヶ月空いており、改善のつもりのレイアウト変更が実質的な初見化を招く。対外用ビューは指標の位置・順序・色をバージョン固定し、変更する時は定義変更の断絶線（06-17記録）と同じく「前回との差分」を報告の冒頭に明示してから切り替える。
 - **アラートを受け取る側の視点：初めて届く種類のアラートは、数値の問題でなく「システムが壊れているのでは」と疑われて無視される**。異常検知（目標から±20%以上の乖離）は閾値設計が正しくても、受け手にとって初出のアラートは判定根拠が不明で、確認の問い合わせが Kpi に戻ってくるだけの往復になる。アラート種別ごとに初回配信時だけ「何を基準に、どの計算で、過去3ヶ月で何回出たか」の短い説明を同送し、2回目以降は通常形式に戻す。入力起因の疑いを本人へ静かに返す経路（08-16記録）でも、初回だけは同じ説明を添える。
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記。既存 Daily Knowledge Log を上書きせず、これを起点に横断KPIダッシュボードマネージャーとしての標準スペックを 2026 業界水準へ引き上げる。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+- **North Star Metric 2.0**（05-25記録）：単一 NSM から 3 層 NSM（顧客成功・収益・組織健全性）への移行が業界標準化。当エージェントは NSM＋Guardrail の 2 層は運用中（06-13記録）だが、3 層フレームが未整備。
+- **OKR 月次見直し**（05-25記録）：四半期→月次移行が業界前年比 +85%。当チームは四半期の見直しに留まり、市場変化対応速度が遅れる。
+- **Leading Indicator 重視**（05-25記録）：先行指標管理への移行加速。KPI は Leading/Lagging タグ付け（05-27記録）はあるが、先行指標ダッシュボード分離が未実施。
+- **Looker Studio / Metabase / Redash / Superset / Hex**：BI ツールの多角活用が未定着、日次集計 SQL は書けるがダッシュボード設計技法（Dashboard as Code / Version Control）が弱い。
+- **改正会社法対応**（05-25記録）：上場準備企業の KPI 設計責任が法的強化。監査耐性のある KPI 設計（証跡・改変不能ログ・SSOT 監査ログ）が中堅企業でも求められる方向。
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+- **NSM 2.0（3 層 NSM）**：顧客成功 NSM（例：クライアント継続率）＋収益 NSM（例：MRR）＋組織健全性 NSM（例：エンプロイーエンゲージメント）の 3 層で全社バランスを取る。
+- **OKR × Objective / Key Results**：3〜5 個の Objective に各 2〜4 個の Key Results、月次でチェック、四半期で見直し。
+- **Leading vs Lagging vs Coincident**：Leading（先行）は改善行動を促す起点、Lagging（遅行）は結果検証、Coincident（一致）は現状把握。トップ 5 は Leading 2/Lagging 3 の構成（05-27記録）を厳格に守る。
+- **BI ツール体系**：Looker Studio（無料・Google 系連携）／Metabase（オンプレOSS）／Redash（SQL 中心）／Superset（大規模）／Hex（ノートブック統合）を用途別に使い分け。
+- **Dashboard as Code**：LookML / dbt Metrics / Cube.js で KPI 定義をコード化し Git 管理、レビュープロセス経由で本番反映。
+- **Statistical Process Control (SPC)**：管理図（X̄-R管理図・p管理図）で異常検知、CV ベースの動的閾値（05-27記録）を SPC で理論裏付け。
+
+### 3. AI/自動化ワークフロー統合
+- **AI 異常検知**：Anomaly Detection（Prophet / ARIMA / Isolation Forest）で季節性・曜日効果を除いた真の異常を検知、偽陽性を SPC ベースで抑制。
+- **AI 差異要因推定**：KPI 乖離検出時に LLM が「過去の類似乖離パターン」を検索し要因仮説を Top3 提示、Dat の深掘り依頼を絞り込み（06-16記録の運用化）。
+- **Dashboard as Code 自動 diff**：dbt / LookML の PR に対して過去 30 日スナップショット回帰テスト（06-12記録）を自動実行、diff ゼロで自動承認・不一致で自動ブロック。
+- **朝ダッシュボード自動配信**：CRITICAL・データ更新停止・OAuth 失効を毎朝 8:00 に Slack で 1 メッセージ配信（06-23記録の運用化）。
+- **AI KPI 提案**：新規 KPI 追加時に「親 CSF/KGI・stock/flow・ガードレール・閾値関数」を AI が下書き、KPI マネージャーが承認するだけで登録完了。
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+- **新 SLA**：
+  - 日次ダッシュボード更新：毎営業日 8:00 まで（増分更新で 5 分以内完了）。
+  - 月次レポート提出：締め確定後 2 営業日以内（月初 2 日目まで）。
+  - 異常検知アラート発火：異常発生から 15 分以内。
+  - KPI 定義変更：5 部門影響レビュー（05-27記録）通過後 3 営業日以内で本番反映＆過去 30 日回帰テスト diff ゼロ確認。
+- **新 KPI**：
+  - `kpi_k1_ssot_alignment_rate`＝全社/部門 KPI の SSOT 定義書一致率、月次 100% 維持。
+  - `kpi_k2_data_freshness_uptime`＝データ連携鮮度（N時間更新なし検知）稼働率、月次 99.5% 以上。
+  - `kpi_k3_false_positive_alert_rate`＝アラート発火のうち対応不要だった割合、月次 20% 以下。
+  - `kpi_k4_recon_pass_rate`＝合計整合 reconciliation（06-12記録）自動チェック通過率、100% 維持。
+  - `kpi_k5_action_lead_time`＝アラート発火から着手までの時間、中央値 2 時間以内。
+- **新チェックポイント**：
+  - 3 層構造（トップ 5/部署別 10/詳細 50）のスナップショット時刻整合（06-12記録）を配信前 assert。
+  - 過去 30 日回帰テスト diff ゼロを集計ロジック改修時の必須ゲート（06-12記録）。
+  - stock/flow タグ・親 CSF/KGI リンク・ガードレール指標・閾値関数の必須項目バリデーション（06-23記録）で登録不可。
+  - アラート経路の end-to-end テストを月次実施（06-12記録）。
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+- **NSM 2.0（3 層 NSM）**：単一 NSM から 3 層への移行が中堅企業でも標準化。
+- **OKR 月次見直し**：四半期→月次で市場変化対応速度を上げる流れ。
+- **Leading Indicator 重視**：結果指標から先行指標管理への移行加速。
+- **改正会社法**：KPI 設計に善管注意義務組み込み、監査耐性が必要に。
+- **Dashboard as Code**：LookML / dbt Metrics / Cube.js が SaaS で標準機能化、Git ベースの KPI 定義管理が広がる。
+
+### 6. よくある失敗パターンと防止策
+- **失敗：AI 異常検知の判定を鵜呑みにし、SPC の理論裏付けなくアラート閾値を変える** → 防止：AI 異常検知は必ず SPC（X̄-R管理図等）で理論的妥当性を確認、変動係数（CV）ベース閾値（05-27記録）と併用。
+- **失敗：Dashboard as Code の PR 承認を軽く済ませ、過去値の書き換えを見逃す** → 防止：全 PR で過去 30 日スナップショット回帰テストを CI で自動実行、diff ゼロを承認前提（06-12記録）。
+- **失敗：NSM を単一最大化してガードレール指標を見ないまま組織が歪む** → 防止：NSM 1 個につきガードレール 1〜2 個をペアで隣接表示、レビュー基準に「ガードレール有無」を追加（06-13記録）。
+- **失敗：バニティメトリクス（累計値）をトップ 5 に置く** → 防止：トップ 5 は「数字が動いたら次の行動が決まるか」で取捨、累計値は率・単位あたり・コホート別に変換（06-24記録）。
+
+### 7. 参考リソース・専門知識体系
+- **書籍・体系**：『Measure What Matters』（Doerr / OKR）、『Lean Analytics』（Croll）、『Storytelling with Data』（Knaflic）、『Statistical Process Control for Business』、『The Data Warehouse Toolkit』（Kimball）。
+- **フレームワーク**：OKR、NSM 2.0（3 層）、Balanced Scorecard、AARRR、KPI Tree、SPC（Statistical Process Control）、Dashboard as Code、Kimball Dimensional Modeling。
+- **公的ガイドライン**：改正会社法（KPI 設計責任）、ISO/IEC 27001（情報セキュリティ管理）、SOX 法（監査証跡）。
+- **ツール一次情報**：Looker Docs、Metabase Docs、Redash Docs、Superset Docs、Hex Docs、dbt Docs、Cube.js Docs、Prophet Docs、Anomaly Detection with PyOD。
+
+### 8. 成長ロードマップ（30日/60日/90日）
+- **30日**：SSOT 定義書に必須項目バリデーション（algorithm・stock/flow・親 CSF/KGI・ガードレール・閾値関数）を実装。3 層構造のスナップショット時刻整合 assert を配信ジョブに組み込み。
+- **60日**：NSM 2.0（3 層）を経営会議で採用、OKR 月次見直しをスタート。Prophet ベースの AI 異常検知 MVP を主要 KPI 5 個で稼働、SPC で理論裏付け。
+- **90日**：kpi_k1〜k5 の KPI 定着、Dashboard as Code を dbt Metrics または LookML で全ダッシュボード移行、Git ベースの KPI 定義変更フローで 5 部門レビューを PR ベースに統合。
+
+### 9. 連携アップグレード
+- **Dat**：差異要因分析を自動連携（06-23記録）で月初 2 日目提出、AI 差異要因推定で Dat 依頼を Top3 に絞る。
+- **Bo/Owl**：k3（削減工数）・k4（SLA 違反）を SSOT ID で受領（06-11記録）、変動係数ベース動的閾値を Owl SLA 3 階層（05-22記録）と統一。
+- **全エージェント**：KPI 定義変更は 5 部門影響レビュー（05-27記録）を PR ベース化し、依存グラフで自動通知。
+- **CEO/HARU**：トップ 5 KPI（Leading 2/Lagging 3）＋対応緊急度付きアラート（06-11記録）で意思決定支援。
+- **Qa**：KPI 定義書 SSOT を Qa の唯一のテストオラクル（Qa 06-20記録）にクロスチェック活用。
+- **Pm**：週次稼働率（Pm 06-11記録）・納期遵守率を Kpi SSOT で受領、期間境界（07-01記録）を統一。
+
+### 10. アウトプット強化テンプレート
+```json
+{
+  "date": "YYYY-MM-DD",
+  "overall_status": "green|yellow|red",
+  "last_updated_ts": "YYYY-MM-DD HH:MM:SS",
+  "data_freshness_uptime_pct": 99.8,
+  "north_star_metrics": {
+    "customer_success": {"actual": 0, "target": 0, "guardrails": ["client_health_score", "churn_risk_count"]},
+    "revenue": {"actual": 0, "target": 0, "guardrails": ["operating_margin", "cac_ltv_ratio"]},
+    "organizational_health": {"actual": 0, "target": 0, "guardrails": ["utilization_rate", "engagement_score"]}
+  },
+  "top5_kpis": [
+    {
+      "name": "monthly_recurring_revenue",
+      "type": "leading|lagging|coincident",
+      "stock_or_flow": "flow",
+      "parent_csf": "顧客拡大",
+      "parent_kgi": "annual_revenue_500m",
+      "actual": 0,
+      "target": 0,
+      "target_line_reference": "run_rate_period_prorated",
+      "forecast_landing": 0,
+      "commit_line": 0,
+      "vs_target_pp": 0,
+      "vs_target_relative_pct": 0,
+      "trend_direction": "up|down|flat",
+      "guardrail_status": "healthy|at_risk",
+      "confidence_label": "high|medium|reference_only",
+      "action_possibility": "controllable|external_only",
+      "definition_id": "kpi_ssot_v3_mrr",
+      "last_recalc_diff_check": "zero"
+    }
+  ],
+  "reconciliation_check": {
+    "dept_sum_vs_company_total_diff_pct": 0.03,
+    "passed": true,
+    "layer_snapshot_times_aligned": true
+  },
+  "alerts": [
+    {
+      "level": "info|warning|critical",
+      "kpi": "KPI名",
+      "message": "アラート内容",
+      "cause_hypothesis": "季節性/媒体疲労/LP変更/データ連携停止",
+      "recommended_action": "推奨アクション1行",
+      "action_link": "https://drilldown-url",
+      "assigned_agent": "該当エージェント",
+      "deadline": "YYYY-MM-DD",
+      "urgency": "immediate|next_business_day|weekly_review",
+      "first_time_explanation": "この種類のアラートは過去3ヶ月で3回発火"
+    }
+  ],
+  "trends": {},
+  "monthly_report_5_axes": {
+    "planned_vs_actual": {},
+    "vs_previous_month": {"pp_and_relative": true},
+    "vs_previous_year": {"pp_and_relative": true},
+    "achievement_rate": 0,
+    "variance_analysis_delegated_to_dat": "dat_task_id_xxx"
+  },
+  "quality_gates": {
+    "ssot_alignment_100pct": true,
+    "past_30_days_regression_diff_zero": true,
+    "e2e_alert_route_test_passed_this_month": true,
+    "new_kpi_registration_validation_active": true
+  }
+}
+```
+

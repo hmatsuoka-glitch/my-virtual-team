@@ -296,3 +296,339 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - **クライアントが事例に対して最初に返す言葉は「それ、うちの業界でもうやっている会社ある？」で、far事例ほどこの1問で終わる**：far事例には推論強度ラベル（アブダクション＝仮説・実証は先行1件・中止基準併記、2026-08-27参照）を付けて参考枠に置いているが、読み手には「誰もやっていない＝リスク」としか映らない。far事例の提示時は「建設業で未実施であること自体が先行利益になる根拠（同商圏の競合が未着手・模倣までの猶予期間）」を1行添えるか、near事例とセットにして「構造はnearで実証済み・手段だけfarから借りる」形に組み替えてから出す
 - **事例の「受け手が受け取った体験」（2026-08-16参照）は転用先で求職者に再現される一方、そこで働く社員が何を負うかは事例の記述から必ず抜け落ちている**：社員インタビューや現場撮影を転用する施策は、求職者側の体験を設計しても、出演する社員にとっては業務時間外の拘束・同僚の目・退職後も残る記録という別の体験になる。事例カードに「受け手が受け取った体験」と並べて「現場の人が負った手間（撮影拘束時間・巻き込み人数・実施後の社内の反応）」を1行で記録し、転用時にTomaの出演同意やRyotaの現場調整へそのまま渡せる形にする。現場が嫌がる施策は2ヶ月で止まり、事例の成果は再現されない
 - **クライアントは事例を「うまくいった話」として聞くので、中止基準は提案時には必ず読み飛ばされる**：中止基準を併記する（2026-08-27参照）運用でも、提案の場では成果に目が行き、実行3ヶ月目に「思ったほど伸びない」となって初めて参照される。中止基準は事例カード内に置くだけで終わらせず、Ryotaの契約・スケジュール側へ「◯ヶ月目に◯を満たさなければ縮小/転換を協議」というレビュー時点として渡し、読み飛ばされても日付として残る場所に二重に置く
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。既存のプロフィール・スキル・Daily Knowledge Log は改変せず、上位互換のアナロジー設計体系を積み増す位置づけ。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 領域 | 業界2026年水準 | Ana現状 | ギャップ | 優先度 |
+|------|--------------|---------|---------|-------|
+| 事例DB規模 | 数千〜数万件の構造化DB（Airtable / Notion / Perplexity Spaces） | Notion 4軸DB（数十〜数百件想定） | スケール余地大 | 高 |
+| ベクトル類似検索 | Pinecone / Weaviate / pgvector で意味検索 | Notion Formula の類似度計算 | 意味類似検索未達 | 高 |
+| 構造写像アルゴリズム | SME (Structure Mapping Engine) / DeepDiff / graph matching | 属人的採点 | アルゴリズム化未達 | 中 |
+| マルチモーダル事例 | 動画・音声・スライドをCLIP/CLAP埋め込みで検索 | テキスト中心 | マルチモーダル未達 | 中 |
+| 因果推論のアナロジー適用 | RCT/Synthetic Controlで内的妥当性強化 | 3件再現性ゲート | 因果推論との融合余地 | 中 |
+| 生成AIリサーチ | Perplexity Pro / Consensus / Elicit / You.com | Perplexity Pro導入済み | Consensus/Elicit本格化 | 中 |
+| Synthetic User Research | GPT-4o/Claudeで仮想ユーザー反応シミュレート | 導入済み | サンプル設計の高度化 | 中 |
+| 反証データベース | 失敗事例DB（Fuckup Nights / Death by Data） | 失敗事例併記のみ | 反証DB独立化 | 高 |
+| メタアナリシス | 複数事例の効果量統合（Meta-Analysis） | 3件再現性の質的判定 | 定量メタ分析未達 | 中 |
+| 建設業特化ドメイン | Rui/gen との統合知識 | Rui連携中心 | genとの連携未達 | 中 |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+**A. 構造写像・アナロジー理論の深化**
+- **Structure Mapping Theory (Gentner 1983)**：オブジェクト属性ではなく関係構造を写像
+- **Analogical Learning (Holyoak & Thagard)**：Multi-constraint theory（構造・意味・語用の3制約）
+- **Case-Based Reasoning (CBR)**：Retrieve → Reuse → Revise → Retain の4Rサイクル
+- **Deep Analogy Detection**：GNN (Graph Neural Networks) による構造マッチング
+- **Blending Theory (Fauconnier & Turner)**：2ソースの融合による創発的アイデア
+
+**B. ベクトル検索・意味類似**
+- **OpenAI text-embedding-3-large / Cohere Embed v3**：事例の意味埋め込み
+- **Pinecone / Weaviate / Qdrant / pgvector**：ベクトルDB
+- **Hybrid Search（BM25 + Dense）**：キーワードと意味の融合検索
+- **Reranking (Cohere Rerank / bge-reranker)**：類似検索結果の再順位付け
+- **Multi-Vector Retrieval**：事例の複数側面（施策・体制・成果・失敗条件）を別々に埋め込み
+
+**C. 反証・失敗事例DB**
+- **Fuckup Nights データベース**：グローバル失敗事例収集
+- **CB Insights Startup Failure Post-Mortems**
+- **Death by Data Journal**：データ駆動施策の失敗事例
+- **社内失敗事例DB**：LET内で失敗した施策を Blameless に記録
+- **メタアナリシス手法**：Cohen's d / OR / Effect Size aggregation
+
+**D. Synthetic User Research 高度化**
+- **Persona 設計**：業界・規模・課題別のクライアント経営者ペルソナ100+
+- **仮想Focus Group**：GPT-4o/Claudeで10-20名の議論を模擬
+- **ATU (Anticipated Transfer Utility)**：転用意向スコア0-100
+- **Digital Twin of the Customer**：クライアント固有のシミュレーションモデル
+
+**E. Multi-Modal 事例**
+- **YouTube事例動画のトランスクリプト化 + Claude Vision で図解抽出**
+- **Podcast事例音声のWhisperトランスクリプト**
+- **CLIP埋め込みで動画事例の類似検索**
+- **スライドPDF → NotebookLMで要点抽出**
+
+**F. 建設業DX統合アナロジー**
+- **gen連携**：どっと原価・CCUS・i-Construction のアナロジー領域を建設業特化で探索
+- **地方産業のアナロジー**：農業・漁業・製造業の後継者不足・DX事例
+- **技能継承のアナロジー**：伝統工芸・料理人・職人系の若手採用事例
+- **B2B工事現場のUXアナロジー**：物流・倉庫・警備業界の現場改善事例
+
+### 3. AI/自動化ワークフロー統合
+
+```yaml
+case_ingestion:
+  sources:
+    - Perplexity Pro / Consensus.app / Elicit（AI要約）
+    - NotebookLM（PDF大量読み込み）
+    - YouTube事例動画（Whisper + Claude Vision）
+    - 業界誌記事（EDINET / 日経ビジネス / 週刊ダイヤモンド RSS）
+    - Podcast（Whisper トランスクリプト）
+    - 海外事例（Reuters / FT / HBR / MIT SMR）
+  extraction:
+    - Claude Opus 4.7 で事例カード自動起票
+    - 5点検証スクリプト（URL/HTTP200/原文要約/実施年/成果定義）自動チェック
+
+case_db:
+  primary: Notion 4軸DB（業種×規模×訴求軸×信頼度）
+  vector: Qdrant / pgvector で意味埋め込み
+  schema:
+    - case_id / title / source_industry / structure_summary
+    - transferable_insight / non_transferable_premise
+    - success_conditions / failure_conditions
+    - implementation_steps / first_action
+    - budget_range (tool + labor + outsource)
+    - trust_tier (A/B/C)
+    - execution_year / continuity_check_date
+    - meta_analysis_score / synthetic_user_atu
+    - near_or_far / analogy_type
+    - regulatory_check_status (Rui連携)
+    - domain_check_status (gen連携)
+
+matching:
+  candidate_retrieval:
+    - Notion 4軸類似度スコア
+    - ベクトル検索 top-20
+  reranking:
+    - Cohere Rerank v3
+    - 構造写像3要素の同型性採点
+  configuration:
+    - near 2件（実行確実性）
+    - far 1件（差別化）
+  validation:
+    - 内的妥当性（本当に施策が原因か）
+    - 外的妥当性（別環境で成立するか）
+    - 業界の壁チェック（Rui照会）
+    - Synthetic User ATU ≥ 70%
+
+delivery:
+  ryota_package:
+    - 転用可否◯△×
+    - 最初の1アクション
+    - 実装ステップ3行
+    - 総コスト予算レンジ（ツール+人件+外注）
+    - 失敗条件
+    - 中止基準（レビュー時点）
+    - 実行者候補（兼任元職務・止める業務）
+  sota_package:
+    - 建設業翻訳1段落
+    - 現場定性情報接続注記
+    - 失敗を分けた条件
+  slack_bot: /ana-query（社内限定）
+```
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+**新SLA**
+- 事例調査依頼→初期示唆共有：24h以内
+- 鏡像事例3件納品（near2+far1）：3営業日以内
+- 事例カード5点検証：全事例100%通過
+- Rui業界の壁チェック照会→回答：1営業日以内
+
+**新KPI**
+- 事例DB総件数：500件以上（1年以内）
+- 一次ソース比率：≥ 60%
+- 提案採用率（Ryotaの提案書に転記された率）：≥ 70%
+- クライアント実装後の成果達成率：≥ 60%
+- Synthetic User ATU平均：≥ 75
+
+**新チェックポイント（提出前ゲート・8点）**
+1. 5点検証（URL/HTTP200/原文要約/実施年/成果定義）
+2. 構造写像3要素同型性採点
+3. 内的妥当性（施策が原因か・交絡要因除外）
+4. 外的妥当性（転移可能性・3件再現性）
+5. 業界の壁チェック（Rui照会完了）
+6. near 2 + far 1 配合
+7. 失敗事例1件併記＋成功と失敗を分けた条件
+8. 実行者候補（兼任元職務・止める業務）明記
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **AIアシスタント時代のリサーチ**：Perplexity Pro / Consensus.app / Elicit / You.com が実用フェーズ、事例調査時間 1/10 に短縮
+- **Synthetic User Research 精度向上**：GPT-4o / Claude Opus 4.7 で仮想ユーザー反応の予測精度が 実ユーザー相関 r=0.75超
+- **Deep Research (OpenAI o1 / Anthropic Deep Research)**：自律型リサーチエージェントで数時間の深堀り可能
+- **Blending Theory 実践**：2つの遠隔事例を融合させて創発的アイデア（LP × ゲーミフィケーション × 建設現場）
+- **建設業界特化事例**：CCUS × 職人採用ブランディング、i-Construction × 若手技術者採用、DX × 事業承継
+- **失敗事例オープン化**：Notion Community / Zenn / 個人ブログで失敗ポストモーテムが増加、反証DBに追加できる素材が急増
+
+### 6. よくある失敗パターンと防止策（2026版・上位追加）
+
+| # | 失敗パターン | 発生シーン | 防止策 |
+|---|-------------|----------|-------|
+| F-01 | 生成AI Deep Research の情報源信頼度混在 | Perplexity/OpenAI Deep Researchが三次ソースを一次と混ぜて要約 | 出典階層タグ自動判定＋原文照合を必須ゲート化 |
+| F-02 | ベクトル検索の意味類似≠構造類似 | Embeddingで「近い」事例が構造写像的には無関係 | Hybrid Search + Cohere Rerank + 3要素採点 |
+| F-03 | Synthetic User ATUの過学習 | 仮想ユーザーの応答パターンが理想化されて実ユーザーと乖離 | 四半期に一度、実クライアントでのATU補正 |
+| F-04 | メタアナリシス誤用 | 異質な事例を無理に効果量統合して見かけ上のエビデンス作成 | Heterogeneity（I²統計量）チェック、I²>75%なら統合不可 |
+| F-05 | far事例の運要素混入 | バズ・タイミング依存の遠隔事例を構造として採用 | 内的妥当性ゲート＋運要素識別チェックリスト |
+| F-06 | AI要約が成否を反転 | AI要約が「学びあり」を「成功」と要約 | 原文読了必須ゲート（AI要約とは別プロセス） |
+| F-07 | 反証データベース汚染 | LLMが生成した架空反例を反証として登録 | 反例も5点検証を通過させる |
+| F-08 | 事例DBの重複ソース水増し | 同一事例の別記事を3件と誤カウント | 実施企業名×実施時期の完全一致チェック |
+| F-09 | 継続確認の甘さ | サイトが表示されるだけで存続と判定 | 直近12ヶ月更新の有無を追加確認 |
+| F-10 | 建設業特化ドメインでgen未連携 | 建設業DX事例のgenレビュー未通過 | gen事前関所を新設 |
+
+### 7. 参考リソース・専門知識体系
+
+**理論書籍・論文**
+- 『Structure Mapping in Analogy and Similarity』 Gentner (1983)
+- 『Analogy: A Theoretical Framework』 Holyoak & Thagard (1989)
+- 『The Way We Think』 Fauconnier & Turner (2002, Blending Theory)
+- 『Case-Based Reasoning』 Kolodner (1993)
+- 『Rebel Talent』 Francesca Gino（既存事例への疑い方）
+- 『Superforecasting』 Philip Tetlock（予測精度向上）
+- 『Made to Stick』 Chip Heath / Dan Heath（アナロジー活用）
+- 『The Innovator's Dilemma』 Clayton Christensen（異業種転用）
+
+**リサーチツール**
+- Perplexity Pro / Consensus.app / Elicit / You.com / Phind
+- NotebookLM / Claude Projects
+- Whisper (音声→テキスト) / Claude Vision
+- OpenAI Deep Research / Anthropic Deep Research
+- Google Scholar / CiNii / J-STAGE
+- Airtable / Notion / Coda（事例DB）
+- Qdrant / Pinecone / Weaviate / pgvector（ベクトル検索）
+- Cohere Rerank / bge-reranker
+
+**社内連携**
+- Rui：業界の壁チェック・建設業ドメイン知識
+- gen：建設業DX事例（CCUS・どっと原価・i-Construction）の共同キュレーション
+- Deng：事例収集パイプラインの技術支援・ベクトルDB運用
+- Shun：事例数値の統計妥当性検証・因果推論
+- Ryota：提案書への転用パッケージ提供
+- Sota / kaito / eito / toma：LP・動画・撮影企画への異業種インスピレーション供給
+- nori：著作権・引用要件・スクレイピング利用規約の事前関所
+- sora：8点ゲート事後QA
+
+### 8. 成長ロードマップ（30日 / 60日 / 90日）
+
+**Day 1-30: 事例DB基盤強化フェーズ**
+- Notion 4軸DB + Qdrant ベクトルDB のハイブリッド構成構築
+- Perplexity Pro / Consensus.app / Elicit で事例収集速度3倍化
+- 5点検証スクリプト → 8点ゲートへ拡張
+- gen連携で建設業DX事例セクション新設
+
+**Day 31-60: Synthetic User + 反証DB フェーズ**
+- Synthetic User Research 高度化（100+ペルソナ、ATUスコア）
+- 反証データベース独立化（Fuckup Nights / 社内失敗事例）
+- Blending Theory 実装で創発的アイデア生成
+- Multi-Modal事例（YouTube/Podcast/PDF）取り込み
+
+**Day 61-90: 因果推論融合 + オーバースペック到達**
+- メタアナリシス（Cohen's d / OR）で複数事例の効果量統合
+- Deep Research（自律型リサーチエージェント）で数時間深堀り
+- 建設業4社ベンチマーク × 異業種アナロジー統合レポート
+- クライアント別「事例レコメンドエンジン」Slack Bot化
+
+### 9. 連携アップグレード
+
+| 連携先 | 従来 | 2026強化版 |
+|-------|------|-----------|
+| Rui | 業界の壁チェック照会 | Data Contract化・信頼度ランク順キュー・回答SLA 1営業日 |
+| gen | - | 建設業DX事例（CCUS/どっと原価/i-Construction）共同キュレーション |
+| Deng | - | 事例収集パイプライン・ベクトルDB運用の技術支援 |
+| Shun | - | 事例数値の統計妥当性検証・因果推論融合 |
+| Ryota | 事例3件納品 | 転用パッケージ（実行者候補・中止基準まで）1発納品 |
+| Sota | 異業種訴求アイデア | 建設業翻訳＋現場定性接続＋失敗条件のセット |
+| Toma/Eito | 台本フック素材 | Fuckup Nights異業種失敗事例からの反射案 |
+| Kaito | - | LP企画への異業種UXアナロジー供給 |
+| nori | - | 著作権・引用・スクレイピング事前関所 |
+| sora | 事後QA | 8点ゲート連携 |
+
+### 10. アウトプット強化テンプレート
+
+**A. 事例カード v2.0（Notion DB プロパティ）**
+```yaml
+case_id: CASE-2026-0234
+title: 地方信用金庫の地域密着採用ブランディング
+source_industry: 金融（地方信用金庫）
+target_industry_analogy: 建設業（地域密着中小）
+analogy_type: sarrogate (直接事例なしの代理)
+near_or_far: near
+structure_mapping:
+  customer_decision: 家族・地縁での信頼形成（同型）
+  supply_constraint: 地域限定・専門資格必要（同型）
+  trust_channel: 口コミ・地域行事・OB紹介（同型）
+success_conditions:
+  - 地域行事へのスポンサー継続 3年以上
+  - 現場社員 SNS発信を専任
+  - 経営者の顔出しコミット
+failure_conditions:
+  - 都市部本店主導のブランディング（土着感消失）
+  - 中央キャンペーンだけで支店独自性なし
+implementation:
+  first_action: 現場代理人1名に1日同行して密着動画1本撮影
+  steps_3: 
+    - Step1: 現場代理人3名の1日密着動画撮影（月4本ペース）
+    - Step2: 地域イベント（お祭り・清掃活動）のスポンサー参加
+    - Step3: 経営者のSNS顔出し月2回投稿開始
+budget_range:
+  tool: ¥30,000/月（撮影機材・編集ツール）
+  labor: 0.5人月（兼任元：総務、止める業務：ルーティン報告書作成）
+  outsource: ¥100,000/月（動画編集外注）
+  total: ¥180,000/月
+trust_tier: A（一次公式IR + 業界誌 + 論文引用あり）
+sources:
+  - https://... (一次: 地方信用金庫プレスリリース YYYY-MM-DD)
+  - https://... (二次: 金融ジャーナル YYYY-MM-DD)
+verification:
+  http_200: true
+  original_text_summary: "..."
+  execution_year: 2023
+  result_definition: "新卒応募数 前年比2.3倍 (母数: 前年ハローワーク経由応募数)"
+  continuity_check: 2026-09-15 direct site update confirmed
+regulatory_check_rui: OK (建設業法・下請法・個人情報保護法 抵触なし)
+domain_check_gen: OK (CCUS制度と整合)
+synthetic_user_atu: 78 / 100
+meta_analysis:
+  related_cases: 4件
+  effect_size_median: +1.8x応募数
+  heterogeneity_i2: 32% (統合可能)
+mid_review:
+  checkpoint_1: 3ヶ月目 動画再生数 ≥ 平均500回
+  checkpoint_2: 6ヶ月目 応募数 前年比 ≥ 1.3倍
+  abort_criteria: 6ヶ月目に応募数横ばい以下なら縮小/転換協議
+receiver_experience:
+  applicant: 「地元の企業が地元の言葉で語ってくれる」信頼感
+  employee: 撮影拘束（1日2h × 月4回）・同僚の目・退職後も動画が残る
+```
+
+**B. Ryota納品用転用パッケージ**
+```markdown
+## 鏡像事例3件パッケージ [クライアント名]向け
+**構成**: near 2件 + far 1件
+**依頼受領**: YYYY-MM-DD
+**納品**: YYYY-MM-DD
+**Synthetic User ATU平均**: 78/100
+
+### near事例①（実行確実性）: CASE-2026-0234
+[事例カード v2.0 の要約]
+
+### near事例②（実行確実性）: CASE-2026-0189
+### far事例①（差別化）: CASE-2026-0301
+- **推論強度**: アブダクション（仮説・実証は先行1件）
+- **リスクヘッジ**: near①の構造で実証済み、手段のみfarから借用
+- **未実施であることの先行利益**: 同商圏の競合5社が未着手
+
+### Ryota契約・スケジュール添付
+- 中止基準: 6ヶ月目に応募数横ばい以下 → 縮小/転換協議
+- 実行者候補: 現場代理人1名（兼任元: 工務、止める業務: 週次現場写真整理）
+- 総コスト: ¥180,000/月 × 6ヶ月 = ¥1,080,000
+```
+
+**C. /ana-query Slack Bot（社内限定）**
+```
+User: /ana-query 翔星建設向け・SNS採用・体力少・far含む3件
+Bot: [Notion 4軸DB + Qdrant ベクトル検索 + Cohere Rerank + 8点ゲート]
+     鏡像事例3件（near 2 + far 1）:
+     1. [near] CASE-2026-0234 地方信用金庫の地域密着採用 (ATU 78)
+     2. [near] CASE-2026-0189 町工場の技能継承ブランディング (ATU 82)
+     3. [far]  CASE-2026-0301 アイドル運営のファン化設計 (ATU 71)
+     全事例5点検証通過・Rui業界の壁チェック済・失敗事例併記済
+     [詳細はNotion事例カードリンクへ]
+```
+
+> **運用ルール**：本テンプレートは 8点ゲート → Rui業界壁チェック → gen建設業DX確認 → Synthetic User ATU ≥ 70 → sora事後QA の順で通過させる。Ryota提案書に転記する際は「中止基準」を契約・スケジュール側にも二重掲載する。

@@ -558,3 +558,388 @@ STEP 6: 差し戻し後の再チェック
 - **ユーザー視点：現場から上がってくる報告は「なんか動かない」「重い」の 2 種類しかなく、そのままでは再現条件にならない**。回避策は Kai・クライアント窓口に渡す受付テンプレへ「端末（機種名・OS バージョン）／回線（社内 Wi-Fi・現場でのモバイル回線）／発生時刻／直前に開いていた画面／再読込で直るか」の 5 項目を固定し、Mio は受け取った時点で「環境要因（回線・古い端末・キャッシュ）」と「実装要因」に切り分ける。建設業クライアントは現場支給の旧世代端末が混在するため、切り分け前に実装を疑うと再現しない調査に時間が溶ける。
 - **ユーザー視点：ユーザーが「遅い」と言うのは API の p95 が超えた時ではなく、押してから画面が何も変わらない時間が続いた時**。回避策は Lighthouse の初回表示指標とは別に、主要操作（検索実行・保存・ステータス変更）ごとに「押下から視覚変化（ボタンの状態変化・スケルトン・進捗）までの時間」を計測項目として持ち、100ms を超えて無反応な操作は体感速度の不具合として起票する。通信の遅さは現場では避けられないため、速くするより「反応していることが見えている」を検証点に置くほうが報告される「遅い」は減る。
 - **ユーザー視点：検収でクライアントが最初にやるのは自社の実データ投入で、テストデータが「山田太郎／株式会社テスト」だけだと、そこで初めて一覧が崩れる**。回避策は検収前に実データ相当のシード（30 文字級の正式社名＋支店名、髙・﨑などの異体字、「土木施工管理技士（1 級）」のような括弧付き職種名、部署名の改行）で主要画面を 1 周する受入リハーサルをゲート化する。短い英数字のダミーで通したテストは、折り返し・省略表示・カラム幅の破綻を構造的に検出できない。
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。既存のQA運用方針・Daily Knowledge Log と併用し、BMAD STEP 5 QA Gate + TDD Guard 適用 + Contract Test を前提に運用する。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 項目 | 現状レベル | 2026業界水準 | ギャップ | 優先度 |
+|---|---|---|---|---|
+| TDD Guard 運用（Red-Green-Refactor監視） | ○ 実施 | ◎ Guard強制 + Mutation Score | 中 | High |
+| Playwright（Parallel / Sharding / Trace） | ○ 使用 | ◎ Sharding 8x + Trace on-failure | 中 | High |
+| Visual Regression（Chromatic / Percy / Argos） | △ Chromatic部分 | ◎ Chromatic + Argos 併用 | 中 | High |
+| Lighthouse CI / Web Vitals | ○ 実行 | ◎ LCP/INP/CLS 全体制 | 中 | High |
+| Contract Test（Pact / Spring Cloud Contract） | ✕ | ◎ FE-BE / BE-外部 全て | 大 | High |
+| Load Test（k6 / Grafana k6） | △ 未実施 | ◎ Release前必須 | 大 | High |
+| Accessibility自動検査（axe-core / pa11y） | ○ 一部 | ◎ WCAG 2.2 AA完全 | 中 | High |
+| Security Testing（ZAP / Burp Suite / Semgrep） | △ Snykのみ | ◎ ZAP+Semgrep+DAST | 大 | Mid |
+| Chaos Engineering | ✕ | ○ Chaos Mesh / Gremlin | 中 | Mid |
+| Test Data Management（Snaplet / Faker統合） | △ Faker | ◎ 本番相当マスキングデータ | 大 | High |
+| Mutation Testing（Stryker） | ✕ | ○ 主要domain logic | 中 | Mid |
+| BDD（Cucumber / Gherkin → Playwright） | △ Given-When-Then慣習 | ◎ .feature→自動生成 | 中 | Mid |
+| 実機テスト（BrowserStack / Sauce Labs / LambdaTest） | △ 未定期 | ◎ Release前必須 | 中 | High |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+- **TDD Guard 2026強化**:
+  - Red-Green-Refactor サイクルを自動検知（`tdd-guard` OSS or 自作 husky hook）
+  - テストコミット→実装コミットの順序を強制
+  - Mutation Testing（Stryker）で「テストがあるが弱い」問題を検出、Mutation Score ≧ 60%
+- **Playwright 高度活用**:
+  - Sharding 8x で E2E 実行時間短縮
+  - Trace on-failure + Video録画をCI Artifact
+  - `test.step` で BDD調のシナリオ記述
+  - Projects: `desktop-chrome` / `mobile-safari` / `mobile-chrome` / `no-3rd-party-scripts` の4面並列
+  - Fixtures: 認証状態 / RLSテナント切替 / Feature Flag状態 を共通化
+- **Visual Regression**:
+  - **Chromatic**: Storybook Story 単位。差分Tolerance 0.2%
+  - **Argos**: Playwright / Cypress統合。E2Eの画面全体を差分検出
+  - 両方導入で「コンポーネント差分」と「ページ差分」を分離
+- **Lighthouse CI + Web Vitals**:
+  - PR毎に主要画面5つを計測、Performance/A11y/Best Practices/SEO全て≧90
+  - Web Vitals: LCP ≦2.0s / INP ≦200ms / CLS ≦0.1
+  - Vercel Speed Insights (field data) と CI (lab data) の両輪
+- **Contract Test (Pact)**:
+  - **Consumer-driven**: FE (Consumer) がBE (Provider) への期待を`.pact.json`として書き出し
+  - **Broker**: PactFlow で契約を集中管理、Provider CIで検証
+  - **範囲**: FE-BE / BE-外部連携 (LINE/求人媒体/決済) の全て
+- **Load Test (k6)**:
+  - シナリオ: 応募一覧全件表示ピーク（朝9時 100RPS）/ 応募POST並列（10RPS x 10min）
+  - CI Release前必須、SLO違反で自動fail
+  - Grafana Cloud k6でHistorical Analysis
+- **Accessibility 自動検査**:
+  - **axe-core**: Playwright + Storybook Interactionsで全画面
+  - **pa11y**: WCAG 2.2 AA準拠を静的検査
+  - **Voice Over / NVDA 手動検証**: Release前1回、主要3画面
+  - WCAG 2.2追加項目（Focus Not Obscured / Target Size / Dragging Movements）を必ず確認
+- **Security Testing**:
+  - **OWASP ZAP**: 主要エンドポイントの DAST（PR毎 Baseline / Weekly Full Scan）
+  - **Semgrep**: SAST、カスタムルール（`@let-inc/security-rules`）でLET社内標準
+  - **Burp Suite**: 手動ペネトレーションテスト（四半期に1回）
+  - **npm audit / Snyk / OSV-Scanner**: 依存脆弱性
+- **Chaos Engineering**:
+  - **Toxiproxy**: 外部連携（LINE/求人媒体）に遅延・切断注入
+  - **Playwright network throttling**: 低速回線再現
+  - **DB Failover Drill**: 四半期に1回、Read Replica切替検証
+- **Test Data Management**:
+  - **Snaplet or 内製**: 本番相当データを PII マスキングして開発/CI環境へ配信
+  - **本番相当シード**（既存2026-09-13）を必須化
+  - **異体字テストデータ**: 髙 / 﨑 / 邊 / 齋 / 濵 などを含む
+  - **境界値ジェネレータ**: 30文字級社名 / 括弧付き職種 / 部署名改行
+- **BDD**:
+  - Given-When-Then を `.feature` として明示、Nao の受入基準と1:1
+  - `cucumber-playwright` or 自作 parser で Playwright test skeleton自動生成
+  - 検収チェックリスト自動生成（既存2026-09-01）を強化
+
+### 3. AI/自動化ワークフロー統合
+
+```
+[STEP 4開始] Nao の受入基準 .feature を受領
+   ↓
+[Test Skeleton生成] Vitest + Playwright test skeleton を .feature から自動生成
+   ↓ Riku/Ao が実装、Mio がテスト強化
+[TDD Cycle]
+   TDD Guard が Red→Green→Refactor監視
+   ← テストなし実装 PR を Block
+[STEP 5 QA Gate] Mio主導
+   ├─ Vitest: statements 85%+ / branches 80%+ / Mutation ≧60%
+   ├─ Playwright: 4面並列 (desktop-chrome / mobile-safari / mobile-chrome / no-3rd-party)
+   ├─ axe-core: WCAG 2.2 AA違反0
+   ├─ Lighthouse: Perf/A11y/BP/SEO ≧90
+   ├─ Chromatic + Argos: Visual Regression 0.2%内
+   ├─ Contract Test (Pact): 契約検証100%
+   ├─ Load Test (k6): SLO違反なし
+   ├─ Security: ZAP Baseline / Semgrep / Snyk 0違反
+   ├─ 実機テスト: BrowserStack 応募POSTフロー
+   └─ 受入リハーサル: 本番相当シード + 異体字
+[判定] PASS / CONDITIONAL_PASS / FAIL
+```
+
+- **Claude Code + MCP**:
+  - GitHub MCPでPR / check runs取得、失敗テストを AI一次分析
+  - Playwright MCPで実行結果解析、Flakyパターン検出
+- **AI-assisted bug triage**: 起票時にClaude Codeが再現手順を実務語（既存2026-09-13）へ自動リライト
+- **Property-based Testing**: `fast-check`（TypeScript版QuickCheck）で境界値網羅
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+| 指標 | 旧基準 | 新基準（2026 Q4） |
+|---|---|---|
+| Vitest カバレッジ | 80% | 85%（statements） / 80%（branches） |
+| Mutation Score | 未計測 | ≧ 60%（主要domain logic） |
+| Playwright E2E 成功率 | 90% | 100%（Flakyは即quarantine + issue化） |
+| Playwright Sharding | 1x | 8x（PR時 ≦3分） |
+| Chromatic 差分Tolerance | 0.5% | 0.2% |
+| Argos E2E視覚差分 | 未計測 | 全画面計測 |
+| Lighthouse Perf/A11y | ≧85 | ≧90（両方） |
+| LCP p75 | 2.5s | 2.0s |
+| INP p75 | 未計測 | 200ms |
+| Contract Test カバレッジ | 未計測 | FE-BE / BE-外部 100% |
+| Load Test 実施 | 都度 | Release前必須 + Weekly Regression |
+| axe-core 違反 | 未計測 | 0件 (WCAG 2.2 AA) |
+| Security（ZAP+Semgrep+Snyk） | Snyk部分 | 3種で0違反 |
+| 実機テスト | 未定期 | Release前必須（BrowserStack Safari iOS / Chrome Android） |
+| Bug逃亡率（本番検知） | 未計測 | ≦ 5% |
+| Flaky Test比率 | 未計測 | ≦ 2% |
+
+- **新チェックポイント**:
+  - `no-3rd-party-scripts` Projectで応募/ログイン導線が動くこと（既存2026-09-09）
+  - 本番相当マスキングデータでのマイグレーションテスト（既存2026-09-02）
+  - 実機実行 (BrowserStack) の Release前ゲート必須化
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **AI-native Testing**:
+  - **Test Case Generation**: LLMが仕様書から自動でテストケース候補を生成、Mioが取捨選択
+  - **Visual AI**: Chromatic / Applitools のAI差分検知（意図的変更 vs 不具合を自動判別）
+  - **Bug Reproduction**: Sentry Session Replay + LLMで再現手順を自動記述
+- **Continuous Testing**:
+  - PR毎の Full E2E は Sharding + Impact Analysisで3分以内
+  - Nightly Full Regression + 実機
+  - Weekly Security Full Scan
+- **Shift-Left Security**:
+  - IDE内Semgrep警告（開発者が書きながら気付く）
+  - PR時DAST自動
+  - Provider Contract Test で外部連携の破壊的変更を Consumer側でも検知
+- **Testcontainers 標準化**:
+  - Vitest統合テストで本物のPostgres/Redisを毎テスト起動
+  - MockでなくRealで検証、Stub datesはFreezeGunで固定
+- **Compliance QA**:
+  - 個人情報保護法：PII列アクセスの監査ログ検証テスト
+  - 電子帳簿保存法：訂正削除履歴の完全性テスト
+  - インボイス制度：適格請求書番号バリデーションの境界値テスト
+- **建設DX特化QA**:
+  - 現場端末（旧世代Android / iPad Gen6等）での実機テスト
+  - モバイル回線（4G低速）のNetwork Throttling
+  - 手袋操作 UI（既存Riku 2026-09-13）のtap target ≧48pxアサート
+  - 屋外視認性（コントラスト比 ≧7:1）のaxe-core custom rule
+  - オフラインPWAでの応募下書き保存検証
+
+### 6. よくある失敗パターンと防止策
+
+| 失敗パターン | 発生タイミング | 防止策 |
+|---|---|---|
+| Flaky Test 放置で信頼低下 | 運用中 | Flaky検知で即quarantine + issue化、2営業日以内に修正か削除 |
+| ローカルmacOSでVisual baseline撮影 | テスト設計 | Baseline撮影は CI Docker のみ（既存2026-09-09） |
+| 実機で初めて分かる不具合 | Release後 | BrowserStack Release前ゲート必須（既存2026-09-09） |
+| PII を Sentry / Log に流出 | 実装中 | Mioは `sentry-mask.spec.ts` で mask 動作を毎リリース検証 |
+| Load Test 未実施でピーク落ち | Release後 | k6 CIゲート化（Kuu 2026 パッケージと連携） |
+| 本番相当データ検証欠落 | Release後 | 検収前受入リハーサル必須（既存2026-09-13） |
+| 3rd-party ブロック時に業務機能停止 | Release後 | `no-3rd-party-scripts` Project常設（既存2026-09-09） |
+| Mutation Testが弱いテストを検知しない | 実装中 | Stryker Mutation Score ≧60% をPRゲート化 |
+| Test Data の unique制約衝突（並列） | CI実行中 | Worker別スキーマ / worker_id+timestamp識別子（既存2026-09-02） |
+| ページネーション境界のバグ見逃し | 実装中 | page size 2倍+1件テストデータを Snaplet Seedに（既存2026-09-02） |
+| 印刷用スタイル検証欠落 | Release後 | 主要一覧画面の `@media print` E2Eアサート（Riku 2026-09-09連携） |
+
+### 7. 参考リソース・専門知識体系
+
+- **公式Doc**:
+  - Playwright / Vitest / Storybook / Chromatic / Argos
+  - Lighthouse CI / Web Vitals / INP公式
+  - Pact / PactFlow
+  - k6 / Grafana Cloud k6
+  - axe-core / pa11y / WCAG 2.2
+  - OWASP ZAP / Semgrep / Snyk
+  - Stryker Mutation Testing
+- **書籍**:
+  - "Test-Driven Development: By Example" (Kent Beck)
+  - "xUnit Test Patterns" (Gerard Meszaros)
+  - "Growing Object-Oriented Software, Guided by Tests" (Freeman & Pryce)
+  - "Testing JavaScript Applications" (Lucas da Costa)
+  - "Accelerate" (Forsgren et al.) — QA部分
+  - "Continuous Delivery" (Humble & Farley)
+  - "Chaos Engineering" (Rosenthal, Jones)
+- **標準/仕様**:
+  - WCAG 2.2 (2023) / ARIA Authoring Practices Guide
+  - OWASP Testing Guide / API Security Top 10
+  - ISTQB Foundation / Advanced（テストエンジニア資格）
+  - Google Test Blog / Test Certified Levels
+- **社内ドキュメント**:
+  - `checklists/qa-gate.md`
+  - `workflows/tdd/tdd-rules.md`
+  - `packages/security-rules/README.md`
+  - `runbooks/incident-response.md`
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30（基盤）**
+- Playwright Sharding 8x + `no-3rd-party-scripts` Project 全案件で有効化
+- Chromatic + Argos の二重Visual Regression体制構築
+- Contract Test (Pact) を新規案件で導入、FE-BE契約カバレッジ100%
+- 本番相当マスキングデータのSeed機構整備（Snaplet or 内製）
+
+**Day 31-60（品質強化）**
+- k6 Load Test をCI Release前ゲート化、Weekly Regression実施
+- axe-core + WCAG 2.2 AA を全画面Storybookで検査
+- Stryker Mutation Testing 主要domain logic導入、Score ≧60%
+- BrowserStack 実機テスト自動化、Release前必須ゲート
+
+**Day 61-90（オーバースペック化）**
+- OWASP ZAP Baseline PR自動 + Weekly Full DAST
+- Chaos Engineering: Toxiproxyで外部連携遅延/切断シナリオ常設
+- BDD (`.feature`) → Playwright test skeleton自動生成パイプライン
+- 建設DX特化QAスイート（手袋操作 / AAAコントラスト / オフラインPWA）を`@let-inc/construction-qa`パッケージ化
+- 「AIエージェント組織×TDD Guard × Contract Testの実践」を社外発信（Zenn or Software Testing ManiaX）
+
+### 9. 連携アップグレード
+
+| 相手 | 従来連携 | アップグレード後 |
+|---|---|---|
+| **Nao** | 受入基準手渡し | Given-When-Then → Playwright test skeleton自動生成 |
+| **Riku** | 完成後Bug報告 | TDD GuardでRed-Green順序強制、Storybook Story必須化 |
+| **Ao** | 完成後Bug報告 | Contract Test (Pact) 供給、Testcontainers共通化 |
+| **Kuu** | インフラ設定手渡し | Load Testシナリオ + Datadog SLO と連携し、SLO違反=QA fail |
+| **Kai** | QA結果報告 | Bug逃亡率 / Flaky率 / Mutation Score を月次DORA連携 |
+| **08-バナー部 Rei / 07-LP kaito** | 個別QA | 共通E2E フレームワークとVisual Regressionを提供 |
+| **11-管理部 nori** | Compliance確認 | PII mask / 監査ログ完全性 / インボイス番号バリデーションを自動テスト |
+| **Sora** | 完成後QA | QA Gate結果 + Coverage / Mutation / Visual Diff の3種ダッシュボードURLを完了レポに添付 |
+
+### 10. アウトプット強化テンプレート
+
+**A. QA Gate 判定シート v2**
+
+```markdown
+## QA Gate - {project} - Release {version}
+### 判定: PASS / CONDITIONAL_PASS / FAIL
+
+### 自動指標
+| 指標 | 基準 | 実測 | 判定 |
+|---|---|---|---|
+| Vitest coverage (stmt / branch) | ≧85 / 80 | XX / XX | ✅/❌ |
+| Mutation Score | ≧60 | XX | ✅/❌ |
+| Playwright E2E成功率 | 100% | XX% | ✅/❌ |
+| Chromatic 差分 | ≦0.2% | XX% | ✅/❌ |
+| Lighthouse Perf/A11y | ≧90 / 90 | XX / XX | ✅/❌ |
+| LCP / INP / CLS | 2.0s/200ms/0.1 | XX/XX/XX | ✅/❌ |
+| Contract Test | 100% | XX% | ✅/❌ |
+| Load Test SLO | 違反なし | ... | ✅/❌ |
+| axe-core WCAG 2.2 | 0違反 | XX | ✅/❌ |
+| Security (ZAP+Semgrep+Snyk) | 0 | XX | ✅/❌ |
+
+### 手動チェック
+- [ ] BrowserStack 実機（iOS Safari / Android Chrome）応募POST動作
+- [ ] 3rd-party ブロック時の応募/ログイン動作
+- [ ] 本番相当データでの検収前リハーサル完了
+- [ ] 印刷用CSS主要3画面 (`@media print`)
+
+### Blocker / Non-Blocker
+Blocker (0):
+Non-Blocker (要フォロー):
+
+### 逃亡率トラッキング
+本リリース後14日で本番検知した bug: 予定 X 件 (目標 ≦5%)
+```
+
+**B. `.feature` テンプレ（BDD → Playwright）**
+
+```gherkin
+# features/apply.feature
+Feature: 応募機能
+  求職者が求人へ応募し、採用担当が管理画面で確認する
+
+  @apply @critical
+  Scenario: 求職者が応募フォームから正常送信できる
+    Given 求人「土木施工管理技士 - 翔星建設」が公開されている
+    And 求職者「山田太郎」が応募フォームを開いている
+    When 必須項目を入力し送信ボタンを押す
+    Then 完了画面に受付番号が表示される
+    And 求職者のメールアドレスに自動返信が届く
+    And 採用担当の管理画面の一覧に「山田太郎」が現れる
+
+  @apply @edge
+  Scenario: 冪等キー付きで再送信すると重複を検知する
+    Given 求職者が一度応募済みで受付番号「AP-20260926-00042」を保持している
+    When 同じ Idempotency-Key で再送信する
+    Then 409 応答となり、既存の受付番号が返る
+    And 二重の自動返信は届かない
+```
+
+**C. Bug 起票テンプレ（実務語版）**
+
+```markdown
+## Bug: {タイトル - 業務ユーザーが分かる言葉}
+### 環境（クライアント記入・5項目）
+- 端末: {機種名 / OS バージョン}
+- 回線: {社内Wi-Fi / モバイル4G / 現場}
+- 発生時刻: {yyyy-mm-dd HH:MM}
+- 直前に開いていた画面: {画面名}
+- 再読込で直るか: {Yes / No}
+
+### 再現手順（実務語のみ）
+1. 「求人一覧」を開く
+2. 「土木施工管理技士」で検索する
+3. 該当求人の「詳細を見る」を押す
+→ 期待: 詳細画面が表示される
+→ 実際: 白画面のまま反応がない
+
+### 影響範囲
+- 受影響者: 求職者 X 名 / 採用担当 Y 名
+- 業務影響: {応募が受け付けられない / 一覧が閲覧できない / etc}
+
+### 切り分け（Mio記入）
+- 環境要因 / 実装要因: {判定}
+- Sentry Issue: {URL}
+- 相関ID: {ID}
+- 対応する自動テスト: {test path} / なければ追加起票
+```
+
+**D. Playwright Fixture 標準セット**
+
+```ts
+// tests/fixtures.ts
+export const test = base.extend<{
+  authenticated: Page;
+  tenantScoped: Page;
+  noThirdParty: Page;
+}>({
+  authenticated: async ({ browser }, use) => {
+    const context = await browser.newContext({ storageState: 'state/recruiter.json' });
+    await use(await context.newPage());
+  },
+  tenantScoped: async ({ browser }, use) => {
+    const context = await browser.newContext();
+    await context.addInitScript({ path: 'scripts/tenant-inject.js' });
+    await use(await context.newPage());
+  },
+  noThirdParty: async ({ browser }, use) => {
+    const context = await browser.newContext();
+    await context.route(/googletagmanager\.com|google-analytics\.com|intercom\.io/, r => r.abort());
+    await use(await context.newPage());
+  },
+});
+```
+
+**E. k6 Load Test シナリオ**
+
+```js
+import http from 'k6/http';
+import { check, sleep } from 'k6';
+export const options = {
+  scenarios: {
+    morning_peak: {
+      executor: 'ramping-arrival-rate',
+      startRate: 10,
+      timeUnit: '1s',
+      preAllocatedVUs: 200,
+      stages: [
+        { target: 100, duration: '1m' },  // ramp to 100 RPS
+        { target: 100, duration: '5m' },  // hold
+        { target: 0, duration: '1m' },
+      ],
+    },
+  },
+  thresholds: {
+    http_req_duration: ['p(95)<500', 'p(99)<1000'],
+    http_req_failed: ['rate<0.01'],
+  },
+};
+export default function () {
+  const res = http.get('https://app.example.com/api/applications?take=50');
+  check(res, { 'status 200': (r) => r.status === 200 });
+  sleep(1);
+}
+```
