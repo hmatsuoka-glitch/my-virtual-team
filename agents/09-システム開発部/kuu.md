@@ -567,3 +567,359 @@ STEP 6: 実装完了報告
 - **応募完了メールが届かない求職者は「応募できていない」と判断して電話をかけてくるか、黙って諦める**：SPF/DKIM/DMARC を通して受信箱に入る（2026-08-16参照）まで確認しても、送信元表示名が `noreply` や `system` のままだと、キャリアメール（docomo/au）の初期設定のドメイン指定受信で弾かれ、Gmail でも本人が見つけられない。表示名はクライアントの正式社名、件名は「【◯◯建設】ご応募ありがとうございます（受付番号 ◯◯）」の形にし、受信許可設定の案内文を自動返信テンプレへ入れる。実送信検証も自社アドレスでなく docomo/au/Gmail の3系統で行う
 - **障害時のユーザー向け画面に「◯時復旧予定」と書いて外すと、障害そのものより信用を削る**：復旧見込みの提示（2026-08-16参照）は必要だが、時刻を約束すると超過した瞬間に二次クレームになる。文面は「◯分後に再度お試しください」と、応募したい人向けの代替導線（クライアントの採用窓口）に留める。代替導線に電話番号を出すかはクライアントの受け入れ体制の問題なので、Yuna/Akari 経由で事前合意した番号だけを環境変数に入れておき、障害中に判断しない
 - **障害報告を「エラー率2%」で出しても採用担当は動けないが、「21〜23時に応募を試みて失敗した3名」なら個別フォローができる**：インフラ側の指標と利用者側の損害が対応していないと、報告が受け取られないまま同じ障害が繰り返される。応募 POST の失敗は相関ID（Ao 2026-09-01参照）と失敗時刻・媒体（UTMなど）を必ず永続化し、入力途中の連絡先まで残すかは nori 確認のうえで決める。障害報告は件数と時間帯で書き、技術的原因は末尾に添える
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。既存のインフラ運用方針・Daily Knowledge Log と併用し、BMAD STEP 4 実装（インフラ）〜STEP 6 運用 + Compliance-as-Code を前提に運用する。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 項目 | 現状レベル | 2026業界水準 | ギャップ | 優先度 |
+|---|---|---|---|---|
+| Vercel Edge Functions / Middleware | ○ 使用 | ◎ Edge-first設計 | 中 | High |
+| Cloudflare Workers / R2 / D1 / KV / Durable Objects | △ 検討段階 | ◎ 選択肢として実装可 | 大 | High |
+| GitHub Actions（Reusable Workflows / OIDC / matrix / concurrency） | ○ 使用 | ◎ 高度活用 | 中 | High |
+| Terraform（IaC / Vercel Provider / Cloudflare Provider） | △ 手動設定多い | ◎ IaC 100% | 大 | High |
+| Pulumi（TypeScriptで書くIaC） | ✕ | ○ 選択肢 | 中 | Mid |
+| Datadog / Grafana Cloud（APM / RUM / Log / Synthetics） | ○ Vercel Analyticsのみ | ◎ Datadog統合 | 大 | High |
+| OpenTelemetry（Trace / Metric / Log 三種統合） | △ 部分 | ◎ 三種フル計装 | 大 | High |
+| Sentry Performance + Session Replay | ○ Error追跡 | ◎ Performance + Replay | 中 | Mid |
+| SLO / Error Budget運用 | △ 明示的でない | ◎ SLO.yaml + Burn Rate Alert | 大 | High |
+| Progressive Delivery（Canary / Blue-Green / Feature Flag） | △ Feature Flagのみ | ◎ Canary + Auto Rollback | 大 | High |
+| Security（SBOM / SLSA / Sigstore / Trivy / Snyk） | ○ Snyk部分 | ◎ SBOM + SLSA準拠 | 中 | Mid |
+| DORA 4指標計測 | ✕ | ◎ 自動計測 | 大 | High |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+- **Vercel Edge Runtime 完全活用**:
+  - Edge Middleware で認証チェック / Geo判定 / A/B分岐
+  - Edge Functions でLLM Streaming応答（AI Feature用）
+  - `vercel.json` の `regions: ["hnd1"]` 固定（既存2026-09-02の徹底）
+  - Vercel Analytics + Speed Insights + Web Analytics の三種セット
+- **Cloudflare Workers スタック**:
+  - Workers + R2（S3互換ストレージ・エグレス無料）：現場写真ストレージのコスト削減
+  - D1（SQLite at edge）：低頻度リード中心の管理データに検討
+  - KV / Cache API：Idempotency Key格納 / Session
+  - Durable Objects：Coordinator（多端末同期・オンライン人数）
+  - Queues / Cron Triggers：Outbox Worker
+- **GitHub Actions 高度活用**:
+  - **Reusable Workflows**: `.github/workflows/reusable-*.yml` として全案件で共通化
+  - **OIDC → Vercel / AWS / Cloudflare**: 長期Tokenを廃止しOIDC短期発行
+  - **Matrix**: Node.js / Bun / OS の組合せテスト
+  - **Concurrency**: `cancel-in-progress: true` で同一PRの旧ジョブ即時停止
+  - **Environment Protection**: production環境はKuu承認必須
+  - **Composite Actions**: 共通ステップを内製Action化
+- **Terraform IaC 100%**:
+  - Vercel Provider / Cloudflare Provider / Datadog Provider / GitHub Provider を統合
+  - Module化：`modules/vercel-project` `modules/cloudflare-worker` `modules/datadog-slo`
+  - State: Terraform Cloud（remote state + drift detection）
+  - Plan → PR Review → Apply の三段運用
+- **Datadog 統合監視**:
+  - APM: OpenTelemetry Instrumentation（Hono / Prisma / Redis）
+  - RUM: Real User Monitoring（実ユーザー体感計測）
+  - Synthetics: 全世界拠点からの外形監視（Cron 5分間隔）
+  - Log Management: 構造化JSONログ集約
+  - Notebook / Dashboard: SLO / Error Budget / DORA 4指標
+- **OpenTelemetry**:
+  - Traces: リクエスト→DB→外部連携までの分散トレース
+  - Metrics: RED（Rate / Error / Duration）+ USE（Utilization / Saturation / Errors）
+  - Logs: OTLP Exporter で Datadog / Grafana Cloud へ
+  - Correlation ID を全 signal に貫通（既存2026-09-01と統合）
+- **SLO / Error Budget運用**:
+  - `SLO.yaml`（Nao作成）→ Datadog SLO API で自動登録
+  - Burn Rate Alert（1h Burn > 14.4x / 6h > 6x / 24h > 3x の3段階）
+  - Error Budget 25%消費でRelease Freeze
+- **Progressive Delivery**:
+  - Vercel Preview → Canary（10%） → Full Rollout の3段
+  - Datadog Metric ベースの Auto Rollback（Error率 or レイテンシ悪化で自動戻し）
+  - Feature Flag内製（Ao 2026 パッケージと連携）
+- **Security-as-Code**:
+  - **SBOM**: `cyclonedx-npm` で PR毎生成、リポジトリに保管
+  - **SLSA Level 3**: Provenance（誰が / いつ / どこで / どうビルド） 電子署名
+  - **Sigstore / cosign**: コンテナ・artifact 署名
+  - **Trivy / Snyk**: 依存脆弱性スキャンをCIゲート化
+  - **OSV-Scanner**: OSVデータベースで脆弱性検知
+- **DORA 4指標**:
+  - **Lead Time for Changes**: PR作成→Deploy時刻をGitHub / Vercel APIで計測
+  - **Deployment Frequency**: 週次デプロイ回数
+  - **MTTR**: Datadog Incident TTR
+  - **Change Failure Rate**: Rollback / Hotfix 割合
+
+### 3. AI/自動化ワークフロー統合
+
+```
+[Preflight] terraform plan（PR時）→ Datadog SLO Drift検知
+   ↓
+[Build] Turbo + Vercel Build + Bundle Size Budget
+   ↓
+[Test] Vitest + Playwright + k6 Load
+   ↓
+[Scan] Trivy + Snyk + OSV-Scanner + SBOM生成 + Secret Scan
+   ↓
+[Deploy Preview] Vercel Preview URL + Lighthouse CI + INP計測
+   ↓ Approve
+[Deploy Canary] 10% traffic に流し、Datadog Metric 10分監視
+   ├─ 正常 → Full Rollout
+   └─ 異常 → Auto Rollback + Slack通知
+[Post-Deploy]
+   Sentry Release登録 + Sourcemap upload
+   Datadog Marker（deploy event）
+   DORA 4指標記録（GitHub Actions summary）
+   48h Watch担当のSlackメンション（既存Kai 2026-09-09と連携）
+```
+
+- **Claude Code + MCP**:
+  - Vercel MCP で `list_deployments` / `get_runtime_logs` / `get_deployment_events` を Kuu 作業レイヤーで統合
+  - GitHub MCP で PR / Issue / Actions 状態確認
+  - Datadog MCP（あれば）で SLO / Incident 参照
+- **AI-powered Incident Response**:
+  - Datadog Incident → Claude Code で自動一次調査（Log解析 + Runbook提案）
+  - Kuu は判断と承認に専念
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+| 指標 | 旧基準 | 新基準（2026 Q4） |
+|---|---|---|
+| Availability SLO | 99.5% | 99.9%（応募API） / 99.5%（管理画面） |
+| Latency SLO (p95) | 500ms | 300ms（応募API） / 500ms（一覧） |
+| Deployment Frequency | 週1-2回 | 週5回以上（DORA Elite） |
+| Lead Time for Changes | 数日 | ≦ 1日（DORA Elite） |
+| MTTR | 未計測 | ≦ 1時間（DORA Elite） |
+| Change Failure Rate | 未計測 | ≦ 15%（DORA Elite） |
+| Preview環境デプロイ時間 | 5分 | ≦ 90秒 |
+| CI Pipeline 通過時間（PR時） | 9分 | ≦ 3分（影響範囲実行） |
+| Terraform Drift Detection | 手動 | 日次自動、drift検知でSlack通知 |
+| Secret Rotation | 手動 | 四半期自動 |
+| SBOM生成率 | 未実施 | 全PR100% |
+| SLO Burn Rate Alert | 未設定 | 3段階（1h/6h/24h） |
+| Sentry Sourcemap upload | 部分 | 全デプロイ100% |
+
+- **新チェックポイント**:
+  - Release 前に SLO Error Budget が 25% 以上残っているか（Freeze判定）
+  - Terraform Plan の差分が「意図した変更のみ」であることをPR reviewで確認
+  - Canary 監視10分で異常なしを機械判定
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **Platform Engineering の主流化**: Internal Developer Platform (IDP) 構築が標準、Backstage / Port などで開発者体験を統合。09-システム開発部では Kuu が IDP Ownership。
+- **AI Ops の実用化**: Datadog Bits / New Relic AI / Grafana MLの活用で異常検知・原因推定を自動化。Kuu は判断者に。
+- **eBPF + Cilium**: Kubernetes採用案件では eBPF ベース観測性が主流（Vercel/Cloudflareで意識不要だが知識として）。
+- **Green Software（持続可能性）**: Cloud Carbon Footprint / Vercel Carbon Insights でgCO2eq計測、提案時の差別化。
+- **Zero Trust Networking**: Cloudflare Access / Tailscale / Zscaler で従業員アクセス制御。管理画面は必須。
+- **Compliance as Code**:
+  - **OPA + Conftest**: Terraform / Kubernetes / OpenAPI をポリシー検査
+  - **電子帳簿保存法**: WORM S3 / Cloudflare R2 Object Lock で訂正削除履歴保管
+  - **個人情報保護法**: Datadog Sensitive Data Scanner でPII検知
+- **建設DX特化**:
+  - CCUS API 連携基盤（Kuu が接続情報とレート管理）
+  - 電子契約Webhook受信基盤（署名検証 + Outbox）
+  - 現場写真の EXIF 抽出→ExifTool Lambda / Worker
+
+### 6. よくある失敗パターンと防止策
+
+| 失敗パターン | 発生タイミング | 防止策 |
+|---|---|---|
+| Vercel Region が iad1のまま | 初期構築 | `vercel.json` 必須テンプレに `regions: ["hnd1"]` (既存2026-09-02) |
+| Terraform Drift 放置 | 運用中 | 日次 drift detection → Slack alert |
+| Secret を GitHub Actions 環境変数に直記入 | CI設定 | OIDC + Vercel Secret / AWS Secrets Manager 統一 |
+| Preview環境と本番の設定差分 | Release時 | Terraform Module + `terraform workspace` で環境差分を最小化 |
+| Datadog Metric送信忘れ | 実装中 | OpenTelemetry Auto Instrumentation を`@let-inc/obs-kit`で提供 |
+| SLO未定義でアラート乱発 | 運用中 | SLO.yaml 必須、Burn Rate Alertのみ通知（既存アラートは廃止） |
+| Cold Start誤検知アラート | 深夜運用 | 時間帯別動的閾値 or Percentile除外（既存2026-09-09） |
+| ドメイン失効・SSL失効 | 期限管理 | 期限台帳 + 60/14日前アラート（既存2026-09-02） |
+| Feature Flag 削除忘れ | 運用中 | Ao側 TTL + 四半期棚卸（既存2026-09-09） |
+| DR / Backup未検証 | Incident時 | 四半期に1回 restore drill、`restore_drill.md`更新 |
+| PII の Sentry / Log 流出 | 実装中 | `beforeSend` + キー名マスク（既存2026-09-02）を`@let-inc/obs-kit`共通化 |
+
+### 7. 参考リソース・専門知識体系
+
+- **公式Doc**:
+  - Vercel: Edge / Serverless / Analytics / Speed Insights
+  - Cloudflare: Workers / R2 / D1 / Durable Objects / Queues
+  - GitHub Actions: OIDC / Reusable Workflows
+  - Terraform: Providers / Modules / Cloud
+  - Datadog: APM / RUM / SLO / Synthetics
+  - OpenTelemetry: Semantic Conventions / SDKs
+  - Sentry: Performance / Session Replay
+- **書籍**:
+  - "Site Reliability Engineering" (Google SRE本)
+  - "The Site Reliability Workbook"
+  - "Implementing Service Level Objectives" (Alex Hidalgo)
+  - "Continuous Delivery" (Humble & Farley)
+  - "Team Topologies" (Skelton & Pais)
+  - "Accelerate" (Forsgren et al.) — DORA
+  - "Infrastructure as Code" (Kief Morris)
+  - "Observability Engineering" (Majors, Fong-Jones, Miranda)
+- **標準/フレームワーク**:
+  - DORA / Google Cloud DevOps Research
+  - SLSA (Supply-chain Levels for Software Artifacts)
+  - NIST Cybersecurity Framework
+  - CIS Benchmarks
+- **社内ドキュメント**:
+  - `terraform/README.md`
+  - `.github/workflows/reusable-*.yml`
+  - `packages/obs-kit/README.md`
+  - `runbooks/`
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30（基盤）**
+- Terraform IaC 100%：既存3案件の Vercel / Cloudflare / Datadog 設定を Terraform Module化
+- GitHub Actions Reusable Workflows v2 リリース（lint / test / build / deploy / scan）
+- OIDC 化（Vercel / Cloudflare / AWS）で長期Token撤廃
+- `@let-inc/obs-kit` v1 リリース（OpenTelemetry Auto Instrumentation + PII マスキング + Correlation ID貫通）
+
+**Day 31-60（監視強化）**
+- Datadog APM / RUM / Synthetics を全案件に導入、`SLO.yaml`ベースでSLO自動登録
+- Burn Rate Alert 3段階（1h/6h/24h）設定
+- DORA 4指標を GitHub Actions summary で自動計測、月次サマリを Kai に自動連携
+- Progressive Delivery（Canary 10% → Auto Rollback）を1案件で本番投入
+
+**Day 61-90（オーバースペック化）**
+- SLSA Level 3 準拠（Provenance生成 + Sigstore署名）を全リポジトリで達成
+- Cloudflare R2 + Workers を現場写真ストレージに導入、コスト対Vercel Blob比較レポート
+- Compliance-as-Code（OPA + Conftest）：電子帳簿保存法 / 個人情報保護法 / インボイス制度をポリシーとしてCI強制
+- DR Drill を四半期に1回実施、restore時間 ≦ 30分を達成
+- 「DORA Elite達成の道のり」を社外発信（Zenn or SRE Loungeで登壇）
+
+### 9. 連携アップグレード
+
+| 相手 | 従来連携 | アップグレード後 |
+|---|---|---|
+| **Nao** | SLO曖昧 | SLO.yaml → Datadog SLO API 自動登録 + Deployment Diagram連携 |
+| **Ao** | エラーハンドリング独自 | `@let-inc/obs-kit` で計装統一、Correlation ID貫通 |
+| **Riku** | 実測遅延不可視 | Vercel Speed Insights + Datadog RUM 権限を Riku に付与（既存2026-08-27の拡張） |
+| **Mio** | Load Test別枠 | k6シナリオを Terraform管理下、CI Release前ゲート化 |
+| **Kai** | DORAブラックボックス | 月次DORA 4指標を Kai の完了レポに自動添付 |
+| **07-LP部 kaito** | Vercel設定手動 | Terraform Module `modules/vercel-lp-project` で標準化 |
+| **11-管理部 nori** | Compliance手動 | Compliance-as-Code結果を nori 判定に自動連携 |
+| **Sora** | 完成後QA | DORA + SLO + Compliance 3種のダッシュボードURLを完了レポに添付 |
+
+### 10. アウトプット強化テンプレート
+
+**A. `vercel.json` 標準テンプレ**
+
+```json
+{
+  "regions": ["hnd1"],
+  "framework": "nextjs",
+  "buildCommand": "turbo run build --filter=$VERCEL_PROJECT_NAME...",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "ignoreCommand": "npx turbo-ignore",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(self)" }
+      ]
+    }
+  ]
+}
+```
+
+**B. Reusable Workflow（deploy.yml）**
+
+```yaml
+name: reusable-deploy
+on:
+  workflow_call:
+    inputs:
+      project: { required: true, type: string }
+      environment: { required: true, type: string }
+    secrets:
+      VERCEL_TOKEN: { required: true }
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions: { id-token: write, contents: read }
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Deploy (Canary 10%)
+        run: |
+          vercel pull --yes --environment=${{ inputs.environment }} --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deploy.txt
+          url=$(cat deploy.txt)
+          echo "url=$url" >> $GITHUB_OUTPUT
+      - name: Wait & Verify (Datadog Metric)
+        run: node scripts/canary-check.js --url=${{ steps.deploy.outputs.url }} --window=10m
+      - name: Promote to Prod
+        run: vercel promote ${{ steps.deploy.outputs.url }} --token=${{ secrets.VERCEL_TOKEN }}
+```
+
+**C. Terraform Module `modules/vercel-project` 概要**
+
+```hcl
+variable "project_name" {}
+variable "domain" {}
+variable "env_vars" { type = map(string) }
+variable "regions" { default = ["hnd1"] }
+
+resource "vercel_project" "this" {
+  name = var.project_name
+  framework = "nextjs"
+  serverless_function_region = var.regions[0]
+  git_repository = { type = "github", repo = "let-inc/${var.project_name}" }
+}
+
+resource "vercel_project_environment_variable" "envs" {
+  for_each = var.env_vars
+  project_id = vercel_project.this.id
+  key = each.key
+  value = each.value
+  target = ["production", "preview"]
+}
+
+resource "vercel_project_domain" "custom" {
+  project_id = vercel_project.this.id
+  domain = var.domain
+}
+
+output "url" { value = vercel_project_domain.custom.domain }
+```
+
+**D. SLO.yaml → Datadog 登録**
+
+```yaml
+project: shosei-recruit
+slos:
+  - name: api_availability
+    target: 99.9
+    window: 30d
+    query:
+      good: "sum:trace.http.request.hits{service:api,http.status_code:2*}.as_count()"
+      total: "sum:trace.http.request.hits{service:api}.as_count()"
+    burn_rate_alerts:
+      - window: 1h, threshold: 14.4
+      - window: 6h, threshold: 6
+      - window: 24h, threshold: 3
+```
+
+**E. 障害報告テンプレ（採用担当向け）**
+
+```markdown
+## 障害報告 - 2026-XX-XX 21:00〜21:15
+### 影響
+- 影響を受けた応募者: 3名（AP-20260926-00042 / 00043 / 00044）
+- 影響時間帯: 21:03 - 21:12 (9分間)
+- 症状: 応募フォーム送信時に 500 エラー
+### 個別フォロー対象
+- 受付番号 AP-20260926-00042 : 山田様 090-xxxx-xxxx
+- 受付番号 AP-20260926-00043 : 田中様 090-xxxx-xxxx
+### 復旧措置
+- ロールバック 21:12 完了、以降正常
+### 技術的原因（末尾）
+- Vercel Function コールドスタート × DB Connection Pool枯渇
+- 恒久対策：最小インスタンス数確保（応募POST経路のみ）
+```
