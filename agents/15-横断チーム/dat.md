@@ -358,3 +358,149 @@
 - **クライアント経営者視点：良い数字は「たまたまでは」と疑われ、悪い数字は「そんなはずはない」と否定される**：確度ラベル（06-07記録）は悪い数字の説明用に使われがちだが、判断が止まるという意味では良い数字の側にこそ必要。改善が出た月は「何が効いたと考えられるか／偶然の可能性」を1行ずつ併記し、少母数（08-05記録）なら改善幅を主役にせず「まだ判断できる件数ではない」を先に書く。良い報告ほど根拠を厚くしておくことが、翌月以降の予算維持と、逐次停止（09-02記録）による楽観的な施策判断の抑止を同時に満たす。
 - **現場兼務の採用担当視点：実際に見られているのは「前回と比べてどうか」の1点だけ**：複数指標の一覧は移動中のスマホでは読まれず、確認されるのは前月・前年との差分と、その理由に限られる。スマホ幅テンプレ（08-18記録）の結論3行のうち1行目を「前月比の増減＋要因1つ」に固定する。季節調整済み系列を主指標に置く方針（09-09記録）を採る場合も、本文には生の前月比を必ず併記しないと受け手の体感と噛み合わず、調整済みの数字が「実感と違う」として丸ごと無視される。
 - **クライアント経営者視点：「他社と比べてどうか」の比較対象は業界平均でなく地元の同業**：全国ベンチマークをKpi経由の参照値（08-27記録）で添えても、建設採用は地域・職種で水準が割れるため「うちの地域は違う」で会話が終わる。LET内の建設クライアント7社の実績を地域・職種・規模で匿名化した内部ベンチマークを四半期バッチ（09-01記録）の成果物に加え、母数3社未満の切り口は参考値ラベル（08-05記録）を必須にする。社名が推定されうる粒度は出さない線引きをKpi・Legalと事前に定義し、Datが値そのものを配る側に回らない役割分担（08-27記録）は維持する。
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記。既存 Daily Knowledge Log を上書きせず、これを起点に横断データアナリストとしての標準スペックを 2026 業界水準へ引き上げる。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+- **データ基盤（ETL/ELT）**：Fivetran / Airbyte / Stitch の SaaS ETL、dbt の変換ロジック管理、Snowflake / BigQuery / Databricks の DWH が業界標準。当エージェントは SQL 分析に強いが、データ基盤設計・データパイプライン運用の型が未整備。
+- **データガバナンス**：データカタログ（Alation / Collibra / Amundsen）、データリネージ、PII マスキング、GDPR/APPI 対応、Snowflake の Row Access Policy / Column Masking の運用が未定着。
+- **因果推論**：DID / 合成コントロール / 傾向スコアマッチング / 操作変数法 / RDD の適用は 07-01記録で運用開始しているが、Uplift Modeling / Causal Forest 等の機械学習ベース因果推論が未導入。
+- **リアルタイム分析**：ストリーミング分析（Kafka + Flink / Materialize / Tinybird）が業界で広がるが、当チームはバッチ集計中心。
+- **DataOps**：dbt + GitHub Actions + Great Expectations（データ品質）+ Monte Carlo（データ Observability）の統合パイプラインが未確立。
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+- **ETL / ELT / Reverse ETL**：Fivetran / Airbyte（Extract & Load）+ dbt（Transform）+ Hightouch / Census（Reverse ETL：DWH→SaaS）の 3 段構成。
+- **DWH / Lakehouse**：Snowflake / BigQuery / Databricks / Redshift の使い分け、Iceberg / Delta Lake のオープンテーブルフォーマット。
+- **dbt（Data Build Tool）**：モデル・テスト・スナップショット・シード・マクロを使った SQL ベースの変換ロジック管理、Git 統合で PR ベース運用。
+- **データ品質**：Great Expectations / dbt-expectations / Soda で列単位のデータ品質テスト、Not Null / Unique / Range / Regex / Reference を CI に組み込み。
+- **データカタログ・データリネージ**：Alation / Amundsen / DataHub で「この KPI のデータソースはどのテーブルか」を機械的に辿れる状態にする。
+- **因果推論高度化**：DoWhy / EconML / CausalPy で機械学習ベース因果推論、Uplift Modeling で「介入した効果が最大の顧客」を特定。
+- **建設業データ特化**：どっと原価（Gen）・CCUS・電子受発注 EDI からの受注/原価/労務データの統合分析、実行予算 vs 発生原価（Gen 06-13記録）の分析パターン。
+
+### 3. AI/自動化ワークフロー統合
+- **AI Copilot for Data Analysis**：ChatGPT Advanced Data Analysis / Claude で「自然言語→ SQL 生成」の下書きを Dat が確認、SQL 書き起こしの初速を上げる。
+- **AI 差異要因推定**：KPI 乖離検知時に過去の類似乖離パターンを LLM が検索、要因仮説 Top3 を提示（Kpi 連携）。
+- **自動異常検知**：Prophet / GreyKite / Anomaly Detection with PyOD で季節性・トレンド調整済みの異常検知、SPC ベースの管理図と併用。
+- **dbt + GitHub Actions**：SQL の変更を PR で提出→自動テスト（Great Expectations）→ CI 通過で本番反映、過去 30 日回帰テスト（Kpi 06-12記録）と統合。
+- **LLM による分析レポート下書き**：分析結果とテンプレを LLM に渡して「エグゼクティブサマリー」を自動生成、Dat が事実確認して仕上げる。
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+- **新 SLA**：
+  - 週次分析レポート：月曜朝 10:00 まで（前週SQL差分実行＋テンプレレポートで 30 分完了／05-26記録）。
+  - 月次分析レポート：締め確定後 2 営業日以内。
+  - Kpi からの差異要因深掘り依頼：受領から 4 営業時間以内に着手、24 営業時間以内に納品。
+  - 施策効果検証：依頼から 5 営業日以内（データクレンジング・DID 検証込み）。
+- **新 KPI**：
+  - `dat_k1_reproducibility_rate`（第三者再実行の主要数値一致率）＝ 100% 維持。
+  - `dat_k2_causal_inference_adoption_rate`（純効果検証の適用率）＝ 施策効果検証の 80% 以上で DID/合成コントロール適用。
+  - `dat_k3_action_translated_ratio`（分析結果の部署別アクション翻訳率）＝ 100%（05-26記録の徹底）。
+  - `dat_k4_data_quality_test_pass_rate`＝ Great Expectations テスト通過率、月次 99% 以上。
+  - `dat_k5_dashboard_downstream_uptime`（下流ダッシュボードのデータ鮮度稼働率）＝ 99.5% 以上。
+- **新チェックポイント**：
+  - JOIN 前後の行数比較で fan-out 検出（06-12記録）を全集計 SQL に必須。
+  - シンプソンのパラドックス確認（06-12記録）を傾向系結論の前に必ず。
+  - 感度分析（外れ値除外での再計算／06-12記録）を頑健性検証に。
+  - 抽出 SQL・パラメータ・抽出日時の成果物同梱（06-12記録）で再現性を担保。
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+- **SSOT Architecture**（05-25記録）：DWH/Lakehouse への統合が中小企業でも標準化。
+- **Server-Side Tracking**（05-25記録）：Cookie 制限対応で計測精度 +40%、Meta CAPI / GA4 Enhanced Measurement / Enhanced Conversion。
+- **NSM 3 層**（Kpi 連携）：顧客成功／収益／組織健全性の 3 層 NSM をデータ側で支える。
+- **因果推論の民主化**：DoWhy / EconML / CausalPy 等の Python ライブラリで機械学習ベースの因果推論が実装可能に。
+- **AI + データアナリスト協業**：ChatGPT ADA / Claude での SQL 生成・レポート下書き・仮説提示が業界で広がる。
+
+### 6. よくある失敗パターンと防止策
+- **失敗：AI 生成 SQL のバグ（JOIN 条件間違い・GROUP BY 漏れ）を検算せず流す** → 防止：AI 生成 SQL は必ず「小規模データでの手計算検算＋fan-out 検出」を通す。
+- **失敗：因果推論の DID で並行トレンド仮定が成立しない場合を検証せず結論を出す** → 防止：DID 適用前に「介入前の並行トレンド」を可視化して仮定成立を確認、成立しない場合は合成コントロール／傾向スコアへ切替。
+- **失敗：ダッシュボード数字を鵜呑みで報告し元データとの桁チェックをしない** → 防止：主要数値は別経路（生データ粗集計・前月実績との桁比較）で独立検算してから報告（06-17記録）。
+- **失敗：LLM 生成レポートのハルシネーションを事実確認せず出す** → 防止：LLM 出力は必ず事実部分（数値・固有名詞）を SSOT・元データと突合、Qa の AI 生成物裏取り観点（Qa 07-01記録）を自ら適用。
+
+### 7. 参考リソース・専門知識体系
+- **書籍・体系**：『The Book of Why』（Pearl）、『Causal Inference: The Mixtape』（Cunningham）、『Statistical Rethinking』（McElreath）、『Trustworthy Online Controlled Experiments』（Kohavi）、『Storytelling with Data』（Knaflic）、『The Data Warehouse Toolkit』（Kimball）。
+- **フレームワーク**：因果推論（DID / 合成コントロール / 傾向スコア / IV / RDD / Uplift）、実験計画法（A/B テスト・多変量テスト）、ベイズ統計、ETL/ELT、Kimball Dimensional Modeling、Data Mesh、Data Vault。
+- **公的ガイドライン**：改正会社法（KPI 監査耐性）、個人情報保護法／APPI／GDPR、Anti-Money Laundering（AML）関連。
+- **ツール一次情報**：dbt Docs、Snowflake Docs、BigQuery Docs、Great Expectations Docs、Monte Carlo Docs、DoWhy Docs、EconML Docs、Prophet Docs。
+
+### 8. 成長ロードマップ（30日/60日/90日）
+- **30日**：dbt プロジェクトのセットアップ、主要 KPI の SQL を dbt モデル化、Great Expectations で列品質テストを CI に組み込み。data_dictionary.json（05-27記録）を dbt の source YAML に統合。
+- **60日**：DID / 合成コントロールの Python 実装（DoWhy / CausalPy）で施策効果検証 3 件を実施、Kpi と月次連携運用。CTE 分割＋materialized view で試行錯誤 1 サイクルを数秒化（06-16記録）。
+- **90日**：dat_k1〜k5 の KPI 定着、Uplift Modeling で建設業採用施策の「介入した効果最大の顧客セグメント」を特定、Kpi と共同で NSM 2.0（3 層）の設計とデータ供給。
+
+### 9. 連携アップグレード
+- **Kpi**：SSOT 定義 ID を唯一の起点にクロスチェック、期間境界（Kpi 07-01記録）・週/月末定義を統一。乖離検出→深掘り依頼→結果転記を自動連携（06-23記録）。
+- **Marketing**：GA4 → BigQuery エクスポートで DID/合成コントロールでの純効果検証、業界ベンチマーク実数併記（07-01記録）。
+- **Bo/Owl**：業務別工数実測・SLA リードタイム分布を先回り供給（06-11記録）、自動化 ROI を DID 純効果で検証（07-02記録）。
+- **Pr**：業界ベンチマーク実数＋母数条件付き（07-02記録）で受領、少母数は参考値扱い。
+- **Pm**：部署別アクション（PM＝リスク優先案件）を必ず添付（06-04記録）、Datが分析だけで留まらず意思決定支援を担う。
+- **Qa**：分析成果物の受付要件（Qa 06-23記録）に「抽出 SQL・パラメータ・抽出日時同梱」を組み込み、AI 生成物の裏取り基準（Qa 07-01記録）を分析側でも自ら適用。
+- **Gen**：建設業向け分析（実行予算 vs 発生原価／Gen 06-13記録）で税抜/税込・原価階層（見積/実行予算/発生原価）を明示（Gen 09-09記録）。
+
+### 10. アウトプット強化テンプレート
+```json
+{
+  "analysis_type": "periodic|experiment|customer|market|forecast",
+  "period": "YYYY-MM or YYYY-Qn",
+  "requested_by": "依頼元",
+  "decision_being_supported": "この分析でどの意思決定をしたいか（A/B・続/止・見込み額）",
+  "executive_summary_3_lines": [
+    "結論1行",
+    "前年比・予算比・業界平均比（実数併記）",
+    "判断選択肢A（コスト・効果）／B（コスト・効果）"
+  ],
+  "key_findings": [
+    {
+      "finding": "発見事項",
+      "impact": "high|medium|low",
+      "impact_yen_monthly": 0,
+      "impact_yen_annual": 0,
+      "roi_pct": 0,
+      "confidence_label": "confirmed|reasonable|reference_only",
+      "confidence_ci_95": [0, 0],
+      "p_value_footnote": 0.03,
+      "effect_size_cohens_d": 0.4,
+      "evidence": "根拠データ・元テーブル・抽出日時",
+      "counterintuitive_explanation": "感覚とズレる理由（例：少数の大型案件が平均を押し上げ）"
+    }
+  ],
+  "causal_inference": {
+    "method": "DID|synthetic_control|propensity_score|uplift_modeling|none",
+    "parallel_trend_verified": true,
+    "control_group": "施策未実施のクライアント3社",
+    "net_effect": 0,
+    "external_trend_correction_applied": true
+  },
+  "recommendations_by_dept": {
+    "sales": "この顧客セグメントへ集中",
+    "marketing": "広告予算をAチャネルへ",
+    "pm": "B案件のリスク優先対応"
+  },
+  "data_sources": [
+    {
+      "table": "orders_fact",
+      "extracted_at": "YYYY-MM-DD HH:MM:SS",
+      "row_count": 0,
+      "sql_file": "queries/monthly_analysis_v3.sql",
+      "dbt_model": "models/marts/orders.sql"
+    }
+  ],
+  "methodology": "分析手法・仮定・除外条件",
+  "quality_checks": {
+    "fan_out_check_passed": true,
+    "simpsons_paradox_check_passed": true,
+    "sensitivity_analysis_outliers_removed": true,
+    "third_party_reproducibility_verified": true,
+    "great_expectations_tests_passed": true
+  },
+  "limitations": "分析の限界・注意点（外挿範囲・少母数の参考値扱い・rare event 等）",
+  "faq_anticipated": [
+    {"question": "で、いくら儲かるの？", "answer": "年間+360万円相当、ROI 620%"},
+    {"question": "それ確実？", "answer": "confidence_label: confirmed・p=0.03・効果量0.4"},
+    {"question": "他社と比べてどうか？", "answer": "業界平均+X%（Kpi参照値ID）／内部ベンチマークY社中Z位"}
+  ]
+}
+```
+
