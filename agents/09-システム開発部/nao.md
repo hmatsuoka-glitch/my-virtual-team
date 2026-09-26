@@ -442,3 +442,268 @@ STEP 6: 設計書をKaiへ提出
 - **ユーザー視点：テーブル設計時に「このカラムを誰がいつ入れるのか」を人に割り当てないと、入力者不在のまま NOT NULL だけが残り、現場は「-」「未定」「不明」で埋めて検索が機能しなくなる**。回避策は主要カラムに「入力者ロール（求職者本人／採用担当／代理入力）・入力タイミング（応募時／面接後／入社手続き）・未入力時の扱い（必須／後追い可／表示から除外）」の 3 属性を設計表に持たせ、応募時点で本人が答えられない項目は必須制約を付けない。制約は業務の実態より厳しくすると、ダミー値という形で必ず回避される。
 - **ユーザー視点：管理画面を週 1 回しか開かない現場責任者にとって、技術的安全側で決めた短いセッション有効期限はログイン不能と同義で、結果として全員が共有アカウントへ逃げる**。回避策はセッション・再認証の要件を「利用頻度 × 端末の占有性」で逆算し、個人占有のスマホから週 1 回使う利用者には長期セッション＋再認証の軽い導線（マジックリンク・生体認証）をセットで設計する。短い期限を単独で課すと、監査ログの操作者が誰か分からなくなるという設計目的そのものが壊れる。
 - **ユーザー視点：クライアントが要望する「管理画面から何でも設定変更できるように」は、納品後ほぼ操作されず、結局 LET 側が設定を代行する**。回避策は設定項目ごとに「年に何回変わるか」を確認し、年 1 回未満の項目（選考ステータスの呼称・通知文面の定型部分・職種マスタ）は設定 UI を作らずマスタ／コード管理へ倒し、浮いた工数を利用頻度の高い機能へ回す。汎用設定機能は工数を最も静かに食う要望なので、STEP 1 で頻度を聞いて落とす判断を記録に残す。
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。既存の設計方針・Daily Knowledge Log と併用し、BMAD-METHOD STEP 1-2 + Architect Checklist を前提に運用する。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 項目 | 現状レベル | 2026業界水準 | ギャップ | 優先度 |
+|---|---|---|---|---|
+| 要件定義（Given-When-Then） | ◎ | ◎ | なし | 維持 |
+| Domain-Driven Design（境界づけられたコンテキスト / Aggregate / VO） | ○ 概念適用のみ | ◎ EventStorming→Aggregate導出 | 中 | High |
+| C4モデル（Context / Container / Component / Code） | △ Container止まり | ◎ 4層全て + Deployment図 | 大 | High |
+| OpenAPI 3.1（JSON Schema 2020-12 / discriminator / examples） | ○ 3.0ベース | ◎ 3.1完全対応 | 中 | High |
+| PostgreSQL 17 新機能（Incremental backup / SQL/JSON / Merge） | △ 15/16感覚 | ◎ 17活用 | 中 | Mid |
+| Prisma 5.x + Prisma Optimize / Accelerate | ○ 5.x基本 | ◎ Accelerate/Optimize/Pulse | 中 | Mid |
+| Threat Modeling（STRIDE / PASTA） | △ OWASP Top 10のみ | ◎ STRIDEでフローごと | 大 | High |
+| Event-Driven Architecture / Outbox Pattern | ✕ | ◎ 外部連携の主流 | 大 | Mid |
+| Migration設計（Zero-downtime / Expand-Contract） | △ 手動判断 | ◎ パターン化 | 中 | High |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+- **Domain-Driven Design 2026版**: EventStorming（Big Picture → Process Level → Design Level）を STEP 1 と STEP 2 の間に必ず実施。Aggregate境界を明示し、Aggregate間の参照はID経由に統一。Value Object（採用ステータス・応募経路・住所）を積極抽出しPrimitive Obsessionを排除。
+- **C4モデル 4層＋Deployment**:
+  - **Level 1 (System Context)**: 建設DXシステム全体像。外部（Airwork / LINE公式 / Stripe / SendGrid）と社内ユーザー種別を可視化。
+  - **Level 2 (Container)**: Next.js App / API / Worker / DB / Redis / S3の境界。
+  - **Level 3 (Component)**: 各Container内のモジュール構成。Aggregateと対応。
+  - **Level 4 (Code)**: 重要処理のみClass/Sequenceを設計書に添付。
+  - **Deployment Diagram**: Vercel Edge / Node.js Runtime / Supabase / Cloudflare R2 の物理配置。Kuuと共同作成。
+- **OpenAPI 3.1**: JSON Schema 2020-12準拠、`discriminator`によるUnion型設計、`examples`複数記載、`x-` extension で内部メタ情報。設計→Ao 実装の単一ソースとして `domain.yaml` から自動生成。
+- **PostgreSQL 17活用**: `MERGE`文でUpsert、`SQL/JSON`ネイティブ（`json_table`）、Incremental Backup、Logical Replication改善。RLS（Row Level Security）はマルチテナント標準実装。
+- **Prisma 5.x エコシステム**: Prisma Accelerate（Edge対応 + Connection Pooling）、Prisma Optimize（クエリ推奨）、Prisma Pulse（DB Change Streams）。TypedSQL（生SQLに型付与）で複雑クエリを型安全に。
+- **Threat Modeling (STRIDE)**: Spoofing / Tampering / Repudiation / Information Disclosure / DoS / Elevation of Privilege の6軸で各Data Flowを分析。設計書に `## セキュリティ設計 - STRIDE分析` セクション必須化。
+- **Outbox Pattern & Idempotency Keys**: 外部連携（Webhook送信 / LINE通知 / メール配信）で必須。DBトランザクション + Outbox行 → Worker が retry with idempotency key。
+- **Migration戦略**: Expand-Contract パターン（Add column → Dual write → Backfill → Read new → Drop old）で Zero-downtime を標準化。破壊的変更は `MIGRATION_PLAN.md` に必ず記載。
+
+### 3. AI/自動化ワークフロー統合
+
+```
+[STEP 1] 要件定義書ドラフト
+   ↓ Claude Sonnet 4.5 + Prompt: Story→Given-When-Then展開
+[Given-When-Thenマトリクス] BDD自動テストのシード
+   ↓
+[EventStorming] Miro / FigJam で domain events 抽出
+   ↓ Claude で Aggregate候補提案
+[STEP 2] domain.yaml v2 （単一ソース）を Nao が更新
+   ↓ CI: codegen job
+   ├─ Zod schemas → apps/*/lib/validations
+   ├─ Prisma schema.prisma
+   ├─ OpenAPI 3.1 (openapi.yaml)
+   ├─ TypeScript types (types/domain.ts)
+   └─ 画面ラベル定数 (i18n/ja.json)
+[STEP 2続き] C4図 (Level 1-3) を Mermaid + Structurizr Lite で生成
+   ↓
+[Architect Checklist] STRIDE分析 + SLOヒアリング + Migration計画
+   ↓ Kai レビュー承認
+[STEP 3] Kaiがタスク分解 → Riku/Ao/Kuu並列
+```
+
+- **設計レビューボット**: PR時にClaude Code が `architect-checklist.md` を機械読解し、設計書のカバレッジを％で自動判定。80%未満は PR block。
+- **DDL Diff の可視化**: `prisma migrate dev --create-only` → Migration SQL を PR に自動貼付、ロールバックSQLも並記。
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+| 指標 | 旧基準 | 新基準（2026 Q4） |
+|---|---|---|
+| STEP 1完了までのTAT | 5営業日 | 2営業日（Given-When-Then自動化） |
+| STEP 2完了までのTAT | 7営業日 | 3営業日（domain.yaml + codegen） |
+| Architect Checklist通過率 | 手動判定 | CI自動判定 + Kai承認 |
+| domain.yaml と 実装の乖離 | 手動確認 | CI Diff で0件必達 |
+| STRIDE分析カバレッジ | 未定義 | 全Data Flowの100% |
+| ER図の3NF準拠 | 目視 | pg_hbaと合わせ機械検査 |
+| Migration Zero-downtime率 | 未計測 | 100%（Expand-Contract標準化） |
+| SLO/SLI定義率 | 主要3機能のみ | 全機能（`SLO.yaml`） |
+| 設計書のトレーサビリティ（要件ID→設計→テスト） | 手動 | 自動突合表生成 |
+
+- **新チェックポイント**:
+  - STEP 2完了時に「Aggregate境界がトランザクション境界と一致しているか」（Kai承認必須）
+  - 全外部連携に対してリトライ・冪等性・タイムアウト・サーキットブレーカーの4項目が設計書に明記されているか
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **Event-Driven Backend の台頭**: SST / Inngest / Trigger.dev などのイベント/ワークフローランタイム。求人媒体API・LINE Webhook・監査ログはOutbox + Worker Queueで受ける。
+- **Postgres全部盛りアーキテクチャ**: PostgreSQL 17 + Extensions（pg_vector, pg_partman, pgcron, TimescaleDB, PostGIS）で「1つのDBで全部」設計が主流。マイクロサービス化前に統合設計を優先。
+- **AI Feature 設計標準化**: LLM機能（応募票要約・面接文字起こし・タグ自動付与）はAI Feature Design Doc（コスト見積 / レイテンシSLA / Fallback / PIIマスキング）を設計書に必ず添付。
+- **Compliance-by-Design**: 個人情報保護法改正2026（越境移転規制強化）、電子帳簿保存法（訂正削除履歴・スキャナ保存要件）、インボイス制度の登録番号検証をDB制約と業務フローに埋め込む。
+- **Row-Level Security の標準化**: マルチテナントSaaSはRLSを設計時点で確定。テナントID列 + Policy を全テーブルに導入。
+- **建設DX特有**: 現場写真の位置情報・撮影時刻を EXIF から抽出しDB保存、電子契約（クラウドサイン / GMOサイン）連携、CCUS（建設キャリアアップシステム）ID との整合。
+
+### 6. よくある失敗パターンと防止策
+
+| 失敗パターン | 発生タイミング | 防止策 |
+|---|---|---|
+| domain.yaml と 実装のドリフト | STEP 4以降 | codegen をCI強制、手書き変更はPRブロック |
+| Aggregate境界を誤り、複数Aggregateを1トランザクションで更新 | STEP 2 | EventStorming成果物をレビューで Kai + Ao と3人チェック |
+| OpenAPI 3.0で書いてしまいJSON Schema互換が壊れる | STEP 2 | `openapi.yaml`先頭で `openapi: 3.1.0` 必須、spectralルール適用 |
+| RLSポリシーの漏れでテナント越境データ露出 | STEP 4 | 全テーブルRLSをCIで検証、`test_rls.sql`が自動実行 |
+| Migration破壊的変更でZero-downtime失敗 | Release時 | Expand-Contractを`MIGRATION_PLAN.md`に強制記載、Kuuと事前リハーサル |
+| 外部連携のリトライ設計欠落で二重処理 | STEP 4 | Idempotency Key + Outbox Patternをテンプレ化、設計書に4項目必須欄 |
+| STRIDE分析欠落でIDOR / SSRF | STEP 2 | 設計書テンプレにSTRIDE表を必須セクション化、Mio E2Eで確認 |
+| SLO未定義でKuu担当者裁量になる | STEP 2 | `SLO.yaml`を成果物として必須化（既存2026-09-01を拡張） |
+| CSV取込のエラーハンドリング不足 | STEP 4 | 5項目仕様（既存2026-09-02）をテンプレ化 |
+
+### 7. 参考リソース・専門知識体系
+
+- **書籍**:
+  - "Domain-Driven Design" (Eric Evans)
+  - "Implementing Domain-Driven Design" (Vaughn Vernon)
+  - "Learning Domain-Driven Design" (Vlad Khononov)
+  - "Software Architecture: The Hard Parts" (Ford, Richards, Sadalage, Dehghani)
+  - "Fundamentals of Software Architecture" (Richards & Ford)
+  - "Data-Oriented Programming" (Yehonathan Sharvit)
+  - "Building Event-Driven Microservices" (Adam Bellemare)
+  - "Database Internals" (Alex Petrov)
+- **標準/仕様**:
+  - OpenAPI Specification 3.1 / JSON Schema 2020-12
+  - C4 Model公式 (c4model.com) / Structurizr DSL
+  - CloudEvents 1.0（イベント形式標準）
+  - OpenTelemetry Semantic Conventions
+- **ツール**:
+  - Miro / FigJam（EventStorming）
+  - Structurizr Lite / IcePanel（C4）
+  - dbdiagram.io / DrawSQL（ER）
+  - Prisma / Drizzle
+  - Spectral（OpenAPI Lint）
+- **社内ドキュメント**:
+  - `checklists/architect-checklist.md`
+  - `templates/design-doc.md`
+  - `workflows/spec-driven/2-design.md`
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30（基盤）**
+- `domain.yaml` v2 スキーマ策定（用語/ステータス/ID採番/バリデーション/i18nキー）
+- codegen パイプライン（Zod / Prisma / OpenAPI / TypeScript / i18n）を1案件で稼働
+- EventStorming ワークショップテンプレを `templates/eventstorming-template.md` に整備、次案件で実施
+
+**Day 31-60（設計深化）**
+- C4 Level 1-3 + Deployment を Structurizr DSL で管理、CI で SVG 自動生成し設計書に埋め込み
+- STRIDE分析テンプレを Architect Checklistへ組込
+- Migration Expand-Contract パターン集を社内Wiki化（Add column / Rename / Split table / Merge / Type change の5型）
+- RLSポリシーテンプレ + `test_rls.sql`自動生成
+
+**Day 61-90（オーバースペック化）**
+- Outbox Pattern + Worker (Inngest / Trigger.dev) を1案件で本番投入、外部連携の再送/冪等/監視を標準化
+- AI Feature Design Doc テンプレを整備、AI機能を含む案件で必須運用
+- PostgreSQL 17新機能（MERGE / SQL/JSON / Incremental Backup）を既存案件で試験導入
+- 「domain.yaml駆動設計」を社外発信（Zenn記事 or 勉強会LT）
+
+### 9. 連携アップグレード
+
+| 相手 | 従来連携 | アップグレード後 |
+|---|---|---|
+| **Kai** | 要件手渡し | PRD → domain.yaml Diff → 設計書 の3ステップ自動化 |
+| **Ao** | 設計書渡し | OpenAPI 3.1 + Prisma schema + Zod を codegen で同期 |
+| **Riku** | 画面設計書 | i18n/ja.json + Component API Docを codegenで供給 |
+| **Kuu** | インフラ要件 | SLO.yaml + C4 Deployment図を単一ソース化 |
+| **Mio** | テスト要件 | Given-When-Then → Vitest / Playwright テストケース自動シード |
+| **Nori** | 事前リーガル | STRIDE + Compliance Tags を設計書に埋め込み、Nori 判定を効率化 |
+| **Gen** | 建設DX相談 | 建設DX標準骨格（応募者・現場・CCUS・電子契約）を共通ドメインとして提供 |
+| **Sora** | 完成後QA | 設計書トレーサビリティ突合表を添付、逸脱ゼロを保証 |
+
+### 10. アウトプット強化テンプレート
+
+**A. 設計書 v2 テンプレ（章立て）**
+
+```markdown
+# 設計書 - {project}
+## 0. 更新履歴 / 承認者 / トレーサビリティ（要件ID対応表）
+## 1. System Context (C4 Level 1)
+## 2. Container Diagram (C4 Level 2)
+## 3. Component Diagram (C4 Level 3) - Aggregate単位
+## 4. Domain Model
+  - Ubiquitous Language（domain.yaml参照）
+  - Aggregate境界 / Aggregate Root / Entity / Value Object
+  - Invariant（不変条件）
+## 5. データ設計
+  - ER図 / Prisma schema
+  - RLSポリシー / インデックス戦略 / パーティショニング
+  - Migration計画（Expand-Contract）
+## 6. API設計
+  - OpenAPI 3.1（openapi.yaml）
+  - エラー型（RFC 9457 Problem Details）
+  - Idempotency / Rate Limit
+## 7. 画面設計
+  - 画面遷移図 / ステート図
+  - i18nキー一覧
+## 8. 非機能要件 (SLO.yaml)
+  - Availability / Latency / RPO / RTO / Log Retention
+## 9. セキュリティ設計 (STRIDE分析)
+  - Data Flow図
+  - 6軸ごとの脅威と対策
+  - RLS / 認証・認可 / PII保護
+## 10. 外部連携設計
+  - 連携先ごとの4項目（Retry / Idempotency / Timeout / Circuit Breaker）
+  - Outbox Pattern適用範囲
+## 11. AI Feature Design Doc（該当時）
+  - コスト / レイテンシ / Fallback / PIIマスキング
+## 12. Deployment Diagram
+## 13. Compliance Tags（電帳法/インボイス/個人情報/2024年問題）
+## 14. リスク / 未確定事項 / 前提
+```
+
+**B. domain.yaml v2 スケルトン**
+
+```yaml
+version: 2
+project: {project}
+entities:
+  applicant:
+    display_ja: 応募者
+    id_format: "APL-{yyyyMMdd}-{seq:5}"
+    status:
+      values: [applied, screening, interviewing, offered, hired, rejected, withdrawn]
+      initial: applied
+      transitions:
+        - from: applied
+          to: [screening, rejected, withdrawn]
+    fields:
+      email:
+        type: email
+        required: true
+        validation: {rfc5322: true, normalize: nfkc}
+      full_name_kana:
+        type: string
+        required: true
+        validation: {pattern: "^[ァ-ヶー ]+$"}
+value_objects:
+  phone_number:
+    type: string
+    validation: {pattern: "^0\\d{9,10}$"}
+enums: {...}
+i18n:
+  ja:
+    applicant.status.applied: "応募済み"
+```
+
+**C. STRIDE分析マトリクス（設計書テンプレ）**
+
+```markdown
+| Data Flow | S | T | R | I | D | E | 対策 |
+|---|---|---|---|---|---|---|---|
+| 応募者→応募API | 認証Middleware | 入力Zod検証 | 監査ログ | HTTPS+CORS | Rate Limit | RBAC | ... |
+```
+
+**D. SLO.yaml**
+
+```yaml
+project: {project}
+slos:
+  api_availability:
+    objective: 99.9
+    measurement_window: 30d
+    error_budget_policy: freeze_release_if_burn_rate>2
+  api_latency_p95_ms:
+    objective: 500
+    endpoints:
+      - path: /api/applications
+        objective: 300
+data_protection:
+  rpo_minutes: 5
+  rto_minutes: 30
+  log_retention_days: 30
+```
