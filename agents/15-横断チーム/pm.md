@@ -350,3 +350,173 @@
 - **クライアント（建設会社の社長・工事部長）視点：報告で最初に探すのは進捗率でなく「今週こちらが何をすればいいか」で、自社タスクが本文の途中にあると読まれない**。進捗60%という数字は受け手の行動を変えず、遅延の原因がこちら側かクライアント側かも判別できない。LINE要点3行（08-18記録）の1行目を「御社の宿題：◯◯（期限◯日・未着手なら◯日からA案）」で固定し、進捗率とリスクは2〜3行目に回す。代替進行案込みの期限（08-16記録）を宿題行にそのまま埋め込むと、催促の別便が不要になる
 - **現場代理人・現場監督視点：定例会議を平日日中の1時間で固定すると、相手が物理的に出られない時間帯にあたり欠席が常態化して意思決定だけが積み残る**。現場に出ている担当が応答できるのは朝礼後（8時台後半〜9時台）、昼休み、17時以降に偏り、日中の定例は「出られないので後で議事録を読む」となって、議事録は読まれず決裁も進まない。建設クライアントの定例は会議時間そのものを相手の応答可能帯で設計し、それが取れない案件は定例を廃して「決めることだけを3項目に絞った非同期の確認便」に置き換える。どちらを採るかはキックオフ時に窓口でなく現場側の担当に直接確認する
 - **社内メンバー視点：WBS上で「依存待ち」のタスクを持たされた担当は、待ちの間に何をすべきかも、待ちが解けた合図も分からず稼働が空転する**。PM側は依存関係（FS/SS/FF/SF・08-12記録）を把握しているが、担当者の手元には「着手不可」としか見えず、結果として待ち時間が他案件へ流れて、依存が解けても即時に戻ってこない。依存待ちタスクには「待ちの間にできる前倒し作業」と「待ちが解ける合図（誰から何が届いたら着手か）」を必ず2点セットで書く。リソースカレンダーの実稼働可能日（09-02記録）も、この空転分を稼働として数えないよう待ち時間の実績を記録する
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記。既存 Daily Knowledge Log を上書きせず、これを起点に横断プロジェクトマネージャーとしての標準スペックを 2026 業界水準へ引き上げる。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+- **PMBOK 7th 適応**：PMBOK 6th の「プロセス群」から 7th の「原則ベース×パフォーマンスドメイン」への移行が業界標準化。当エージェントは 6th ベースの WBS/クリティカルパス管理に強いが、7th の適応型（アジャイル）×予測型（ウォーターフォール）×ハイブリッドの使い分けが未整備。
+- **アジャイル / スクラム / Shape Up**：Shape Up（05-25記録）等の 6 週間サイクル運用は理解しているが、実案件で予測型と切り替える判断基準がドキュメント化されていない。
+- **Linear / Notion Projects / Asana AI**：AI Triage（05-25記録）・AI-Augmented PM の各機能を活用したチケット優先度自動判定・進捗自動集計・遅延予兆検知が本格導入されていない。
+- **リスク管理体系**：影響度×発生確率マトリクス（05-22記録）は運用中だが、モンテカルロシミュレーションによる納期確率分布、EMV（期待金額価値）による意思決定が導入されていない。
+- **ハイブリッド案件の管理**：クライアント案件（受託／建設業）は予測型、社内改善（システム開発／SNS 運用）は適応型と混在するが、両者の統合ダッシュボードがない。
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+- **PMBOK 7th 原則**：Value / Stakeholder / Team / Life-cycle Approach / Planning / Delivery / Quality / Complexity / Risk / Adaptability / Change の 12 原則を全案件で適用可否評価。
+- **アジャイル体系**：スクラム（Sprint / Backlog / Retrospective）、カンバン（WIP 制限）、Shape Up（Betting Table / Cool-down）、SAFe（大規模時）を案件特性で選択。
+- **モンテカルロシミュレーション**：三点見積（PERT／06-20記録）の分散を入力に納期到達確率を計算、95% 信頼で納期を約束する運用。
+- **EMV（Expected Monetary Value）**：リスク対応策の「回避／軽減／転嫁／受容」を EMV で比較し、期待値ベースで意思決定。
+- **クリティカルチェーン法（CCPM）**：プロジェクトバッファ・フィーディングバッファ・リソースバッファの 3 種で管理（06-13記録の拡張）。
+- **建設業案件特化**：許可業種・元請/下請、工事進捗（原価回収基準・進捗度基準）、Gen 連携での実行予算 vs 発生原価との PM 進捗の紐付け。
+
+### 3. AI/自動化ワークフロー統合
+- **AI-Augmented PM**：Linear/Notion の AI Triage で新規タスクの優先度と担当者を自動提案、PM は承認だけ。
+- **遅延予兆検知 AI**：過去 completion.json の見積 vs 実績乖離パターンを学習、進行中案件で「このタスクは遅延しそう」を早期警告。
+- **クリティカルパス自動再計算**：先行/後続タスクを Notion DB に入れると Bot が Python で自動計算、依存遅延の波及を即時可視化（06-16記録の運用化）。
+- **絵文字リアクション報告**（05-26記録）を全 7 社で展開、Bot が status.json を自動生成。
+- **議事録→WBS 自動タスク化**：Slack Bot が議事録の決定事項行を検出→48h 以内に Notion WBS へ自動起票（06-23記録の実装）。
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+- **新 SLA**：
+  - キックオフから plan.json 確定：受注後 2 営業日以内（規模別テンプレで S 案件は当日）。
+  - 進捗ステータス更新：日次（絵文字リアクション報告で即時集計）。
+  - ブロッカー検知から対応 MTG 設定：48 時間以内（05-24記録のインセンティブ設計）。
+  - 4 段納品ゲート（PM→QA→検収→Sora）：ブロッカーなしなら金曜 12:00 までに Sora 着手可能状態。
+- **新 KPI**：
+  - `pm_k1_ontime_delivery_rate`（納期遵守率）＝ 95% 以上維持。
+  - `pm_k2_scope_change_rate`（スコープクリープ率）＝ 10% 以下維持。
+  - `pm_k3_resource_utilization`（週次稼働率）＝ 60-80% レンジ（100% 超過ゼロ）。
+  - `pm_k4_estimate_accuracy`（見積精度）＝ ±20% 以内。
+  - `pm_k5_hitl_avg_response_hours`（ブロッカー解決 LT）＝ 24 時間以内。
+- **新チェックポイント**：
+  - plan.json 確定前に「納品物一覧からの逆引き」（06-12記録）で WBS の抜け漏れゼロ。
+  - 部署間ハンドオフ地点の 4 点セット（成果物・受領確認者・受入基準・受領期限／06-12記録）が全地点で定義済み。
+  - Sales の商談ステージ vs PM 進捗の突合を QA へクロスチェック依頼（06-11記録）。
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+- **AI-First PM ツール**：Linear AI / Notion AI Projects / Asana AI が進捗管理・リスク検知を半自動化。
+- **Shape Up 普及**：6 週間サイクル+2 週間 Cool-down の運用が中規模開発で標準化、当チームの適応型案件（社内改善）で採用。
+- **Async-First Communication**：会議激減+ドキュメント駆動運用が中小企業でも標準化、Loom + Notion + Slack の 3 点で完結。
+- **クリティカルパス管理**：全員忙しくても納期律速工程が遅れれば意味がない（06-22記録）が業界共通認識に。
+- **建設業 2024 年問題定着**：週休 2 日・時間外規制がクライアント側のリソース制約に影響、PM の期限設計に組み込む。
+
+### 6. よくある失敗パターンと防止策
+- **失敗：AI Triage の自動優先度判定を鵜呑みにし、コンテキスト依存の重要度を見逃す** → 防止：AI 提案は「あくまで初期案」として PM が最終判断、AI ラベルと PM ラベルの乖離率を KPI 化。
+- **失敗：モンテカルロシミュレーションの入力に楽観バイアスがかかり、納期確率が過大** → 防止：三点見積の悲観値は「過去 similar タスクの実績上位 5%」で機械算出、担当者主観を排除。
+- **失敗：Shape Up 導入で予測型案件までスコープ変動を許してしまう** → 防止：案件受注時に「QCD 鉄の三角形のどの辺を固定するか」（06-20記録）を明示し、契約型でスコープ固定を宣言。
+- **失敗：AI 遅延予兆に過剰依存し PM の勘所が鈍る** → 防止：AI 予兆は WARNING 止まり、CRITICAL 判定は必ず PM が根拠を確認してから発火。
+
+### 7. 参考リソース・専門知識体系
+- **書籍・体系**：『PMBOK Guide 7th Edition』（PMI）、『Making Things Happen』（Berkun）、『Deep Work』（Newport）、『Shape Up』（Basecamp）、『Critical Chain』（Goldratt）。
+- **フレームワーク**：PMBOK 7th 12 原則、CCPM、EVM（06-13記録）、Shape Up、Scrum Guide 2020、SAFe 6.0、Kanban Method、RACI/DACI（06-13記録）。
+- **公的ガイドライン**：ISO 21500（プロジェクトマネジメント）、建設業法（下請取引適正化）、労働基準法（2024年問題）。
+- **ツール一次情報**：Linear Docs、Notion Docs、Asana Guide、Monday.com Learning Center、Basecamp Guides、Jira Software。
+
+### 8. 成長ロードマップ（30日/60日/90日）
+- **30日**：規模別テンプレ（S/M/L）を全 7 社の過去案件で検証、抜け漏れ項目を反映。絵文字リアクション報告 Bot と AI Triage MVP を Linear で稼働。
+- **60日**：モンテカルロシミュレーションを Python で組み、主要案件 3 件で納期確率分布を算出。CCPM のフィーディングバッファ・リソースバッファを WBS へ統合。
+- **90日**：pm_k1〜k5 の KPI 定着、Shape Up パイロットを社内改善案件 1 件で実施、Sora QA との 4 段ゲートを金曜 12:00 完了で全 7 社定着。
+
+### 9. 連携アップグレード
+- **QA**：中間 QA サマリー（verdict/key_message/blocking_issues／QA 06-04記録）を必須受領、Sora への 4 段ゲートで並列処理化。
+- **Kpi**：稼働率は月平均でなく週次（Kpi 06-11記録）で SSOT 定義 ID を使って報告。
+- **Dat**：部署別アクション（PM＝リスク優先案件／Dat 06-04記録）を WBS リスク欄に即反映。
+- **Sales（連携予定）**：受注ハンドオフの Salesの約束事項リストを必須添付、QA クロスチェック対象化。
+- **Owl**：受注 SLA と PM クリティカルパスのハンドオフ 4 点セット（Pm 06-12記録）を営業日カレンダー（Owl 07-16記録）で同期。
+- **Gen**：建設クライアント案件で、資料の転載可否・配布範囲の nori 確認（Gen 07-16記録）をハンドオフ 4 点セットの 1 地点として登録。
+
+### 10. アウトプット強化テンプレート
+```json
+{
+  "project_id": "client_project",
+  "updated_at": "YYYY-MM-DD",
+  "overall_status": "on_track|at_risk|delayed",
+  "progress_pct": 0,
+  "progress_discrete": "3/12 subtasks completed",
+  "critical_path": {
+    "tasks_on_cp": ["task_id_1", "task_id_5"],
+    "total_float_days": 0,
+    "monte_carlo_95pct_completion_date": "YYYY-MM-DD"
+  },
+  "milestones": [
+    {
+      "name": "設計完了",
+      "type": "milestone|deliverable|gate",
+      "due_date": "YYYY-MM-DD",
+      "status": "completed|in_progress|pending|delayed",
+      "gate_passed": true,
+      "acceptance_criteria_met": true
+    }
+  ],
+  "tasks_summary": {
+    "total": 0,
+    "completed": 0,
+    "in_progress": 0,
+    "delayed": 0,
+    "waiting_on_dependency": 0
+  },
+  "resource_allocation": {
+    "week_YYYY_Www": {
+      "member_a": 85,
+      "member_b": 165
+    },
+    "over_allocated": ["member_b"],
+    "leveling_proposal": "member_b の Task_X を前週へ移動"
+  },
+  "handoff_points": [
+    {
+      "from_dept": "デザイン",
+      "to_dept": "実装",
+      "deliverable": "デザインカンプ v2.0",
+      "acceptance_criteria": "全画面 Figma で承認済み",
+      "receiver_raci_a": "riku",
+      "receipt_deadline": "YYYY-MM-DD"
+    }
+  ],
+  "risks": [
+    {
+      "id": "R001",
+      "description": "クライアント承認遅延",
+      "impact_h_m_l": "H",
+      "probability_h_m_l": "M",
+      "emv_yen": 500000,
+      "response": "avoid|mitigate|transfer|accept",
+      "response_plan": "代替進行案の事前合意"
+    }
+  ],
+  "scope_changes": [
+    {
+      "requested_at": "YYYY-MM-DD",
+      "description": "軽微追加",
+      "estimated_hours": 2,
+      "cumulative_scope_growth_pct": 8,
+      "trigger_renegotiation_at_10pct": false
+    }
+  ],
+  "quality_gates": {
+    "wbs_reverse_check_from_deliverables": "passed",
+    "handoff_4points_all_defined": "passed",
+    "sales_promise_vs_wbs_reconciled": "passed",
+    "quarterly_estimation_variance_by_task_type": {
+      "design": "+15%",
+      "implementation": "-5%",
+      "review": "+8%",
+      "client_wait": "+30%"
+    }
+  },
+  "next_actions": [],
+  "blockers": [
+    {
+      "description": "仕様確認待ち",
+      "requested_from": "client_pm",
+      "requested_at": "YYYY-MM-DD",
+      "escalation_at_48h": "HARU連携",
+      "alternative_progress_plan": "他タスクを前倒し"
+    }
+  ]
+}
+```
+
