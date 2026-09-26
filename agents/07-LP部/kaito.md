@@ -463,3 +463,180 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **求職者は移動中・現場でフォームを入力するため途中で電波が切れ、復帰すると入力が全消えになって二度と戻ってこない**：ダミー実送信の着信確認（2026-08-05参照）は安定した回線での正常系しか通しておらず、実際に最も多い離脱は送信前の通信断で起きている。STEP 5 の実機確認に「フォーム中盤まで入力→機内モード ON→復帰→入力保持を確認」のシナリオを1手順として追加し、保持されていなければ Ren へ `sessionStorage` での下書き保持を差し戻す。Slow 4G 条件での計測（2026-08-16参照）と同じく、実ユーザーの回線を前提にした検査に寄せる
 - **「修正したのに変わっていない」というクレームの大半は担当者側のキャッシュで、特に LINE 内ブラウザは自前キャッシュが強く残る**：本番 URL を LINE へ送って WebView で開く手順（2026-09-01参照）は自分の環境で1回見るだけなので、担当者の端末に残る旧版までは検出できない。修正反映の連絡テンプレに「LINE 内ブラウザは右上メニューから外部ブラウザで開き直す」「スーパーリロードの手順」を図入りで固定し、問い合わせが来てから口頭で案内する形をやめる。原因究明に費やす往復が、送信時の2行で消える
 - **求職者の応募は夜21〜23時に集中するため、その時間帯に本番昇格をかけると最も応募が来る時間に不整合な画面を見せることになる**：週次の定時デプロイ枠（2026-08-27参照）は Saki とバナー部の作業都合で決めており、求職者の行動時間は考慮に入っていない。alias 付替と ISR の再生成が走る数分間は応募ピークから外し、枠を平日午前または 14〜16 時に固定する。緊急修正で夜間に昇格する場合は、切戻し先のデプロイ ID を一括昇格スクリプトのログ（2026-09-01参照）から先に控えたうえで実行する
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。Kaito（LP部長・複製プロジェクトディレクター）を対象に、統括・進行管理・Vercelデプロイ・最終ゲート判断を業界最上位水準まで引き上げる。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 領域 | 現状 | 2026業界水準 | ギャップ |
+|---|---|---|---|
+| デプロイ自動化 | `vercel --prebuilt` + Lighthouse CI 連結 | Vercel Fluid Compute + Rolling Release（`vercel rolling-release start`） + Instant Rollback (< 5s) | Rolling Release 段階昇格（10%→50%→100%）の SLA トリガー未整備 |
+| 観測性 | Speed Insights + Slack Webhook | OpenTelemetry + Sentry Performance + Vercel Observability + Real User INP 分位数追跡 | p75 INP・p95 LCP のダッシュボード＆閾値アラート自動化未実装 |
+| セキュリティ | env 漏洩 grep・Bypassトークン管理 | Vercel Secure Compute + Private Link + SBOM (Syft/Grype) + `npm audit --production` gate | サプライチェーン脆弱性の予防的スキャン欠落 |
+| CWV 契約管理 | LCP2.5s/INP200ms/CLS0.1 の SLA | Web Vitals Attribution API を用いた「原因帰属レポート」自動生成 | どの要素が LCP を引き延ばしたか特定できていない |
+| PM能力 | 5項目Scope確認・週次デプロイ枠 | RACIマトリクス＋WBSガントを Notion/Linear に自動同期 | プロジェクト複線化時の依存グラフ可視化未整備 |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+1. **Vercel Rolling Release SLO ゲート**：`vercel rolling-release start` → 10%→50%→100% の各段階で `INP < 200ms & error_rate < 0.5%` が閾値未満の場合のみ次段階昇格。Failing 時は自動 `vercel rollback`。
+2. **Web Vitals Attribution API 統合**：`web-vitals@4` の `attribution` オブジェクトから `element`/`largestShiftTarget`/`loadState` を取得し、Slack へ「LCP を延ばした要素＝Hero `<img data-src=/hero.webp>`」まで特定投稿。
+3. **Vercel Edge Config × Split.io 統合**：A/B配信を Edge Middleware + Edge Config で 3ms 未満の判定に短縮し、Slack `/lp-ab hero=B` で全リージョン即反映。
+4. **SBOM 自動生成 (`syft packages dir:. -o cyclonedx-json`) + `grype sbom:./sbom.json`**：npm/pnpm 依存脆弱性を `predeploy` で自動判定、Critical 1件で本番昇格を物理ブロック。
+5. **Instant Rollback スクリプト整備**：`vercel alias set <prev-deployment-id> <domain>` を 1 コマンドで実行、切戻し目標時間 (MTTR) を 5 分→ 30 秒へ。
+6. **NotionAPI 進捗連携**：GitHub Actions で STEP 完了時に Notion DB の「Kanban ステータス」を自動更新し、クライアント共有 Notion ボードで進捗透明化。
+7. **Vercel Deployment Protection + SAML SSO**：Preview URL を SSO 保護し、Bypass Token の Slack 平文貼付事故（2026-09-09参照）を根絶。
+8. **建設業向け SEO 特化知見**：`JobPosting` schema.org + `hiringOrganization` + `baseSalary` の JSON-LD を必須挿入、Indeed／エンゲージのクローラで求人 LP 露出を最大化。
+
+### 3. AI/自動化ワークフロー統合
+
+| フェーズ | AI/自動化 | 具体ツール |
+|---|---|---|
+| 受注（Scope 確認） | HARU→Kaito Scope 5項目を LLM 抽出→Notion 自動起票 | Claude 4.7 + Notion API + Slack Workflow |
+| STEP 進捗管理 | 各エージェント出力を LLM で要約→Slack サマリ | Anthropic Prompt Cache + n8n |
+| ビルド前品質判定 | Lighthouse CI・Playwright・Grype を並列実行し AI が結果統合 | GitHub Actions matrix + Claude が JSON レポート生成 |
+| Vercel デプロイ | `vercel deploy --prebuilt --prod` + Rolling Release SLO 監視 | Vercel API + Datadog Synthetic |
+| 事後モニタリング | Speed Insights 実データを毎時 fetch→SLA 違反時 Slack `@channel` | Vercel API + Cron |
+| クライアント報告 | 週次で Notion→PDF 自動生成しメール送付 | Notion API + `@vercel/og` |
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+**SLA**
+- **本番反映 MTTR**：< 5 分（切戻し 30 秒目標）
+- **CWV p75**：LCP < 2.0s（旧2.5s）／INP < 150ms（旧200ms）／CLS < 0.05（旧0.1）
+- **Availability**：99.95%（Vercel Multi-Region 前提）
+- **セキュリティ**：Critical/High 脆弱性 0 件、`Deployment Protection` 有効率 100%
+
+**KPI**
+- 忠実度スコア平均 92 点以上（旧85）
+- Sora 差し戻し率 5% 以下（旧25%→3% 実績を安定化）
+- Preview→本番昇格リードタイム 30 分以下（緊急5分）
+- クライアント NPS +50 以上
+
+**新チェックポイント（predeploy 拡張）**
+1. `syft` SBOM 生成 → `grype` Critical=0
+2. `lighthouse-ci` p75 LCP < 2.0s
+3. `playwright test --project=cwv-attribution` 全通過
+4. `grep -rE "G-[A-Z0-9]{6,}|GTM-[A-Z0-9]+|fbq\('init'"` でクライアント指定外 ID 0 件（2026-09-02 拡張）
+5. `curl -sI` で apex/www/http/https 4パターン 301 正規化検証
+6. `vercel env ls production` 件数一致
+7. `robots.txt` / `<meta robots>` の `noindex` 除外確認
+8. JSON-LD Rich Results Test 通過
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **Next.js 15 App Router + Turbopack 安定版**：`next build --turbo` で Ren のビルドが平均 3.2 倍高速化、ローカル `next dev --turbo` で HMR < 50ms。
+- **React 19 Server Components + `use` Hook**：LP のフォーム送信を Server Actions 化、CSR JS バンドル 40% 削減目標。
+- **Tailwind CSS v4 (Oxide engine)**：`@theme` ディレクティブで CSS 変数として tokens を定義、Hana の抽出結果を直接 Tailwind config 化。
+- **Vercel Fluid Compute (GA)**：cold start 実質ゼロ、`runtime: "fluid"` を LP API Route の既定に。
+- **Vercel AI SDK 4.x + Vercel v0 v3**：デザイン→コード生成の Ren 支援、複製 LP のコード骨格生成が 40% 高速化。
+- **Chrome INP → LoAF (Long Animation Frames)**：LoAF API で「どのタスクが INP を悪化させたか」まで特定、Ren に具体的な指示を出す運用へ。
+- **景表法 2026 改正（ステマ規制強化）**：クライアント LP に「広告」表記が必要な箇所を nori と共に自動判定。
+- **GDPR + 改正個人情報保護法（越境データ）**：フォーム送信先が国外 SaaS の場合、Cookie 同意バナー + プライバシーポリシー整備を Scope 確認に必須組込。
+
+### 6. よくある失敗パターンと防止策
+
+| # | 失敗パターン | 防止策 |
+|---|---|---|
+| 1 | Rolling Release 途中で自動判定閾値を人手で緩め、劣化デプロイが本番へ全面昇格 | Slack Bot 承認以外での閾値変更を GitHub Environment Protection で禁止 |
+| 2 | Preview Deployment に Bypass Token を Slack 平文貼付 → 退職者が閲覧可能 | 1Password Vault + `vercel bypass-token rotate` を案件完了時自動実行 |
+| 3 | JobPosting JSON-LD の `validThrough` を切らずに公開し続け、募集終了後もクローラが表示 | 掲載終了日を Notion に登録→ Vercel Cron で自動 `noindex` 化 |
+| 4 | 複数クライアント案件を同一 Vercel Team で運用しビルド時間上限枯渇（2026-09-09） | Team ごとの月次ビルド使用率を Datadog で監視、70% 超で `--prebuilt` 強制化 |
+| 5 | `vercel.json` の `crons` を Preview にも紐付け DB 二重書き込み（2026-09-09） | cron 関数冒頭に `if (process.env.VERCEL_ENV !== 'production') return;` を lint ルール化 |
+| 6 | Vercel Functions 60s タイムアウト超過で応募フォーム送信失敗 | `vercel logs --since=1h --filter='duration>10s'` を週次監視、`after()` へ非同期処理を退避 |
+| 7 | 案件複数走行時に env 名衝突 | Team 直下 shared env でなく、Project scope env のみ許可、命名規則 `<CLIENT>_<KEY>` |
+| 8 | クライアント確認端末（旧 iPad Safari 等）の情報が Mia に伝わらず後段で崩れ検出 | Scope 確認フォームに端末構成必須入力、Notion→ Mia の Playwright projects に自動反映 |
+
+### 7. 参考リソース・専門知識体系
+
+- **公式**：Vercel Docs (Fluid Compute, Rolling Release, Edge Config, Speed Insights)、Next.js 15 App Router Docs、web.dev/vitals、Chrome DevRel LoAF explainer
+- **書籍**：『High Performance Browser Networking』(Ilya Grigorik)、『Refactoring UI』(Adam Wathan)、『Building Micro-Frontends』(Luca Mezzalira)
+- **メトリクス**：Web Vitals Attribution API RFC、Core Web Vitals 2026 update（INP replaces FID confirmed 2024/03）
+- **セキュリティ**：OWASP Top 10 2025、CycloneDX SBOM 仕様、Vercel Secure Compute Whitepaper
+- **業界知見**：Google JobPosting Structured Data Guidelines、Indeed Crawler Guide、厚労省「職業安定法 改正2024」、景表法運用ガイドライン
+- **コミュニティ**：Vercel Ship 2026 セッションアーカイブ、Next.js Conf 2026、Chrome Web Performance WG
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30（土台構築）**
+- Rolling Release スクリプト整備・Instant Rollback 5 分達成
+- SBOM/Grype を `predeploy` に組込
+- Web Vitals Attribution API 連携で Slack 帰属レポート運用開始
+- Deployment Protection + SSO 全プロジェクト適用
+
+**Day 31-60（自動化拡張）**
+- Notion×GitHub Actions で STEP 進捗の自動同期完成
+- Datadog Synthetic で 24/7 合成監視（PC/SP各2リージョン）
+- クライアント週次レポート自動生成（Notion→PDF）
+- JobPosting JSON-LD 自動挿入テンプレ整備
+
+**Day 61-90（差別化・スケール）**
+- Vercel Fluid Compute 全案件標準化、TTFB < 150ms 達成
+- Multi-tenant 型 LP プロビジョニング CLI (`let-lp init <client>`) 公開
+- 「複製フロー完了→広告配信データ連携」を Shun/Akari 連携で自動化
+- LP部門 KPI ダッシュボード（Grafana）を経営陣共有
+
+### 9. 連携アップグレード
+
+| 相手 | 従来 | Overspec 連携 |
+|---|---|---|
+| Hana | CSS抽出レポート受領 | `tokens.json` を Tailwind v4 `@theme` に直接投入する CI パイプラインを共同運用 |
+| Nao(LP) | 設計書受領 | Nao の設計 JSON を Notion DB へ自動同期→ Ren/Kaito/Mia が同一ソース参照 |
+| Ren | 実装完了→ビルド確認 | Ren の PR に対し Kaito が Deployment Protection 有効の Preview を必ず発行、Rolling Release の canary 段階を Ren と共同判定 |
+| Mia | 忠実度スコア受領 | Mia の Playwright JSON を Slack Canvas に自動貼付、差し戻し優先度マトリクスを Notion カードに変換 |
+| Saki | NG 対応 | Saki への差し戻しに「予測工数（AI 見積）」と「Rolling Release 該当段階」を必須付与 |
+| Sora（COO） | 最終QA | Kaito 完了レポートを Sora 向けチェックリスト形式に自動整形（Anthropic Prompt Cache） |
+| nori（法務） | 着手前関所 | 景表法・ステマ規制 2026 改正チェック項目を Notion Template 化、STEP 1 前に自動チェック |
+| Shun/Akari（データ） | 事後連携 | 公開後 7 日間の GA4 実測値を自動連携し、CWV と CV の相関ダッシュボードを共有 |
+| バナー部（Yuna） | スクショ 3 点セット | LP デプロイ完了 Webhook でバナー生成ジョブを自動起票、`hero.jpg`/`tokens.json`/`copy.md` を Slack 自動投稿 |
+
+### 10. アウトプット強化テンプレート
+
+```markdown
+## Kaito — LP複製 Overspec 完了レポート v2
+
+### プロジェクトメタ
+- 複製元 URL：
+- 複製 LP URL（Vercel Production Alias）：
+- Vercel Deployment ID：
+- Rolling Release Stage：100%（自動昇格完了 / 手動昇格）
+- Instant Rollback 目標 MTTR：30秒 → 実測：XXsec
+
+### 品質 SLA 達成状況
+| 指標 | SLA | 実測 (p75) | 判定 |
+|---|---|---|---|
+| LCP | < 2.0s | 1.42s | ✅ |
+| INP | < 150ms | 118ms | ✅ |
+| CLS | < 0.05 | 0.02 | ✅ |
+| TTFB | < 200ms | 148ms | ✅ |
+| Lighthouse Perf | ≥ 95 | 98 | ✅ |
+| Lighthouse A11y | ≥ 95 | 100 | ✅ |
+| 忠実度スコア (Mia) | ≥ 92 | 96 | ✅ |
+| SBOM Critical | = 0 | 0 | ✅ |
+
+### Web Vitals Attribution（LCP/INP 帰属）
+- LCP element：`<img src="/hero.avif">` (loadDelay: 120ms)
+- INP interaction：`button#apply-cta` (processingDuration: 82ms)
+
+### セキュリティ・法務
+- Deployment Protection：✅ SSO required
+- Bypass Token：発行後自動失効（案件完了時 rotate 済）
+- JSON-LD JobPosting：✅ Rich Results Test 通過
+- 景表法/ステマ表示：nori 承認済（Ticket #）
+- 個人情報：Cookie 同意バナー実装済、GA4 拒否時イベント発火 0 件確認
+
+### デプロイ・運用
+- Rolling Release タイムライン：10% (5分)→ 50% (10分)→ 100%
+- 監視：Datadog Synthetic 4リージョン、Speed Insights RUM 有効
+- 週次デプロイ枠：翌週火曜 14:00 JST（Saki・バナー部と共有）
+
+### ダウンストリーム連携
+- Shun/Akari：GA4 連携 ✅ / 公開後 7 日レポート予約済
+- バナー部：スクショ 3 点セット自動配信 ✅
+- 資料作成部：月次 Notion→PDF レポート 予約済
+
+→ Sora へ最終品質チェック依頼
+```

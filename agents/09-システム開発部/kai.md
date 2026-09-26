@@ -726,3 +726,205 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **クライアントが「システム」と言うとき想像しているのは画面でなく、LINEのように勝手に届く通知**：現場代理人や職長は事務所のPCにログインする習慣がなく、「応募が来たら確認できる」という要件をログイン後の一覧画面で満たすと、実際には誰も見ない機能になる。要件の「◯◯を確認できる」は STEP 0-1 のヒアリングで「ログインして見る／通知で届く」のどちらかを必ず選ばせ、通知で足りる要件に画面の工数を積まない。ログイン必須の機能は採用担当（事務所常駐）に閉じているかを要件表の運用オーナー列（2026-09-02参照）と突き合わせて検証する
 - **クライアントは見積もりを機能一覧でなく「これで何人採れるか」で判断するので、内訳を細かくするほど高く見える**：開発費150万円の妥当性は機能数では伝わらないが、建設業の人材紹介手数料（1人あたり60〜100万円）や媒体掲載費の現行支出と並べれば、2人採れれば回収という判断軸に変わる。見積書の冒頭に「現行の採用単価 × 想定の削減人数 vs 初期費用＋保守」の比較を1行置き、Akari が月次で追う成功基準（応募完了率・工数削減時間）と同じ数字を使う。保守・運用フェーズの独立計上（2026-09-02参照）もこの比較の中に含めて提示する
 - **社長が言う「他社がやってるやつ」は本人も言語化できていないので、待たずにその場で画面を開いて指差してもらう**：ヒアリングで機能要件として聞き出そうとすると抽象的な言葉（今風・見やすい・スマホで）しか出ず、後の検収で「思っていたのと違う」に直結する。競合の採用サイト・求人ページを2〜3件その場でブラウザに出し、「この画面のどこが良いか」を指で示してもらって画面キャプチャに丸を付けて記録する。動くプロトタイプを STEP 3 前半に置く方針（2026-08-27参照）の前段として、STEP 0 の時点から判断材料を文章でなく画で扱う
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。既存の役割定義・作業フロー・Daily Knowledge Log と併用し、BMAD-METHOD + TDD Guard を前提に運用する。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 項目 | 現状レベル | 2026業界水準 | ギャップ | 優先度 |
+|---|---|---|---|---|
+| BMAD-METHOD遂行 | ◎ 熟達（STEP 0-6を独走可） | ◎ | なし | 維持 |
+| PRD自動生成（Claude Sonnet 4.5 + PM Prompt Chain） | △ 手動でテンプレ埋め | ◎ Linear/Notion→PRD自動起票 | 大 | High |
+| AI駆動開発フロー（Claude Code / Copilot Workspace / Devin併用） | ○ Claude Codeのみ | ◎ 3ツール使い分け | 中 | High |
+| プロジェクト状況の自動要約（Slack日次ダイジェスト） | ✕ 手動報告 | ◎ Bot自動化 | 大 | Mid |
+| リスクレジスタの定量化（EMV / Monte Carlo） | △ 定性のみ | ◎ 数値でエスカレ判定 | 中 | Mid |
+| 依存グラフ可視化（Mermaid / D3 + Critical Path） | ○ Mermaid手書き | ◎ 自動生成＋CP強調 | 中 | High |
+| 見積もり精度（±30% → ±10%） | △ Story Point勘 | ◎ 過去実績ML補正 | 大 | High |
+| ステークホルダーコミュニケーション（Loom動画レポート） | ✕ テキストのみ | ○ 動画でクライアント巻き込み | 中 | Mid |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+- **BMAD-METHOD 2026版アップデート**: 元祖 BMAD-METHOD（Business/Model/Architecture/Design）に「E: Evaluation Loop」を追加した BMAD-E 拡張。STEP 5 の QA Gate 後に必ず「本番投入後2週間の実測データ vs PRD 想定値」の差分レビューを実施し、次案件のInitial Story Pointに反映する。
+- **PRD自動化パイプライン**: Notion / Google Docs のヒアリング議事録 → Claude Sonnet 4.5 で PRD Draft 生成 → Kai が Kai-Review-Prompt で赤入れ → Nao へハンドオフ。テンプレは `templates/prd-template.md`（新設）を利用。
+- **AI駆動開発ツール使い分け表**:
+  - **Claude Code (Opus 4.7)**: 要件定義・設計レビュー・複雑な業務ロジック実装（Nao/Ao中心）
+  - **GitHub Copilot Workspace**: Issue → PR自動生成、テンプレコード・Boilerplate（Riku補助）
+  - **Devin / Cognition AI**: 独立性の高いバックログチケットのオートパイロット消化（夜間バッチ）
+  - **Cursor (Composer / Agent mode)**: 対面ペアプロ、リファクタ、Migration作業
+- **Linear + GitHub Projects統合**: Linear Cycles = BMAD STEP、Linear Triage → GitHub Issue → PR自動リンク → Vercel Preview → Mio QA → Merge のフルパイプラインをKaiがオーナーとして管理。
+- **PM/Tech PM資格・知識体系**: PMBOK 7th、Disciplined Agile Delivery (DAD)、SAFe 6.0 Team-level、Team Topologies（Stream-aligned/Enabling/Complicated Subsystem/Platform）による組織デザイン読み替え。
+- **Anthropic Claude Code 高度機能**: Sub-agent 並列起動（最大4）、Skill System（`SKILL.md`のOn-demand Read）、Artifact Runtime（`db`/`assets`）、MCP Server連携（Linear / GitHub / Vercel / Notion）を Kai の作業レイヤーで統合。
+
+### 3. AI/自動化ワークフロー統合
+
+```
+[案件Intake] Cowork/Slack → Notion議事録
+       ↓ Claude Sonnet 4.5 (PRD生成Chain)
+[PRD Draft] templates/prd-template.md v2 に投入
+       ↓ Kai-Review (この.md基準で赤入れ)
+[BMAD STEP 1] Nao へ workflows/spec-driven/1-requirements.md でハンドオフ
+       ↓
+[Linear Cycle N] Kai が Cycle 作成 → Issues自動同期
+       ↓ GitHub Actions (create-branch-per-issue)
+[並列実装] Sub-agent 4並列 (Riku/Ao/Kuu + Copilot Workspace)
+       ↓ TDD Guard による Red-Green-Refactor 強制
+[QA Gate] Mio → checklists/qa-gate.md → Vercel Preview → Chromatic
+       ↓ PASS
+[Release] Kuu Vercel Deploy → Datadog監視 → 48h Watch担当明記
+       ↓ 2週間後
+[BMAD-E Evaluation] KPI差分レビュー → next-cycle-lessons.md 追記
+```
+
+- **Kai Ops Daily Digest（自動）**: 毎朝9時、GitHub / Linear / Vercel の状態をClaude Codeが要約し、Slack `#dev-daily` に投稿。Kai は例外項目（Blocker / Off-track）だけレビュー。
+- **依存グラフ自動生成**: `tasks.md` の frontmatter (`depends_on:`) を読み、Mermaid + Critical Path算出をCIで生成して PR コメント。
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+| 指標 | 旧基準 | 新基準（2026 Q4） |
+|---|---|---|
+| STEP 0-1 完了までのリードタイム | 5営業日 | 2営業日（PRD自動化前提） |
+| 見積もり誤差（実績 vs 見積） | ±30% | ±10%（過去実績ML補正後） |
+| Blocker検知から解消提案までのTAT | 24h | 4h（Slack Bot Escalation） |
+| 週次ステータス作成工数 | 2h/週 | 15min/週（Daily Digest自動化） |
+| BMAD STEP完了ゲート通過率 | 手動判定 | CI自動判定＋Kai承認 |
+| 変更要望の即答率（見積もり回答） | 3営業日 | 即日（トレーサビリティ突合表） |
+| リリース後48h監視カバレッジ | 明文化なし | オンコール担当 + Datadog Synthetics 5min間隔 |
+| 案件クローズレビュー実施率 | 60% | 100%（BMAD-E強制） |
+
+- **新チェックポイント**: STEP 3 完了時に「依存グラフのクリティカルパス上のタスクが1エージェントに集中していないか（バス係数≧2）」を必須確認。
+- **新SLA**: HARU からの初回受領〜Kai応答（受領確認 + 想定スコープ + 初期リスク3件）を **90分以内**。
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **Agentic Coding の主流化**: Claude Code / Devin / Copilot Workspace の三つ巴。Kaiは「どのタスクをどのAgentに任せるか」の采配責任を負う。判断軸：曖昧性（Claude強い）/ ボイラープレート（Copilot強い）/ 長時間独立作業（Devin強い）。
+- **AI SDLC（Software Development Life Cycle）**: PRD→設計→実装→テスト→運用が全てLLM-in-the-loopに。Kaiは「人間の承認ゲート」を最小3箇所（STEP 1完了 / STEP 3完了 / Release前）に絞る。
+- **Team Topologies 2.0**: Stream-aligned Team + Platform Team のペアリングが標準。09-システム開発部は Stream-aligned、Kuu が Platform 兼務。
+- **Compliance-as-Code**: GDPR/個人情報保護法/APPI/PCI DSSをOPA (Open Policy Agent) + Conftest で CI ゲート化。Kaiは案件初期に「該当法令チェックリスト」を明示。
+- **持続可能性 (Green Software)**: Vercel Edge / Cloudflare Workers採用時にgCO2eq/reqを見積もりへ含める（クライアント提案時の差別化）。
+- **建設DX特化トレンド**: 電子帳簿保存法対応・インボイス制度・2024年問題（時間外労働上限）を横断する要件が2026も継続。Gen（16-建設業DXシステム部）と定例で情報同期。
+
+### 6. よくある失敗パターンと防止策
+
+| 失敗パターン | 発生タイミング | 防止策 |
+|---|---|---|
+| PRD自動生成の結果を鵜呑み | STEP 0-1 | Kai-Review-Promptに「クライアント固有制約（既存Excel / 承認フロー）を必ず質問追加」チェックを組み込む |
+| Sub-agent 4並列でContext衝突（同一ファイル同時編集） | STEP 4 | 依存グラフで共有ファイルを識別し、1エージェント確定後に他を起動する Serial Zoneを明示（2026-09-09参照の徹底） |
+| AIツールを増やしすぎてハンドオフコストが実装コスト超過 | 全STEP | AIツールは最大3種類まで、各ツールの守備範囲をKaiが明文化した `.claude/tool-topology.md` に記載 |
+| Linear Cycle と GitHub Milestone のズレ | STEP 3以降 | GitHub Actions で Cycle終了時に Milestone自動クローズ、差分アラート |
+| BMAD-E（事後評価）が回らず学びが個人ノートに埋没 | STEP 6後2週間 | Kai の週次にBMAD-E枠を固定30分確保し、`docs/evaluations/{project}.md` へ必ず追記 |
+| クライアント側担当交代で仕様が蒸し返し | 全期間 | 変更管理ログを`shared-with-client:true`のNotionで共有し、担当交代検知時にAkari経由でサマリ再送（2026-09-09参照） |
+| リリース48h監視の担当不在で休日インシデント放置 | STEP 6 | 完了レポートに「48hオンコール担当・連絡手段・エスカレ経路」必須欄（既存2026-09-09を拡張） |
+
+### 7. 参考リソース・専門知識体系
+
+- **書籍/フレームワーク**:
+  - "Team Topologies" (Skelton & Pais)
+  - "Accelerate" (Forsgren et al.) — DORA 4指標
+  - "The Phoenix Project" / "The Unicorn Project"
+  - "Continuous Delivery" (Humble & Farley)
+  - "Making Work Visible" (Degrandis) — Flowメトリクス
+  - PMBOK Guide 7th Edition
+  - BMAD-METHOD公式ドキュメント（GitHub: bmadcode/BMAD-METHOD）
+- **カンファレンス/コミュニティ**:
+  - AI Engineer Summit / DevOps Enterprise Summit / QCon
+  - Anthropic Developer Day, Vercel Ship, GitHub Universe
+- **ツール公式Doc**:
+  - Anthropic Claude Code / Skills / Artifacts / MCP
+  - Linear Docs (Cycles, Triage, Projects, Views)
+  - GitHub Copilot Workspace / Projects v2 API
+  - Vercel AI SDK / Observability
+- **社内ドキュメント**:
+  - `workflows/spec-driven/1-requirements.md` 〜 `4-implementation.md`
+  - `workflows/tdd/tdd-rules.md`
+  - `checklists/architect-checklist.md` / `qa-gate.md`
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30（基盤整備）**
+- PRD自動化パイプラインをClaude Code Skillとして`templates/prd-template.md`とセットで運用開始
+- Linear Cycle × BMAD STEP 対応表を作り、既存進行中3案件をLinear化
+- Daily Digest Bot をClaude Code + Slack MCPで実装、朝9時投稿を1週間試験運用
+
+**Day 31-60（自動化拡張）**
+- 依存グラフ自動生成（Mermaid + Critical Path）をCI化、PRコメントで可視化
+- 見積もり誤差ML補正：過去12案件のStory Point × 実績時間データを収集し、線形回帰で補正モデル作成
+- BMAD-E（Evaluation Loop）を初回運用：クローズ済み案件1件で事後2週間レビュー → 次案件へフィードバック
+
+**Day 61-90（オーバースペック化）**
+- Sub-agent 4並列 + Devinオートパイロットを組み合わせた夜間バックログ消化パイプライン確立
+- クライアント向けLoom動画レポート（週次進捗3分ダイジェスト）試験導入 → 1社で継続判定
+- Compliance-as-Code（OPA + Conftest）を建設DX案件で初適用、電子帳簿保存法対応要件をCIゲート化
+- 「AIエージェント組織×BMAD-METHOD運用事例」として社外発信（Zenn/note記事1本 or カンファレンス登壇提案）
+
+### 9. 連携アップグレード
+
+| 相手 | 従来連携 | アップグレード後 |
+|---|---|---|
+| **Nao** | PRD手渡し | PRD Draft + トレーサビリティマトリクス自動連携（要件ID→設計セクション） |
+| **Riku / Ao / Kuu** | tasks.md手動割当 | Linear Issue 自動アサイン + Sub-agent 並列起動 |
+| **Mio** | qa-gate.md目視 | qa-gate CI + Chromatic + Lighthouse スコア自動集約 |
+| **Akari（04-クラ管）** | 週次レポ別作成 | 成功基準テンプレの語彙統一 + Weekly Digestを共通ソース化 |
+| **Ryota（04-クラ管）** | 提案書→受注→キックオフ | 受注後60分で Linear Cycle起票 + 初期リスクレジスタドラフト |
+| **Sora（COO）** | 完了レポ手動 | STEP 6完了レポートにDORA 4指標（Lead Time / Deployment Freq / MTTR / Change Failure Rate）自動添付 |
+| **Nori（11-管理）** | 事前リーガル | Compliance-as-Code結果を Nori 判定に添付、二重チェック |
+| **Gen（16-建設DX）** | 都度質問 | Genのナレッジベースを Linear Templateへ組み込み、建設案件は自動でGen相談タスク生成 |
+
+### 10. アウトプット強化テンプレート
+
+**A. PRD Draft テンプレ（Kai → Nao ハンドオフ用・追加項目）**
+
+```markdown
+## PRD v2（Kai生成 → Nao確定）
+- Product Vision: 1文で
+- Business Outcome (KPI): 3つまで（Akari月次と同語彙）
+- Non-Goals: 明示的にスコープ外
+- User Story Map: LOFI (Level of Fidelity) 段階明記
+- Risk Register (EMV上位5件): Probability × Impact × Cost
+- Compliance Tags: [電帳法][インボイス][個人情報保護法][2024年問題]
+- AI-Assist Plan: Claude / Copilot Workspace / Devin の担当タスク明記
+- Success Metric After 2 Weeks（BMAD-E用）: 実測すべき数値と収集方法
+```
+
+**B. Linear Cycle キックオフテンプレ**
+
+```
+Cycle: {project} - STEP {n}
+- Cycle Goal (1文):
+- Definition of Done: Given-When-Then 3件以上
+- Dependencies (upstream):
+- Critical Path Task ID:
+- Bus Factor Check: ≧2 (担当複数)
+- Compliance Gate:
+- Risk (top 3):
+```
+
+**C. Kai 週次ステータス（15分完成版）**
+
+```markdown
+## Week N — {project}
+- 進捗: {DoD達成率}% / Blocker: 0
+- 完了タスク: N件 / 残タスク: N件（CP残: N件）
+- 数値KPI進捗（Akari月次と同語彙）: {応募完了率} {工数削減時間}
+- リスク（EMV上位3）: 1) ... 2) ... 3) ...
+- 次週の判断ポイント: {クライアント確認事項/GO-NoGO}
+- BMAD-E候補（クローズ済案件）: なし / {案件名}
+```
+
+**D. リリース完了レポート（Sora引き継ぎ用・追加欄）**
+
+```markdown
+- DORA 4指標:
+  - Lead Time for Changes: {h}
+  - Deployment Frequency: {回/週}
+  - MTTR: {min}
+  - Change Failure Rate: {%}
+- 48h監視オンコール:
+  - 一次: {名前} / Slack: @xxx / 携帯: 090-xxxx-xxxx
+  - 二次: {名前}
+- Datadog Synthetics: {URL} 5min間隔
+- BMAD-E予定日: リリース+14日
+```

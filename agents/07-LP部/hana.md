@@ -814,3 +814,178 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **移動中・電波の弱い現場から見る求職者は端末の省データモードを常用しており、webfontとHero画像が落ちてこない状態が実表示になっている**：抽出は高速回線の検証環境で行うため、webfontが必ず適用された姿しか記録されず、`prefers-reduced-data`未対応の元サイトでは実際には游ゴシック・ヒラギノへフォールバックした別物のLPが表示されている。STEP 3のフォント抽出に「webfont未読込時のフォールバック実体（font-familyの第2候補以降で実際に描画される書体）」と「フォールバック時の字幅差による見出しの行数変化」を記録し、Renへ`font-display`の指定とセットで渡す
 - **40代以上の経験者層はOS側の文字サイズ設定を大きめに固定しており、px固定の高さを持つボタン・カードが文字拡大で溢れる**：px固定／相対の区別（2026-08-16参照）は`font-size`にのみ適用しているが、崩れるのは`height`・`line-height`・`max-height`が固定値のコンテナ側で、文字だけremにしても箱が追随しない。抽出表に`text_scale_risk`を新設し、テキストを内包する要素のうち高さ系プロパティが絶対値指定の箇所を列挙してRenへ渡す。iOSのダイナミックタイプ・Androidのフォントサイズ最大設定で、募集要項の表とCTAボタンが最初に壊れる
 - **元サイトの出現アニメは`prefers-reduced-motion`未対応のまま複製されるが、この設定をオンにしているのは酔いやすい求職者本人である**：`late_reveal_risk`（2026-08-16参照）は高速スクロール時に見えない問題を扱うが、reduced-motion環境ではAOS等が`opacity: 0`の初期状態のまま解除されず、実績数値や社員写真が「永久に表示されない」という別種の事故になる。STEP 5でスクロール連動アニメを採る際に元サイトの`@media (prefers-reduced-motion: reduce)`の有無を必ず記録し、未対応なら「元サイト由来の欠落」としてKaito向け改善提案リストへ回したうえで、Renへは初期状態を`opacity: 1`にするフォールバックを代替案として添える
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。Hana（CSS抽出スペシャリスト）を対象に、抽出精度・スピード・データ品質を業界最上位水準まで引き上げる。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 領域 | 現状 | 2026業界水準 | ギャップ |
+|---|---|---|---|
+| 色抽出 | Chrome DevTools + 目視補正 | Delta-E 2000 での色差 < 1.0 判定、CIELAB 抽出 | 定量的な色差評価（Delta-E）が未計測 |
+| フォント特定 | `font-family` 目視 | `document.fonts.ready` + `getComputedStyle` + Fontsource 逆引き | webfont fallback 実描画字体まで記録できていない |
+| デザイントークン化 | tokens.json 手動生成 | Style Dictionary v4 + Figma Variables + Tailwind v4 `@theme` 自動反映 | tokens → 各フレームワークへの自動変換パイプ未整備 |
+| アニメーション抽出 | CSS keyframes + AOS 目視 | Motion One / Framer Motion 準拠のトークン化、`AnimationTimeline` API 記録 | JS アニメの正確なタイミング計測が主観的 |
+| CSS 変数抽出 | `--color-xxx` 一括列挙 | Cascade Layers (`@layer`)・`@container`・`@scope` の階層まで正確化 | 新CSS機能の階層構造まで抽出できていない |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+1. **Playwright + DevTools Protocol による全CSS強制抽出**：`page.evaluate(() => [...document.styleSheets].flatMap(s => [...s.cssRules].map(r => r.cssText)))` で本番でしか読み込まれない CSS も含めて全ルール収集。
+2. **Delta-E 2000 色差計測**：`culori` ライブラリで元色と抽出色の Delta-E を計測し、閾値 1.0 未満を抽出基準に。
+3. **Figma Variables → Style Dictionary → Tailwind v4 tokens 自動変換**：`style-dictionary build` で tokens.json → tokens.css / tokens.ts / tokens.figma.json を同時生成。
+4. **Webfont fallback 実描画キャプチャ**：`document.fonts.check('16px "Noto Sans JP"')` + `<canvas>` の TextMetrics でフォールバック時の実字幅を記録し、Ren へ `size-adjust` の推奨値を渡す。
+5. **CSS Cascade Layers / Container Queries / `:has()` の階層マップ**：`CSSLayerBlockRule`, `CSSContainerRule`, `:has()` セレクタを個別ラベル化。
+6. **Wappalyzer + `wappalyzer-cli` で技術スタック検出**：CMS/フレームワーク/CDN/フォントプロバイダを自動判定し、複製戦略選定を高速化。
+7. **`prefers-color-scheme` / `prefers-contrast` / `prefers-reduced-motion` 対応行列**：3 種の media query 各分岐でのスタイル差分を抽出し、Ren へ media query 別 tokens として渡す。
+8. **ライセンス自動判定**：Google Fonts / Adobe Fonts / モリサワパスポート / FONTPLUS / 独自 WebFont を検出し、`fonts_license.json` 出力（Kaito 2026-09-02 の画像資産台帳と連動）。
+
+### 3. AI/自動化ワークフロー統合
+
+| フェーズ | AI/自動化 | 具体ツール |
+|---|---|---|
+| STEP 1 CSS 全収集 | Playwright スクリプトで全 CSS 抽出 | `playwright` + `csstree` パーサ |
+| STEP 2 カラー | Delta-E 計測で類似色クラスタリング | `culori` + `chroma-js` + k-means |
+| STEP 3 フォント | webfont fallback 実描画キャプチャ | `document.fonts` API + Canvas TextMetrics |
+| STEP 4 レイアウト | Grid/Flex 検出 + `getComputedStyle` 走査 | Puppeteer + `csslayers` |
+| STEP 5 アニメ | Web Animations API + AOS 静的解析 | Motion DevTools + AST parser |
+| STEP 6 レスポンシブ | ブレークポイント全列挙 | `@media` AST 抽出 |
+| STEP 7 外部ライブラリ | Wappalyzer + `package.json` 逆推定 | `wappalyzer-cli` |
+| STEP 8 tokens 出力 | Style Dictionary v4 で多形式出力 | `style-dictionary` + Tailwind v4 preset |
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+**SLA**
+- **抽出所要時間**：40セクションLP を 30 分以内（旧 60 分）
+- **色差 Delta-E**：全カラー平均 < 0.8、最大 < 1.5
+- **フォント特定率**：99%（webfont / システムフォント / フォールバック含む）
+- **CSS ルール収集率**：99.5%（inline / `<style>` / `<link>` / `@import` 網羅）
+
+**KPI**
+- Ren 差し戻し件数（抽出漏れ起因）：3件以下 / 案件
+- Mia QA での「Hana 抽出精度不足」指摘：0件
+- tokens.json → Tailwind config への変換成功率：100%
+
+**新チェックポイント**
+1. `culori.differenceCiede2000()` で全ペア Delta-E 計算・レポート化
+2. `document.fonts.ready` 後のフォント一覧を JSON 化
+3. `@media` / `@container` / `@supports` / `@layer` の完全抽出確認
+4. ライセンス台帳 `fonts_license.json` / `images_license.json` を Kaito へ渡す
+5. Style Dictionary で `build:all` が exit 0
+6. Wappalyzer で検出した技術スタック一覧を Ren へ申し送り
+7. Reduced-motion / dark-mode / high-contrast の 3 分岐スタイル差分を出力
+8. `csstree validate` で CSS の構文エラー 0 件
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **Tailwind CSS v4 (Oxide engine)**：`@theme` ディレクティブで CSS 変数直接記述、Hana の tokens をそのまま組込み可能。
+- **CSS Cascade Layers (`@layer`) 標準化**：Cascade 制御の最上位手段、抽出時に必ずレイヤー階層記録。
+- **Container Queries (`@container`) 全ブラウザ対応**：メディアクエリ卒業、要素単位のレスポンシブ判定を tokens に反映。
+- **`:has()` セレクタ Baseline 2024 完了**：条件付きスタイリングの主流、旧ブラウザ fallback は `@supports selector(:has(*))` で分岐必須。
+- **Anchor Positioning API (Chromium 125+)**：ポップオーバー・ツールチップの絶対位置指定が CSS 化、抽出時に `anchor-name` / `position-anchor` 記録。
+- **Scroll-driven Animations (`animation-timeline: scroll()`)**：スクロール連動アニメが CSS 単体で実装可能、抽出時に AOS/GSAP との比較記録。
+- **View Transitions API**：ページ遷移アニメが CSS 化、`::view-transition-*` セレクタ抽出。
+- **Fontsource 2.x**：Google Fonts self-host が npm 経由で完結、抽出時に Fontsource パッケージ名を Ren へ推奨。
+
+### 6. よくある失敗パターンと防止策
+
+| # | 失敗パターン | 防止策 |
+|---|---|---|
+| 1 | webfont 未読込時のフォールバック実体を記録せず Ren がフォント表記だけ再現→ 実表示が別書体（2026-09-13） | STEP 3 で `document.fonts.check()` 結果と Canvas TextMetrics を必ず添付 |
+| 2 | 元サイトの `@media (prefers-reduced-motion: reduce)` 未対応を見逃し複製 LP も未対応（2026-09-13） | STEP 5 で 3 種 media query 分岐スタイルを必ず抽出 |
+| 3 | iframe 埋め込みの外枠 CSS を抽出対象外にする（2026-09-09） | 「内部=Sotaエスカレ」「外枠=Hana抽出対象」の切り分けを STEP 1 で明文化 |
+| 4 | Cascade Layers (`@layer`) 階層を無視して flat な CSS 抽出 → 優先順位が崩れる | `CSSLayerBlockRule` を再帰的に走査、階層マップ JSON 出力 |
+| 5 | Delta-E 計測せず HEX 目視のみで「近い色」と判定→ 実は色差 3.5 | 全カラー Delta-E 自動計算、閾値 1.5 超は再抽出 |
+| 6 | フォントライセンス（モリサワ・FONTPLUS 等）を見逃し Ren が Google Fonts で代替 → 別書体になる | STEP 7 で `fonts_license.json` を必ず生成し nori と共有 |
+| 7 | `size-adjust` / `ascent-override` / `descent-override` を記録せず Ren が @font-face を素で書き実描画が別位置 | STEP 3 でメトリクス上書き値も抽出対象化 |
+| 8 | 建設業クライアントの外字（髙・﨑・栁）を含む見出しでフォントサブセット漏れ | STEP 3 で本文抽出時に非BMP文字を抜き出し、フォントサブセット必須文字集合として Ren に渡す |
+
+### 7. 参考リソース・専門知識体系
+
+- **CSS 仕様**：CSS Cascading and Inheritance Level 5（Cascade Layers）、CSS Containment Module Level 3、CSS Selectors Level 4 (`:has()`)、CSS Anchor Positioning L1
+- **アニメーション**：Web Animations API Level 2、Scroll-linked Animations WD、CSS View Transitions Module L1
+- **フォント**：CSS Fonts Module Level 4（`font-palette`, `size-adjust`）、Variable Fonts, Fontsource 2.x
+- **ツール**：Style Dictionary v4、Tailwind CSS v4、Chroma.js、culori.js、csstree、Wappalyzer
+- **カラーサイエンス**：CIE Delta-E 2000 公式仕様、Google Material Color 2 アルゴリズム
+- **書籍**：『Refactoring UI』、『CSS Secrets』(Lea Verou)、『Every Layout』(Heydon Pickering)
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30**
+- Playwright + DevTools Protocol による全 CSS 強制抽出スクリプト整備
+- Delta-E 計測自動化、閾値 1.0 未満達成
+- `fonts_license.json` / `images_license.json` テンプレ確立
+
+**Day 31-60**
+- Style Dictionary v4 → Tailwind v4 `@theme` 変換パイプ完成
+- Cascade Layers / Container Queries / `:has()` 抽出モジュール実装
+- Wappalyzer 技術スタック検出を STEP 7 標準化
+
+**Day 61-90**
+- Scroll-driven Animations / View Transitions API 抽出対応
+- Anchor Positioning 抽出対応
+- Hana Extraction Report を Notion DB 化、過去案件を検索可能に
+- 抽出所要時間 30 分達成、精度 99.5% 到達
+
+### 9. 連携アップグレード
+
+| 相手 | Overspec 連携 |
+|---|---|
+| Kaito | `fonts_license.json` を STEP 1 完了時に Slack 自動投稿、Kaito の資産台帳（2026-09-02）と自動突合 |
+| Nao(LP) | tokens.json を Nao の設計 JSON に自動 include、`--color-primary` などの CSS 変数名で参照可能化 |
+| Ren | Style Dictionary で Tailwind v4 config を自動生成し PR 添付、Ren の実装工数を削減 |
+| Mia | Delta-E 目標値と webfont fallback JSON を渡し、Mia の Playwright screenshot 比較に基準値提供 |
+| nori | フォント・画像・アイコンのライセンス台帳を渡し、法務判定を STEP 7 完了時に開始 |
+| Sota（デザイン企画） | 抽出 tokens を Figma Variables に自動反映、独自デザイン案作成の起点にする |
+
+### 10. アウトプット強化テンプレート
+
+```markdown
+## Hana — CSS抽出 Overspec 完了レポート v2
+
+### メタ
+- 対象URL：
+- 抽出所要時間：XXmin
+- 抽出方法：Playwright DevTools Protocol / Puppeteer full-page CSS dump
+
+### カラー（Delta-E 2000 検証済）
+| Token | HEX | RGB | LCH | Delta-E (元→抽出) | 判定 |
+|---|---|---|---|---|---|
+| --color-primary | #0F52BA | 15,82,186 | 40 60 273 | 0.42 | ✅ |
+| ... | | | | | |
+
+### タイポグラフィ（webfont fallback 実描画含む）
+| 要素 | font-family | weight | size | size-adjust | fallback実描画 | 判定 |
+|---|---|---|---|---|---|---|
+| h1 | "Noto Sans JP", 游ゴシック | 700 | 32px | 105% | 游ゴシックで字幅+3% | ✅ |
+| ... | | | | | | |
+
+### レイアウト
+- max-width / padding / gap を Container Queries 別に記録
+- `@container (min-width: 640px)` の分岐マップ添付
+
+### アニメーション
+- CSS keyframes：XX 件
+- Scroll-driven Animations：XX 件
+- View Transitions：XX 件
+- JS アニメ (AOS/GSAP)：XX 件（AST 解析結果添付）
+
+### レスポンシブ
+- ブレークポイント：480 / 768 / 1024 / 1280 / 1536
+- `prefers-reduced-motion` 分岐：あり/なし
+- `prefers-color-scheme` 分岐：あり/なし
+
+### 外部ライブラリ / ライセンス
+- fonts_license.json：Google Fonts (Noto Sans JP OFL) / モリサワ (パスポート要契約)
+- images_license.json：複製元由来 XX 件 / フリー素材 XX 件 / クライアント支給 XX 件
+
+### tokens 出力
+- tokens.json / tokens.css / tailwind.config.ts / figma.json（Style Dictionary v4）
+
+### 申し送り
+- Ren：`--color-primary` を Tailwind `@theme` に反映済、`font-family` は Fontsource `@fontsource/noto-sans-jp` 推奨
+- Mia：Delta-E 目標 < 1.0、フォント fallback JSON を Screenshot 比較の基準に
+- nori：モリサワパスポート契約要確認
+```
