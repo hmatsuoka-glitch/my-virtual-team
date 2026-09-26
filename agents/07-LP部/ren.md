@@ -695,3 +695,199 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **40〜50代の求職者は端末の文字サイズ設定を「大」以上にしているため、px 固定は本人の設定を無視する**：Android の表示サイズや iOS の Dynamic Type を上げても `font-size: 14px` は拡大されず、読めないまま離脱する。本文・ラベル・注釈は rem 基準で組み、ブラウザ設定200%でも固定CTAが画面高の 1/4 を超えない（`max-height` と内部フォントの上限）ことを実装時の確認項目にする。`inputmode`／`autocomplete`（2026-08-16参照）で入力手段を整えたのと同じ理由で、読む手段も既定で担保する
 - **PC で `tel:` リンクを押した求職者には何も起きず、番号を控える手段も残らない**：ハローワークの端末や自宅PCから見る層は一定数あり、リンク化された番号は選択コピーもしづらい。電話CTA部品は SP 幅でのみ `tel:` リンク、PC 幅では選択可能なテキスト＋クリックでクリップボードへコピーするボタンへ分岐させる。SP だけを見て作った導線が PC 側で行き止まりになる状態を実装で潰す
 - **クライアント担当者がLINEで共有したLPのOGPは、修正しても古い画像・古いタイトルのまま残り続ける**：LINE と X は URL 単位で OGP をキャッシュし、制作側から失効させられないため、給与や職種を直しても共有済みトークには旧条件が出続ける。`og:image` の URL にビルドハッシュを含めて実体 URL 自体を変え、数値・条件の修正時は OGP も同一デプロイで差し替える。公開前の社内共有には本番URLを使わずプレビューURLで回し、本番URLのキャッシュを未完成状態で焼き付けない
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。Ren（LPコード生成スペシャリスト）を対象に、実装品質・パフォーマンス・保守性・アクセシビリティ実装を業界最上位水準まで引き上げる。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 領域 | 現状 | 2026業界水準 | ギャップ |
+|---|---|---|---|
+| フレームワーク | Next.js 14 App Router / TypeScript / Tailwind v3 | Next.js 15 + React 19 RSC + Server Actions + Tailwind v4 | React 19 の `use`/`useActionState`/`useOptimistic`/`useFormStatus` 活用が不足 |
+| パフォーマンス | 画像最適化・font-display | LoAF (Long Animation Frames) 対応 / INP 徹底最適化 / RSC ペイロード最小化 | INP 帰属分析→修正のループ未整備 |
+| ビルド・キャッシュ | Turbopack 未使用 | `next build --turbo` (安定版) + Turborepo Remote Cache | Turbopack + Remote Cache の恩恵未受領 |
+| フォーム | 通常フォーム | Server Actions + `useOptimistic` + Progressive Enhancement | クライアントJS無効環境でも動作する Progressive Enhancement 未実装 |
+| CSS | Tailwind v3 + カスタム CSS | Tailwind v4 (`@theme`) + Cascade Layers + Container Queries + `:has()` | 新CSS機能の適用が限定的 |
+| テスト | Playwright スモーク | Vitest ユニット + Playwright E2E + Storybook Interaction Tests + axe-core CI | 単体テスト自動化が薄い |
+| 型安全 | TypeScript strict | Zod スキーマ + `t3-oss/env-nextjs` + tRPC (必要時) | Runtime 検証層が薄い |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+1. **React 19 完全習熟**：`use()` Hook / `useActionState` / `useFormStatus` / `useOptimistic` / `<form action={...}>` の RSC + Server Actions パターンを LP フォームの標準実装に。
+2. **INP 徹底最適化**：`react-scan` / Chrome DevTools Performance で LoAF を計測し、`INP > 200ms` のインタラクションを `startTransition` / `useDeferredValue` / `scheduler.postTask` で分割。
+3. **Tailwind CSS v4 (`@theme`) + Cascade Layers**：Hana tokens.json を `@theme` へ直接投入、`@layer base/components/utilities` の階層化。
+4. **Server Actions + Progressive Enhancement**：`<form action={serverAction}>` を JS 無効環境でも動作するよう `noscript` fallback を必須実装。
+5. **`t3-env` + Zod で環境変数の型安全化**：`env.production.ts` で NEXT_PUBLIC_* を含めて Zod 検証、build 時に env 漏れを検出。
+6. **`@vercel/og` v2 で OGP 動的生成**：ビルドハッシュを og:image URL に含める（2026-09-13 継承）。
+7. **`react-hook-form` + Zod + `useActionState`**：クライアント/サーバ両側で同一スキーマ検証、二重定義排除。
+8. **Playwright + `@axe-core/playwright` を CI で強制**：`axe.run()` で違反 0 件を必須ゲート化。
+9. **Storybook 8 + Interaction Tests**：Atom/Molecule 単位で Play Function を書き、Chromatic 連携で Visual Regression 自動化。
+10. **Vercel Speed Insights + Web Vitals Attribution**：INP/LCP 帰属を実装コードに fedback、修正 PR に元 INP イベントを添付。
+
+### 3. AI/自動化ワークフロー統合
+
+| フェーズ | AI/自動化 | 具体ツール |
+|---|---|---|
+| コード骨格生成 | Nao 設計 JSON → Next.js 15 App Router 骨格自動生成 | Vercel v0 v3 + Claude 4.7 |
+| Server Actions 生成 | Zod スキーマから Server Action 自動生成 | Claude + `zod-to-openapi` |
+| フォーム実装 | react-hook-form + Zod + Server Action テンプレ生成 | shadcn/ui + Claude |
+| Storybook ストーリー | Atom/Molecule から stories.tsx 自動生成 | Storybook 8 CSF3 + `sb build` |
+| a11y チェック | `@axe-core/playwright` を PR ごとに実行 | GitHub Actions |
+| INP 監視 | Speed Insights → Slack 週次サマリ | Vercel API + n8n |
+| 依存脆弱性 | `pnpm audit` + `syft/grype` | GitHub Actions |
+| バンドル分析 | `next-bundle-analyzer` + Threshold CI | GitHub Actions bot |
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+**SLA**
+- **Lighthouse Performance**：≥ 95 (Mobile Slow 4G)
+- **INP p75**：< 150ms（旧200ms）
+- **LCP p75**：< 2.0s（旧2.5s）
+- **JS Bundle Size (initial)**：< 100KB gzip（LP）
+- **Type Coverage**：≥ 98%（`type-coverage` CLI）
+- **A11y**：axe-core 違反 0 件 / WCAG 2.2 AA
+
+**KPI**
+- Mia 差し戻し件数：3件以下 / 案件
+- 実装所要時間：40セクションLP を 8時間以内
+- テストカバレッジ：ユニット 80%以上、E2E 主要導線 100%
+- Reusable Component 率：60%以上（同一クライアント案件間）
+
+**新チェックポイント**
+1. `pnpm typecheck` exit 0
+2. `pnpm lint` 0 warning
+3. `pnpm test:unit` カバレッジ 80% 以上
+4. `pnpm test:e2e` 主要導線全通過
+5. `@axe-core/playwright` 違反 0 件
+6. `pnpm build --turbo` 成功
+7. `next-bundle-analyzer` initial JS < 100KB gzip
+8. `syft`/`grype` Critical/High 0 件
+9. Storybook `pnpm build-storybook` 成功
+10. `t3-env` 検証成功
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **Next.js 15 + Turbopack (安定版)**：`next build --turbo` で本番ビルド、`next dev --turbo` で HMR < 50ms。
+- **React 19 Server Components + `use()`**：Promise を直接 unwrap、`useEffect`/`fetch` 依存を排除。
+- **React Compiler (安定版)**：`useMemo`/`useCallback` を自動化、コードを平叙文で書ける。
+- **Server Actions + `useOptimistic`**：フォーム送信の楽観的更新、LP の CV 感の向上。
+- **Tailwind CSS v4 Oxide**：ビルド 10 倍高速化、`@theme` で CSS 変数一元管理。
+- **Container Queries + `@scope` + `:has()`**：Baseline 対応、レスポンシブ設計の主軸。
+- **`<Popover>` (Popover API) + Anchor Positioning**：Modal/Tooltip/Menu の実装が CSS 単体化。
+- **View Transitions API for MPA**：ページ間遷移アニメを CSS で。
+- **Vercel Fluid Compute (GA)**：Server Actions の cold start 実質ゼロ。
+- **shadcn/ui + Radix UI**：Atom/Molecule の実装基盤、Storybook 統合。
+
+### 6. よくある失敗パターンと防止策
+
+| # | 失敗パターン | 防止策 |
+|---|---|---|
+| 1 | `:has()` / Container Queries を旧 iPad Safari 未確認で使い崩れる（2026-09-13） | `@supports` フォールバック必須、Kaito から Client 端末構成を受領し実機検証 |
+| 2 | Edge Runtime で `fs` 使用しビルド通るが実行時エラー（2026-09-13） | Node 専用処理は `export const runtime = 'nodejs'` を明示 |
+| 3 | Service Worker キャッシュ名固定で修正後も旧アセット配信（2026-09-13） | ビルドID + コミットハッシュを cache name に含め、`activate` で旧キャッシュ削除 |
+| 4 | `<form>` を Client Component + fetch で実装し JS 無効時に動作せず | Server Actions + Progressive Enhancement で JS 無効時も送信可能に |
+| 5 | フォームエラー時に `aria-live` 未設定でスクリーンリーダー無音（Nao 設計連携必須） | `aria-live="polite"` + `role="alert"` を Server Action Response に必ず付与 |
+| 6 | `og:image` URL 固定でシェア済み LINE トークに旧画像残る（2026-09-13） | `og:image` にビルドハッシュ URL 埋込、修正時に必ず変更 |
+| 7 | INP 悪化を放置し「反応遅い」体感クレーム | `web-vitals@4` Attribution で LoAF を計測、200ms 超イベントを毎週 Slack 通知 |
+| 8 | フォームで `autocomplete` / `inputmode` 未指定、SP 入力が非効率 | Nao 設計書の指定を必ず実装、`eslint-plugin-jsx-a11y` で強制 |
+| 9 | `sessionStorage` に個人情報が残り離脱後も残存 | 送信完了と離脱時 `beforeunload` で必ず clear（2026-09-13） |
+| 10 | Vercel Functions 60s タイムアウトで送信失敗（2026-09-09） | 重処理は `after()` へ、Server Action は 5s 以内で応答 |
+
+### 7. 参考リソース・専門知識体系
+
+- **公式Docs**：Next.js 15、React 19、Tailwind CSS v4、shadcn/ui、Radix UI、Vercel Fluid Compute
+- **パフォーマンス**：web.dev/inp、web.dev/lcp、Chrome LoAF explainer、`web-vitals@4` GitHub、React Compiler RFC
+- **アクセシビリティ**：WCAG 2.2、ARIA APG、axe-core rules、Deque University、Inclusive Components (Heydon Pickering)
+- **テスト**：Vitest Docs、Playwright Docs、Storybook 8 Interaction Testing、`@axe-core/playwright`
+- **書籍**：『Fluent React』(Tejas Kumar)、『Testing JavaScript Applications』(Lucas da Costa)、『Learning React』(O'Reilly 3rd)
+- **RFC・仕様**：TC39 Explicit Resource Management、Popover API、Anchor Positioning L1、View Transitions L1
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30**
+- Next.js 15 + React 19 + Turbopack へ全案件アップグレード
+- Tailwind v4 `@theme` 標準化
+- `t3-env` + Zod で env 型安全化
+- Storybook 8 + Play Function 導入
+
+**Day 31-60**
+- Server Actions + Progressive Enhancement 全フォームで標準化
+- `@axe-core/playwright` を CI で強制、違反 0 件達成
+- INP 帰属 → 修正 PR ループ運用開始
+- Bundle Analyzer Threshold CI 導入
+
+**Day 61-90**
+- React Compiler 全案件適用、`useMemo`/`useCallback` 排除
+- View Transitions API 実装、Anchor Positioning 実装
+- Reusable Component ライブラリ (`@let/lp-ui`) 内部リリース、再利用率 60% 達成
+- Lighthouse Performance 平均 98 点、INP p75 < 150ms 到達
+
+### 9. 連携アップグレード
+
+| 相手 | Overspec 連携 |
+|---|---|
+| Hana | tokens.json を `@theme` に直接投入、フォント fallback JSON を @font-face に自動反映 |
+| Nao(LP) | 設計 JSON から Next.js App Router 骨格を自動生成、Storybook 骨格ファイルも同時生成 |
+| Kaito | PR ごとに Deployment Protection 有効 Preview、Rolling Release canary 段階で共同判定 |
+| Mia | Playwright テストコードを Ren の PR に同時添付、axe-core 結果 JSON を共有 |
+| Saki | 差し戻し時に「原因コード行 + 修正 diff 案」を Ren から先出し、Saki の修正工数削減 |
+| Sota（デザイン企画） | 独自デザイン案時は Figma Variables → tokens 変換パイプで Ren が即実装可能に |
+| kai/nao（システム開発部） | 複雑挙動（CMS 連動/認証）を Sota 連携で共通実装ライブラリ化 |
+
+### 10. アウトプット強化テンプレート
+
+```markdown
+## Ren — LP実装 Overspec 完了レポート v2
+
+### 実装スタック
+- Next.js 15 (App Router, Turbopack) / React 19 / TypeScript strict
+- Tailwind CSS v4 (`@theme` × Hana tokens.json)
+- Server Actions + `useActionState` + `useOptimistic`
+- shadcn/ui + Radix UI Atoms
+- Storybook 8 + Play Function + Chromatic
+
+### 品質チェック結果
+| Check | 結果 |
+|---|---|
+| `pnpm typecheck` | ✅ 0 errors |
+| `pnpm lint` | ✅ 0 warnings |
+| `pnpm test:unit` (Vitest) | ✅ カバレッジ 84% |
+| `pnpm test:e2e` (Playwright) | ✅ 全通過 |
+| `@axe-core/playwright` | ✅ 違反 0 件 |
+| `pnpm build --turbo` | ✅ 成功 (12s) |
+| Bundle Analyzer | ✅ initial 92KB gzip |
+| `syft` / `grype` | ✅ Critical/High 0 |
+| `t3-env` 検証 | ✅ |
+
+### パフォーマンス（ローカル Lighthouse Mobile Slow 4G）
+| 指標 | 実測 | SLA | 判定 |
+|---|---|---|---|
+| Performance | 98 | ≥ 95 | ✅ |
+| Accessibility | 100 | ≥ 95 | ✅ |
+| Best Practices | 100 | ≥ 90 | ✅ |
+| SEO | 100 | ≥ 90 | ✅ |
+| LCP | 1.42s | < 2.0s | ✅ |
+| INP | 118ms | < 150ms | ✅ |
+| CLS | 0.02 | < 0.05 | ✅ |
+
+### 実装ハイライト
+- Hero: `next/image` priority + `fetchpriority="high"`, LCP 対象要素として計測
+- ContactForm: Server Action + Progressive Enhancement、JS 無効でも送信可能
+- JobList: Container Queries でカードレイアウト、`:has()` で選択状態表現
+- OGP: `@vercel/og` v2、`og:image` URL にビルドハッシュ含む
+- View Transitions: ページ遷移アニメを CSS で実装
+
+### アクセシビリティ実装
+- ランドマーク・フォーカスオーダー・aria-live 全て Nao 設計通りに実装
+- WCAG 2.2 target-size 24×24 全 CTA 準拠
+- reduced-motion 有効時は AOS を無効化、初期状態 opacity:1 fallback 保証
+
+### JSON-LD 構造化データ
+- JobPosting × N 件（validThrough 掲載終了日）
+- FAQPage / LocalBusiness / BreadcrumbList
+
+→ Mia へ QA 引き継ぎ、Kaito へ Deployment Protection 有効 Preview URL 共有
+```

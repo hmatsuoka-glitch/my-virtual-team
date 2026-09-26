@@ -544,3 +544,331 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **採用担当の管理画面での主作業は「閲覧」でなく「電話をかける」で、繋がらないのが常態**：一覧の電話番号を表示するだけだと手打ちで掛け直され、応募者ごとに何回架電したかがどこにも残らない。電話番号は `tel:` リンクで返す前提で正規化済みの値（2026-09-02参照の正規化列）と表示用原文を両方返し、対応ステータスは「連絡済み／未」の2値でなく架電試行回数・最終架電日時・次回架電予定を持つ。3回繋がらない応募者を抽出できるかどうかで、管理画面が業務ツールになるか閲覧ツールで終わるかが決まる
 - **採用担当は電話口で聞いた名前をカナで検索するが、DB には漢字しか入っていない**：応募者から折り返しの電話が来た時に「ヤマザキさん」で引けないと、一覧を目視で追う数分が電話を待たせたまま発生する。氏名は漢字・カナ・入力があればローマ字を別列で保持し、検索用の正規化列（カナは全角統一、濁点・長音・スペースを除去）に対して部分一致インデックスを張る。重複判定用の正規化列（2026-09-02参照）とは目的も正規化ルールも違うので同じ列を兼用しない
 - **採用担当が言う「削除したい」は一覧から消したいであって、応募者本人からの削除請求とは別物**：同じ削除APIに寄せると、誤操作による消失が復旧不能になるうえ、本人請求の対応記録も残らない。UI の削除は論理削除（非表示＋30日の復元期間）、本人請求によるパージは別エンドポイント＋監査ログ必須、の2系統に分けて設計し、どちらが呼ばれたかを Nao の設計表と nori 合意の保存期間ルールに1:1で対応させる。カスケード方針を後付けできない原則（PII連携）と同じ理由で、実装前に確定させる
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。既存のBE実装方針・Daily Knowledge Log と併用し、BMAD STEP 4 実装 + TDD Guard 適用を前提に運用する。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 項目 | 現状レベル | 2026業界水準 | ギャップ | 優先度 |
+|---|---|---|---|---|
+| Hono（Edge / Node / Bun対応 / RPC / OpenAPI） | △ 部分利用 | ◎ フル活用 | 中 | High |
+| tRPC v11（サブスクリプション / Reactクエリ統合） | ○ v10 | ◎ v11 | 中 | Mid |
+| Prisma 5.x + Accelerate + Optimize + Pulse | ○ 5.x基本 | ◎ 3拡張全て | 中 | High |
+| Drizzle ORM（軽量ORM / Edge対応） | △ 未使用 | ○ 選択肢として保持 | 中 | Mid |
+| TDD Guard（Vitest + Testcontainers） | ○ 実施 | ◎ Guard強制 + Contract Test | 中 | High |
+| Zod v4（新API / パフォーマンス改善） | ○ v3 | ◎ v4活用 | 中 | High |
+| OpenAPI 3.1 + Hono OpenAPI + zod-openapi | △ 手書き | ◎ コード→仕様自動 | 大 | High |
+| PostgreSQL 17（MERGE / SQL/JSON / Incremental） | △ 15/16感覚 | ◎ 17活用 | 中 | Mid |
+| Redis 7.x（Streams / Vector / RediSearch） | △ Cache用途のみ | ◎ Streams for outbox | 中 | Mid |
+| Outbox Pattern + Idempotency + Saga | ○ Outbox実装 | ◎ Saga協調 | 大 | High |
+| 監査ログ設計（改ざん防止 / ハッシュチェーン） | △ append-onlyのみ | ◎ ハッシュチェーン+外部保管 | 大 | Mid |
+| Feature Flag（LaunchDarkly / Statsig / 内製） | ✕ | ○ 内製導入 | 中 | Mid |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+- **Hono をAPIランタイムの標準に**:
+  - Edge Runtime (Vercel Edge / Cloudflare Workers) 対応、Node.js Runtime も同じコード。
+  - `hono/zod-openapi` で route → OpenAPI 3.1 自動生成、`c.req.valid('json')` で型安全なバリデーション。
+  - Hono RPC でBE-FE間の型を共有（tRPCの代替 or 併用）。
+  - Middleware: `logger` / `secureHeaders` / `csrf` / `rateLimiter` / `cache` を標準セット。
+- **tRPC v11 の活用範囲**:
+  - 社内管理画面（型ドリフトが起きにくい / エンドポイント数多い）→ tRPC。
+  - 外部公開API（求人媒体 / パートナー連携）→ Hono + OpenAPI 3.1。
+  - Subscription（WebSocket / SSE）→ tRPC v11 + Redis Pub/Sub。
+- **Prisma 5.x エコシステム**:
+  - **Prisma Accelerate**: Edge向けConnection Pooling + Query Caching。応募一覧の全件表示（既存2026-09-01）のキャッシュに活用。
+  - **Prisma Optimize**: N+1 / Missing Index / Slow query 自動検知。CI に組込。
+  - **Prisma Pulse**: DBのCDC（Change Data Capture）でリアルタイム通知。応募ステータス変化 → LINE通知の連携で活用。
+  - **TypedSQL**: 生SQLに型付与、複雑クエリ（集計・分析）を型安全に。
+- **Drizzle ORM 選択基準**:
+  - Edge Runtime + 極限のCold Start重視の案件はDrizzle。
+  - 通常案件はPrisma（DX優先）。
+  - どちらを使うか判断はNao/Kai/Ao合意で案件開始時に確定。
+- **Zod v4 移行**:
+  - 新API（`z.string().jwt()` `z.file()` `z.locale()` `z.iso.datetime()`）活用。
+  - `z.discriminatedUnion`で状態遷移の型安全化。
+  - パース性能向上（v3比2-3x）を活用しHot Pathでの使用に躊躇しない。
+- **PostgreSQL 17 活用**:
+  - `MERGE`文でUpsert（応募者の重複判定 + マスタ更新）。
+  - `SQL/JSON`（`json_table`, `JSON_EXISTS`）でJSON列の構造化アクセス。
+  - Incremental Backup + `pg_combinebackup`でRPO短縮。
+  - Logical Replication で本番→分析DBのニアリアルタイム同期。
+- **Redis 7.x を単なるCacheから拡張**:
+  - **Streams**: Outbox Workerのキューとして。`XADD` + `XREADGROUP` + Consumer Group。
+  - **RediSearch**: 全文検索（応募者氏名カナ検索の高速化）。
+  - **Redis Cluster**: 高可用性が必要な案件で採用検討。
+- **監査ログ改ざん防止**:
+  - append-only + ハッシュチェーン（前レコードのHashを次レコードのフィールドに含める）。
+  - 定期的にS3 Object Lock（WORM）へバックアップ。
+- **Feature Flag（内製）**:
+  - `feature_flags` テーブル + Redis Cache + Server Actionで判定。
+  - 段階公開・A/Bテスト・Kill Switchを実装。既存2026-09-09（Nao）と対応。
+
+### 3. AI/自動化ワークフロー統合
+
+```
+[STEP 4開始] Nao の domain.yaml + openapi.yaml + prisma schema を受領
+   ↓
+[Codegen] pnpm gen
+   ├─ Prisma Client
+   ├─ Zod schemas（domain.yaml → zod）
+   ├─ Hono routes skeleton（openapi.yaml → hono）
+   ├─ tRPC procedures skeleton
+   └─ E2E test fixtures
+[TDD Cycle]
+   Red: Vitest + Testcontainers（本物のPostgres / Redis）でテスト
+   Green: 最小実装
+   Refactor: クエリ最適化 / 共通化
+   ← TDD Guard がテストなし PR を Block
+[Contract Test]
+   Consumer-driven Contract (Pact)：FE-BE / BE-外部連携の契約テスト
+[Integration Test]
+   Playwright（BE呼び出し込み）+ Testcontainers
+[Load Test]
+   k6 or Grafana k6 で応募一覧の全件表示・ピーク時刻を再現
+[PR]
+   Prisma Optimize + spectral (OpenAPI lint) + SQL query plan (EXPLAIN)コメント自動
+```
+
+- **Copilot Workspace併用**: CRUD boilerplate はWorkspace、業務ロジック（状態遷移 / 重複判定 / 冪等キー）はClaude Code。
+- **Devin併用**: dependabot PR / lint fix / minor migration はDevinへ委譲。
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+| 指標 | 旧基準 | 新基準（2026 Q4） |
+|---|---|---|
+| Vitest カバレッジ（statements） | 85% | 90% |
+| Contract Test (Pact) カバレッジ | 未計測 | 全外部連携100% |
+| API p95 レスポンス | 500ms | 300ms（応募一覧は500ms） |
+| API p99 レスポンス | 未計測 | ≦ 1000ms |
+| DBクエリ p95 | 未計測 | ≦ 100ms |
+| N+1検知 | 目視 | Prisma Optimizeで自動 |
+| Idempotency Key 適用率 | 主要のみ | 全書き込み系エンドポイント100% |
+| Outbox Pattern適用率 | 主要のみ | 全外部連携100% |
+| OpenAPI 3.1 準拠 | 未確認 | spectral lintで0違反 |
+| セキュリティ（OWASP API Top 10） | 目視 | Semgrep + Snyk自動 |
+| 監査ログハッシュチェーン | 未実装 | 全PII操作でチェーン検証 |
+
+- **新チェックポイント**:
+  - 全書き込み系エンドポイントに `Idempotency-Key` ヘッダサポート必須
+  - Prisma Optimize警告0件を PR ゲート化
+  - Load Test でピーク時刻（朝9時応募一覧全件表示）を毎リリース検証
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **Edge-first API**: Cloudflare Workers / Vercel Edge Functions がデフォルト、Node.js Runtimeは重い処理のみ。
+- **Bun 1.x 商用化**: `bun install` / `bun test` / `bun run` を選択肢に。Vercel/Cloudflareのランタイム対応と並走。
+- **Postgres全部盛り**: 別々のミドルウェア（Elasticsearch / Kafka / MongoDB）を無理に導入せず、Postgres拡張で統合（pg_vector, pg_partman, pgcron, TimescaleDB）。
+- **Event-Driven / Outbox Pattern の標準化**: 外部連携の一貫性はOutbox + Idempotency + Saga で担保する運用が主流。
+- **AI-native BE 機能**:
+  - **応募票要約** (Claude Sonnet 4.5)：長文の職歴を採用担当向けに3行要約。
+  - **面接文字起こし** (Whisper / Deepgram)：面接音声→テキスト→要約→評価テンプレ埋め込み。
+  - **求人票SEO最適化** (LLM)：職務内容を検索キーワード最適化。
+  - Cost Guard: 1リクエストあたりのToken上限 + Fallback（LLM失敗時はRule-based）。
+- **Compliance-as-Code**:
+  - 個人情報保護法：PII列の暗号化 + アクセスログ自動化。
+  - 電子帳簿保存法：訂正削除履歴のハッシュチェーン。
+  - インボイス制度：適格請求書発行事業者番号のバリデーション（`T`+13桁 + checksum）。
+- **建設DX特化**:
+  - CCUS API連携（技能者ID照合）。
+  - 電子契約（クラウドサイン / GMOサイン / 電子印鑑GMOサイン）Webhook受信。
+  - 現場写真の位置情報・撮影時刻を EXIF から抽出しDB保存。
+
+### 6. よくある失敗パターンと防止策
+
+| 失敗パターン | 発生タイミング | 防止策 |
+|---|---|---|
+| Outbox Patternをキュー投入だけで済ませ、外部呼び出しをTx内で実行 | 実装中 | 既存2026-09-02（Outbox設計）を`@let-inc/api-kit`テンプレ化 |
+| Idempotency Keyが書き込みAPIの一部にしかない | 実装中 | Hono middlewareで全書き込みエンドポイントに強制 |
+| 監査ログのハッシュチェーン検証を運用時に忘れる | 運用中 | 定期バッチで検証、chain broken時はSlack通知 |
+| PII列を平文で保存 | 実装中 | Prisma middleware or Postgres pgcrypto で自動暗号化 |
+| RLS漏れでテナント越境 | 実装中 | 全テーブルRLS必須、`test_rls.sql`自動テスト |
+| N+1クエリ | 実装中 | Prisma Optimize CI強制、警告0件 |
+| Redis Cache invalidation漏れ | 実装中 | Cache Tag統一（`{tenant}:{entity}:{id}`）、更新時に必ずtag invalidate |
+| 統一エラーDTO（RFC 9457 Problem Details）非準拠 | 実装中 | Hono errorHandler で強制整形、Zod IssuesもProblem Detailsに変換 |
+| Load Test未実施でピーク時刻に落ちる | Release時 | k6シナリオを`ci/loadtest/`に配置、Release前必須実行 |
+| Feature Flag作りっぱなしでコードにゴミ蓄積 | 運用中 | Flag TTL（例：90日）でリマインド、期限切れは自動削除PR |
+
+### 7. 参考リソース・専門知識体系
+
+- **公式Doc**:
+  - Hono / tRPC / Zod / Prisma / Drizzle / Redis
+  - PostgreSQL 17公式（MERGE / SQL/JSON）
+  - OpenAPI 3.1 / JSON Schema 2020-12
+  - RFC 9457 Problem Details for HTTP APIs
+- **書籍**:
+  - "Designing Data-Intensive Applications" (Martin Kleppmann)
+  - "Database Internals" (Alex Petrov)
+  - "The Art of PostgreSQL" (Dimitri Fontaine)
+  - "API Security in Action" (Neil Madden)
+  - "Building Event-Driven Microservices" (Adam Bellemare)
+  - "Software Engineering at Google"
+- **標準/仕様**:
+  - OWASP API Security Top 10 (2023 → 2026)
+  - RFC 7807 → 9457 (Problem Details)
+  - RFC 9110 (HTTP Semantics)
+  - CloudEvents 1.0
+- **社内ドキュメント**:
+  - `packages/api-kit/README.md`
+  - `workflows/tdd/tdd-rules.md`
+  - `checklists/qa-gate.md`
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30（基盤）**
+- Hono + `hono/zod-openapi` を全新規案件のAPIランタイム標準に
+- `@let-inc/api-kit` v2 リリース（Idempotency middleware / Outbox helper / Problem Details / Audit chain）
+- Prisma Optimize + Prisma Accelerate を1案件で導入、CI組込
+- Testcontainers（PG + Redis）でVitest 統合テスト環境整備
+
+**Day 31-60（品質強化）**
+- Contract Test (Pact) をFE-BE / BE-外部連携に導入、契約カバレッジ100%
+- k6 Load Test シナリオ（応募一覧全件表示ピーク）をCI Release前ゲート化
+- 監査ログハッシュチェーン + S3 Object Lock を1案件で本番投入
+- Feature Flag内製（`feature_flags` + Redis + TTL）を提供開始
+
+**Day 61-90（オーバースペック化）**
+- Prisma Pulse + Redis Streams でリアルタイム通知パイプライン（応募 → LINE通知 → Slack）
+- AI機能（応募票要約 / 面接文字起こし）の共通APIをCost Guard付きで提供
+- PostgreSQL 17 MERGE + SQL/JSON を既存重複判定ロジックへ適用
+- 「Outbox + Idempotency + Saga」実装パターン集を社外発信（Zenn or PostgreSQLカンファレンス）
+
+### 9. 連携アップグレード
+
+| 相手 | 従来連携 | アップグレード後 |
+|---|---|---|
+| **Nao** | 設計書手渡し | domain.yaml + openapi.yaml から Prisma / Zod / Hono routes 自動生成 |
+| **Riku** | 型手動同期 | openapi-typescript / tRPC client / Hono RPC で完全型共有 |
+| **Kuu** | インフラ設定手渡し | SLO.yaml + k6シナリオ + Load Test結果をKuu の監視設定と連携 |
+| **Mio** | 完成後テスト | Contract Test (Pact) 自動生成、Mio はビジネスシナリオE2Eに集中 |
+| **07-LP部 ren/tsumugi** | Zod + エラーDTO手渡し | `@let-inc/api-kit` の3状態レスポンス + 受付番号 + 相関ID を標準提供 |
+| **08-バナー部 Rei** | エラー文言のみ | 3状態文言（成功/失敗リトライ可/冪等重複）を統一DTOに埋め込み |
+| **Nori** | 事前リーガル | Compliance-as-Code（PII暗号化 / 監査ハッシュチェーン / インボイス番号検証）を実装で担保、Nori 判定を簡易化 |
+| **Gen** | 建設DX相談 | CCUS API / 電子契約Webhook / EXIF抽出 の共通実装をパッケージ化 |
+
+### 10. アウトプット強化テンプレート
+
+**A. Hono + zod-openapi ルート定義**
+
+```ts
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
+import { idempotency, problemDetails } from '@let-inc/api-kit';
+
+const app = new OpenAPIHono();
+app.use('*', problemDetails());
+app.use('/applications/*', idempotency({ ttlSeconds: 86400 }));
+
+const CreateApplicationRoute = createRoute({
+  method: 'post',
+  path: '/applications',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: ApplicationCreateSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      content: {
+        'application/json': {
+          schema: ApplicationResponseSchema, // 受付番号 + 受付日時 + 相関ID
+        },
+      },
+      description: '応募受付完了',
+    },
+    409: {
+      content: {
+        'application/problem+json': {
+          schema: ProblemDetailsSchema,
+        },
+      },
+      description: '冪等キーで既に受付済み',
+    },
+  },
+});
+
+app.openapi(CreateApplicationRoute, async (c) => {
+  const body = c.req.valid('json');
+  const correlationId = c.get('correlationId');
+  const result = await createApplication(body, { correlationId });
+  return c.json(result, 201);
+});
+```
+
+**B. Outbox Pattern の標準実装**
+
+```ts
+export async function createApplicationWithOutbox(input: Input) {
+  return await prisma.$transaction(async (tx) => {
+    const application = await tx.application.create({ data: input });
+    await tx.outbox.create({
+      data: {
+        aggregateId: application.id,
+        eventType: 'ApplicationCreated',
+        payload: { ...application },
+        idempotencyKey: input.idempotencyKey,
+      },
+    });
+    return application;
+  });
+  // Worker が後で outbox を読み、LINE / メール / SendGrid に発火
+}
+```
+
+**C. Idempotency Key ミドルウェア（api-kit抜粋）**
+
+```ts
+export const idempotency = ({ ttlSeconds }: Opts) =>
+  async function idempotencyMw(c: Context, next: Next) {
+    const key = c.req.header('Idempotency-Key');
+    if (!key) return next();
+    const cached = await redis.get(`idempotency:${key}`);
+    if (cached) {
+      const { status, body } = JSON.parse(cached);
+      return c.json(body, status);
+    }
+    await next();
+    const status = c.res.status;
+    const body = await c.res.clone().json();
+    await redis.setex(`idempotency:${key}`, ttlSeconds, JSON.stringify({ status, body }));
+  };
+```
+
+**D. Problem Details（RFC 9457）**
+
+```json
+{
+  "type": "https://api.let.example/errors/duplicate-application",
+  "title": "重複する応募です",
+  "status": 409,
+  "detail": "同じ Idempotency-Key で受付済みの応募があります",
+  "instance": "/applications",
+  "correlationId": "01JK...",
+  "receptNumber": "AP-20260926-00042"
+}
+```
+
+**E. 監査ログハッシュチェーン**
+
+```ts
+export async function appendAuditLog(entry: AuditInput) {
+  return await prisma.$transaction(async (tx) => {
+    const prev = await tx.auditLog.findFirst({
+      orderBy: { seq: 'desc' },
+    });
+    const prevHash = prev?.hash ?? GENESIS_HASH;
+    const payload = { ...entry, prevHash, timestamp: new Date().toISOString() };
+    const hash = sha256(JSON.stringify(payload));
+    return tx.auditLog.create({
+      data: { ...entry, prevHash, hash, seq: (prev?.seq ?? 0) + 1 },
+    });
+  });
+}
+```

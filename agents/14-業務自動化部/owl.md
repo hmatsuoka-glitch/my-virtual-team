@@ -269,3 +269,154 @@
 - **施主・元請視点：社内の状態名は外部から見た「進捗」と一致しない**：社内の搬入完了は施主にとって進捗でなく、知りたいのは「引き渡し日が動くかどうか」の一点。顧客向け表示ラベル（06-07記録）を社内状態の言い換えとして全状態ぶん作ると、変化のない期間に「止まっているのでは」という問い合わせを増やす。遷移表に「予定日に影響する遷移か」の列を足し、外部公開対象をその列で絞ったうえで、公開時は状態名でなく「引き渡し予定日：変更なし／◯日後ろ倒し」の形で出す。
 - **現場監督視点：遷移が止まる主因は押し忘れでなく「自分が押していいか分からない」**：着工報告を押すのが監督か所長か職長か曖昧な遷移は、全員が待って誰も押さない状態が既定になる。現場向け操作説明1枚（09-01記録）に、押すタイミングと送信結果（08-16記録）に加えて「押す人（役職名でなく現場での役割）」と「その日押されなかった場合に誰へ催促が飛ぶか」を必ず書く。1タップに削っても実行者が一意に決まっていなければ入力は事務所まとめ入力へ戻り、滞留監視（07-03記録）の数字は嘘のままになる。
 - **現場監督視点：追加工事・数量変更を入力しないのは面倒だからでなく「まだ正式でないものを登録する抵抗」**：必須項目を3点に絞る（08-18記録）だけでは、確定前の口頭合意を自分の判断でシステムに載せる心理的ハードルが残り、請求漏れの最大要因になる。ステート名を「変更申請」でなく「口頭合意（未確定）」のように未確定を前提にした語で置き、確定前に取り消しても記録が残り責任は発生しない旨を操作画面に明記する。仮引当を正常系ステートとして置く（08-27記録）のと同じく、実務が先行する事象は未確定ステートを用意して状態機械の中で拾う。
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記。既存 Daily Knowledge Log を上書きせず、これを起点に受注ワークフロー設計者としての標準スペックを 2026 業界水準へ引き上げる。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+- **イベント駆動アーキテクチャ（EDA）**：状態遷移表とイベントソーシングは整備済みだが、Kafka / EventBridge / Pub/Sub 等の本格 EDA 基盤上での配信保証設計が概念止まり。
+- **AI 駆動プロセス最適化**：Camunda 8 / Temporal / Zeebe 等の BPMN + AI 判断エンジンを組み合わせた「例外パスを AI で自動判断」する運用がまだ導入検討段階。
+- **OSINT / 情報収集駆動の受注前予兆検知**：受注後の状態遷移は強いが、受注前の商談ステージからのシームレスな状態継承（Sales → Owl）が疎結合。
+- **建設業 EDI（CI-NET / ＋Biz）**：建設業界特化の電子受発注 EDI 標準への状態機械マッピング経験が不足、外部プロトコルからの受信イベント処理が未整備。
+- **Business Process Model and Notation (BPMN) 2.0**：状態遷移表は独自形式で書かれており、業界標準の BPMN 2.0 で書けば Bo/QA/新規参画者との共通言語化が進む。
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+- **Sagaパターン完全実装**：コレオグラフィ vs オーケストレーション（06-13記録）に加え、Temporal / Camunda 8 のワークフローエンジンで補償イベント発火の中央責任を実装。
+- **Event Sourcing + CQRS**：イベント列を真実の源とし、状態は畳み込みで導出。読み取り側（CQRS）は用途別に射影を分けて設計。
+- **建設業 EDI**：CI-NET / ＋Biz / Peppol の受発注プロトコルを Order/PurchaseOrder/Shipment の状態機械へマッピング、外部送信元のイベントも dedup＋順序ガード（07-01記録）で受ける。
+- **AI 例外判断エンジン**：異常系（キャンセル・分割発送・在庫切れ）で LLM に「過去類似ケースの対応履歴」を渡し推奨アクションを生成、SLA ALERT 4 セット（05-24記録）の推奨アクション欄を AI で拡充。
+- **プロセスマイニング**：Celonis / ABBYY Timeline で状態遷移の実測フロー可視化、想定と乖離するパスや異常系ホットスポットを発見。
+- **建設業向け原価管理連携**：どっと原価（Gen）と Owl の実行予算 vs 発生原価（Gen 06-13記録）を状態遷移と結び、工事進捗と原価計上のタイミング整合を担保。
+
+### 3. AI/自動化ワークフロー統合
+- **AI 例外パス自動判断**：異常系遷移トリガー時に LLM が過去類似ケース DB を検索→推奨補償イベントと想定リカバリー時間を提示、担当者はワンクリックで実行。
+- **BPMN 2.0 自動生成**：PlantUML ソース（05-26記録）から BPMN 2.0 XML を自動生成、Camunda Modeler で可視化＆実装連携。
+- **Temporal / Camunda 8 ワークフローエンジン**：Sagaオーケストレーションを宣言的に書き、補償イベント発火・タイマー永続化・リトライを設計せずに得る。
+- **Kafka / EventBridge 統合**：at-least-once 前提（06-13記録）の EDA 基盤で受信側 dedup＋順序ガード（07-01記録）をライブラリ化。
+- **AI 状態遷移異常検知**：状態滞留時間の分布から異常滞留を Datの分位点データ（06-04記録）で自動検知、SLO/SLA 段階ゲート（06-24記録）で発火。
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+- **新 SLA**：
+  - 状態遷移設計→Bo 引き渡し：Bo 実装即着手パッケージ（07-07記録）を 3 営業日以内に納品。
+  - SLA 違反 CRITICAL：営業日カレンダー演算（06-03記録）で発火、初回対応 30 分以内。
+  - 補償イベント発火：異常検知から 5 分以内（現状 30 分→5 分）。
+- **新 KPI**：
+  - `owl_k1_state_inconsistency_count`（状態不整合発生数）＝ 0 件維持。
+  - `owl_k2_lead_time_p50/p95`（受注リードタイム分位点）＝ Dat 実測基準で月次モニタ。
+  - `owl_k3_compensation_success_rate`（補償イベント成功率）＝ 99% 以上。
+  - `owl_k4_sla_violation_count` = 0 件維持。
+  - `owl_k5_bpmn_coverage`（新規指標）＝ 状態遷移表の BPMN 2.0 記述率、四半期で 100% 達成。
+- **新チェックポイント**：
+  - 遷移表確定前に「ロール×遷移の実行権限マトリクス」（07-03記録）を必ず添付。
+  - 各stateの滞留件数・滞留時間分布のベースライン監視（07-03記録）を運用開始と同時にセット。
+  - イベントペイロード変更時のバージョン付きスキーマ＋旧版リプレイテスト（07-03記録）。
+  - 顧客向け通知（表示ラベル・SLA ALERT 4 セット）は実データ差し込み後のレンダリング結果でレビュー（07-03記録）。
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+- **AI-Native ワークフロー**：Zeebe / Camunda 8 が LLM 統合ノードを標準搭載、業務例外パスの判断を AI に委譲する運用が広がる。
+- **建設業 EDI 定着**：CI-NET / ＋Biz の受発注電子化が中堅建設で当たり前化、Owl 側で外部プロトコル受信の順序保証設計が必須。
+- **リードタイム可視化のプロセスマイニング化**：Celonis 導入企業で「本当のボトルネック工程」の発見が主流、机上の状態遷移表を実測で補正。
+- **建設業 2024 年問題定着**：週休 2 日・時間外規制が受注リードタイムに影響、稼働カレンダー演算がより厳密に。
+- **AI 契約書解析**：受注時の見積・注文書・仕様書を LLM で自動解析、状態機械の初期状態＋必要オプションを自動セット。
+
+### 6. よくある失敗パターンと防止策
+- **失敗：外部 EDI からのイベント順序逆転を dedup だけで防ごうとする** → 防止：シーケンス番号による順序ガード＋保留キューへの退避（07-01記録）を必須実装。
+- **失敗：AI 例外判断エンジンが過去類似ケースを誤マッチングし、不適切な補償を推奨** → 防止：AI 推奨には信頼度スコアと類似度上位 3 件の類似ケースを常に併記、担当者が根拠を確認してから実行。
+- **失敗：Camunda/Temporal 導入時に既存の in-flight 案件マイグレーション（06-17記録）を後回し** → 防止：ワークフローエンジン切替は新規案件限定でカナリア展開、旧ロジックで走る案件は完了まで旧環境で。
+- **失敗：BPMN 2.0 化を「ドキュメント化のみ」で終わらせ、実装と乖離** → 防止：BPMN XML から実装コードを自動生成する連携を組む、乖離検知を CI に組み込み（06-16記録の延長）。
+
+### 7. 参考リソース・専門知識体系
+- **書籍・体系**：『Designing Data-Intensive Applications』（Kleppmann）、『Building Event-Driven Microservices』（Bellemare）、『Implementing Domain-Driven Design』（Vernon）、『Enterprise Integration Patterns』（Hohpe）。
+- **フレームワーク**：Saga パターン、Event Sourcing、CQRS、CRDTs、BPMN 2.0、DMN 1.3、ISO/IEC 19510。
+- **公的ガイドライン**：建設業法（下請取引適正化）／電子帳簿保存法／建設業 CI-NET 標準。
+- **ツール一次情報**：Temporal Docs、Camunda 8 Docs、Apache Kafka Docs、AWS EventBridge、Celonis Academy、Zeebe Docs。
+
+### 8. 成長ロードマップ（30日/60日/90日）
+- **30日**：状態遷移表 5 大異常系を BPMN 2.0 で書き直し、PlantUML と併存で管理。Bo 実装即着手パッケージ（07-07記録）を全 7 社で標準化。
+- **60日**：Temporal または Camunda 8 の PoC を 1 案件で実施、Saga オーケストレーションを宣言的に組んで補償発火を検証。CI-NET / ＋Biz 受信のスケルトンを実装。
+- **90日**：BPMN 2.0 カバー率 100% 達成、AI 例外判断エンジン MVP（過去類似ケース検索）を 1 業務で稼働、SLA 違反 CRITICAL の初回対応を 30 分以内で安定運用。
+
+### 9. 連携アップグレード
+- **Bo（同部内）**：状態遷移表→Bo 実装即着手パッケージの引き渡しに「一意イベント ID の採番規約」（07-16記録）「dedup/順序ガードの実装責任所在」を明記。
+- **Pm**：SLA 3 階層期限を Pm のハンドオフ 4 点セット（Pm 06-12記録）・営業日カレンダー（06-03記録）と同期。
+- **Dat**：SLA 閾値根拠のリードタイム分布はリードタイム基準（07-02記録）で受領、正常系/異常系の線引き見直しに月次発生件数の実測依頼（07-16記録）。
+- **Kpi**：SLA 違反(k4) の発火と解消を KPI SSOT 定義 ID で送信、ヒステリシスは Kpi 側（Kpi 07-03記録）に持たせて二重判定回避（07-16記録）。
+- **Qa**：5 系統カバレッジ（正常/境界/異常/負荷/復旧）の異常系母集合として5大異常系パスを機械生成して添付（07-16記録）。
+- **Gen**：どっと原価連携ジョブの状態遷移と、Genの3階層原価（見積/実行予算/発生原価）を工事進捗ステートと連動、税抜/税込ガード（09-09記録）を Gen と統一。
+
+### 10. アウトプット強化テンプレート
+```json
+{
+  "workflow_id": "OrderWorkflow_v3",
+  "bpmn_source": "workflows/order_v3.bpmn",
+  "plantuml_source": "workflows/order_v3.puml",
+  "state_machines": {
+    "Order": {
+      "states": ["Draft", "Confirmed", "InProduction", "Shipped", "Completed", "Cancelled"],
+      "transitions": [
+        {
+          "from": "Confirmed",
+          "to": "InProduction",
+          "event": "ProductionStarted",
+          "guard": "stock_reserved && payment_received",
+          "compensation": "OrderReverted",
+          "compensation_sql": "workflows/rollback/order_reverted.sql",
+          "external_side_effects": ["inventory_allocated", "supplier_notified"],
+          "customer_facing_label": "生産開始",
+          "role_execution_permissions": ["production_manager"],
+          "sla_hours": 24,
+          "pivot_point": false
+        }
+      ],
+      "events": [
+        {
+          "name": "ProductionStarted",
+          "schema_version": "v3",
+          "dedup_key": "order_id + event_type",
+          "sequence_number_source": "external_edi_seq",
+          "at_least_once_replay_test_passed": true
+        }
+      ]
+    }
+  },
+  "sla_rules": [
+    {
+      "state": "Confirmed",
+      "slo_hours": 20,
+      "sla_hours": 24,
+      "escalation_50pct": "担当者WARNING",
+      "escalation_80pct": "部署長ALERT",
+      "escalation_100pct": "CEO+顧客CRITICAL",
+      "business_day_calendar": "jp_construction_2026",
+      "threshold_source": "Dat_report_id_P25P75"
+    }
+  ],
+  "exception_paths": [
+    "cancel", "partial_return", "split_shipment", "stock_out_supplier_switch", "approval_timeout"
+  ],
+  "handoff_to_bo": {
+    "package_type": "ready_to_implement",
+    "includes": [
+      "compensation_events_all",
+      "rollback_sql_all",
+      "in_flight_migration_table",
+      "customer_facing_labels",
+      "dedup_and_order_guard_requirements"
+    ]
+  },
+  "quality_gate": {
+    "unreachable_state_check": "passed",
+    "deadend_state_check": "passed",
+    "guard_exhaustive_check": "passed",
+    "design_impl_diff": "zero",
+    "compensation_side_effect_coverage": "passed",
+    "role_permission_matrix": "attached",
+    "state_dwell_baseline": "attached",
+    "customer_notification_rendered_review": "passed"
+  }
+}
+```
+

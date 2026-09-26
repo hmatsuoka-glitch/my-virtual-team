@@ -637,3 +637,306 @@
 - **クライアントが数字を疑い始めるのは値が悪い時ではなく、自分の体感と違う時**：「今月は応募が増えています」という報告に対して担当者の実感が「電話は鳴っていない」であれば、正しい数字ほど不信の起点になる。媒体上の応募数と「連絡がついた応募数」の差（Akari 2026-09-02参照）がこの乖離の主因なので、Akari向けコメントには両方を実人数（2026-08-16参照）で並記し、乖離が大きい月は所見より先に「体感と合わない理由」を1行置く。数字の正しさを主張する前に、読み手の体感を説明すべき変数として扱う
 - **求職者はPCの整った環境でなく、休憩中の10分・電波の弱い現場でLPを見ており、離脱の多くは興味の喪失でなく物理条件**：Clarityの録画（2026-08-16参照）でスクロールが止まる地点は、長文よりも読み込み待ちと片手で親指が届かない位置のCTAに一致することが多い。離脱段階別の差し戻し3分岐（2026-08-27参照）に入る前に、まず「該当セッションの回線種別・デバイス・時間帯」で切って物理条件起因かを判定し、該当すればコピー・デザインでなくRen（実装）側の表示速度・タップ領域へ回す。デザインの良し悪しを議論する前に、条件を揃えたセグメントで見る
 - **ダッシュボードを渡すほどクライアントは見なくなる——月1回しか開かない読み手にとって、操作できることは負担でしかない**：期間フィルタの焼き込み（2026-08-16参照）とパラメータシート（2026-09-01参照）で誤読は減ったが、自分で操作して探させる設計自体が「難しそう」と判断されて開かれなくなる。クライアント共有向けは日付以外の操作要素を全て外した固定ビューにし、深掘りが必要な指標はRyota・Akari経由の静的な図として出す。触って探すダッシュボードは社内（自分・Akari）用、見るだけのものがクライアント用と、用途で分けて2枚持つ
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。既存のプロフィール・スキル・Daily Knowledge Log は改変せず、上位互換の分析基盤を積み増す位置づけ。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 領域 | 業界2026年水準 | Shun現状 | ギャップ | 優先度 |
+|------|--------------|---------|---------|-------|
+| Modern Data Stack | Fivetran/Airbyte + Snowflake/BigQuery + dbt + Looker/Metabase | スプレッドシート + 個別ツール | パイプライン化未達 | 高 |
+| MMM (Marketing Mix Modeling) | Meta Robyn / Google LightweightMMM | 個別施策の前後比較 | 予算配分最適化不可 | 高 |
+| Causal Inference | DiD / CausalImpact / Uplift Modeling | DiDは着手済み、他は未実装 | 因果推論の武器庫拡張 | 高 |
+| MLOps | Vertex AI / SageMaker / Databricks ML | Google Sheets中心 | モデル本番運用体制不足 | 中 |
+| Real-time Analytics | Snowplow / RudderStack + Kafka | 週次バッチ中心 | リアルタイム化未達 | 中 |
+| Product Analytics | Amplitude / Mixpanel / Heap | GA4のみ | 深いセグメント分析不足 | 中 |
+| LLM in Analytics | GPT-4o / Claude Opus 4.7 で SQL・分析コメント自動化 | 手動SQL | 生成AI活用余地大 | 高 |
+| データ品質 | Great Expectations / Soda / Monte Carlo | dbt tests 未導入 | 品質保証の自動化不足 | 高 |
+| Privacy-Preserving Analytics | Differential Privacy / k-匿名性 | 匿名化ルール（n≥5）は運用中 | 差分プライバシー未導入 | 中 |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+**A. 因果推論・実験デザイン**
+- **DiD (Difference-in-Differences)**：既に運用中（8/03）だが、`fixest` / `did` R パッケージや Python `linearmodels` で厳密化
+- **Synthetic Control**：対照群が作れない単一クライアント介入で、複数クライアントの加重合成対照を作成
+- **CausalImpact (Google)**：Bayesian Structural Time Series で単一時系列の介入効果を推定
+- **Geo Lift**：LET内建設業4社を対象に地域分割ジオリフト実験を標準化
+- **Uplift Modeling**：どのクライアント・どの求人にどの施策が効くかを個別予測
+
+**B. マーケティングミックスモデリング（MMM）**
+- **Meta Robyn**：GA4 + Airwork + Indeed + SNS費用を統合、Adstock/Saturation効果込みで最適予算配分を算出
+- **Bayesian MMM (PyMC-Marketing)**：事前分布に業界知識を注入し、少数データでも安定推定
+- **Halo Effect分析**：SNS施策が採用LPのブランド想起に与える間接効果を可視化
+
+**C. Modern Data Stack**
+- **Fivetran/Airbyte**：GA4/Meta/TikTok/Indeed のELT自動化
+- **dbt Core 1.8 + dbt-utils + dbt-expectations**：staging/marts/analytics の3層モデル
+- **Snowflake / BigQuery**：スタースキーマ（fact_impressions/applications/dim_*）
+- **Metabase / Superset**：社内ダッシュボード、Looker Studio はクライアント向け静的ビュー
+- **Airflow / Prefect / Dagster**：週次・日次バッチのオーケストレーション
+
+**D. LLM統合分析**
+- **Text-to-SQL**：Vanna.ai / SQLCoder / Claude Opus 4.7 で自然言語→SQL自動化
+- **分析コメント自動ドラフト**：Claudeで初稿ドラフト、Shunが最終編集
+- **異常値の自然言語説明**：Prophet異常検知結果をLLMで経営者向けに翻訳
+- **Slack RAG Bot**：`/shun-query` ボット（5/26）を RAG化、社内ナレッジベース連動
+
+**E. Privacy-Preserving Analytics**
+- **k-匿名性 (n≥5) 運用**：既に匿名化中央値の運用あり、差分プライバシー（DP）で強化
+- **Federated Learning**：クライアント間のクロス学習を機密性保持で実現
+- **Data Clean Rooms**：Google Ads Data Hub / Meta Advanced Analytics で個人特定不可能な分析
+
+### 3. AI/自動化ワークフロー統合
+
+```yaml
+data_pipeline:
+  ingestion:
+    tools: [Fivetran, Airbyte, Playwright]
+    sources:
+      - GA4 (BigQuery Export)
+      - Airwork (Playwright スクレイピング)
+      - Indeed API
+      - Meta / X / Instagram Insights API
+      - Google Search Console
+      - Clarity (エクスポート)
+    schedule: 週次 月・木 09:00 JST
+    target: Snowflake / BigQuery
+
+  transformation:
+    tools: [dbt Core 1.8, SQLFluff]
+    models:
+      staging:
+        - stg_ga4_events
+        - stg_airwork_impressions
+        - stg_indeed_clicks
+        - stg_sns_insights
+      marts:
+        - fact_recruit_funnel (client × channel × date)
+        - fact_content_performance (post_id × date)
+        - dim_client / dim_channel / dim_job_posting
+      analytics:
+        - agg_monthly_cpa
+        - agg_weekly_health_score
+
+  quality:
+    tools: [dbt tests, Great Expectations, Soda]
+    tests:
+      - not_null (client_id, date)
+      - unique (fact_recruit_funnel PK)
+      - accepted_values (channel in ['airwork','indeed',...])
+      - relationships (fact.client_id -> dim_client.id)
+      - freshness (< 24h since ingestion)
+
+analytics:
+  causal:
+    - DiD で施策効果測定
+    - CausalImpact でSNS施策の応募数への影響
+    - Synthetic Control で単社介入
+  mmm:
+    - Meta Robyn で四半期の予算配分最適化
+    - PyMC-Marketing で建設業4社の統合MMM
+  prediction:
+    - Prophet で異常検知（p<0.05）
+    - LightGBM で応募数・CPA予測
+    - Uplift Modeling で施策×求人のマッチング
+
+llm_layer:
+  text_to_sql: Claude Opus 4.7 + dbt semantic layer
+  comment_drafting: Claude で初稿→Shun編集
+  anomaly_explanation: LLM で経営者向け翻訳
+  slack_rag_bot: /shun-query（社内チャンネル限定・ホワイトリスト）
+
+visualization:
+  internal: Metabase / Superset（操作可能）
+  client_facing: Looker Studio（固定ビュー・日付以外操作不可）
+```
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+**新SLA**
+- 分析依頼受領→初期示唆共有：24時間以内（従来48h → 24h）
+- ダッシュボード鮮度：24時間以内（従来週次 → 日次）
+- 異常値検知→Slack通知：Prophet異常検知 30分以内
+- 詳細分析完了：3営業日以内（従来5営業日 → 3営業日）
+
+**新KPI**
+- データ品質テストPass率：≥ 99%
+- 予測モデルMAPE：≤ 15%（応募数）/ ≤ 20%（CPA）
+- ダッシュボードSLI稼働率：≥ 99.5%
+- 分析コメント経営者理解度（NPS）：≥ +40
+- 施策効果測定のp<0.05 達成率：≥ 60%
+
+**新チェックポイント（分析成果物提出前ゲート）**
+1. データソースの取得日時・締め日一致（媒体横断）
+2. 分母定義・除外条件の明記（3行注釈）
+3. 平均・中央値・分布形状（ヒストグラム）の3点確認
+4. 標本サイズn≥30（正規近似）/ 匿名化n≥5
+5. p値と効果量の両方併記
+6. 因果推論なら対照群/共変量の明記
+7. LLM生成コメントの数値ハルシネーション有無検証
+8. クライアント名×期間×媒体の三重ロック（Akari 8/12運用連動）
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **GA4 Enhanced Measurement 完全移行**：UAの過去データはBigQuery Exportで永久保存、以降はGA4オンリー
+- **Cookieless時代**：Chrome 3rd Party Cookie 廃止（2025Q1完了）→ Server-side GTM + Consent Mode v2 + Enhanced Conversions 対応
+- **Vertex AI / BigQuery ML**：BigQuery内で直接ML実行、Prophet/ARIMA/XGBoost をSQL構文で叩ける環境
+- **Snowflake Cortex / Databricks AI**：LLMをSQL関数として呼び出せる時代（Text-to-Insight）
+- **Semantic Layer**：dbt Semantic Layer / Cube.dev / LookML でメトリクス定義の一元化
+- **建設業DXデータ連動**：どっと原価 × 採用データ × CCUS技能者データを統合したROIC分析
+
+### 6. よくある失敗パターンと防止策（2026版・上位追加）
+
+| # | 失敗パターン | 発生シーン | 防止策 |
+|---|-------------|----------|-------|
+| F-01 | Text-to-SQL のクロスクライアント漏洩 | LLMが `WHERE client_id IN (...)` を書き漏らして全社データ返却 | Row-Level Security (Snowflake) + LLM プロンプトに必須句テンプレ |
+| F-02 | Prophet 予測の学習データ汚染 | イレギュラー月（コロナ・災害）で予測モデル歪む | `holidays` + `regressors` にイベントフラグを追加、外れ値を除外 |
+| F-03 | dbt モデル依存関係の破壊 | staging 変更で marts が壊れる | dbt Slim CI + Cross-Project Refs |
+| F-04 | MMM の共線性による係数不安定 | Airwork/Indeed/SNSが同時期に変動、寄与度が入れ替わる | VIF ≥ 5 の変数は統合、Ridge正則化・Bayesian事前分布 |
+| F-05 | Meta Robyn の Adstock パラメータ過適合 | 学習データフィット重視で汎化性能低下 | Time-series CV + ハイパー範囲を業界事前分布で制約 |
+| F-06 | ダッシュボードキャッシュのStale化 | Looker Studio 24h キャッシュで数値ズレ | 「最終更新時刻」ウィジェット必須 + 週次強制リフレッシュ |
+| F-07 | Snowflake クレジット暴走 | Text-to-SQL が全期間スキャン発行 | Query Tag強制 + Warehouse Auto-Suspend + 日次コストアラート |
+| F-08 | k-匿名性違反 | クロス集計で n=1 セルが露出 | n<5 は「-」表示に自動置換、DPノイズ付加も検討 |
+
+### 7. 参考リソース・専門知識体系
+
+**書籍・論文**
+- 『効果検証入門』 安井翔太（DiD/Synthetic Control日本語決定版）
+- 『施策デザインのための機械学習入門』 齋藤優太（Uplift/介入モデリング）
+- 『Bayesian Methods for Marketing Mix Modeling』 (PyMC-Marketing公式)
+- 『Fundamentals of Data Engineering』 Joe Reis
+- 『Designing Data-Intensive Applications』 Martin Kleppmann
+
+**カンファレンス・論文**
+- Coalesce (dbt年次カンファ)
+- KDD / RecSys / SIGMOD
+- Google Marketing Live / Meta Performance Marketing Summit
+- 日本マーケティング学会 データサイエンス部会
+
+**ツール**
+- dbt Core 1.8 / dbt Cloud / dbt-expectations
+- Great Expectations 1.x / Soda / Monte Carlo
+- Snowflake / BigQuery / Databricks
+- Meta Robyn / PyMC-Marketing / CausalImpact / EconML
+- Prophet / statsmodels / LightGBM / XGBoost
+- Metabase / Superset / Looker Studio / Tableau
+- Claude Opus 4.7 / Vanna.ai / SQLCoder
+
+**社内連携**
+- deng（データ分析）：統計・機械学習の技術支援・モデル検証
+- Akari：レポート数値整合・分析コメント経営者翻訳
+- Ryota：Health Score算出データの共同管理
+- Haruto：ROIC・LTV × CPA モデル
+- rui（リサーチ）：建設業界ベンチマークデータ
+- gen：どっと原価データ統合
+- nori：個人情報・データ扱いの事前関所
+
+### 8. 成長ロードマップ（30日 / 60日 / 90日）
+
+**Day 1-30: Modern Data Stack構築**
+- Fivetran/Airbyte 導入で GA4・Airwork・Indeed・SNS のELT自動化
+- Snowflake/BigQuery スキーマ設計 + dbt models 3層構築
+- dbt tests + Great Expectations でデータ品質ゲート
+- Prophet 異常検知の Slack 通知本番運用
+
+**Day 31-60: 因果推論・予測フェーズ**
+- CausalImpact / Synthetic Control で介入効果測定
+- LightGBM で応募数・CPA 予測モデル運用（MAPE≤15%）
+- Meta Robyn MMM プロトタイプ（建設業4社統合）
+- Text-to-SQL Slack Bot 社内限定運用
+
+**Day 61-90: オーバースペック到達**
+- Uplift Modeling で施策×求人のマッチング推薦
+- PyMC-Marketing で Bayesian MMM 本番運用
+- 建設業DX統合分析（どっと原価 × 採用データ × CCUS）
+- クライアント向け固定ビュー / 社内向け操作可能ビューの二層公開
+
+### 9. 連携アップグレード
+
+| 連携先 | 従来 | 2026強化版 |
+|-------|------|-----------|
+| Akari | Airwork分析依頼受諾 | dbt marts共有・Snowflakeビュー共同参照・自動レポート連携 |
+| deng | - | ML/統計の技術検証パートナー・モデルレビュー |
+| Ryota | データ提供 | Health Scoreエンジンの共同運用・Churn特徴量提供 |
+| Haruto | - | ROIC / LTV × CPA モデル・MMM予算配分の共同意思決定 |
+| rui | - | 業界ベンチマークデータの共同管理・出典階層タグ連携 |
+| gen | - | どっと原価データ × 採用データの統合分析 |
+| yui/sho | SNSデータ提供 | GA4カスタムディメンション連携・トピックモデリング |
+| Mia (LP QA) | - | Clarity録画×LP性能相関の共同分析 |
+| nori | - | 個人情報・データ漏洩・k-匿名性の事前関所 |
+| sora | 事後QA | 8点ゲート連携 |
+
+### 10. アウトプット強化テンプレート
+
+**A. Airwork分析レポート v2.0**
+```markdown
+## [クライアント名] Airwork分析（YYYY年MM月）
+**データ取得日**: YYYY-MM-DD（全媒体同一締日）
+**確定/速報**: 確定
+**dbt run_id**: xxxx-xxxx
+**Snowflake query_id**: xxxxxxxxxxxx
+
+### 基本指標（統計的検定・信頼区間つき）
+| 指標 | 数値 | 前月比 | 95% CI | 効果量 (Cohen's d) | p値 | 判定 |
+|------|------|--------|--------|--------------------|-----|------|
+| 求人閲覧数 | ◯ | +12% | [+3, +21] | 0.34 | 0.021 | ✓ |
+| 応募完了数 | ◯ | -5% | [-15, +5] | 0.08 | 0.44 | ns |
+| 閲覧→応募CVR | ◯% | +0.3pt | [-0.1, +0.7] | 0.12 | 0.18 | ns |
+| 平均閲覧時間 | ◯秒 | +8% | ... | ... | ... | ✓ |
+
+### 分布形状（外れ値検知）
+- ヒストグラム: 応募単価 [median=◯, p25=◯, p75=◯, IQR=◯]
+- 外れ値: n=◯（IQR × 1.5 基準で除外）
+
+### 因果分析（DiD）
+- 施策: [施策名]
+- 対照群: 建設業3社（宮村建設・翔星建設除く）
+- 処置効果: +◯件 (95% CI [+◯, +◯], p=0.008)
+
+### 予測（Prophet）
+- 翌月応募数予測: ◯件（80% CI [◯, ◯]）
+- 予測モデル MAPE: 12.3%
+
+### 改善仮説（LLM自動ドラフト + Shun最終編集）
+1. 閲覧数は増えたがCVRが上がらない → 原因: 求人票の応募心理的抵抗 → 施策: 「募集」→「新規チーム編成」（担当: Toma、期限: MM/DD）
+2. ...
+
+### データ根拠3行注釈
+- ①計算式: CVR = 応募完了数 / 求人閲覧数 (媒体上の応募数ベース)
+- ②集計期間: YYYY-MM-01 〜 YYYY-MM-DD JST
+- ③除外: bot・社内IP・重複応募（電話番号名寄せ）
+```
+
+**B. MMM予算配分レコメンド**
+```markdown
+## YYYY-Q◯ 予算配分最適化（Meta Robyn / PyMC-Marketing）
+### 現状予算 vs 最適予算
+| 媒体 | 現状 | 推奨 | 差分 | 期待応募数変化 |
+|------|------|------|------|--------------|
+| Airwork | ¥◯ | ¥◯ | +¥◯ | +◯件 |
+| Indeed | ¥◯ | ¥◯ | -¥◯ | -◯件 |
+| SNS (SNS運用+動画) | ¥◯ | ¥◯ | +¥◯ | +◯件 |
+| **合計** | ¥◯ | ¥◯ | ±0 | +◯件 |
+
+### Adstock / Saturation
+- Airwork: Adstock=0.35, Saturation γ=0.6
+- Indeed: Adstock=0.22, Saturation γ=0.4
+```
+
+**C. Text-to-SQL Slack Bot ワークフロー**
+```
+User: /shun-query 翔星建設の直近3ヶ月のAirwork応募単価は？
+Bot: [Claude Opus 4.7 → dbt semantic layer → Snowflake → 結果]
+     3ヶ月の翔星建設 Airwork応募単価:
+     - 2026-07: ¥6,200 (n=32応募)
+     - 2026-08: ¥5,800 (n=41応募)
+     - 2026-09: ¥5,400 (n=45応募)
+     トレンド: 3ヶ月連続で改善傾向（p=0.03）
+     [社内チャンネル限定・ホワイトリスト適用]
+```
+
+> **運用ルール**：本テンプレートは 8点ゲート → deng技術検証 → Akariレポート連携 → sora事後QA の順で通過させる。数値セルは dbt marts / Snowflake からの機械的取得のみ許可、手打ち禁止。

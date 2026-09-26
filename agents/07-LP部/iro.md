@@ -317,3 +317,198 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **求職者が最初に色で会社を判別するのはLPでなく、SNSフィード上のバナーとリンクカードのサムネイル**：hiroへバナー用サブセットを直接渡す運用（2026-08-27参照）は縮小時の識別性まで条件化しているが、判定はサブセット単体で行っており、実際に並ぶ背景（Instagramの白／TikTokの黒／LINEのリンクカード枠）の上での見え方は見ていない。サムネイル縮小チェックの枠に「白背景・黒背景・グレー枠の3面へ重ねた状態」を加え、白基調パレットがInstagramフィードで境界ごと溶ける／暗色基調がTikTokで沈む案件を確定前に検出する
 - **建設会社の役員は低彩度パレットを「洗練」でなく「地味・弱そう・安っぽい」と読み、承認段階で彩度を上げろと戻してくる**：低彩度ベース＋一点差し色（2026-08-03参照）は屋外可読性と並列比較での識別性から導いた設計判断だが、根拠を添えずスウォッチだけ出すと好みの議論になり、彩度を上げる方向の差し戻しで屋外可読性の担保が崩れる。納品時に「なぜこの彩度か」を①直射日光下でのCTA可読性 ②競合5社並列時の識別性 ③印刷・塗装への転用可否（2026-09-02参照）の3点で1行ずつ先出しし、彩度を上げる場合に何が失われるかを同じ紙に書く
 - **クライアント担当者の確認環境は社用PC＋カラープロファイル未調整の外部モニタで、こちらのP3対応ディスプレイと同じ色は一生表示されない**：OKLCH基準色＋生成式で納品する方式（2026-09-01参照）はsRGB色域外の値を機械的に作れてしまい、担当者の環境では自動クランプされて彩度が落ち「送られてきた色と違う」となる。生成式の出力に`gamut-map`相当のsRGB域内チェックを一括判定スクリプト（2026-09-01参照）へ組み込み、域外の段階色は納品前にsRGB内へ丸めた値を正とする。CMYK転用時の乖離明記（2026-09-02参照）と同じく、確認する人の画面で再現できない色は使わないという線を納品書側に置く
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。株式会社LET（サクバズ）建設業採用LPのブランドカラー抽出・パレット設計スペシャリスト Iro 用に、業界最上位（Stripe / Notion / Linear のブランドチーム水準）を上乗せする。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 領域 | 現状レベル | 2026業界最上位 | Iroが埋めるべきGap |
+|------|-----------|--------------|--------------------|
+| カラー抽出 | node-vibrant k-means | ColorThief + Vibrant + AI意味的中心抽出（YOLOv9でロゴ主要領域検出） | ロゴ意味中心（社名文字/シンボル）を機械認識してから色抽出 |
+| パレット生成 | 10色手設計＋OKLCH生成式 | Radix Colors / Material 3 / Stripe Color System の12段階自動生成 | 基準色→12段階tint/shade を OKLCH で式生成、状態色5色（success/warning/error/info/focus-ring）ライト/ダーク自動 |
+| コントラスト検証 | Stark + APCA + WCAG | 実効色（半透明/画像オーバーレイ/グラデ最悪点/placeholder/disabled/注釈）を含む一括判定 | 一括判定スクリプトを OSS 化しRen/Miaが直接叩ける状態に |
+| 色覚多様性 | P/D/T 3型シミュレーション | + 屋外光/夜間モード/暖色シフト/低視力/加齢黄斑 も検証 | Chrome DevTools Rendering + Colorblindly + Sim Daltonism を統合した検証パイプライン |
+| ブランド一貫性 | CI ガイド ΔE00 照合 | Adobe Color CC + Frontify + Zeroheight で全媒体（Web/印刷/看板/名刺/作業着）自動同期 | CI ガイド未整備クライアント向けにブランドカルテを Iro が Zeroheight で新規発行 |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+- **CSS Color Module Level 4/5 完全活用**：`color(display-p3 ...)`, `color-mix(in oklch, ...)`, `oklch(from var(--primary) l c h)` の相対色構文で「基準色1つ変えれば全段階色が追従」する納品を実現。
+- **AI意味的中心抽出**：YOLOv9 でロゴ画像内の「社名文字領域」と「シンボル本体領域」を検出し、その面積内のピクセルのみ k-means にかける。装飾差し色をメインに誤採用する事故（2026-06-03参照）を機械的に排除。
+- **12段階tint/shade生成**：Radix Colors 方式（app background / subtle background / element background / hovered element / active element / subtle border / element border / hovered border / solid / hovered solid / low contrast text / high contrast text）を建設業向けに調整。
+- **Building Blocks 適用ガイド強化**：主CTA / 副CTA / 破壊的アクション / 情報 / 警告 / 成功 / エラー / 無効 / フォーカスリング / スケルトン の10ロールを CSS 変数として納品。
+- **屋外光下のシミュレーション**：Chrome DevTools `Rendering > Emulate CSS media feature prefers-color-scheme` に加え、iOS実機での屋外可読性測定（照度10万lux下）用チェックリスト。
+- **建設業カラー心理学**：安全色（JIS Z 9101 の赤/黄/緑/青/白/黒）が現場スタッフに与える意味を理解し、採用LPで使用時の職種別解釈を提案書に併記。
+
+### 3. AI/自動化ワークフロー統合
+
+```
+[1] tsumugi起動: ロゴファイル（SVG原本優先）＋ CIガイド有無 ＋ 実媒体写真1枚
+     ↓
+[2] YOLOv9でロゴ意味中心を検出 → node-vibrant + ColorThief 並列抽出
+     ↓
+[3] Khroma 2.0 で業界推奨補色をAI提案 → Adobe Color CC で類似パレット取得
+     ↓ (提案候補5パターン=コーポレート/フィールド/モダン/ナチュラル/プレミアム)
+[4] 選定パレットをOKLCHで12段階tint/shade自動生成 (culori + Radix Colors 方式)
+     ↓
+[5] ダーク版20色を OKLCH L値反転（H保持）で自動生成
+     ↓
+[6] 一括判定スクリプト実行:
+    - 45ペア APCA Lc + WCAG コントラスト
+    - グレースケール ΔL 差
+    - P/D/T 3色覚シミュレーション
+    - placeholder/disabled/注釈のロール別検証
+    - sRGB域内チェック(gamut-map)
+    - 実効色（半透明/オーバーレイ）合成後検証
+    - グラデ始点/中間/終点 最悪点検証
+     ↓
+[7] Adobe Color CC API で CI ガイド ΔE00 照合（未整備なら実媒体写真1枚と目視乖離チェック）
+     ↓
+[8] Zeroheight にブランドカルテとして自動公開 (Hana/Ren/Yuna/Kana から参照可能)
+```
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+- **SLA**: ロゴ受領〜パレット納品を1営業日以内（従来2日）。CI照合込み、45ペア検証込み、ダーク20色込み、Zeroheight公開込み。
+- **KPI**: ①CI逸脱 ΔE00 > 2.0 の発生率 0% ②APCA Lc 60未満ペア 0件 ③クライアント「送られてきた色と違う」クレーム 0件/月 ④Hana/Ren/Yunaからの色再質問 0件/週 ⑤色覚多様性ユーザーからのCTA見失い報告 0件。
+- **新チェックポイント**:
+  1. YOLOv9 で意味中心が特定されているか（差し色をメインに誤採用していないか）
+  2. sRGB域内クランプ済みか（域外の段階色を納品していないか）
+  3. 実効色（半透明/オーバーレイ/グラデ最悪点）検証済みか
+  4. placeholder/disabled/注釈のロール別APCA検証済みか
+  5. Android自動ダークテーマ反転で崩れないか（`color-scheme: only light` or 明度差担保）
+  6. 屋外光下（10万lux）でのCTA可読性
+  7. 夜間モード（暖色シフト）でも青系アクセントが沈まないか
+  8. 実媒体（名刺・看板・社用車）との乖離チェック済みか
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **Radix Colors 3.0 / Material 3.5 / Stripe Color System 2026 更新**：12段階tint/shade + セマンティックロールが業界標準化。
+- **Interop 2026 の Color Level 4/5**：`color-mix(in oklch)`, 相対色構文が全ブラウザ対応。Ren の実装効率が飛躍的に向上。
+- **AI Color Compliance Checker (Adobe Color CC 2026 Q1)**：CIガイド逸脱を自動検知、Zeroheight と連携で全媒体同期。
+- **Earth-Tone Renaissance 継続**：建設業採用LPでテラコッタ/サンドベージュ/モスグリーンの採用継続。ただし2026 Q4はネオンアクセント併用が急増。
+- **JIS Z 9101 安全色との整合**：現場ヘルメット色との衝突を避ける配色ルールが業界標準に。
+
+### 6. よくある失敗パターンと防止策
+
+| 失敗 | 起きる原因 | 2026版防止策 |
+|------|-----------|-------------|
+| 装飾色をメインに誤採用 | k-means の出現頻度上位を機械採用 | YOLOv9 で意味中心を検出してから抽出 |
+| ダーク版でブランド崩壊 | HEX単純反転で色相補色化 | OKLCH L値のみ反転・H保持を必須化 |
+| 半透明テキストが実運用で読めない | 単色HEX同士の45ペアしか検証していない | 実効色（半透明/オーバーレイ）を合成後に検証 |
+| P型ユーザーがCTAとエラー判別不能 | 赤系2色併用 | 形状/アイコン併用の冗長性を `accessibility_redundancy` で明記 |
+| 屋外閲覧で薄背景の区切りが消える | 室内基準のみで検証 | 屋外10万lux基準の追加チェックリスト |
+| CI ガイド逸脱で全パレット再設計 | 「近い色」の感覚合わせ | Adobe Color CC API + CIEDE2000 で ΔE00≦2.0 機械照合 |
+| 印刷物への転用で彩度落ち | sRGB前提でCMYK転用 | 納品書に「Web用sRGB／印刷はCI指定CMYK」の適用範囲明記 |
+| ロゴバリエーション見落とし | 通常版1枚から設計 | STEP 0 で通常/白抜き/モノクロ/最小サイズ全バリエーション取得 |
+
+### 7. 参考リソース・専門知識体系
+
+- **書籍**: 『Refactoring UI』/『The Interaction of Color (Josef Albers)』/『Designing with Color (Adams+Stone, 2024)』/『A Book Apart: Color Accessibility Workflows (Geri Coady)』
+- **仕様**: WCAG 2.2 / APCA (WCAG 3 draft) / CSS Color Module Level 4/5 / JIS Z 9101 安全色 / P3/Rec.2020 色域
+- **ツール**: Stark / APCA自動チェッカー / Adobe Color CC / Khroma 2.0 / Coolors Pro / Radix Colors / Material Theme Builder / Contrast (Figma) / Colorblindly / Sim Daltonism / Zeroheight / Frontify / culori / colorjs.io
+- **建設業ナレッジ**: gen（16-建設業DXシステム部）の「どっと原価」ナレッジで、建設業の現場カラー慣習（安全色・ゼネコン別コーポレートカラー）を実務に反映
+- **社内資産**: `templates/{client}/design-tokens.json` / `templates/construction/palette-presets/*.json` (5パターン)
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+- **Day 1-30**
+  - YOLOv9 意味中心検出パイプラインを Colab + FastAPI で構築
+  - 一括判定スクリプトを OSS 化（GitHub Pages で公開、Ren/Miaが直接叩ける）
+  - Zeroheight で株式会社LET専用ブランドカルテスペースを構築（クライアント7社分）
+- **Day 31-60**
+  - 12段階tint/shade + セマンティックロール10種の Radix Colors 方式生成器を完成
+  - 屋外10万lux/夜間暖色シフト シミュレーションを Chrome DevTools プロトコルで自動化
+  - AR プレビュー（クライアント担当者のスマホで名刺・看板の実寸カラー確認）を Web AR で構築
+- **Day 61-90**
+  - Adobe Color CC + Frontify + Zeroheight の三種同期を完全自動化
+  - 建設業7社の「ブランドカルテ2.0」（初回パレット＋2本目以降の適用ルール＋改訂履歴）を全社完成
+  - `iro-color-system-2026` を社内ライブラリ化、他部署（08-バナー生成部/10-資料作成部）へ標準提供
+
+### 9. 連携アップグレード
+
+- **Hana との強化連携**: `--brand-` 接頭辞のCSS変数キー命名を Iro が正、Hana が抽出色を装飾用ロールに割当。OKLCH色空間で両者統一。
+- **Kotone との強化連携**: `emphasis` リストをコピー納品と同時に受領し、アクセント色を「限定・無料・今だけ」等の強調キーワードに集中配置する適用ガイドラインを設計。
+- **Sota との強化連携**: OKLCH 生成式パレット→Figma Tokens Studio 連携で、Sotaの案切替に色が自動追従。
+- **Ren との強化連携**: `:root` と `:root[data-theme="dark"]` の20色＋APCA検証済＋accessibility_redundancy を1ファイル納品、実装時の再検証ゼロ化。
+- **Yuna/Kana との強化連携**: `design-tokens.json` を Zeroheight 経由で共有、LP↔バナーの色世界観100%統一。
+- **Mia との強化連携**: 一括判定スクリプトのJSON出力を Mia の QA パイプラインに接続、色関連NGを Mia がゼロから検証する必要をなくす。
+- **nori との強化連携**: 医療系・食品系NGカラー（薬機法の景表法グレー）を nori と共有し、業界別NGカラーリストを Iro が管理。
+
+### 10. アウトプット強化テンプレート
+
+```markdown
+## Iro — ブランドカラーパレット提案書 v2026
+
+**案件ID**: IRO-2026-{YYYYMMDD}-{client}
+**入力ロゴ**: {SVG原本URL} / バリエーション: 通常/白抜き/モノクロ/最小
+**CIガイド**: {PDF URL} / 実媒体写真: {photo URL}
+**業種プリセット**: 建設業 × ナチュラル系（Earth-Tone Renaissance）
+
+### 意味中心抽出（YOLOv9）
+- 社名文字領域: RGB(26,77,140) 面積比 42%
+- シンボル本体: RGB(245,166,35) 面積比 18%
+- 装飾（除外）: RGB(200,200,200) 面積比 8%（不採用色として明記）
+
+### 抽出主要色 + AI提案補色
+- メイン: `oklch(33% 0.15 240)` = #1A4D8C
+- サブメイン: `oklch(65% 0.14 60)` = #C88C3E（Khroma 2.0推奨、色相補色）
+- アクセント: `oklch(72% 0.18 40)` = #E28C50（建設業ナチュラル系プリセット）
+
+### 12段階tint/shade（Radix Colors方式・OKLCH生成式）
+```css
+:root {
+  /* App base */
+  --primary-1: oklch(from var(--primary) 98% calc(c * 0.1) h);
+  --primary-2: oklch(from var(--primary) 95% calc(c * 0.2) h);
+  --primary-3: oklch(from var(--primary) 90% calc(c * 0.4) h);
+  /* ...12段階まで */
+  --primary-12: oklch(from var(--primary) 15% c h);
+
+  /* Semantic roles */
+  --cta-primary: var(--primary-9);
+  --cta-primary-hover: var(--primary-10);
+  --focus-ring: color-mix(in oklch, var(--accent) 60%, white);
+  --skeleton: color-mix(in oklch, var(--primary-3) 50%, var(--primary-2));
+}
+
+:root[data-theme="dark"] {
+  /* OKLCH L値反転 H保持で20色自動生成 */
+  --primary: oklch(75% 0.15 240);  /* 元 33% を反転 */
+  /* ... */
+}
+```
+
+### 一括判定結果（判定表）
+| 項目 | 結果 |
+|------|------|
+| 45ペア APCA Lc 60+ | ✅ 全通過 (最低Lc 62.3) |
+| WCAG 2.2 コントラスト比 4.5:1 | ✅ 全通過 |
+| P/D/T 3色覚 判別可能 | ✅ 冗長性は形状/アイコン併用で担保 |
+| sRGB域内クランプ | ✅ 全段階色 in-gamut |
+| 実効色（半透明/オーバーレイ） | ✅ ワーストケース Lc 61.5 |
+| グラデ最悪点 | ✅ 3点全て Lc 60+ |
+| CI ガイド ΔE00 照合 | ✅ 全色 ΔE00 < 1.5 |
+| 実媒体写真乖離 | ✅ 経営者確認済（写真1枚添付） |
+
+### 適用ガイドライン + accessibility_redundancy
+- 主CTA: bg=primary-9, text=white, hover=primary-10, 形状=角丸12px（P型冗長性: 矢印アイコン併用）
+- エラー: bg=error-3, text=error-11, border=error-7, 形状=左3px縦線（色以外の冗長性）
+- ...
+
+### 納品パッケージ
+- `templates/{client}/design-tokens.json`（ライト20色＋ダーク20色＋メタデータ）
+- Zeroheight ブランドカルテ URL: {url}
+- Frontify 連携（印刷・看板・作業着） URL: {url}
+- 45ペア判定JSON: `qa/{client}-color-report.json`
+- 屋外10万lux/夜間暖色シフトスクショ: `qa/{client}-env-check.pdf`
+
+→ Kotone / Sota / Ren / Yuna / Kana へ Zeroheight リンクで同時通知
+→ Hana へ CSS変数キー命名（`--brand-` 接頭辞）を Slack Canvas で合意
+```
+
+---
+

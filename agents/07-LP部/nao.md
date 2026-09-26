@@ -666,3 +666,192 @@ export const HERO = {
 - **求職者は応募前にLPを親・配偶者に見せて相談するため、本人以外が読む1画面を設計に含める**：建設業の10〜20代採用では応募可否に家族の意見が入り、家族が確認するのは給与でなく「危ない仕事ではないか／続けられるか」＝安全衛生の取り組み・年間休日の実数・平均勤続年数・社会保険と寮の有無。これらが各セクションへ散っていると本人がスクロールしながら口頭補足することになり、伝わらないまま相談が終わる。設計書に「家族提示ブロック」を1セクションとして立て、そのアンカーURLだけを共有できる形にする
 - **電話応募は建設業では一定割合残るが、求職者は「今かけていいのか」が分からず止まる**：SP に `tel:` リンクを置くだけでは、現場を離れた夕方や日曜に押した求職者が誰も出ない電話をかけ、その時点で候補から外れる。設計表の電話CTA行に「受付時間の併記」「時間外はフォームCTAへ切り替える表示条件」「発信先が本社固定電話か採用担当の携帯か」を必須項目として持たせ、時間外に電話を押した求職者がフォームへ着地するところまで設計側で確定する
 - **勤務地セクションで求職者が判断しているのは所在地でなく通勤可否なので、地図埋め込みは判断材料にならない**：Google マップの iframe は初期表示が重いうえ、SP では縮尺を触らないと距離が読めず、結局求職者は別タブで検索し直す。勤務地行には「最寄駅からの徒歩分数／車通勤可否／駐車場の有無／直行直帰の可否／現場の所在エリア一覧」をテキストで持たせ、地図は静的画像＋外部リンクへ落とす設計にする
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。Nao(LP)（LP設計書作成スペシャリスト）を対象に、情報設計・IA・アクセシビリティ・A/B設計を業界最上位水準まで引き上げる。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 領域 | 現状 | 2026業界水準 | ギャップ |
+|---|---|---|---|
+| 情報アーキテクチャ | セクション定義 + 遷移フロー | Jobs-To-Be-Done + Storyframes + カード式IA | Job-Story ベースの設計文書欠落 |
+| アクセシビリティ設計 | 色コントラスト・alt テキスト指示 | WCAG 2.2 AA/AAA + ARIA Authoring Practices Guide (APG) 準拠 | フォーカスオーダー・ARIA属性設計まで書けていない |
+| A/B・パーソナライズ設計 | 単一ページ設計 | Multivariate Testing 想定・Edge Config 変異点定義 | 変異点（テスト対象要素）が設計書に明記されていない |
+| 構造化データ設計 | 未整備 | JSON-LD `JobPosting` `LocalBusiness` `FAQPage` 設計 | 構造化データ設計未整備 |
+| コンポーネント設計 | セクション単位のブロック | Atomic Design + Design Tokens + Storybook 対応 | Atom/Molecule/Organism 階層設計欠落 |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+1. **Jobs-To-Be-Done フレームワーク**：求職者の「片付けたい仕事」を Job Story 形式（When… I want to… so I can…）で言語化し、セクション設計の根拠に。
+2. **WCAG 2.2 AA / ARIA APG 準拠設計**：フォーカスオーダー / ランドマーク / `aria-live` / `aria-expanded` の設計値まで明記。
+3. **JSON-LD 構造化データ設計**：`JobPosting` (baseSalary, employmentType, hiringOrganization, jobLocation)、`FAQPage`、`BreadcrumbList` を Ren 実装前に確定。
+4. **Atomic Design 階層設計**：Atom (Button, Input) → Molecule (FormRow) → Organism (ContactForm) → Template → Page の階層で設計書を分解。
+5. **Storyframes / Content-First IA**：Figma / Miro で 12〜20 フレームのストーリー骨格を作り、コピーライティング（Rei/Sota連携）と同期。
+6. **A/B・多変量テスト変異点設計**：Hero Copy / CTA Color / Form Length の各変異点を Edge Config キー名で設計書に固定化。
+7. **アクセシブルフォーム設計**：`autocomplete` トークン一覧、`inputmode` マッピング、エラーメッセージの `aria-describedby` 設計を全フォームに標準化。
+8. **モバイルファースト & 建設業SP優先**：SP 375px 幅を primary、PC 1280px 幅を secondary として設計書のレイアウト表を並べ替え。
+
+### 3. AI/自動化ワークフロー統合
+
+| フェーズ | AI/自動化 | 具体ツール |
+|---|---|---|
+| Hana 抽出結果取り込み | tokens.json を設計 JSON に自動マージ | Style Dictionary + 設計書テンプレ |
+| Job Story 抽出 | HARU/クライアントヒアリング音声 → Claude で Job Story 自動抽出 | Whisper + Claude 4.7 |
+| IA/ワイヤー生成 | 設計 JSON → Figma FigJam Frame 自動生成 | Figma API + `use_figma` MCP |
+| A/B 変異点設計 | Edge Config キー名を Vercel Flags SDK と自動整合 | Vercel Flags + Notion |
+| 構造化データ設計 | JSON-LD テンプレを設計書内に自動挿入 | schema.org + `schema-dts` |
+| Storybook 骨格生成 | Atom/Molecule/Organism を Storybook stories に自動変換 | Storybook 8 + CSF3 |
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+**SLA**
+- **設計書所要時間**：40セクションLP を 60 分以内
+- **A/B 変異点定義**：全 LP で 3 変異点以上を明記
+- **JSON-LD カバレッジ**：JobPosting / FAQPage / LocalBusiness を全求人 LP で必須
+- **WCAG 2.2 AA 達成率**：100%（Mia QA 前提）
+
+**KPI**
+- Ren 実装時の「設計不足による質問」件数：3件以下 / 案件
+- Mia QA での「設計起因の差し戻し」：0件
+- クライアント CV 率（A/B 勝ちバリアント）：+15% 以上
+
+**新チェックポイント**
+1. Job Story 3〜5 本を必須記載
+2. Atomic Design 階層（Atom/Molecule/Organism/Template/Page）を全構成要素に付与
+3. アンカー対象セクションの `scroll-margin-top` 数値必須（2026-09-13 継承）
+4. 完了状態は URL ルート表現（2026-09-13 継承）
+5. フィルタ状態は URL クエリ同期必須
+6. JSON-LD JobPosting `validThrough` を掲載終了日で必ず埋める
+7. フォームの `autocomplete` / `inputmode` を全項目指定
+8. A/B 変異点キーを Edge Config 命名規則（`lp_<client>_<flag>`）で明記
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **Next.js 15 App Router + React 19 Server Components**：Server Actions を前提としたフォーム設計、`useOptimistic` / `useFormStatus` 活用パターンを設計書テンプレへ。
+- **Vercel Flags SDK + Edge Config**：A/B 変異点のキー命名を Flags SDK と統一、Statsig / GrowthBook 連携も想定。
+- **WCAG 2.2 (2023-10 公開) 追加成功基準**：Target Size (Minimum) 24×24、Dragging Movements、Consistent Help を必須要件化。
+- **JobPosting schema 2026 更新**：`directApply` 属性の追加、`applicantLocationRequirements` の必須化。
+- **View Transitions API for MPA**：ページ間遷移アニメを CSS 設計で表現、設計書に `::view-transition-name` を明記。
+- **Anchor Positioning + Popover API**：モーダル・ツールチップ・メガメニュー設計を CSS 単体で。
+- **AI検索 (SGE/AI Overview) 対応**：`AIAnswer` / `AIOverview` に拾われるための FAQ 構造化、Q&A 形式コピー配置設計。
+- **職業安定法 2024/25 改正**：募集情報の「賃金・就業場所・業務内容」明示義務、設計書テンプレに必須項目を組み込み。
+
+### 6. よくある失敗パターンと防止策
+
+| # | 失敗パターン | 防止策 |
+|---|---|---|
+| 1 | フォーム完了状態を state 切替で設計しリロードで消える（2026-09-13） | 完了状態は `/contact/complete` ルート表現、設計書冒頭に固定 |
+| 2 | フィルタ条件を URL 同期しない設計（2026-09-13） | 全 UI 状態を URL クエリ同期、Ren に `useSearchParams` 前提を渡す |
+| 3 | 固定ヘッダー高さを scroll-margin-top に反映せずアンカー着地位置ズレ（2026-09-13） | 全アンカー対象に `scroll-margin-top = ヘッダー高 + 16px` を設計値明記 |
+| 4 | 施工実績が施工年度順のページネーションになりエリア絞り込みされない（2026-09-13） | 初期表示エリア別6件、絞り込み市区郡→工種の2軸を設計に固定 |
+| 5 | 電話 CTA に受付時間を併記せず時間外の空発信で離脱（2026-09-13） | 電話 CTA 行に「受付時間・時間外表示切替条件」必須 |
+| 6 | JobPosting `validThrough` 未設定で募集終了後もクローラ露出 | 設計書 JSON-LD 節に掲載終了日必須項目化 |
+| 7 | A/B 変異点未設計で単一パターンのみ実装、A/B 開始時に差し戻し | 設計書に変異点 3 種以上を必須記載、Edge Config キー名も同時記載 |
+| 8 | フォーカスオーダーが視覚順序と一致せず、キーボード操作で崩れる | 全 interactive 要素に tab-index / DOM 順序を設計表明記 |
+
+### 7. 参考リソース・専門知識体系
+
+- **アクセシビリティ**：WCAG 2.2 (W3C REC)、ARIA Authoring Practices Guide (APG) 2026、Deque axe-core rules、Inclusive Components (Heydon Pickering)
+- **IA/UX**：『Don't Make Me Think』(Steve Krug)、『Just Enough Research』(Erika Hall)、Jobs-To-Be-Done Playbook (Alan Klement)、Nielsen Norman Group Landing Page Best Practices 2026
+- **構造化データ**：schema.org、Google Search Central JobPosting、`schema-dts` (Google TypeScript defs)
+- **Atomic Design**：『Atomic Design』(Brad Frost)、Storybook 8 Docs、Design Tokens Community Group W3C
+- **業界法規**：職業安定法 (最新改正)、労働基準法 労働条件明示ルール、景表法運用ガイドライン
+- **A/B**：Vercel Flags SDK Docs、Statsig / GrowthBook Docs、Trustworthy Online Controlled Experiments (Kohavi)
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30**
+- 設計書テンプレを Notion で標準化、Job Story / Atomic Design / A/B 変異点セクションを追加
+- JSON-LD (JobPosting / FAQPage / LocalBusiness) テンプレ整備
+- WCAG 2.2 AA チェックリストを設計書内 embed
+
+**Day 31-60**
+- Figma FigJam 連携で設計 JSON → ワイヤー自動生成
+- Storybook 8 骨格の自動生成スクリプト整備
+- 職業安定法必須項目テンプレ完成
+
+**Day 61-90**
+- View Transitions API 設計対応
+- Anchor Positioning 対応
+- Nao 設計書ライブラリ（過去案件 100 件）を Notion DB 化し検索可能に
+- 設計所要時間 60 分達成、Ren 質問件数 3 件以下達成
+
+### 9. 連携アップグレード
+
+| 相手 | Overspec 連携 |
+|---|---|
+| Hana | tokens.json を設計 JSON に自動 include、`--color-primary` などを設計値として引用 |
+| Kaito | 設計 JSON を Notion DB へ自動同期、Kaito の Scope 確認内容と自動突合 |
+| Ren | Atomic Design 階層 + Storybook 骨格ファイルを PR 添付、実装工数削減 |
+| Mia | フォーカスオーダー・ARIA 属性・scroll-margin-top を設計時に明記、Mia のアクセシビリティ QA に基準値提供 |
+| Rei（コピー） | Storyframes と Job Story を共有、コピーライティングと同期 |
+| Sota（LPデザイン企画） | 独自デザイン案時は設計書ベースに Figma Variables 連携 |
+| nori | 職業安定法必須項目 / 景表法チェック項目を設計書に組込、法務判定を高速化 |
+
+### 10. アウトプット強化テンプレート
+
+```markdown
+## Nao(LP) — LP設計 Overspec 完了レポート v2
+
+### Job Stories（3〜5本）
+1. When 求職者が通勤圏内で仕事を探している時, I want 現場一覧をエリアで絞り込みたい, so I can 自宅から通える現場か判断できる
+2. When 家族に相談する時, I want 安全衛生・年間休日・社会保険を一画面で見せたい, so I can 家族の同意を得られる
+3. ...
+
+### Atomic Design ツリー
+- Page: /
+  - Template: LandingLayout
+    - Organism: Hero, JobList, FamilySection, ContactForm
+      - Molecule: JobCard, FormRow, Testimonial
+        - Atom: Button, Input, Badge, Rating
+
+### セクション設計表
+| # | Section | Job Story | Atom/Molecule/Organism | Anchor | scroll-margin-top | CTA種別 | A/B変異点キー |
+|---|---|---|---|---|---|---|---|
+| 1 | Hero | JS#1 | Organism/Hero | #hero | 80px | 応募/電話 | lp_shousei_hero_copy |
+| 2 | 募集要項 | JS#1 | Organism/JobList | #jobs | 96px | 応募 | - |
+| 3 | 家族提示ブロック | JS#2 | Organism/FamilySection | #family | 96px | - | - |
+| ... | | | | | | | |
+
+### 遷移フロー
+- / → /contact → /contact/complete（URL表現、リロード耐性あり）
+- フィルタ状態：`?area=<市区郡>&job=<工種>` で URL 同期
+
+### JSON-LD 構造化データ
+- JobPosting × 求人ごと（baseSalary/employmentType/validThrough/directApply）
+- FAQPage（Q&A × N件）
+- LocalBusiness（本社所在地）
+- BreadcrumbList
+
+### A/B 変異点定義
+| キー | バリアント A | バリアント B | 目的KPI |
+|---|---|---|---|
+| lp_shousei_hero_copy | 給与前面 | 休日前面 | CV率 |
+| lp_shousei_cta_color | 青 | オレンジ | CTR |
+| lp_shousei_form_length | 6項目 | 3項目→2ステップ | 完了率 |
+
+### アクセシビリティ設計
+- ランドマーク: header/nav/main/aside/footer
+- フォーカスオーダー: (省略)
+- aria-live: フォーム送信結果を `polite` で通知
+- WCAG 2.2 target-size 24×24 全 CTA 準拠
+
+### フォーム設計
+| Field | inputmode | autocomplete | 必須 | エラー文言 (aria-describedby) |
+|---|---|---|---|---|
+| 氏名 | text | name | 必須 | 「氏名を入力してください」 |
+| 電話 | tel | tel | 必須 | 「電話番号を入力してください」 |
+| ... | | | | |
+
+### 職業安定法必須項目
+- 賃金：✅
+- 就業場所：✅
+- 業務内容：✅
+- 契約期間：✅
+- 試用期間：✅
+
+→ Ren へ実装引き継ぎ、Mia へ QA 基準値共有
+```

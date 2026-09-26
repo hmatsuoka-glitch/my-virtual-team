@@ -514,3 +514,305 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **ユーザー視点：年配の職長は端末側のフォントサイズを最大付近に設定して使っているため、px 固定・高さ固定で組んだ画面はボタン文字が 2 行に折れて枠外へ溢れ、ラベルとテキストが重なる**。回避策はフォントとコンポーネント高さを `rem`／`min-height` で組み、ブラウザ拡大 200%・端末フォント最大の 2 条件を Storybook の検証プリセットに追加して実装中に通す。納品後に「文字が切れている」と報告される画面は、レイアウトの作り直しになるため実装段階で潰す。
 - **ユーザー視点：一覧で検索条件を絞り込んで詳細を開き、戻ると条件が初期化される画面は、採用担当に「毎回やり直しになる」と判断されて Excel 管理へ戻される**。回避策は検索キーワード・絞り込み・ソート・ページ番号を URL のクエリに反映し、詳細から戻った際に URL からそのまま復元されるようにする。副次的に「この条件の一覧」を URL ごと共有できるため、担当者間の「◯◯の応募者を見てほしい」という依頼がリンク 1 本で済み、口頭説明が消える。
 - **ユーザー視点：保存結果を数秒で消えるトーストだけで伝えると、現場では通知が出ている間に画面を見ていないことが多く、「保存できたのか分からない」まま同じ操作を繰り返される**。回避策は成功／失敗の結果をトーストに依存させず、対象レコードの状態表示（ステータスバッジ・最終更新日時）を即座に更新して画面上に残し、失敗時は消えない領域にエラーと再試行導線を出す。消える通知は「見ていた人」にしか届かないため、結果は必ず画面の状態として恒久的に残す。
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。既存のFE実装方針・Daily Knowledge Log と併用し、BMAD STEP 4 実装 + TDD Guard 適用を前提に運用する。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 項目 | 現状レベル | 2026業界水準 | ギャップ | 優先度 |
+|---|---|---|---|---|
+| Next.js 15 App Router / Turbopack / PPR (Partial Prerendering) | ○ App Router | ◎ PPR + streaming | 中 | High |
+| React 19（Actions / useActionState / use / useOptimistic） | △ 18感覚残存 | ◎ 19完全活用 | 大 | High |
+| React Server Components / Server Actions | ○ 使用可 | ◎ Boundary戦略 | 中 | High |
+| TypeScript strict + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` | ○ strict | ◎ 全フラグ有効 | 中 | High |
+| TDD Guard（Vitest / Playwright） | ○ 実施中 | ◎ Guard強制 + Mutation Testing | 中 | High |
+| Storybook 8（Interactions / Vitest Addon / Chromatic） | △ 7感覚 | ◎ 8 Interactions | 中 | High |
+| Design Tokens（Tailwind v4 @theme / CSS Layers） | ○ v4 | ◎ Token → shadcn 変換自動 | 中 | Mid |
+| Accessibility（WCAG 2.2 AA / ARIA APG 2026） | ○ AA目標 | ◎ APGパターン完全準拠 | 中 | High |
+| Performance（Core Web Vitals + INP優先） | △ LCP中心 | ◎ INP≦200ms必達 | 大 | High |
+| Form State（React Hook Form + Zod v4 + SchemaForm） | ○ RHF | ◎ SchemaForm生成 | 中 | Mid |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+- **Next.js 15 完全活用**:
+  - **Partial Prerendering (PPR)**: 静的シェル + 動的Hole。求人一覧をシェル、応募者ステータスをHoleに。
+  - **Turbopack (安定版)**: dev / build 両方Turbopack化、HMR<200ms。
+  - **After / unstable_after**: レスポンス返却後の非同期処理（監査ログ / メール配信キュー投入）。
+  - **Cache Directives**: `use cache` + `cacheTag` + `cacheLife` の3種類使い分け。
+  - **Dynamic IO**: `unstable_expireTag` によるオンデマンド再検証。
+- **React 19 活用**:
+  - **Actions / useActionState**: フォーム送信をServer Actionsで統一、pending / error / success 状態管理。
+  - **useOptimistic**: 楽観的更新の標準API化、TanStack Queryの `optimisticUpdate` と併用禁止（責務衝突）。
+  - **use()**: Suspense統合のPromise unwrapping、await不要の非同期データフェッチ。
+  - **ref as prop**: forwardRef廃止対応。
+  - **Document Metadata**: `<title>` `<meta>` の内蔵サポート、next/head不要。
+- **TypeScript strict モード全開**:
+  - `strict: true` + `noUncheckedIndexedAccess: true`（配列アクセスがundefined込みになる）
+  - `exactOptionalPropertyTypes: true`（`?:`と`| undefined`を厳密区別）
+  - `noImplicitOverride: true` / `noFallthroughCasesInSwitch: true`
+  - Type-safe Route（Next.js typedRoutes 有効化）
+- **TDD Guard for Frontend**:
+  - Red-Green-Refactorの各サイクルで `pnpm test:watch` を並走。
+  - Vitest + `@testing-library/react` + `@testing-library/user-event` v14。
+  - Mutation Testing（Stryker）を主要ドメインロジックに適用、Mutation Score ≧ 60%。
+- **Storybook 8**:
+  - Interactions Addon で `userEvent`シナリオを Story として記述。
+  - Vitest Addon で Story を Vitest テストとして再実行、CI で並列化。
+  - Chromatic で Visual Regression（差分Toleranceは0.2%）。
+- **Playwright**:
+  - `test.step` で BDD調のシナリオ記述、Given-When-Then構造で書く。
+  - `test.beforeEach` にRLS用のセッション注入ユーティリティを共通化。
+  - Trace Viewer + Video録画をCI failure時のみ添付。
+- **INP (Interaction to Next Paint) 最適化**:
+  - `startTransition` / `useDeferredValue` で入力レスポンス優先。
+  - 重い処理は `requestIdleCallback` or Web Worker（Comlink）へ。
+  - INP ≦ 200ms を全画面で達成、CIで自動計測。
+
+### 3. AI/自動化ワークフロー統合
+
+```
+[STEP 4開始] Nao の domain.yaml + i18n/ja.json を受領
+   ↓
+[Scaffold生成] pnpm gen:page {name} --pattern list|detail|form
+   ├─ Route (app/**/page.tsx)
+   ├─ SchemaForm 由来 Zod fields
+   ├─ 4状態（空/読込中/エラー/権限なし）UI
+   ├─ Storybook stories
+   ├─ Vitest test skeleton
+   └─ Playwright test skeleton
+[TDD Cycle]
+   Red: Vitest test 書く → 失敗確認
+   Green: 最小実装で通す
+   Refactor: 型を絞る / 命名整理 / 共通化
+   ← TDD Guard がテストなし PR を Block
+[Component Storybook Story]
+   Chromatic Snapshot → Visual Regression
+[E2E]
+   Playwright + Storybook Interactionsを両輪
+[PR]
+   Vercel Preview + Lighthouse CI（Performance / A11y / Best Practices / SEO 全て≧90）
+   INP計測 + Bundle Size Budget
+```
+
+- **Copilot Workspace併用**: Boilerplate（フォーム / テーブル / モーダル）はWorkspaceに任せ、業務ロジックはClaude Code。
+- **Design → Code**: Figma MCP経由でデザインを取得し、shadcn/ui + Tailwind v4 tokensに変換。
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+| 指標 | 旧基準 | 新基準（2026 Q4） |
+|---|---|---|
+| Vitest カバレッジ（statements） | 80% | 85% |
+| Vitest カバレッジ（branches） | 70% | 80% |
+| Mutation Score（Stryker） | 未計測 | ≧ 60%（主要domain logic） |
+| Playwright E2E成功率 | 90% | 100%（Flaky Testはissue化） |
+| Chromatic Visual Regression差分 | 0.5% | 0.2% |
+| Lighthouse Performance / A11y | ≧85 | ≧90（両方） |
+| INP (p75) | 未計測 | ≦ 200ms |
+| LCP (p75) | ≦2.5s | ≦2.0s |
+| Bundle Size (First Load JS) | 200KB | ≦170KB（gzipped） |
+| TypeScript strict flags | strict:true | 全フラグ true（strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes） |
+| WCAG準拠 | AA目標 | 2.2 AA + axe-core違反0 |
+| Storybook Story率 | 主要のみ | 全 UIコンポーネント |
+
+- **新チェックポイント**:
+  - PR毎に Vercel Preview の Lighthouse CI + INP測定 + Bundle Diff がコメント自動投稿
+  - `noUncheckedIndexedAccess`違反の `!` 使用は max 3件/画面
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **React 19 GA + Next.js 15 stable**: Server Actions が主流、`useState` + fetch はレガシー扱い。
+- **CSS-in-JS 撤退の完了**: styled-components / emotion は非推奨、Tailwind v4 + CSS Modules + Vanilla Extract が主流。
+- **View Transitions API**: SPA遷移でネイティブトランジション、Next.js 15 `useViewTransition` フック活用。
+- **Container Queries + `:has()`**: メディアクエリからコンテナクエリへの移行、レイアウト条件分岐を親要素ベースへ。
+- **Web Components / Custom Elements 再来**: Shopify Polaris等、大規模組織で採用増。React 19が interop 改善。
+- **Accessibility 実装標準**:
+  - WCAG 2.2 AA（Focus Not Obscured / Target Size / Dragging Movements）
+  - ARIA Authoring Practices Guide 2026版のパターン準拠
+  - React Aria (Adobe) の採用検討
+- **建設業特化UX**:
+  - 手袋操作対応：タップターゲット ≧ 48×48px
+  - 屋外視認性：コントラスト比 ≧ 7:1（AAA相当）
+  - オフライン優先：PWA + IndexedDB
+  - スマホ片手操作：下部sticky CTA（既存2026-09-13を強化）
+
+### 6. よくある失敗パターンと防止策
+
+| 失敗パターン | 発生タイミング | 防止策 |
+|---|---|---|
+| Server ComponentでuseStateを使ってしまう | 実装中 | ESLintルール `react-server-components/no-client-hooks` |
+| Server Actionでバリデーションをクライアント任せ | 実装中 | Actionsは冒頭で Zod parse を必須化、テンプレ化 |
+| useOptimistic と TanStack Query optimisticUpdate の二重楽観 | 実装中 | どちらか片方に統一（プロジェクトルールで明文化） |
+| `noUncheckedIndexedAccess` を `!` で回避 | 実装中 | ESLintで `!` を warn、PR時に説明必須 |
+| 日本語IME確定前の入力でリクエスト送信 | 実装中 | `composition*`イベント（2026-09-02）をSchemaForm共通化 |
+| INP悪化の見落とし | Release前 | PR毎の INP計測をCIコメント、200ms超で fail |
+| Storybook Story 追加漏れ | 実装中 | ESLint `storybook/no-orphan-component`（UIファイル→Story存在チェック） |
+| Chromatic Snapshotの差分放置 | Release前 | Chromatic Reviewを必須ステータスチェック |
+| フォーカスリング削除 | 実装中 | `outline:none` 単独禁止、`:focus-visible`で置換 |
+
+### 7. 参考リソース・専門知識体系
+
+- **公式Doc**:
+  - Next.js 15 公式（App Router / PPR / Server Actions）
+  - React 19 Reference
+  - TypeScript Handbook + `strict`各フラグの根拠
+  - Tailwind v4 (CSS-first config, @theme)
+  - shadcn/ui + Radix UI
+  - Vitest / Playwright / Storybook 8 公式
+- **書籍**:
+  - "React Cookbook, 2nd Ed" (Adam Boduch)
+  - "Testing React Applications" (Kent C. Dodds)
+  - "Refactoring UI" (Adam Wathan)
+  - "Inclusive Components" (Heydon Pickering)
+  - "Web Accessibility Cookbook" (Manuel Matuzović)
+- **標準**:
+  - WCAG 2.2 / ARIA APG
+  - Core Web Vitals（LCP / INP / CLS）
+  - RFC 9457 Problem Details（エラー型）
+- **社内ドキュメント**:
+  - `workflows/tdd/tdd-rules.md`
+  - `packages/ui/README.md`
+  - `.storybook/preview.ts`
+
+### 8. 成長ロードマップ（30日/60日/90日）
+
+**Day 1-30（基盤）**
+- Next.js 15 + React 19 の Migration Playbook を新規案件で運用
+- `pnpm gen:page` scaffoldコマンド v2（PPR対応版）を整備
+- TypeScript strict 全フラグ有効化、既存2案件のTypeエラー修正
+- `noUncheckedIndexedAccess` 対応と `!`使用ルール整備
+
+**Day 31-60（品質強化）**
+- Stryker Mutation Testing を主要ドメインロジックに導入、Score ≧ 60%
+- Storybook 8 + Interactions + Vitest Addon で全 UIコンポーネントStory化
+- Chromatic Visual Regression をCI必須化、差分Tolerance 0.2%
+- INP計測をVercel Speed InsightsとPR CIに組込、200ms超で自動fail
+
+**Day 61-90（オーバースペック化）**
+- React Aria + shadcn/ui によるAccessibility準拠コンポーネント集を `packages/ui` v3として公開
+- View Transitions API + PPR を1案件で本番投入
+- 建設業特化 UX Kit（手袋操作 / AAAコントラスト / オフラインPWA）を `packages/construction-ui` として提供
+- 「Next.js 15 + React 19 実装ガイド」を社外発信（Zenn記事 or カンファレンス登壇）
+
+### 9. 連携アップグレード
+
+| 相手 | 従来連携 | アップグレード後 |
+|---|---|---|
+| **Nao** | 設計書手渡し | domain.yaml + i18n/ja.json から SchemaForm 自動生成 |
+| **Ao** | API仕様手渡し | OpenAPI 3.1 → TypeScript types 自動生成（openapi-typescript） |
+| **Kai** | tasks.md実装 | Linear Issue から scaffold自動生成 + PR自動作成 |
+| **Mio** | 完成後テスト | Given-When-Then → Playwright test skeleton を Nao 経由で供給、Riku がそれを埋める |
+| **Kuu** | ビルド設定 | Vercel Preview URL + Lighthouse CI + INP計測を PR コメント自動化 |
+| **Sora** | 最終QA | Storybook Publish URL + Chromatic Review Link を完了レポに添付 |
+
+### 10. アウトプット強化テンプレート
+
+**A. Server Component + Server Action + useOptimistic の標準構造**
+
+```tsx
+// app/applicants/page.tsx (Server Component)
+import { getApplicants } from '@/lib/data/applicants';
+import { ApplicantsTable } from './applicants-table';
+
+export default async function Page({ searchParams }: PageProps) {
+  const applicants = await getApplicants(searchParams);
+  return <ApplicantsTable initial={applicants} />;
+}
+
+// app/applicants/actions.ts
+'use server';
+import { z } from 'zod';
+import { revalidateTag } from 'next/cache';
+
+const UpdateStatusSchema = z.object({
+  id: z.string().uuid(),
+  status: z.enum(['screening', 'interviewing', 'offered', 'rejected']),
+});
+
+export async function updateStatus(prev: State, formData: FormData) {
+  const parsed = UpdateStatusSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.flatten() };
+  await db.applicant.update({ where: { id: parsed.data.id }, data: { status: parsed.data.status } });
+  revalidateTag(`applicant:${parsed.data.id}`);
+  return { ok: true };
+}
+```
+
+**B. SchemaForm 由来のフォーム生成**
+
+```tsx
+'use client';
+import { SchemaForm } from '@/packages/ui/schema-form';
+import { applicantCreateSchema } from '@/domain/zod/applicant';
+
+export function ApplicantCreateForm() {
+  return (
+    <SchemaForm
+      schema={applicantCreateSchema}
+      action={createApplicant}
+      i18nNamespace="applicant"
+      submitLabel="登録する"
+      renderState={{
+        empty: <EmptyState />,
+        loading: <LoadingSpinner ariaLive="polite" />,
+        error: (e) => <ErrorPanel error={e} onRetry={...} />,
+        forbidden: <ForbiddenState />,
+      }}
+    />
+  );
+}
+```
+
+**C. Vitest + TDD Guard パターン**
+
+```ts
+// applicant-status.spec.ts
+import { describe, it, expect } from 'vitest';
+import { canTransition } from './applicant-status';
+
+describe('canTransition', () => {
+  it.each([
+    ['applied', 'screening', true],
+    ['applied', 'rejected', true],
+    ['applied', 'hired', false],
+    ['offered', 'hired', true],
+    ['hired', 'applied', false],
+  ])('from %s to %s → %s', (from, to, expected) => {
+    expect(canTransition(from as any, to as any)).toBe(expected);
+  });
+});
+```
+
+**D. Playwright E2E（Given-When-Then）**
+
+```ts
+test('採用担当が応募者ステータスを更新できる', async ({ page }) => {
+  await test.step('Given: 採用担当としてログイン済み', async () => {
+    await loginAs(page, 'recruiter@example.com');
+  });
+  await test.step('When: 応募者詳細でステータスを「面接中」に変更', async () => {
+    await page.goto('/applicants/APL-20260926-00001');
+    await page.getByRole('combobox', { name: 'ステータス' }).selectOption('interviewing');
+    await page.getByRole('button', { name: '保存' }).click();
+  });
+  await test.step('Then: ステータスバッジが「面接中」に更新され、監査ログに記録される', async () => {
+    await expect(page.getByTestId('status-badge')).toHaveText('面接中');
+    // 監査ログAPI（BE契約）で確認
+  });
+});
+```
+
+**E. PR Bundle Budget Config**
+
+```json
+{
+  "budgets": [
+    { "path": "app/applicants/**", "maxSize": "150 KB" },
+    { "path": "app/dashboard/**", "maxSize": "170 KB" },
+    { "path": "packages/ui/**", "maxSize": "80 KB" }
+  ]
+}
+```

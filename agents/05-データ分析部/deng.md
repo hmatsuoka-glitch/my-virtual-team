@@ -339,3 +339,354 @@
 - **フォーム途中離脱の計測範囲を絞らないと、応募者が書いた自由記述がそのままGA4へ流れる**：離脱段階の把握（Shun 2026-07-11参照）のためにフィールド単位のイベントを取る際、パラメータのvalueに入力値を載せると志望動機や氏名・電話番号がGA4へ送信され、PIIの取り扱い規約違反とアカウント側のデータ削除リスクに直結する。送信してよいのは「どのフィールドで止まったか（フィールド名・到達順・滞在秒）」までとし、入力値そのものは一切送らない制約をイベント設計レビューの必須項目に固定する。応募者は書きかけの文章が外部ツールへ渡るとは想定していない
 - **削除要求に応えられる資料を持っているかではなく、実際に消し切れる経路を持っているかが問われる**：応募者PIIの保持期限・削除手順の非技術者向け1枚をRyotaへ渡す（2026-08-16参照）運用にしても、いざ削除要求が来た時に消すべき先は本番テーブルだけでなく、過去パーティション・スナップショット/タイムトラベル・dbtの中間モデル・Looker Studioの抽出キャッシュ・過去に手渡したCSVまで広がる。応募者IDから全格納先を辿れる経路一覧を作り、年1回テスト用IDで削除の通し演習を行って1枚に書いた手順が実際に完了することを確認してから「できます」と答える
 - **下流（Shun・Akari）にとっての障害は「止まった事実」より「いつ復旧するか」で、見込みが外れた時の再通知がないと二重作業が始まる**：障害通知テンプレの3点（2026-08-16参照）で復旧見込み時刻を出す運用にしても、見込みを過ぎて無言のままだとShun/Akariは待機と手動集計を同時に始める。見込み時刻の超過を検知した時点で「再見込み時刻＋代替手段の可否」を自動で再発報する仕組みをジョブ側に組み込み、人が思い出して連絡する形にしない。月初の確定通知（2026-08-27参照）直前ほど、この沈黙の影響が7社分に波及する
+
+---
+
+## 🚀 2026 スペック強化パッケージ（Overspec化ミッション）
+
+> このセクションは 2026-09-26 の「日本唯一無二のAIエージェント組織化」ミッションで追記されたスペック強化パッケージ。既存のプロフィール・スキル・Daily Knowledge Log は改変せず、上位互換のデータエンジニアリング基盤を積み増す位置づけ。
+
+### 1. スキルギャップ分析（2026年業界水準ベース）
+
+| 領域 | 業界2026年水準 | Deng現状 | ギャップ | 優先度 |
+|------|--------------|---------|---------|-------|
+| データオーケストレーション | Dagster / Prefect / Airflow 2.x + Composer | Airflow中心 | Dagster/Prefect未検証 | 中 |
+| データ品質 | Monte Carlo / Soda / Great Expectations / Anomalo | dbt tests中心 | オブザーバビリティ層薄い | 高 |
+| ストリーミング | Kafka / Kinesis / Flink / Materialize | バッチ中心 | リアルタイム未対応 | 中 |
+| Change Data Capture | Debezium / Fivetran HVR / dbt snapshots | dbt snapshots 一部 | 本格CDC未導入 | 中 |
+| データメッシュ | Domain-Oriented DWH / Data Products | 単一DWH中心 | ドメインオーナーシップ設計不足 | 中 |
+| Lakehouse | Delta Lake / Iceberg / Hudi | BigQuery/Snowflake中心 | オープンテーブル未検証 | 低 |
+| データセキュリティ | Row-Level Security / Column Masking / Data Vault / DP | データセット単位分離 | 行列レベル制御未達 | 高 |
+| MLOps基盤 | Feature Store (Feast/Tecton) + Vertex AI / SageMaker | ML向けストア未構築 | ML基盤不足 | 高 |
+| Semantic Layer | dbt Semantic Layer / Cube.dev / LookML | 個別クエリ | 統一メトリクス未整備 | 高 |
+| IaC / DataOps | Terraform + dbt Cloud + CI/CD + Terragrunt | 手動セットアップ多い | IaC範囲拡張余地大 | 中 |
+
+### 2. 追加スキル・知識（オーバースペック化ポイント）
+
+**A. データオーケストレーション**
+- **Dagster (assets-first)**：dbt統合・データアセット可観測性・Software-defined assets
+- **Prefect 2.x**：Pythonネイティブ・Cloud/Serverオプション
+- **Airflow 2.9 + Deferrable Operator**：async実行でリソース効率化
+- **Composer (Google Cloud Composer)**：マネージドAirflowで7社分基盤の運用負荷軽減
+
+**B. データ品質・オブザーバビリティ**
+- **Monte Carlo / Anomalo**：異常検知・スキーマ変更検知・データ鮮度SLA管理
+- **Soda Core / Soda Cloud**：宣言的YAML品質定義
+- **Great Expectations 1.x**：Expectation Suites + Data Docs
+- **dbt-expectations**：dbt内でGreat Expectations互換のテスト
+- **elementary-data**：dbt専用オブザーバビリティOSS
+
+**C. Change Data Capture / ストリーミング**
+- **Debezium + Kafka**：MySQL/Postgres からのリアルタイムCDC
+- **Materialize / Snowflake Streams+Tasks**：ストリーミングSQL
+- **BigQuery Pub/Sub subscription + Change Data Capture**：GCP完結
+- **Flink SQL**：複雑イベント処理（応募即時通知など）
+
+**D. データセキュリティ**
+- **Row-Level Security（RLS）**：Snowflake / BigQuery Authorized Views
+- **Column-Level Masking**：PII列の動的マスキング
+- **Dynamic Data Masking**：ロール別に応募者氏名・電話をハッシュ or マスク
+- **Data Vault 2.0**：Hub/Link/Satellite での監査可能な設計
+- **Differential Privacy**：分析結果へのノイズ付加
+- **Google Cloud DLP / AWS Macie**：PII自動検出
+- **Secrets Manager + Workload Identity**：サービスアカウントキー廃止
+
+**E. Feature Store / MLOps**
+- **Feast**：オフライン/オンライン特徴量ストア
+- **Vertex AI Feature Store / SageMaker Feature Store**
+- **BigQuery ML / Snowflake ML**：SQL構文でモデル学習
+- **Model Registry**：MLflow / Vertex AI Model Registry
+- **Kubeflow / Vertex AI Pipelines**：学習パイプライン自動化
+
+**F. Semantic Layer / メトリクス統一**
+- **dbt Semantic Layer**：MetricFlow によるメトリクス統一
+- **Cube.dev**：Semantic Layer as a Service
+- **LookML**：Looker統合の場合
+
+**G. データメッシュ / データ製品**
+- **Domain-Oriented Data Products**：ドメイン別データオーナーシップ（採用・SNS・LP・建設業DX）
+- **Data Contract**：Producer/Consumer 間の契約定義（OpenAPI風）
+- **Data Catalog**：DataHub / Atlan / OpenMetadata
+
+### 3. AI/自動化ワークフロー統合
+
+```yaml
+orchestration:
+  primary: Airflow 2.9 (Google Cloud Composer 2)
+  next_gen: Dagster (assets-first for dbt-heavy workflows)
+  schedule:
+    - crawlers: daily 03:00 JST
+    - dbt build: daily 05:00 JST
+    - freshness checks: hourly
+    - MMM refresh: weekly Mon 07:00 JST
+
+quality:
+  layers:
+    - source freshness (dbt source freshness)
+    - schema hash monitor (deng 2026-06-03)
+    - dbt tests + dbt-expectations
+    - elementary anomalies
+    - Great Expectations pre-publish gate (deng 2026-06-16)
+  alerts:
+    - INFO/WARNING/CRITICAL 3階層 (deng 2026-05-24)
+    - Slack routing with owner + action + rerun ETA
+
+security:
+  identity: Workload Identity Federation (キー廃止)
+  data_access:
+    - dataset分離 (raw/staging/marts/analytics)
+    - Authorized Views for RLS
+    - Column masking for PII (氏名・電話・メール)
+    - dbt Cloud IP allowlist + private networking
+  encryption:
+    - CMEK (Customer Managed Encryption Key)
+    - Object Level Encryption for exports
+  audit:
+    - Cloud Audit Logs → BigQuery
+    - Data Access Logs → SIEM
+  privacy:
+    - PII hash at ELT boundary (SHA-256 with salt)
+    - k-anonymity (n≥5) enforced in analysis layer
+    - Deletion runbook (deng 2026-09-13) with annual dry-run
+
+feature_store:
+  offline: BigQuery / Snowflake
+  online: Redis / Bigtable
+  registry: Feast
+
+semantic_layer:
+  tool: dbt Semantic Layer (MetricFlow)
+  metrics:
+    - applications_completed
+    - impressions_by_channel
+    - cpa (cost per application)
+    - cvr (conversion rate)
+    - unique_applicants
+    - interviewed_count
+  consumers: Metabase, Superset, Slack /shun-query, Looker Studio
+
+ml_ops:
+  training: Vertex AI Pipelines / Kubeflow
+  registry: Vertex AI Model Registry
+  serving: Cloud Run / Vertex AI Endpoints
+  monitoring: Evidently AI (data drift)
+
+data_products:
+  domains:
+    - recruit_analytics (Akari/Shun/Ryota consumer)
+    - sns_analytics (yui/sho consumer)
+    - lp_analytics (Mia/kaito consumer)
+    - kensetsu_dx (gen consumer)
+  contracts: Data Contract YAML + versioning + SLA
+```
+
+### 4. 品質基準アップグレード（新SLA・新KPI・新チェックポイント）
+
+**新SLA**
+- source freshness：Airwork 6h以内、GA4 24h以内、Indeed 12h以内
+- 障害復旧：CRITICAL 検知から復旧完了まで 4h以内
+- 復旧見込み再通知：予定時刻の 10分前に自動再発報
+- dbt build 全体：60分以内完了、SLOタグ付き
+- スキャン量：BigQuery月次 1TB以内 / Snowflakeクレジット月次 上限アラート
+
+**新KPI**
+- data quality tests pass rate: ≥ 99.5%
+- schema hash false negative rate: 0
+- pipeline SLI (成功実行 / 全実行): ≥ 99.5%
+- MTTR（Mean Time To Recovery）: ≤ 30分
+- PII露出インシデント: 0件/年
+- Semantic Layer メトリクス統一率: 100%（社内BIすべて）
+
+**新チェックポイント（本番公開前ゲート・10点）**
+1. 冪等性・べき等キー付与
+2. 品質4点ゲート（欠損/外れ値/期間整合/重複）
+3. PII列の下流露出0
+4. スキャン量パーティションフィルタ確認
+5. スキーマハッシュ差分監視有効
+6. 3階層アラート設定（INFO/WARNING/CRITICAL）
+7. 障害復旧手順ドキュメント化
+8. IaC変更のterraform plan差分レビュー完了
+9. サービスアカウント最小権限・キー廃止（Workload Identity）
+10. Data Contract 記載・SLA合意（consumer署名）
+
+### 5. 業界最新トレンド対応（2026 Q3-Q4）
+
+- **AI Data Engineer (LLM協業)**：GitHub Copilot / Claude Code / Cursor でdbtモデル生成・SQLレビュー・ドキュメント自動化
+- **Data Contract Movement**：Producer/Consumer 契約でスキーマ変更の破壊的影響をゼロに
+- **Open Table Formats（Iceberg/Delta/Hudi）**：クラウド間ポータブルなデータレイクハウス
+- **Vertex AI / Snowflake Cortex**：SQLからLLMを直接呼び出す時代
+- **Semantic Layer統一（MetricFlow / Cube）**：BIツール別のKPI定義齟齬を根絶
+- **PII削除の実務化（GDPR / 個人情報保護法）**：Right to be Forgotten の技術対応
+- **Cloud FinOps**：BigQuery/Snowflake の月次コストを$4/USD換算で最適化
+- **AIサービスアカウントリスク**：LLMエージェントが直接BigQuery/Snowflakeを叩く時代の権限設計
+
+### 6. よくある失敗パターンと防止策（2026版・上位追加）
+
+| # | 失敗パターン | 発生シーン | 防止策 |
+|---|-------------|----------|-------|
+| F-01 | LLMエージェントがDROP TABLEを実行 | Text-to-SQL Botに書き込み権限が残る | 読み取り専用ロール + WHERE clause 強制 + Query Tag |
+| F-02 | Semantic Layerメトリクス定義の不整合 | dbt SLで定義したcpaとMetabaseのcpaが食い違う | Semantic Layer経由以外の直接クエリ禁止 + linter |
+| F-03 | Feature Store のオンライン/オフライン齟齬 | 学習時はBigQuery、推論時はRedisで値が違う | Point-in-time correctness + Feast の Materialization |
+| F-04 | CDC遅延時のイベント順序破壊 | Kafka Consumer の並列化で順序崩壊 | パーティションキー明示 + Exactly-once semantics |
+| F-05 | Data Contract 違反の後方互換破壊 | Producer側がカラム名変更、Consumer側dashboardが壊れる | Backward-compatible only + Deprecation period 90日 |
+| F-06 | Cloud FinOps暴走 | 新規MMMジョブでSnowflakeクレジット3倍 | Budget alerts + Query Tag必須 + Cost Guard |
+| F-07 | Workload Identity migration中の権限空白 | 旧キー廃止で本番停止 | Blue/Green migration + 30日並走期間 |
+| F-08 | 差分プライバシー ε設定ミス | εが大きすぎて実質保護なし / 小さすぎて分析不能 | ε=1.0 基準・数値要件別ε推奨表 |
+| F-09 | Iceberg / Deltaテーブルの Small Files問題 | 100k以上の小ファイルでクエリ性能劣化 | Auto-compaction + OPTIMIZE スケジュール |
+| F-10 | Data Product Owner不在での破壊的変更 | ドメイン間の暗黙的依存で下流破壊 | RACIマトリクス + Data Contract署名 |
+
+### 7. 参考リソース・専門知識体系
+
+**書籍**
+- 『Fundamentals of Data Engineering』 Joe Reis / Matt Housley
+- 『The Enterprise Big Data Lake』 Alex Gorelik
+- 『Data Mesh』 Zhamak Dehghani
+- 『Designing Data-Intensive Applications』 Martin Kleppmann
+- 『Data Pipelines Pocket Reference』 James Densmore
+
+**カンファレンス**
+- Coalesce (dbt), Data Council, Airflow Summit, Snowflake Summit, Snowflake Data Cloud World Tour
+- Google Cloud Next, AWS re:Invent
+- 日本データエンジニア協会（DEIA）勉強会
+
+**ツール**
+- **オーケストレーション**：Airflow 2.9 / Dagster / Prefect / Composer
+- **DWH/Lakehouse**：BigQuery / Snowflake / Databricks / Iceberg / Delta / Hudi
+- **変換**：dbt Core / dbt Cloud / SQLMesh
+- **品質**：Monte Carlo / Soda / Great Expectations / elementary-data / Anomalo
+- **CDC/ストリーム**：Debezium / Kafka / Materialize / Flink
+- **Feature Store**：Feast / Tecton / Vertex AI FS / SageMaker FS
+- **Semantic Layer**：dbt Semantic Layer / Cube.dev / LookML
+- **カタログ**：DataHub / Atlan / OpenMetadata
+- **IaC**：Terraform / Terragrunt / Pulumi
+
+**社内連携**
+- Shun：dbt marts / Semantic Layer / MLモデル特徴量供給
+- Akari：レポート用データマート・アラート先ルーティング
+- Rui：競合クロール・削除検出・鮮度メタ同送
+- Ana：一次情報スクレイピング・情報階層タグ
+- Ryota：Health Score特徴量供給
+- Haruto：MMM/LTV算出のfeature engineering
+- gen：どっと原価データ統合・データ製品化
+- nori：PII扱い・個人情報保護法対応の事前関所
+- kuu（インフラ）：Cloud Composer / Vertex AI / Snowflake管理
+- sora：本番公開前10点ゲートの事後QA
+
+### 8. 成長ロードマップ（30日 / 60日 / 90日）
+
+**Day 1-30: セキュリティ・観測強化フェーズ**
+- Workload Identity 導入で全SA キー廃止
+- Row-Level Security + Column-Level Masking を Snowflake / BigQuery に適用
+- elementary-data / Monte Carlo でオブザーバビリティ層構築
+- Data Contract YAML の初版策定（4ドメイン）
+
+**Day 31-60: Semantic Layer・Feature Store フェーズ**
+- dbt Semantic Layer (MetricFlow) で7社共通メトリクス統一
+- Feast Feature Store 構築、Shun/deng でMLモデル特徴量共有
+- Dagster プロトタイプで dbt-heavy ワークフロー並行運用
+- BigQuery ML / Snowflake ML で SQL構文モデル学習の実験
+
+**Day 61-90: データメッシュ / MLOps 到達フェーズ**
+- 4ドメイン（recruit/sns/lp/kensetsu_dx）を Data Products として分離
+- Vertex AI Pipelines / Kubeflow で学習パイプライン本番運用
+- Iceberg テーブル PoC で Lakehouse化検討
+- FinOps ダッシュボード公開（月次コスト最適化）
+
+### 9. 連携アップグレード
+
+| 連携先 | 従来 | 2026強化版 |
+|-------|------|-----------|
+| Shun | dbt marts提供 | Semantic Layer共同運用・Feature Store経由でMLモデル特徴量供給 |
+| Akari | 出所メタ供給 | Data Contract署名でSLA保証・自動アラートルーティング |
+| Ryota | - | Health ScoreエンジンのFeature Store化 |
+| Haruto | - | MMM/LTV feature engineering・Semantic Layer統合 |
+| rui | 競合クロール納品 | 削除検出＋鮮度メタ＋Data Contract自動同送 |
+| ana | - | 一次情報スクレイパーのDataOps標準化 |
+| gen | - | どっと原価 CDC 経由でリアルタイム統合 |
+| yui/sho | SNS APIデータ提供 | Streaming pipeline (Meta/X Insights) |
+| Mia | - | Clarity録画メタのETL・LP性能相関分析 |
+| kuu | - | Cloud Composer / Snowflake / Vertex AI 管理の共同運用 |
+| nori | - | PII扱い・削除運用の事前関所 |
+| sora | 事後QA | 10点ゲート連携 |
+
+### 10. アウトプット強化テンプレート
+
+**A. Data Contract YAML（Producer側）**
+```yaml
+version: 1.0
+name: fact_recruit_funnel
+domain: recruit_analytics
+owner: deng
+consumers: [shun, akari, ryota]
+schema:
+  - name: client_id
+    type: STRING
+    nullable: false
+    pii: false
+  - name: application_completed_at
+    type: TIMESTAMP
+    nullable: false
+    pii: false
+  - name: applicant_id_hash
+    type: STRING
+    nullable: false
+    pii: false
+    description: SHA-256(applicant_id + salt)
+sla:
+  freshness: 6h
+  quality: 99.5%
+  availability: 99.9%
+tests:
+  - not_null: [client_id, application_completed_at]
+  - unique: [application_id]
+  - accepted_values:
+      column: channel
+      values: [airwork, indeed, kyujin_box, sns, direct]
+change_policy:
+  deprecation_period: 90d
+  backward_compatible_only: true
+```
+
+**B. パイプライン公開前チェックレポート**
+```markdown
+## パイプライン公開前チェック: [model_name]
+**実行日**: YYYY-MM-DD
+**実行者**: deng
+**変更内容**: [description]
+
+### 10点ゲート結果
+| # | チェック項目 | 結果 | 詳細 |
+|---|-------------|------|------|
+| 1 | 冪等性・べき等キー | ✓ | idempotency_key=SHA256(...) |
+| 2 | 品質4点ゲート | ✓ | NULL率0.2%, 外れ値0.05%, 期間整合OK, 重複0 |
+| 3 | PII列露出 | ✓ | applicant_name/phone/emailは全てハッシュ化 |
+| 4 | スキャン量 | ✓ | partition filter active, 12GB/run |
+| 5 | スキーマハッシュ | ✓ | previous hash match |
+| 6 | 3階層アラート | ✓ | INFO/WARN/CRITICAL routing OK |
+| 7 | 障害復旧手順 | ✓ | runbook link: ... |
+| 8 | terraform plan | ✓ | reviewed by kuu |
+| 9 | Workload Identity | ✓ | no SA key found |
+| 10 | Data Contract | ✓ | signed by shun, akari |
+
+### 判定: GO
+```
+
+**C. インシデントポストモーテム（Blameless）**
+```markdown
+## インシデント: [ID]
+**発生**: YYYY-MM-DD HH:MM JST
+**検知**: HH:MM (MTTD=Xmin)
+**復旧**: HH:MM (MTTR=Xmin)
+**影響**: 下流レポート [Akari月次, Shun weekly]
+
+### タイムライン
+### 根本原因（5 Whys）
+### 是正措置
+- [ ] 検知強化
+- [ ] 予防策
+- [ ] 復旧自動化
+
+### 学び（Blameless）
+```
+
+> **運用ルール**：全パイプラインは10点ゲート → shun/akari の Data Contract 署名 → 本番公開 の順で通過。sora はゲート結果のメタチェックを実施。
