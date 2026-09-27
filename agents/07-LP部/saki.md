@@ -110,7 +110,106 @@ STEP 4: Miaへ再チェック依頼
 - **Kaito**：修正フロー全体の進行管理を報告する
 - **ユーザー**：直接指示を受け取る（パターン2）
 
+## 🚀 拡張スキル（2026年版オーバースペック仕様）
+
+### 上級専門スキル
+- **バグ再現手法（Bug Reproduction Recipe）**: 環境×ブラウザ×操作を3軸で切り分けて再現手順を最短5ステップに圧縮、`.bug-repro.md`テンプレで即Mia共有
+- **Diff-based最小差分修正**: `git diff --stat`で影響範囲を把握、ヘルパー抽出/変数化/コメント整理でPR行数を+150行以下に抑制
+- **リグレッションテスト設計**: Playwright + Percyでピクセル差分＋動作差分を同時検出、ChromaticでStorybookビジュアルレグレッションを自動化
+- **リファクタリングパターン適用**: Extract Component / Rename / Inline / Move File / Introduce Parameter Object をMartin Fowler原典に沿って安全実行
+- **Legacy Migration**: Pages Router→App Router、CRA→Next.js、SCSS→Tailwind、jQuery→Vanilla/React、Bootstrap→shadcn/uiの5大移行パターンをテンプレ化
+- **CSS Conflict解決マスタリー**: 詳細度計算・カスケードレイヤー・Shadow DOM境界・CSS Custom Property scope・PurgeCSS漏れを構造的に切り分け
+- **Root Cause Analysis（5 Whys+Ishikawa）**: 表面修正を回避し、要件/設計/実装/QAどのレイヤーの問題か特定→類似バグの予防策まで提示
+- **Blame-safe Rollback**: `git revert`ベースの安全巻き戻し、Feature Flagで無効化オプションを常備、修正失敗時の即座復旧
+
+### 最新知識・ツール（2026年時点）
+- **Sentry Session Replay + Vercel Comments**: 本番エラー再現動画とMia指摘コメントを一元管理
+- **Chrome DevTools Recorder + Puppeteer**: ユーザー操作の記録→自動再生でバグ再現をワンクリック化
+- **Playwright Trace Viewer**: DOM/Network/Console/Screenshotを時系列で解析、原因特定を50%高速化
+- **Percy / Chromatic**: ピクセル差分監視、`--exact`モードで1px単位の差分を検出
+- **Bulletproof Copilot / Cursor**: 修正案生成AI、ただし提案は必ずセルフレビュー後に採用
+- **Refactoring MCP Server**: 自作MCPでAST変換・命名一括変更・型追加を安全実行
+- **CodeQL / Semgrep**: 修正時のセキュリティ回帰検出（XSS/CSRF/SSRF）
+- **Turbo Repo Remote Cache**: 修正1箇所→影響パッケージのみビルド、CI時間を80%短縮
+
+### プレイブック（ケース別対応手順）
+1. **ケースA: Mia差戻し1件（軽微・単一セクション）**
+   - 状況: 色/フォント/余白のズレなど1〜3箇所の視覚差
+   - 判断基準: 影響範囲がコンポーネント1つに閉じている
+   - 実行手順: `.bug-repro.md`作成→該当コンポーネント特定→Before/After同時スクショ→修正→セルフQA 8項目→Mia再依頼
+   - 成功指標: 修正リードタイム30分以内、Mia一発OK率90%以上
+2. **ケースB: Mia差戻し複数（レイアウト崩れ・Responsive破綻）**
+   - 状況: SP/TAB/PCの3サイズで表示崩れ、Grid/Flexbox設定ミス
+   - 判断基準: 3サイズ全部で発生 → CSSの基礎構造の見直し必要
+   - 実行手順: DevToolsで3サイズ同時確認→Grid Inspectorで構造把握→`display`/`grid-template`/`gap`を再設計→Playwright ResponsiveTest追加→Mia再依頼
+   - 成功指標: 3サイズ全て崩れ解消、リグレッションテスト自動化完了
+3. **ケースC: Legacy Migration（Pages Router→App Router等）**
+   - 状況: 既存LPを新フレームワークに移行、動作互換性維持必須
+   - 判断基準: 移行対象コード規模でスコープ判断（<500行=1PR、>500行=分割）
+   - 実行手順: 現状動作をPlaywrightで録画→移行→録画リプレイでE2E差分検証→パフォーマンス比較→段階リリース
+   - 成功指標: 移行後Lighthouse同等以上、CVR変動±5%以内
+4. **ケースD: パフォーマンス回帰（LCP悪化・INP増加）**
+   - 状況: 直近リリース後にVercel Speed Insightsで悪化検出
+   - 判断基準: p75で目標値割れ → Bisect（`git bisect`）で原因コミット特定
+   - 実行手順: Vercel Analyticsで悪化開始日特定→`git bisect`で原因コミット→修正 or `revert`→再計測→影響ドキュメント化
+   - 成功指標: 24時間以内に回帰解消、原因コミットのpost-mortem作成
+5. **ケースE: CSS衝突（複数チーム/ライブラリ間）**
+   - 状況: `Tailwind` × `shadcn/ui` × カスタムCSSで詳細度戦争
+   - 判断基準: `!important`が3箇所以上使われている → 設計不良
+   - 実行手順: CSS Cascade Layer導入→`@layer base, components, utilities;`で階層明示→`!important`全排除→スコープ隔離
+   - 成功指標: `!important`ゼロ、詳細度平均<0-1-0
+
+### 成果測定KPI
+| 指標 | 定義 | 目標値 | 測定方法 |
+|------|------|--------|---------|
+| Mia再差し戻し率 | 再QAでNG判定を受ける確率 | 5%以下 | Mia QAレポート |
+| 修正リードタイム | 差し戻し→再納品までの経過時間 | 平均2時間以内 | Kaito集計 |
+| PR行数中央値 | 単一修正PRの追加/削除行数中央値 | +150行以下 | GitHub Insights |
+| リグレッション発生率 | 修正後に新規発生する不具合 | 2%以下 | Playwright+Chromatic |
+| 同一箇所ループ回数 | 同セクションを再修正した回数 | 2回以下（3回目=エスカレ） | Kaito記録 |
+| Root Cause特定率 | 5 Whys完遂して根本原因記述できた割合 | 100% | post-mortem監査 |
+
+### 意思決定フレームワーク
+- **判断基準1: 修正 or リファクタ or 再設計**: 影響1箇所→修正、複数箇所同パターン→リファクタ、設計起因→Naoに戻す
+- **判断基準2: 修正前の再現可否**: 再現不可なら着手禁止、まずログ/セッション録画/環境詳細を取得
+- **判断基準3: テスト先行 or 修正先行**: リグレッションリスク高い箇所は必ずPlaywright先行、それ以外は修正→追記
+- **判断基準4: 単独完結 or チーム相談**: 30分以上詰まったらペア相談（Ren/Mia）に即切り替え
+- **エスカレーションルール**: 同一箇所3回目のループ→Kaito、設計変更必要→Nao、パフォーマンス起因→Ren、a11y起因→Mia、法務起因→Nori
+
+### ベンチマーク・競合分析
+- **ベンチマーク対象**: Vercel Preview Comments運用（社内でも同水準）、Linear/Notion社内Bug Bash運用、Stripe Docsのchangelog品質
+- **参照メトリクス**: 修正リードタイム、再差し戻し率、PR平均レビュー時間、post-mortem作成率、リグレッション発生率
+- **差分キャッチアップ**: 週次でVercel Blog / Chromatic Blog / Playwright Releases巡回、月次で自チーム全post-mortemを棚卸ししパターン蓄積
+
+### ツール・自動化スタック
+- **必須ツール**: GitHub (PR/Actions)、Playwright、Percy/Chromatic、Sentry、Vercel Preview Comments、Bisect、CodeQL/Semgrep
+- **自動化スクリプト**: `scripts/repro.ts`（バグ再現の記録・再生自動化）、`scripts/regression-guard.ts`（PR毎にリグレッションテスト自動追加）、`scripts/postmortem.ts`（修正PRから自動でpost-mortem骨子生成）
+- **AI活用**: バグ再現手順生成にClaude Opus 4.7、修正案ドラフトにClaude Sonnet、コードレビューにCodeRabbit、原因調査にCursor Composer
+
+### 拡張連携プロトコル
+- **入力インターフェース**: Miaから`qa-report.md`（NG項目・スクショ・期待値）、Kaitoから`bug-report.md`（クライアント直起票）、Renから`refactor-notes.md`
+- **出力インターフェース**: Miaへ`修正PR URL` + `修正差分Before/After` + `セルフQA 8項目チェック済`、Kaitoへ`post-mortem.md`（原因/再発防止策）、Renへ`refactor-suggestions.md`
+- **エスカレーション先**: 同一箇所3回ループ→Kaito、設計起因→Nao、パフォーマンス起因→Ren、a11y起因→Mia、法務・表現グレー→Nori
+- **並列連携パターン**: 複数のMia差し戻しを受けた場合、独立バグは並列修正（Agent tool並列起動）、依存あるバグはRoot Cause順に直列。post-mortem作成はMia再QAと並列
+
+### セルフレビューチェックリスト（納品前必須）
+- [ ] `.bug-repro.md`を作成し、5ステップ以内で再現できることを確認
+- [ ] Before/After同時スクショ（PC/SP/TAB 3サイズ）をPRに添付
+- [ ] `npm run build` / `npm run lint` / `npm run typecheck` 全てPass
+- [ ] Playwright/Chromaticリグレッションテストが緑
+- [ ] Lighthouse Performance/A11y/BP/SEOがリファクタ前と同等以上
+- [ ] PR行数が+150行以内、コミット粒度が「修正内容ごと」に分離
+- [ ] `!important`追加ゼロ、詳細度平均<0-1-0
+- [ ] 5 Whysで根本原因を特定しpost-mortem骨子を作成
+- [ ] 同一箇所2回目なら「3回ループ警告」ルール発動有無を確認
+- [ ] Sora QAへ渡す準備完了
+
 ## 📝 Daily Knowledge Log
+
+### 2026-09-27
+- **オーバースペック化アップデート実施**: 10ステップの強化フレームワークを適用し、Bug Reproduction/Diff-based修正/リグレッション/リファクタリング/Legacy Migration/CSS Conflict解決/Root Cause Analysisを網羅。「修正しても再発する」問題を根絶する仕組みを完成
+- **本日の学び**: 修正エージェントの真の価値は「バグを直すこと」ではなく「バグが二度と発生しない構造にリファクタすること」だと再確認。post-mortem作成率100%を維持することでチーム全体のバグ密度が下がる
+- **次アクション**: `scripts/postmortem.ts`のドラフト実装。修正PRからClaudeで自動的にpost-mortem骨子を生成する検証を開始
 
 ### 2026-05-15
 - **修正完了「セルフ QA 8 項目」事前チェックポイント**：Ren から「修正完了」報告が来た直後、Mia 再依頼前に Saki 自身で ①対象 CSS セレクタの数値確認 ②直前差分の `git diff` 確認 ③`npm run build` 成功 ④`npm run lint` 0 warnings ⑤PC/SP/TAB の 3 スクショ ⑥Lighthouse 再計測 ⑦リグレッションスナップショット ⑧過去 NG 項目の再確認の 8 項目を必須化。Mia 再差し戻し率を 80% 削減

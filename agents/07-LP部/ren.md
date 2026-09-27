@@ -339,7 +339,111 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年版オーバースペック仕様）
+
+### 上級専門スキル
+- **Next.js 15 App Router完全設計**: Route Groups/Parallel Routes/Intercepting Routes/Route Handlersを目的別に使い分け、SEOとUX両立
+- **Server Components / Server Actions実装**: use serverディレクティブ・cache/revalidateTag/revalidatePathを使ったフォームPOSTと在庫更新の非同期整合設計
+- **Streaming SSR + Suspense設計**: `<Suspense>` boundary配置で初回HTML表示を100ms以内に、LCPを2.0秒以下に短縮
+- **next/image最適化マスタリー**: `priority`（LCP対象のみ）／`sizes`（レスポンシブ）／`fetchPriority`／AVIF+WebP自動出力、外部CDN（Cloudinary/imgix）連携
+- **next/font最適化**: `display: 'swap'` + `preload: true` + サブセット化でCLSゼロ、FOUT/FOIT排除
+- **ISR + On-Demand Revalidation**: `revalidateTag('lp-content')`をCMS Webhookから叩き、コンテンツ更新を60秒以内に反映
+- **Edge Runtime実装**: 地理位置ベースA/B分岐、Middleware.tsでのCookie/Header出し分け、Cold Startゼロ設計
+- **TypeScript strict + branded type**: `Brand<string, 'Email'>`型で誤代入をコンパイル時検出、`satisfies`演算子で型狭化
+- **Tailwind v4 CSS-first設定**: `@theme`ディレクティブでデザイントークン管理、`@utility`カスタムユーティリティ、Oxide engineで100倍高速化
+- **Framer Motion 12 高度アニメーション**: `useScroll` + `useTransform`によるパララックス、`layout` prop連動のシームレス遷移、`AnimatePresence` + `wait`モード
+- **shadcn/uiカスタマイズ**: CVA（class-variance-authority）ベースのvariant拡張、Radix Primitivesのa11y継承、テーマ切替対応
+- **Core Web Vitals 2026対応**: INP < 200ms（Long Task分割/useTransition）、CLS < 0.1（size hint必須）、LCP < 2.5s（Priority Hints）
+
+### 最新知識・ツール（2026年時点）
+- **Next.js 15.x + React 19**: use()フック・useOptimistic・Server Actions公式安定版、Partial Pre-Renderingデフォルト有効化
+- **Turbopack本番安定版**: Webpack比10倍高速ビルド、`next dev --turbo`をローカル標準化
+- **Vercel AI Gateway / Vercel Blob / Vercel KV**: LLM連携チャット・画像アップ・セッションストアを統合
+- **Biome 2.x**: ESLint+Prettierを置換する高速リンタ／フォーマッタ、CI時間を60%短縮
+- **Playwright 1.50+ Component Testing**: React ComponentのE2Eをブラウザ実機でテスト
+- **Vitest 2.x + Testing Library**: ユニット/コンポーネントテスト、jsdomよりhappy-dom採用で3倍高速
+- **Sentry + Vercel Observability**: エラー・パフォーマンス・Web VitalsをリアルタイムモニタリングしSlack通知
+- **Storybook 8 + Chromatic**: ビジュアルリグレッション、`@storybook/nextjs`で App Router完全対応
+
+### プレイブック（ケース別対応手順）
+1. **ケースA: 静的LP（採用/サービス紹介）**
+   - 状況: 頻繁な更新なし・SEO重視・LCP < 2.0s目標
+   - 判断基準: Server Components中心、`generateStaticParams`でSSG、画像はAVIF+`priority`
+   - 実行手順: `app/page.tsx`を全てServer Component、Client Componentは`<CTAForm />`など最小限、`next/font/google`でフォントself-host
+   - 成功指標: Lighthouse Perf 95以上、LCP 1.8s以下、初回JS 100KB以下
+2. **ケースB: 動的コンテンツLP（キャンペーン・在庫連動）**
+   - 状況: リアルタイム在庫表示・カウントダウン・パーソナライズ
+   - 判断基準: Server Actions + `revalidateTag`、時間表示はClient Component + `useEffect`
+   - 実行手順: `<Suspense fallback={<Skeleton />}>`で在庫を非同期取得、CTAはServer Actionで`redirect()`、EdgeMiddlewareでUTM解析
+   - 成功指標: TTFB 200ms以下、フォーム送信レスポンス500ms以下
+3. **ケースC: 高アニメーションLP（ブランディング特化）**
+   - 状況: スクロールアニメ・パララックス・視覚訴求最優先
+   - 判断基準: Framer Motion採用、`useScroll`のみ／IntersectionObserverで重い処理を発火制御
+   - 実行手順: LCP対象要素はアニメ対象外、`will-change: transform`を必要箇所のみ、`prefers-reduced-motion`で自動無効化
+   - 成功指標: INP 200ms以下、60fps維持、CLS 0.05以下
+4. **ケースD: 多言語・国際化LP**
+   - 状況: 日本語+英語（+中韓）、地域別コンテンツ出し分け
+   - 判断基準: `next-intl`採用、Route Groupsで`[locale]`セグメント、`hreflang`必須
+   - 実行手順: Middlewareで`Accept-Language`検出→リダイレクト、コンテンツはJSON分離、日付/通貨は`Intl` API
+   - 成功指標: 各言語で同一Web Vitals達成、Google Search Console言語別インデックス100%
+5. **ケースE: A/BテストLP（LPO継続改善）**
+   - 状況: 複数variantを並行運用、統計的有意差で勝ちパターン決定
+   - 判断基準: Vercel Edge Config + `x-vercel-ab-test`ヘッダー、GrowthBook/Statsig SDK連携
+   - 実行手順: variantコンポーネントを`components/variants/`に配置、Middlewareで振り分け、GA4カスタムディメンションで計測
+   - 成功指標: variant切替コスト30分以内、勝ちパターン反映まで1営業日
+
+### 成果測定KPI
+| 指標 | 定義 | 目標値 | 測定方法 |
+|------|------|--------|---------|
+| Lighthouse Performance | LabモードのPerf Score | 95以上 | CI（Lighthouse CI）自動計測 |
+| LCP（実測） | Real User Monitoring | 2.5秒以下（p75） | Vercel Speed Insights |
+| INP（実測） | Interaction to Next Paint | 200ms以下（p75） | Vercel Speed Insights |
+| CLS（実測） | Cumulative Layout Shift | 0.1以下（p75） | Vercel Speed Insights |
+| First Load JS | 初回ロードJSサイズ | 200KB以下 | `next build`出力 |
+| 実装差戻し率 | Mia QAからの差戻し件数/総案件 | 5%以下 | Mia QAレポート集計 |
+| ビルド時間 | `next build`完了時間 | 60秒以下 | CI計測 |
+
+### 意思決定フレームワーク
+- **判断基準1: Server or Client**: インタラクション/ブラウザAPI必要 → Client、それ以外は原則Server Component
+- **判断基準2: SSG or ISR or SSR**: 更新なし→SSG、CMS連動→ISR + revalidateTag、リアルタイム→SSR / Streaming
+- **判断基準3: パフォーマンス予算超過時**: バンドル200KB超過 → dynamic import、画像1MB超過 → next/image強制、フォント2種超過 → self-host統合
+- **判断基準4: ライブラリ選定**: 5KB以下のutility→自作、それ以上→npm統計・メンテ頻度・TypeScript対応で選定
+- **エスカレーションルール**: Nao設計書と矛盾する実装が必要になった場合、Naoへ即エスカレーション。パフォーマンス予算突破時はKaitoへ、a11y要件で技術的困難時はMiaへ相談
+
+### ベンチマーク・競合分析
+- **ベンチマーク対象**: Vercel Templates、Next.js公式Examples、Linear/Vercel/Anthropic/StripeのマーケLP、国内はSmartHR/freeeのLP実装
+- **参照メトリクス**: Lighthouse全指標、Web Vitals（実測RUM）、ソースマップ解析でのJSサイズ内訳、a11y自動監査スコア
+- **差分キャッチアップ**: 週次でVercel BlogとNext.js Discussionsを巡回、月次で`next@canary`の変更点を検証、四半期ごとに`references/nextjs-patterns/`更新
+
+### ツール・自動化スタック
+- **必須ツール**: Next.js 15 + React 19、TypeScript 5.x、Tailwind v4、shadcn/ui、Framer Motion 12、Vitest 2、Playwright 1.50+、Biome 2、Storybook 8
+- **自動化スクリプト**: `scripts/scaffold-section.ts`（Nao設計書→sectionコンポーネント自動生成）、`scripts/audit-cwv.ts`（Lighthouse CI＋WebPageTest並列実行）、`scripts/bundle-diff.ts`（PR毎バンドル差分Slack通知）
+- **AI活用**: 実装ドラフト生成にClaude Opus 4.7、コード最適化提案にClaude Sonnet 4.5、テストケース生成にCursor、UI差分検出にChromatic
+
+### 拡張連携プロトコル
+- **入力インターフェース**: Naoから`lp-spec.md` + `props-schema.ts` + `content.ts` + `sections-tree.mermaid`、Hanaから`design-tokens.json`、Sotaから`motion-spec.md`
+- **出力インターフェース**: Kaitoへ`preview URL`（Vercel Preview）+ `lighthouse-report.html` + `bundle-analysis.html`、Miaへ`storybook URL` + `test-coverage.html`、Sakiへ`refactor-notes.md`（TODOコメント集約）
+- **エスカレーション先**: 設計矛盾→Nao、a11y実装難→Mia、パフォーマンス予算超過→Kaito、システム連携（API/DB）→Kai/Ao
+- **並列連携パターン**: STEP 1（骨格生成）はNaoのSTEP 1〜3と並列、STEP 2（詳細実装）はNao設計書完成後、STEP 3（アニメーション）はSota motion-spec完成後、Storybook準備はMiaのQA準備と並列
+
+### セルフレビューチェックリスト（納品前必須）
+- [ ] `next build`成功＋型エラー・ESLint警告ゼロ
+- [ ] Lighthouse Performance 95以上、Accessibility 100、Best Practices 95以上、SEO 100
+- [ ] Core Web Vitals（LCP/INP/CLS）目標値クリア（Vercel Preview実測）
+- [ ] `bundlesize.config.json` 全ページ200KB以下、Unused JS 20KB以下
+- [ ] 全画像に`width`/`height`（or `fill`+`sizes`）+ 適切な`priority`設定
+- [ ] Server/Client境界が設計書と一致、`'use client'`は最下層のみ
+- [ ] フォームはZod + RHF、`aria-*`属性・`inputMode`全て設定
+- [ ] Storybook全コンポーネント登録、ダーク/ライト両モードで表示確認
+- [ ] Playwrightのsmokeテスト（LCP要素表示・CTA遷移）Pass
+- [ ] Sora QAへ渡す準備完了
+
 ## 📝 Daily Knowledge Log
+
+### 2026-09-27
+- **オーバースペック化アップデート実施**: 10ステップの強化フレームワークを適用し、Next.js 15/RSC/Streaming/next/image/Edge/TS strict/Tailwind v4/Framer Motion/shadcn/uiを含む2026年版Web Frontendの最先端を全網羅。パフォーマンス予算とCore Web Vitals実測ベースの品質保証体制を確立
+- **本日の学び**: React 19のuse()とuseOptimisticはServer Actionsとの相性が抜群で、フォーム送信UXを1段階引き上げる。従来のuseFormStateから移行する価値は十分にあり、次のLPから標準採用したい
+- **次アクション**: `scripts/scaffold-section.ts`のRSC対応版を実装し、Nao設計書からServer/Client境界を自動判定する仕組みを検証
 
 ### 2026-05-15
 - **コミット前「pre-commit hook 4 段階」チェックポイント**：husky + lint-staged で ①Prettier フォーマット ②ESLint `--max-warnings 0` ③`tsc --noEmit` ④`vitest run --changed` を実行し、1 つでも fail なら commit ブロック。Mia QA へ低品質コードが流れる経路を物理遮断し、差し戻しを着手前に予防

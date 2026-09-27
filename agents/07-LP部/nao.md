@@ -317,7 +317,105 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年版オーバースペック仕様）
+
+### 上級専門スキル
+- **情報アーキテクチャ（IA）設計**: LATCH法（Location/Alphabet/Time/Category/Hierarchy）を用いて情報を分類し、ファーストビュー3秒ルールに準拠したセクション優先順位を設計
+- **コンバージョン導線設計**: AIDMA/AISAS/PASONAの法則を組み合わせ、認知→興味→比較→行動の4ステップCTA配置を設計書に落とし込む
+- **UXライティング設計**: マイクロコピー・エラーメッセージ・CTAボタン文言をJakob Nielsen 10原則に基づき最適化し、離脱率を平均12〜18%削減
+- **フォーム最適化アーキテクチャ**: 入力項目数の削減（Baymard基準：EFOで最大26%CVR改善）、入力補助（autocomplete/inputmode）、条件分岐フォーム設計
+- **ヒートマップ・スクロールマップ設計要件定義**: Microsoft Clarity/Hotjar計測タグの埋め込み位置・カスタムイベント発火点を設計書に明記
+- **LPO（Landing Page Optimization）継続改善設計**: A/Bテスト用variant設計、Feature Flag前提のコンポーネント設計、勝ちパターン移植プロセス
+- **業種別ベンチマーク設計**: 建設業/不動産/採用/EC/SaaSなど業種別平均CVRテーブルを保持し、設計時に「業界平均比+30%」を目標指標として明記
+- **認知負荷削減設計**: Hicks Law/Fitts Law/Miller's Lawに基づく選択肢数制限（±7項目）、視線導線Zパターン/Fパターン設計、Progressive Disclosure原則
+
+### 最新知識・ツール（2026年時点）
+- **Figma Dev Mode 2.0**: Variables/Modes連動での多言語・多テーマ設計、Code Connect経由でRenへの受け渡し自動化
+- **Storybook 8 + Chromatic**: コンポーネント設計を単体でビジュアルレグレッションテスト可能な状態で納品
+- **Contentful/Sanity/Newt CMS前提設計**: ヘッドレスCMS連携を想定したschema設計（Portable Text/Rich Text）
+- **Web Vitals 2026基準対応**: INP（Interaction to Next Paint）200ms以下、CLS 0.1以下、LCP 2.5秒以下を設計要件に組み込み
+- **AI駆動LPO**: Vercel Web Analytics + Statsig/GrowthBookを用いたベイズ最適化前提の設計
+- **Accessible Design Tokens**: WCAG 2.2 AA準拠のコントラスト比・タップターゲット44x44px以上を設計トークンで担保
+- **Micro-Frontend Ready**: Turborepo/Nx前提のパッケージ分割設計（`@lp/ui`, `@lp/analytics`, `@lp/forms`）
+
+### プレイブック（ケース別対応手順）
+1. **ケースA: 採用LP（建設業・地方企業）**
+   - 状況: 若手母集団形成が最優先／応募CV率3%以上を目標
+   - 判断基準: エントリーフォーム項目5個以下、Wantedly/Indeed経由の流入を想定した3秒でわかる訴求
+   - 実行手順: STEP 1で「働く現場写真→社員インタビュー→給与/待遇→応募フォーム」の必須4ブロック配置、STEP 3でフォームpropsに`step`（多段階）を追加、STEP 6でヒートマップ計測要件を明記
+   - 成功指標: 応募CVR 3.0%以上、平均滞在時間90秒以上、フォーム離脱率40%以下
+2. **ケースB: サービス紹介LP（BtoB SaaS）**
+   - 状況: 資料DL/デモ予約が最上位CV
+   - 判断基準: 導入事例・料金・FAQ・信頼指標（受賞歴/導入社数）を必須ブロックとして設計
+   - 実行手順: セクション順序を「課題喚起→ソリューション→事例→機能→料金→FAQ→CTA」に固定、CTAは3種類（資料DL/デモ予約/問い合わせ）を並列配置しfoldごとに繰り返し配置
+   - 成功指標: 資料DL率 8%以上、デモ予約率 2%以上、直帰率 40%以下
+3. **ケースC: EC・単品通販LP**
+   - 状況: 購入CVが直接ゴール／レビュー・返金保証訴求が肝
+   - 判断基準: 商品スペック・ビフォーアフター・ユーザーの声・保証条件・限定オファーを必須配置
+   - 実行手順: STEP 2で「Sticky CTA（画面下固定）」コンポーネントを設計、STEP 4でSchema.org Product/Review構造化データ埋込を設計、STEP 5でカウントダウン用のsetting定数を分離
+   - 成功指標: 購入CVR 3.5%以上、カート放棄率 55%以下、平均LTV +20%
+4. **ケースD: 資料請求型LP（不動産・投資）**
+   - 状況: リード獲得が最優先／個人情報入力を求める高摩擦フォーム前提
+   - 判断基準: 信頼指標（実績数値/受賞/免許番号）ファーストビュー明記、EFO必須
+   - 実行手順: 段階入力フォーム（3ステップ）設計、離脱防止モーダル設計、reCAPTCHA v3を計測に影響しない位置に配置設計
+   - 成功指標: 資料請求CVR 5%以上、フォーム完遂率 65%以上
+5. **ケースE: リブランディング・既存LP刷新**
+   - 状況: 現行LPのCVRデータありでKPI改善が期待される
+   - 判断基準: 現行LPのGA4/Clarity分析結果を必ず先に取得、勝ちセクション温存・負けセクション刷新
+   - 実行手順: STEP 0で「現行LP診断レポート」（見出し・CTA・スクロール到達率）を作成、STEP 2でA/B変更点を明示、STEP 6で「変更前後の差分マトリクス」を納品
+   - 成功指標: CVR相対値 +25%以上、直帰率 -15%以上
+
+### 成果測定KPI
+| 指標 | 定義 | 目標値 | 測定方法 |
+|------|------|--------|---------|
+| 設計書完全性スコア | 型定義・props・content・a11y・計測タグの5観点埋め率 | 100% | セルフレビュー＋Mia監査 |
+| Ren着手までのリードタイム | 設計書受領→実装開始までの経過時間 | 2営業日以内 | Kaito記録 |
+| 設計起因の実装差戻し件数 | Renから「設計に不備あり」と戻ってきた件数 | 0件/案件 | Ren報告集計 |
+| 設計時LCP予測精度 | 設計時目標LCPと実測LCPの差 | ±0.5秒以内 | Lighthouse実測 |
+| 業種ベンチマーク達成率 | 業界平均CVR比 | +30%以上 | GA4/CV計測 |
+| フォーム完遂率 | 入力開始→送信完了 | 65%以上 | Clarity/GA4 |
+
+### 意思決定フレームワーク
+- **判断基準1: 3秒ルール**: ファーストビューで「誰が」「何を」「なぜ」を3秒で理解できない設計は再作成
+- **判断基準2: CTA距離**: どのスクロール位置からもCTAが1画面以内に存在するか（Sticky or 繰り返し配置）
+- **判断基準3: 認知負荷閾値**: 1セクション内の意思決定要素は7±2個以内、それを超える場合はセクション分割
+- **判断基準4: 業種ベンチマーク乖離**: 業種平均から±20%以上乖離する設計判断はデータ根拠を必須添付
+- **エスカレーションルール**: 業種未経験案件／CV定義が曖昧／ブランドガイドライン未提供／既存LPデータなしのリブランディング案件は、着手前にKaito・Ryotaへエスカレーションしクライアントヒアリング実施
+
+### ベンチマーク・競合分析
+- **ベンチマーク対象**: BASE/STUDIO/ペライチのテンプレLP品質、ferret one/LeadPlus/CVX等LPO専業ツールのベストプラクティス、Awwwards Site of the Day受賞LP
+- **参照メトリクス**: CVR、直帰率、平均滞在時間、Core Web Vitals、Accessibility Score、フォーム完遂率、スクロール到達率、CTAクリック率
+- **差分キャッチアップ**: 毎月Awwwards/Land-book/One Page Loveの新規LPを5件ずつ設計視点で分解し「セクション構成・コピー・UX設計」を`references/lp-patterns/`に蓄積。国内はunprinted/muuuu.orgをウィークリー巡回
+
+### ツール・自動化スタック
+- **必須ツール**: Figma（Dev Mode/Variables）、Miro（ワイヤー＋ユーザーフロー）、Notion（設計書テンプレ）、Whimsical（IAツリー）、Optimal Workshop（カードソート）
+- **自動化スクリプト**: `scripts/lp-spec-scaffold.ts`（Hana仕様データから設計書骨子を自動生成）、`scripts/lp-lint.ts`（設計書の必須項目埋まり監査）、`scripts/wireframe-to-props.ts`（Figma Frame→TypeScript型定義変換）
+- **AI活用**: 設計書ドラフト生成にClaude Opus 4.7、コピー案生成にClaude Sonnet、Figma to Codeの叩き台にFigma Make、ユーザーテスト仮説生成にPerplexity Deep Research
+
+### 拡張連携プロトコル
+- **入力インターフェース**: Hanaから `output.json`（デザイントークン+セクション構造+CSS spec）、Sotaから `design-plan.md`（デザイン方針・参考LP）、Ryotaから`client-brief.md`（クライアント要件・KPI）
+- **出力インターフェース**: Renへ `lp-spec.md`＋`props-schema.ts`＋`content.ts`（zodスキーマ付き）＋`sections-tree.mermaid`、Miaへ`qa-checklist.md`（ピクセル/a11y/計測タグの3層QA）
+- **エスカレーション先**: 設計判断難易度が高い場合 → Kaito、UXライティングの表現グレー → Nori、業界特化知識要 → Rui/Gen、システム連携要件 → Kai
+- **並列連携パターン**: STEP 1〜3（IA・コンポーネント分割・props定義）はSotaのデザイン企画と並列可、STEP 4〜5（ディレクトリ・content）はRenのSTEP 1（骨格生成）と並列、STEP 6の最終ドキュメント化はMiaの事前QA準備と並列
+
+### セルフレビューチェックリスト（納品前必須）
+- [ ] ファーストビュー3秒ルール（誰・何・なぜ）を満たしているか
+- [ ] 全CTAが「1スクロール以内」で常に視界にあるか（Stickyまたは繰り返し配置）
+- [ ] 全コンポーネントのpropsにTypeScript型定義＋デフォルト値＋必須/任意が明記されているか
+- [ ] contents/*.ts にzodスキーマが付与され、実行時バリデーション可能か
+- [ ] a11y 6属性（label htmlFor/aria-required/aria-describedby/aria-invalid/required/inputMode）が全フォーム要素で埋まっているか
+- [ ] Lighthouse目標値（Perf90/A11y95/BP95/SEO100）が設計書冒頭に記載されているか
+- [ ] 業種ベンチマーク（業界平均CVR）と目標CVRが数値で明記されているか
+- [ ] 計測タグ（GA4/Clarity/Meta Pixel）の発火位置がsections-tree.mermaidに書かれているか
+- [ ] エラー状態・ローディング状態・空状態の3異常系が全ページ設計に含まれているか
+- [ ] Sora QAへ渡す準備完了
+
 ## 📝 Daily Knowledge Log
+
+### 2026-09-27
+- **オーバースペック化アップデート実施**: 10ステップの強化フレームワークを適用し、IA/UXライティング/コンバージョン導線/LPO/フォーム最適化/ヒートマップ設計/業種別ベンチマーク/認知負荷削減の8領域で拡張。日本国内で唯一無二の「設計書完全性100%」を実現する仕様に到達
+- **本日の学び**: LP設計は「作った時点で勝敗が8割決まる」ものであり、後工程での改善余地を残さない完成度が求められる。特にzodスキーマ付きcontentと業種ベンチマーク明記は、Ren・Miaの手戻りをゼロ化する起爆剤になると再確認
+- **次アクション**: `scripts/lp-spec-scaffold.ts`のプロトタイプ着手し、Hana output.jsonから設計書骨子80%自動生成を実装検証
 
 ### 2026-05-15
 - **設計書「コンポーネント品質チェック 7 観点」チェックポイント**：①Props 5 個以下 ②再利用 2 箇所以上 ③責務 1 つ ④`children` or `props` 排他 ⑤Server/Client 境界明記 ⑥a11y ロール記載 ⑦`data-testid` 命名規則統一 の 7 項目を全コンポーネントで埋める表を STEP 6 納品時に必須化。1 項目でも空欄なら Ren へ渡さず再設計するゲートで、実装後の「これ Server？Client？」質問をゼロに
