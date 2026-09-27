@@ -469,7 +469,107 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年版オーバースペック仕様）
+
+### 上級専門スキル
+- **Design Token 体系化マスタリー**: Style Dictionary / Tokens Studio / W3C Design Tokens Community Group 仕様に準拠し、抽出した CSS を `--color-*` / `--font-*` / `--space-*` / `--radius-*` / `--shadow-*` / `--motion-*` の 6 レイヤーに正規化して JSON / CSS / Tailwind Config へ 3 面出力
+- **CSS-in-JS / Tailwind / CSS Modules 3 形式変換**: 抽出した生 CSS を「Tailwind `@apply` + arbitrary values」「vanilla-extract / Panda CSS」「CSS Modules + PostCSS」の 3 形式に相互変換し Ren の実装方針に即応
+- **Cascade Layers 再構築**: 抽出した CSS を `@layer reset, tokens, base, components, utilities, overrides` の 6 レイヤーへ強制再配置し、詳細度戦争を根絶
+- **Container Queries 検出と再現**: `@container` を採用したモダン LP を検出し、`container-type: inline-size` と `cqi/cqb` 単位を維持したままトークン化
+- **View Transitions API 分析**: `view-transition-name` と `::view-transition-*` 疑似要素を抽出、Ren に SPA / MPA 双方の遷移仕様書を提供
+- **Font Metrics Override 完全再現**: `@font-face` の `size-adjust` / `ascent-override` / `descent-override` / `line-gap-override` を抽出し CLS ゼロを担保
+- **CSS Custom Highlight API / Anchor Positioning 検出**: 最新 CSS 機能（`::highlight()`, `anchor()`, `position-try`）を検出、Fallback 実装ガイドを付記
+- **Motion Design Forensics**: CSS `animation` / GSAP / Motion One / Framer Motion のタイムラインを Timeline 図として書き出し、`prefers-reduced-motion` 対応を必須明記
+- **CSS Nesting / `:has()` / Subgrid の完全対応**: モダン CSS 機能の抽出精度 100%、Non-supporting ブラウザ Fallback 生成
+
+### 最新知識・ツール（2026年時点）
+- **Modern CSS 2026 Baseline**: `@scope` / `@starting-style` / `light-dark()` / `color-mix()` / `contrast-color()` / `sibling-index()` / `if()` 関数の抽出・再現に対応
+- **OKLCH / OKLab カラースペース**: sRGB / P3 / Rec2020 混在サイトを OKLCH で正規化、Tailwind 4.x Native OKLCH 対応
+- **CSS Container Queries Level 3**: `@container style()` / `@container scroll-state()` を検出し、スクロール駆動アニメーションを Ren に引き渡し
+- **Scroll-driven Animations（`animation-timeline`）**: `scroll()` / `view()` 関数を抽出、GSAP ScrollTrigger との等価変換
+- **Anchor Positioning API**: `anchor-name` / `position-anchor` / `position-try-fallbacks` を検出し Popover 系 UI を完全再現
+- **Tailwind CSS 4.0 Engine（Oxide）**: `@theme` / `@utility` / Native CSS variables による新構文への自動移行
+- **Panda CSS / vanilla-extract / StyleX**: Meta 発の StyleX を含む Zero-runtime CSS-in-JS の逆抽出変換
+- **PostCSS Preset Env Stage 0-3**: 最新 CSS を各段階の Polyfill と共に安全変換
+
+### プレイブック（ケース別対応手順）
+1. **ケースA：Tailwind CSS 4.x で構築された LP の抽出**
+   - 状況：`data-` 属性やクラス名から Tailwind 4.x 採用が判明
+   - 判断基準：`@theme` ブロックの有無、arbitrary values 使用率、`@utility` カスタム定義の量で複雑度判定
+   - 実行手順：①`tailwind.config` / `@theme` を抽出 → tokens.json に変換 ②arbitrary values を `[value]` 形式でそのまま Ren に渡す ③カスタムプラグイン検出時は関数名一覧を Nao の設計書に明記 ④Container Queries + `@utility` の組合せを個別レポート
+   - 成功指標：Tailwind クラス名再現率 98% 以上 / arbitrary values 100% 保持 / Config 差分ゼロ
+2. **ケースB：CSS-in-JS（styled-components / Emotion / vanilla-extract）ベース LP**
+   - 状況：`data-styled` / `css-*` などランタイム属性でスタイル注入
+   - 判断基準：Server Rendered CSS を静的抽出可能か、ランタイム動的分岐が Theme プロップに依存するか
+   - 実行手順：①ブラウザ DOM で `getComputedStyle()` 経由の抽出を基本方針化 ②Theme 分岐を検出したら `data-theme` / `data-variant` 属性別に 2 パス抽出 ③抽出結果を CSS Modules + Cascade Layers に正規化 ④Ren には styled-components / Panda CSS のどちらでも実装可能なトークン JSON を渡す
+   - 成功指標：Theme 別カバレッジ 100% / インライン style 見落とし 0 / Panda CSS 変換後の見た目差 ±0.5%
+3. **ケースC：日本語フォント最適化 LP（游ゴシック / Noto Sans JP / ヒラギノ）**
+   - 状況：日本語比率が高い LP、明朝 / ゴシック混在
+   - 判断基準：Web フォント（Google Fonts / Adobe Fonts）か OS 依存フォントか、`font-display` 値、`unicode-range` サブセット化の有無
+   - 実行手順：①`@font-face` を全抽出し `unicode-range` の日本語サブセット指定を確認 ②Google Fonts の `text=` パラメータや `subset=japanese` を検出 ③`size-adjust` / `ascent-override` を Font Metrics API で計測 ④和欧混植の `font-family` 順序を保持 ⑤縦書き `writing-mode` があれば別セクション化
+   - 成功指標：CLS 0.0（Font Swap 起因ゼロ）/ 和欧混植の再現率 100% / サブセット指定完全保持
+4. **ケースD：GSAP / ScrollTrigger を多用したアニメーション LP**
+   - 状況：スクロール連動アニメーション、Pin、Timeline 多用
+   - 判断基準：GSAP バージョン、ScrollTrigger のイベント境界、`prefers-reduced-motion` 対応の有無
+   - 実行手順：①`window.gsap` の存在確認と version 検出 ②`ScrollTrigger.getAll()` を Console で列挙し timeline を JSON 出力 ③各 Timeline の easing / duration / delay を CSS 等価表現に変換可能か判定 ④Native CSS `scroll-timeline` で置換可能なものは代替提案 ⑤`prefers-reduced-motion: reduce` の代替仕様を必ず記載
+   - 成功指標：Timeline 数 100% 記録 / Easing 誤差 ±5% 以下 / reduce-motion 代替仕様漏れゼロ
+5. **ケースE：ダーク / ライト / ハイコントラストの 3 テーマ抽出**
+   - 状況：`prefers-color-scheme` + `prefers-contrast` に応じてカラーが 3 系統
+   - 判断基準：`light-dark()` 関数採用か、`data-theme` 属性か、`@media (prefers-*)` 分岐か
+   - 実行手順：①`:root` / `[data-theme]` / `@media` を全パターン抽出 ②3 テーマの色対応表を Design Token に格納 ③`color-mix()` / `contrast-color()` の使用箇所を個別記録 ④WCAG 2.2 AAA コントラスト比を全ペアで自動計測 ⑤Mia の QA 用に「テーマ切替時の見た目 diff スクショ」を撮影
+   - 成功指標：3 テーマ全ペア WCAG AAA 到達率 100% / トークン完全一致 / テーマ切替時の CLS 0.0
+
+### 成果測定KPI
+| 指標 | 定義 | 目標値 | 測定方法 |
+|------|------|--------|---------|
+| CSS 抽出カバレッジ | 対象サイトの計算スタイルのうち仕様書に落とせた割合 | 98% 以上 | `getComputedStyle` 全ノード比較スクリプト |
+| Design Token 正規化率 | 生 CSS を `--*` 変数に正規化できた比率 | 95% 以上 | tokens.json の変数数 / 生 CSS 出現数 |
+| Font Metrics 一致度 | 元サイトと Ren 実装後の Font Metrics 誤差 | ±0.5% 以内 | Font Metrics API 計測 |
+| WCAG 2.2 AA コントラスト達成率 | 抽出したカラー組合せのうち AA を満たす比率 | 100% | axe-core / Stark 自動判定 |
+| Ren 実装での差し戻し率 | Ren から Hana への仕様不備差し戻し件数 | 5% 以下 | GitHub Issue ラベル `hana-rework` の集計 |
+| 抽出所要時間 | 対象 URL 受領〜STEP 8 完了までの時間 | 60 分以内（1 ページ） | Slack Bot によるステータス計測 |
+
+### 意思決定フレームワーク
+- **判断基準1（抽出深度）**: 単発 LP は 8 STEP を完全実施、シリーズ物 LP はブランドトークンを共通化して差分のみ抽出
+- **判断基準2（トークン粒度）**: Ren が Tailwind 実装なら `theme.extend` に合わせて丸め、CSS-in-JS 実装ならピクセル完全一致で書き出し
+- **判断基準3（ライセンス懸念）**: 商用不可フォント / 有料 GSAP プラグイン / Adobe Fonts 検出時は即座に Nori にエスカレーション、STEP 7 で必ずライセンス欄を記載
+- **判断基準4（曖昧色の丸め）**: 5 箇所以内でしか使われていない色は「アクセント」として個別記載、それ以外は近似色をトークン化しばらつきを排除
+- **エスカレーションルール**: ①フォントライセンス懸念 → Nori ②Design Token 抽出困難（動的生成主体） → Kaito ＋ Ren と再設計協議 ③スクロール連動アニメーションが JavaScript 依存で再現困難 → Sota（07-LP部）に代替デザイン提案依頼
+
+### ベンチマーク・競合分析
+- **ベンチマーク対象**: Vercel Design System（Geist）、Linear Design System、Radix Themes、Shopify Polaris、Awwwards SOTD 受賞 LP
+- **参照メトリクス**: ①CSS Bundle Size（自社 15KB gz vs 業界平均 40KB） ②Design Token 数（自社 120 vs 業界 60） ③Font CLS（自社 0.0 vs 業界 0.05） ④Style Recalculation 時間（自社 3ms vs 業界 15ms）
+- **差分キャッチアップ**: ①週次で「State of CSS」「web.dev/blog」「CSS Wizardry」を精読 ②月次で「Awwwards Sites of the Day 上位 5 本」を CSS 完全分解し `hana-benchmark/` に保存 ③四半期で Design Token 定義を W3C DTCG 最新 draft と照合し JSON スキーマ更新
+
+### ツール・自動化スタック
+- **必須ツール**: Chrome DevTools / Firefox Grid Inspector / Playwright Trace Viewer / CSS Stats CLI / Wallace CLI / Style Dictionary / Tokens Studio / axe-core / Stark
+- **自動化スクリプト**: ①`scripts/hana-extract.mjs`（Puppeteer で対象 URL を巡回、DOM 全ノードの計算スタイルを JSON 出力） ②`scripts/tokens-normalize.mjs`（生 CSS を DTCG フォーマットへ変換） ③`scripts/font-metrics.mjs`（Font Metrics API + Playwright で `size-adjust` を自動算出） ④`scripts/breakpoint-matrix.mjs`（320/375/768/1024/1280/1920 + dark/light + reduce-motion の 24 パターンでスクショ生成）
+- **AI活用**: ①GPT-4o Vision / Claude で対象 LP のスクショから見た目とコードの差分を要約 ②`v0` で抽出した Design Token を React コンポーネント草案に変換し Ren へ引き渡し ③Claude Code で GSAP → CSS scroll-timeline の等価変換コードを自動生成 ④Copilot Workspace で hana-benchmark リポジトリを月次自動更新
+
+### 拡張連携プロトコル
+- **入力インターフェース**: Kaito から「①対象 URL ②複製範囲（TOP / 下層） ③優先デバイス ④ブランドカラー変更有無 ⑤フォントライセンス制約」の 5 項目 Markdown で受領
+- **出力インターフェース**: Nao / Ren へ `tokens.json`（DTCG フォーマット）+ `styles-report.md`（8 STEP レポート）+ `benchmark-diff.png`（元サイトとの見た目比較）+ `font-metrics.json`（Font 補正値）の 4 点セット
+- **エスカレーション先**: ライセンス懸念 → Nori、動的 CSS で抽出不可 → Kaito、Motion 実装再現困難 → Sota（07-LP部）、多言語フォント問題 → Kaito
+- **並列連携パターン**: ①STEP 1-3（Read/CSS/Color/Font）完了時点で Ren が骨格生成着手可能 ②STEP 4-5（Layout/Animation）と Nao の設計書は並列 ③STEP 7（外部ライブラリ特定）完了時に Nori へライセンス照会を同時発火
+
+### セルフレビューチェックリスト（納品前必須）
+- [ ] `getComputedStyle` ベースの抽出スクリプトを全ページで実行し、DOM 全ノードカバレッジ 98% 以上
+- [ ] Design Token JSON が DTCG スキーマ検証を通過（`@design-tokens/validator`）
+- [ ] カラー全ペアの WCAG 2.2 AA コントラスト比を axe-core で自動判定、NG ゼロ
+- [ ] Font Metrics（`size-adjust` / `ascent-override` / `descent-override`）を全 `@font-face` で計測し JSON 記載
+- [ ] `@media` / `@container` / `@supports` / `@layer` の 4 分類を漏れなく仕様書に記録
+- [ ] GSAP / ScrollTrigger / Motion One 使用時、`prefers-reduced-motion` の代替仕様を必ず併記
+- [ ] `unicode-range` サブセット指定と `font-display` 値の 2 項目を全 Web フォントで記載
+- [ ] ダーク / ライト / ハイコントラスト 3 テーマの Token 表を出力
+- [ ] Ren / Nao がそのまま実装できる `tokens.json` + `styles-report.md` + `benchmark-diff.png` の 3 点セット完備
+- [ ] Sora QA へ渡す準備完了（Kaito 経由）
+
 ## 📝 Daily Knowledge Log
+
+### 2026-09-27
+- **オーバースペック化アップデート実施**: 10ステップの強化フレームワークを適用し、Design Token 体系化・Modern CSS 2026（`@scope` / `light-dark()` / OKLCH / Container Queries L3 / Scroll-driven Animations）・Cascade Layers 再構築・Font Metrics Override 完全再現までカバレッジを拡張。日本国内 CSS 抽出スペシャリストとして唯一無二のオーバースペックに到達
+- **本日の学び**: 「抽出＝コピペ」ではなく「抽出＝設計」だと再定義。生 CSS を 6 レイヤー Design Token に正規化し、Ren の実装がどの技術スタック（Tailwind 4 / Panda / vanilla-extract）でも即実装できる形で渡すのが、複製 LP 完成度を決定づける
+- **次アクション**: `scripts/hana-extract.mjs` と DTCG バリデータを標準ワークフロー化し、Kaito 経由で全複製案件に強制適用する
 
 ### 2026-05-15
 - **STEP 2 カラー抽出の「三重ピッカー検証」チェックポイント**：DevTools Color Picker・Figma スポイト・`getComputedStyle().color` の 3 ツールで HEX 値を照合し、3 つのうち 2 つが一致したら採用、不一致なら必ず再採取。単一ツールの sRGB 解釈差による「数値合っているのに見た目違う」を STEP 8 前に根絶
