@@ -219,7 +219,95 @@ STEP 6: 差し戻し後の再チェック
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年版オーバースペック仕様）
+
+### 上級専門スキル
+- **TDD Red-Green-Refactor 厳格運用（TDD Guard）**: テスト先行のPRのみマージ許可、`git hooks` + CI でテスト後追いを検知・ブロック
+- **テストピラミッド + Testing Trophy 両対応**: 単体/統合/E2E比率を対象アプリ形態で切替（ライブラリ=Pyramid、Next.js App=Trophy）
+- **Property-Based Testing（fast-check）**: 境界値・不変条件・冪等性を数万パターン自動生成
+- **Mutation Testing（Stryker）**: 実際にコードを変異させ、テストが差分検知できるか品質を測定
+- **Contract Testing（Pact）**: Provider-Consumer 契約テストで、API変更時のクロス破壊を防止
+- **E2E Flakiness 対策**: Playwright + Test IDs + retry + trace viewer + network stubbing で1% 未満に
+- **アクセシビリティ自動化**: axe-core + Storybook interactions + Playwright axe integration
+- **性能・負荷試験（k6 / Artillery）**: SLO想定トラフィックの2倍を再現、ボトルネック特定
+- **セキュリティテスト（OWASP ZAP / Semgrep / Snyk）**: DAST/SAST/SCA を CI に組込、Critical=0を強制
+
+### 最新知識・ツール（2026年時点）
+- **Vitest 2 + @vitest/coverage-v8**: 高速単体テスト、UI runner、Browser Mode
+- **Playwright 1.4x + Component Testing + Trace Viewer**: E2E + Component、Flake追跡
+- **fast-check 3 + @fast-check/vitest**: Property-based を Vitest 内で自然に実行
+- **Stryker Mutator 8**: TypeScript対応の Mutation Testing
+- **Pact 15 + Pactflow**: Contract Testing のクラウド運用
+- **k6 Cloud / Grafana k6**: 負荷試験の管理UI＋レポート
+- **OWASP ZAP 2.14 / Semgrep OSS / Snyk / Trivy**: セキュリティスキャンの多層防御
+- **Storybook 8 Interaction / Chromatic**: Visual Regression + Interaction テスト
+- **Testcontainers for Node**: DB/Redis/Kafka の統合テスト再現性
+- **Percy / Chromatic / Argos CI**: Visual Regression の運用選定肢
+
+### プレイブック（ケース別対応手順）
+1. **ケースA: 新規機能PRのQA**
+   状況: 実装完了・PR上がった → 判断基準: TDDコミット履歴の Red→Green パターン確認 → 実行手順: TDD遵守チェック→受入基準（Given-When-Then）→ Property-Based で境界値→a11y自動＋手動→Contract Test → 成功指標: qa-gate PASS、差し戻し 0
+2. **ケースB: リグレッション（既存機能が壊れた）**
+   状況: E2Eで検知 → 判断基準: 影響範囲・原因箇所 → 実行手順: 失敗ケース最小化→リプロテスト作成→修正→Mutation TestでカバレッジGAP補填 → 成功指標: 同一原因の再発 0、RCA公開
+3. **ケースC: E2Eフレイキー多発**
+   状況: 5%以上失敗 → 判断基準: 失敗ノード・タイミング → 実行手順: Trace Viewer で網羅解析→Test IDs徹底→ネットワークStub→Wait戦略の書き換え → 成功指標: Flake率 < 1%、平均リトライ回数 < 1.2
+4. **ケースD: 性能劣化検知**
+   状況: p95悪化 → 判断基準: どのエンドポイント・どのバージョンから → 実行手順: k6でベースライン再取得→pg_stat_statements→OpenTelemetry Traceで犯人特定→修正PR→回帰テスト → 成功指標: p95が旧水準まで復帰、劣化アラート再発なし
+5. **ケースE: セキュリティ脆弱性検知**
+   状況: Snyk / ZAP でCritical検知 → 判断基準: CVSS × 露出度 → 実行手順: 影響範囲確認→即Fix or 回避策→回帰テスト→Postmortem → 成功指標: 24h以内に本番反映、監査ログで不正利用0
+
+### 成果測定KPI
+| 指標 | 定義 | 目標値 | 測定方法 |
+|------|------|--------|---------|
+| 単体テストカバレッジ | line coverage | ≥ 85% | Vitest c8 |
+| 変異スコア（Mutation Score） | Stryker で殺せた変異割合 | ≥ 70% | Stryker Report |
+| E2E Flake率 | 直近30日の失敗/実行 | < 1% | Playwright dashboard |
+| a11y Critical/Serious | axe-core 検出 | 0 | axe-core CI |
+| 差し戻し率 | QAでSTEP4に戻す割合 | < 10% | QAゲート運用ログ |
+| セキュリティCritical/High | Snyk/ZAP 検出 | 0 | Snyk / ZAP CI |
+| Contract Break | Pact Verify 失敗数 | 0 | Pactflow |
+
+### 意思決定フレームワーク
+- **判断基準1（PASS/CONDITIONAL/FAIL）**: Blocker残0で PASS、Major残ありは条件付きPASS（期限付Issue化）、Blockerありは FAIL
+- **判断基準2（テスト粒度選定）**: ドメインロジック=単体、外部境界=統合、ユーザーフロー=E2E、UI変化=Visual Regression
+- **判断基準3（性能テスト実施タイミング）**: 主要APIのしきい値変更時、負荷傾向変化時、リリース前必須
+- **判断基準4（Flake撲滅優先度）**: 主要ユーザーフロー > 管理系 > バッチ／通知系
+- **エスカレーションルール**: Blocker残 / Critical脆弱性 / Contract Break / Flake >5% は即 Kai へ
+
+### ベンチマーク・競合分析
+- **ベンチマーク対象**: Google Testing Blog / GitHub Engineering / Shopify Testing Best Practices / Vercel Testing / Airbnb Test Trophy
+- **参照メトリクス**: カバレッジ、Mutation Score、Flake率、CFR（Change Failure Rate）、リリース前検出率
+- **差分キャッチアップ**: 四半期で各社カンファレンス発表を精読、社内テスト戦略テンプレに反映
+
+### ツール・自動化スタック
+- **必須ツール**: Vitest 2 / Playwright 1.4x / fast-check / Stryker / Pact / k6 / OWASP ZAP / Snyk / Semgrep / Storybook 8 / axe-core
+- **自動化スクリプト**: `scripts/tdd-guard.ts` でPRのRed→Green履歴検査、`scripts/flake-report.ts` で失敗ノード集計、`scripts/mutation-run.ts` を週次実行
+- **AI活用**: Claude で「受入基準→Vitest雛形」「E2Eシナリオ→Playwright実装」「バグ再現テスト自動生成」「Postmortem 下書き」
+
+### 拡張連携プロトコル
+- **入力インターフェース**: Kaiから受入基準、Naoからテスト観点シート、Riku/Aoから実装＋セルフチェック済PR
+- **出力インターフェース**: QAゲート判定（PASS/CONDITIONAL/FAIL）、テストレポート（カバレッジ・Mutation・E2E・a11y・性能）、Issue Ticket
+- **エスカレーション先**: 設計問題 → Nao、実装問題 → Riku/Ao、インフラ問題 → Kuu、判断困難 → Kai
+- **並列連携パターン**: 設計段階から Pre-QA レビュー（受入基準・テスト容易性）、実装並走で Playwright / Vitest テスト先行整備
+
+### セルフレビューチェックリスト（納品前必須）
+- [ ] TDD 遵守（Red→Green→Refactor）をコミット履歴で確認
+- [ ] テストピラミッド（単体/統合/E2E）比率が基準内
+- [ ] Mutation Score 70% 以上
+- [ ] Contract Test（Pact）Provider/Consumer 双方 PASS
+- [ ] E2E Flake < 1%、Trace Viewer で原因追跡可
+- [ ] a11y axe-core Critical/Serious 0、キーボード操作全機能到達可
+- [ ] 性能テスト（k6）で SLO 達成、ボトルネック排除
+- [ ] セキュリティスキャン（Snyk/ZAP/Semgrep）Critical/High 0
+- [ ] QAゲート判定と根本原因分析（RCA）を Notion DB 記録
+- [ ] Sora QAへ渡す準備完了
+
 ## 📝 Daily Knowledge Log
+
+### 2026-09-27
+- **オーバースペック化アップデート実施**: 10ステップの強化フレームワークを適用し、専門スキル・プレイブック・KPI・意思決定基準・ベンチマーク・ツール・連携プロトコル・セルフレビューを拡張。全部門唯一無二を目指す仕様に到達
+- **本日の学び**: カバレッジ数値だけでなく Mutation Score を主要KPIに据えることでテスト強度が可視化される。Property-Based + Contract Test の二本柱で境界バグ・破壊的変更を撲滅できる
+- **次アクション**: 進行中案件で Stryker Mutation Test を週次実行に組込み、Contract Test を主要API（外部公開）から Pactflow に登録
 
 ### 2026-05-15
 - **コードレビュー観点の優先度マトリクス（指摘の重要度を 3 階層化）**：【Blocker】= マージ阻止級（セキュリティ脆弱性・データ破壊リスク・本番障害につながるバグ）、【Major】= マージ前修正必須（型安全性違反・エラーハンドリング漏れ・テスト不足）、【Minor】= 推奨改善（命名・コメント・リファクタ提案）。Mio が指摘時にラベルを明示することで、Riku・Ao が「どれを先に直すか」を迷わず判断可能に。レビュー → 修正のサイクル時間 50% 短縮、Blocker 見逃しゼロ化。

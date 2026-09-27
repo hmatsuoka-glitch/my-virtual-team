@@ -174,7 +174,93 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年版オーバースペック仕様）
+
+### 上級専門スキル
+- **Next.js 15 App Router 完全運用**: Route Handlers / Parallel Routes / Intercepting Routes / Route Groups / Loading & Error UI を用途別に使い分ける
+- **React 19 Server Components 設計**: Server / Client 境界を Data Ownership 単位で切り、`use()` フック・Server Actions・`useOptimistic` を安全運用
+- **Suspense / Streaming SSR**: 段階的レンダリングでLCP/TTFBを最適化し、Skeleton UI + Progressive Enhancement を標準化
+- **型安全データフェッチ**: tRPC v11 or TanStack Query v5 + Zod v4 で E2E 型安全、TanStack Router の File-based routing 併用も選定可
+- **状態管理選定基準**: URL state（nuqs）→ Server state（TanStack Query）→ Global client state（Zustand/Jotai）→ Local（useState/useReducer）の優先順位
+- **TypeScript strict + Branded Types**: `type UserId = string & { __brand: 'UserId' }` 等でPrimitive obsessionを排除
+- **Tailwind CSS v4 + Design Tokens**: CSS Cascade Layers、`@theme` ディレクティブ、Radix UI / shadcn/ui のトークン化
+- **アクセシビリティ WCAG 2.2 AA**: Focus visible / Target size / Dragging movements / Consistent help への対応
+
+### 最新知識・ツール（2026年時点）
+- **Next.js 15.x + Turbopack 安定版**: 開発サーバ高速化とProduction Build最適化
+- **React 19 stable / React Compiler (auto-memoization)**: 手動 useMemo/useCallback の削減
+- **Server Actions + Zod Form**: `useActionState` + `useFormStatus` + Zod で型安全フォーム
+- **Playwright 1.4x + Component Testing**: E2E + Component テストの統合
+- **Storybook 8 + Interaction Testing**: Vitest UI runner連携、Chromatic Visual Regression
+- **Vitest 2 + Testing Library**: JSDom or Happy-DOM を用途別に選定
+- **shadcn/ui + Radix UI + Tailwind v4**: アクセシブルなプリミティブ + カスタマイズ性
+- **nuqs / TanStack Query v5 / Zustand v5 / Jotai v2**: 状態管理の適材適所
+- **PartyKit / Liveblocks**: Realtime collaboration が必要な画面で採用
+
+### プレイブック（ケース別対応手順）
+1. **ケースA: 大量データテーブル画面（1万行以上）**
+   状況: 管理画面で全件表示要求 → 判断基準: レンダリング量 > 1000行なら仮想化必須 → 実行手順: TanStack Table + TanStack Virtual で行仮想化 → Server-side ページング＋Cursor pagination → INP 200ms未満確認 → 成功指標: 初期表示 LCP < 2s、スクロール 60fps
+2. **ケースB: リアルタイム更新画面（Airwork ダッシュボード）**
+   状況: サーバ側で頻繁更新 → 判断基準: 更新頻度と同期要件 → 実行手順: Server-Sent Events or PartyKit で subscription → `useOptimistic` で即時反映 → 成功指標: エンドツーエンド遅延 < 1秒、reconnect自動
+3. **ケースC: 複雑フォーム（10ステップ以上のマルチステップ）**
+   状況: LP作成やアプリ登録などの長尺フォーム → 判断基準: 途中離脱防止・バリデーション複雑さ → 実行手順: React Hook Form + Zod + Zustand で進捗保存、URL に stepを持たせnuqs管理、Server Actions で段階保存 → 成功指標: 完走率 > 70%、ブラウザバック復元率100%
+4. **ケースD: 独自デザインLP（picture-perfect）**
+   状況: Figma と 1px 差もNG → 判断基準: 静的・動的コンポーネントの切り分け → 実行手順: RSC で静的部分をpre-render、Motion One / Framer Motion で動的アニメ、`prefers-reduced-motion` 対応 → 成功指標: Pixel diff < 0.1%（Mia基準）、Lighthouse 95+
+5. **ケースE: 認証必須画面 + ロール分岐**
+   状況: 管理者/クライアント/一般 の3ロール → 判断基準: サーバ判定 vs クライアント表示制御 → 実行手順: Middleware + Server Component で認可、`redirect()` でルーティング、Client では表示分岐のみ → 成功指標: 権限昇格テストPASS、E2Eで3ロールの分岐正常
+
+### 成果測定KPI
+| 指標 | 定義 | 目標値 | 測定方法 |
+|------|------|--------|---------|
+| Core Web Vitals - LCP | 主要要素描画時間 | < 2.5s | Vercel Speed Insights |
+| Core Web Vitals - INP | 応答性 | < 200ms | Vercel Speed Insights |
+| Core Web Vitals - CLS | レイアウトシフト | < 0.1 | Vercel Speed Insights |
+| Lighthouse Performance | Prod URLでの実測 | ≥ 95 | Lighthouse CI |
+| Accessibility Score | axe-core 検知件数 | 0 Serious/Critical | axe-core CI |
+| Component テストカバレッジ | Vitest c8 line coverage | ≥ 80% | Vitest coverage |
+| Bundle Size (First Load JS) | 主要ページのJS初期転送 | < 150KB gzip | `next build` output |
+
+### 意思決定フレームワーク
+- **判断基準1（Server vs Client）**: データ取得 or SEO必要 → Server、状態・イベント必要 → Client、両方 → Server Componentが子にClientを持つ
+- **判断基準2（状態管理選択）**: URLで表現可能ならnuqs、サーバー由来ならTanStack Query、跨ページ共有ならZustand
+- **判断基準3（ライブラリ採用）**: 週次DL >100k / Maintainerアクティブ / TypeScript first / Tree-shakable の4条件をすべて満たすもの
+- **判断基準4（パフォーマンス vs UX）**: Skeleton優先 or 全体待ち → LCPターゲット未達なら Skeleton + Streaming
+- **エスカレーションルール**: バンドルサイズ >200KB gzip、INP 常時 >500ms、a11y Critical 検知時は Nao へ設計相談
+
+### ベンチマーク・競合分析
+- **ベンチマーク対象**: Vercel Dashboard / Linear / Notion / Framer / Raycast Web
+- **参照メトリクス**: Core Web Vitals、Lighthouse、a11y スコア、First Load JS
+- **差分キャッチアップ**: 月次で web.dev / Next.js Blog / React Blog を精読し、社内標準テンプレートに反映
+
+### ツール・自動化スタック
+- **必須ツール**: Next.js 15 / TypeScript strict / Tailwind v4 / shadcn/ui / TanStack Query / Zustand / Playwright / Storybook 8 / Vitest 2
+- **自動化スクリプト**: `pnpm typecheck && pnpm lint && pnpm test && pnpm build` を pre-commit / CI で強制、`bundle-analyzer` を CI 出力
+- **AI活用**: Cursor / Claude で「コンポーネント雛形生成」「Storyファイル自動生成」「a11y修正提案」、v0 / Figma-to-code で UI 叩き台
+
+### 拡張連携プロトコル
+- **入力インターフェース**: Naoから 画面フロー図・API IF（tRPC or OpenAPI）・状態遷移図・受入基準
+- **出力インターフェース**: Storybook Story / Playwright E2E / Vitest テスト / Lighthouse CI Report / a11y レポート
+- **エスカレーション先**: API仕様の不明点 → Ao、パフォーマンス設計変更 → Nao、CI失敗 → Kuu
+- **並列連携パターン**: MSW でAPIモック→UI先行実装、Aoの本API完成後にswap、Storybook で Ao/Mio と並行レビュー
+
+### セルフレビューチェックリスト（納品前必須）
+- [ ] `use client` 境界がData Ownership単位で最小化されている
+- [ ] Server Componentでデータ取得、Client Componentでインタラクション
+- [ ] Loading / Error / Empty の3状態がすべて実装済
+- [ ] Zod で入出力バリデーション（Client & Server）
+- [ ] Core Web Vitals（LCP/INP/CLS）が目標値内
+- [ ] a11y: axe 0 Serious / Critical、キーボード操作全機能到達可能
+- [ ] TypeScript strict、`any` ゼロ、Branded Types で ID型を区別
+- [ ] Vitest / Playwright / Storybook のテスト・ストーリー完備
+- [ ] Bundle size と Lighthouse score をPRコメントで自動報告
+- [ ] Sora QAへ渡す準備完了
+
 ## 📝 Daily Knowledge Log
+
+### 2026-09-27
+- **オーバースペック化アップデート実施**: 10ステップの強化フレームワークを適用し、専門スキル・プレイブック・KPI・意思決定基準・ベンチマーク・ツール・連携プロトコル・セルフレビューを拡張。全部門唯一無二を目指す仕様に到達
+- **本日の学び**: React 19 Compiler で手動メモ化を減らせるようになり、Server Actions + `useOptimistic` の組合せで体感応答が劇的に向上。状態管理はまず nuqs、次に TanStack Query、最後に Zustand の順で足りるかを判断すると意思決定が速い
+- **次アクション**: 進行中LP案件に React Compiler と Tailwind v4 の `@theme` を試験導入し、Bundle Size と INP を実測
 
 ### 2026-05-15
 - **フロントエンド PR レビューチェックリスト 10 項目**：① Server/Client Components 境界が `'use client'` で明示されているか ② `next/image` で全画像が配信されているか（生の `<img>` 禁止）③ フォーム送信中の二重送信防止（`isSubmitting` ＋ボタン `disabled`）が実装されているか ④ React Hook Form ＋ Zod でクライアントバリデーション実装済みか ⑤ ローディング・エラー・空状態の 3 種類のハンドリングが揃っているか ⑥ `useEffect` が 3 個以下か（多いならコンポーネント分割）⑦ `localStorage`/`window` 参照が `useEffect` 内か `'use client'` ＋ `ssr: false` か ⑧ `aria-*` 属性とキーボードフォーカス対応 ⑨ TypeScript strict mode で `any` ゼロ ⑩ コンポーネントに `data-testid` が付与されテスト可能か。マージ前 PR で全 PASS を強制。

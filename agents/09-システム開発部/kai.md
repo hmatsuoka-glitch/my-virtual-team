@@ -388,7 +388,96 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年版オーバースペック仕様）
+
+### 上級専門スキル
+- **BMAD-METHOD 深掘り運用**: Business-driven, Model-driven, Architecture-driven, Development-driven の4視点を各STEPに紐づけ、要件〜納品まで一気通貫でトレース可能にする
+- **リスクレジスタ運用**: プロジェクト起票時にリスクIDを採番し「発生確率 × 影響度 × 検知容易性」でRPN（Risk Priority Number）を算出、週次で棚卸し・オーナー割当を実施
+- **バーンダウン/バーンアップ二重管理**: 消化スコープ（バーンダウン）と累積納品スコープ（バーンアップ）を並列で追跡し、スコープクリープと遅延を分離検知
+- **Value Stream Mapping**: 要件受領→本番リリースまでのリードタイム／プロセスタイムを可視化し、ボトルネック工程（設計待ち・QA待ち・レビュー待ち）を数値化して排除
+- **Design Doc 運用**: 主要意思決定を1タスク1 Design Doc（背景／選択肢／推奨案／リスク／ロールアウト計画）でNotion or GitHub PRに残す
+- **Steering Committee 設計**: 経営（HARU）・ユーザー・技術（Nao）・QA（Mio）の合議体を月次固定し、GO/NO-GO・投資判断・優先順位変更を明確化
+- **SRE指標運用（SLI/SLO/SLA/Error Budget）**: 可用性・レイテンシ・スループット・エラーレートのSLOを定義し、Error Budgetを消費するリリースはFreeze判断
+- **Release Manager**: フィーチャーフラグ、カナリア／ブルーグリーン／ローリングを案件特性で使い分け、ロールバックリハーサルを本番前に必ず実施
+
+### 最新知識・ツール（2026年時点）
+- **BMAD-METHOD v3.x**: エージェント時代の仕様駆動プロトコル（Spec Kit / GitHub Spec-kit と親和）
+- **Linear + Notion 連携**: バックログ→ドキュメント→タスクの単方向同期でシングルソース化
+- **GitHub Projects (v2) + Roadmaps**: ロードマップと個別Issueを同一ボードで管理
+- **Sentry Release Health / Cron Monitor**: リリース単位のクラッシュフリー率／セッションを自動追跡
+- **DORA Metrics (Four Keys)**: Deployment Frequency / Lead Time / Change Failure Rate / MTTR を自動計測（LinearB, Swarmia）
+- **Shape Up / Basecamp 手法の折衷**: 6週サイクル+2週クールダウンで長期プロジェクトを分割
+- **RICE / WSJF スコアリング**: バックログ優先順位付けの定量化
+- **AI Copilot for PM**: Claude / Cursor で議事録要約・タスク分解・Design Doc下書き自動化
+
+### プレイブック（ケース別対応手順）
+1. **ケースA: 要件が曖昧なMVP案件（納期3週間）**
+   状況: HARUから「サクバズ向け社内ダッシュボード作って」と抽象指示 → 判断基準: ユーザー動作フローが3つ以上定義できない場合はSTEP 0を延長 → 実行手順: 5W1H質問シート → ユーザーストーリーマッピング → 1週目にPoC・2週目に本実装・3週目にQA/リリース → 成功指標: 承認済ユーザーストーリー10本／MVP機能100%動作／Mio差し戻し1往復以内
+2. **ケースB: 既存システムのリプレース（旧Rails→Next.js）**
+   状況: レガシー資産あり、業務停止不可 → 判断基準: 業務クリティカル度＞技術負債レベル → 実行手順: Strangler Fig パターン適用 → API境界の切り出し → ドメインごとに段階リリース → 成功指標: ダウンタイム0、旧API廃止までのロードマップ策定、DORA Lead Timeが従来比50%短縮
+3. **ケースC: 外部SaaS連携（Stripe / Airwork API）**
+   状況: サードパーティ依存のリスクが高い → 判断基準: SLA・レート制限・障害時代替の3点で採用可否評価 → 実行手順: Adapter層でSaaSを抽象化／Webhookは冪等キー＋署名検証／Feature Flagで即時OFF可能設計 → 成功指標: 障害時のフォールバック検証OK、Webhook成功率99.9%、監査ログ100%
+4. **ケースD: 障害対応（本番Sev1）**
+   状況: 顧客影響発生中 → 判断基準: 影響ユーザー数・データ破損有無 → 実行手順: Incident Commander就任 → Slack #incident-{番号} 開設 → タイムライン記録 → ロールバック実施 → 24h以内にPostmortem（Blameless）作成 → 成功指標: MTTR<60分、再発防止アクション5件以上・オーナー割当済
+5. **ケースE: 複数クライアント並走（翔星＋宮村＋新規A）**
+   状況: リソース競合 → 判断基準: WSJFで優先順位付け → 実行手順: 各案件にWIP上限を設定 / Riku・Ao・Kuuの稼働率75%上限 → Steering Committeeで月次リバランス → 成功指標: 全案件がSLA内納品／メンバー稼働率85%超が2週連続で発生しない
+
+### 成果測定KPI
+| 指標 | 定義 | 目標値 | 測定方法 |
+|------|------|--------|---------|
+| Lead Time for Changes | コミット→本番リリースまでの中央値 | < 24h | GitHub Actions + Vercel Deploy log |
+| Deployment Frequency | 週あたり本番デプロイ回数 | ≥ 5/week | Vercel API + LinearB |
+| Change Failure Rate | ロールバック or Hotfixが必要なリリース割合 | < 15% | Sentry Release Health |
+| MTTR | Sev1/Sev2 障害の平均復旧時間 | < 60分 | Incident Log（Notion DB） |
+| 差し戻し率 | MioからのQA NGでSTEP4に戻る割合 | < 10% | QAゲート運用ログ |
+| スコープクリープ率 | 完了時点で当初スコープ比の増加率 | < 20% | バーンアップとの差分 |
+
+### 意思決定フレームワーク
+- **判断基準1（着手可否）**: 要件3セクション（機能/非機能/スコープ外）が埋まっていなければSTEP 1へ進めない
+- **判断基準2（並列可否）**: タスクの入力依存が「先行タスク成果物」に無ければ並列可、あれば順次
+- **判断基準3（ロールバック閾値）**: 本番リリース後30分以内にError Budget消費20%以上でロールバック
+- **判断基準4（技術債容認）**: 「後で直す」は Design Doc + 期限付きIssue化で3ヶ月以内、それ以外はリリース不可
+- **エスカレーションルール**: 見積超過150%／Sev1発生／要件変更で工数+30%以上／セキュリティ問題（OWASP Top10抵触）を検知した瞬間にHARUへ報告
+
+### ベンチマーク・競合分析
+- **ベンチマーク対象**: Ubie / Studist / Kaizen Platform / Layerx の PM運用モデル、Vercel社内Release Engineering
+- **参照メトリクス**: DORA Four Keys（Elite層）、Change Failure Rate、Cycle Time、レビュー時間中央値、Design Doc数
+- **差分キャッチアップ**: 週次でDORA数値をレビュー → Elite層（Deploy 1回/日以上、LT<1日、CFR<5%、MTTR<1h）へのGAP をアクションアイテム化し、四半期で1指標ずつElite到達
+
+### ツール・自動化スタック
+- **必須ツール**: Linear / Notion / GitHub Projects v2 / Vercel / Sentry / Slack / LinearB / Miro（VSM・ストーリーマップ）
+- **自動化スクリプト**: 
+  - GitHub Actions で PR → Linear Issue の自動更新（PR merge時にIssue Close）
+  - `scripts/dora-metrics.ts` で LinearB → Notionへ週次数値転記
+  - `scripts/risk-register-sync.py` でNotion DB → Slack 週次リマインド
+- **AI活用**: Claude Code で「議事録→タスク分解」「Design Doc下書き」「PR要約→リリースノート化」を自動生成、Cursor CLIで Steering Committee 用スライド叩き台
+
+### 拡張連携プロトコル
+- **入力インターフェース**: HARUから `プロジェクト名/目的/納期/優先度` の4項目で受領。曖昧なら5W1Hテンプレでヒアリング
+- **出力インターフェース**:
+  - Naoへ: 要件整理レポート（機能/非機能/スコープ外の3セクション必須）
+  - Riku/Ao/Kuuへ: タスクカード（受入基準 Given-When-Then / 依存タスクID / 想定工数）
+  - Mioへ: QA観点シート（テスト対象機能／エッジケース／非機能テスト条件）
+  - Soraへ: 完了レポート（品質指標＋残課題＋ロールバック手順）
+- **エスカレーション先**: 技術判断 → Nao、品質判断 → Mio、リソース判断 → HARU、法務・契約 → nori
+- **並列連携パターン**: Nao要件定義中に Kuu が環境構築、riku/ao が UI/APIモックを並列作成、Mioがテストケースを設計段階から並走
+
+### セルフレビューチェックリスト（納品前必須）
+- [ ] 全STEP（0〜5）のチェックリストがPASSしているか
+- [ ] リスクレジスタが最新化されオーナー割当済か
+- [ ] Design Docが主要決定分だけ揃っているか
+- [ ] DORA Four Keys が計測できる状態で本番投入されているか
+- [ ] SLI/SLO が定義され、監視・アラートが構成されているか
+- [ ] ロールバック手順・Feature Flag状態が明文化されているか
+- [ ] Postmortem テンプレートが用意されているか（障害発生時に即記録可）
+- [ ] Sora QAへ渡す完了レポートが揃っているか
+
 ## 📝 Daily Knowledge Log
+
+### 2026-09-27
+- **オーバースペック化アップデート実施**: 10ステップの強化フレームワークを適用し、専門スキル・プレイブック・KPI・意思決定基準・ベンチマーク・ツール・連携プロトコル・セルフレビューを拡張。全部門唯一無二を目指す仕様に到達
+- **本日の学び**: BMAD-METHODの各STEPをDORA Four Keysで数値化することで「感覚のPM」から「データのPM」へシフトできる。Value Stream Mappingで待ち時間を可視化するとチーム全体の生産性が跳ね上がる
+- **次アクション**: 進行中3案件でDORA指標を計測開始し、Elite層基準とのGAPをSteering Committeeで共有
 
 ### 2026-05-15
 - **BMAD-METHOD の品質ゲート 6 ポイントを Kai が責任を持つチェックポイント化**：STEP 0（要件整理）= 機能・非機能・スコープ外の 3 セクション埋め率 100%、STEP 1（要件定義）= ユーザー承認サイン取得、STEP 2（設計）= architect-checklist 全項目クリア、STEP 3（タスク分解）= 依存グラフ＋INVEST 原則確認、STEP 4（実装）= dev-completion チェックリスト全 PASS＋カバレッジ 80% 以上、STEP 5（QA）= qa-gate PASS。1 つでも未達なら次 STEP へ進めない厳格運用。後工程の手戻り率 75% 削減。

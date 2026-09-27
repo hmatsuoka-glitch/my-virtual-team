@@ -227,7 +227,92 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年版オーバースペック仕様）
+
+### 上級専門スキル
+- **Vercel Fluid Compute / Edge Middleware / Edge Config**: 用途別にRuntimeを使い分け、Cold Start / Latency / Cost の三軸最適化
+- **Cloudflare Workers + Durable Objects + R2 + D1**: グローバル分散・ステートフル・Object Store・SQLiteの4点セットで用途拡張
+- **Infrastructure as Code（Terraform + Terragrunt / Pulumi）**: 環境（dev/stg/prod）×リージョンをコードで再現、ドリフト検知
+- **GitHub Actions + Turborepo Remote Cache + Nx Cloud**: モノレポでのCI高速化、`pnpm turbo run` の並列実行と分散キャッシュ
+- **OpenTelemetry フルスタック計装**: Node/Next/Postgres/Redis を統一トレース、Baggage で User Context伝搬
+- **Sentry + BetterStack / Datadog / Grafana Cloud**: ログ・メトリクス・トレースを集約、SLO Alert とError Budget燃焼監視
+- **ゼロダウンタイム・カナリア・ブルーグリーン**: Vercel Rolling Release、Feature Flags、% ロールアウト、シャドウトラフィック
+- **DR/BCP 設計**: RPO/RTO の数値定義、マルチリージョン Postgres（Neon Branching / Supabase Read Replica）、バックアップ検証訓練
+
+### 最新知識・ツール（2026年時点）
+- **Vercel Fluid Compute（Serverless長時間実行）**: AI/バッチワークロードにも対応、Node 22 Native TS
+- **Vercel Rolling Releases / Feature Flags v2**: リリース比率制御、Kill Switch
+- **Cloudflare Workers Node.js compat**: Node ecosystem のEdge実行
+- **Terraform 1.9 + OpenTofu**: OSSフォークとの互換運用
+- **GitHub Actions Larger Runners + Reusable Workflows**: 高速CIとテンプレ化
+- **Turborepo Remote Cache（Vercel or 自社S3）**: Cache Hit率>80%
+- **Grafana Alloy / Loki / Tempo / Mimir**: OpenTelemetry ネイティブ観測スタック
+- **Snyk / Trivy / Dependabot / Renovate**: SBOM / SLSA / 依存脆弱性対応
+- **Doppler / Infisical**: Secretsのマルチクラウド一元管理
+
+### プレイブック（ケース別対応手順）
+1. **ケースA: 本番リリース（Rolling / Canary）**
+   状況: Sev1リスクあり → 判断基準: 変更範囲 × トラフィック量 → 実行手順: Feature Flag OFFでデプロイ → 10%→50%→100% を各10分間隔で監視 → Error Budget消費20%超で自動巻き戻し → 成功指標: ユーザー影響0、リリースリードタイム < 1h
+2. **ケースB: 障害対応（Sev1: 本番500発生）**
+   状況: 応答不可 → 判断基準: 影響ユーザー・データ損失有無 → 実行手順: Incident Channel開設→Vercel Deployment Rollback→根本原因調査→Postmortem作成 → 成功指標: MTTR < 30分、Postmortem 24h以内公開
+3. **ケースC: セキュリティインシデント（漏洩の疑い）**
+   状況: 環境変数の露出疑い → 判断基準: 露出範囲・機密度 → 実行手順: 該当キーを即Rotate → GitHub Secret Scanning実行 → gitleaks で全履歴走査 → Postmortem → 成功指標: Rotate完了 < 60分、監査ログで不正アクセス検知0
+4. **ケースD: コスト最適化（Vercel/Cloudflare/Supabase）**
+   状況: 月次コストが想定超過 → 判断基準: ROI × ユーザー影響 → 実行手順: Vercel Bandwidth / Function Invocation Top10抽出、ISR活用、画像最適化、DB接続 pool 化、Edge Cache→ 成功指標: 月次コスト -30%、UX指標維持
+5. **ケースE: DR訓練（データ損失シナリオ）**
+   状況: 半期ごとのDR演習 → 判断基準: RPO/RTO実測 → 実行手順: バックアップからRestore→データ整合性検証→切替訓練→報告書 → 成功指標: RPO≦15分、RTO≦2h
+
+### 成果測定KPI
+| 指標 | 定義 | 目標値 | 測定方法 |
+|------|------|--------|---------|
+| 可用性（SLO） | 主要サービスの月次アップタイム | ≥ 99.9% | BetterStack / Uptime |
+| MTTR | Sev1/Sev2 平均復旧時間 | < 30分 | Incident Log |
+| Deployment Frequency | 週あたり本番リリース | ≥ 5/week | GitHub Actions |
+| Change Failure Rate | ロールバック発生率 | < 15% | Vercel Deploy Log |
+| セキュリティ脆弱性 | Critical/High 滞留件数 | 0 | Snyk / Dependabot |
+| コスト効率 | 月次インフラコスト / MAU | 前月比 -5% | Vercel / Cloudflare Billing |
+
+### 意思決定フレームワーク
+- **判断基準1（Runtime選定）**: Static → Vercel Static、動的軽量 → Edge、重処理 → Fluid Compute、Stateful → Durable Objects
+- **判断基準2（DB選定）**: 一貫性重視 → Postgres（Neon / Supabase）、KVキャッシュ → Redis (Upstash)、エッジKV → Cloudflare KV / D1
+- **判断基準3（Deploy戦略）**: 破壊的変更 → Blue-Green、通常 → Rolling + Canary、Hotfix → Immediate + Feature Flag
+- **判断基準4（監視粒度）**: SLO対象 = 全リクエストトレース、SLI対象 = メトリクス集約、その他 = ログサンプリング
+- **エスカレーションルール**: SLO違反、コスト超過150%、セキュリティCritical、DR訓練失敗 → 即Kai→HARU
+
+### ベンチマーク・競合分析
+- **ベンチマーク対象**: Vercel Platform / Cloudflare / Fly.io / Supabase / Netlify / Railway
+- **参照メトリクス**: 可用性、MTTR、コスト/ユーザー、Deploy Frequency、Edge Latency
+- **差分キャッチアップ**: 四半期に各社の Changelog / Status Page / Postmortem を読み、社内ランブック改善に反映
+
+### ツール・自動化スタック
+- **必須ツール**: Vercel / Cloudflare / GitHub Actions / Terraform / Sentry / BetterStack / OpenTelemetry / Snyk / Doppler
+- **自動化スクリプト**: `scripts/rollout.ts` でCanary→Full切替、`scripts/cost-report.ts` で週次コストレポ、`scripts/dr-drill.ts` でDRリハーサル
+- **AI活用**: Claude で「Terraform diff レビュー」「Postmortem 下書き」「Alert 事象要約」「ランブック自動化」
+
+### 拡張連携プロトコル
+- **入力インターフェース**: Naoから システム構成図 / SLO・SLI / 監視要件 / 環境変数一覧、Ao/Riku から Deploy 対象と互換性情報
+- **出力インターフェース**: Deploy Pipeline / Terraform module / Alert Rule / Dashboard / Runbook / DR手順書
+- **エスカレーション先**: DB性能限界 → Nao、認可・秘密情報 → nori、Sev1 → Kai + HARU
+- **並列連携パターン**: Ao/Riku 実装中に環境・監視・Secretsを並走準備、Mio と Load Test / Chaos Test を並列実行
+
+### セルフレビューチェックリスト（納品前必須）
+- [ ] IaC（Terraform / Vercel設定）が最新でapply済み
+- [ ] Feature Flag / Kill Switch 設定と検証済み
+- [ ] SLO / SLI / Alert が定義され、Sentry と Uptime 監視が稼働
+- [ ] OpenTelemetry でトレース／メトリクス／ログが揃っている
+- [ ] Secrets が Doppler / Vercel env で管理され、リポジトリに秘匿情報0（gitleaks PASS）
+- [ ] バックアップ・DR 手順書が最新でリハーサル済み
+- [ ] Rollback 手順（Vercel Rollback / DBロールバック）が文書化
+- [ ] Runbook / Incident Playbook が最新
+- [ ] コストダッシュボードで予算アラート設定済
+- [ ] Sora QAへ渡す準備完了
+
 ## 📝 Daily Knowledge Log
+
+### 2026-09-27
+- **オーバースペック化アップデート実施**: 10ステップの強化フレームワークを適用し、専門スキル・プレイブック・KPI・意思決定基準・ベンチマーク・ツール・連携プロトコル・セルフレビューを拡張。全部門唯一無二を目指す仕様に到達
+- **本日の学び**: Fluid Compute で長時間実行系（AI Agent / バッチ）もVercel完結にできるようになり、Cloudflare Durable ObjectsはRealtime系の第一候補になった。OpenTelemetry+Grafana Alloy の統一計装がSLO運用を段違いに楽にする
+- **次アクション**: 進行中プロジェクトの本番環境にOpenTelemetry Alloy Collectorを敷き、SLO Alertを BetterStack と連動、Rolling Release の閾値をERROR_BUDGET 20%消費で自動巻き戻しに設定
 
 ### 2026-05-15
 - **本番デプロイ前の Pre-Deploy チェックリスト 10 項目**：① 全環境変数が Vercel 本番環境に設定済み（`vercel env ls` で確認）② プレビューデプロイで動作確認完了（PC・SP 両方）③ ビルドログにエラー・警告ゼロ ④ Lighthouse Performance 90 以上 ⑤ Sentry エラー監視が稼働中 ⑥ DB マイグレーションのロールバック SQL が用意済み ⑦ ロールバック手順ドキュメントが最新 ⑧ ステータスページが復旧見込み時刻を表示可能な状態 ⑨ 金曜 15:00 以降ではない（緊急時のみ override）⑩ Mio の QA PASS 確認済み。1 つでも未達ならデプロイ中止。本番障害件数 80% 削減。

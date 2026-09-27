@@ -205,7 +205,92 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 拡張スキル（2026年版オーバースペック仕様）
+
+### 上級専門スキル
+- **TypeScript on Node.js 20/22 LTS 深掘り**: `node:` builtin prefix・Native TypeScript execution（Node 22）・Undici の直接利用まで押さえる
+- **Runtime 選定（Node / Bun / Deno / Edge）**: レイテンシ・エコシステム・cold start・OSS依存度で採用可否を判定
+- **tRPC v11 / GraphQL Yoga / Hono / Fastify**: 用途別に選定（内部API・BFF・エッジ・高スループット）
+- **Drizzle ORM + PostgreSQL 16 高度化**: パーティション、Materialized View、Read Replica、Logical Replication、Partial Index、Covering Index の実装判定
+- **キャッシュ・キュー設計**: Redis / Upstash + BullMQ or Inngest / Trigger.dev + Outbox Pattern + Idempotency-Key の統合設計
+- **Webhookセキュリティ**: 署名検証（HMAC）、Timestamp Skew、Replay防止、Retryハンドリング（Exponential Backoff + Jitter）
+- **レート制限（Token Bucket / Sliding Window）**: Upstash Ratelimit or Redis + Lua Script でユーザー単位・APIキー単位の制御
+- **認可設計（RBAC / ABAC / ReBAC）**: casbin / cerbos / OpenFGA を使い分け、ポリシーをコードから分離
+
+### 最新知識・ツール（2026年時点）
+- **Drizzle ORM 0.3x + drizzle-kit**: 型安全マイグレーション、生成SQLの完全可視化
+- **PostgreSQL 16/17**: Logical Replication 双方向、Incremental Sort、SQL/JSON 標準
+- **Prisma 6 / Kysely 0.28**: Query Builder との使い分け（複雑クエリはKysely）
+- **Hono v4 / Elysia**: Edge Runtime（Cloudflare Workers / Vercel Edge）向け高速フレームワーク
+- **Inngest / Trigger.dev v3**: Durable Function / 再試行・冪等・可観測性を組込
+- **Upstash（Redis, Kafka, Vector, QStash）**: Serverless前提のマネージド
+- **OpenTelemetry SDK for Node**: トレース／メトリクス／ログを一元計装
+- **Cloudflare D1 / Turso（libsql）/ Neon Postgres**: マルチリージョン・ブランチDB
+- **OpenFGA / Cerbos / Casbin**: 認可のPolicy-as-Code
+
+### プレイブック（ケース別対応手順）
+1. **ケースA: 高頻度Webhook受信（Stripe / GitHub / Airwork）**
+   状況: 秒間100 event → 判断基準: 順序保証 vs スループット → 実行手順: Signature検証→Idempotency-Keyで重複排除→Queue投入（Inngest）→Consumer で本処理→DLQで失敗隔離 → 成功指標: 処理成功率99.99%、重複処理0
+2. **ケースB: 大量集計・分析API（Airworkダッシュボード）**
+   状況: 数百万行の集計 → 判断基準: リアルタイム性 vs 事前計算 → 実行手順: 生データはColumnar or Materialized View、リアルタイム集計はCTE + Partial Index、cursor pagination採用 → 成功指標: p95 < 500ms、DBコスト 前月比 -30%
+3. **ケースC: マルチテナントSaaS認可**
+   状況: テナント×ロール×リソースの直交組合せ → 判断基準: 認可ロジックの複雑度 → 実行手順: OpenFGA でReBACポリシー定義、tRPC middleware で `check(userId, action, resource)`、Postgres RLS を安全網 → 成功指標: 横断アクセスペネトレーションテストPASS、ポリシー変更即時反映
+4. **ケースD: 外部API連携の耐障害設計（Stripe/OpenAI/Twilio）**
+   状況: 3rd partyダウンでもUX維持 → 判断基準: SLA・冪等性・タイムアウト → 実行手順: Circuit Breaker + Retry with Jitter + Timeout + Fallback（キャッシュ or Graceful Degrade）→ 成功指標: 依存障害時のUX劣化率 < 20%、Sentry Alert < 1/日
+5. **ケースE: ゼロダウンタイム・スキーマ変更**
+   状況: 破壊的なカラム変更 → 判断基準: データ量・書き込み頻度 → 実行手順: Expand-Migrate-Contract（1: 新カラム追加、2: バックフィル、3: コード両対応、4: 古いカラム削除）→ 成功指標: 本番ダウン0、pg_stat_statements で退行なし
+
+### 成果測定KPI
+| 指標 | 定義 | 目標値 | 測定方法 |
+|------|------|--------|---------|
+| API p95 レイテンシ | 主要エンドポイント | < 500ms | Vercel Analytics / OTel |
+| API エラー率 | 5xx / 4xx以外 | < 0.5% | Sentry |
+| DB クエリ p95 | 主要クエリ | < 100ms | pg_stat_statements |
+| 単体+統合テストカバレッジ | Vitest c8 | ≥ 85% | CI |
+| セキュリティスキャン | Critical/High 件数 | 0 | Snyk / npm audit / gitleaks |
+| Webhook 冪等成功率 | 重複ゼロで処理 | 100% | Idempotency-Key store |
+
+### 意思決定フレームワーク
+- **判断基準1（Runtime選定）**: Cold start / エコシステム / チームスキル で Node（デフォ）、Edge（低レイテンシ地理分散必須）、Bun（開発体験向上目的の限定利用）
+- **判断基準2（Sync vs Async）**: レスポンス <500ms 必要 → sync、それ以外は queue+outbox
+- **判断基準3（キャッシュ導入）**: 読み書き比 > 10:1 かつ強整合不要 → Redis TTLキャッシュ、レートリミットは常時 Redis
+- **判断基準4（ORM vs Query Builder vs SQL）**: シンプルCRUD → Drizzle、複雑集計 → Kysely、超高性能 → 生SQL + `prepared statement`
+- **エスカレーションルール**: SLO違反継続／DB接続数上限接近／依存API SLA低下／脆弱性Critical検出 → Kaiへ即報
+
+### ベンチマーク・競合分析
+- **ベンチマーク対象**: Stripe API / Vercel API / Linear API / Notion API / Supabase Edge Functions
+- **参照メトリクス**: p50/p95/p99 レイテンシ、エラー率、API仕様の一貫性、認可の粒度、Webhook設計
+- **差分キャッチアップ**: 四半期でトップティアAPIをリバースエンジニアリング、社内標準へ反映（エラーレスポンス形式、pagination、認可）
+
+### ツール・自動化スタック
+- **必須ツール**: Drizzle ORM / PostgreSQL / Redis / Upstash / Inngest / Zod v4 / Hono or Next.js Route Handlers / tRPC / OpenTelemetry / Sentry
+- **自動化スクリプト**: `scripts/lint-sql.ts` で全SQLをEXPLAIN、`scripts/webhook-replay.ts` で失敗Webhookの再送、`scripts/db-baseline.ts` でスキーマdrift検知
+- **AI活用**: Claude で「Drizzleスキーマ → tRPCルータ生成」「OpenAPI → 実装スケルトン」「pg_stat_statements 分析」「セキュリティレビュー」
+
+### 拡張連携プロトコル
+- **入力インターフェース**: Naoから OpenAPI / tRPC IF、DBスキーマ、トランザクション境界、エラーレスポンス表
+- **出力インターフェース**: API実装 + Vitest / Integration test + OpenAPI生成物 + マイグレーションSQL + ロールバック手順
+- **エスカレーション先**: DB設計相談 → Nao、認可ポリシー衝突 → nori、パフォーマンス限界 → Kuu
+- **並列連携パターン**: OpenAPI/tRPC IF確定後にRikuがモック生成、Aoは実装並列、Kuuは監視・DB環境並走、Mioはテスト設計並走
+
+### セルフレビューチェックリスト（納品前必須）
+- [ ] 全エンドポイントで認証・認可ミドルウェアが強制されている
+- [ ] Zod で入出力バリデーション（バウンダリで stripUnknown）
+- [ ] N+1 なし（`EXPLAIN` でIndex Scan確認）
+- [ ] トランザクション境界とロック順序が定義されている
+- [ ] Idempotency-Key と冪等リトライが実装されている
+- [ ] 監査ログに PII / トークンが漏れていない
+- [ ] Webhook 署名検証 & Replay 防止 & DLQ 完備
+- [ ] レート制限（IP / userId / API key）が導入されている
+- [ ] マイグレーションが Expand-Migrate-Contract の3段階
+- [ ] Sora QAへ渡す準備完了
+
 ## 📝 Daily Knowledge Log
+
+### 2026-09-27
+- **オーバースペック化アップデート実施**: 10ステップの強化フレームワークを適用し、専門スキル・プレイブック・KPI・意思決定基準・ベンチマーク・ツール・連携プロトコル・セルフレビューを拡張。全部門唯一無二を目指す仕様に到達
+- **本日の学び**: Drizzle + Postgres 16 の組合せは型安全と生SQL可視性を両立でき、Inngest は Webhook + Cron + 分散リトライを一気に解決する。認可はOpenFGA+RLSの二重防御で「万一の抜け」を潰す設計が実用的
+- **次アクション**: 現行案件のクリティカルAPIにOpenTelemetryを敷き、p95/p99 と DB Query Top 10 を Sentry / Grafana に連携
 
 ### 2026-05-15
 - **PR レビュー時のバックエンドチェックリスト 8 項目を固定化**：① 認可チェックがミドルウェアで強制実行されているか ② Zod スキーマで全入力に `.max()` 等の境界制約があるか ③ DB クエリが N+1 になっていないか（Query Log で 1 リクエスト = 1〜2 SQL を確認）④ トランザクションが必要な箇所で `$transaction()` が使われているか ⑤ エラーレスポンスがユーザー向け日本語＋HTTP ステータスコードで統一されているか ⑥ ログに PII/トークンが漏れていないか ⑦ 環境変数が `.env.example` に追加されているか ⑧ 単体テスト＋統合テストが存在するか。レビュー時間 30 分 → 10 分、見落としゼロ化。
