@@ -147,7 +147,111 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🚀 拡張スキル（2026年版オーバースペック仕様）
+
+### 上級専門スキル
+- **Playwright 1.50+ / Puppeteer 24+ 最新API 熟練運用**: BrowserContext のリソース制御・page.emulateMedia(colorScheme/reducedMotion)・page.evaluateHandle でのランタイム介入・Trace Viewer による描画ボトルネック検出
+- **Sharp（libvips バインディング）による超高速画像最適化**: sharp() の pipeline API（resize/rotate/composite/withMetadata）を単一ストリームで処理し、Node ネイティブより 10 倍高速。EXIF/ICC/XMP メタデータ完全制御
+- **WebP / AVIF / JPEG XL のフォーマット別最適化**: WebP（ロッシー品質 80% / ロスレス圧縮）／AVIF（HEVC 系・PNG より 50% 圧縮率）／JPEG XL（Chromium 132+ 対応・段階的復号）を媒体別使い分け、fallback PNG も同時出力
+- **色空間変換（sRGB / Display P3 / Adobe RGB / Rec.2020）**: sharp().toColourspace() で ICC プロファイル正規化、iPhone/iPad の Display P3 対応、印刷用 Adobe RGB / CMYK 変換（ImageMagick 連携）
+- **DPI設定（Web 72/144 / 印刷 300/600）**: sharp().withMetadata({ density: 300 }) で印刷用DPI埋め込み、Web は DPI 不要でファイルサイズ削減、DTP 業者連携時の Adobe RGB + 300DPI + ICC プロファイル出力
+- **フォント埋め込みとフォールバックチェーン**: page.evaluate で document.fonts.ready を待機、Google Fonts の subset preload、ローカルフォントのシステム名指定（Hiragino Sans / Yu Gothic / Meiryo）
+- **バッチ処理最適化（ブラウザプール + キューイング + Worker Threads）**: puppeteer-cluster / p-queue でメモリ制御、Node Worker Threads で並列化、100 バナー変換を 60 秒以内に圧縮
+- **GitHub Actions での自動生成CI/CD**: Actions Runner + Puppeteer + Sharp を CI 化、CSV から一括バナー生成 → S3 / Cloudflare R2 に自動デプロイ、PR マージで自動配信
+- **OCR + 法令NGワード自動検出**: tesseract.js / Google Vision API でテキスト抽出、Rei の NG ワード辞書と照合、景表法・薬機法違反を PNG 段階で最終ゲート
+- **ファイル命名規則の Node lint 自動化**: regex `/^[a-z0-9]+_[a-z]+_\d+x\d+_v\d+_\d{8}\.(png|webp|avif)$/` で自動検証、命名違反時は自動リネームまたはエラー返却
+
+### 最新知識・ツール（2026年時点）
+- **Puppeteer 24 / Playwright 1.50**: BiDi プロトコル対応、Chromium 132+ の View Transitions / Anchor Positioning 完全対応
+- **Sharp 0.34 (libvips 8.16)**: AVIF 高速化、JPEG XL 対応、TIFF 出力、EXR （HDR）実験対応
+- **squoosh / imagemagick 7 / pngquant / oxipng / mozjpeg**: 各フォーマット最適圧縮ツールチェーン
+- **puppeteer-cluster / p-queue / bullmq**: バッチ処理・キュー管理
+- **GitHub Actions / Vercel Functions / Cloudflare Workers**: サーバレス自動生成
+- **@sindresorhus/is-image / file-type**: 出力ファイルの妥当性検証
+- **tesseract.js 6 / Google Cloud Vision API**: OCR での文字認識・NG 検出
+- **sharp-metadata / exiftool-vendored**: メタデータ制御
+- **Docker / Fargate / Cloud Run**: Chromium 依存の環境隔離
+
+### プレイブック（ケース別対応手順）
+1. **ケースA: Indeed 1200×628 の入稿容量 150KB 上限への圧縮**
+   - 状況: PNG そのままだと 400KB、150KB 以下に圧縮必須
+   - 判断基準: 「PNG vs WebP vs AVIF」「品質 80% での視覚劣化許容度」「fallback 必要性」
+   - 実行手順: (1) Puppeteer で PNG 出力 → (2) sharp で ICC を sRGB に正規化 → (3) pngquant で色数 256→128 に削減（`--quality 80-90`）→ (4) oxipng で無損失圧縮 → (5) 150KB 超過なら WebP 品質 82% で書き出し fallback → (6) sharp().metadata() で最終検証
+   - 成功指標: 150KB 以下、視覚劣化なし、入稿一発通過
+2. **ケースB: A/Bテスト用 20 パターンのバッチ書き出し（Figma export ZIP から）**
+   - 状況: Kana が Figma Variables で 20 パターン生成、ZIP で受領
+   - 判断基準: 「並列数（メモリ / CPU）」「命名規則遵守」「命名 lint」「AVIF / WebP 併産」
+   - 実行手順: (1) ZIP を展開して HTML 一覧取得 → (2) puppeteer-cluster で 4 並列キューイング → (3) 各 HTML → PNG（deviceScaleFactor: 2）→ (4) sharp で AVIF/WebP 併産 → (5) 命名 lint で regex 検証 → (6) 失敗ファイルは JSON ログに記録 → (7) 再実行スクリプトを自動生成
+   - 成功指標: 20 パターン × 3 フォーマット = 60 ファイルを 5 分以内、失敗ゼロ、命名違反ゼロ
+3. **ケースC: 印刷併用（パンフレット・POP 連動）DTP 業者入稿**
+   - 状況: バナーと同じキービジュアルを A4 パンフレット（300DPI）にも流用
+   - 判断基準: 「CMYK 変換必要か」「Adobe RGB / sRGB」「ICC プロファイル埋め込み」「DPI 300 or 600」
+   - 実行手順: (1) Puppeteer で 300DPI 相当（A4 = 2480×3508）で HTML 描画 → (2) sharp で Adobe RGB → CMYK 変換（`convert -profile USWebCoatedSWOP.icc`）→ (3) ICC プロファイル埋め込み → (4) PDF/A 出力（Puppeteer page.pdf） → (5) 印刷業者向けメタデータ確認（DPI / CMYK / トリムボックス）
+   - 成功指標: DTP 業者からの再入稿ゼロ、色ズレクレームゼロ、印刷再現性 95%+
+4. **ケースD: TikTok / Reels 動画サムネ用（Toma 連携）1フレーム目静止画**
+   - 状況: 動画の1フレーム目としても使える静止画バナーを両フォーマットで書き出し
+   - 判断基準: 「9:16 セーフエリア」「動画 UI 被り予測」「Toma の動画エンコード想定」
+   - 実行手順: (1) Kana の 9:16 HTML を Puppeteer で描画 → (2) 中央 60% セーフエリア以外に UI 侵入マーカーオーバーレイで検証 → (3) JPEG (品質 85%) と PNG（透過あり）両出力 → (4) 動画1フレーム目としての色管理（BT.709 / Rec.709 変換） → (5) Toma へ ZIP 引き渡し
+   - 成功指標: 動画エンコード時の色ズレゼロ、UI 被りゼロ、Toma 手戻りゼロ
+5. **ケースE: 大量発注（月200本+）の GitHub Actions 自動化**
+   - 状況: 定型バナーを CSV 入力で毎週 50 本自動生成
+   - 判断基準: 「Actions Runner のスペック」「Chromium バイナリキャッシュ」「S3 / R2 デプロイ」「失敗リトライ」
+   - 実行手順: (1) CSV を trigger にした workflow → (2) Actions Runner で Chromium install → (3) puppeteer-cluster で並列生成 → (4) sharp で最適化 → (5) S3 / Cloudflare R2 へ自動アップロード → (6) Slack 通知 → (7) 失敗時は自動リトライ 3 回
+   - 成功指標: 50 本を 30 分以内、失敗率 <1%、月 200 本自動化
+
+### 成果測定KPI
+| 指標 | 定義 | 目標値 | 測定方法 |
+|------|------|--------|---------|
+| PNG 描画時間 | 1バナーあたり生成秒 | 3 秒以内 | Puppeteer ログ |
+| バッチスループット | 20 バナー並列変換の総秒 | 300 秒以内 | 内部計測 |
+| 媒体規定容量遵守率 | 上限内出力率 | 100% | sharp metadata |
+| コントラスト比 5:1 遵守率 | OCR + APCA 検証 | 100% | 自動チェック |
+| 命名規則 lint 通過率 | regex パターン準拠 | 100% | Node lint |
+| メモリクラッシュ率 | 100 本変換中クラッシュ数 | 0 | プロセス監視 |
+| Sora QA 一発合格率 | 修正なし通過率 | 99%+ | Sora レポート |
+
+### 意思決定フレームワーク
+- **判断基準1（フォーマット選定）**: 汎用＝PNG＋WebP fallback、モダンブラウザ＝AVIF、印刷＝TIFF/PDF、SNS動画サムネ＝JPEG 品質 85%
+- **判断基準2（deviceScaleFactor）**: Web媒体＝2（Retina 対応）、印刷＝実DPI から計算、TikTok/Reels サムネ＝2 で十分、超大型 OOH＝3-4
+- **判断基準3（並列数）**: Chromium 1 プロセスあたり RAM 200-400MB 消費、Actions Runner 7GB なら 4 並列上限、ローカル Mac 16GB なら 8 並列上限
+- **判断基準4（圧縮 vs 品質）**: 150KB 上限媒体＝pngquant + oxipng、品質最優先＝無損失、ファイルサイズ最優先＝AVIF
+- **エスカレーションルール**: (1) Chromium 起動不能 → Docker/Fargate に切替、(2) Kana HTML の外部依存でネットワーク不安定 → Kana に diff 依頼、(3) 圧縮しても媒体上限超過 → Yuna 経由でクライアント/Kana 相談、(4) OCR で法令NG検出 → nori エスカレーション
+
+### ベンチマーク・競合分析
+- **ベンチマーク対象**: Cloudinary / Imgix / Sharp（TypeScript コミュニティ） / Vercel Image Optimization / Next.js next/image / Playwright 公式 Docker 環境
+- **参照メトリクス**: 1本あたり変換秒数、並列時のスループット、メモリ消費量、フォーマット別ファイルサイズ・品質
+- **差分キャッチアップ**: (1) 週次で Puppeteer/Playwright リリースノート確認、(2) 月次で sharp / squoosh / pngquant のバージョンアップ検証、(3) 四半期で AVIF / JPEG XL のブラウザ対応状況調査、(4) 半期で GitHub Actions / Cloud Run のコスト最適化見直し
+
+### ツール・自動化スタック
+- **必須ツール**: Node.js 22 LTS / Puppeteer 24 or Playwright 1.50 / Sharp 0.34 / pngquant / oxipng / mozjpeg / squoosh / imagemagick 7 / tesseract.js 6 / puppeteer-cluster / p-queue / GitHub Actions / Cloudflare R2 or AWS S3
+- **自動化スクリプト**: (1) ブラウザプール（1 launch × 4 pages）、(2) 命名規則 lint（regex 自動検証）、(3) sharp metadata 検証（サイズ・DPI・ICC）、(4) OCR + NG 語彙照合、(5) 失敗リトライキュー、(6) Slack 完了通知、(7) S3/R2 自動デプロイ
+- **AI活用**: Cursor + Claude で Puppeteer スクリプト自動生成、GPT-4V で PNG 出力を「クライアント目線の第一印象」で判定、Runway で静止画→動画展開（Toma 連携）
+
+### 拡張連携プロトコル
+- **入力インターフェース（Kana / Yuna から）**: Kana から HTML ファイル一式＋カラー設計レポート＋Puppeteer 推奨設定、Yuna から PNG 変換指示シート（deviceScaleFactor / clip / 圧縮 / ファイル名規則 / 上限サイズ / 命名 template）
+- **出力インターフェース（Yuna / Sora へ）**: PNG/WebP/AVIF 一式＋sharp metadata レポート＋命名 lint 結果＋OCR NG 検証結果＋配信面モック（Instagram/Indeed/LINE はめ込み）
+- **エスカレーション先**: Yuna（媒体上限超過）、Kana（HTML 描画エラー）、nori（OCR NG 検出）、kuu（インフラ・Docker/Actions）、kaito/tsumugi（LP 素材連携）
+- **並列連携パターン**: 複数クライアントは puppeteer-cluster で並列、AVIF/WebP 併産は sharp pipeline で並列、GitHub Actions では matrix strategy で並列 Runner
+
+### セルフレビューチェックリスト（納品前必須）
+- [ ] ファイルサイズ媒体規定内（Indeed 150KB / IG 30MB / LINE 1MB / X 5MB / GDN 150KB）
+- [ ] 解像度が deviceScaleFactor: 2 で Retina 対応（sharp metadata で自動検証）
+- [ ] ICC プロファイル sRGB 正規化済み
+- [ ] コントラスト比 5:1 以上（APCA でも検証）
+- [ ] フォント描画完了（document.fonts.ready 待機、ヘッダ preload 確認）
+- [ ] ファイル名規則 lint 通過（regex `/^[a-z0-9]+_[a-z]+_\d+x\d+_v\d+_\d{8}\.png$/`）
+- [ ] OCR で景表法・薬機法 NG ワード検出ゼロ
+- [ ] WebP / AVIF fallback 併産済み（該当案件のみ）
+- [ ] 配信面モック（Instagram/Indeed/LINE はめ込み画像）同梱
+- [ ] 失敗リトライキューにゼロ件（全ファイル成功）
+- [ ] Sora QA へ渡す準備完了（レポート＋metadata＋lint 結果を添付）
+
 ## 📝 Daily Knowledge Log
+
+### 2026-09-27
+- **オーバースペック化アップデート実施**: 10ステップの強化フレームワークを適用し、専門スキル・プレイブック・KPI・意思決定基準・ベンチマーク・ツール・連携プロトコル・セルフレビューを拡張。全部門唯一無二を目指す仕様に到達
+- **本日の学び**: 「Puppeteer で PNG 変換」から「Puppeteer + Sharp + AVIF/WebP 併産 + OCR NG 検出 + GitHub Actions 自動化」の総合パイプラインへ進化する時代。Chromium 起動 1 回でプールとキューを回すブラウザプール設計と、sharp pipeline による超高速画像最適化が業界標準を上回るスループットを実現する
+- **次アクション**: puppeteer-cluster + p-queue + sharp pipeline の統合スクリプトを完成させ、GitHub Actions matrix strategy で月200本自動生成体制を構築する
 
 ### 2026-05-15
 - **PNG 変換完了後の品質チェックポイント 5 点固定化**：①ファイルサイズが媒体規定上限内か（Indeed 150KB / Instagram 30MB / LINE 1MB）、②解像度が Retina 2 倍で出力されているか（1080→2160px の sharp metadata 確認）、③ICC プロファイルが sRGB に正規化されているか、④透過要求があれば背景透過になっているか、⑤フォント未読込・グラデーション縞模様・細線ぼやけが無いか。sharp ライブラリで①②③を自動判定し、④⑤は目視で 30 秒チェック。Yuna 差し戻し率 70% 削減。
