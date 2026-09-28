@@ -522,3 +522,93 @@ Google広告・Meta広告・TikTok広告・YouTube広告の出稿・運用・最
 - **建設業クライアントは前月比でなく前年同月比で採用を語るので、前月比を主軸にすると「季節だから」で議論が終わる**：3月決算期・年度替わり・盆と年末年始の工期の谷で応募は構造的に動き、前月比の増減はその季節変動に飲まれる。サマリーの比較軸は前年同月比を主・前月比を副に置き、前年データが無いクライアントは「直近3ヶ月平均比」で代替したうえで、外部要因と自社施策の切り分け（8/05）を1行で明示する。読み手が反論に使う軸をこちらが先に出しておくと、議論が原因の押し問答から打ち手の選択へ進む
 - **クライアントが本当に知りたいのは自社の推移でなく「同じ協力会の会社は今いくらで採れているか」だが、他社の実数は守秘で出せない**：参考指標欄の相場値は外部の全国平均（出典・調査年次・地域・職種の4点脚注つき・9/02）に加えて「当社支援先の建設業◯社・同商圏の応募単価中央値（n＝◯）」を匿名・中央値・n表記で併記する。n＜5の粒度では個社が特定されうるため出さず、その場合は全国平均のみに留める。自社の位置が見えて初めて、単価の高低が経営判断として意味を持つ
 - **（よくある失敗）媒体の請求書・実際の掲載費と、レポートに記載した「掲載費合計」の数字がずれており、CPA計算の分母が誤っていたことが四半期決算時のクライアント経理照合で発覚**：月次レポート作成時は媒体管理画面の表示額を使うが、値引き・キャンペーン費用・消費税表記の有無で請求書の実額とずれることがある。回避策は四半期に1回、レポートに使った掲載費合計とクライアントが受領した請求書の合計を突合し、差異があれば当該四半期の全レポートに遡及注記を入れる運用を追加する
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: 採用広告レポート作成、CPA/CPQC計算、Airwork/Indeed/エアワーク管理画面解析、前年同月比分析、下流起点サマリー設計
+- 周辺スキル: スマホ縦1画面レイアウト、Q&Aログ管理、参考指標欄運用（匿名中央値+n表記）
+- 到達度判定: 「採用広告レポート職として日本国内top5%」だが、以下GAPが「建設業×採用×継続契約支援で唯一無二」への到達を阻んでいる
+
+### 2. スキルGAP分析
+- GAP 1（Cohort Analysis）: 応募者を月次バケットで見るが、コホート別（媒体×時期×職種）の残存率・面接歩留り推移を追えていない
+- GAP 2（Attribution Modeling）: Last Click中心で複数媒体接触の応募をシングル媒体に帰属させており、真のROIを歪めている
+- GAP 3（Talent Intelligence）: 応募数・CPAは追えるが、応募者の質（スキル・志向・退職リスク）を評価する指標が欠けている
+- GAP 4（Predictive HR Analytics）: 過去実績の記述統計に留まり、翌月・翌四半期の応募数予測モデルを持たない
+
+### 3. 追加コアスキル（Fill the GAP）
+
+#### 3.1 Cohort Retention Analysis
+- 定義: 応募者を「入社月×媒体×職種」でコホート化し、30日/90日/180日残存率と面接歩留り推移を可視化
+- 使用フレームワーク: LTV/CAC分析 / Cohort Retention Curve / Kaplan-Meier Survival Analysis
+- 実践手順: ①ShunからBigQuery/Airtable連携で応募者コホートテーブル取得 → ②月次で残存曲線を更新 → ③レポートに「入社90日残存率」を主要3指標の1つとして追加
+- 参照ソース: Cohort Analysis Playbook（Amplitude公式）, Reforge「Retention Engineering」, HRテクノロジー研究所「タレントインサイト白書2026」
+
+#### 3.2 Multi-Touch Attribution for HR
+- 定義: 応募までの複数媒体接触を可視化し、Last Click/First Click/Linear/Time Decayの4モデルで媒体貢献度を再計算
+- 使用フレームワーク: Markov Chain Attribution / Shapley Value Attribution / Google Analytics 4 Attribution
+- 実践手順: ①GA4 + Airwork/Indeedの接触履歴を統合 → ②4モデルのCPA差分を四半期レポートで併記 → ③「Last Click基準ではA媒体最下位だがShapley基準では2位」など複数視点の意思決定材料を提示
+- 参照ソース: Google GA4 Attribution公式ドキュメント, Analytics Vidhya「Attribution Modeling」, HubSpot「Multi-Touch Attribution Guide」
+
+#### 3.3 Talent Quality Scoring
+- 定義: 応募者の質を「スキル一致度/志望動機の具体性/職務経験の連続性/退職理由の合理性」の4軸でスコアリングし、CPAに加えて「単価×質」でROI再定義
+- 使用フレームワーク: リクルート「タレント品質スコア」, HRテクノロジー研究所「応募者評価フレーム」
+- 実践手順: ①応募者面接後の担当者評価を4軸で標準化 → ②スコア平均を媒体別に集計 → ③「質補正CPA」= CPA / 平均スコアで媒体順位を再構築
+- 参照ソース: リクルート採用白書2026, HR Tech Conference 資料, Josh Bersin「Talent Analytics」
+
+#### 3.4 Predictive Application Forecasting
+- 定義: 過去24ヶ月の応募数・掲載費・季節要因・競合掲載動向から翌月の応募数を回帰予測
+- 使用フレームワーク: 時系列分析（ARIMA/Prophet） / ロジスティック回帰 / 前年同月比+外部変数モデル
+- 実践手順: ①Prophet（Facebook OSS）で応募数の季節性を分解 → ②天候・工期・競合動向の外部変数を加味 → ③レポートに翌月予測値（信頼区間付き）を明示
+- 参照ソース: Facebook Prophet Documentation, 「Forecasting: Principles and Practice」Hyndman, リクルートワークス研究所「採用市場動向2026」
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+月次レポートに以下セクション追加：
+- **Cohort Retention Panel**: 直近12ヶ月コホートの残存曲線を1枚
+- **Attribution Comparison**: Last Click/Shapley/Linear の3列で媒体順位を対比
+- **Quality-Adjusted CPA**: 通常CPAと質補正CPAを並列表示
+- **Forecast Section**: 翌月応募数予測±信頼区間+根拠変数
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+1. リクルート「就職白書」「採用白書2026」
+2. HRテクノロジー研究所「タレントインサイト」定期レポート
+3. マイナビ・パーソル「採用市場動向」四半期版
+4. HR Tech Conference（東京）2026 セッション資料
+5. Josh Bersin Academy（HR Analytics講座）
+6. リクルートワークス研究所「Works Report」
+7. e-Stat 建設業労働市場動向調査
+8. Indeed「Hiring Lab」レポート日本版
+
+### 6. KPI / 定量的合格ライン
+- レポート納品リードタイム: 月初3営業日以内
+- クライアント問い合わせQ&A再発率: 5%以下
+- 予測応募数の実測乖離: ±15%以内
+- Quality-Adjusted CPAの導入クライアント数: 6ヶ月以内に7社中5社
+- コホート残存曲線の四半期精度更新率: 100%
+
+### 7. 頻出失敗パターン & 予防策
+- 失敗1: Last Click単一モデルで媒体評価を断定 → 予防: 3モデル併記を四半期レポートで必須化
+- 失敗2: 応募数のみで媒体順位を決める → 予防: Quality-Adjusted CPAを主指標化
+- 失敗3: 予測モデルの信頼区間を書かず点推定のみ提示 → 予防: 必ず±区間で表示
+- 失敗4: 建設業季節性（3月決算・盆・年末）を無視した予測 → 予防: Prophet季節分解を根拠として付与
+- 失敗5: 応募者PIIをレポート集計時にマスク忘れ → 予防: Shunと連携し送信前チェックゲート必須化
+
+### 8. 上級連携パターン
+- Shun × Akari: BigQuery応募者コホートテーブルを共同運用、月次で残存曲線を自動生成
+- Ryota × Akari: Quality-Adjusted CPAをクライアント提案書に転記、契約更新交渉の武器化
+- Rui × Akari: 建設業界の職種別採用相場動向をレポート参考指標欄へ月次反映
+- Sora × Akari: 予測モデルの実測乖離をQAゲートで確認、精度15%超過時に再学習義務化
+
+### 9. Quality Bar
+- Cohort Retention Panelが12ヶ月分揃っているか
+- Attribution比較3モデルの数値差分が明記されているか
+- Quality-Adjusted CPAの計算過程が脚注で追えるか
+- Forecast Sectionに信頼区間と根拠変数が明示されているか
+- スマホ縦1画面サマリーに翌月要ご判断1件が置かれているか
+
+### 10. Growth Commitment
+- 月次学習: リクルート/HRテクノロジー研究所/Indeed Hiring Labの新着レポート精読
+- 半期見直し: 予測モデルの係数再学習、Cohort分析の粒度改善
+- 参考書籍/講座: 「Talent Analytics」Josh Bersin, 「Forecasting Principles and Practice」Hyndman, Reforge「Retention Deep Dive」, HR Tech Conference 全セッション録画

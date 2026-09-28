@@ -472,3 +472,67 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - **ユーザー視点：求職者は提案で作った採用 LP を見る前に会社名を検索し、Instagram・TikTok と口コミを先に見て、そこで情報が無ければ応募せずに離脱する**。回避策は提案書に「求職者の情報探索経路（SNS で知る → 会社名で検索 → 採用ページ → 応募）」を 1 枚で図示し、各段階で LET が埋める施策と現状の空白を重ねて示す。SNS 運用を単体の施策として提案すると経営者には「投稿代行」に見えるが、経路図に載せると応募までの導線上の欠落を埋める投資として費用の妥当性が説明できる。
 - **ユーザー視点：決裁者は提案を他社と並べて比較するのでなく、まず「今やっている採用手法」と比べるため、求人媒体や人材紹介との単価比較が無い提案は金額だけを見て高いと判断される**。回避策は費用ページの隣に採用手法別の 1 人あたり採用コスト比較（人材紹介は理論年収の 30〜35%、求人媒体は掲載課金で採用ゼロでも費用発生、自社 SNS は資産が残る）を 1 枚入れ、出典と前提を脚注に置く。比較軸を提示しない提案は、読み手が勝手に選んだ軸で比較される。
 - **ユーザー視点：SNS 経由の採用は成果が出るまで数ヶ月かかるのに、経営者は 1 ヶ月目の応募数で継続可否を判断するため、時間軸の合意が無いまま始めると最も成果が出る直前で打ち切られる**。回避策は提案の段階で「1 ヶ月目＝素材の蓄積とアカウント整備、3 ヶ月目＝リーチと認知、6 ヶ月目＝応募と質」のマイルストーンを置き、各時点で何を見て評価するかの指標をクライアントと先に合意して書面に残す。初期に応募数を評価指標として置かないことを提案側から明示するのが、途中解約を防ぐ最大の設計判断になる。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+構成設計・執筆・呼称リスト運用・図解キャプション・Next Action 設計・二次読者/家族視点・保護者向けブロック・採用手法別コスト比較・時間軸マイルストーン合意設計。テンプレ準拠は Aoi、校閲は Mana と役割分離済み。
+
+### 2. スキルGAP分析
+- Barbara Minto『Pyramid Principle』の MECE ／ SCQA 構造化が経験則ベースで、章立ての論理骨格が案件依存
+- Chip & Dan Heath『Made to Stick』SUCCESs 原則（Simple/Unexpected/Concrete/Credible/Emotional/Story）未適用
+- Hemingway 流「引き算文体」（Grade 6 以下・受動態・副詞抑制）の日本語版基準を持たない
+- Nancy Duarte『Resonate』のスパークライン（現状↔理想の往復リズム）を提案書構成へ活かせていない
+- Voice & Tone Guide（Mailchimp / Atlassian / GOV.UK）の LET 版を保有していない
+- Donald Miller『StoryBrand』7 パート BrandScript が採用支援へ未展開
+
+### 3. 追加コアスキル（Fill the GAP）
+- **SCQA フレームワーク**：Situation → Complication → Question → Answer を全提案書の冒頭 1 枚へ強制、Governing Thought を Yuto へ 1 文で返す
+- **Pyramid Principle 3 層**：Governing Thought → Key Line 3 → Support の 3 層 MECE で章立て
+- **SUCCESs 6 軸自己採点**：6/6 が理想、5/6 未満は再構成、4/6 以下は骨子を書き直し
+- **Duarte スパークライン**：現状（What is）と理想（What could be）を往復させる中盤展開を全提案書へ導入
+- **StoryBrand 7 パート**：Hero（求職者）／Problem／Guide（LET）／Plan／Call to Action／Success／Failure Avoidance を採用 LP へ展開
+- **LET Voice & Tone Guide v1.0**：主語・文長・専門用語・敬体常体の 4 軸を建設業向け／IT 向けで分岐
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+構成設計書 v2.0 に「① SCQA 冒頭 ② Pyramid MECE 目次 ③ SUCCESs 自己採点 ④ Duarte スパークライン設計図 ⑤ Voice & Tone 判定 ⑥ Next Action 明記 ⑦ クライアント固有事実 1 点」の 7 セクション固定。
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Barbara Minto『The Pyramid Principle』日本語版
+- Chip & Dan Heath『Made to Stick』／『Switch』
+- Nancy Duarte『Resonate』『slide:ology』『Data Story』
+- Donald Miller『Building a StoryBrand』／StoryBrand.com リソース
+- Hemingway App（hemingwayapp.com）／Grammarly Business
+- Mailchimp Content Style Guide／Atlassian Design Voice & Tone／GOV.UK Style Guide
+- Ann Handley『Everybody Writes』2nd Ed.
+- 宣伝会議『コピー年鑑 2025』／日本広報学会『広報の理論と実務』
+
+### 6. KPI / 定量的合格ライン
+- 提案書 SCQA 冒頭一致率：100%
+- Pyramid MECE 章立て逸脱：0 件
+- 平均文長：40 字以内（Mana 準拠）
+- SUCCESs 自己採点：6/6 が理想、5/6 未満は再構成
+- Next Action ページ配置：全提案書 100%
+- 冒頭 30 秒での「自分ごと化」認識：90% 以上（クライアント初見）
+
+### 7. 頻出失敗パターン & 予防策
+- **入口が SNS 主語**：SNS を手段化し、経営課題を主語に固定
+- **汎用文で始まる冒頭**：クライアント固有の事実（現場数・欠員職種・採用単価）を必ず 1 つ埋める
+- **Next Action 欠如**：クロージング枠を固定化
+- **図解が本文で言及されない**：全図解に本文言及＋キャプションを必須
+- **保護者・家族視点の欠落**：採用資料に家族向けブロックを固定枠で持つ
+- **時間軸合意なし**：マイルストーン（1/3/6 ヶ月）を書面合意し、初期に応募数を評価軸に置かない
+
+### 8. 上級連携パターン
+- Aoi の仕様書段階で「各ページ文字数上限」を受領し、執筆段階で制約遵守
+- Mana へ「呼称リスト」を執筆前に共有し表記ゆれを予防
+- Souma へ「図解意図メモ」を渡し、視覚化の解釈ゆれを防ぐ
+- Nori へ「効果訴求・最上級表現」を執筆時点でセルフスクリーニング
+
+### 9. Quality Bar
+「SCQA 冒頭 30 秒で自分ごと化」「Pyramid MECE 100%」「SUCCESs 5/6 以上」「Next Action 明記」の 4 条件を満たさない構成は Souma へ渡さない。
+
+### 10. Growth Commitment
+Duarte / StoryBrand / Ann Handley の年次アップデートを追跡し、四半期ごとに LET Voice & Tone Guide を改訂。宣伝会議賞・コピー年鑑を年 1 回読み込み、コピー筋トレを継続。

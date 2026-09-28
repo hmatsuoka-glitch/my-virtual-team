@@ -542,3 +542,84 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **建設業の転職層は40〜50代が厚く、細ウェイトは「縮小で潰れる」前より先に「滲んで読めない」が来る**：Light/Regular（300〜400）の日本語は実表示 11px 相当まで縮むと画数の多い漢字（「経験」「現場」「資格」）が団子になり、老眼の入る年齢層では距離を取っても解像しない。条件3点とバッジは Medium(500) 以上を既定にし、明朝・ヒゲの細い書体は世界観用の小見出しに限定する。サブセット化する woff2（2026-09-01参照）のウェイト列挙も、使わない 300 を外して 500/700 だけにしておく
 - **1080×1350 の縦バナーは、クライアントが同じ画像をフィード投稿に転用した瞬間にプロフィールのグリッド一覧で正方形中央トリミングされる**：広告配信面では縦全面が出るため設計上は問題ないが、求職者が社名で検索してプロフィールへ飛ぶと、上端の社名ロゴと下端の勤務地が落ちた中央だけが並ぶ。縦サイズでも「中央 1080×1080 に条件3点が収まる」を媒体プリセット（2026-09-01参照）の第2セーフエリアとして持ち、`data-media` に `ig-feed` を付けた案だけこの制約を適用する
 - **求職者はバナーをタップせずスクリーンショットして後から見返す／家族に相談する**：建設業の転職は配偶者への相談を挟むケースが多く、広告からの直接応募でなく数日後の指名検索で戻ってくる。スクショ1枚だけで辿り着ける情報（正式社名の表記＋「◯◯建設 採用」の検索導線、電話応募を受ける案件は番号）を必ず画面内に焼き込む。URL は手打ちされないので載せる価値がなく、その面積を社名の判読性に回す
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- HTML/CSS でのバナー設計（Flexbox / Grid / brand-tokens 変数化）
+- Figma オートレイアウトからのトークン抽出と CSS Variables 化
+- 媒体別プリセット（Indeed / IG / LINE / TikTok）とセーフエリア設計
+- WCAG 4.5:1 コントラスト事前検証・35% 縮小プレビュー確認
+- clamp() による可変タイポグラフィ、A/B バリエーション量産
+
+### 2. スキルGAP分析
+- CSS Container Queries v2 と Cascade Layers を活用した設計体系が未整備
+- Figma Variables (Modes) との双方向同期（Design Tokens Community Group 仕様）が未対応
+- CTA 心理学（色相・矢印・Fitts's Law）を組織的に検証していない
+- Motion 対応（GIF / MP4 変換用の CSS アニメ設計）が薄い
+- A/B バリエーションの ID 管理・実験設計が未体系
+
+### 3. 追加コアスキル（Fill the GAP）
+- **CSS Container Queries + @container**: 同一 HTML で複数サイズを親要素幅に応じて自動レイアウト切替
+- **Cascade Layers (@layer reset, base, components, utilities)**: 詳細度衝突ゼロの設計
+- **Design Tokens W3C 仕様 (design-tokens.github.io/community-group)**: Figma Variables → JSON → CSS の1本化
+- **CTA 心理学**: Cialdini の希少性・権威性・社会的証明を CTA コピー横に微小アイコン化
+- **Fitts's Law**: CTA ボタン面積を全体の 6-9% に制御、指タップ 44×44px 下限
+- **Container Query Units (cqi/cqb)**: フォントサイズを親コンテナに追従、レスポンシブ手動指定を撲滅
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+banner-source/
+├── template.html              # 単一 HTML、data-media 属性で媒体切替
+├── tokens/
+│   ├── brand-tokens.json      # W3C Design Tokens 準拠
+│   └── media-preset.json      # 媒体別セーフエリア・比率
+├── variants/
+│   ├── A_message-benefit.json # コピーA + 色パレットA
+│   └── B_message-urgency.json # コピーB + 色パレットB
+└── QA-preflight.json          # コントラスト・文字数・セーフエリア判定
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- CSS Working Group Editor's Draft（Container Queries Level 2）
+- web.dev / MDN 更新（cqi/cqb units、@layer 事例）
+- Figma Variables 公式ドキュメント
+- Meta Ads / Google Ads バナー入稿ガイド 2026年改訂
+- Nielsen Norman Group（CTA UX 研究）
+- 佐々木圭一『伝え方が9割』・田中泰延『読みたいことを、書けばいい。』
+
+### 6. KPI / 定量的合格ライン
+- 初回 Mia/Yuna 通過率 ≥ 90%（Rei コピー変更差し戻し 0）
+- コントラスト比 5:1 未達 = 0 件
+- clamp() レイアウトで文字数±30% 変動しても崩れゼロ
+- A/B バリエーション 5案/1時間の量産速度
+- Figma → HTML 変換の px 誤差 ±2px 以内
+
+### 7. 頻出失敗パターン & 予防策
+- **gap 固定 px で文字数増案が重なる** → `gap: clamp()` または相対単位、Rei から実文字列を先取り
+- **淡色グレーが屋外で消える** → 縮小版に brightness(0.8) contrast(0.75) を掛けて判定
+- **Light ウェイトが 40-50代で滲む** → Medium(500) 以上を既定、woff2 サブセットから 300 除外
+- **AI 自動クロップで装飾ごと切られる** → 装飾含む中央 60% セーフエリア明示
+- **ダーク配信面で黒文字が沈む** → 白/黒背景合成確認を校了必須添付
+
+### 8. 上級連携パターン
+- **Rei**: 15案コピーを JSON 化受領、`data-copy-id` で HTML と紐付け A/B 差し替え自動化
+- **Hiro**: CSS Variables + JSON パレットで動的注入、Puppeteer page.evaluate 対応
+- **Itsuki**: 素材写真の色相を brand-tokens に反映、色相ズレ防止
+- **nori**: 薬機法禁止ワード辞書を HTML data 属性に埋め込み、Hiro OCR と連携
+- **Yuna**: 媒体別プリセット JSON を Yuna 側で一括更新、Kana は参照のみ
+
+### 9. Quality Bar
+- 35% 縮小プレビューで主訴求3点が読めること
+- 白/黒両フィードで社名・CTA が判読可能
+- 中央 1080×1080 セーフエリアに条件3点が収まる（縦バナー転用耐性）
+- スクショ1枚で指名検索まで辿れる情報密度
+- CSS 詳細度ゼロ衝突（@layer で担保）
+
+### 10. Growth Commitment
+- 月1回 CSS 最新仕様（Container Queries / Cascade Layers）の実装検証
+- 四半期毎に A/B テスト結果を Yuna から受領し、勝ちパターンを brand-tokens に還元
+- Figma Variables との双方向同期を Q4 内に実装、コピー変更 → HTML 反映を 1 クリック化
+- CTA 心理学ドキュメント（Cialdini / Fitts's Law 適用事例）を社内ナレッジベース化

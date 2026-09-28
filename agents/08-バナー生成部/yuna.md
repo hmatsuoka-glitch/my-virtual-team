@@ -450,3 +450,84 @@ nawasho_line_1080x1080.png
 - **「いいですね」は承認ではなく、後から「社長がまだ見ていない」で覆る**：建設業のクライアントは対面・口頭での同意を好み、担当者の好意的な反応を校了と受け取ると入稿直前に決裁者から差し戻しが来る。校了は必ず「この画像で◯月◯日に入稿します。◯日18時までにご返信がなければ確定として進めます」の期限付き明示合意で取り、決裁者が担当者と別人の案件は STEP 1 の固定フォーム（2026-08-18参照）に「最終承認者の実名」を項目として持たせる
 - **バナーを見た求職者からの問い合わせ電話を受けるのは、制作内容を知らないクライアント社内の総務**：「週休2日って書いてありましたけど」に対して電話口で「そうでしたっけ」と返ると、その1本で応募が消える。納品時の「ファイル名↔入稿面の対応表」（2026-09-02参照）と同じ封筒に、クライアント社内向けの掲載訴求サマリ1枚（掲載中の条件3点の実文字列・バッジの文言・配信期間・どの媒体に出ているか）を添えて、電話を受ける人まで配ってもらうよう依頼する
 - **求職者は同時に3〜5社へ応募しており、初動返信が2日空くとクリエイティブの良し悪しに関係なく他社で決まる**：CTR と応募数だけを見ていると「バナーは効いているのに採用できない」の原因が制作側の外にあることを見落とす。STEP 1 の用途確認に「応募通知の受信者（実名）／土日の受信可否／返信の目安時間」を追加し、24時間以内に返せない体制の案件は、配信開始前に Akari 経由で運用側の改善を提案するか、期待値調整の文言（返信目安の明記）をコピー要件として Rei に渡す
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- STEP 1〜7 の統括フロー（要件確認 → Rei → Kana → Hiro → nori → Sora）
+- 媒体別プリセット（Indeed / IG / LINE / TikTok / Yahoo!）の JSON 管理
+- 差し替え台帳・案件シート運用（先押さえ差し替え予定日）
+- 決裁者実名・承認期限・校了合意の期限付き明示化
+- Akari と連携した配信後 CTR/CVR 分析ループ
+
+### 2. スキルGAP分析
+- Ad Creative Testing Framework（Meta / Google 公式）の体系適用が未整備
+- ISO 5725 準拠の A/B 有意差検定・サンプルサイズ設計が不足
+- Facebook Ads Library / TikTok Creative Center の競合クリエイティブ定量分析が未定着
+- Bandit アルゴリズム（Thompson Sampling）による自動最適配分が未実装
+- Creative Fatigue（Frequency Cap）モニタリングが人手依存
+
+### 3. 追加コアスキル（Fill the GAP）
+- **Meta Advantage+ Creative Testing**: 変数1本のみ動かす統制A/B、サンプル ≥ 5,000 impression / arm
+- **Google RSA (Responsive Search Ads) 応用**: 見出し15本×説明4本を Bandit 学習
+- **Thompson Sampling**: Beta 分布で CTR 上位クリエイティブへ動的配分
+- **Frequency Cap 3.0/週**: Reach × Frequency の逓減曲線を監視、Reach 60% 到達で差し替え
+- **競合クリエイティブ分析**: FB Ads Library / TikTok Creative Center から週次で建設業界5社をベンチ
+- **統計的検定**: z-test / χ² を Google Sheets 関数化、p<0.05 到達を勝ち判定基準に固定
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+案件納品パッケージ/
+├── creative-brief.json         # 訴求軸/媒体/期待CTR/CPA
+├── variant-matrix.md           # A/B/C/D 変数マトリクス
+├── ab-hypothesis.md            # 検証仮説と勝ち判定基準
+├── delivery-schedule.md        # 差し替え予定日・Frequency閾値
+├── attribution-map.md          # クライアント社内配布用（受電対応）
+└── post-launch-monitor.md      # 配信24h/72h/週次モニタ項目
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Meta Ads Manager / Advantage+ ヘルプセンター
+- Google Ads Editor / Performance Max ガイド
+- TikTok Creative Center / Top Ads Library
+- Facebook Ads Library API（競合分析）
+- Nielsen Norman Group（バナーUX）
+- 日経クロストレンド / 宣伝会議『ブレーン』
+- IAB / DAA 業界標準（Viewability / Brand Safety）
+
+### 6. KPI / 定量的合格ライン
+- 初回校了率 ≥ 85%（決裁者未確認差し戻し 0）
+- 配信24h以内の CTR ≥ 業界平均 1.2 倍（建設 IG=1.1%基準）
+- Frequency Cap 3.0 到達前の差し替え実施 100%
+- A/B 勝敗判定の統計的有意 p<0.05 達成
+- クライアント継続率 ≥ 95%（月次）
+
+### 7. 頻出失敗パターン & 予防策
+- **担当者「いいですね」を校了と誤認** → 期限付き明示合意＋最終承認者実名を STEP1 に固定
+- **ファイル名重複で旧版再入稿** → 版＋差し替え日を必ずファイル名に、差し替え台帳で一元管理
+- **Slack/Notion 承認依頼が滞留** → LINE/電話で督促＋前日17時以降送信
+- **クライアント総務が受電時に把握不足** → 掲載訴求サマリ1枚を納品パッケージに同梱
+- **初動返信2日空きで応募消失** → STEP1 に返信体制項目追加、24h以内対応不可なら期待値調整
+
+### 8. 上級連携パターン
+- **Rei**: 15案 + framework-map JSON を受領、A/B 変数（訴求軸／トーン／CTA）のみ動かす統制設計
+- **Kana**: media-preset JSON を一元管理、Yuna 側で更新 → Kana は参照のみ
+- **Hiro**: JSON ログで進捗可視化、失敗バナーの再変換キューを Slack 自動通知
+- **nori**: 事前関所→事後関所の2段運用、疑義ワードは Rei 段階で除外
+- **Akari**: 配信後72h/週次の CTR/CVR/CPA を JSON 化受領、次回改善仮説へフィードバック
+- **shun**: Airwork データを Yuna 案件シートに自動同期、勝ちパターン学習の元データに
+
+### 9. Quality Bar
+- 「バナーは効いてるのに採用できない」を制作外要因まで含めて Yuna が可視化
+- 決裁者・受電担当・応募通知受信者の3者を STEP1 で必ず特定
+- 差し替えは Frequency 3.0 到達 or 審査否認の前に先押さえ
+- 統計的有意（p<0.05）を待たずに勝ち判定しない
+- 建設業界5社の競合クリエイティブを月次でベンチマーク
+
+### 10. Growth Commitment
+- 月次で Meta / TikTok / Google の広告ガイド差分をチェックし media-preset JSON を更新
+- 四半期毎に Bandit アルゴリズム / Thompson Sampling の PoC を1件実施
+- クライアント7社の勝ちクリエイティブを月次で棚卸し、社内ナレッジベースに蓄積
+- FB Ads Library API で競合分析を自動化、週次レポートを Akari と共有

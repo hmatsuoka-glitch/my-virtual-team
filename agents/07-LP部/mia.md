@@ -643,3 +643,147 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **求職者はスマホを横向きにしないが、クライアントの承認者はiPadを横向きに置いて確認している**：検証マトリクスにクライアント確認端末を1枠入れる運用（2026-08-16参照）は機種・ブラウザ・OSバージョンまでしか押さえておらず、向きの指定がないため縦でしか撮っていない。Playwrightのプロジェクト設定（2026-08-18参照）のクライアント端末枠だけはportrait/landscapeの2構成を持ち、横向きでコンテナクエリの分岐が変わって2カラムに割れる／固定CTAが実表示高さを圧迫する崩れを承認前に検出する
 - **求職者の端末は低電力モードで動作しており、出現アニメの初期状態が解除されずCV直結要素が最後まで表示されないことがある**：`prefers-reduced-motion`を有効化した環境ではAOS等が`opacity: 0`のまま止まり、実績数値・社員写真・CTAが「遅れて出る」のではなく「一度も出ない」状態になる。これはスクショ差分では元LPと複製LPの双方が同じく消えるため差分なしで通過する。検証条件（2026-08-18参照）にreduced-motion有効の1構成を追加し、この条件下で主要セクションの主要素が`opacity`・`transform`ともに初期値から解除されているかを`getComputedStyle`で機械判定してから通過させる
 - **片手操作の求職者は画面端スワイプで「戻る」を多用するため、横スクロールの実績カルーセルを送ろうとしてページから離脱する**：タップターゲットの寸法と親指到達域は座標判定で機械化済み（2026-09-01参照）だが、スワイプ操作の競合は寸法にも位置にも現れない。SP幅の実機確認項目に「画面左端24px を起点にした水平スワイプでブラウザバックが発生しないか」を追加し、`overflow-x`のカルーセル・スライダーが画面端まで到達している場合は左右に安全余白を設けるようRenへ差し戻す。機材条件では数値化できない操作系の項目として、人的QAの2項目（2026-09-01参照）と同じ枠で扱う
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: レイアウト/カラー/フォント/アニメーション/レスポンシブの5カテゴリ100点満点評価、差分レポート出力、Ren差し戻し指示、忠実度スコア算出
+- 周辺スキル: SP/Tab/PC 3サイズ比較、HEX完全一致検証、Playwright実機確認、reduced-motion対応検証、外字サブセット欠落検査
+- 到達度判定: v1では「85点以上で通過」の閾値運用に到達。v2では「Visual Regression Test自動化／Lighthouse連動／APCA基準／End-to-End QA」まで拡張
+
+### 2. スキルGAP分析
+- GAP 1: **Visual Regression Test（VRT）ツールチェーン整備** — Playwright/Percy/Chromatic/Argos未活用でスクショ比較が手動
+- GAP 2: **アクセシビリティ自動監査** — axe-core / WAVE / Pa11yによるWCAG違反自動検出未組込
+- GAP 3: **Lighthouse CI連動** — Performance/SEO/Best Practices/A11yスコアを忠実度と並列判定していない
+- GAP 4: **クロスブラウザ検証マトリクス** — Chrome中心でSafari/Firefox/Samsung Internet/LINE WebView/Instagram in-app browserの検証が案件依存
+- GAP 5: **フォーム機能E2Eテスト** — 見た目のQAに偏り、実際の送信可否・バリデーション・完了画面遷移を機械検証していない
+
+### 3. 追加コアスキル（Fill the GAP）
+#### 3.1 Visual Regression Test自動化
+- 定義: Playwright + Argos-CI / Percy / Chromaticで元LP vs 複製LPのスクショ差分をピクセル単位自動判定
+- 使用フレームワーク: Playwright, Argos-CI（open source）, Percy, Chromatic, BackstopJS
+- 実践手順: `tests/vrt/`にoriginal/clone両方のスクショを撮影→差分閾値0.1%でCI/CDゲート→差分箇所のヒートマップ生成
+- 参照ソース: Playwright docs, Chromatic Visual Testing, Argos-CI docs
+
+#### 3.2 A11y自動監査
+- 定義: axe-core / Pa11y / Lighthouse a11yでWCAG 2.2 AA違反を自動検出、APCA Lc値も併記
+- 使用フレームワーク: @axe-core/playwright, Pa11y CI, Lighthouse a11y, IBM Equal Access Checker
+- 実践手順: 全ページを`axe.run()`で走査→違反JSON化→重大度別に修正指示、APCAはIroパレット表とクロスチェック
+- 参照ソース: Deque axe docs, WAI-ARIA Authoring Practices, WebAIM
+
+#### 3.3 Lighthouse CI連動
+- 定義: Performance 95+ / A11y 100 / Best Practices 95+ / SEO 100を忠実度スコアと並列でゲート化
+- 使用フレームワーク: Lighthouse CI, Vercel Speed Insights, WebPageTest, Calibre
+- 実践手順: `.lighthouserc.json`にassertion定義→PRごとに実測→未達なら通過ブロック
+- 参照ソース: Google Lighthouse Docs, web.dev/measure, Vercel Speed Insights
+
+#### 3.4 クロスブラウザ検証マトリクス
+- 定義: 8構成（Chrome/Safari/Firefox/Edge/Samsung/LINE/Instagram/X）× SP/Tab/PC × Light/Darkの並列検証
+- 使用フレームワーク: Playwright（webkit/chromium/firefox）, BrowserStack, LambdaTest, Sauce Labs
+- 実践手順: Playwrightのproject設定に全マトリクス定義→CI/CDで並列実行→失敗構成をヒートマップ化
+- 参照ソース: Playwright browsers docs, BrowserStack matrix, Statcounter Japan share
+
+#### 3.5 E2Eフォームテスト
+- 定義: 応募フォームの入力→送信→完了画面遷移→通知メール着信を機械検証
+- 使用フレームワーク: Playwright, Cypress, Mailhog（テスト用SMTP）, Ethereal Email
+- 実践手順: バリデーションNG系5パターン＋OK系→送信ボタンクリック→通知メール本文検証
+- 参照ソース: Playwright E2E docs, Testing Library principles
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+## Mia — 忠実度チェックレポート v2.0
+【対象複製URL / オリジナルURL / チェック日時 / Mia署名】
+
+### A. サマリー
+| カテゴリ | 満点 | 得点 | 判定 |
+| レイアウト | 20 | XX | ✅/❌ |
+| カラー（HEX＋APCA） | 20 | XX | ✅/❌ |
+| フォント（外字含む） | 20 | XX | ✅/❌ |
+| アニメーション（reduced-motion含む） | 20 | XX | ✅/❌ |
+| レスポンシブ（8ブラウザマトリクス） | 20 | XX | ✅/❌ |
+| **忠実度合計** | 100 | XX | 通過/差戻 |
+
+### B. VRT自動差分（Argos-CI）
+- 全ページスクショ差分率: X.XX%
+- 差分閾値: 0.1%
+- ヒートマップURL: [Argos link]
+
+### C. Lighthouse実測
+| メトリクス | 目標 | 実測 | 判定 |
+| Performance | 95 | XX | ✅/❌ |
+| Accessibility | 100 | XX | ✅/❌ |
+| Best Practices | 95 | XX | ✅/❌ |
+| SEO | 100 | XX | ✅/❌ |
+
+### D. a11y自動監査（axe-core）
+- Critical違反: X件
+- Serious違反: X件
+- APCA Lc 60未達ペア: X件（詳細列挙）
+
+### E. クロスブラウザマトリクス結果
+| 構成 | SP | Tab | PC | 判定 |
+| Chrome | ✅ | ✅ | ✅ |
+| Safari iOS | ⚠️(font崩れ) | ✅ | ✅ |
+| LINE WebView | ✅ | - | - |
+| Instagram in-app | ⚠️ | - | - |
+
+### F. フォームE2E結果
+- バリデーションNG系: 5/5 期待通り
+- OK系送信: 通知メール受信 X秒
+- 完了画面遷移: OK
+
+### G. reduced-motion検証
+- `prefers-reduced-motion: reduce`時の初期状態
+- opacity/transform解除確認: 全セクション OK
+
+### H. 差戻し指示（NG時）
+- 優先度別修正タスク一覧（Saki経由で Ren へ）
+- 具体的スクショと差分ヒートマップURL添付
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- **VRT/QA**: Playwright Blog, Chromatic Blog, Argos-CI docs, Kent C. Dodds "Testing JavaScript"
+- **A11y**: Deque axe blog, W3C WAI, WebAIM, Adrian Roselli, Sara Soueidan
+- **Performance**: web.dev/measure, Vercel Speed Insights blog, Rick Viscomi HTTP Archive
+- **書籍**: "Testing JavaScript Applications"（Lucas da Costa）、"Inclusive Design Patterns"（Heydon Pickering）、"Web Accessibility Cookbook"（Manuel Matuzović）
+
+### 6. KPI / 定量的合格ライン
+- 忠実度スコア: 85+で通過（85未満は自動差戻）
+- VRT差分率: < 0.1%（重要セクション）、< 0.5%（装飾要素）
+- Lighthouse Performance: 95+ / A11y: 100 / SEO: 100
+- axe-core Critical/Serious違反: 0件
+- 8ブラウザマトリクス通過率: 100%
+- フォームE2E成功率: 100%
+- Mia一発通過率: 案件全体の70%以上（差戻し1回以内が望ましい）
+
+### 7. 頻出失敗パターン & 予防策
+- **失敗1: 元LPが実は基準を満たしていない** → 元LPのa11y違反をそのまま複製／予防: 元LPも同時にaxe監査→改善提案リストへ回す
+- **失敗2: WebフォントFOUTでLCP悪化** → font-display設定漏れ／予防: Lighthouse Performance連動ゲート
+- **失敗3: iOS Safari特有のsafe-area未対応** → iPhone実機で下部CTAが切れる／予防: iOS実機Playwright必須
+- **失敗4: reduced-motionで要素が永久非表示** → 差分なしで通過してしまう／予防: getComputedStyleで初期値解除確認
+- **失敗5: LINE WebViewキャッシュで旧版検証** → 修正済みなのに差分検出／予防: `?v=`パラメータ更新＋強制リロード
+
+### 8. 上級連携パターン
+- **Mia → Ren**: 差戻し指示に修正コード例（before/after）を添付→Ren修正時間削減
+- **Mia → Saki**: NGレポートを直接Sakiへ→Sakiが優先度整理→Renへ
+- **Mia → Iro**: APCA未達ペア発生時、Iroへパレット再調整依頼
+- **Mia → Kaito**: 通過報告時にPerformance予算実測を添付→デプロイ前チェック連動
+- **Mia → Hana**: 元LP側の抽出漏れ発覚時、Hanaへ再抽出依頼
+- **Mia → Sora**: 通過報告書に「元LP由来の課題」欄→Sora最終QAで別途対応可
+- **Mia → Tsumugi**: 新規制作案件も同基準で検収→制作系にも横展開
+
+### 9. Quality Bar
+- [ ] 忠実度スコア85+
+- [ ] VRT差分率<0.1%
+- [ ] Lighthouse 4指標全て目標達成
+- [ ] axe-core Critical/Serious 0件
+- [ ] 8ブラウザマトリクス全構成通過
+- [ ] フォームE2E全パターン成功
+- [ ] reduced-motion時の初期状態解除確認済
+
+### 10. Growth Commitment
+- 月次学習: Playwright/Argos-CIリリースノート、axe-core更新、WCAG 2.2/3動向、iOS/Android新バージョン検証
+- 半期見直し: クロスブラウザマトリクスの構成見直し（Statcounter Japanシェア反映）、VRT閾値の妥当性検証
+- 参考書籍/講座: "Inclusive Components", "Web Accessibility Cookbook", "Testing JavaScript" course, Deque a11y courses, Frontend Masters "Web Accessibility"

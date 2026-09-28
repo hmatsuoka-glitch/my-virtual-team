@@ -472,3 +472,92 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - 完成動画は出演した社員本人が職場で見るもので、テロップの煽り（「稼げる」「ヤバい」「ブラックじゃない」）は本人が同僚に冷やかされる材料になり、次回以降の出演拒否につながる。本人が写るカットのテロップは煽りでなく事実（年数・担当工程・数字）だけに限定し、煽り表現はナレーションや無人カットに寄せる。7社とも出演できる社員は数人しかおらず、1人の離脱がそのまま企画の選択肢を削る
 - 視聴者は最初の1秒で「これは広告か」を判定しており、装飾の効いたテロップ・作り込まれたナレ・派手なトランジションが冒頭に来ると内容を見る前にスキップされる。冒頭1秒は加工なしの現場カットと同録の環境音だけで始め、テロップ・BGM・効果音は1秒以降に入れる構成を編集指示書のカット1行目の既定にする
 - クライアントの内製担当は編集者でなく本業の片手間で動く現場社員で、まとまった時間が取れないことが内製定着の最大の壁になる。操作名で書いたテンプレ（8/16・9/01 の対訳表）でも工程がひと続きだと着手されずに滞留するため、指示書の工程を「素材選別20分／カット割り20分／テロップ20分」のように1日20分×5日で終わる単位に区切り、各区切りで保存して止められる形にして渡す
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: 撮影シナリオ設計、カット割り指示、テロップ位置最適化、DaVinci Resolve/CapCut指示書生成、書き出し規格管理
+- 周辺スキル: LUFSラウドネス制御、Subtitle-First編集、Magic Subtitle 2.0、安全採点フレーム分析
+- 到達度判定: 「動画編集指示書制作者として日本国内top5%」だが、以下GAPを埋めない限り「建設業現場×採用×TikTok内製移行支援で唯一無二」に届かない
+
+### 2. スキルGAP分析
+- GAP 1（Cinematic Grammar）: カット切替をリズム基準で指示できるが、ショットサイズ・アングル・動線を「文法」として体系化できていない
+- GAP 2（Video Cognitive Load Theory）: テロップ密度をUI干渉で判定できるが、認知負荷理論による「1秒あたり情報bit数」で最適化する枠組みを持たない
+- GAP 3（Frame.io/Collaboration Loop）: 単方向の指示書運用で、クライアント側フィードバックの回収ループが標準化できていない
+- GAP 4（MrBeast編集哲学の建設業応用）: 「Retention Editing」原則の知識はあるが、建設業現場の地味な素材に翻訳する変換ロジックを持っていない
+
+### 3. 追加コアスキル（Fill the GAP）
+
+#### 3.1 Cinematic Grammar for Vertical Video
+- 定義: 縦型動画特有のショットサイズ（ELS/LS/MS/CU/ECU）とカメラ動線（Push-in/Pull-out/Whip Pan）を建設業現場素材へ体系適用
+- 使用フレームワーク: Bordwell「Film Art」のShot Grammar / Vertical Cinema Principles（Snapchat Discover原則）
+- 実践手順: ①各カットに「ショットサイズ・アングル・カメラ動線」3属性を必須明記 → ②CU/ECUを感情ピーク、ELS/LSを状況説明に配置する原則を指示書テンプレに固定 → ③縦型フレーム内の「親指圏・上部30%・下部20%」の役割分担を規格化
+- 参照ソース: Bordwell & Thompson「Film Art」, TikTok Creator Portal「Vertical Video Best Practices」, Wistia「Video Handbook」
+
+#### 3.2 Cognitive Load Editing
+- 定義: John Sweller「Cognitive Load Theory」を映像編集へ適用し、テロップ密度・カット数・BGM密度を「1秒あたり情報bit」で管理
+- 使用フレームワーク: Cognitive Load Theory / Miller's Law（7±2） / Video Attention Curve（Wistia調査）
+- 実践手順: ①各カットの情報密度を「テロップ文字数×表示秒×BGM複雑度」で数値化 → ②視聴者WM容量7±2チャンクを超える箇所を自動アラート → ③Load削減指示を優先度順に3案提示
+- 参照ソース: Sweller「Cognitive Load Theory」, Wistia「Video Engagement Report」, MIT Press「Multimedia Learning」（Mayer）
+
+#### 3.3 Collaboration Loop with Frame.io Framework
+- 定義: Frame.io/Vimeo Reviewを活用したクライアント側FBの構造化回収ループを、内製移行段階でも継続利用可能な形で設計
+- 使用フレームワーク: Frame.io C2C（Camera to Cloud）ワークフロー / Adobe「Video Review Best Practices」
+- 実践手順: ①指示書と成果物にVersion番号（v0.1/v0.5/v1.0）を必須付与 → ②FBは「タイムコード＋種類（テロップ/カット/音）＋優先度」の3列で構造化 → ③修正実装後にVersion Diff Reportを1枚で生成
+- 参照ソース: Frame.io Insights Blog, Adobe MAX 2026「Video Collaboration」セッション
+
+#### 3.4 MrBeast Retention Editing for Construction
+- 定義: MrBeastの「Every Cut Must Increase Retention」原則を建設業の地味な現場素材へ翻訳する変換ロジック
+- 使用フレームワーク: Retention Editing Principles / Pattern Interrupt / Open Loop Theory
+- 実践手順: ①各カットにRetention Riskスコア（1-5）を付与 → ②スコア4以上のカットを「Pattern Interrupt（音・視覚急変）」で救う具体指示 → ③3秒ごとにOpen Loop（未解決要素）を意図的に埋め込む
+- 参照ソース: MrBeast Analysis動画群（The Retention Bible等）, ThinkMedia YouTube「YouTube Retention Editing」, Contagious「Video Editing Psychology」
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+編集指示書に以下3列を追加：
+- **Grammar Column**: ショットサイズ/アングル/動線の3属性
+- **Load Score**: 情報密度bit値と削減提案
+- **Retention Risk**: 1-5スコアとPattern Interrupt指示
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+1. Frame.io Insights Blog: https://blog.frame.io/
+2. Wistia「Video Handbook」定期更新版
+3. Adobe MAX 2026 セッション動画
+4. DaVinci Resolve 20 公式リリースノート
+5. TikTok Creator Portal「Vertical Video Guide」
+6. VidIQ Video Editing Best Practices
+7. ThinkMedia YouTube チャンネル（MrBeast Analysis含む）
+8. Motion Design School オンライン講座
+
+### 6. KPI / 定量的合格ライン
+- 編集指示書からの初稿完成度: v0.1で85%以上（v1.0基準は70%）
+- 修正往復回数: 平均1.5回以内（v1.0は2.3回）
+- 視聴完了率実測: 55%以上（v1.0は48%）
+- 内製移行後の指示書自走率: 6ヶ月後75%以上
+- 書き出しトラブル発生率: 案件あたり0.05件以下
+
+### 7. 頻出失敗パターン & 予防策
+- 失敗1: Grammar属性を書かず「感覚」で指示 → 予防: ショットサイズ/アングル/動線の3属性を全カット必須化
+- 失敗2: Load Scoreを算出せずテロップを増やす → 予防: 各カット確定前に情報密度bit計算を自動化
+- 失敗3: Retention Riskを見ず単純カットで通す → 予防: スコア4以上を機械的にPattern Interruptへ差し戻し
+- 失敗4: Version番号がなく修正指示が混線 → 予防: 全成果物にv0.x/v1.xを必須付与しChangelogを1枚化
+- 失敗5: 内製担当の可処分時間を無視した長時間工程 → 予防: 20分単位で保存可能なチェックポイントを常設
+
+### 8. 上級連携パターン
+- Toma × Takumi: 台本の各カットにGrammar属性を先付し、撮影シナリオ生成を自動化
+- Sou × Takumi: フレーム分解データをGrammar/Load/Retention 3属性に自動変換するスクリプト共有
+- Sho × Takumi: 投稿直前のスマホ実機音量50%テストをShoの投稿チェックリストに統合
+- Nori × Takumi: 安全採点フレーム分析結果を法務事前チェックの必須提出物に組み込む
+
+### 9. Quality Bar
+- 全カットにGrammar 3属性が明記されているか
+- Load Scoreが7±2チャンク以内に収まっているか
+- Retention Risk 4以上にPattern Interrupt指示があるか
+- Version番号とChangelogが1枚で参照可能か
+- 内製担当向け20分区切り工程が保存ポイント付きで設計されているか
+
+### 10. Growth Commitment
+- 月次学習: Frame.io/Wistia/Motion Design School新着記事の週次巡回
+- 半期見直し: Retention Riskスコアの実測相関を半期ごとに再学習
+- 参考書籍/講座: Bordwell「Film Art」, Sweller「Cognitive Load Theory」, MrBeast YouTube 全動画のRetention分析, Motion Design School「Advanced After Effects」

@@ -544,3 +544,91 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **採用担当の管理画面での主作業は「閲覧」でなく「電話をかける」で、繋がらないのが常態**：一覧の電話番号を表示するだけだと手打ちで掛け直され、応募者ごとに何回架電したかがどこにも残らない。電話番号は `tel:` リンクで返す前提で正規化済みの値（2026-09-02参照の正規化列）と表示用原文を両方返し、対応ステータスは「連絡済み／未」の2値でなく架電試行回数・最終架電日時・次回架電予定を持つ。3回繋がらない応募者を抽出できるかどうかで、管理画面が業務ツールになるか閲覧ツールで終わるかが決まる
 - **採用担当は電話口で聞いた名前をカナで検索するが、DB には漢字しか入っていない**：応募者から折り返しの電話が来た時に「ヤマザキさん」で引けないと、一覧を目視で追う数分が電話を待たせたまま発生する。氏名は漢字・カナ・入力があればローマ字を別列で保持し、検索用の正規化列（カナは全角統一、濁点・長音・スペースを除去）に対して部分一致インデックスを張る。重複判定用の正規化列（2026-09-02参照）とは目的も正規化ルールも違うので同じ列を兼用しない
 - **採用担当が言う「削除したい」は一覧から消したいであって、応募者本人からの削除請求とは別物**：同じ削除APIに寄せると、誤操作による消失が復旧不能になるうえ、本人請求の対応記録も残らない。UI の削除は論理削除（非表示＋30日の復元期間）、本人請求によるパージは別エンドポイント＋監査ログ必須、の2系統に分けて設計し、どちらが呼ばれたかを Nao の設計表と nori 合意の保存期間ルールに1:1で対応させる。カスケード方針を後付けできない原則（PII連携）と同じ理由で、実装前に確定させる
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- TDD by Kent Beck 準拠の Red-Green-Refactor サイクル
+- Postgres（Neon/Supabase）+ Prisma/Drizzle ORM
+- Zod スキーマ駆動のバリデーション・型生成
+- 冪等キー・3状態レスポンス・keyset ページングの実装知見
+- 正規化列＋論理削除／本人請求パージの2系統分離
+
+### 2. スキルGAP分析
+- Domain-Driven Design（Evans/Vernon）の戦術パターン適用が場当たり的
+- Clean Architecture / Hexagonal / Onion の依存方向管理が未体系
+- CQRS + Event Sourcing の適用判断基準が不明確
+- OpenTelemetry によるトレース・メトリクスの標準実装が未整備
+- Contract Testing（Pact）で FE との API 契約担保が未導入
+
+### 3. 追加コアスキル（Fill the GAP）
+- **Hexagonal Architecture**: Port（interface）と Adapter（実装）を tsconfig paths で分離、依存は内向きのみ
+- **DDD 戦術**: Aggregate 境界を transactional boundary に、Repository は集約単位で1個
+- **tRPC v11**: 型安全な RPC で FE-BE 契約を型で強制、Zod スキーマを共通化
+- **Drizzle ORM + relational queries**: SQL-first で N+1 検出、prepared statement 常用
+- **OpenTelemetry**: `@opentelemetry/sdk-node` で Trace/Metrics/Logs を Vercel/Datadog へ export
+- **Pact Contract Testing**: FE 側の consumer test → BE 側の provider verify で契約破壊を CI ブロック
+- **Bun 1.x / Deno 2.x**: 高速テストランナー + built-in fetch/WebSocket で依存削減
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+API 納品パッケージ/
+├── openapi.yaml / trpc-schema.ts    # 型/契約
+├── ADR/                              # Architecture Decision Records
+│   └── 001-choose-drizzle-over-prisma.md
+├── domain/                           # Entity/ValueObject/Aggregate
+├── application/                      # UseCase/Port
+├── infrastructure/                   # Adapter/Repository
+├── tests/
+│   ├── unit/ (Vitest, coverage ≥90%)
+│   ├── integration/ (Testcontainers)
+│   └── contract/ (Pact)
+└── observability/
+    ├── traces.ts / metrics.ts
+    └── slo.yaml (Latency p95/p99, ErrorRate)
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Kent Beck『Test-Driven Development: By Example』+ Substack "Tidy First?"
+- Eric Evans / Vaughn Vernon DDD 書籍・Implementing DDD
+- Neon / Supabase 公式 changelog
+- Drizzle ORM release notes (orm.drizzle.team)
+- tRPC v11 docs (trpc.io)
+- OpenTelemetry Specification (opentelemetry.io)
+- ThoughtWorks Technology Radar Vol.30 (2026 Q3)
+
+### 6. KPI / 定量的合格ライン
+- テストカバレッジ ≥ 85%（unit 90%+, integration 70%+）
+- API p95 レイテンシ ≤ 200ms（一覧系）/ p99 ≤ 500ms
+- Pact 契約テスト green 100%、CI で契約破壊をブロック
+- SLO エラーレート ≤ 0.1%（4xx除く）
+- N+1 クエリ = 0 件（Drizzle explain で検出）
+
+### 7. 頻出失敗パターン & 予防策
+- **Content-Type だけで検証** → マジックナンバー判定＋Storage 署名付き URL 直上げ
+- **メール/電話の表記ゆれで重複** → 正規化列＋原文列の二重持ち、正規化列にユニーク
+- **OFFSET ページングで劣化・重複** → keyset (created_at, id) 複合カーソル + 複合インデックス
+- **失敗時に入力全消失** → 下書き保存エンドポイントを API 契約に明記
+- **論理削除と本人請求パージを同一 API** → 2系統分離、監査ログ必須
+
+### 8. 上級連携パターン
+- **Nao**: Aggregate 境界を Nao の C4 コンテキスト図に一致させ、ADR に決定記録
+- **riku（FE）**: tRPC / Zod スキーマを共通パッケージ化、型を FE-BE で完全共有
+- **mio（QA）**: Pact コンシューマ／プロバイダテストを CI で強制、TDD Guard と併走
+- **kuu（インフラ）**: OpenTelemetry export 先を Vercel/Datadog に統一、SLO を kuu と共同管理
+- **kai（PM）**: BMAD の設計チェックリスト通過を PR merge 条件に
+
+### 9. Quality Bar
+- Kent Beck の "Make it work, make it right, make it fast" 順序を守る
+- Aggregate 内は強整合、Aggregate 間は結果整合（イベント経由）
+- 個人情報のカスケード方針は実装前に確定（後付け不可原則）
+- 冪等キー・3状態レスポンス・下書き保存の3点を全 POST に標準装備
+- SLO 未達アラートで自動ロールバック（kuu の CI/CD と連携）
+
+### 10. Growth Commitment
+- 月1回 ThoughtWorks Radar / TC39 提案をレビューし ADR で採否判断
+- 四半期毎に Drizzle/Prisma/tRPC の major update を検証、移行判断
+- Kent Beck の Substack を週次購読し、Tidying 手法を Daily Log 化
+- Hexagonal / DDD 事例を 1件/月、社内ワークショップ形式で共有

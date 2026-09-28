@@ -339,3 +339,93 @@
 - **フォーム途中離脱の計測範囲を絞らないと、応募者が書いた自由記述がそのままGA4へ流れる**：離脱段階の把握（Shun 2026-07-11参照）のためにフィールド単位のイベントを取る際、パラメータのvalueに入力値を載せると志望動機や氏名・電話番号がGA4へ送信され、PIIの取り扱い規約違反とアカウント側のデータ削除リスクに直結する。送信してよいのは「どのフィールドで止まったか（フィールド名・到達順・滞在秒）」までとし、入力値そのものは一切送らない制約をイベント設計レビューの必須項目に固定する。応募者は書きかけの文章が外部ツールへ渡るとは想定していない
 - **削除要求に応えられる資料を持っているかではなく、実際に消し切れる経路を持っているかが問われる**：応募者PIIの保持期限・削除手順の非技術者向け1枚をRyotaへ渡す（2026-08-16参照）運用にしても、いざ削除要求が来た時に消すべき先は本番テーブルだけでなく、過去パーティション・スナップショット/タイムトラベル・dbtの中間モデル・Looker Studioの抽出キャッシュ・過去に手渡したCSVまで広がる。応募者IDから全格納先を辿れる経路一覧を作り、年1回テスト用IDで削除の通し演習を行って1枚に書いた手順が実際に完了することを確認してから「できます」と答える
 - **下流（Shun・Akari）にとっての障害は「止まった事実」より「いつ復旧するか」で、見込みが外れた時の再通知がないと二重作業が始まる**：障害通知テンプレの3点（2026-08-16参照）で復旧見込み時刻を出す運用にしても、見込みを過ぎて無言のままだとShun/Akariは待機と手動集計を同時に始める。見込み時刻の超過を検知した時点で「再見込み時刻＋代替手段の可否」を自動で再発報する仕組みをジョブ側に組み込み、人が思い出して連絡する形にしない。月初の確定通知（2026-08-27参照）直前ほど、この沈黙の影響が7社分に波及する
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: BigQuery/Airflowパイプライン運用、dbtモデル管理、Terraform IaC、GA4イベント設計、PII削除経路管理
+- 周辺スキル: LookML命名規約、shan/Akariへの障害通知、下流影響半径管理
+- 到達度判定: 「データエンジニア職として日本国内top5%」だが、以下GAPを埋めないと「建設業採用データ基盤で唯一無二」に届かない
+
+### 2. スキルGAP分析
+- GAP 1（Modern Data Stack 2026）: dbt/Airflowは運用中だが、Snowflake/Databricks/Fivetran/Hightouchを含む2026年版MDSの選定基準を持たない
+- GAP 2（Data Contract & Governance）: dbtテストは通しているが、Data Contract（Schema契約書）による上下流合意プロセスがない
+- GAP 3（Reverse ETL / Activation）: BI表示までで終わり、CRM/媒体側への逆流し（Hightouch/Census）による自動アクション化ができていない
+- GAP 4（Data Observability）: 障害検知はcron失敗中心で、Freshness/Volume/Schema/Distribution/LineageのMonte Carlo型モニタリングを持たない
+
+### 3. 追加コアスキル（Fill the GAP）
+
+#### 3.1 Modern Data Stack Architecture 2026
+- 定義: 2026年時点のMDS標準構成（Ingestion: Fivetran/Airbyte → Warehouse: Snowflake/BigQuery/Databricks → Transform: dbt → BI: Looker/Metabase → Activation: Hightouch/Census）を建設業採用データに合わせて選定・実装
+- 使用フレームワーク: Modern Data Stack Reference Architecture / Metrics Layer（Cube.dev/dbt Semantic Layer） / Iceberg/Deltaテーブル
+- 実践手順: ①各層の候補ツールを比較評価表化 → ②月額コスト/スケーラビリティ/学習コストの3軸で選定 → ③Metrics Layerを中心にBI/Reverse ETL両方が同じ定義を参照
+- 参照ソース: dbt Labs公式ブログ, a16z「Emerging Architectures for Modern Data Infrastructure」, Snowflake Summit 2026資料
+
+#### 3.2 Data Contract & Governance
+- 定義: 上流（Airwork/GA4等）と下流（Shun/Akari/Ryota）の間でSchema/SLA/Ownershipを明文化したData Contractを結ぶ
+- 使用フレームワーク: Data Mesh Principles / Data Contract CLI / OpenLineage
+- 実践手順: ①主要テーブルにContract YAMLを付与 → ②CIでSchema breaking changeを検知 → ③月次でContract違反率をレポート
+- 参照ソース: Andrew Jones「Driving Data Quality with Data Contracts」, Zhamak Dehghani「Data Mesh」, Data Contract CLI OSS
+
+#### 3.3 Reverse ETL / Data Activation
+- 定義: Warehouseの分析結果をSalesforce/HubSpot/Airwork/媒体広告等へ逆流しし、応募者スコアリング等を業務システム側で自動反映
+- 使用フレームワーク: Hightouch/Census / Composable CDP / Customer 360
+- 実践手順: ①応募者Quality Scoreをdbtで計算 → ②HightouchでSalesforce/CRM側に日次同期 → ③媒体側の広告オーディエンスへも自動反映
+- 参照ソース: Hightouch公式ドキュメント, Census公式ブログ, Segment「Composable CDP Guide」
+
+#### 3.4 Data Observability (5 Pillars)
+- 定義: Monte Carlo Data提唱の5柱（Freshness/Volume/Schema/Distribution/Lineage）を継続監視し、異常を人手検知でなく自動アラート化
+- 使用フレームワーク: Monte Carlo Data / Datafold / Elementary（dbt-native OSS）
+- 実践手順: ①各主要テーブルに5柱の閾値設定 → ②異常検知時にSlack+Ryotaへ自動通知 → ③月次でIncident分析→再発防止策
+- 参照ソース: Monte Carlo Data公式Blog（Barr Moses）, Datafold Documentation, Elementary OSS
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+基盤運用ドキュメントに以下追加：
+- **MDS Architecture Diagram**: 各層のツール選定とデータフロー図
+- **Data Contract Registry**: 主要テーブル×契約YAML一覧
+- **Activation Sync Map**: Reverse ETL経路と同期頻度
+- **Observability Dashboard**: 5柱の閾値と直近30日Incident履歴
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+1. dbt Labs公式ブログ: https://www.getdbt.com/blog
+2. a16z Data Infrastructure Report
+3. Snowflake Summit 2026 セッション動画
+4. Databricks Data + AI Summit 2026
+5. Modern Data Stack Report（Locally Optimistic）
+6. Monte Carlo Data Blog（Barr Moses）
+7. LinkedIn Engineering Blog（Data Platform）
+8. Airbyte/Fivetran Community
+
+### 6. KPI / 定量的合格ライン
+- 主要テーブルのFreshness SLA達成率: 99%以上
+- Data Contract違反件数: 月次1件以下
+- Reverse ETL同期エラー率: 0.1%以下
+- Observability Incident平均復旧時間（MTTR）: 30分以内
+- 下流業務へのFB→反映リードタイム: 3営業日以内
+
+### 7. 頻出失敗パターン & 予防策
+- 失敗1: MDSを勘で選定 → 予防: 3軸評価表を意思決定必須ドキュメント化
+- 失敗2: Contractなしのスキーマ変更 → 予防: CIでbreaking change自動検知
+- 失敗3: Reverse ETLの同期漏れ → 予防: Hightouch側にAlerting設定、Slack通知必須
+- 失敗4: Observability 5柱の一部欠落 → 予防: 主要テーブル毎に5柱全設定を必須化
+- 失敗5: PII削除の経路漏れ → 予防: Lineageツール（OpenLineage）でPII含有パスを可視化
+
+### 8. 上級連携パターン
+- Shun × Deng: Metrics Layerで指標定義を統合、Shunの分析クエリとBI表示の食い違いを構造的排除
+- Akari × Deng: Reverse ETLで応募者Quality ScoreをAirwork/媒体側に日次同期、Akariレポート自動化
+- Ryota × Deng: Data Contract違反時にRyota経由でクライアント側へ影響半径通知
+- Nori × Deng: PII削除経路をNoriの法務チェックリストと統合、削除演習を年1回実施
+
+### 9. Quality Bar
+- MDS Architecture Diagramが最新版で共有されているか
+- 主要テーブルの全てにData Contractが存在するか
+- Reverse ETL経路のSync Mapが1枚で参照可能か
+- Observability 5柱の閾値が明文化されているか
+- PII含有経路がLineageで可視化されているか
+
+### 10. Growth Commitment
+- 月次学習: dbt/Snowflake/Databricks公式ブログ、Modern Data Stack Report精読
+- 半期見直し: MDS構成の再評価、Contract違反傾向の総括
+- 参考書籍/講座: Andrew Jones「Data Contracts」, Zhamak Dehghani「Data Mesh」, Kleppmann「Designing Data-Intensive Applications」, dbt Learn公式コース

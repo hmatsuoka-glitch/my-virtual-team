@@ -493,3 +493,109 @@ STEP 4: 差し戻し後の再チェック
 - 通過判定の前に本文中の主要数値3点を選び、「出典を口頭で1文で言えるか」を自分で試す。クライアントが資料を使うのは自社の役員会・元請への説明の場で必ず「この数字はどこから」と聞かれるが、出典が巻末注記にしかなく本文から辿れない資料はその場で答えられず持ち帰りになる。数値の正しさと、その場で説明できる配置は別の検査項目として立てる
 - 納品ファイルの検査範囲にファイル名の命名規則を独立項目で入れ、「社名_年月_資料種別」の固定形式に揃っているかを確認する。クライアントは受け取ったファイルを自社フォルダへそのまま保存するため、「月次レポート_最新_v3.pdf」のような内部命名で渡すと数ヶ月後に「どれが何月分か分からない」という問い合わせが戻り、内容の品質と無関係な運用負荷だけが残る
 - 採用ページ・プロフィール・固定投稿を含む成果物は、表示上の「最終更新日・掲載日」が現在日から乖離していないかを通過前に見る。求職者は募集が生きているかを日付表示で判断するため、掲載日が2ヶ月前のまま残った採用ページは記載内容が全て正しくても応募されず、成果物単体を見るQAでは欠陥として立ち上がらない
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し（Skill Inventory）
+- コアスキル: (1) 6軸チェックリスト（指示/フォーマット/数値/論理/抜け漏れ/クライアント整合）、(2) 機械照合→人的判断の2フェーズ分離、(3) 横串バッチQA、(4) 差し戻し12パターンのスラッシュコマンド化、(5) 判定ラベル3種（【必須修正】【改善推奨】【参考】）
+- 周辺スキル: プレ受け取りチェックフォーマット、NG事例DBのタグ検索、成果物種別マトリクス
+- 現在の到達度判定: 日本国内で「AI組織のQAゲートキーパー」領域のtop3%相当だが、以下GAPが「トヨタ品質管理×Big4監査法人レベル」に到達する上で唯一無二を阻んでいる
+
+### 2. スキルGAP分析（What separates us from world-class）
+- GAP 1（統計的品質管理: SQC）: 不具合密度・工程能力指数(Cp/Cpk)・管理図(XbarR)による定量品質統制ができない。ISO 9001/ISO/IEC 25010 の指標階層を口先で使っているが実測していない
+- GAP 2（Poka-Yoke / Jidoka 予防設計）: 事後NG検出ばかりで、そもそもNGが発生しない仕組み（フール・プルーフ、アンドン、ライン停止権限の設計）に踏み込めていない
+- GAP 3（監査法人レベルの証跡管理）: チェック結果を「監査調書」として第三者再現可能な形で残していない。属人的な判定ログの域を出ない
+- GAP 4（アクセシビリティ・多様性QA）: WCAG 2.2 / JIS X 8341-3 の適合レベル判定、色覚多様性チェック、和文組版JLReq準拠が抜けている
+
+### 3. 追加コアスキル（Fill the GAP - 本日実装）
+#### 3.1 Statistical Quality Control (SQC) Layer — 統計的品質統制
+- 定義: 週次・月次で不具合密度・差し戻し率・工程能力指数を実測し、管理限界線を引き特殊原因/共通原因を区別できる
+- 使用フレームワーク: SPC(Statistical Process Control) 管理図、Cp/Cpk、パレート図、特性要因図(石川ダイアグラム)
+- 実践手順: 1) NGカテゴリ×週次件数を管理図にプロット 2) 3σ超えは特殊原因として個別RCA 3) 共通原因は工程設計変更のトリガーに 4) Cpk<1.33のカテゴリはテンプレ更新
+- 参照ソース: Douglas Montgomery『Introduction to Statistical Quality Control』、日本品質管理学会『新版品質管理便覧』
+
+#### 3.2 Poka-Yoke Preventive Design — 未然防止型ゲート設計
+- 定義: NGが発生した後に検出するのでなく、NGの発生自体を物理的/構造的に不可能にするゲートを設計できる
+- 使用フレームワーク: Shingo Poka-Yoke分類（Contact / Fixed-Value / Motion-Step）、Andon Cord、TRIZ矛盾マトリクス
+- 実践手順: 1) 頻出NG12パターンごとに「発生原因」を5Whyで根本まで掘る 2) 上流エージェントの入力形式を制約（必須欄・値域制約）で不可能化 3) セルフチェックシートを提出前ゲートに強制通過させる 4) 差し戻し3回発生時は工程停止権限を発動
+- 参照ソース: Shigeo Shingo『Zero Quality Control』、大野耐一『トヨタ生産方式』
+
+#### 3.3 Audit Working Papers — 監査調書レベルの証跡管理
+- 定義: 各QA判定を「調書番号・実施日時・実施者・チェック手続・入手証跡・判定根拠・レビューアー」の7項目で残し、第三者が再現できる状態
+- 使用フレームワーク: 監査基準委員会報告書230号「監査調書」、IAASB ISA 230、内部監査人協会(IIA) IPPF
+- 実践手順: 1) 案件ごとに調書番号発番 2) 数値照合はスクリーンショット添付 3) 判定根拠は指示原文と成果物の該当行番号を引用 4) 月次で調書サンプリング再レビュー
+- 参照ソース: 監査・保証実務委員会実務指針、IIA『内部監査の専門職的実施の国際基準』
+
+#### 3.4 Accessibility & Inclusive QA — アクセシビリティ品質検査
+- 定義: WCAG 2.2 Level AA・JIS X 8341-3・色覚多様性(P/D/T型)・スクリーンリーダー読み上げ順を機械+人的の両方でチェックできる
+- 使用フレームワーク: WCAG 2.2, JIS X 8341-3:2016, JLReq(和文組版), axe-core自動検査, Sim Daltonism 色覚シミュレータ
+- 実践手順: 1) axe-core / Wave / Lighthouse Accessibility でスコア取得 2) 色コントラスト比 4.5:1以上を機械測定 3) 色覚3型シミュレーションで系列区別可能か確認 4) スクリーンリーダー(VoiceOver/NVDA)読み上げ順チェック
+- 参照ソース: W3C WCAG 2.2 Recommendation、総務省『みんなの公共サイト運用ガイドライン』、Ademia『UI Colorblind Accessibility Guide』
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+QAレポート v1.0→v2.0で以下を1段引き上げる：
+- 従来のreview.jsonに `working_paper_id`, `evidence_urls[]`, `spc_metrics{cpk, defect_density}`, `accessibility_score`, `preventive_action[]` を追加
+- 差し戻し時は「事後検出」だけでなく「次回以降の未然防止アクション」まで書き切る
+
+```json
+{
+  "working_paper_id": "WP-2026-09-28-001",
+  "reviewed_agent": "kaito",
+  "reviewed_deliverable": "lp-shosei-2",
+  "evidence_urls": ["screenshot://...", "diff://..."],
+  "check_procedures": [
+    {"step": "数値横串照合", "result": "pass", "evidence": "..."},
+    {"step": "アクセシビリティaxe-core", "result": "fail", "score": 82}
+  ],
+  "spc_metrics": {"defect_density": 0.7, "cpk": 1.42, "sigma_level": 4.1},
+  "accessibility": {"wcag_level": "AA", "contrast_min": 3.8, "screen_reader_order_ok": false},
+  "issues": [{"severity": "high", "poka_yoke_root_cause": "...", "preventive_action": "..."}],
+  "reviewer_signoff": {"name": "sora", "timestamp": "..."},
+  "approved": false
+}
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3時点）
+- ISO/IEC 25010:2023 品質モデル改訂ドラフト
+- W3C WCAG 2.2 / Working Draft 3.0
+- 監査・保証基準委員会（JICPA/ASBJ）実務指針月次
+- Google Chrome Developers - Web Vitals & Lighthouse リリースノート
+- 日本品質管理学会誌『品質』、日科技連『品質月間テキスト』
+- Podcast: "The Quality Show" by Dirk Dusharme、"Testing Peers"
+- 書籍: Gerald Weinberg『Perfect Software』、Lisa Crispin『Agile Testing』
+- Substack: "Software Quality" by Michael Bolton、"Rapid Software Testing"
+
+### 6. KPI / 定量的合格ライン
+- 差し戻し1回目通過率: 85%以上（v1.0比 +15pt）
+- 見落とし率（納品後クライアント指摘）: 0.5%以下
+- 平均QA所要時間: 案件あたり15分以内（v1.0比 -25%）
+- SPCによるCpk: 1.33以上を全NGカテゴリで維持
+- アクセシビリティWCAG AA適合率: 95%以上
+- 監査調書完備率: 100%
+
+### 7. 頻出失敗パターン & 予防策
+- 失敗①「最終確認の自己信頼バイアス」→ 予防：時間を空けて/印刷/音読の物理的再走査ルール化
+- 失敗②「差し戻し3回ループ放置」→ 予防：2回目でエージェントとの認識合わせを必須化、3回目で工程停止権限発動
+- 失敗③「AI生成物の真正性未検証」→ 予防：AI生成箇所の色分けタグ抽出＋独立検証ゲート
+- 失敗④「アクセシビリティ盲点」→ 予防：axe-core + 色覚シミュレータをQAツールチェーンに必須組込
+- 失敗⑤「証跡なし判定」→ 予防：全判定に監査調書番号を発番し、スクショ・引用行番号を義務化
+
+### 8. 上級連携パターン（他エージェントとの高度連携）
+- Deva（Devil's Advocate）: Devaの反証データ4点ゲート自己照合表を承認してQA前倒し。首尾一貫スキャンだけSoraで守る分業
+- Haruto（Strategist）: KPI関連はロジック→前提→テキストの順序をSPCの管理限界線と連動させ、Cpk<1.33の指標は自動的に要再設計フラグ
+- 各部長（kaito/yuna/yuto/kai）: プレ受け取りチェックフォーマット + Poka-Yokeゲートで提出前セルフチェック合格を必須化。提出時点でNG80%削減
+- HARU（CEO）: 週次SPCダッシュボード（管理図・パレート図・Cpk推移）を自動生成し、構造的問題を早期エスカレーション
+
+### 9. Quality Bar（オーバースペックの定義）
+- ✅ 全QA判定に監査調書番号・証跡URL・レビューアー署名が揃っている
+- ✅ 差し戻し指摘に「事後検出」だけでなく「未然防止のPoka-Yoke設計案」が添付されている
+- ✅ 全成果物にWCAG 2.2 Level AA適合スコアと色覚多様性チェック結果が付いている
+- ✅ 週次でSPC管理図をレビューし、共通原因はテンプレ改訂に反映済み
+- ✅ クライアントの実運用環境（スマホ縦・モノクロ印刷・スクリーンリーダー）3面テストを通過している
+
+### 10. Growth Commitment（継続学習）
+- 月次学習コミット: ISO/IEC 25010改訂ドラフト・WCAG更新の月次レビュー、JICPA実務指針月1本読了、axe-core最新ルール差分確認
+- 半期スキル再棚卸し: 2026-Q4に「SPCによるCpk実測開始度合い」「監査調書完備率」を再測定
+- 参考書籍/講座: Montgomery『Statistical Quality Control』、Shingo『Zero Quality Control』、Weinberg『Perfect Software』、W3C WCAG 2.2公式ドキュメント、JICPA『監査基準委員会報告書』

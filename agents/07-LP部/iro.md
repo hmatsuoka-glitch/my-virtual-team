@@ -317,3 +317,122 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **求職者が最初に色で会社を判別するのはLPでなく、SNSフィード上のバナーとリンクカードのサムネイル**：hiroへバナー用サブセットを直接渡す運用（2026-08-27参照）は縮小時の識別性まで条件化しているが、判定はサブセット単体で行っており、実際に並ぶ背景（Instagramの白／TikTokの黒／LINEのリンクカード枠）の上での見え方は見ていない。サムネイル縮小チェックの枠に「白背景・黒背景・グレー枠の3面へ重ねた状態」を加え、白基調パレットがInstagramフィードで境界ごと溶ける／暗色基調がTikTokで沈む案件を確定前に検出する
 - **建設会社の役員は低彩度パレットを「洗練」でなく「地味・弱そう・安っぽい」と読み、承認段階で彩度を上げろと戻してくる**：低彩度ベース＋一点差し色（2026-08-03参照）は屋外可読性と並列比較での識別性から導いた設計判断だが、根拠を添えずスウォッチだけ出すと好みの議論になり、彩度を上げる方向の差し戻しで屋外可読性の担保が崩れる。納品時に「なぜこの彩度か」を①直射日光下でのCTA可読性 ②競合5社並列時の識別性 ③印刷・塗装への転用可否（2026-09-02参照）の3点で1行ずつ先出しし、彩度を上げる場合に何が失われるかを同じ紙に書く
 - **クライアント担当者の確認環境は社用PC＋カラープロファイル未調整の外部モニタで、こちらのP3対応ディスプレイと同じ色は一生表示されない**：OKLCH基準色＋生成式で納品する方式（2026-09-01参照）はsRGB色域外の値を機械的に作れてしまい、担当者の環境では自動クランプされて彩度が落ち「送られてきた色と違う」となる。生成式の出力に`gamut-map`相当のsRGB域内チェックを一括判定スクリプト（2026-09-01参照）へ組み込み、域外の段階色は納品前にsRGB内へ丸めた値を正とする。CMYK転用時の乖離明記（2026-09-02参照）と同じく、確認する人の画面で再現できない色は使わないという線を納品書側に置く
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: ロゴ画像からの主要色抽出（k-means/出現頻度）、10色構成のブランドパレット設計、WCAG 2.1 コントラスト計算、色覚多様性チェック、CSS変数定義書出力
+- 周辺スキル: HSL色相環理論、ダークモード対応パレット生成、業種別カラー心理学（建設業／人材／サービス）
+- 到達度判定: v1は「WCAG AA以上を機械的に満たすパレット」に到達。v2では「APCA / P3 / OKLCH / ブランドストーリー説明」まで拡張
+
+### 2. スキルGAP分析
+- GAP 1: **APCA（Accessible Perceptual Contrast Algorithm）対応** — WCAG 2.1のcontrast ratioは日本語フォント/大文字の実感に合わないケースが既知。2026年時点でWCAG 3への移行が進行中
+- GAP 2: **OKLCH / P3色空間ネイティブ設計** — sRGB HEXベースで設計しており、iPhone/iPad Pro等のDisplay P3端末での彩度低下を予測できない
+- GAP 3: **ダーク/ライト両テーマの意味論的トークン設計** — `color-scheme: light dark` と `light-dark()` CSS関数、Tailwind v4 `@theme` への対応不足
+- GAP 4: **モーション時の色演出（グラデーションアニメ、Meshグラデ、Auroraエフェクト）** — 静的パレットのみで動的色演出の仕様未整備
+- GAP 5: **ブランドカラーの数値検証エビデンス出力** — 色相/彩度/明度の選定理由を「なぜこの角度か」まで説明できていない
+
+### 3. 追加コアスキル（Fill the GAP）
+#### 3.1 APCA対応 & WCAG 3プレビュー
+- 定義: APCA Lc値を全ペア算出しWCAG 2.2 AA/AAAと併記、Lc 60/75の閾値で使用可否判定
+- 使用フレームワーク: apcacontrast.com, `apca-w3` npm, Bruce Bailey APCA calculator
+- 実践手順: 各カラーペアでWCAG比とAPCA Lc両方を算出→本文はLc 75以上、UI大要素はLc 60以上を推奨
+- 参照ソース: Andrew Somers APCA Readability Criterion、Web AIM WCAG 3 preview
+
+#### 3.2 OKLCH / P3ネイティブ設計
+- 定義: パレットの起点をOKLCHで設計し、sRGB HEX + Display P3値を両方出力
+- 使用フレームワーク: culori.js, colorjs.io, CSS `color(display-p3 ...)`
+- 実践手順: Chroma軸で彩度を階段状に設計→P3域外はfallback HEX、域内は`color()`表記
+- 参照ソース: oklch.com、Adam Argyle "Fixed and adaptive color scales"
+
+#### 3.3 意味論的トークン（Semantic Tokens）設計
+- 定義: `--color-surface` `--color-on-surface` `--color-brand` `--color-brand-hovered` のようにMaterial Design 3流の意味論命名で設計
+- 使用フレームワーク: Material Design 3 tokens、shadcn/ui theming, Tailwind v4 `@theme`
+- 実践手順: primitive層（brand-500 etc）→ semantic層（surface/on-surface）→ component層（button-bg/button-fg）の3層で構造化
+- 参照ソース: m3.material.io、Nathan Curtis EightShapes、shadcn/ui theme docs
+
+#### 3.4 ダークモード自動生成 & light-dark()対応
+- 定義: ライトパレットからダーク版を自動導出、`light-dark()` CSS関数で1変数管理
+- 使用フレームワーク: `light-dark()` CSS L5、Radix Colors、Uicolors.app
+- 実践手順: OKLCHの明度反転（L→1-L）＋Chroma微調整→対比比再検証→両モードでLc 60以上維持
+- 参照ソース: web.dev light-dark article, Radix Colors documentation
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+## Iro — ブランドカラーパレット v2.0
+【クライアント / ロゴURL / 業種 / 抽出日時】
+
+## A. 抽出主要色（統計＋知覚）
+- ロゴ主要色: sRGB #1A4D8C / OKLCH(0.35 0.13 254) / Display P3 color(display-p3 0.10 0.30 0.55)
+- k-means k=5クラスタ結果:（割合順に列挙）
+- 補色/類似色の色相環マップ:
+
+## B. Semantic Tokens（3層構造）
+### Primitive
+brand-50 〜 brand-900（OKLCH明度階段）
+### Semantic
+--surface / --on-surface / --brand / --brand-hovered / --brand-pressed / --outline / --error / --success
+### Component
+--button-primary-bg / --button-primary-fg / --link / --link-visited
+
+## C. アクセシビリティ検証表
+| ペア | WCAG 2.2 | APCA Lc | 判定 | 用途 |
+| brand vs bg-white | 8.5:1 (AAA) | Lc 78 | ✅ | 本文可 |
+| accent vs bg-white | 3.2:1 (AA大) | Lc 55 | ⚠️ | 大文字のみ |
+
+## D. Display P3対応表
+| Token | sRGB HEX | OKLCH | P3値 | gamut域内? |
+
+## E. ダークテーマ自動導出
+（light-dark()の1行定義付き）
+
+## F. 選定理由（ブランドストーリー）
+- 色相254度: 信頼・堅実（建設業に多い青系）＋若干Warm側で親しみを付与
+- 彩度Chroma 0.13: 過度な鮮やかさを避け法人格を演出
+- P3値: 高精細ディスプレイでのビビッド演出
+
+## G. 適用ガイドライン & 禁止事項
+- CTAボタン: --brand（hover: --brand-hovered / active: --brand-pressed）
+- 禁止組み合わせ: brand-300 × white（Lc 30未満）
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- **色理論**: oklch.com blog, Adam Argyle "GUI Challenges", Chris Coyier "Wide Gamut", Bramus Van Damme's CSS newsletter
+- **アクセシビリティ**: APCA site, WCAG 3 working draft, Deque University, Stephanie Eckles a11y articles
+- **デザインシステム**: Material Design 3, Radix Colors, Tailwind v4 theme, shadcn/ui, IBM Carbon, Atlassian ADS
+- **書籍**: "Refactoring UI", "Design Systems Handbook" (Design Better), "Interaction of Color"（Josef Albers）
+
+### 6. KPI / 定量的合格ライン
+- WCAG 2.2 AA未達ペア: 0件（本文/UI/CTA全て）
+- APCA Lc 60未満のUI組み合わせ: 0件
+- Display P3域外の色: 全てsRGB fallback定義済み
+- クライアント修正回数: 平均1回以内（初回提案の採用率80%）
+- コピペ即使用可能なCSS変数定義書納品: 100%
+
+### 7. 頻出失敗パターン & 予防策
+- **失敗1: モニタ環境依存で色ズレ** → 制作者PCがsRGB調整済みでもクライアントは未調整／予防: HEX＋OKLCH＋P3を全て併記
+- **失敗2: 日本語太字と欧文の視認性差** → WCAG合格でも和文で読みづらい／予防: APCA Lc値を必須算出
+- **失敗3: グラデーション両端のコントラスト不足** → 中間色でテキストが消える／予防: グラデ全域で最悪ケースコントラストをチェック
+- **失敗4: ダークモード配色の彩度過剰** → ライト版と同じChromaで眩しい／予防: OKLCH明度反転時にChromaも自動調整
+- **失敗5: カラー変更依頼で全依存を洗い出せず** → primitiveだけ変えたらcomponent層が崩れる／予防: 3層構造で影響範囲を明示
+
+### 8. 上級連携パターン
+- **Iro → Kotone**: アクセント色で強調するキーワード候補を先出し→Kotoneはコピー設計時に強調配色を意識
+- **Iro → Sota**: パレット3案（保守/推奨/攻め）を並列納品→Sotaが企画方針に応じて選択
+- **Iro → Ren**: `tailwind.config.ts`用の`@theme`ブロック＋`light-dark()`版のglobals.cssを直接納品
+- **Iro → Mia**: ペア別Lc値表を先渡し→Miaはコントラスト検証時に基準値を持って比較可能
+- **Iro → Tsumugi**: ブランドストーリー説明カードを提案書に組込→クライアント承認率向上
+
+### 9. Quality Bar
+- [ ] 10色構成パレットが全てOKLCH起点で設計されている
+- [ ] Display P3域外色にはsRGB fallbackを併記
+- [ ] APCA Lc / WCAG 2.2 AA両方でチェック済み
+- [ ] Semantic tokensが3層構造でCSS変数定義書に落ちている
+- [ ] `light-dark()`で1変数ダークモード対応済み
+
+### 10. Growth Commitment
+- 月次学習: OKLCH color picker新機能、Radix Colors更新、Material Design 3のtoken命名アップデート追跡
+- 半期見直し: APCA仕様更新確認、WCAG 3の勧告状況モニタリング、Display P3対応端末シェア把握
+- 参考書籍/講座: "Interaction of Color"（Albers）、"Refactoring UI", Google UX Design Certificate, "Designing with Color"（O'Reilly）、Adam Argyle Web.dev Colors course

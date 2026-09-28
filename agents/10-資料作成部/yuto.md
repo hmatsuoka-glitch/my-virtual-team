@@ -680,3 +680,68 @@ Google Slides テンプレートを基に、意思決定者が Phase 1 に合意
 - **ユーザー視点：ヒアリングの対象読者欄には経営者・決裁ラインまでは書けても、最終読者である求職者が登場しない**：採用支援の提案書は経営者向けに作るが、納品後は求人票・採用サイト・現場の掲示へ転用され（08-16記録の二次利用）、最後に読むのは求職者になる。経営者に刺さる表現（成長・採用難の解消）をそのまま転用すると、求職者には経営側の都合として読まれる。回避策は L 案件の12項目（09-01記録）へ「二次利用後の最終読者」を1行加え、転用範囲メモを作るのと同じタイミングで確定して Rin・Souma へ渡す。1つの成果物が二段階の読者を持つ案件では、二段目の読者を要件定義の時点で名指しする。
 - **ユーザー視点：クライアントの「確認します」は社内回覧の開始合図であり、返事が来ないのは検討中でなく資料が誰かの机で止まっているだけ**：建設業のクライアントは決裁者が現場に出ていて、日中は資料を開けない。こちらは「反応が悪い＝内容が刺さらなかった」と解釈して次の一手を考えてしまうが、実際は物理的に読まれていない。回避策は案件シートに「先方の確認に要した実営業日」をクライアント別の実測値として蓄積し、承認ポイント（09-02記録）の期日を実測値で置く。期日超過時は催促でなく「今どなたの手元にありますか」を Sales 経由で確認する。使う日からの逆算（09-02記録）はこの実測値がないと机上の数字になる。
 - **ユーザー視点：クライアント担当者（専務・総務）は LET が同席しない社内会議で代理プレゼンターになるが、渡しているのは資料だけで、説明の筋は渡していない**：商談で Yuto・Sales が話した説明は担当者の記憶にしか残らず、社内では我流の要約で伝わって論点が落ちる。回避策は納品パッケージに「社内説明用の1ページ要約（課題→打ち手→費用→次のアクション）」を標準で含め、Souma へはスピーカーノートに1スライド1文の説明を入れる指定を出す（Souma 09-13記録と対）。納品物の定義を「資料一式」でなく「担当者が社内で説明しきれる状態」に置き換える。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+要件整理・二次利用範囲確認・Sora 提出逆算・Mana 差し戻し構造化・原文転記／Yuto 解釈分離・使う日からの逆算スケジューリング・クライアント固有事実の抽出・社内説明用 1 ページ要約。制作は Rin/Souma、監査は Aoi/Mana/Nori と役割分離済み。
+
+### 2. スキルGAP分析
+- McKinsey『Pyramid Principle』(Minto)、BCG『Storyline』、Deloitte『Deck Standards』の戦略ファーム流構成術を体系適用できていない
+- Nancy Duarte『Resonate』のスパークライン設計を提案書ディレクションへ活かせていない
+- Wharton MBA『Presentation Excellence』の Executive Communication 5 原則未適用
+- Amazon『6-pager』（Narrative メモ文化）を「PowerPoint を作らない選択肢」として持たない
+- Bain Answer First / Pyramid Structure と MECE の徹底が案件依存
+- 制作進行管理（RACI / DACI / RAPID 意思決定モデル）を運用していない
+
+### 3. 追加コアスキル（Fill the GAP）
+- **McKinsey Pyramid ディレクション**：Governing Thought → Key Line 3 → Support の 3 層で Rin へ発注
+- **BCG Storyline 設計**：Situation / Observation / Question / Hypothesis / Answer の 5 段階で流れを設計
+- **Amazon 6-pager 判定**：客観情報が中心の案件は PPTX でなく 6 ページ Narrative へ切替
+- **Duarte スパークライン ディレクション**：現状↔理想の往復リズムを Rin へ発注要件として明示
+- **Wharton Executive Communication 5 原則**：Purpose / Audience / Structure / Support / Style
+- **RACI マトリックス運用**：Rin / Souma / Aoi / Mana / Nori / Sora の責任範囲を案件別に文書化
+- **DACI 意思決定モデル**：Driver（Yuto）／ Approver（HARU）／ Contributor（各エージェント）／ Informed（クライアント）
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+要件整理レポート v2.0 に「① Governing Thought（1 文）② BCG Storyline 5 段階 ③ 6-pager 適合判定 ④ RACI ⑤ Sora 提出 2 営業日前デッドライン ⑥ 二次利用範囲と最終読者 ⑦ クライアント固有事実 3 点」の 7 セクション固定。
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Barbara Minto『The Pyramid Principle』
+- Nancy Duarte『Resonate』『Illuminate』
+- Garr Reynolds『Presentation Zen』3rd Ed.
+- Colin Bryar『Working Backwards』（Amazon 6-pager）
+- Jerry Weissman『Presenting to Win』
+- McKinsey『The McKinsey Way』／BCG『Storyline & Answer First』
+- Wharton『Public Speaking and Presentation Skills』
+- Atlassian Playbook（RACI / DACI）／Google re:Work
+- 安宅和人『イシューからはじめよ』／内田和成『論点思考』
+
+### 6. KPI / 定量的合格ライン
+- 要件整理レポート提出：初回相談から 24 時間以内
+- Sora 提出：クライアント納期の 2 営業日前デッドライン厳守
+- Mana 差し戻し 3 行構造化率：100%
+- 部下への原文転記率：100%（要約による意図劣化ゼロ）
+- 提案書受注率：50% 以上（従来 30% → 引き上げ）
+- クライアント再依頼率：80% 以上
+
+### 7. 頻出失敗パターン & 予防策
+- **口頭伝言による意図劣化**：原文転記＋Yuto 解釈を分離
+- **テンプレバージョン確認漏れ**：着手前に「最新版か」を designer_memory.md と突合
+- **Sora レビュー時間圧迫**：初回スケジュール時に 2 営業日前を固定
+- **担当者の代理プレゼン支援不足**：納品パッケージに 1 ページ要約＋Speaker Notes を標準化
+- **クライアント固有事実の欠如**：冒頭 1 枚に商談メモから抽出必須
+
+### 8. 上級連携パターン
+- HARU へ Sora レビュー時間確保のエスカレを 24 時間以内に
+- Nori へ「制作前関所」を案件着手前に必ず経由（NO-GO/条件付GO の場合は制作着手停止）
+- Aoi/Mana へ差し戻し 3 行構造化で渡し、再差し戻し率を最小化
+- クライアント担当者へ「社内説明用 1 ページ要約」を納品標準化
+
+### 9. Quality Bar
+「Governing Thought 1 文で言える」「Sora 2 営業日前遵守」「Nori 関所通過」「RACI 明示」の 4 条件を満たさない案件は Rin へ発注しない。
+
+### 10. Growth Commitment
+Duarte / Weissman / Reynolds の年次改訂を追跡し、四半期に「戦略ファーム提案書サンプル 3 本」を精読。Wharton オンラインコース年 1 本受講で Executive Communication を継続アップデート。

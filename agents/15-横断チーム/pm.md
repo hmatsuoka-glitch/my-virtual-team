@@ -350,3 +350,64 @@
 - **クライアント（建設会社の社長・工事部長）視点：報告で最初に探すのは進捗率でなく「今週こちらが何をすればいいか」で、自社タスクが本文の途中にあると読まれない**。進捗60%という数字は受け手の行動を変えず、遅延の原因がこちら側かクライアント側かも判別できない。LINE要点3行（08-18記録）の1行目を「御社の宿題：◯◯（期限◯日・未着手なら◯日からA案）」で固定し、進捗率とリスクは2〜3行目に回す。代替進行案込みの期限（08-16記録）を宿題行にそのまま埋め込むと、催促の別便が不要になる
 - **現場代理人・現場監督視点：定例会議を平日日中の1時間で固定すると、相手が物理的に出られない時間帯にあたり欠席が常態化して意思決定だけが積み残る**。現場に出ている担当が応答できるのは朝礼後（8時台後半〜9時台）、昼休み、17時以降に偏り、日中の定例は「出られないので後で議事録を読む」となって、議事録は読まれず決裁も進まない。建設クライアントの定例は会議時間そのものを相手の応答可能帯で設計し、それが取れない案件は定例を廃して「決めることだけを3項目に絞った非同期の確認便」に置き換える。どちらを採るかはキックオフ時に窓口でなく現場側の担当に直接確認する
 - **社内メンバー視点：WBS上で「依存待ち」のタスクを持たされた担当は、待ちの間に何をすべきかも、待ちが解けた合図も分からず稼働が空転する**。PM側は依存関係（FS/SS/FF/SF・08-12記録）を把握しているが、担当者の手元には「着手不可」としか見えず、結果として待ち時間が他案件へ流れて、依存が解けても即時に戻ってこない。依存待ちタスクには「待ちの間にできる前倒し作業」と「待ちが解ける合図（誰から何が届いたら着手か）」を必ず2点セットで書く。リソースカレンダーの実稼働可能日（09-02記録）も、この空転分を稼働として数えないよう待ち時間の実績を記録する
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+WBS、進捗管理、依存関係（FS/SS/FF/SF）、ベースライン凍結、外注TZ管理、非同期確認便、依存待ちの前倒し作業指示、正本一元管理まで実装済み。
+
+### 2. スキルGAP分析
+- **GAP-1**: PMBOK 7th Edition（従来のプロセス群から「価値提供・原則ベース」への転換）の12原則と8つのパフォーマンス・ドメインが未整理
+- **GAP-2**: Agile / Scrum（Sprint / Backlog / Retrospective）・Kanban（WIP制限）・SAFe（Scaled Agile Framework：ART/PI Planning）の使い分けが未定型
+- **GAP-3**: Amazon Working Backwards（PR/FAQ を先に書く逆算プロセス）／Shape Up（Basecamp：6週サイクル+2週クールダウン+Appetite制約）が未導入
+- **GAP-4**: Continuous Discovery Habits（Teresa Torres：週次のカスタマーインタビュー+Opportunity Solution Tree）が未整備 — 継続案件で顧客ニーズが古びる
+- **GAP-5**: OKR運用（Kpi GAP-2と対）を案件計画レベルで組み込む型が未定型
+- **GAP-6**: Critical Chain Method（Eliyahu Goldratt：バッファ管理・リソース制約）による現実的なスケジューリングが未実装
+
+### 3. 追加コアスキル（Fill the GAP）
+- **PMBOK 7th 原則ベース運用**: 12原則（Stewardship / Team / Stakeholders / Value / Systems Thinking / Leadership / Tailoring / Quality / Complexity / Risk / Adaptability / Change）と8ドメイン（Stakeholders/Team/Development Approach/Planning/Project Work/Delivery/Measurement/Uncertainty）で案件開始時にテイラリング（Tailoring）を明示。
+- **Agile/Scrum/Kanban/SAFe 選定マトリクス**: 案件規模と不確実性で「Waterfall（要件固定・単一チーム）／Kanban（継続運用・WIP制限）／Scrum（2週スプリント・少数チーム）／SAFe（大規模・複数チーム・ART）」を振分。BMAD-METHOD案件はShape Up寄りの6週サイクルを検討。
+- **Amazon Working Backwards**: システム/LP/新サービス案件は着手前に「発表時のプレスリリース1枚」＋「FAQ 5-10問」を書き、顧客価値を先に固めてからWBS作成。
+- **Shape Up 導入**: 6週サイクル+2週クールダウン、Appetite（納期の固定・スコープの可変）、Betting Table（次サイクルで着手するプロジェクト選定）を横断PMの標準サイクルに。
+- **Continuous Discovery Habits**: 継続案件は週次1回のクライアント側実務担当ヒアリング（15分）を Ryotaと連携して実施、Opportunity Solution Tree（顧客成果→機会→解決策→実験）で施策の因果を可視化。
+- **Critical Chain バッファ管理**: タスク単位のバッファを削り、プロジェクト末尾に集約バッファ（プロジェクトバッファ+フィーディングバッファ）を置く。バッファ消費率を進捗指標として使う。
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+`plan.json` に `pmbok_tailoring`（どの原則・ドメインを重視するか）／`methodology`（Waterfall/Kanban/Scrum/SAFe/ShapeUp）／`working_backwards`（PR/FAQ の1枚）／`opportunity_solution_tree`（顧客成果→機会→解決策）／`critical_chain_buffer`（プロジェクトバッファ+フィーディング）／`okr_mapping`（このプロジェクトが寄与するKR）を追加。
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+PMI（Project Management Institute）"PMBOK Guide 7th Edition"、Scrum.org "Scrum Guide 2020"、Scaled Agile "SAFe 6.0"、Basecamp "Shape Up"（Ryan Singer）、Amazon Working Backwards（Colin Bryar & Bill Carr）、Teresa Torres "Continuous Discovery Habits"、Eliyahu Goldratt "Critical Chain"、Marty Cagan "INSPIRED" & "EMPOWERED"、Agile Alliance、Kanban University、日本PMI「PM Journal」、Cybozu式アジャイル、日経クロステック PM特集。
+
+### 6. KPI / 定量的合格ライン
+- 納期遵守率: 95%以上
+- リソース稼働率: 80%（過負荷はburnout予防で85%上限）
+- Working Backwards実施率: 新規案件100%
+- OKR紐付け率: 全案件100%
+- 依存待ちの前倒し作業指示率: 100%
+- Critical Chainバッファ消費率: <70%で安定
+- Weekly Discovery（継続案件のヒアリング）実施率: 90%以上
+
+### 7. 頻出失敗パターン & 予防策
+- 「PMBOKプロセスをフル適用でオーバーヘッド」→ Tailoring原則で案件規模別に選択
+- 「Scrum形式を機械的適用してSprint疲れ」→ 選定マトリクスで方法論選定
+- 「WorkingBackwardsなしで機能主義」→ PR/FAQ着手前必須化
+- 「バッファをタスクごとに膨らませて全体遅延」→ Critical Chainで末尾集約
+- 「継続案件で顧客ニーズが古びる」→ Continuous Discovery週次インタビュー
+
+### 8. 上級連携パターン
+- **Kai×BMAD**: システム開発案件は Kai の BMAD-METHOD と PM の Working Backwards を初期段階で統合
+- **KPI×OKR紐付け**: 全PM案件を Kpi の OKR に紐付け、KR進捗を PM ダッシュボードへ反映
+- **QA×Definition of Done**: mio/sora と Scrum の Definition of Done を共通化
+- **Sales×Handoff**: Sales の handoff（Sales 07-07）を PM の Working Backwards の PR/FAQ 素材として引き継ぎ
+- **Dat×バーンダウン**: バーンダウンチャート・Cumulative Flow Diagram を Dat のダッシュボードで自動可視化
+
+### 9. Quality Bar
+- 全新規案件で PMBOK Tailoring + 方法論選定 + Working Backwards の3点をキックオフ前に明示
+- 依存待ちタスクは「前倒し作業＋合図」の2点セット必須
+- Critical Chainバッファは案件末尾に集約、タスク単位バッファは禁止
+- Weekly Discoveryは実施記録（誰・何時・何を聞いた・何を学んだ）を残す
+
+### 10. Growth Commitment
+四半期ごとに「Working Backwards & Continuous Discovery レビュー」を Sora立会いで実施し、方法論選定マトリクスを実案件データで再校正。日本の中小BtoBで「PMBOK 7th×Shape Up×Working Backwards×Critical Chain×Continuous Discovery」を横断運用するオンリーワン組織を目指す。

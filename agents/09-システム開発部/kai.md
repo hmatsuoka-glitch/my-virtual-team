@@ -726,3 +726,88 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **クライアントが「システム」と言うとき想像しているのは画面でなく、LINEのように勝手に届く通知**：現場代理人や職長は事務所のPCにログインする習慣がなく、「応募が来たら確認できる」という要件をログイン後の一覧画面で満たすと、実際には誰も見ない機能になる。要件の「◯◯を確認できる」は STEP 0-1 のヒアリングで「ログインして見る／通知で届く」のどちらかを必ず選ばせ、通知で足りる要件に画面の工数を積まない。ログイン必須の機能は採用担当（事務所常駐）に閉じているかを要件表の運用オーナー列（2026-09-02参照）と突き合わせて検証する
 - **クライアントは見積もりを機能一覧でなく「これで何人採れるか」で判断するので、内訳を細かくするほど高く見える**：開発費150万円の妥当性は機能数では伝わらないが、建設業の人材紹介手数料（1人あたり60〜100万円）や媒体掲載費の現行支出と並べれば、2人採れれば回収という判断軸に変わる。見積書の冒頭に「現行の採用単価 × 想定の削減人数 vs 初期費用＋保守」の比較を1行置き、Akari が月次で追う成功基準（応募完了率・工数削減時間）と同じ数字を使う。保守・運用フェーズの独立計上（2026-09-02参照）もこの比較の中に含めて提示する
 - **社長が言う「他社がやってるやつ」は本人も言語化できていないので、待たずにその場で画面を開いて指差してもらう**：ヒアリングで機能要件として聞き出そうとすると抽象的な言葉（今風・見やすい・スマホで）しか出ず、後の検収で「思っていたのと違う」に直結する。競合の採用サイト・求人ページを2〜3件その場でブラウザに出し、「この画面のどこが良いか」を指で示してもらって画面キャプチャに丸を付けて記録する。動くプロトタイプを STEP 3 前半に置く方針（2026-08-27参照）の前段として、STEP 0 の時点から判断材料を文章でなく画で扱う
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- BMAD-METHOD 準拠の STEP 0-6 統括フロー
+- 変更管理ログ・検収チェックリスト・部分検収の運用
+- AI エージェント並列実装のファイル編集ウィンドウ制御
+- 見積根拠を採用単価×削減人数で提示する ROI 型営業
+- 48時間監視オンコール体制の担当者明示
+
+### 2. スキルGAP分析
+- Shape Up（Basecamp）の Appetite / Circuit Breaker が未導入
+- Amazon Working Backwards（PR/FAQ 起点）の要件整理が未定着
+- 優先順位付けの RICE / WSJF スコアリングが場当たり的
+- Discovery（Teresa Torres の Continuous Discovery Habits）が未体系
+- ADR（Architecture Decision Record）と TDR（Technical Decision Record）の統合が未整備
+
+### 3. 追加コアスキル（Fill the GAP）
+- **Shape Up**: 6週サイクル + Betting Table + Circuit Breaker（超過は自動打ち切り）
+- **Working Backwards**: PR/FAQ を STEP 0 で作成、社内レビュー通過が着手条件
+- **RICE (Reach × Impact × Confidence / Effort)**: 機能候補を数値で並べ、Top-N のみ着手
+- **WSJF (Weighted Shortest Job First)**: SAFe の優先順位計算式、Cost of Delay / Job Size
+- **Opportunity Solution Tree**: Torres の Discovery、Outcome → Opportunity → Solution → Experiment
+- **JTBD (Jobs to be Done)**: クライアント発言を「Job」に翻訳、機能でなく仕事で語る
+- **ADR + TDR**: 決定記録を Git 管理、後任へ「なぜそう決めたか」を可搬化
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+PM 統括パッケージ/
+├── PR-FAQ.md                    # Working Backwards
+├── shape-up-pitch.md            # Problem/Appetite/Solution/Rabbit holes
+├── betting-table.md             # 6週サイクルのベット記録
+├── RICE-scoring.xlsx            # 機能候補スコア
+├── discovery-tree.md            # Outcome→Opportunity→Solution
+├── ADR/                         # 決定記録
+├── change-log.md                # 変更管理ログ
+├── acceptance-checklist.md      # Given-When-Then 検収
+└── 48h-oncall.md                # 監視体制
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Shape Up (basecamp.com/shapeup) - Ryan Singer 原著
+- Amazon Working Backwards - Colin Bryar/Bill Carr
+- Continuous Discovery Habits - Teresa Torres
+- Marty Cagan『INSPIRED』『EMPOWERED』最新版
+- BMAD-METHOD 公式リポジトリ
+- ThoughtWorks Technology Radar Vol.30
+- Melissa Perri『Escaping the Build Trap』
+- ADR Tools (adr.github.io)
+
+### 6. KPI / 定量的合格ライン
+- Shape Up Circuit Breaker 発動 = 全案件の 20% 以下（スコープ精度）
+- 検収キックオフ時カレンダー確保率 = 100%
+- 変更管理ログ更新 = 全変更 24h 以内
+- 見積誤差 ±15% 以内（着手時見積 vs 実績）
+- ADR 記録率 = 主要決定の 100%
+
+### 7. 頻出失敗パターン & 予防策
+- **担当者交代で仕様蒸し返し** → 変更管理ログをクライアント共有可能形式で残し、Akari 経由で新担当者へ再送
+- **並列実装で共有ファイル上書き** → 編集ウィンドウを AI エージェントにも厳密適用、Zod 単一ソース確定後に並列着手
+- **休日リリースで検知遅延** → 48h 監視担当者名と連絡手段を STEP6 完了レポート必須項目
+- **検収期限だけで動かない** → キックオフ時に1時間セッションをカレンダー確保、実データで一緒に潰す
+- **見積が高く見える** → 現行採用単価×削減人数の比較を見積冒頭に置く
+
+### 8. 上級連携パターン
+- **Nao**: PR/FAQ → 要件定義書 → C4 モデルの連鎖を明文化、Shape Up Pitch の Rabbit holes を Nao が事前潰し
+- **riku/ao/kuu**: RICE スコア Top-N のみ並列着手、Circuit Breaker で 6週内に必ず判定
+- **mio**: Given-When-Then 検収チェックリストを mio が自動テスト化、CI で自動判定
+- **Akari**: 変更管理ログ・担当者交代情報を Akari 経由で常時双方向同期
+- **haruto（経営企画）**: RICE の Impact 側に事業計画 KPI を反映、事業戦略と実装優先度を接続
+
+### 9. Quality Bar
+- 「これで何人採れるか」で見積説明が完結すること
+- クライアント発言は必ず JTBD（Job）に翻訳してから機能化
+- 「今風・見やすい」等の抽象語は必ず画面キャプチャ＋丸印で具体化
+- 通知で足りる要件に画面工数を積まない（運用オーナー列で検証）
+- 48h 監視・部分検収・変更管理ログ・カレンダー確保の4点は全案件必達
+
+### 10. Growth Commitment
+- 月1回 Shape Up / Working Backwards / RICE のいずれかを1案件で実践、レトロで手法評価
+- 四半期毎に ADR を棚卸し、後任可搬性をレビュー
+- BMAD-METHOD 公式リポジトリの更新を月次ウォッチ、社内チェックリストに反映
+- クライアント7社の JTBD マップを四半期毎に更新、事業戦略への還元

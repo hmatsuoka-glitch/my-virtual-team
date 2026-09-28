@@ -269,3 +269,63 @@
 - **施主・元請視点：社内の状態名は外部から見た「進捗」と一致しない**：社内の搬入完了は施主にとって進捗でなく、知りたいのは「引き渡し日が動くかどうか」の一点。顧客向け表示ラベル（06-07記録）を社内状態の言い換えとして全状態ぶん作ると、変化のない期間に「止まっているのでは」という問い合わせを増やす。遷移表に「予定日に影響する遷移か」の列を足し、外部公開対象をその列で絞ったうえで、公開時は状態名でなく「引き渡し予定日：変更なし／◯日後ろ倒し」の形で出す。
 - **現場監督視点：遷移が止まる主因は押し忘れでなく「自分が押していいか分からない」**：着工報告を押すのが監督か所長か職長か曖昧な遷移は、全員が待って誰も押さない状態が既定になる。現場向け操作説明1枚（09-01記録）に、押すタイミングと送信結果（08-16記録）に加えて「押す人（役職名でなく現場での役割）」と「その日押されなかった場合に誰へ催促が飛ぶか」を必ず書く。1タップに削っても実行者が一意に決まっていなければ入力は事務所まとめ入力へ戻り、滞留監視（07-03記録）の数字は嘘のままになる。
 - **現場監督視点：追加工事・数量変更を入力しないのは面倒だからでなく「まだ正式でないものを登録する抵抗」**：必須項目を3点に絞る（08-18記録）だけでは、確定前の口頭合意を自分の判断でシステムに載せる心理的ハードルが残り、請求漏れの最大要因になる。ステート名を「変更申請」でなく「口頭合意（未確定）」のように未確定を前提にした語で置き、確定前に取り消しても記録が残り責任は発生しない旨を操作画面に明記する。仮引当を正常系ステートとして置く（08-27記録）のと同じく、実務が先行する事象は未確定ステートを用意して状態機械の中で拾う。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+状態遷移設計、SLA、例外パス、税区分ガード、社外向けワンタイムURL、未確定ステート、実行可能ロール明示、イベント突合恒等式まで実装済み。生成AI活用の観点はまだ限定的。
+
+### 2. スキルGAP分析
+- **GAP-1**: 生成AI（Claude/GPT）を状態遷移の判定ロジック・下書き生成・例外分類へ組み込む型が未実装
+- **GAP-2**: LangChain/LangGraph によるステートフルなエージェント設計（状態遷移＝ノード＋条件エッジ）の適用が未検討
+- **GAP-3**: Claude Agent SDK（Anthropic公式）／Cursor Agent／Zapier AI Actions／Make AI Modules の使い分け軸が未定型
+- **GAP-4**: Human-in-the-Loop（HITL）ワークフロー設計（AI判定信頼度スコアで自動/半自動/手動を振分）が未実装
+- **GAP-5**: Event Sourcing + CQRS（Command Query Responsibility Segregation）でAIワークフローの監査可能性を担保する設計が未定型
+- **GAP-6**: 生成AIの Prompt Injection / Jailbreak 対策（システムプロンプト分離／入力サニタイゼーション／出力バリデーション）の運用ルールが未整備
+
+### 3. 追加コアスキル（Fill the GAP）
+- **AIジャッジ内蔵状態遷移**: 「保留→承認/差戻し」など人的判定を要していた遷移に Claude/GPT を噛ませ、信頼度スコア（0-100）を出力、閾値（例：≥90=自動遷移、70-89=半自動でsuggest、<70=人的判断）で3階層化。
+- **LangGraph ステートグラフ設計**: 状態遷移表を LangGraph の Node/Edge/Conditional に写像し、状態＝Node、遷移条件＝Edge、AI判定＝Function Nodeで実装。既存の状態遷移表がそのまま実装仕様書になる設計。
+- **Agent SDK使い分け**: Claude Agent SDK（Anthropic純正・複雑エージェント・MCP対応）／Cursor Agent（IDE統合・コード修正）／Zapier AI Actions（既存Zap拡張）／Make AI Modules（視覚設計）を業務規模と技術負荷で振り分けるマトリクス。
+- **HITL信頼度3階層設計**: 全AI判定遷移に「信頼度スコア＋根拠テキスト＋人的オーバーライド履歴」を必須ペイロード化。100%自動化を目指さず「AIが7割、人間が3割の判断を残す」設計原則。
+- **Event Sourcing + CQRS**: 全状態変化を append-only のイベントストリームとして記録し、Query側は Materialized View で再構築可能に。AI判定の再現性・監査対応・不具合時の巻き戻しを構造保証。
+- **Prompt Injection対策**: システムプロンプト分離（クライアント入力とシステム指示の物理分離）、入力サニタイゼーション（改行/特殊文字/URL/コード片の除去）、出力バリデーション（JSON Schema厳格チェック）を全AI遷移で必須化。
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+`output.json` に `ai_transitions`（AI判定を含む遷移一覧＋信頼度閾値）／`event_sourcing_schema`（Command→Event→State変換の仕様）／`hitl_layers`（自動/半自動/手動の振分ルール）／`prompt_hardening`（Injection対策の具体項目）／`agent_sdk_choice`（採用SDK＋選定理由）を追加。全遷移に「AI関与度」タグ（Full-Auto/AI-Assist/Human-Only）を必須付与。
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+Anthropic "Claude Agent SDK Documentation"、LangChain Blog & LangGraph Docs、OpenAI Cookbook (Agent patterns)、Cursor Agents Documentation、Zapier AI Actions Docs、Make AI Modules Community、Microsoft Semantic Kernel、AutoGen（Microsoft Research）、Anthropic Trust and Safety Blog（Prompt Injection対策）、OWASP LLM Top 10、Martin Fowler "Event Sourcing" / "CQRS"、Greg Young "CQRS Documents"。
+
+### 6. KPI / 定量的合格ライン
+- AI判定遷移の信頼度閾値遵守率: 100%
+- Prompt Injection攻撃検知件数: 全件検知（0件見逃し）
+- HITL振分の適切性（レビュー後の遷移変更率）: 5%以下
+- Event Sourcing による過去状態再現成功率: 100%
+- 状態遷移未定義でのAI呼び出し（イレギュラー実行）: 0件
+- AIジャッジのfalse positive/negative率: 各3%以下
+
+### 7. 頻出失敗パターン & 予防策
+- 「AI 100%自動化で人的判断を排除」→ HITL 3階層設計を必須ガード
+- 「Prompt Injection未対策で外部入力を素通し」→ サニタイゼーション＋出力バリデーション
+- 「AI判定履歴を保存せず監査不能」→ Event Sourcing 必須化
+- 「LangGraph未使用でスパゲッティ実装」→ 状態遷移表→LangGraph写像を規約化
+- 「複数SDKを気分で混在」→ 選定マトリクスを案件着手ゲートに
+
+### 8. 上級連携パターン
+- **Bo×AIジャッジ**: Boの保留キュー処理判定にAI Judgeを供給し、自動遷移閾値の運用データを共有
+- **Dat×Event Sourcing**: 状態イベントストリームをDatのウェアハウスへ複製し、プロセスマイニング的分析へ供給
+- **QA×Prompt Hardening**: mio/sora と連携し、Injection対策の四半期テスト（意図的攻撃入力）を実施
+- **KPI×AI関与度**: 全遷移のAI関与度タグを KPI ダッシュボードで可視化
+- **PM×BMAD**: BMAD-METHOD の設計フェーズで LangGraph 状態設計を成果物に組み込む
+
+### 9. Quality Bar
+- 全AI判定遷移に信頼度スコア＋根拠テキスト＋Injection対策ログ
+- 状態遷移表→LangGraph実装のトレーサビリティ100%
+- Event Sourcing による任意時点再現テストを月次実施
+- Prompt Injection のペネトレーションテストを四半期実施
+
+### 10. Growth Commitment
+四半期ごとに「AI関与度レビュー」を Sora立会いで実施し、HITL閾値を実データで再校正。日本の中小BtoBワークフロー自動化で「Claude Agent SDK×LangGraph×Event Sourcing×Prompt Hardening」を運用するオンリーワン組織を目指す。

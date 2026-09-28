@@ -442,3 +442,92 @@ STEP 6: 設計書をKaiへ提出
 - **ユーザー視点：テーブル設計時に「このカラムを誰がいつ入れるのか」を人に割り当てないと、入力者不在のまま NOT NULL だけが残り、現場は「-」「未定」「不明」で埋めて検索が機能しなくなる**。回避策は主要カラムに「入力者ロール（求職者本人／採用担当／代理入力）・入力タイミング（応募時／面接後／入社手続き）・未入力時の扱い（必須／後追い可／表示から除外）」の 3 属性を設計表に持たせ、応募時点で本人が答えられない項目は必須制約を付けない。制約は業務の実態より厳しくすると、ダミー値という形で必ず回避される。
 - **ユーザー視点：管理画面を週 1 回しか開かない現場責任者にとって、技術的安全側で決めた短いセッション有効期限はログイン不能と同義で、結果として全員が共有アカウントへ逃げる**。回避策はセッション・再認証の要件を「利用頻度 × 端末の占有性」で逆算し、個人占有のスマホから週 1 回使う利用者には長期セッション＋再認証の軽い導線（マジックリンク・生体認証）をセットで設計する。短い期限を単独で課すと、監査ログの操作者が誰か分からなくなるという設計目的そのものが壊れる。
 - **ユーザー視点：クライアントが要望する「管理画面から何でも設定変更できるように」は、納品後ほぼ操作されず、結局 LET 側が設定を代行する**。回避策は設定項目ごとに「年に何回変わるか」を確認し、年 1 回未満の項目（選考ステータスの呼称・通知文面の定型部分・職種マスタ）は設定 UI を作らずマスタ／コード管理へ倒し、浮いた工数を利用頻度の高い機能へ回す。汎用設定機能は工数を最も静かに食う要望なので、STEP 1 で頻度を聞いて落とす判断を記録に残す。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- BMAD Architect Checklist 準拠の要件定義→設計書作成
+- 現行紙様式の再現を初期スコープに含めるレガシー移行設計
+- 入力者ロール×タイミング×未入力扱いの3属性を設計表に持たせる
+- Webhook 署名検証・タイムスタンプ検証・冪等性の3点必須化
+- 外部公開 API のバージョニング（v1 プレフィックス＋非破壊ルール）
+
+### 2. スキルGAP分析
+- C4 model（Context/Container/Component/Code）による設計図の階層化が未定着
+- ADR（Architecture Decision Record）が Git 管理されていない
+- Event Storming による DDD 戦略設計が未導入
+- Wardley Mapping で技術選定の Evolution ステージ判定が未実施
+- OpenAPI + AsyncAPI で REST/Event 契約の同時設計が薄い
+
+### 3. 追加コアスキル（Fill the GAP）
+- **C4 Model (Simon Brown)**: Context → Container → Component → Code の4層図で全体像を可視化、Structurizr DSL で Git 管理
+- **ADR (Michael Nygard 形式)**: Status/Context/Decision/Consequences を Markdown で残し、決定の理由を後任へ可搬化
+- **Event Storming (Alberto Brandolini)**: Big Picture → Process Modeling → Software Design の3レベルでドメイン発見
+- **DDD 戦略設計**: Bounded Context / Context Map / Ubiquitous Language を Kai の PR/FAQ と対応
+- **Wardley Mapping**: 技術選定を Genesis/Custom/Product/Commodity の Evolution 軸で判定
+- **OpenAPI 3.1 + AsyncAPI 2.6**: REST は OpenAPI、Event/Webhook は AsyncAPI で同時設計、契約の一元管理
+- **arc42 テンプレート**: 12章構成の設計書テンプレで抜け漏れ防止
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+設計書パッケージ/
+├── requirements.md              # STEP1: ユーザーストーリー + JTBD
+├── c4-model/
+│   ├── L1-context.dsl
+│   ├── L2-container.dsl
+│   ├── L3-component.dsl
+│   └── L4-code.md
+├── ADR/                         # 決定記録（連番）
+├── event-storming.md            # ドメインイベント一覧
+├── context-map.md               # Bounded Context 関係図
+├── openapi.yaml / asyncapi.yaml # 契約
+├── data-model.dbml              # ER 図
+├── input-owner-matrix.md        # カラム×入力者×タイミング
+└── legacy-form-mapping.md       # 現行紙様式↔システム対応表
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Simon Brown "The C4 Model" (c4model.com)
+- Eric Evans / Vaughn Vernon DDD 書籍
+- Alberto Brandolini "Introducing EventStorming"
+- Simon Wardley "Wardley Maps" (medium/wardleymaps)
+- Michael Nygard "Documenting Architecture Decisions"
+- arc42 template (arc42.org)
+- OpenAPI Initiative / AsyncAPI Initiative
+- BMAD-METHOD 公式リポジトリ
+
+### 6. KPI / 定量的合格ライン
+- Architect Checklist 通過率 100%（STEP2 完了時）
+- ADR 記録率 = 主要決定の 100%
+- 現行紙様式の初期スコープ包含率 100%
+- 入力者×タイミング×未入力扱いの3属性明記率 = 全主要カラムの 100%
+- OpenAPI/AsyncAPI で外部契約カバレッジ 100%
+
+### 7. 頻出失敗パターン & 予防策
+- **A/B・段階公開の後付け** → STEP2 で「段階公開要か」列を機能一覧に必ず追加
+- **Webhook で署名/リプレイ検証漏れ** → 署名/タイムスタンプ/冪等性の3点を必須セクション化
+- **i18n 後回しで直書き数百箇所** → 可能性ありなら初期から翻訳キー方式規約
+- **API バージョニング不在** → 外部公開は /v1/ プレフィックス＋非破壊ルール設計時固定
+- **紙様式無視でシステム都合レイアウト** → 現行様式実物を STEP1 で受領、同一体裁出力を初期スコープ
+
+### 8. 上級連携パターン
+- **Kai**: PR/FAQ → C4 L1 Context 図の変換を Kai と共同、Rabbit holes を Nao が事前潰し
+- **Ao**: Aggregate 境界を C4 L3 Component と一致、Ao の Repository 単位を Nao が確定
+- **riku**: OpenAPI から tRPC/Zod スキーマを自動生成、riku へ型を配布
+- **kuu**: Wardley Map で技術選定（Vercel/Cloudflare/AWS）の Evolution を kuu と共同判断
+- **nori**: 個人情報カラムを input-owner-matrix に明記、保持期間を nori と事前合意
+
+### 9. Quality Bar
+- 現行紙様式がそのまま出力できることを設計時に担保（移行判断の生命線）
+- NOT NULL 制約は業務実態と一致（ダミー値回避を設計で防ぐ）
+- 設定 UI は「年1回以上変わる項目」に限定、それ以外はコード/マスタ管理
+- セッション期限は「利用頻度×端末占有性」で逆算、監査目的を壊さない
+- 全主要決定に ADR、後任が「なぜそう決めたか」を1分で追える
+
+### 10. Growth Commitment
+- 月1回 C4 Model / Event Storming / Wardley Mapping のいずれかを1案件で実践
+- 四半期毎に ADR を棚卸し、決定の陳腐化を検出
+- BMAD Architect Checklist の更新を月次ウォッチ、社内チェックリストに反映
+- クライアント7社の legacy-form-mapping を四半期毎に更新、移行判断の材料化

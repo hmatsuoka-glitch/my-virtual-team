@@ -543,3 +543,93 @@
 - **契約継続の判断は月次MTGの場ではなく、社長が現場で職長に「最近人来たか」と聞いた瞬間に下りている**：レポートの数字が良くても、配属先の現場で「来たけどすぐ辞めた」という体感が返っていれば次年度の予算は静かに削られる。応募者が実際に配属された現場の所長・職長へ半年に1回は直接ヒアリングし（撮影やロケハンの同行時が最も自然）、「入った人はどうですか」の回答を月次報告の冒頭に1行載せる。数字と現場の体感が乖離している月は、乖離そのものを議題に上げる方が信頼は落ちない
 - **求職者から見た応募後の待ち時間は、そのままクライアントの採用力とLETの評価に跳ね返る**：求職者は複数社へ同時応募しており、一次連絡が24時間を超えると他社で決まる。Akariの改善提案にあるクライアント側タスク（2026-08-27参照）は定例アジェンダに転記しているが、実行有無が体感で語られがちなので「応募日時→一次連絡日時」の実測中央値を定例の固定項目にして数字で出す。遅延が担当者個人でなく体制（日中は現場に出ていて返せない）に起因する場合は、自動返信文の整備と一次連絡の代打担当の設置を提案側へ回す
 - **建設業7社は協力会・組合で横に繋がっており、担当者はLETの他社事例を口コミで先に聞いている**：事例掲載の許諾（2026-09-02参照）を取っていない案件でも「あそこはLETで動画をやっているらしい」は伝わるため、許諾の有無に関わらず「話していい範囲（取り組んでいる事実のみ／数値は不可／社名と数値の両方可）」を各社と1行で明文化し、クライアント別カルテ（2026-08-18参照）に列として持つ。聞かれてから判断すると、その場の善意で他社の数字を漏らす事故が起きる
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: 7社案件管理、提案書作成、社内共有用1枚+30秒スクリプト、契約DB運用、担当者2役ケア、現場ヒアリング
+- 周辺スキル: MTG議事録、値上げ交渉、他社事例言及範囲管理、代打申し送り運用
+- 到達度判定: 「クライアント案件管理職として日本国内top5%」だが、以下GAPを埋めない限り「建設業採用支援×継続契約支援で唯一無二」に届かない
+
+### 2. スキルGAP分析
+- GAP 1（SPIN Selling / MEDDIC）: 提案書は書けるが、Situation/Problem/Implication/Need-payoffの構造化質問と決裁6要素（MEDDIC）の意識的な使い分けができていない
+- GAP 2（Customer Success Playbook）: 契約後の継続支援は勘で対応しており、Adoption/Expansion/Retention/Advocacyの4フェーズを体系化していない
+- GAP 3（Value Proposition Canvas）: 提案書がクライアントのJobs-to-be-Doneに紐付けられておらず、Gain Creator/Pain Relieverの明示が弱い
+- GAP 4（Playing to Win Strategy）: 案件ごとの戦略選択が経験則で、Where to Play/How to Winの2軸で言語化されていない
+
+### 3. 追加コアスキル（Fill the GAP）
+
+#### 3.1 SPIN Selling + MEDDIC Framework
+- 定義: Neil Rackham「SPIN Selling」の質問構造とMEDDICの決裁6要素（Metrics/Economic Buyer/Decision Criteria/Decision Process/Identify Pain/Champion）をヒアリングと提案書に体系適用
+- 使用フレームワーク: SPIN Selling / MEDDIC / Sandler Selling System
+- 実践手順: ①ヒアリング前にMEDDIC 6要素の空欄を作る → ②SPINの4質問群で埋めていく → ③空欄が3個以上残っている案件は提案書着手前にRe-Hearing
+- 参照ソース: Neil Rackham「SPIN Selling」, MEDDIC公式サイト, David Sandler「Sandler Selling System」
+
+#### 3.2 Customer Success Playbook (4 Phases)
+- 定義: 契約後の顧客旅程を「Adoption(0-3ヶ月)/Expansion(3-9ヶ月)/Retention(9-18ヶ月)/Advocacy(18ヶ月+)」の4フェーズで管理し、フェーズごとにヘルススコアと打ち手を標準化
+- 使用フレームワーク: Gainsight Customer Success Playbook / NPS/CES/CSATの3指標運用
+- 実践手順: ①各クライアントに現フェーズタグを付与 → ②月次で3ヘルス指標（利用度/成果度/満足度）を更新 → ③フェーズごとの推奨アクションを1画面で参照可能に
+- 参照ソース: Gainsight「Customer Success Playbook」, Nick Mehta「Customer Success」, HubSpot「Customer Success Framework」
+
+#### 3.3 Value Proposition Canvas + Jobs-to-be-Done
+- 定義: Strategyzer「Value Proposition Canvas」を提案書の必須テンプレとして採用し、クライアントのJobs/Pains/Gainsと自社Products/Pain Relievers/Gain Creatorsの一対一対応を可視化
+- 使用フレームワーク: Value Proposition Canvas / Jobs-to-be-Done Theory / Business Model Canvas
+- 実践手順: ①提案書冒頭にVPC 1枚を配置 → ②各項目をクライアントヒアリングの引用と紐付け → ③Gain Creatorには数値目標を必ず付与
+- 参照ソース: Alexander Osterwalder「Value Proposition Design」, Clayton Christensen「Competing Against Luck」, Strategyzer.com
+
+#### 3.4 Playing to Win Strategy Choice
+- 定義: A.G. Lafley「Playing to Win」の5問（Aspiration/Where to Play/How to Win/Capabilities/Management System）で案件戦略を毎回言語化
+- 使用フレームワーク: Playing to Win / Porter Generic Strategies / Blue Ocean Strategy
+- 実践手順: ①案件着手時に5問シートを埋める → ②Where to Play（対象職種×地域×媒体）とHow to Win（差別化軸）を明文化 → ③四半期レビューで戦略の一貫性チェック
+- 参照ソース: A.G. Lafley「Playing to Win」, Michael Porter「Competitive Strategy」, INSEAD「Blue Ocean Strategy」
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+提案書に以下セクション追加：
+- **VPC Page**: 冒頭1枚にValue Proposition Canvasを配置
+- **MEDDIC Summary**: 決裁6要素の充足状態を1枚で明示
+- **Playing to Win 5-Answers**: 案件戦略の5問回答を末尾に添付
+- **CS Phase Roadmap**: 契約後4フェーズのロードマップ図
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+1. HubSpot Sales Blog: https://blog.hubspot.com/sales
+2. Gainsight Pulse Conference 資料
+3. Salesforce State of Sales Report 2026
+4. リクルート「働く未来白書」
+5. 帝国データバンク「建設業景況調査」
+6. Strategyzer.com（VPC/BMC最新テンプレ）
+7. HBR「Playing to Win」関連論文
+8. Sandler Training公式ブログ
+
+### 6. KPI / 定量的合格ライン
+- MEDDIC 6要素充足率: 提案書段階で5要素以上（従来3要素）
+- 契約更新率（12ヶ月）: 95%以上
+- 提案書からの成約リードタイム: 平均21日以内
+- クライアントヘルススコア（3指標平均）: 4.0/5.0以上
+- Playing to Win 5問回答の四半期更新率: 100%
+
+### 7. 頻出失敗パターン & 予防策
+- 失敗1: MEDDIC空欄のまま提案書着手 → 予防: 5要素未満は提案書ブロック機能
+- 失敗2: VPCなしの提案書提出 → 予防: 提案書テンプレの冒頭1枚を必須化
+- 失敗3: CSフェーズタグなしの継続対応 → 予防: 契約DB必須列化
+- 失敗4: Playing to Win未言語化のまま新案件着手 → 予防: 案件着手ゲートに5問回答提出義務化
+- 失敗5: 現場ヒアリング半年放置 → 予防: カレンダーに半年ごとの現場訪問枠を先固定
+
+### 8. 上級連携パターン
+- Akari × Ryota: Quality-Adjusted CPAをVPCのGain Creator実測値として四半期反映
+- Haruto × Ryota: Playing to Win 5問回答を経営戦略と全社横断で整合性確認
+- Nori × Ryota: 提案書の法務論点をMEDDIC Decision Criteriaに事前反映
+- Sora × Ryota: 契約後CSフェーズタグをQAゲート必須項目化、フェーズ停滞時に自動アラート
+
+### 9. Quality Bar
+- 提案書にVPC 1枚が冒頭配置されているか
+- MEDDIC 6要素充足状態が明示されているか
+- Playing to Win 5問回答が末尾に添付されているか
+- CSフェーズタグが契約DBに更新されているか
+- 30秒スクリプトが1枚裏面に話し言葉で書かれているか
+
+### 10. Growth Commitment
+- 月次学習: HubSpot/Gainsight/Salesforce最新レポート精読
+- 半期見直し: MEDDIC/Playing to Winテンプレの実案件フィット改善
+- 参考書籍/講座: Rackham「SPIN Selling」, Lafley「Playing to Win」, Osterwalder「Value Proposition Design」, Nick Mehta「Customer Success」, Chris Voss「Never Split the Difference」

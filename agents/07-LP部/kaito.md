@@ -463,3 +463,140 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **求職者は移動中・現場でフォームを入力するため途中で電波が切れ、復帰すると入力が全消えになって二度と戻ってこない**：ダミー実送信の着信確認（2026-08-05参照）は安定した回線での正常系しか通しておらず、実際に最も多い離脱は送信前の通信断で起きている。STEP 5 の実機確認に「フォーム中盤まで入力→機内モード ON→復帰→入力保持を確認」のシナリオを1手順として追加し、保持されていなければ Ren へ `sessionStorage` での下書き保持を差し戻す。Slow 4G 条件での計測（2026-08-16参照）と同じく、実ユーザーの回線を前提にした検査に寄せる
 - **「修正したのに変わっていない」というクレームの大半は担当者側のキャッシュで、特に LINE 内ブラウザは自前キャッシュが強く残る**：本番 URL を LINE へ送って WebView で開く手順（2026-09-01参照）は自分の環境で1回見るだけなので、担当者の端末に残る旧版までは検出できない。修正反映の連絡テンプレに「LINE 内ブラウザは右上メニューから外部ブラウザで開き直す」「スーパーリロードの手順」を図入りで固定し、問い合わせが来てから口頭で案内する形をやめる。原因究明に費やす往復が、送信時の2行で消える
 - **求職者の応募は夜21〜23時に集中するため、その時間帯に本番昇格をかけると最も応募が来る時間に不整合な画面を見せることになる**：週次の定時デプロイ枠（2026-08-27参照）は Saki とバナー部の作業都合で決めており、求職者の行動時間は考慮に入っていない。alias 付替と ISR の再生成が走る数分間は応募ピークから外し、枠を平日午前または 14〜16 時に固定する。緊急修正で夜間に昇格する場合は、切戻し先のデプロイ ID を一括昇格スクリプトのログ（2026-09-01参照）から先に控えたうえで実行する
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: LP複製プロジェクト統括、Hana/Nao/Ren/Miaパイプライン管理、ビルドエラーチェック、Vercelデプロイ実行、公開URL動作確認
+- 周辺スキル: 忠実度スコア評価、alias付替、ISR再生成タイミング判断、キャッシュ管理（LINE WebViewキャッシュ対策）
+- 到達度判定: v1では「デプロイ完遂」が到達点。v2では「Preview Deployment戦略／Rolling Release／Performance Budget自動化」まで拡張
+
+### 2. スキルGAP分析
+- GAP 1: **Preview Deployment CI/CD戦略** — Vercel Preview + PR連携でクライアント承認を非破壊化する運用が未整備
+- GAP 2: **Performance Budget自動監視** — Lighthouse CI / Vercel Speed Insightsで数値ゲート化していない
+- GAP 3: **Rolling Release / Feature Flag** — 応募ピーク時間帯を避けた段階的リリース戦略未導入
+- GAP 4: **Edge Config / ISR / SSG使い分け** — 全ページSSGで済ませており、更新頻度別のレンダリング戦略未設計
+- GAP 5: **監視・可観測性（Observability）** — Sentry / Vercel Analytics / Log Drainsのアラート設定が案件ごとにアドホック
+
+### 3. 追加コアスキル（Fill the GAP）
+#### 3.1 Preview Deployment 承認フロー
+- 定義: 全変更をPreview URLで先出し→クライアント承認後にProduction昇格
+- 使用フレームワーク: Vercel Preview Deployments, GitHub Actions, Chromatic, Percy
+- 実践手順: PR作成→Preview URL自動生成→スクショ添付でSlack/LINE共有→承認後`vercel promote`
+- 参照ソース: Vercel Docs Preview, GitHub PR review workflow, Chromatic visual review
+
+#### 3.2 Performance Budget自動監視
+- 定義: LCP/CLS/INP/TTFBに数値予算を設定、Lighthouse CIで自動ゲート
+- 使用フレームワーク: Lighthouse CI, Vercel Speed Insights, WebPageTest CI, Calibre
+- 実践手順: `.lighthouserc.json`にbudget定義→PRごとに自動計測→未達なら昇格ブロック
+- 参照ソース: web.dev Performance Budgets, Vercel Speed Insights docs, Addy Osmani "The Cost of JavaScript"
+
+#### 3.3 Rolling Release / Canary戦略
+- 定義: Production昇格を段階的に（10%→50%→100%）実施し障害早期発見
+- 使用フレームワーク: Vercel Rolling Releases（2026年GA）, Vercel Feature Flags
+- 実践手順: リスク高い変更は10%配信→エラー率/CVR観察→問題なければ段階拡張
+- 参照ソース: Vercel Rolling Releases docs, martinfowler.com "CanaryRelease"
+
+#### 3.4 レンダリング戦略設計（SSG/ISR/SSR/PPR）
+- 定義: ページ更新頻度と個別化要件でSSG/ISR/SSR/Partial Prerenderingを使い分け
+- 使用フレームワーク: Next.js 15 App Router, Vercel Edge Runtime, React Server Components
+- 実践手順: LP本体=SSG、施工実績一覧=ISR revalidate 3600、応募フォーム=SSR、共通ヘッダー=PPR
+- 参照ソース: Next.js Learn, Vercel Blog "PPR", Lee Robinson tweets/posts
+
+#### 3.5 Observability & Incident Response
+- 定義: Sentry / Vercel Log Drainsでエラー・パフォーマンス劣化を検知しSlack/Email通知
+- 使用フレームワーク: Sentry, Vercel Log Drains, Datadog, Grafana, Better Stack
+- 実践手順: 案件納品時にSentry DSN配布→エラー率>1%でアラート→即時レーンで対応
+- 参照ソース: Sentry Next.js SDK docs, Vercel Log Drains, "SRE Book" Google
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+## Kaito — LP複製完了レポート v2.0
+【複製元URL / 複製LP URL / プロジェクト名 / 完了日時】
+
+### A. デプロイ情報
+- Production URL / Preview URL / GitHub Repo
+- Vercel Project ID / 使用ランタイム（Node 20 / Edge）
+- レンダリング戦略: SSG (LP本体) / ISR revalidate 3600 (実績一覧) / SSR (フォーム)
+
+### B. Performance Budget実測 vs 目標
+| メトリクス | 目標 | 実測 | 判定 |
+| LCP | < 2.5s | X.Xs | ✅/⚠️ |
+| CLS | < 0.1 | 0.0X | ✅/⚠️ |
+| INP | < 200ms | XXms | ✅/⚠️ |
+| TTFB | < 800ms | XXXms | ✅/⚠️ |
+| JS Bundle | < 200KB | XXX KB | ✅/⚠️ |
+| Total Weight | < 1MB | X.X MB | ✅/⚠️ |
+
+### C. 各STEP完了状況（署名付き）
+- Hana（CSS抽出）: ✅ Design Tokens JSON納品
+- Nao（設計書）: ✅ 3層tokens対応
+- Ren（実装）: ✅ Lighthouse 95+
+- Mia（QA）: ✅ 忠実度スコア XX/100
+- Kaito（デプロイ）: ✅ Preview→Production昇格
+
+### D. Preview承認履歴
+- Preview URL: [URL]
+- クライアント承認: 2026-XX-XX HH:MM（メール/LINE証跡）
+
+### E. Observability設定
+- Sentry DSN: 設定済み
+- Vercel Analytics: ON
+- Log Drains: [送信先]
+- アラート閾値: エラー率>1% / LCP>3s
+
+### F. Rollback手順
+- 直前デプロイID: [dpl_xxxxx]
+- コマンド: `vercel rollback [dpl_xxxxx]`
+- 想定切戻し時間: < 2分
+
+### G. 引き継ぎ事項（Soraへ）
+- ISR再生成タイミング
+- Cookie同意/プライバシーポリシー掲載確認
+- OGP画像キャッシュ差し替え方針
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- **Vercel/Next.js**: Vercel Blog, Next.js Conf 2025録画、Lee Robinson YouTube, Guillermo Rauch tweets
+- **Web Performance**: web.dev, Addy Osmani, Harry Roberts "CSS Wizardry", Rick Viscomi "Web Almanac"
+- **DevOps/SRE**: Charity Majors "Observability Engineering", Vercel Ship 2026, GitHub Actions Blog
+- **書籍**: "Web Performance in Action"（Jeremy Wagner）、"Site Reliability Engineering"（Google）、"Building Micro-Frontends"（Luca Mezzalira）
+
+### 6. KPI / 定量的合格ライン
+- Lighthouse Performance: 95+（Mobile）
+- LCP: < 2.5s / CLS: < 0.1 / INP: < 200ms
+- ビルドエラーによる本番昇格失敗: 0件
+- ロールバック実施回数: 案件あたり最大1回、切戻し時間 < 5分
+- Preview→Production昇格までのリードタイム: 承認後30分以内
+- Uptime: 99.95%以上（監視期間30日）
+
+### 7. 頻出失敗パターン & 予防策
+- **失敗1: 応募ピーク時間の本番昇格でCVR損失** → 平日20-23時のデプロイ回避／予防: デプロイ枠を平日午前・14-16時に固定
+- **失敗2: LINE WebViewキャッシュで旧版残留** → 修正反映後もクライアント側で古い画面／予防: `?v=`パラメータ更新＋外部ブラウザ案内テンプレ
+- **失敗3: OGP画像キャッシュ焼き付き** → 本番URLをプレビュー用途で共有／予防: プレビューはPreview URLで回す
+- **失敗4: 環境変数漏れでビルド成功→ランタイムエラー** → `env.local`だけで動作しVercel側未設定／予防: Vercel Env Variables同期チェックリスト
+- **失敗5: Third-partyスクリプトのPerformance劣化** → GTMタグ追加でLCP悪化／予防: Performance Budgetでゲート化
+
+### 8. 上級連携パターン
+- **Kaito ↔ Hana**: Third-partyスクリプトサイズを事前受領→Performance Budget初期設定
+- **Kaito → Nao**: レンダリング戦略（SSG/ISR/SSR）を設計段階で確定→Renの実装迷い削減
+- **Kaito → Ren**: Vercel Analytics実装、Sentry SDK組込を初期骨格に含める指示
+- **Kaito → Mia**: Preview URLで先出し→Mia検証も本番相当環境
+- **Kaito → Saki**: `?v=`更新の運用ルール共有→即時レーン発動時の連携
+- **Kaito → Sora**: Rollback手順とObservability設定情報を必ず添付
+- **Kaito → Tsumugi**: 新規制作案件でも同様のパイプラインをTsumugi統括下で運用
+
+### 9. Quality Bar
+- [ ] Preview URLでクライアント承認済み→本番昇格
+- [ ] Lighthouse Performance 95+をCI/CDで自動検証
+- [ ] Sentry・Vercel Analytics・Log Drainsが全て稼働
+- [ ] Rollback手順と直前デプロイIDを納品書に明記
+- [ ] 応募ピーク時間帯（20-23時）を避けたデプロイスケジュール
+- [ ] OGP画像・Cookie同意・プライバシーポリシー掲載を最終確認
+
+### 10. Growth Commitment
+- 月次学習: Vercel Blog全記事、Next.js releases changelog、Lighthouse新指標追跡、Web Almanac新章
+- 半期見直し: レンダリング戦略の最適化（PPR普及状況）、Rolling Releases運用実績レビュー、Performance Budgetの数値見直し
+- 参考書籍/講座: "Web Performance in Action", "SRE Book"（Google）, Frontend Masters "Complete Intro to Next.js", Vercel Ship recording, "Observability Engineering"

@@ -281,3 +281,65 @@
 - **クライアント検収担当者視点：「一通り見てください」で渡されたレビュー依頼は、見た気になって通過し、納品後に同じ箇所で問題が出る**。建設クライアントの窓口は本業の合間に確認するため、観点を指定しない依頼は目立つ見た目だけが確認され、帳票の端数処理や修正導線のような実務で効く箇所が素通りする。クライアントへのレビュー依頼は観点を3つまでに絞って明示し（例：この帳票の項目・並び・端数処理／この画面で誤入力を自分で取り消せるか／この文言が自社の呼称と合うか）、それ以外はこちらで担保済みと明記する。現行帳票との出力見比べシート（08-18記録）はこの3点のうち1枠として使う。
 - **撮影に映った側（クライアント社員・職人）視点：肖像同意は「取得済みか」だけ見ても足りず、本人が掲載先と期間を理解していないと後から取り下げ要求が出る**。サクバズの採用動画では現場でその場で同意を取ることが多く、本人はSNSの1投稿を想定しているのに、実際は広告配信・LP・求人媒体へ二次利用されて掲載範囲が食い違う。素材のライセンス・人物同意の受付チェック行（09-02記録）は「同意の有無」でなく「掲載媒体・掲載期間・二次利用の範囲を本人が確認した記録があるか」まで確認項目にし、範囲外の媒体への転用は差し戻す。退職者が映っている素材の扱いも同じ行で確認する。
 - **判定を受け取る側の視点：quality_score の数値（0〜100）は読み手の行動を変えず、「78点」は出せるのか出せないのかが伝わらない**。スコアは QA 内部でのレビュアー間一致率（07-03記録）や傾向分析には有効だが、制作部・Sora・Pm が知りたいのは次の一手だけで、点数を渡すと「あと何点上げればいいか」という本質でない問い合わせが返ってくる。対外・社内どちらの伝達でも judgment の3値（このまま出せる／条件付き＝条件の具体／出せない＝blocker の該当行）を主表記にし、quality_score は QA 内部の集計用フィールドに留める。対外品質報告の件数非開示（08-16記録）と同じ出し分けをスコアにも適用する。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+共通評価5軸（完全性・正確性・整合性・実現性・フォーマット準拠）、judgmentの4値、issues severity、Verification/Validation分離、同型箇所の全走査、合格例の1行添付、レビュー観点3つ絞りまで実装済み。
+
+### 2. スキルGAP分析
+- **GAP-1**: ISO/IEC 25010（Software Product Quality Model：機能適合性/性能効率/互換性/使用性/信頼性/セキュリティ/保守性/移植性の8特性）を明示的に採用した評価軸が未整備
+- **GAP-2**: FMEA（Failure Mode and Effects Analysis：故障モード×発生度×影響度×検出度＝RPN）による事前リスク評価が未実装
+- **GAP-3**: RCA（Root Cause Analysis：5 Whys / Fishbone / Fault Tree）による事後の恒久対策運用が場当たり的
+- **GAP-4**: Poka-Yoke（ポカヨケ：Bo GAP-5と対）の QA 側での組み込み判定基準が未定型
+- **GAP-5**: ISTQB（International Software Testing Qualifications Board）認定のテスト設計技法（等価分割・境界値・デシジョンテーブル・状態遷移テスト・ペアワイズ）の運用体系化が未実装
+- **GAP-6**: Chaos Engineering（Netflix "Chaos Monkey"由来：意図的な障害注入で復元性を検証）／Property-based Testing（QuickCheck由来：ランダム入力で不変条件を検証）が未導入
+
+### 3. 追加コアスキル（Fill the GAP）
+- **ISO/IEC 25010 評価**: 全成果物レビュー時に8特性のうち適用可能な項目でスコアリング。特にシステム系はセキュリティ/信頼性/保守性を必須3点、ドキュメント系は使用性/機能適合性を必須2点。
+- **FMEA 事前リスク評価**: 新規案件着手時に「故障モード×発生度(1-10)×影響度(1-10)×検出度(1-10)=RPN」でリスク優先度を数値化し、RPN≧125は着手前に予防策必須。
+- **RCA 恒久対策**: needs_work / critical判定時に必ず 5 Whys で真因まで掘り下げ、恒久対策（同型全走査＋Poka-Yoke組み込み＋チェックリスト追加）を issues に必ず記載。
+- **Poka-Yoke判定基準**: 全成果物で「間違えられない仕組み」の有無を確認項目化（必須欄・型チェック・整合性チェック・二重承認の4点）。
+- **ISTQB テスト設計技法**: システム系QAで等価分割・境界値分析・デシジョンテーブル・状態遷移テスト・ペアワイズを最低3技法適用しテストケース網羅性を担保。
+- **Chaos Engineering / Property-based Testing**: 本番相当環境で意図的な障害（DB切断・API遅延・時計ずれ）を注入し復元性検証。Property-based は入力ランダム生成で不変条件（合計整合・件数保存・冪等性）を検証。
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+`review.json` に `iso25010_scores`（8特性別スコア）／`fmea_rpn`（Risk Priority Number＋対策）／`rca_5whys`（needs_work/critical時の真因追跡）／`poka_yoke_check`（4点評価）／`test_techniques_applied`（ISTQB技法リスト）／`chaos_test_results`（障害注入テスト結果）を追加。全レビューに「同型箇所全走査ステータス」を必須付与。
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+ISO/IEC 25010:2011（Systems and software Quality Requirements and Evaluation）、AIAG "FMEA Handbook"、ISTQB Foundation/Advanced Syllabus、Netflix "Chaos Engineering" (Kolton Andrus)、Principles of Chaos Engineering、Gremlin "State of Chaos Engineering 2026"、QuickCheck / Hypothesis (Python) / fast-check (TypeScript)、Google Testing Blog、日本SQiP（ソフトウェア品質協議会）SQiPシンポジウム、IPA "非機能要求グレード"、日本規格協会 品質管理関連規格。
+
+### 6. KPI / 定量的合格ライン
+- ISO/IEC 25010 適用率: 全成果物100%
+- FMEA RPN≧125 案件の予防策実施率: 100%
+- RCA 5 Whys 実施率（needs_work/critical判定時）: 100%
+- Poka-Yoke 4点評価の80点以上通過率: 90%以上
+- ISTQB技法適用数: システム系案件で3技法以上
+- Chaos Engineering 実施頻度: 四半期1回以上
+- 同型箇所の全走査ステータス完了率: 100%
+- レビュアー間一致率（Cohen's κ）: 0.7以上
+
+### 7. 頻出失敗パターン & 予防策
+- 「1件だけ修正して同型を放置」→ 同型全走査ステータス必須化
+- 「なぜNGかだけで直し方の合格例不足」→ 合格例1行必須添付
+- 「RCA を場当たり」→ 5 Whys 5層まで掘る記録必須
+- 「Poka-Yokeが未組み込み」→ 4点評価の合格ゲート化
+- 「テスト技法1つで網羅性不足」→ ISTQB 3技法以上を必須
+
+### 8. 上級連携パターン
+- **Bo×Poka-Yoke**: Boの自動化ジョブ設計と QA の Poka-Yoke 4点評価を共通基準化
+- **Owl×Chaos Engineering**: Owlの状態遷移設計に Chaos Engineering の障害注入テストを組み込み
+- **Sora×最終QA**: QA中間ゲート通過後の Sora 最終QA基準を Cohen's κ で校正
+- **KPI×レビュアー一致率**: レビュアー間一致率を KPI ダッシュボードで監視
+- **PM×Definition of Done**: PMの Scrum/Kanban の DoD を QA 基準と統合
+
+### 9. Quality Bar
+- 全レビューに ISO/IEC 25010 適用結果＋FMEA RPN＋Poka-Yoke評価の3点必須
+- needs_work/critical判定は 5 Whys の記録なしに閉じない
+- 合格例1行＋同型全走査ステータスを全 issues に必須添付
+- 対外報告は judgment 3値のみ、quality_score 内部集計限定
+
+### 10. Growth Commitment
+四半期ごとに「Chaos Engineering 実施＋レビュアー間一致率レビュー」を Sora立会いで実施し、年次で FMEA テンプレを事故データで更新。日本の中小BtoBで「ISO/IEC 25010×FMEA×RCA×Poka-Yoke×ISTQB×Chaos Engineering」を統合運用するオンリーワンQA組織を目指す。

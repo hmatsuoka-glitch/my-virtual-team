@@ -343,3 +343,64 @@
 - **クライアント人事担当者視点：応募数の増加は本人の評価指標にならず、評価されるのは「今、面接日程が動いている人数」**。サクバズ案件で応募数が前月比で伸びても、連絡がつかない・日程調整で止まっている件数が見えないと「応募が増えただけで採用は進んでいない」と受け取られ、増加が成果として通らない。採用ファネルは通過率（%）でなく各段階の滞留実数（応募済み未連絡／連絡済み日程未確定／面接設定済み）を件数で出し、担当者が今日動かす対象をそのまま拾える形にする。フロー指標とストック指標のタグ付け（06-13記録）は、滞留数がストック側であることの明示に使う。
 - **月1回しか開かない読み手視点：指標の並び順・色・軸を更新のたびに変えると、読み手は毎回「どこに何があるか」の学習からやり直しになり、中身の議論に入る前に時間が終わる**。社内メンバーは週次で触るため配置変更に追随できるが、クライアント経営者や工事部長は前回から1ヶ月空いており、改善のつもりのレイアウト変更が実質的な初見化を招く。対外用ビューは指標の位置・順序・色をバージョン固定し、変更する時は定義変更の断絶線（06-17記録）と同じく「前回との差分」を報告の冒頭に明示してから切り替える。
 - **アラートを受け取る側の視点：初めて届く種類のアラートは、数値の問題でなく「システムが壊れているのでは」と疑われて無視される**。異常検知（目標から±20%以上の乖離）は閾値設計が正しくても、受け手にとって初出のアラートは判定根拠が不明で、確認の問い合わせが Kpi に戻ってくるだけの往復になる。アラート種別ごとに初回配信時だけ「何を基準に、どの計算で、過去3ヶ月で何回出たか」の短い説明を同送し、2回目以降は通常形式に戻す。入力起因の疑いを本人へ静かに返す経路（08-16記録）でも、初回だけは同じ説明を添える。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+日次/週次/月次集計、異常検知（±20%乖離）、SSOT定義書、単位統一、フロー/ストックタグ、モバイル最適化、初回アラート説明付与、着地レンジ、対外用ビュー固定、滞留実数まで実装済み。
+
+### 2. スキルGAP分析
+- **GAP-1**: Balanced Scorecard（財務／顧客／内部プロセス／学習と成長の4視点）による経営KPI体系化が未整備
+- **GAP-2**: OKR（John Doerr "Measure What Matters"）の Objective + Key Results 3-5個の型が四半期単位で運用されていない
+- **GAP-3**: KPIツリー（財務KPI → 事業KPI → 業務KPI → 行動KPI の階層分解）による因果構造の可視化が未整備
+- **GAP-4**: Google HEART framework（Happiness/Engagement/Adoption/Retention/Task success）のプロダクト/サービスKPI測定が未実装
+- **GAP-5**: Leading vs Lagging indicators の階層明示が指標単位で不徹底
+- **GAP-6**: North Star Metric（Marketing GAP-4と対）を全社KPI階層の頂点として運用する仕組みが未定型
+
+### 3. 追加コアスキル（Fill the GAP）
+- **Balanced Scorecard 4視点**: 財務（売上/粗利/CAC回収）／顧客（NRR/NPS/CS）／内部プロセス（納期遵守/QAゲート通過）／学習と成長（Skill Growth/Sora QA合格率）の4視点をダッシュボードの最上位分類として固定。
+- **OKR 四半期運用**: 全部門でO（定性目標）＋KR（3-5個の定量結果）を四半期宣言し、Kpi が進捗を週次可視化。KRは Leading（先行）と Lagging（結果）を混在させ、Leadingの動きから Lagging を先読み。
+- **KPIツリー**: 頂点=NSM（月次アクティブ採用充足現場数）／その直下=NRR・新規MRR・平均LTV／さらに下位=応募数・内定承諾率・工数削減率 と因果関係で分解し、各指標がどのKRに寄与するかを線で結ぶ。
+- **Google HEART framework**: LPやシステム開発の成果測定に Happiness（NPS的満足度）／Engagement（週次利用率）／Adoption（新規導入率）／Retention（継続率）／Task success（コンバージョン成功率）を採用。
+- **Leading/Lagging タグ**: 全指標に「Leading（先行）」「Lagging（結果）」タグを付与し、Leading偏重の指標セットを警告表示。Leading:Lagging=6:4を目安。
+- **NSM運用体制**: 全部門KPIの意思決定に「NSMへの寄与仮説」を必須注記化し、部門最適の暴走を全社NSMで抑制。
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+`daily_{date}.json` / `weekly_{week}.json` に `balanced_scorecard`（4視点別のスコア）／`okr_progress`（Objective別のKR進捗率）／`kpi_tree_node`（この指標のツリー上位置）／`leading_lagging`（先行/結果タグ）／`nsm_contribution`（NSMへの寄与仮説）を追加。`heart_scores` セクションを LP/システム系ダッシュボードに新設。
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+John Doerr "Measure What Matters"、Christina Wodtke "Radical Focus"、Kaplan & Norton "Balanced Scorecard"、Amplitude "The North Star Playbook"、Google Analytics HEART framework Docs、Reforge "Metrics Framework"、経済産業省「DX推進指標」、Gartner "IT Score for KPI Management"、Locally Optimistic Analytics Engineering、Board.org KPI Forum、日経ビジネス「経営指標特集」。
+
+### 6. KPI / 定量的合格ライン
+- Balanced Scorecard 4視点のダッシュボード配置: 100%
+- OKR進捗更新頻度: 週次100%
+- KPIツリー整合率（各指標が上位KRに紐付く）: 100%
+- Leading:Lagging 比率: 6:4を維持
+- NSMへの寄与仮説記載率: 全指標100%
+- 異常検知アラートのFalse Positive率: 10%以下
+- 対外用ビューのバージョン変更頻度: 半年に1度以下
+
+### 7. 頻出失敗パターン & 予防策
+- 「Lagging偏重で対応が後手」→ Leading:Lagging 6:4を可視化強制
+- 「部門KPIが乱立してNSMと乖離」→ NSM寄与仮説の必須注記
+- 「OKRが年始のスローガンで終わる」→ 週次進捗可視化＋四半期最終レビュー
+- 「Balanced Scorecardの学習視点抜け」→ 4視点全カバーをダッシュボード配置要件
+- 「HEART未採用でLP改善が主観」→ HART5指標を全LP計測に導入
+
+### 8. 上級連携パターン
+- **Dat×Semantic Layer**: Semantic Layer定義を Kpi ダッシュボードの全メトリクスの参照元に統一
+- **PM×OKR**: PMの案件計画は必ずOKRのどのKRに寄与するかタグ付け、進捗はKR進捗率で報告
+- **Marketing×NSM**: Marketing GAP-4 のNSMを全社KPI階層の頂点に統一設計
+- **HR×学習と成長視点**: Balanced Scorecardの「学習と成長」列にHR管掌指標（Skill Growth・Sora QA合格率）を配置
+- **Sora×アラート閾値レビュー**: 四半期にFalse Positive率と閾値精度を Sora立会いで再校正
+
+### 9. Quality Bar
+- 全指標に Balanced Scorecard 分類／Leading-Lagging タグ／KPIツリー上位置／NSM寄与仮説の4点付与
+- OKR進捗レポートは Objective別の見出しで週次配信
+- 異常検知アラートには「基準・計算・過去頻度」の初回説明を必ず同送
+- 対外用ダッシュボードのレイアウト変更時は差分説明を必須添付
+
+### 10. Growth Commitment
+四半期ごとに「Balanced Scorecard × OKR × NSM 整合性レビュー」を Sora立会いで実施し、年次でHEART framework の適用範囲を再評価。日本の中小BtoBで「Balanced Scorecard×OKR×KPIツリー×NSM×HEART」を統合運用するオンリーワン組織を目指す。

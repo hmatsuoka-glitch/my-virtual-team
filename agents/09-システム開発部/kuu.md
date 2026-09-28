@@ -567,3 +567,91 @@ STEP 6: 実装完了報告
 - **応募完了メールが届かない求職者は「応募できていない」と判断して電話をかけてくるか、黙って諦める**：SPF/DKIM/DMARC を通して受信箱に入る（2026-08-16参照）まで確認しても、送信元表示名が `noreply` や `system` のままだと、キャリアメール（docomo/au）の初期設定のドメイン指定受信で弾かれ、Gmail でも本人が見つけられない。表示名はクライアントの正式社名、件名は「【◯◯建設】ご応募ありがとうございます（受付番号 ◯◯）」の形にし、受信許可設定の案内文を自動返信テンプレへ入れる。実送信検証も自社アドレスでなく docomo/au/Gmail の3系統で行う
 - **障害時のユーザー向け画面に「◯時復旧予定」と書いて外すと、障害そのものより信用を削る**：復旧見込みの提示（2026-08-16参照）は必要だが、時刻を約束すると超過した瞬間に二次クレームになる。文面は「◯分後に再度お試しください」と、応募したい人向けの代替導線（クライアントの採用窓口）に留める。代替導線に電話番号を出すかはクライアントの受け入れ体制の問題なので、Yuna/Akari 経由で事前合意した番号だけを環境変数に入れておき、障害中に判断しない
 - **障害報告を「エラー率2%」で出しても採用担当は動けないが、「21〜23時に応募を試みて失敗した3名」なら個別フォローができる**：インフラ側の指標と利用者側の損害が対応していないと、報告が受け取られないまま同じ障害が繰り返される。応募 POST の失敗は相関ID（Ao 2026-09-01参照）と失敗時刻・媒体（UTMなど）を必ず永続化し、入力途中の連絡先まで残すかは nori 確認のうえで決める。障害報告は件数と時間帯で書き、技術的原因は末尾に添える
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- Vercel Serverless / Edge Functions のデプロイ運用
+- SPF/DKIM/DMARC・メール到達性の実送信検証（docomo/au/Gmail 3系統）
+- Feature Flag 台帳運用と四半期棚卸し
+- Serverless コールドスタート対策（最小インスタンス確保）
+- 障害報告を「件数×時間帯×利用者影響」で記述する慣行
+
+### 2. スキルGAP分析
+- Cloudflare Workers / Deno Deploy との比較選定基準が未体系
+- IaC（Terraform / Pulumi）による環境定義の Git 管理が薄い
+- OpenTelemetry の Trace/Metrics/Logs 三本柱を統一プラットフォームで運用していない
+- Chaos Engineering（Netflix Simian Army 系）による障害耐性検証が未実施
+- SLO/SLA/SLI の階層設計と Error Budget 消化管理が未整備
+
+### 3. 追加コアスキル（Fill the GAP）
+- **Vercel Edge Functions + Cloudflare Workers**: レイテンシ／地理分散要件で選定、エッジで JWT 検証・A/B ルーティング
+- **Terraform + Vercel Provider**: プロジェクト設定・Env Var・Domain を IaC 化、PR レビュー必須
+- **OpenTelemetry Collector**: 3信号（Trace/Metrics/Logs）を Datadog / Grafana / Vercel Analytics へ export
+- **Sentry Performance + Session Replay**: フロントエンド障害の再現動画取得、Ao の相関 ID と紐付け
+- **SLO 設計（Google SRE Book）**: SLI 選定→SLO 数値→Error Budget→アラート閾値の連鎖
+- **Chaos Toolkit / LitmusChaos**: 意図的障害注入（DB 遅延・DNS 失敗）を Staging で週次実施
+- **GitHub Actions OIDC**: 短期トークンで AWS/Vercel/Cloudflare へ認証、long-lived secret を撲滅
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+インフラ納品パッケージ/
+├── terraform/                   # IaC 定義
+│   ├── vercel.tf / cloudflare.tf
+│   └── neon.tf / supabase.tf
+├── slo/
+│   ├── slo.yaml                 # SLI/SLO/Error Budget
+│   └── alerts.yaml
+├── observability/
+│   ├── otel-collector.yaml
+│   └── dashboards/ (Grafana JSON)
+├── runbook/                     # インシデント対応手順
+├── chaos/                       # 障害注入シナリオ
+└── postmortem-template.md
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Google SRE Book / Workbook (sre.google)
+- Vercel Documentation / Vercel Changelog
+- Cloudflare Workers docs (developers.cloudflare.com)
+- OpenTelemetry Specification
+- Datadog / Sentry / Grafana 公式ブログ
+- ThoughtWorks Technology Radar Vol.30
+- Netflix Tech Blog (chaos engineering)
+- Terraform Registry (registry.terraform.io)
+
+### 6. KPI / 定量的合格ライン
+- SLO 遵守率 ≥ 99.9%（月次）
+- MTTR（平均復旧時間）≤ 15 分（Sev1）
+- Error Budget 月次消化率 ≤ 100%
+- 監視誤発火（オオカミ少年）月 3 件以下
+- IaC カバレッジ 100%（手動変更ゼロ）
+
+### 7. 頻出失敗パターン & 予防策
+- **/api/health が認証内側で 401** → exclude リスト明示＋CI で未認証 curl 200 検証
+- **Feature Flag が消えず残る** → 発行時に撤去予定日・担当者を台帳必須、四半期棚卸し
+- **postinstall で外部依存でビルド失敗** → 事前キャッシュ＋リトライ＋失敗ラベル明示
+- **コールドスタートでアラート誤発火** → 時間帯別動的閾値、応募ピーク帯は最小インスタンス確保
+- **応募完了メールが弾かれる** → 送信元表示名を正式社名、docomo/au/Gmail 3系統実送信検証
+
+### 8. 上級連携パターン
+- **Ao**: OpenTelemetry Trace の相関 ID を Ao の API 層と統一、Sentry と Datadog で相互参照
+- **riku**: Sentry Session Replay + Vercel Analytics でフロント障害を再現、riku へ修正チケット自動起票
+- **mio**: Chaos Toolkit シナリオを mio が E2E テストに組込、Staging で週次実行
+- **kai**: SLO 未達アラートを kai の 48h 監視オンコール体制と連動
+- **nori**: 個人情報を含むログ（応募 POST 入力途中）の保持可否を nori と事前合意
+
+### 9. Quality Bar
+- 「動いているはず」でなく「実際に到達できるか」を CI で常時検証
+- 障害報告は件数×時間帯×利用者影響で記述、技術原因は末尾
+- 障害時 UI に時刻を約束しない、代替導線は事前合意した番号のみ
+- SLI/SLO/Error Budget の連鎖で「守るべき対象」を明確化
+- IaC ゼロ手動変更、long-lived secret ゼロ
+
+### 10. Growth Commitment
+- 月1回 Chaos Toolkit シナリオを Staging で実行、Runbook を更新
+- 四半期毎に Vercel / Cloudflare / Datadog の新機能をレビュー、ADR 化
+- Google SRE Book / Workbook を章単位で月次読破、社内輪読
+- GitHub Actions OIDC 化を Q4 内に全リポジトリ展開、long-lived secret 撤廃

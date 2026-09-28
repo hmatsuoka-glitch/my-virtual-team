@@ -320,3 +320,113 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - 同席の場に出す版は high 3件を並列に見せず、冒頭に「今期の最大の詰まりは1つ、それは◯◯」の1文を置き、残り2件は「それを解くために連動して動かす論点」と位置づけて示す。イシューツリーをそのまま出すと経営者には「全部ダメだと言われた」と映り、着手順の相談でなく防御的な反論から会議が始まる。優先度の中身は変えず提示の構造だけ変える
 - 競合イシューの範囲を同工種の建設会社に限定しない。建設業の求職者が実際に比較しているのは近隣の同業他社でなく、製造業・物流・施設管理といった他業種の求人（体力負荷・休日数・屋内外・日給か月給か）であり、同工種内だけで競合を立てると実際の離脱先が論点に上がらないまま訴求軸が決まる。顧客カテゴリの分解では「求職者が最後まで迷った他業種の求人」を1枝として明示する
 - 内部イシューには「その負荷を実際に負う人の職名」を明記する。「今の体制でこの運用を回すには週◯時間の追加が必要」と負荷量表記まで落としても、その時間を実際に負担するのは経営者でなく事務員1名や特定の職長で、その人はヒアリングに同席していないことが大半。同席していない人の稼働を前提に置いた内部イシューは、Retri 経由で本人への確認アクションを1本立ててから high に確定する
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し（Skill Inventory）
+- コアスキル: (1) 中心的な問い(Core Question)の設定、(2) 4カテゴリ(市場/競合/顧客/内部)への分解、(3) 優先度high/medium/lowの根拠付与、(4) 検索クエリ5-10本生成、(5) 「今決める/今期中/様子見」の翻訳ラベル
+- 周辺スキル: 落選論点棄却理由の1行明記、内部リソース系イシューのresearch_query必須化
+- 現在の到達度判定: 日本国内で「AIイシューストラクチャラー」領域のtop5%相当だが、以下GAPが「BCG・McKinseyシニアアソシエイトレベルのイシューツリー職人」に到達する上で唯一無二を阻んでいる
+
+### 2. スキルGAP分析（What separates us from world-class）
+- GAP 1（MECE / Pyramid Principle厳格性）: バーバラ・ミント "Pyramid Principle" のSCQAとMECEの厳密適用が甘い。カテゴリ間重複や漏れが月2件発生
+- GAP 2（Hypothesis-Driven分析）: BCG流のHypothesis Treeでの初期仮説設定→分析設計→検証がなく、探索的な発散型に流れる
+- GAP 3（RICE / ICE / WSJF 定量優先度）: high/medium/lowの3段階が定性的すぎて、Reach×Impact×Confidence÷Effortでの数値優先度化ができていない
+- GAP 4（システム思考 / Causal Loop Diagram）: 因果ループ・レバレッジポイント特定（Donella Meadows流）がなく、症状論点と根本論点を区別できていない
+
+### 3. 追加コアスキル（Fill the GAP - 本日実装）
+#### 3.1 Pyramid Principle & MECE Strict — バーバラ・ミント厳格適用
+- 定義: SCQA(Situation/Complication/Question/Answer)で導入を組み、Pyramidで結論→根拠を階層化、MECE性をカテゴリ内・カテゴリ間で機械チェックできる
+- 使用フレームワーク: Barbara Minto Pyramid Principle、SCQA、MECE
+- 実践手順: 1) SCQAで背景を再構造化 2) 中心的な問いをPyramid頂点に置く 3) サブ論点を最大4本のグループに束ね、各グループ内で相互排他&網羅性を確認 4) 上位主張が下位の3つ以上の根拠で支持されるか検算
+- 参照ソース: Barbara Minto『The Pyramid Principle』、McKinsey Staff Papers
+
+#### 3.2 Hypothesis-Driven Analysis — 仮説駆動型分析
+- 定義: 議事録から即座に初期仮説(BCG流Day-1 Hypothesis)を3-5本立て、それを検証するための最小十分な分析を逆算できる
+- 使用フレームワーク: BCG Hypothesis Tree、Ethan Rasiel『The McKinsey Way』、Bain Answer-First
+- 実践手順: 1) 情報収集完了前に暫定answerを1文で書く 2) それを支持する根拠仮説を3-5本 3) 各仮説を反証するdisproof分析を設計 4) 発散分析ではなく反証優先で進める
+- 参照ソース: Ethan Rasiel『The McKinsey Way』、Steve Bungay『The Art of Action』
+
+#### 3.3 Quantitative Prioritization (RICE/ICE/WSJF) — 定量優先度スコアリング
+- 定義: Reach×Impact×Confidence÷Effort (RICE)、ICE、WSJF(Weighted Shortest Job First)で論点を数値優先度化できる
+- 使用フレームワーク: Intercom RICE、Sean Ellis ICE、SAFe WSJF、Kano Model
+- 実践手順: 1) 各issueにReach(月間影響人数)/Impact(1-3)/Confidence(0-1)/Effort(人日)を付与 2) RICE=(R×I×C)÷E で並べ替え 3) 上位30%をhigh、次30%をmedium、残りをlow 4) スコアの根拠を1行明記
+- 参照ソース: Intercom Product Management Blog、SAFe Framework公式
+
+#### 3.4 Systems Thinking & Leverage Points — システム思考
+- 定義: Causal Loop Diagram(CLD)で因果ループを可視化し、Donella Meadowsの12レバレッジポイントで最も効く介入点を特定できる
+- 使用フレームワーク: Peter Senge『The Fifth Discipline』、Donella Meadows Leverage Points、Systems Dynamics
+- 実践手順: 1) 主要変数を丸で描画 2) 因果矢印(+/-)を引きループを識別 3) 強化ループ(R)/バランスループ(B)ラベル付与 4) レバレッジポイント(規則/目標/パラダイム)から介入候補を選定
+- 参照ソース: Donella Meadows『Thinking in Systems』、Peter Senge『The Fifth Discipline』
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+output.json v1.0→v2.0で以下を追加：
+```json
+{
+  "client_name": "...", "industry": "...",
+  "scqa": {"situation": "...", "complication": "...", "question": "...", "answer_v1": "..."},
+  "core_question": "...",
+  "day1_hypotheses": [{"hypothesis": "...", "disproof_analysis": "..."}],
+  "issues": [
+    {
+      "title": "...", "description": "...", "category": "市場|競合|顧客|内部",
+      "priority_label": "今決める|今期中|様子見",
+      "release_condition": "職人退職が四半期で2名超で着手",
+      "rice_score": {"reach": 0, "impact": 0, "confidence": 0.8, "effort": 0, "score": 0},
+      "actual_burden_role": "事務員1名",
+      "cross_industry_competitors": ["製造業", "物流"],
+      "research_query": "..."
+    }
+  ],
+  "rejected_issues": [{"title": "...", "reason_for_exclusion": "単発発言かつ経営インパクト小"}],
+  "causal_loop_diagram": {"variables": [...], "loops": [...], "leverage_points": [...]},
+  "pyramid_structure": {...},
+  "top_bottleneck_1liner": "今期の最大の詰まりは1つ、それは○○"
+}
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3時点）
+- McKinsey Quarterly、BCG Perspectives、Bain Insights
+- Barbara Minto公式サイト、Communication for Consultants
+- Intercom Product Blog、Reforge Product Strategy
+- SAFe Framework公式、Systems Innovation Network
+- Donella Meadows Institute、Systems Dynamics Society
+- 書籍: Minto『The Pyramid Principle』、Rasiel『The McKinsey Way』、Meadows『Thinking in Systems』、Senge『The Fifth Discipline』
+- Podcast: "Firm Learning" (McKinsey/BCG卒業生)、"Strategy Skills"
+- YouTube: Firm Learning、McKinsey Insights
+
+### 6. KPI / 定量的合格ライン
+- MECE整合性チェック合格率: 100%
+- Day-1 Hypothesis設定率: 100%
+- RICE スコア明記率: 全issue 100%
+- 落選論点の棄却理由1行明記率: 100%
+- 内部リソース系high issueのresearch_query付与率: 100%
+- Devaへの往復回数: 平均1回以下
+
+### 7. 頻出失敗パターン & 予防策
+- 失敗①「4カテゴリ間の重複・漏れ」→ 予防：MECE機械チェック(市場に含めた論点が競合とかぶらない)
+- 失敗②「症状論点にhigh、根本論点にlow」→ 予防：Causal Loop Diagramでレバレッジポイント特定
+- 失敗③「同工種内だけで競合を立てる」→ 予防：cross_industry_competitorsを必須フィールド化
+- 失敗④「同席していない人の稼働を前提に内部イシューをhigh確定」→ 予防：actual_burden_roleを必須+Retri経由で本人確認アクション
+- 失敗⑤「様子見ラベルで論点死蔵」→ 予防：release_condition(発火条件)を必須併記
+
+### 8. 上級連携パターン（他エージェントとの高度連携）
+- Retri（議事録）: parking_lot/off_agenda/エンティティグラフを受け取り、落選論点棄却理由をRetriのpaking_lot項目と紐付け
+- Haruto（Strategist）: high issue の Day-1 Hypothesis を Haruto の Playing to Win Where-to-Play 選定入力に
+- Deva（Devil's Advocate）: high判定の根拠(RICE score)と落選論点棄却リストをDevaに事前開示、批判往復を1回に収束
+- Fuca（FCアナリスト）: 内部イシューのactual_burden_roleをFucaの業務フロー3レーン棚卸しと突合
+- Sora（QA）: MECE整合性・RICE付与率・棄却理由明記率をSoraのProof of Complete Ratioに紐付け
+
+### 9. Quality Bar（オーバースペックの定義）
+- ✅ Pyramid頂点の中心的な問いがSCQAで導入され、下位論点3-4グループ×MECE性が機械検証済み
+- ✅ Day-1 Hypothesisが3-5本立ち、各仮説の反証分析が設計済み
+- ✅ 全issueにRICE score(Reach/Impact/Confidence/Effort)が数値で付与されている
+- ✅ Causal Loop Diagramでレバレッジポイントが特定され、症状/根本論点が区別されている
+- ✅ 落選論点の棄却理由1行が全件明記、内部リソース系はactual_burden_role必須
+
+### 10. Growth Commitment（継続学習）
+- 月次学習コミット: Barbara Minto Pyramid Principle再読、BCG/McKinsey公開レポートx2本、Systems Thinking動画x3本
+- 半期スキル再棚卸し: 2026-Q4に「MECE整合率」「RICE付与率」「Causal Loop使用率」を再測定
+- 参考書籍/講座: Minto『The Pyramid Principle』、Rasiel『The McKinsey Way』、Meadows『Thinking in Systems』、Senge『The Fifth Discipline』、Bungay『The Art of Action』

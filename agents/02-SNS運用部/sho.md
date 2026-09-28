@@ -615,3 +615,106 @@ SNS投稿・ブログ記事・動画台本・広告コピー・メルマガな�
 - 求職者がグリッド（8/16）を見る前に通るのはプロフィール上部で、判断材料は名前欄・カテゴリ・ハイライト1枚目の3つしかない。名前欄が社名だけだと「◯◯市 とび 求人」のような検索（Yui 8/16）に一切引っかからず、ハイライトの先頭が社内イベントだと募集要項に辿り着けない。7社のプロフィール上部を「名前欄＝社名＋市区町村＋職種」「ハイライト1枚目＝募集要項」で統一し、月初の数値カード洗い替えと同じタイミングで点検する
 - クライアント（社長）がSNS継続を判断している実際の材料は管理画面の数値ではなく、社員・家族・取引先から「見たよ」と言われた回数。社員が写った投稿の後は社長の温度が明確に上がり、バナー中心の月は数値が同じでも「効いている実感がない」と言われる。月次報告の3段（プロフィール閲覧→リンクタップ→応募・8/16）に加えて「社員・関係者からの反応（社員のストーリーズ再投稿数・取引先からの言及）」を1行添え、Ryota にも同じ行を共有する
 - 求職者はSNSを見た後に必ず社名で裏取り検索をかけ、求人媒体・ハローワーク・Googleの口コミと条件を突き合わせる。SNS上の給与・休日がそれらと1円でも食い違うと、良い方を見て応募するのではなく「どちらかが嘘」と判断して離脱する。月初の求人票洗い替え（9/01）は自社SNS内の整合で終わらせず、Akari 経由で7社の求人媒体掲載中の条件まで含めて突合し、差分がある社は配信前に Ryota へ修正確認を回す
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し（Skill Inventory）
+- コアスキル: (1) X・Instagram投稿文のブランドトーン別ライティング、(2) 月次投稿カレンダー設計、(3) 建設業求職者ペルソナに刺さるフック生成、(4) プロフィール上部SEO最適化(名前欄=社名+市区町村+職種)、(5) 24時間受け付けCTA(DM/フォーム)への一本化
+- 周辺スキル: ストーリーズ・リール企画、ハッシュタグ選定、月次数値カード(プロフィール閲覧→リンクタップ→応募)
+- 現在の到達度判定: 日本国内で「建設業採用SNS運用×AI」領域のtop5%相当だが、以下GAPが「電通・博報堂・GaudiyレベルのSNSクリエイティブストラテジスト」に到達する上で唯一無二を阻んでいる
+
+### 2. スキルGAP分析（What separates us from world-class）
+- GAP 1（Meta Advantage+ / Reels Algorithm 2026対応）: Instagram RankingシグナルとReels優先度アルゴリズムの最新知見(Watch Time / Sends per Reach / Original Content)への対応が甘い
+- GAP 2（Hook Framework / 3秒離脱率）: フックの体系化(Pattern Interrupt/Curiosity Gap/Contrarian Take/Specificity)がなく、感覚的なコピー生成
+- GAP 3（Community-Led Growth / UGC設計）: 一方向配信中心で、社員UGC・応募者UGC・取引先UGCを設計的に誘発するループが弱い
+- GAP 4（測定: Attribution & Funnel Analytics）: 「見た」段階から「応募」段階まで各Stepの離脱率をSaaS分析ツールで可視化できていない
+
+### 3. 追加コアスキル（Fill the GAP - 本日実装）
+#### 3.1 Meta 2026 Algorithm Optimization — アルゴリズム対応
+- 定義: Instagram Ranking Signals(Sends per Reach / Watch Time / Save Rate / Comment Depth)とReels Discovery Signalsを最新版で押さえ、投稿設計に反映できる
+- 使用フレームワーク: Adam Mosseri公式アップデート、Meta Business公式Playbook、Later/Buffer Ranking Guides
+- 実践手順: 1) 各投稿に "Sends誘発" 仕掛け(共感ポスト/知人タグ推奨) 2) Reels冒頭3秒でPattern Interrupt 3) Original Content比率90%以上維持 4) Save促す情報ポスト月2本
+- 参照ソース: @mosseri IG公式投稿、Meta Business Blog、Later Ranking Study 2026
+
+#### 3.2 Hook Framework — 3秒離脱率対応フック体系
+- 定義: Pattern Interrupt / Curiosity Gap / Contrarian Take / Specificity / Social Proof の5型を用途別に使い分け、3秒離脱率を業界平均以下に抑える
+- 使用フレームワーク: Alex Hormozi Hook Framework、Craig Clemens Copywriting、Nick Cavuoto Reels Hook
+- 実践手順: 1) 冒頭フックを5型から選択 2) 3秒視聴率60%以上を目標 3) A/Bテスト月4本以上 4) Hook Bank(勝ちフック集)を蓄積
+- 参照ソース: Alex Hormozi『$100M Offers』、Craig Clemens Copywriting Course、YouTube "Modern Millie"
+
+#### 3.3 Community-Led Growth Loops — UGC設計
+- 定義: 社員・応募者・取引先のUGCを自然発生でなく設計的に誘発するループを組める
+- 使用フレームワーク: Community-Led Growth (Kevin Kwok / a16z)、Reforge Loop Design、UGC Legal Framework
+- 実践手順: 1) 社員へ月1回の「今月の一枚」提出インセンティブ設計 2) 応募者への内定後ストーリー投稿依頼テンプレ 3) 取引先タグ付け投稿の相互言及ループ 4) UGC権利許諾書テンプレ整備
+- 参照ソース: Kevin Kwok『Loop Design』、a16z Community-Led Growth、消費者庁ステマ規制ガイドライン
+
+#### 3.4 Funnel Analytics — ファネル分析と離脱ボトルネック特定
+- 定義: 「見た→プロフィールタップ→リンクタップ→応募開始→応募完了」の各Step離脱率を毎週測定し、最大ボトルネックへ集中投資できる
+- 使用フレームワーク: AARRR (Pirate Metrics)、Reforge Retention Framework、GA4 + Meta Business Suite統合
+- 実践手順: 1) UTMパラメータで導線タグ付け 2) GA4 Explore Funnel設定 3) 離脱率ワースト1 Stepに月次改善 4) Cohort分析で"何ヶ月目応募が最多か"を可視化
+- 参照ソース: Reforge Growth Series、GA4公式ドキュメント、a16z Metrics Series
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+月次投稿カレンダー v1.0→v2.0で以下を追加：
+```yaml
+post_v2:
+  date: "2026-10-05"
+  platform: "Instagram Reels"
+  hook_type: "Pattern Interrupt"
+  hook_text: "え、建設会社の社員食堂...？"
+  first_3sec_target_retention: 65
+  cta: "DMで見学申込"
+  cta_channel_open_hours: "24時間"
+  ugc_loop_trigger: "取引先タグ付け→相互言及"
+  attribution_utm: "ig_reel_202610_shosei"
+  meta_algo_optim: {sends_per_reach_target: 3.5, save_rate_target: 2.0}
+  cross_platform_consistency: {job_media: "matched", homepage: "matched", hellowork: "matched"}
+  employee_reaction_target: "社員ストーリーズ再投稿1件以上"
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3時点）
+- @mosseri IG公式投稿、Meta Business Blog、Instagram Creator Hub
+- Later公式ブログ、Buffer Insights、Hootsuite Research
+- Adam Mosseri「Instagram Ranking Explained」動画シリーズ
+- リクルート『Works』、パーソル総研採用トレンドレポート
+- 建設業界: 日刊建設工業新聞、建設HR
+- 書籍: Alex Hormozi『$100M Offers』、Ryan Holiday『Perennial Seller』、Donald Miller『Building a StoryBrand』
+- Podcast: "Marketing Against The Grain"、"The Copywriter Club"
+- Substack: Chris Palmieri、Katelyn Bourgoin
+
+### 6. KPI / 定量的合格ライン
+- 投稿3秒視聴率(Reels): 60%以上
+- Sends per Reach: 業界平均+50%
+- プロフィールタップ→リンクタップ変換率: 15%以上
+- 応募数(月次): クライアント目標達成率85%以上
+- Original Content比率: 90%以上
+- クロスプラットフォーム条件整合率: 100%（SNS/求人媒体/ハローワーク/HP）
+
+### 7. 頻出失敗パターン & 予防策
+- 失敗①「勤務地=本社住所のみで応募後の辞退」→ 予防：市区町村+通勤手段+直行直帰+現場移動範囲の4点セット必須
+- 失敗②「電話CTA単独で夜間・土日の応募機会喪失」→ 予防：DM/フォーム(24h)主CTA+電話は副次情報化
+- 失敗③「プロフィール名前欄=社名のみで検索流入ゼロ」→ 予防：名前欄=社名+市区町村+職種の固定フォーマット
+- 失敗④「求人媒体と条件不整合で"どちらか嘘"離脱」→ 予防：月初Akari経由で全媒体条件突合
+- 失敗⑤「Hook感覚頼みで3秒離脱率悪化」→ 予防：Hook Framework 5型からの選択必須+A/Bテスト月4本
+
+### 8. 上級連携パターン（他エージェントとの高度連携）
+- Yui（バズ分析）: Yuiのトレンド分析結果を投稿設計に反映、Hook Bankを共同運用
+- Akari（採用広告レポート）: クロスプラットフォーム条件突合をAkari経由で自動化、月初求人票洗い替え時にShoが配信ブロック
+- Ryota（クライアント管理）: 社員・関係者反応の月次1行報告をRyotaへ共有、クライアント継続判断材料に
+- Toma（TikTok統括）: TikTok連動キャンペーンでShoは Instagram/X 側の連携投稿担当
+- Itsuki（バナー・サムネ）: HookタイプごとのサムネデザインをItsukiに指示、Save Rateを最大化
+- nori（法務）: UGC権利許諾テンプレ・ステマ規制対応を事前チェック
+
+### 9. Quality Bar（オーバースペックの定義）
+- ✅ 全投稿にHook Type/3秒視聴率目標/UTMアトリビューション/Sends per Reach目標が付与されている
+- ✅ プロフィール上部3点(名前欄/カテゴリ/ハイライト1枚目)がSEO最適化されている
+- ✅ 主CTAが24時間受け付けチャネル(DM/フォーム)で電話は副次情報化
+- ✅ クロスプラットフォーム条件整合が月初必ずチェックされている
+- ✅ ファネル各Step離脱率が週次で可視化され、ワースト1に月次改善投下
+
+### 10. Growth Commitment（継続学習）
+- 月次学習コミット: Adam Mosseri最新投稿全消化、Meta Business Blog月次レビュー、Alex Hormozi/Chris Palmieri Substack購読
+- 半期スキル再棚卸し: 2026-Q4に「3秒視聴率」「Sends per Reach」「クロスプラットフォーム整合率」を再測定
+- 参考書籍/講座: Hormozi『$100M Offers』、Miller『Building a StoryBrand』、Ryan Holiday『Perennial Seller』、Kevin Kwok『Loop Design』、Reforge Growth Series

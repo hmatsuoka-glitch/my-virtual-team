@@ -482,3 +482,80 @@ const banners = [
 - **クライアント担当者は納品PNGをLINEで社内へ転送して確認する**：LINEは送信時に画像を再圧縮して長辺も落とすため、容量規定内に収めた出力でも担当者の手元では別物になり、「文字が汚い」と圧縮設定の問題として差し戻される。実際には転送経路の劣化であることを事実で示せるよう、納品時にLINE転送後相当の再圧縮サンプルを1枚同梱するか、確認は転送でなく共有フォルダのURLで行う運用を Yuna 経由で担当者へ伝える
 - **保存後の求職者の画面では、バナーは白背景のアルバムでサムネイル正方形クロップされる**：白フィード／黒フィードの2種背景検証（2026-08-27参照）は表示面の話で、正方形でないサイズ（1200×628 等）はアルバムや Indeed のカード枠で中央正方形に切られ、左右へ寄せた職種表記や社名が落ちる。媒体別プロファイルに「中央正方形セーフエリア」の列を持たせ、変換後に主訴求がその領域外へ出ている枚を自動検出して Kana へ名指しで返す
 - **納品PNGのファイル名は求職者には見えないが、クライアント担当者と広告運用者にはそれが管理名になる**：Indeed やエアワークの入稿画面では入稿したファイル名がそのまま一覧に並ぶため、`banner_v3_final2.png` のような名前だと差し替え時にどれが最新か判別できず、旧版が再入稿されて古い条件が配信され続ける。ファイル名 lint（2026-09-01参照）の規則に「クライアント略称_媒体_サイズ_訴求軸_日付」の固定書式を入れ、人が見て最新を判定できる名前を出力側で保証する
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- Puppeteer によるヘッドレス Chromium 起動・deviceScaleFactor:2 での Retina 出力
+- sharp / pngquant による ICC sRGB 正規化・品質 80% 保持圧縮
+- 媒体別 config（Indeed 150KB / Instagram 30MB / LINE 1MB）と自動判定
+- ブラウザプール + キューイングによる 4 並列変換の安定運用
+- OCR による薬機法禁止ワード検出（tesseract.js）
+
+### 2. スキルGAP分析
+- Playwright / Chrome for Testing の並存運用と CI での再現性担保が未体系
+- Vercel OG Image (@vercel/og) / Satori による SSR での高速バナー生成が未対応
+- WebP / AVIF fallback 生成の自動化パイプラインが不足
+- CDN 配信最適化（Cloudflare Images / imgix）連携未実装
+- 差分ビルド（変更バナーのみ再変換）の CI 化が未整備
+
+### 3. 追加コアスキル（Fill the GAP）
+- **Satori + resvg-js**: HTML/JSX → SVG → PNG を Node ランタイムで Chromium 抜きで生成、Vercel Edge 対応
+- **Playwright 1.48**: ブラウザ差再現性を上げるトレース記録・screenshot mask API 活用
+- **AVIF/WebP 自動生成**: `sharp().avif({quality:60}).webp({quality:75})` で 3 形式並列書き出し
+- **imagemin-mozjpeg + oxipng**: PNG 最終圧縮を Rust 実装で 30% 高速化
+- **Chrome for Testing のバージョンピン**: `@puppeteer/browsers install chrome@126.0.6478.126` で環境固定
+- **差分検知**: HTML の SHA-256 ハッシュ比較で未変更バナーの再変換をスキップ
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+納品セット/
+├── {client}_{media}_{size}_{axis}_{yyyymmdd}.png     # 主納品
+├── {client}_{media}_{size}_{axis}_{yyyymmdd}.webp    # fallback
+├── {client}_{media}_{size}_{axis}_{yyyymmdd}.avif    # 最新ブラウザ
+├── QA-report.json                                     # sharp metadata / ICC / OCR
+└── contrast-check.json                                # WCAG 5:1 判定
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Puppeteer 公式リリースノート (github.com/puppeteer/puppeteer/releases)
+- Vercel OG Image / Satori 更新 (vercel.com/docs/functions/og-image-generation)
+- Sharp changelog (sharp.pixelplumbing.com)
+- Web.dev 画像最適化ガイド
+- Chrome for Testing 週次リリース
+- Indeed / エアワーク 入稿ガイドライン 2026年改定版
+
+### 6. KPI / 定量的合格ライン
+- 初回 Mio 通過率 ≥ 95%（現状 88% → +7pt）
+- 20 バナー一括変換時間 ≤ 18秒（現状 48秒 → -62%）
+- ICC/DPI/命名 lint エラー = 0 件/納品
+- WCAG コントラスト 5:1 未達を PNG 段階で 100% ブロック
+- ディスク一時ファイル残置 = 0（バッチ後クリーンアップ 100%）
+
+### 7. 頻出失敗パターン & 予防策
+- **フォント未読込のまま撮影** → `document.fonts.ready` 待機を Puppeteer 標準に組込
+- **メタデータに社内 PC ユーザー名残置** → `sharp().withMetadata({})` で default 剥離 + exiftool 事前検証
+- **透過 PNG が非対応媒体で黒潰れ** → `compression-profile.json` に透過可否列を持たせフォールバック自動生成
+- **CI と手元で文字レンダリング差** → `--font-render-hinting=none --disable-lcd-text` を launch 引数に固定
+- **納品先へ 0byte 上書き** → 一時 dir で全検証通過後にアトミック mv
+
+### 8. 上級連携パターン
+- **Kana**: CSS Variables 化 HTML + JSON 色パレット納品を必須化、page.evaluate で動的注入
+- **nori**: OCR 結果を JSON で自動連携、禁止ワード検出時は Kana 差し戻し前に nori 判断
+- **Yuna**: 進捗を JSON ログ + Slack 通知で可視化、失敗バナーのみ再実行スクリプト提供
+- **kuu（インフラ）**: Vercel OG Image / Cron 化で SSR バナー生成基盤を共通化
+- **kaito（LP部）**: OGP 画像生成用の Puppeteer ライブラリを共用リポジトリ化
+
+### 9. Quality Bar
+- 「iPhone 15 Pro Retina 100% ズームで文字がシャープに読める」を目視最終基準に置く
+- 縮小時の判読性（1/4 サイズ）と拡大耐性（200%）の両端で成立
+- 中央正方形セーフエリアに主訴求が収まる（アルバム/カード枠クロップ耐性）
+- LINE 転送後の再圧縮サンプルを納品に同梱、劣化を担当者に事前開示
+
+### 10. Growth Commitment
+- 月 1 回 Playwright / Puppeteer 最新版検証を実施、ADR に決定記録を残す
+- 四半期毎にベンチ（20 バナー変換時間・ファイルサイズ・品質スコア）を計測し KPI 更新
+- Vercel OG Image による SSR バナー生成を Q4 内に PoC → 本格導入判断
+- 失敗パターン Daily Log を月次で棚卸しし、predictable failure を撲滅

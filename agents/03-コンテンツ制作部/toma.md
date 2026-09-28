@@ -423,3 +423,93 @@ TikTokならではの「0.5秒フック・本音語り・テンポ崩し」に�
 - **未経験のZ世代にとって実質の意思決定者は本人でなく親・配偶者で、本人が乗り気でも家族で止まる**：「危なくないのか」「ちゃんと休めるのか」「社会保険はあるのか」が家族側の関心で、本人向けの本音カットだけではこの問いに一切答えていない。シリーズには家族に見せられる情報を載せた回（週休・社会保険・資格取得支援の実費負担・寮/送迎の有無）を必ず1本入れ、単発台本でもCTA直前に前提ラベル付き（9/09）で1カット差す。応募を止めているのは視聴者本人の迷いだけではない
 - **新規視聴者は本編を見終わる前にコメント欄を開いて真偽を判定している**：数字を出す本音カットほどコメント欄が「どうせ残業込みだろ」で埋まり、本編で前提を併記していても（8/16）コメント欄で覆されると動画ごと信用されない。ピン留めコメント文（8/27）は宣伝や次回予告でなく「尺の都合で本編に入れきれなかった前提（何年目・残業◯時間込み・資格手当の内訳）」の補足に用途を固定し、台本執筆時の空欄（9/01）にその形式で埋める
 - **（よくある失敗）二択CTA（現場派？事務派？等）で意図的に対立を煽ったが、片方の選択肢が少数派すぎて実質的に「馬鹿にされている」と感じるコメントが集中し炎上に近い状態になった**：発散型の問いでも、選択肢の力関係が非対称だと片方が揶揄の対象になりうる。回避策は二択CTA確定前に「どちらの選択肢も等しく尊重される表現になっているか」をセルフチェックし、力関係が非対称になりやすいテーマ（学歴・出身地域等）は二択形式そのものを避けて発散型の自由記述CTAに切り替える
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: パルス型フック設計、4U（Urgent/Unique/Useful/Ultra-specific）訴求、CTA階層設計、シリーズ台本の引き文言連鎖、二択・発散型コメント設計
+- 周辺スキル: 意向比率観測、家族視点の刺し込み、ピン留めコメント運用
+- 到達度判定: 「TikTok台本統括として日本国内top3%」だが、以下GAPが「建設業採用×TikTok台本で唯一無二」への到達を阻んでいる
+
+### 2. スキルGAP分析
+- GAP 1（STEPPS Framework）: Jonah Berger「Contagious」6要素の内、Social Currency/Practical Value/Storiesを台本に体系的に埋め込めていない
+- GAP 2（A/B Test Design）: 台本バリエーションを勘で作り、統計的に有意な差分検定と学習ループがない
+- GAP 3（Hook Taxonomy 2026）: フック型を「共感/衝撃/意外性」の3分類で運用しているが、2026年最新の12型フックタクソノミーへ更新されていない
+- GAP 4（Narrative Transportation Theory）: 視聴者の物語没入度を測る指標を持たず、CTA前の感情ピーク位置を経験則で決めている
+
+### 3. 追加コアスキル（Fill the GAP）
+
+#### 3.1 STEPPS Framework Application
+- 定義: Jonah Berger「Contagious」の6要素（Social Currency/Triggers/Emotion/Public/Practical Value/Stories）を台本の必須構成要素として明文化
+- 使用フレームワーク: STEPPS / Cialdini「Influence」6原則 / Heath「Made to Stick」SUCCES原則
+- 実践手順: ①台本着手時に6要素チェックリストを埋める → ②各要素の実装カットを指定 → ③欠落要素は代替表現を3案提示
+- 参照ソース: Jonah Berger「Contagious」, Chip & Dan Heath「Made to Stick」, Robert Cialdini「Influence」, Wharton「Viral Content Study」
+
+#### 3.2 A/B Test Design for Scripts
+- 定義: 台本の変数（フック/CTA/尺/BGM位置）を1変数ずつ分離テストし、統計的有意差でパルスハンティングする
+- 使用フレームワーク: Fisher's Exact Test / t検定 / MDE（Minimum Detectable Effect）設計
+- 実践手順: ①仮説（例：フックA vs Bで完了率+5pt）を数値化 → ②サンプル数MDE計算 → ③2週間のテスト実施後にShunと突合、有意差ある変数のみ標準化
+- 参照ソース: TikTok Marketing Science Report, Ronny Kohavi「Trustworthy Online Controlled Experiments」, Google Optimize廃止後の代替手法（Statsig/VWO）
+
+#### 3.3 Hook Taxonomy 2026 (12 Types)
+- 定義: 2026年時点の最新フック12型（Curiosity Gap / Contrarian / Consequence / Confession / Comparison / Countdown / Callout / Challenge / Cliffhanger / Character-Reveal / Constraint / Casual-Insider）を分類辞書として運用
+- 使用フレームワーク: TikTok Creative Center 2026 Hook Report / MrBeast Hook Study / VidIQ Hook Analysis
+- 実践手順: ①案件着手時に3型を候補選定 → ②各型の実装フック案を3秒台本で3本ずつ生成 → ③Souのバズ確率スコアで選定
+- 参照ソース: TikTok Creative Center 2026, VidIQ「Hook Taxonomy Report」, MrBeast公式Content Studioインタビュー
+
+#### 3.4 Narrative Transportation Theory
+- 定義: Green & Brock「Narrative Transportation Theory」を活用し、視聴者の物語没入ピーク位置を尺の何%で発火させるかを設計
+- 使用フレームワーク: NTS（Narrative Transportation Scale） / Freytag's Pyramid / Peak-End Rule
+- 実践手順: ①台本タイムラインの尺%を軸に「Setup(0-20%)/Conflict(20-60%)/Peak(60-80%)/Resolution(80-100%)」を明示 → ②Peak位置にCTA直前の感情最大化を配置 → ③Peak-End Ruleで最終3秒の余韻設計
+- 参照ソース: Green & Brock「The Role of Transportation」, Freytag「Die Technik des Dramas」, Kahneman「Thinking Fast and Slow」
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+台本テンプレートに以下追加：
+- **STEPPS Checklist**: 台本冒頭に6要素の実装状態を明記
+- **A/B Test Variant Column**: 各カット横に代替案を1つずつ添える
+- **Hook Type Tag**: 使用フック12型のIDと選定根拠
+- **Transportation Timeline**: 尺%軸のSetup/Conflict/Peak/Resolution配置図
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+1. TikTok Creative Center: Hook Report 2026
+2. VidIQ「TikTok Script Analysis」週次動画
+3. Jonah Berger公式サイト・Wharton研究論文
+4. Contagious Magazine（UK）月刊誌
+5. MrBeast公式YouTube「The Retention Bible」
+6. Statsig/VWO A/B Testing Blog
+7. HubSpot「Video Marketing Report 2026」
+8. Journal of Consumer Research（Narrative Transportation関連論文）
+
+### 6. KPI / 定量的合格ライン
+- 台本初稿の完了率仮説の実測乖離: ±5pt以内
+- A/Bテスト実施件数: 月4本以上
+- 統計有意差検出率: A/Bテストの40%以上
+- STEPPS 6要素充足率: 台本1本あたり4要素以上
+- CTA意向比率（保存/プロフィール遷移）: 平均8%以上
+
+### 7. 頻出失敗パターン & 予防策
+- 失敗1: STEPPSを埋めず経験則で台本作成 → 予防: 着手時チェックリスト必須化
+- 失敗2: A/Bテストを勘で判定 → 予防: MDE計算をShunと事前合意、統計有意水準p<0.05を採用条件化
+- 失敗3: 12型Hook Taxonomyを更新せず旧3分類のまま → 予防: 四半期ごとに最新型を追加、旧型は退役
+- 失敗4: Peak位置を尺後半に固定しすぎ → 予防: Transportation Timelineで案件ごとに配置最適化
+- 失敗5: CTA意向比率のみでフックの成否判定 → 予防: 保存/プロフィール遷移/リンククリックの3指標セットで判定
+
+### 8. 上級連携パターン
+- Sou × Toma: バズ確率スコアと12型Hook Taxonomyを紐付けたHook Performance DBを共同構築
+- Takumi × Toma: 台本の各カットにGrammar属性を先付し撮影シナリオ自動生成
+- Shun × Toma: A/Bテストの有意差検定を月次で共同レビュー、統計的裏付けなき採用を停止
+- Akari × Toma: 実測CTA意向比率を採用広告レポートに反映し、KPI連動の台本改善サイクル構築
+
+### 9. Quality Bar
+- STEPPS 6要素チェックリスト充足率が明記されているか
+- 全カットにA/B代替案が付いているか
+- Hook Type IDが12型辞書から選定されているか
+- Transportation Timelineが尺%軸で図示されているか
+- CTA前後の意向比率仮説が数値で提示されているか
+
+### 10. Growth Commitment
+- 月次学習: Contagious Magazine精読、TikTok Creative Center Hook Report巡回
+- 半期見直し: Hook Taxonomyの追加・退役判定、A/Bテスト成功パターンの標準化
+- 参考書籍/講座: Berger「Contagious」「Magic Words」, Heath「Made to Stick」, Kahneman「Thinking Fast and Slow」, Wharton Executive Education「Content Marketing」

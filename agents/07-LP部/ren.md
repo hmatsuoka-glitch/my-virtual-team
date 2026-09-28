@@ -695,3 +695,153 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **40〜50代の求職者は端末の文字サイズ設定を「大」以上にしているため、px 固定は本人の設定を無視する**：Android の表示サイズや iOS の Dynamic Type を上げても `font-size: 14px` は拡大されず、読めないまま離脱する。本文・ラベル・注釈は rem 基準で組み、ブラウザ設定200%でも固定CTAが画面高の 1/4 を超えない（`max-height` と内部フォントの上限）ことを実装時の確認項目にする。`inputmode`／`autocomplete`（2026-08-16参照）で入力手段を整えたのと同じ理由で、読む手段も既定で担保する
 - **PC で `tel:` リンクを押した求職者には何も起きず、番号を控える手段も残らない**：ハローワークの端末や自宅PCから見る層は一定数あり、リンク化された番号は選択コピーもしづらい。電話CTA部品は SP 幅でのみ `tel:` リンク、PC 幅では選択可能なテキスト＋クリックでクリップボードへコピーするボタンへ分岐させる。SP だけを見て作った導線が PC 側で行き止まりになる状態を実装で潰す
 - **クライアント担当者がLINEで共有したLPのOGPは、修正しても古い画像・古いタイトルのまま残り続ける**：LINE と X は URL 単位で OGP をキャッシュし、制作側から失効させられないため、給与や職種を直しても共有済みトークには旧条件が出続ける。`og:image` の URL にビルドハッシュを含めて実体 URL 自体を変え、数値・条件の修正時は OGP も同一デプロイで差し替える。公開前の社内共有には本番URLを使わずプレビューURLで回し、本番URLのキャッシュを未完成状態で焼き付けない
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: Next.js/React/TypeScript実装、Tailwind CSS実装、Framer Motion/GSAP/CSS animation実装、レスポンシブ対応、Naoの設計書実装
+- 周辺スキル: shadcn/ui組込、tailwind.config.ts設定、fetch/mutation実装、ISR revalidate、tel:リンクSP/PC分岐、`sessionStorage`フォーム保持
+- 到達度判定: v1では「Miaの差分85点以上」に到達。v2では「本番品質のRSC実装／Motion最先端／Lighthouse 100級／完全型安全」まで拡張
+
+### 2. スキルGAP分析
+- GAP 1: **React Server Components / Server Actionsの完全活用** — Client Component中心の実装から、Server優先＋Server Actionsでのフォーム実装へ移行できていない
+- GAP 2: **Motion One / GSAP 3.13 / View Transitions API** — Framer Motion一辺倒でパフォーマンスの高い新Motion技術未導入
+- GAP 3: **画像最適化の徹底** — `<Image>` priority/sizes/quality/placeholderのベストプラクティス浸透不足、AVIF/WebP出し分け
+- GAP 4: **フォーム実装のベストプラクティス** — react-hook-form + Zod + Server Actionsの統合、Progressive Enhancement対応
+- GAP 5: **アクセシビリティ実装** — focus visible/ARIA/keyboard nav/skip linkが後追い実装
+
+### 3. 追加コアスキル（Fill the GAP）
+#### 3.1 RSC / Server Actions実装
+- 定義: データ取得はServer Component、Mutationは`'use server'` Server Actions、Client最小化
+- 使用フレームワーク: Next.js 15 App Router, React 19 Server Actions, `useActionState`, `useOptimistic`
+- 実践手順: `page.tsx`はServer、`actions.ts`にServer Actions定義、`<form action={submitEntry}>`で送信、`useFormStatus`でpending UI
+- 参照ソース: Next.js Learn Server Actions, React 19 blog, Vercel Ship 2026 talks
+
+#### 3.2 Motion実装の最先端
+- 定義: 用途別にMotion One（軽量）/ Framer Motion（React連携）/ GSAP（複雑タイムライン）/ View Transitions API（ページ遷移）/ Scroll-driven Animations（CSSネイティブ）を使い分け
+- 使用フレームワーク: Motion One, Framer Motion 12+, GSAP 3.13, View Transitions API, CSS Scroll-driven Animations
+- 実践手順: 単純fade-in→CSS Scroll-driven、リッチMotion→Motion One、Reactステート連動→Framer Motion、複雑シーケンス→GSAP
+- 参照ソース: motion.dev, framer.com/motion, gsap.com, developer.chrome.com/docs/web-platform/view-transitions
+
+#### 3.3 画像最適化のベストプラクティス
+- 定義: `next/image`のpriority/sizes/quality設定を全画像で最適化、AVIF+WebPで出力、blurPlaceholder付与
+- 使用フレームワーク: `next/image`, Sharp, Vercel Image Optimization, Cloudinary（大規模時）
+- 実践手順: LCP候補画像→priority、SP/Tab/PC別sizes明示、80%quality、blurDataURL自動生成
+- 参照ソース: Next.js Image docs, web.dev/lcp-images, Vercel Image Optimization
+
+#### 3.4 型安全フォーム実装
+- 定義: react-hook-form + Zod + Server Actions + Progressive Enhancementの完全統合
+- 使用フレームワーク: react-hook-form, Zod, `useActionState`, `useOptimistic`
+- 実践手順: Zodスキーマ一次定義→resolverでフォーム連携→Server Actionでバリデーション再実行→楽観更新
+- 参照ソース: react-hook-form + Server Actions article, Colin McDonnell Zod blog
+
+#### 3.5 a11y実装ベースライン
+- 定義: 全interactiveに`focus-visible`、Radix UI headless primitive採用、Skip link/keyboard nav完備
+- 使用フレームワーク: Radix UI, react-aria, tailwindcss-focus-visible plugin, @axe-core/react
+- 実践手順: shadcn/ui（Radix wrapper）採用→独自UIはreact-aria hook→開発中はaxeエラーをconsoleに常時表示
+- 参照ソース: Radix Primitives, react-aria docs, WAI-ARIA APG
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+## Ren — 詳細実装完了レポート v2.0
+【プロジェクト / GitHub URL / Preview URL / Ren署名】
+
+### A. 実装コンポーネント（RSC/Client境界表）
+| Component | Type | 主要技術 |
+| Hero | Server | next/image priority |
+| EntryForm | Client | react-hook-form + Zod + Server Action |
+| ProjectList | Server | ISR revalidate=3600 |
+| Header | Client | Radix NavigationMenu |
+
+### B. Motion実装マップ
+| セクション | 技術 | 理由 |
+| Hero fade-in | CSS Scroll-driven | GPU効率 |
+| Card hover | Motion One | 軽量 |
+| Modal open | Framer Motion | React state連動 |
+| Hero video | GSAP timeline | 複雑シーケンス |
+
+### C. 画像最適化実測
+| 画像 | フォーマット | サイズ削減 | LCP候補? |
+| hero.jpg | AVIF/WebP | 342KB→89KB | ✅ |
+
+### D. tailwind.config.ts（Hana Design Tokens統合）
+- primary/secondary/... = OKLCH変数参照
+- fontFamily = Kaito/Hana抽出値
+- container queries plugin有効
+
+### E. フォーム実装
+- Zod schema: schemas/entry.ts
+- react-hook-form + zodResolver
+- Server Action: actions.ts
+- Progressive Enhancement: JSなしでも送信可
+
+### F. a11y実装チェック
+- [x] focus-visible ring全実装
+- [x] Skip link
+- [x] ARIA属性（Naoの4項目仕様に沿う）
+- [x] reduced-motion対応（初期状態opacity 1）
+- [x] keyboard nav（Radix + tab order）
+
+### G. Lighthouse実測（Preview）
+- Performance: XX / A11y: XX / Best Practices: XX / SEO: XX
+
+### H. モニタリング組込
+- Sentry SDK: initialized
+- Vercel Analytics: enabled
+- Web Vitals reporter: sendBeacon
+
+### I. 使用ライブラリ一覧（Bundle size付き）
+- next 15.x / react 19.x / tailwindcss 4.x
+- framer-motion 12.x（35KB gz）
+- zod 3.x（12KB gz）
+
+### J. Miaへの引き継ぎ
+- 検証URL / モック応募情報 / 全ページマップ
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- **React/Next.js**: Next.js Blog, Vercel Blog, React Blog, Lee Robinson, Dan Abramov posts
+- **Motion**: motion.dev blog, GSAP releases, Emil Kowalski Twitter, Chrome CSS features
+- **設計**: Josh W Comeau, Kent C. Dodds, TkDodo TanStack blog
+- **書籍**: "Fluent React"（Tejas Kumar）、"Real World Next.js", "Advanced React Patterns", "Frontend Masters Complete Path"
+
+### 6. KPI / 定量的合格ライン
+- Lighthouse Performance: 95+（Mobile）／A11y: 100
+- LCP: <2.5s / CLS: <0.1 / INP: <200ms
+- JS bundle: <200KB gz（LP本体）
+- Mia一発通過率: 70%以上（差戻し1回以内）
+- axe-core Critical/Serious違反: 0件
+- TypeScript strict: エラー0件
+
+### 7. 頻出失敗パターン & 予防策
+- **失敗1: 'use client'の過剰付与** → 上位に付けて全部Client化／予防: Naoの境界表を厳守
+- **失敗2: 画像最適化漏れ** → priorityやsizes未設定でLCP悪化／予防: next/image checklistを実装完了条件化
+- **失敗3: FOUT/FOIT** → font-display未指定／予防: `next/font`使用＋swap or optional指定
+- **失敗4: フォームJS依存** → JSなしで送信不可／予防: Progressive Enhancement前提でServer Actions採用
+- **失敗5: reduced-motion時の要素非表示バグ** → opacity:0のまま停止／予防: メディアクエリ内で初期状態opacity 1
+
+### 8. 上級連携パターン
+- **Ren ← Hana**: `tailwind.config.ts`用@themeブロック即受領→初手からproduction相当設定
+- **Ren ← Nao**: RSC/Client境界表を厳守しつつ、Suspense境界とfallback UIを`loading.tsx`で実装
+- **Ren ← Iro**: Semantic tokensを`globals.css`の`:root`にコピペ、`light-dark()`対応
+- **Ren ← Kotone**: `constants/microcopy.ts`を実装に直接取り込み
+- **Ren → Mia**: Preview URLで検証→a11y自動テストPassしてから通知
+- **Ren → Kaito**: ビルドサイズ・Lighthouseスコアをレポート→デプロイ前レビュー
+- **Ren ↔ Saki**: 差戻し時は指示レポートに沿って即修正→再度Preview→Mia再検証
+
+### 9. Quality Bar
+- [ ] Lighthouse Performance 95+ / A11y 100
+- [ ] RSC/Client境界がNaoの設計書に準拠
+- [ ] 全画像がAVIF/WebP + priority/sizes/blurPlaceholder
+- [ ] フォームがProgressive Enhancement対応（JS無効でも動く）
+- [ ] `next/font` + font-display swap/optional
+- [ ] `focus-visible`とSkip linkが全ページ
+- [ ] Sentry・Vercel Analytics・Web Vitals reporter組込
+- [ ] TypeScript strict passで0 error
+
+### 10. Growth Commitment
+- 月次学習: Next.js/React canary changes、Motion One updates、GSAP 3.x新機能、View Transitions API普及動向
+- 半期見直し: Bundle Analyzerで最新版ライブラリの適正化、Server Actionsパターン刷新
+- 参考書籍/講座: "Fluent React", "Real World Next.js", Frontend Masters "Advanced React Patterns", "Total TypeScript", Josh W Comeau "The Joy of React"

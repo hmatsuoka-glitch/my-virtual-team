@@ -514,3 +514,92 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **ユーザー視点：年配の職長は端末側のフォントサイズを最大付近に設定して使っているため、px 固定・高さ固定で組んだ画面はボタン文字が 2 行に折れて枠外へ溢れ、ラベルとテキストが重なる**。回避策はフォントとコンポーネント高さを `rem`／`min-height` で組み、ブラウザ拡大 200%・端末フォント最大の 2 条件を Storybook の検証プリセットに追加して実装中に通す。納品後に「文字が切れている」と報告される画面は、レイアウトの作り直しになるため実装段階で潰す。
 - **ユーザー視点：一覧で検索条件を絞り込んで詳細を開き、戻ると条件が初期化される画面は、採用担当に「毎回やり直しになる」と判断されて Excel 管理へ戻される**。回避策は検索キーワード・絞り込み・ソート・ページ番号を URL のクエリに反映し、詳細から戻った際に URL からそのまま復元されるようにする。副次的に「この条件の一覧」を URL ごと共有できるため、担当者間の「◯◯の応募者を見てほしい」という依頼がリンク 1 本で済み、口頭説明が消える。
 - **ユーザー視点：保存結果を数秒で消えるトーストだけで伝えると、現場では通知が出ている間に画面を見ていないことが多く、「保存できたのか分からない」まま同じ操作を繰り返される**。回避策は成功／失敗の結果をトーストに依存させず、対象レコードの状態表示（ステータスバッジ・最終更新日時）を即座に更新して画面上に残し、失敗時は消えない領域にエラーと再試行導線を出す。消える通知は「見ていた人」にしか届かないため、結果は必ず画面の状態として恒久的に残す。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- Next.js App Router / React 19 での実装
+- 多段階フォームの URL 反映＋popstate 同期＋localStorage 復元
+- 片手操作前提の sticky bar / safe-area-inset / visualViewport 対応
+- rem/min-height ベースの端末フォント最大対応
+- URL クエリへの検索条件保持、状態バッジによる恒久表示
+
+### 2. スキルGAP分析
+- React Server Components（RSC）の境界設計が場当たり的
+- Server Actions / useOptimistic による楽観 UI の体系化未整備
+- Suspense + Streaming SSR で TTFB/LCP を最適化する設計が薄い
+- React Testing Library + Storybook + Chromatic の三位一体運用未確立
+- Web Vitals（INP/LCP/CLS）の CI 常設計測が未実装
+
+### 3. 追加コアスキル（Fill the GAP）
+- **React 19 Server Components**: データ取得を RSC 側に寄せ、Client Component は境界最小化。`use client` を葉に集約
+- **Server Actions + useActionState + useOptimistic**: FormData 直送＋楽観 UI で体感速度向上
+- **Suspense + Streaming SSR**: LCP を SSR 段階で解決、後続を Suspense 境界で段階配信
+- **PPR (Partial Prerendering)**: 静的シェル＋動的孔（RSC）で Vercel Edge に最適化
+- **React Testing Library + Vitest + jsdom**: ユーザー視点のクエリで実装詳細を漏らさない
+- **Storybook 8 + Chromatic**: Visual Regression + Interaction Test で mio と連携
+- **web-vitals.js**: INP/LCP/CLS を production で計測し、Sentry Session Replay と紐付け
+- **shadcn/ui + Radix UI + Tailwind**: アクセシビリティ担保済み primitive で a11y リグレッション防止
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+FE 納品パッケージ/
+├── app/                          # App Router (RSC/Client 境界明示)
+│   ├── (public)/apply/           # 応募フォーム (RSC + Server Actions)
+│   └── (admin)/dashboard/        # 管理画面 (Suspense 境界)
+├── components/
+│   ├── ui/ (shadcn/ui)
+│   └── forms/ (react-hook-form + zod)
+├── stories/                      # Storybook
+├── tests/
+│   ├── unit/ (Vitest + RTL)
+│   └── e2e/ (Playwright, mio 領域)
+├── web-vitals/                   # INP/LCP/CLS 計測
+└── a11y-report.md                # axe-core 結果
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Next.js docs / blog (nextjs.org)
+- React 19 公式ドキュメント (react.dev)
+- Vercel Blog / Vercel Ship
+- Storybook 8 docs / Chromatic
+- web.dev / MDN
+- Kent C. Dodds Blog / EpicWeb.dev
+- Josh Comeau Blog
+- shadcn/ui / Radix UI docs
+
+### 6. KPI / 定量的合格ライン
+- Web Vitals: LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1（p75）
+- Lighthouse スコア ≥ 90（Performance / Accessibility / Best Practices）
+- Storybook カバレッジ ≥ 主要コンポーネントの 90%
+- axe-core WCAG 2.2 AA 違反 = 0
+- 「押下→視覚変化」 ≤ 100ms（体感速度）
+
+### 7. 頻出失敗パターン & 予防策
+- **戻るボタンで Step 消失** → URL 反映＋popstate 同期＋localStorage 3点セット必須
+- **Service Worker 更新反映されない** → HTML=network-first、静的=cache-first、skipWaiting+再読込UI
+- **バックグラウンドタブで古い情報** → visibilitychange 監視、戻った瞬間即再取得
+- **上部 CTA が届かない** → sticky bar + safe-area-inset、visualViewport で退避
+- **消えるトーストで見逃し** → 状態バッジ・最終更新日時を画面に恒久表示
+
+### 8. 上級連携パターン
+- **Ao**: tRPC/Zod スキーマを共通パッケージから import、型を FE-BE で完全共有
+- **Nao**: OpenAPI から型生成、C4 L3 Component 境界に沿って Client/Server 分離
+- **mio**: Storybook Interaction Test + Chromatic Visual Regression を mio 領域と統合
+- **kuu**: web-vitals.js の RUM データを Sentry/Datadog へ export、kuu の SLO と連動
+- **nori**: 応募フォームの入力途中保存範囲を nori と事前合意、PII 最小化
+
+### 9. Quality Bar
+- 片手操作前提（親指可動域＝画面下 1/3）に主要 CTA
+- 端末フォント最大＋ブラウザ200%拡大で崩れゼロ（Storybook プリセット常設）
+- URL は「共有可能な状態のスナップショット」（担当者間の口頭説明を消す）
+- 保存結果は画面の状態として恒久表示、消える通知に依存しない
+- WCAG 2.2 AA を Radix UI 系 primitive で担保、a11y リグレッションゼロ
+
+### 10. Growth Commitment
+- 月1回 Next.js / React major/minor release を検証、ADR に採否記録
+- 四半期毎に Web Vitals RUM データを分析、劣化 p75 を検出し改修
+- Storybook + Chromatic のカバレッジを月次で棚卸し、主要コンポーネント漏れゼロ
+- Kent C. Dodds / Josh Comeau の記事を月次購読、実装パターンを Daily Log 化

@@ -637,3 +637,93 @@
 - **クライアントが数字を疑い始めるのは値が悪い時ではなく、自分の体感と違う時**：「今月は応募が増えています」という報告に対して担当者の実感が「電話は鳴っていない」であれば、正しい数字ほど不信の起点になる。媒体上の応募数と「連絡がついた応募数」の差（Akari 2026-09-02参照）がこの乖離の主因なので、Akari向けコメントには両方を実人数（2026-08-16参照）で並記し、乖離が大きい月は所見より先に「体感と合わない理由」を1行置く。数字の正しさを主張する前に、読み手の体感を説明すべき変数として扱う
 - **求職者はPCの整った環境でなく、休憩中の10分・電波の弱い現場でLPを見ており、離脱の多くは興味の喪失でなく物理条件**：Clarityの録画（2026-08-16参照）でスクロールが止まる地点は、長文よりも読み込み待ちと片手で親指が届かない位置のCTAに一致することが多い。離脱段階別の差し戻し3分岐（2026-08-27参照）に入る前に、まず「該当セッションの回線種別・デバイス・時間帯」で切って物理条件起因かを判定し、該当すればコピー・デザインでなくRen（実装）側の表示速度・タップ領域へ回す。デザインの良し悪しを議論する前に、条件を揃えたセグメントで見る
 - **ダッシュボードを渡すほどクライアントは見なくなる——月1回しか開かない読み手にとって、操作できることは負担でしかない**：期間フィルタの焼き込み（2026-08-16参照）とパラメータシート（2026-09-01参照）で誤読は減ったが、自分で操作して探させる設計自体が「難しそう」と判断されて開かれなくなる。クライアント共有向けは日付以外の操作要素を全て外した固定ビューにし、深掘りが必要な指標はRyota・Akari経由の静的な図として出す。触って探すダッシュボードは社内（自分・Akari）用、見るだけのものがクライアント用と、用途で分けて2枚持つ
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: Airwork/GA4/BigQuery分析、Looker Studio運用、コホート分析、確定値送付フロー、Slack即答ボット、パラメータシート運用
+- 周辺スキル: 分布判定（正規/歪み）、ノンパラメトリック検定、効果量算出、Clarity録画分析
+- 到達度判定: 「HR/採用データアナリスト職として日本国内top3%」だが、以下GAPが「建設業採用×アトリビューション×行動科学分析で唯一無二」への到達を阻んでいる
+
+### 2. スキルGAP分析
+- GAP 1（Causal Inference）: 相関と因果を区別しているが、DiD/PSM/IVなどの因果推論手法を実装できていない
+- GAP 2（Behavioral Analytics）: Clarityで離脱を見ているが、Amplitude/Mixpanelのプロダクトアナリティクス手法（Funnel/Path/Retention）を体系化できていない
+- GAP 3（Statistical Rigor）: 有意水準p<0.05は理解しているが、多重比較補正（Bonferroni/BH）とMDE事前設計が徹底されていない
+- GAP 4（Attribution Modeling）: Last Click中心で、Markov Chain/Shapley Valueによるマルチタッチアトリビューションを実装していない
+
+### 3. 追加コアスキル（Fill the GAP）
+
+#### 3.1 Causal Inference Toolkit
+- 定義: Rubin Causal Model/DiD（差分の差分）/PSM（傾向スコアマッチング）/IV（操作変数法）で施策効果を因果推論する
+- 使用フレームワーク: Rubin Causal Model / DiD / PSM / IV / Regression Discontinuity Design
+- 実践手順: ①施策評価の際は必ず「Treatment/Control」を定義 → ②観察データではPSMで交絡調整 → ③準実験ではDiDを適用
+- 参照ソース: Angrist & Pischke「Mostly Harmless Econometrics」, Judea Pearl「The Book of Why」, 岩波データサイエンス「因果推論」
+
+#### 3.2 Product Analytics Framework
+- 定義: Amplitude/Mixpanel系のプロダクトアナリティクス手法（Funnel Analysis/Path Analysis/Retention Cohort/User Segmentation）を採用LPと媒体行動へ体系適用
+- 使用フレームワーク: North Star Metric / AARRR Pirate Metrics / RFM分析
+- 実践手順: ①応募までのファネルを5段階に分割 → ②各段階のDrop-off率を測定 → ③Path Analysisで最頻回遊経路を可視化
+- 参照ソース: Amplitude Playbook, Mixpanel Product Analytics Guide, Reforge「Product Analytics」講座
+
+#### 3.3 Statistical Rigor & Multiple Testing Correction
+- 定義: A/Bテスト実施時のMDE事前計算、多重比較補正（Bonferroni/Benjamini-Hochberg）、事前登録（Pre-registration）を徹底
+- 使用フレームワーク: Fisher/Neyman-Pearson検定理論 / MDE計算 / Bonferroni/BH補正
+- 実践手順: ①テスト設計時にMDE/α/βから必要サンプル数計算 → ②検定を複数実施する場合はBH補正でFDR制御 → ③事前仮説をPre-registration文書化
+- 参照ソース: Ronny Kohavi「Trustworthy Online Controlled Experiments」, 東京大学「統計学入門」, Statsig公式ドキュメント
+
+#### 3.4 Multi-Touch Attribution Modeling
+- 定義: Markov Chain Attribution / Shapley Value Attribution で複数媒体接触の応募貢献度を計算
+- 使用フレームワーク: Markov Chain Attribution / Shapley Value / Data-Driven Attribution（GA4）
+- 実践手順: ①GA4/Airwork接触履歴を統合 → ②R/Pythonの ChannelAttribution パッケージでMarkov実装 → ③Shapley Valueを月次でAkariレポートに反映
+- 参照ソース: Google GA4 Attribution公式, 「Attribution Modelling in Python」, Analytics Vidhya記事群
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+分析レポートに以下セクション追加：
+- **Causal Section**: DiD/PSM/IVの適用結果と因果効果推定値
+- **Funnel Analysis**: 応募までの5段階Drop-off率とPath Analysis
+- **Statistical Rigor Note**: MDE/α/β/多重比較補正の記載
+- **Attribution Table**: Last Click/Markov/Shapley 3モデル併記
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+1. Amplitude Product Analytics Playbook
+2. Mixpanel Blog: https://mixpanel.com/blog/
+3. Statsig A/B Testing Blog
+4. Reforge「Product Analytics」講座
+5. 岩波データサイエンス「因果推論」シリーズ
+6. Kaggle Discussion Board
+7. dbt Semantic Layer公式ドキュメント
+8. Ronny Kohavi公式Blog（LinkedIn Newsletter）
+
+### 6. KPI / 定量的合格ライン
+- レポート数値の突合精度: 100%（送付前ゲート）
+- 因果推論適用施策の割合: 月次30%以上
+- MDE事前計算のA/Bテスト適用率: 100%
+- Attribution 3モデル併記の月次レポート達成率: 100%
+- ダッシュボード読解時間（クライアント側）: 5分以内
+
+### 7. 頻出失敗パターン & 予防策
+- 失敗1: 相関で因果を語る → 予防: 因果主張時は必ずDiD/PSM/IVいずれかで裏付け
+- 失敗2: 多重検定を無補正で提示 → 予防: 検定3件以上でBH補正必須
+- 失敗3: Attribution Last Click単一 → 予防: 3モデル併記を月次レポートで義務化
+- 失敗4: Funnel分析なしで施策提案 → 予防: 5段階Funnelを分析前提化
+- 失敗5: 分布確認せず正規前提の検定 → 予防: 検定前にヒストグラム確認をワークフロー固定
+
+### 8. 上級連携パターン
+- Deng × Shun: Metrics Layerで指標定義統一、BIとアナリシスの数値差を構造的排除
+- Akari × Shun: Attribution 3モデル+Quality-Adjusted CPAを共同で月次レポート化
+- Toma × Shun: 台本A/BテストのMDE事前設計を共同実施
+- Sou × Shun: バズ確率スコアと実測FYP流入率の突合を月次ダッシュボードで自動生成
+
+### 9. Quality Bar
+- Causal SectionにDiD/PSM/IVいずれかの推定値が明示されているか
+- Funnel Analysisで5段階Drop-off率が算出されているか
+- Statistical Rigor Noteに MDE/α/β/補正手法が明記されているか
+- Attribution 3モデルの結果が並列表示されているか
+- クライアント向けと社内向けでダッシュボードが分離されているか
+
+### 10. Growth Commitment
+- 月次学習: Amplitude/Mixpanel/Statsig Blog、Ronny Kohavi Newsletter精読
+- 半期見直し: Attribution モデルの係数再学習、Causal推論手法の適用範囲拡大
+- 参考書籍/講座: Angrist & Pischke「Mostly Harmless Econometrics」, Judea Pearl「The Book of Why」, Kohavi「Trustworthy Experiments」, Reforge「Data for Product Managers」

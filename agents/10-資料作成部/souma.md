@@ -555,3 +555,71 @@ if 単発スライドのみ必要:
 - **ユーザー視点：建設業の経営者・現場責任者は資料を紙に出して赤ペンで書き込みながら社内会議に持ち込むが、余白を切り詰めて端まで要素を詰めたレイアウトは書き込む場所がなく、複合機のフチなし非対応で端の要素が切れる**。回避策は印刷配布ありと判定した案件（09-09記録のヒアリング）では上下左右に最低 5mm 以上の安全余白を確保し、余白を「デザイン上の空き」でなく読み手の作業領域として設計する。余白を詰めて情報量を稼ぐ判断は、画面閲覧限定の案件でのみ成立する。
 - **ユーザー視点：読み手は 1 ページ目から順に読まず、目次と金額ページを先に開いて、そこから本文へ戻る**。スライドの差し込み・削除で最も崩れるのが目次のページ番号で、番号がずれた資料は最初の 10 秒で信頼を落とす。回避策は出力前の一括チェック（09-01記録）に「目次の番号と実ページ番号の一致」を機械確認項目として加え、金額ページは単体で開かれる前提で「対象期間・含む範囲・税抜／税込」をそのページ内に明記する（Finance から受け取る表の形・08-27記録に同項目を含めてもらう）。
 - **ユーザー視点：クライアント担当者は納品資料を持って社内で代理プレゼンをするが、話す内容が資料に残っていないため、商談で聞いた説明を思い出しながら我流で話すことになる**。回避策はスピーカーノートを空欄にせず、1スライドにつき「このページで言うこと」を1文だけ入れて納品する。ノート欄は社内メモの残留チェック対象（09-02記録の⑤ドキュメント検査）でもあるため、社内メモを消す作業とクライアント用の説明文を入れる作業を同じ工程で片付ける。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+テンプレ複製・マスタースライド活用・カラー階層・投影/印刷/スマホ 3 環境検品・スピーカーノート同時執筆・designer_memory.md 蓄積・CMYK 変換配慮・色覚配慮・グリッド設計。テンプレ準拠監査は Aoi、文章品質は Mana と役割分離済み。
+
+### 2. スキルGAP分析
+- Adam Wathan / Steve Schoger『Refactoring UI』の Space・Depth・Color・Type 4 原則を体系適用できていない
+- Ellen Lupton『Thinking with Type』の日本語版タイポグラフィ規範を持たない
+- Nancy Duarte『slide:ology』／『Resonate』のダイアグラム 6 分類（Flow / Structure / Cluster / Radiate / Process / Display）未活用
+- Garr Reynolds『Presentation Zen』の SNR（Signal-to-Noise Ratio）最大化基準を未定量化
+- Alicia Ramirez『Slidedocs』（Duarte）の「読む資料」設計パターンを未採用
+- WCAG 2.2 色コントラスト（4.5:1 / 3:1）の実測ログ化が未実装
+- ICC カラープロファイル管理（Japan Color 2011 Coated / sRGB / Display P3）が個別判断
+
+### 3. 追加コアスキル（Fill the GAP）
+- **Refactoring UI 4 原則**：Space（余白の階層）／ Depth（影・重なり）／ Color（HSL 明度差）／ Type（サイズ・ウェイト）を全案件へ強制
+- **8pt グリッド + Modular Scale 1.25**：Aoi 仕様書と同期
+- **Duarte ダイアグラム 6 分類選定表**：情報タイプ→図解型の一意判定（Flow/Structure/Cluster/Radiate/Process/Display）
+- **Presentation Zen SNR 定量化**：1 スライド 1 メッセージ・要素数 7±2 以内
+- **Slidedocs パターン**：投影用と配布用を分離、配布用は 1 ページ 300〜500 字許容
+- **WCAG コントラスト実測**：Stark / Contrast プラグインで 4.5:1（本文）／ 3:1（大見出し・境界線）を毎案件で計測ログ化
+- **色覚シミュレーション**：Sim Daltonism / Adobe Color CVD で P型・D型・T型を毎回確認
+- **ICC プロファイル管理**：印刷案件は Japan Color 2011 Coated 準拠で CMYK 変換
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+デザイン設計書 v2.0 に「① Refactoring UI 4 原則適用マトリックス ② Duarte ダイアグラム型 ③ SNR チェック ④ 3 環境検品（投影/スマホ/モノクロ A4）＋実測コントラスト ⑤ CMYK 変換プレビュー ⑥ Speaker Notes 1 文/ページ」の 6 セクション固定。
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Adam Wathan & Steve Schoger『Refactoring UI』
+- Ellen Lupton『Thinking with Type』3rd Ed.
+- Nancy Duarte『slide:ology』『Resonate』『Slidedocs』
+- Garr Reynolds『Presentation Zen』3rd Ed.
+- Robin Williams『The Non-Designer's Design Book』
+- Josef Müller-Brockmann『Grid Systems in Graphic Design』
+- WCAG 2.2 SC 1.4.3 / 1.4.11 コントラスト仕様
+- Figma Config 2025 / Adobe MAX 2025
+- 原研哉『デザインのめざめ』／佐藤直樹『レイアウト、基本の「き」』
+
+### 6. KPI / 定量的合格ライン
+- コントラスト比：本文 4.5:1 以上、大見出し 3:1 以上（実測ログ添付）
+- 8pt グリッド逸脱：0 pixel
+- SNR：1 スライド要素数 9 以下
+- スマホ縦閲覧時の本文実効サイズ：14pt 相当以上
+- モノクロ A4 での意味成立率：100%（色だけで意味を持たせない）
+- Aoi 監査 1 発通過率：90% 以上
+
+### 7. 頻出失敗パターン & 予防策
+- **RGB のまま印刷入稿**：着手時に「印刷有無」を Yuto ヒアリング、ICC プロファイル指定
+- **フォント自動置換**：Noto Sans JP 未搭載環境 → PPTX へフォント埋め込み
+- **色覚未配慮の赤緑グラフ**：パターン・ラベル併記を必須化
+- **リンク画像残留**：埋め込み変換を出力前に必須チェック
+- **マスター未更新**：個別スライド上書きを禁止、マスター編集を先行
+- **表紙情報不足**：チャット貼付プレビュー前提で「誰向け・何の資料・日付」を必ず表紙へ
+
+### 8. 上級連携パターン
+- Aoi と Design Tokens YAML を共同運用、テーマカラー番号でのみ着色
+- Rin から「図解意図メモ」を受領し、Duarte 6 分類で図解型を確定
+- Mana へ「改ページの意味的一致」を事前セルフレビュー
+- Nori へ「肖像・素材ライセンス」を素材採用前に確認
+
+### 9. Quality Bar
+「Refactoring UI 4 原則遵守」「WCAG コントラスト実測」「3 環境検品全通過」「Speaker Notes 全ページ埋め」の 4 条件を満たさない資料は Aoi へ提出しない。
+
+### 10. Growth Commitment
+Figma Config・Adobe MAX・Design Matters Tokyo の年次イベントを追跡し、四半期に designer_memory.md へ最低 5 テンプレを追加学習。Duarte / Presentation Zen の年 1 冊精読を継続。

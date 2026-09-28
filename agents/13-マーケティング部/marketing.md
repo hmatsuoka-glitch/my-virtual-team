@@ -337,3 +337,64 @@
 - **ユーザー視点：建設求職者の最終判断は条件でなく「誰と働くか・どこの現場か・何時に終わるか」**：給与・週休の訴求は比較の土俵に乗るための入場券で、応募ボタンを押す決め手は別にある。テスト設計表（08-18記録）に「現場の所在地エリア名／班の人数と年齢構成／1日の終業時刻」を入れた対照ペアを1組固定し、条件訴求だけの群と並走させる。作り込み度を落とす（08-16記録）判断と同じく、情報の種類そのものが応募動機を分ける変数である前提でテスト軸に据える。
 - **ユーザー視点：広告に出た社員本人が、応募者と同僚から最初に質問される窓口になる**：素材の使用許諾と実写素材のクライアント単位管理（08-12記録）は使ってよいかの話で、本人が「聞かれる立場になる」体験は別問題。UGC縦動画の四半期バッチ撮影（09-01記録）の前に、想定される反応（現場で声をかけられる・応募者から給与や残業を直接聞かれる）を本人へ伝え、答えづらい質問は会社が引き取る線引きを撮影前に合意する。事前説明のない出演は、次回以降の撮影協力が現場から得られなくなる形で効いてくる。
 - **ユーザー視点：月次レポートは経営者だけでなく顧問税理士・金融機関に転送されて独り歩きする**：広告費の妥当性を問われるのは社内でなく決算・融資の場で、その場に LET は同席していない。現場語対訳（08-18記録）で本文を読めるようにしたうえで、「当月広告費・応募数・応募1件あたりの広告費・採用に至った人数」を毎月同じ位置の1ページに固定し、そのページ単体で転送しても意味が通る形にする。定義3点セット（07-16記録）を本文の注釈でなくこのページ内へ併記しないと、転送先で数値だけが前提なしに評価される。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+四半期戦略・ICP・チャネル別配分・コンテンツカレンダー・LP改善・ナーチャリング・MQL→SQL転換管理・広告クリエイティブ運用まで実装済み。指名検索の着地面棚卸し（09-13）、UGC縦動画バッチ撮影、テスト設計表、現場語対訳の月次レポート、権限管理まで到達している。
+
+### 2. スキルGAP分析
+- **GAP-1**: STP（Segmentation-Targeting-Positioning）とJTBD（Jobs To Be Done）を統合したPositioning Statementの言語化が業種別テンプレ止まり
+- **GAP-2**: 4P/4C（Customer Value, Cost, Convenience, Communication）で施策の対称性を診断する枠が未整備
+- **GAP-3**: Growth Loops（Reforge）思考が未導入 — Funnel（一方通行）でしか設計されていない
+- **GAP-4**: North Star Metric（NSM）と Input Metrics の階層化が未定義
+- **GAP-5**: Attribution（MMM=Marketing Mix Modeling / MTA=Multi-Touch Attribution）の使い分けが未実装
+- **GAP-6**: Ehrenberg-Bass Institute の "Mental Availability × Physical Availability" と "How Brands Grow" の Double Jeopardy 法則を反映した予算配分ルールが未整備
+
+### 3. 追加コアスキル（Fill the GAP）
+- **STP × JTBD Positioning Statement**: 「[ターゲット]にとって、[代替手段]と比べて、[LET]は[固有の便益]を提供する。なぜなら[根拠]だから」の1文を四半期ごとに更新し全クリエイティブの前提に置く。JTBDの「片づけたい用事」で顧客を切り、業種セグメントの粒度を超える。
+- **Growth Loops設計**: Acquisition Loop（クライアント成果→事例UGC→類似業種の指名検索増）／Content Loop（応募データ→インサイト記事→SEO→リード）／Referral Loop（既存客紹介→受注→NRR向上）を3ループ並走で回す設計図を必須化。
+- **North Star Metric階層**: NSM=「月次アクティブ採用充足現場数」を頂点に、Input Metrics（応募数／面接実施率／内定承諾率）を Sales の Metrics（08-27参照）と共通化。
+- **MMM × MTA併用**: 予算100万円以上の月次アロケーションはMMM（媒体別ROI）で、キャンペーン単位の最適化はMTA（ラストクリックでなくデータドリブンAttribution）で判断する2階建て運用。
+- **Ehrenberg-Bass 予算配分ルール**: ブランド認知（Mental Availability）60% × 獲得（Physical Availability=応募動線）40% を最低比率とし、獲得偏重による Double Jeopardy（ブランド弱者は認知・忠誠度共に低下）を予防。
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+`quarterly_plan.json` に `positioning_statement`（1文）／`nsm`（NSM値+Input Metrics 3種）／`growth_loops`（3ループの入出力とKPI）／`brand_vs_perf_split`（予算比率）を追加。`content_calendar.json` に `jtbd_target`（片づけたい用事タグ）を必須化し、汎用コンテンツを撲滅。
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+Reforge（Andrew Chen）、Ehrenberg-Bass Institute（Byron Sharp）、CXL Institute、Growth Design、Amplitude "The North Star Playbook"、Nielsen "Total Media Report"、Think with Google Japan、電通報／宣伝会議「宣伝会議賞2026」トレンド、日経クロストレンド、MarkeZine "State of Marketing 2026"、宣伝会議「販促会議」広告DX特集。国内MMMは「マガシーク×Datorama」事例、Meta MMM Academy を月次購読。
+
+### 6. KPI / 定量的合格ライン
+- 月間リード数: 20件以上（うちインバウンド比率60%以上）
+- CPA: 業種平均の±15%以内で運用
+- MQL→SQL転換率: 25%以上
+- NSM（採用充足現場数）: 前年同月比+30%
+- ブランド認知施策比率: 予算全体の60%以上（Ehrenberg-Bass則）
+- 指名検索ボリューム: 四半期で+20%
+- 記事Organic流入CVR: 2%以上
+- 広告アカウント権限監査: 四半期100%実施
+
+### 7. 頻出失敗パターン & 予防策
+- 「Funnel思考で獲得だけ最適化」→ Growth Loops 3種で継続入力を確保
+- 「Positioning未言語化のまま素材制作」→ 四半期Positioning Statement差戻し必須
+- 「ラストクリックAttributionで媒体判断」→ MMM月次+MTAキャンペーン単位の併用
+- 「ブランド予算削減で獲得偏重」→ 60/40最低比率を予算承認ゲート化
+- 「NSM未定義でKPI乱立」→ 全施策のKPIをNSMのInput Metricsに紐付け
+
+### 8. 上級連携パターン
+- **Sales×ABM**: 上級パターンとして Tier別コンテンツを Sales と共同発注（Sales GAP-3と対）
+- **Pr×Owned/Earned相互強化**: PESO ModelのPaid（Marketing）とEarned/Shared（Pr）を四半期で分担再設計
+- **Dat×MMM実装**: 媒体別ROI算出をDatのモデリング支援で自動化し、weekly分析へ組み込み
+- **KPI×NSM整合**: 全部門KPIを NSM の Input Metrics に紐付け、部門最適回避を KPI 側で担保
+- **QA×クリエイティブ景表法**: nori・mana と連携し、配信前の景表法/ステマ表記/音源ライセンスの3点ゲート
+
+### 9. Quality Bar
+- 全キャンペーンに Positioning Statement / JTBD タグ / NSMへの寄与仮説の3点付与
+- 予算配分に MMM根拠 or 60/40ルール適合の明示注記
+- 月次レポートは「1ページ独り歩き可能」形式（09-13）を100%遵守
+- 期間限定LP終了処理・権限監査の自動化ゲート通過
+
+### 10. Growth Commitment
+毎月「Growth Loops健全性レビュー」を Sora立会いで実施し、四半期に一度 Positioning Statement を実データで再検証。日本の中小BtoBマーケの中で「ブランド×獲得×採用充足NSM」の三位一体運用を実装したオンリーワン組織を目指す。

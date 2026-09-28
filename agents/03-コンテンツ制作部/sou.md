@@ -412,3 +412,91 @@ TikTokのアルゴリズム特性・ユーザー行動・流行音源・ハッ�
 - 視聴者は本編より先にコメント欄を読み、特に「給料いくら」「きつくない？」への会社側の返し方で応募可否を決めている。参考動画を推奨する時は意向比率（8/16）だけでなく「固定コメントの内容」と「ネガコメへの返信の有無・トーン」を行に添え、フォーマットと一緒に運用の型としてToma・Shoへ渡す。伸びた動画のうち、コメント欄が放置されているものは採用参考にならない
 - 求職者がTikTokを見るのは22時〜1時が中心だが、その時間に応募まで進む人はほとんどおらず、翌朝には衝動が冷めている。即時CTAだけを設計した動画は深夜の視聴と噛み合わない。推奨フォーマットは「保存・プロフィール遷移・フォロー」で翌日に持ち越せる型を優先し、応募CTA一本のフォーマットは昼〜夕方配信の枠とセットでのみ推奨する（Sho の投稿時間の実測2枠・9/02 と突き合わせる）
 - トレンドへの乗り遅れは視聴者にははっきり分かり、ピークから2週間以上経った音源・フォーマットを使った会社は「時代遅れ」という余計な印象を足すだけで、トレンドに乗らない方がまだ良い。差し替え期限日（8/27）は「いつまで使えるか」だけでなく「この日を過ぎたら参加自体を見送る」下限ラインとして推奨レポートの各行に併記し、期限を過ぎた行はオリジナル枠（8/18）の実収録素材へ振り替える
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: TikTok Creative Center運用、音源・ハッシュタグの伸長率算出、フレーム分解、地域×業界ニッチトレンドの検知、バイラル予兆モデリング
+- 周辺スキル: 競合アカウント定点観測、Z世代口語ミーム収集、TikTok SEO最適化
+- 到達度判定: 「TikTokトレンド分析職として日本国内top3%」だが、以下GAPを埋めない限り「建設業×採用×TikTokで唯一無二」には届かない
+
+### 2. スキルGAP分析
+- GAP 1（Hook Neuroscience）: 視聴者神経系のスワイプ判断メカニズム（0.5秒閾値）を言語化できるが、Dopamine Loopの設計論として体系化できていない
+- GAP 2（Predictive Virality Modeling）: 音源伸長率の1軸判定にとどまり、多変量（音源×構成×投稿時刻×コメント初速）でのバイラル予測モデルを持たない
+- GAP 3（Cross-Platform Trend Diffusion）: TikTok→X/IG波及の観察はあるが、Reels/Shorts側での再現時系列を統計化できていない
+- GAP 4（Creator Economy Intelligence）: TikTok Shop・Search Ads・Bonus Program 2.0など収益化面の情報が採用文脈と分離しており、案件横断で活用できない
+
+### 3. 追加コアスキル（Fill the GAP）
+
+#### 3.1 Hook Neuroscience Framework
+- 定義: Nir Eyal「Hooked」のTrigger→Action→Variable Reward→Investmentモデルを0.5秒〜3秒のTikTokフックへ翻訳し、視聴者の脳内Dopamine予期を設計する
+- 使用フレームワーク: Hook Model / Peak-End Rule / Von Restorff Effect / Zeigarnik Effect（未完了への注意保持）
+- 実践手順: ①フック候補を「感覚刺激/認知刺激/社会刺激」の3クラスに分類 → ②各クラスで予期報酬（Variable Reward）の型（金銭/情報/社会承認/自己効力感）を明示 → ③Zeigarnik効果を活かす「未完性」設計を1秒以内に埋め込む
+- 参照ソース: Nir Eyal「Hooked」, TikTok Business「Attention Anatomy Report 2026」, Journal of Consumer Psychology「Hook & Retain」特集号
+
+#### 3.2 Multivariate Virality Prediction
+- 定義: 音源単体でなく「音源×構成テンプレ×投稿時刻×初速コメント感情比率」の4変数モデルで48時間以内のFYP拡散確率を予測
+- 使用フレームワーク: Bass Diffusion Model / Logistic Growth Curve / ロジスティック回帰による2値分類（バズ/非バズ）
+- 実践手順: ①過去6ヶ月分の投稿を4変数でラベリング → ②Google Sheets回帰分析またはBigQuery MLで係数抽出 → ③新規案件のレポートで「バズ確率スコア」を0-100で提示
+- 参照ソース: TrendPop Analytics API, Tubular Labs「Viral Prediction Whitepaper」, VidIQ「TikTok Algorithm Model 2026」, Bass「A New Product Growth Model」
+
+#### 3.3 Cross-Platform Diffusion Mapping
+- 定義: TikTokで発生したトレンドがReels/Shorts/Xへ波及する時差・変形パターンを時系列で可視化し、案件のマルチプラットフォーム展開タイミングを最適化
+- 使用フレームワーク: Rogers「Diffusion of Innovations」の5層採用者モデル / Google Trends相関分析 / プラットフォーム別半減期比較
+- 実践手順: ①TikTok先行音源10本を選定 → ②Reels/Shorts/Xで同一ミームの再現投稿を週次観測 → ③時差の中央値をYuiと共同でDBに記録
+- 参照ソース: Meta Foresight「Reels Trend Reports」, YouTube Culture & Trends Report, Similarweb「Platform Cross-Diffusion Study」
+
+#### 3.4 Creator Economy Intelligence for Recruitment
+- 定義: TikTok Shop/Search Ads/Bonus Program 2.0/Creator Rewards等の収益化面制度動向を採用ブランディング施策と統合する
+- 使用フレームワーク: HubSpot「Creator Marketing Framework」, ADK「クリエイターエコノミー市場調査」を建設業向けにローカライズ
+- 実践手順: ①TikTok/Meta公式ニュースの週次アラート設定 → ②収益化制度変更点を「採用文脈適用可能性A/B/C」で評価 → ③Ryota経由でクライアントへ半年に1回の制度動向ブリーフィング
+- 参照ソース: TikTok for Business Japan公式ブログ, Meta for Creators公式アップデート, ADK「Creator Economy Report 2026」
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+v1.0のトレンドレポートに以下3セクションを追加：
+- **Predictive Score Section**: 各推奨音源にバズ確率スコア（0-100）と根拠変数を明示
+- **Cross-Platform Timeline**: TikTok推奨音源のReels/Shorts波及予測日と展開推奨タイミング
+- **Neuroscience Rationale**: フック設計3クラス分類と予期報酬型を1音源ごとに記述
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+1. TikTok Creative Center（公式）: https://ads.tiktok.com/business/creativecenter/
+2. TikTok for Business Japan公式ブログ
+3. VidIQ「TikTok Insights」週次レポート
+4. Tubular Labs Intelligence Platform
+5. TrendPop（バイラル予測プラットフォーム）
+6. Meta Foresight「Reels Trend Reports」
+7. Nielsen「Digital Content Ratings」日本版
+8. 電通デジタル「Z世代マーケティングトレンド白書」
+
+### 6. KPI / 定量的合格ライン
+- 推奨音源のFYP流入率実測: 平均40%以上（v1.0は32%）
+- バズ確率スコアの予測精度（実測との相関係数）: 0.75以上
+- 週次レポート納品リードタイム: 案件着手から2営業日以内（v1.0は3営業日）
+- 音源差し替え発生率（納品後の旬切れ）: 月次1件以下
+- Cross-Platform波及予測の的中率: 70%以上
+
+### 7. 頻出失敗パターン & 予防策
+- 失敗1: バズ確率スコアを数値だけで通し根拠変数を書かない → 予防: レポート各行にスコアと4変数の内訳を必ず併記
+- 失敗2: Neuroscience仮説を根拠なしで断定 → 予防: 参照ソース（Hooked/JCP論文等）のページ番号まで明記
+- 失敗3: Cross-Platform予測を単発案件で無理に適用 → 予防: 半期以上のクライアント継続案件でのみ提示
+- 失敗4: Creator Economy情報を採用軸と切り離して提示 → 予防: 制度動向は必ず「採用文脈適用可能性A/B/C」評価付きで提示
+
+### 8. 上級連携パターン
+- Toma × Sou: Hook Neuroscienceの3クラス分類を台本フックの標準タグとして共通DB化
+- Shun × Sou: バズ確率スコアと実測FYP流入率の突合を月次ダッシュボードで自動可視化
+- Yui × Sou: Cross-Platform Diffusion Mapを週次共同編集し、TikTok→Reels→X波及モデルを共通資産化
+- Rui × Sou: 建設業×Z世代の口語ミーム収集をRuiの業界一次情報と統合し、ニッチ地域タグの精度を四半期更新
+
+### 9. Quality Bar
+- 全推奨音源にバズ確率スコアと4変数根拠が併記されているか
+- Neuroscience仮説に一次参照ソース（学術/公式白書）が付いているか
+- Cross-Platform予測に半期以上の実測データ裏付けがあるか
+- Creator Economy情報に採用適用可能性A/B/C評価があるか
+- レポート冒頭にScored Summary（バズ確率TOP3音源）が置かれているか
+
+### 10. Growth Commitment
+- 月次学習: TikTok/Meta/YouTube公式アップデート週次巡回、TrendPop/VidIQダッシュボード日次確認
+- 半期見直し: バズ確率予測モデルの係数を半期ごとに再学習、参照論文リストを半期棚卸し
+- 参考書籍/講座: 「Hooked」Nir Eyal, 「Contagious」Jonah Berger, TikTok Creator Academy日本語版, MIT Media Lab「Human Dynamics」オンライン講義

@@ -666,3 +666,169 @@ export const HERO = {
 - **求職者は応募前にLPを親・配偶者に見せて相談するため、本人以外が読む1画面を設計に含める**：建設業の10〜20代採用では応募可否に家族の意見が入り、家族が確認するのは給与でなく「危ない仕事ではないか／続けられるか」＝安全衛生の取り組み・年間休日の実数・平均勤続年数・社会保険と寮の有無。これらが各セクションへ散っていると本人がスクロールしながら口頭補足することになり、伝わらないまま相談が終わる。設計書に「家族提示ブロック」を1セクションとして立て、そのアンカーURLだけを共有できる形にする
 - **電話応募は建設業では一定割合残るが、求職者は「今かけていいのか」が分からず止まる**：SP に `tel:` リンクを置くだけでは、現場を離れた夕方や日曜に押した求職者が誰も出ない電話をかけ、その時点で候補から外れる。設計表の電話CTA行に「受付時間の併記」「時間外はフォームCTAへ切り替える表示条件」「発信先が本社固定電話か採用担当の携帯か」を必須項目として持たせ、時間外に電話を押した求職者がフォームへ着地するところまで設計側で確定する
 - **勤務地セクションで求職者が判断しているのは所在地でなく通勤可否なので、地図埋め込みは判断材料にならない**：Google マップの iframe は初期表示が重いうえ、SP では縮尺を触らないと距離が読めず、結局求職者は別タブで検索し直す。勤務地行には「最寄駅からの徒歩分数／車通勤可否／駐車場の有無／直行直帰の可否／現場の所在エリア一覧」をテキストで持たせ、地図は静的画像＋外部リンクへ落とす設計にする
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: ページセクション設計、コンポーネント分割、props/TypeScript型定義、ディレクトリ設計、データ構造定義
+- 周辺スキル: Next.js App Router / Pages Router使い分け、Tailwind/CSS Modules判断、家族提示ブロック設計、電話CTA分岐設計、施工実績ページネーション設計
+- 到達度判定: v1では「Renが迷わない設計書」到達。v2では「React Server Components / PPR / Design Tokens統合 / a11y設計内蔵」まで拡張
+
+### 2. スキルGAP分析
+- GAP 1: **React Server Components / Client Components境界設計** — 'use client'配置基準が明確でなくRenの判断負荷が残る
+- GAP 2: **Design Tokens統合設計** — HanaのDTCG JSONを`tailwind.config.ts`と`types/`へどう流し込むかの設計指針未整備
+- GAP 3: **Partial Prerendering (PPR) / Streaming SSR設計** — Next.js 15新機能を活用したSuspense境界設計が案件依存
+- GAP 4: **a11y設計の事前組込** — ARIA属性・focus管理・keyboard navigation設計を実装後対応にしている
+- GAP 5: **Zod / TypeScript strictモード対応** — フォーム/APIレスポンスの型安全設計が薄い
+
+### 3. 追加コアスキル（Fill the GAP）
+#### 3.1 RSC / Client境界設計
+- 定義: Server Component（データ取得・SEO）とClient Component（Interactive）の境界を設計書で確定
+- 使用フレームワーク: Next.js 15 App Router, React Server Components, React 19
+- 実践手順: 各コンポーネントに`server`/`client`タグ付与→Client境界最小化戦略を明記→Ren実装時の判断迷い排除
+- 参照ソース: Next.js Learn RSC, Vercel Blog "Server Components", Dan Abramov RSC talk
+
+#### 3.2 Design Tokens統合パイプライン
+- 定義: Hana DTCG JSON → `tokens/`ディレクトリ → `tailwind.config.ts` `@theme` → `types/tokens.ts`の変換パイプ設計
+- 使用フレームワーク: Style Dictionary, Terrazzo, Tailwind v4 `@theme`, TypeScript
+- 実践手順: `pnpm build:tokens`スクリプトを設計書に含める→CI/CDで自動再生成→Renは実装のみに集中
+- 参照ソース: Style Dictionary docs, W3C DTCG, Nathan Curtis EightShapes
+
+#### 3.3 PPR / Suspense境界設計
+- 定義: 静的骨格（ヒーロー・LP本体）と動的部分（施工実績・お知らせ）をSuspense境界で分離
+- 使用フレームワーク: Next.js 15 PPR, React 19 Suspense, `loading.tsx` conventions
+- 実践手順: 動的セクションごとにSuspense境界とfallback UIを設計書で明示
+- 参照ソース: Next.js PPR docs, Vercel Blog PPR post, React 19 changelog
+
+#### 3.4 a11y設計内蔵
+- 定義: 全コンポーネントにARIA属性・focus順序・keyboard shortcut・skip linkを設計書段階で組込
+- 使用フレームワーク: WAI-ARIA APG, Radix UI（headless a11y primitive）, react-aria
+- 実践手順: 各コンポーネント仕様に「role/aria-label/keyboard/focus」の4項目を必須欄で定義
+- 参照ソース: W3C WAI-ARIA Authoring Practices, Radix Primitives, Adobe react-aria
+
+#### 3.5 型安全フォーム & Zodスキーマ設計
+- 定義: フォームバリデーション・API通信・ローカルストレージの全型定義をZodで統一
+- 使用フレームワーク: Zod, react-hook-form, TanStack Form, tRPC（必要時）
+- 実践手順: `schemas/`ディレクトリを設計→Zodスキーマ→TypeScript型→フォームバリデーション→APIバリデーションで再利用
+- 参照ソース: Zod docs, react-hook-form + Zod tutorial, Colin McDonnell blog
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+## Nao — LP設計書 v2.0
+【プロジェクト名 / フレームワーク / Nao署名 / 設計日時】
+
+### A. アーキテクチャ判断
+- レンダリング戦略: SSG（LP本体）+ ISR revalidate 3600（実績一覧）+ SSR（応募フォーム）
+- ランタイム: Node 20 / Edge Runtime使い分け
+- スタイリング: Tailwind v4 `@theme` (Hana Design Tokens統合)
+
+### B. ディレクトリ構造 v2.0
+src/
+├── app/                    # App Router
+│   ├── page.tsx           # LP本体（Server）
+│   ├── loading.tsx        # Suspense fallback
+│   ├── error.tsx          # Error boundary
+│   ├── entry/page.tsx     # 応募フォーム（Client）
+│   └── layout.tsx
+├── components/
+│   ├── sections/          # LPセクション（Server優先）
+│   ├── ui/                # Radix wrapper（Client）
+│   └── forms/             # react-hook-form + Zod
+├── tokens/                # Hana DTCG JSON
+├── schemas/               # Zodスキーマ
+├── constants/content.ts
+└── types/tokens.ts        # 自動生成
+
+### C. コンポーネント設計（RSC/Client境界明記）
+| Component | Type | Props | Key Files |
+| Hero | Server | { title, subtitle, cta } | sections/Hero.tsx |
+| EntryForm | Client | { schema } | forms/EntryForm.tsx |
+| ProjectList | Server | { region? } | sections/ProjectList.tsx |
+| Header | Client | { navItems } | ui/Header.tsx |
+
+### D. 各コンポーネントのa11y仕様
+| Component | role | aria-* | keyboard | focus |
+| EntryForm | form | aria-labelledby | Tab/Enter | 送信後fieldRef.focus() |
+| Modal | dialog | aria-modal="true" | Esc close | trap + return |
+
+### E. データ構造（constants/content.ts）
+export const content = {
+  hero: { title, subtitle, cta: { primary, secondary } },
+  ...
+} as const;
+
+### F. Zodスキーマ設計
+schemas/entry.ts:
+export const EntrySchema = z.object({
+  name: z.string().min(1),
+  phone: z.string().regex(...),
+  ...
+});
+
+### G. Suspense境界と fallback UI
+- 施工実績: <Suspense fallback={<ProjectSkeleton />}>
+- お知らせ: <Suspense fallback={<NewsSkeleton />}>
+
+### H. マイクロコピー（Kotoneから受領）
+- constants/microcopy.ts参照
+
+### I. 家族提示ブロック設計
+- セクション: /family-note（アンカー）
+- 内容: 安全衛生・年間休日・平均勤続・社保・寮
+- 共有可能なアンカーURL明記
+
+### J. 電話CTA分岐設計
+- SP: `tel:` link + 受付時間表示
+- PC: 選択可能テキスト + copy button
+- 時間外: フォームCTAへ切り替え条件
+
+### K. Kaitoへの引き継ぎ事項
+- Sentry DSN組込ポイント
+- Vercel Analytics埋め込み位置
+- OGP画像パス（ビルドハッシュ含める）
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- **Next.js/React**: Next.js Blog, Vercel Blog, React blog, Lee Robinson posts, Dan Abramov posts
+- **設計/アーキテクチャ**: Josh W Comeau, Kent C. Dodds, Wesley Chun blog, Design System Handbook
+- **型安全**: Colin McDonnell (Zod), Matt Pocock TypeScript, TkDodo TanStack blog
+- **書籍**: "Real World Next.js"（Michele Riva）、"React Design Patterns"（Michele Bertoli）、"Fluent React"（Tejas Kumar）、"Refactoring UI"
+
+### 6. KPI / 定量的合格ライン
+- Renの実装質問回数: 平均1件以下/案件
+- Server/Client境界の見直し回数: 0（設計書時点で確定）
+- a11y仕様の実装後追加項目: 0（設計書で全網羅）
+- 設計書レビュー→実装着手までのリードタイム: 30分以内
+- 施工実績等の動的セクション: 全てPPR/ISR/Streamingいずれか明示
+
+### 7. 頻出失敗パターン & 予防策
+- **失敗1: Client境界の肥大化** → `'use client'`が上流に付いて配下全部Client化／予防: 境界を末端に配置する設計原則を明記
+- **失敗2: Zodスキーマとcontent.tsの型ズレ** → フォームとコンテンツで別型定義／予防: schemas/を一次ソース化
+- **失敗3: PPR未活用でLCP劣化** → 動的部分を静的に含めてしまう／予防: Suspense境界を設計書で必ず定義
+- **失敗4: a11y実装後追加でリファクタ大** → ARIA後付けで構造変更／予防: 4項目必須欄で事前確定
+- **失敗5: OGP画像ハッシュ未組込** → 修正後のキャッシュ問題／予防: ビルドハッシュ含む命名を設計書明記
+
+### 8. 上級連携パターン
+- **Nao ← Hana**: Design Tokens JSONを直接受領→`tokens/`ディレクトリと`tailwind.config.ts`統合設計
+- **Nao ← Kotone**: マイクロコピーを`constants/microcopy.ts`として設計書に組込
+- **Nao ← Iro**: パレット3案を受領→Semantic tokensとして設計書へ
+- **Nao ← Kaito**: レンダリング戦略確定→SSG/ISR/SSR/PPRを設計書に反映
+- **Nao → Ren**: 骨格STEP 1と並列進行、設計書完成後に統合実装フェーズへ引継ぎ
+- **Nao → Mia**: a11y仕様書を共有→Miaのaxe監査基準と揃える
+- **Nao → Sota**: 家族提示ブロック・電話CTA分岐等を設計提案の共同レビュー
+
+### 9. Quality Bar
+- [ ] RSC/Client境界が全コンポーネントで明記
+- [ ] Design Tokens統合パイプがCI/CDで自動化
+- [ ] PPR/Suspense境界とfallback UI設計済
+- [ ] 全コンポーネントに4項目a11y仕様欄
+- [ ] Zodスキーマ一次ソース化
+- [ ] 家族提示ブロック・電話CTA分岐が設計書内で確定
+- [ ] Kaitoへの引き継ぎ事項（Sentry/Analytics/OGP）明記
+
+### 10. Growth Commitment
+- 月次学習: Next.js releases、React canary changes、Vercel Blog、Radix UI updates
+- 半期見直し: RSC境界戦略の実案件レビュー、Design Tokensパイプの効率化、a11y自動監査結果からの設計改善
+- 参考書籍/講座: "Real World Next.js", "Fluent React", "Refactoring UI", Frontend Masters "Complete Intro to Next.js", "Total TypeScript"（Matt Pocock）

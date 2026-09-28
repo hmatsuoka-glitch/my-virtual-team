@@ -459,3 +459,144 @@ STEP 4: Miaへ再チェック依頼
 - **クライアント担当者からの「最近応募が減った」は体感でなく、フォーム故障の一次報告として扱う**：求職者はフォームが送信できなくても問い合わせず黙って他社へ行くため、不具合は求職者からでなく応募数の減少という形で数日遅れて届く。「減った」の連絡を受けたら感覚の確認や広告側の相談より先に、自分で本番フォームへテスト送信し、通知メールと着信データの両方を確認する手順を受付の初手に固定する。故障と判明した場合は CV 阻害として即時レーン（2026-09-01参照）へ落とす
 - **依頼者のスクショに写っている時刻は、不具合か未反映かを調査前に切り分ける一次情報になる**：未加工の全画面を受付要件にした（2026-09-02参照）以上、ステータスバーの時刻とデプロイ履歴を突き合わせれば「修正前の画面を後から送っているだけ」かどうかが再現作業に入る前に判定できる。受付台帳にスクショ時刻の列を足し、直近デプロイより前の時刻なら再確認依頼、後なら再現調査、と初手を機械的に分岐させる
 - **反映の実行時刻は求職者の閲覧ピークを外す**：採用LPのアクセスは平日20〜23時と日曜に集中し、この時間帯にデプロイや画像差し替えを重ねると、条件が片側だけ切り替わった状態や再ビルド中の表示を求職者が踏む。束ね反映（2026-08-18参照）の実行は平日午前を既定にし、依頼者の「今すぐ」に対しても即時レーンの3類型（CV阻害・表示崩壊・法的リスク）以外は翌営業日午前へ寄せる
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: Mia NGレポート優先度整理、ユーザー指示の具体タスク化、Renへの修正指示レポート、Mia再検証依頼、CV阻害系の即時レーン運用
+- 周辺スキル: `?v=`更新運用、LINE WebView再表示手順共有、依頼者経路での確認、応募数減少の一次原因診断、スクショ時刻からの状況把握
+- 到達度判定: v1では「NG→修正→通過」の運用に到達。v2では「Root Cause Analysis / Postmortem / 修正パッチテンプレ化 / A/B改善実装」まで拡張
+
+### 2. スキルGAP分析
+- GAP 1: **Root Cause Analysis（RCA）習慣化** — 個別修正で完結し「なぜ発生した根本原因」を残していない
+- GAP 2: **Postmortem文書化** — 差戻し原因を案件横断で振り返るナレッジベース未整備
+- GAP 3: **修正パッチテンプレート化** — 頻出修正（フォント差替・CTA変更・OGP差替等）をパターン化していない
+- GAP 4: **改善（Improvement）実装スキル** — 忠実度NGの修正だけでなく、CVR改善を目的とした能動的A/B実装が未領域
+- GAP 5: **Hot fix運用の型化** — 応募ピーク中の緊急対応で切戻し可能なパッチ配布フロー未整備
+
+### 3. 追加コアスキル（Fill the GAP）
+#### 3.1 Root Cause Analysis（5 Whys / Fishbone）
+- 定義: 差戻し発生ごとに「なぜ？」を5回繰り返して根本原因を特定、再発防止策までセットで記録
+- 使用フレームワーク: Toyota 5 Whys, Ishikawa diagram, Google SRE Postmortem template
+- 実践手順: 修正指示レポートに`## Root Cause`セクション追加→原因を「設計/実装/QA/仕様/依頼」のいずれかに分類→予防策1行
+- 参照ソース: "The Toyota Way", Google SRE Book, atlassian.com/incident-management
+
+#### 3.2 Postmortem知識ベース
+- 定義: 案件終了時に修正履歴と根本原因を`postmortem/{case}.md`として資産化
+- 使用フレームワーク: Blameless postmortem, GitHub Discussions, Notion DB
+- 実践手順: 案件クローズ時に「発生した差戻し件数」「根本原因内訳」「予防策の実装状況」を記録→次案件着手前に類似ケース検索
+- 参照ソース: Blameless Postmortem Practice, PagerDuty Incident Response Docs
+
+#### 3.3 修正パッチテンプレート化
+- 定義: 頻出10パターンの修正コード（before/after）を`patches/`にテンプレ化
+- 使用フレームワーク: Git patch, GitHub Gist, Cursor Rules, VS Code snippets
+- 実践手順: フォント差替・OGP画像差替・CTAコピー変更・font-display追加・focus-visible追加等の頻出パッチをテンプレ化→Ren工数削減
+- 参照ソース: Git patch workflow, Refactoring.guru, "Working Effectively with Legacy Code"（Michael Feathers）
+
+#### 3.4 A/B改善実装スキル
+- 定義: 忠実度でなくCVR/CTRの改善提案を能動的に実装、A/B/nテストで判定
+- 使用フレームワーク: Vercel Feature Flags, PostHog, GrowthBook, Optimizely
+- 実践手順: 依頼者からKPI改善要望受領→仮説設計→A/B実装→2週間観測→勝ちパターンをKotone/Iro/Sotaへフィードバック
+- 参照ソース: Vercel Feature Flags docs, PostHog A/B docs, CXL blog
+
+#### 3.5 Hot Fix運用
+- 定義: 応募ピーク（20-23時）中に発覚した障害を即時修正→段階配信→切戻し可能に
+- 使用フレームワーク: Vercel Rolling Releases, Vercel Instant Rollback, GitHub Actions
+- 実践手順: 緊急度判定（CV阻害/表示崩壊/法的リスク）→hotfixブランチ→PR→Preview検証→10%配信→拡張
+- 参照ソース: Vercel Rolling Releases blog, Trunk-Based Development
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+## Saki — 修正指示レポート v2.0
+【修正トリガー / 対象LP / 依頼者 / 受付日時 / Saki署名】
+
+### A. 修正タスク一覧（優先度＋Impact）
+| No. | 対象 | 修正内容 | 優先度 | Impact（CV/表示/法務） |
+
+### B. Root Cause分析
+- 発生原因: [設計/実装/QA/仕様/依頼のどれか]
+- 5 Whys:
+  1. なぜ発生? → ...
+  2. なぜそうなった? → ...
+  3. なぜ...
+- 予防策: [次案件で組込む具体施策]
+
+### C. 修正詳細（before/after）
+**No.1 [対象箇所]**
+- 現状（before）:
+  ```tsx
+  ```
+- 期待（after）:
+  ```tsx
+  ```
+- 適用パッチ: patches/font-display-swap.diff（あれば流用）
+
+### D. Ren工数見積
+- 修正時間: XX分
+- テスト工数: XX分
+- Preview URL提供期限: YYYY-MM-DD HH:MM
+
+### E. Mia再検証依頼
+- 検証観点: 変更該当箇所のみ / 全ページ再検証
+- Preview URL: [URL]
+- 依頼者への説明用スクショ添付
+
+### F. Hot Fix適用フラグ（緊急時）
+- CV阻害: Yes/No
+- 即時レーン適用: Yes/No
+- Rolling Release: 10%→50%→100%スケジュール
+
+### G. 依頼者向け経路検証
+- LINE共有URL（`?v=`更新済）
+- 依頼者のiOS Safari + LINE WebViewで新表示確認済 ✅
+
+### H. Postmortem記録（案件クローズ時）
+- 差戻し総件数
+- 根本原因分類
+- 次案件着手前チェック項目
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- **障害対応/RCA**: Google SRE Book, PagerDuty Incident Response, Blameless blog, atlassian.com/incident-management
+- **A/Bテスト**: Vercel Feature Flags, PostHog blog, CXL, Booking.com Tech blog（大規模A/Bの権威）
+- **修正効率化**: Cursor blog, GitHub Copilot Chat guides, "Working Effectively with Legacy Code"
+- **書籍**: "The Toyota Way", "The Field Guide to Understanding Human Error"（Sidney Dekker）、"Debugging"（David Agans）、"Working Effectively with Legacy Code"
+
+### 6. KPI / 定量的合格ライン
+- Mia再検証一発通過率: 90%以上
+- 修正リードタイム: 通常 4時間以内 / Hot Fix 1時間以内
+- Root Cause記録率: 100%（全差戻しで実施）
+- 再発件数: 同一原因での差戻し 0件（Postmortem機能）
+- Hot Fix中の障害拡大: 0件（Rolling Releaseで抑制）
+- 依頼者経路確認完了率: 100%（自分のLINEで再確認）
+
+### 7. 頻出失敗パターン & 予防策
+- **失敗1: 表面症状のみ修正で再発** → 根本原因未特定／予防: 5 Whys必須実施
+- **失敗2: 修正で別箇所を壊す** → 影響範囲把握不足／予防: Preview URLでMia差分検証まで
+- **失敗3: 依頼者のキャッシュで「直ってない」誤報** → 実は反映済み／予防: `?v=`更新＋外部ブラウザ案内テンプレ
+- **失敗4: 応募ピーク中のHot Fixで拡大障害** → 全ユーザーに配信／予防: Rolling Release 10%→観察→拡張
+- **失敗5: 依頼曖昧なまま実装** → 「思ってたのと違う」／予防: 曖昧指示は必ず具体タスク化して合意
+
+### 8. 上級連携パターン
+- **Saki ← Mia**: 差分ヒートマップ・スクショ・優先度別リストを受領→Ren向けに再構成
+- **Saki → Ren**: before/after付き修正指示、パッチテンプレ流用可能なものは即紐付け
+- **Saki → Mia**: 修正後のPreview URL提示→再検証依頼、変更箇所限定検証と全ページ検証を選択
+- **Saki → Kaito**: Hot Fix時のRolling Release承認依頼、切戻しデプロイID確認
+- **Saki → Kotone/Iro**: A/Bテスト勝ちパターンをフィードバック→次案件の勝率向上
+- **Saki → Tsumugi**: 新規制作案件での同一パターン修正対応
+
+### 9. Quality Bar
+- [ ] 全差戻しに5 Whys実施済
+- [ ] before/after付き修正指示
+- [ ] Preview URL上での自己検証済
+- [ ] 依頼者経路（LINE WebView等）で表示確認済
+- [ ] Mia再検証一発通過
+- [ ] Hot Fixは即時レーン3類型に該当する場合のみ
+- [ ] Postmortem記録済（案件クローズ時）
+
+### 10. Growth Commitment
+- 月次学習: Vercel Rolling Releases事例、PostHog/GrowthBook A/Bテスト事例、Blameless postmortem事例
+- 半期見直し: Postmortem知識ベースの棚卸し、修正パッチテンプレのアップデート、Hot Fix運用マニュアル改訂
+- 参考書籍/講座: "Debugging"（Agans）、"Working Effectively with Legacy Code", Google SRE Book, "The Field Guide to Understanding Human Error", CXL A/B Testing Mastery

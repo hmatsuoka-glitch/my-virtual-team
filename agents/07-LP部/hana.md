@@ -814,3 +814,110 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **移動中・電波の弱い現場から見る求職者は端末の省データモードを常用しており、webfontとHero画像が落ちてこない状態が実表示になっている**：抽出は高速回線の検証環境で行うため、webfontが必ず適用された姿しか記録されず、`prefers-reduced-data`未対応の元サイトでは実際には游ゴシック・ヒラギノへフォールバックした別物のLPが表示されている。STEP 3のフォント抽出に「webfont未読込時のフォールバック実体（font-familyの第2候補以降で実際に描画される書体）」と「フォールバック時の字幅差による見出しの行数変化」を記録し、Renへ`font-display`の指定とセットで渡す
 - **40代以上の経験者層はOS側の文字サイズ設定を大きめに固定しており、px固定の高さを持つボタン・カードが文字拡大で溢れる**：px固定／相対の区別（2026-08-16参照）は`font-size`にのみ適用しているが、崩れるのは`height`・`line-height`・`max-height`が固定値のコンテナ側で、文字だけremにしても箱が追随しない。抽出表に`text_scale_risk`を新設し、テキストを内包する要素のうち高さ系プロパティが絶対値指定の箇所を列挙してRenへ渡す。iOSのダイナミックタイプ・Androidのフォントサイズ最大設定で、募集要項の表とCTAボタンが最初に壊れる
 - **元サイトの出現アニメは`prefers-reduced-motion`未対応のまま複製されるが、この設定をオンにしているのは酔いやすい求職者本人である**：`late_reveal_risk`（2026-08-16参照）は高速スクロール時に見えない問題を扱うが、reduced-motion環境ではAOS等が`opacity: 0`の初期状態のまま解除されず、実績数値や社員写真が「永久に表示されない」という別種の事故になる。STEP 5でスクロール連動アニメを採る際に元サイトの`@media (prefers-reduced-motion: reduce)`の有無を必ず記録し、未対応なら「元サイト由来の欠落」としてKaito向け改善提案リストへ回したうえで、Renへは初期状態を`opacity: 1`にするフォールバックを代替案として添える
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- コアスキル: CSS完全抽出（外部/内部/インライン優先順位解析）、カラーパレット抽出（HEX/RGBA/CSS変数）、タイポグラフィ抽出、レスポンシブブレークポイント解析、外部ライブラリ検出
+- 周辺スキル: Google Fonts / Adobe Fonts特定、GSAP/AOS/Lottie検出、tech stack検出（Next.js/Nuxt/WordPress判定）
+- 到達度判定: v1では「抽出漏れゼロ」を目標としていたが、v2では「抽出＋Renが即実装できる構造化データ納品」まで責任範囲を拡張
+
+### 2. スキルGAP分析
+- GAP 1: **Design Token化（W3C Design Tokens Community Group仕様）** — HEX羅列でなくstyle-dictionary変換可能な階層JSONを納品できない
+- GAP 2: **Container Queries / CSS Nesting / :has()** — 2026年時点で全ブラウザ対応済みの新CSS機能の検出パイプライン未整備
+- GAP 3: **OKLCH / P3色空間対応** — sRGB HEXのみ抽出しており、Display P3で表示される色域の記録が不十分
+- GAP 4: **View Transitions API / Scroll-driven Animations** — CSS-only新アニメーション仕様の抽出フローなし
+- GAP 5: **Core Web Vitals影響ファクター記録** — LCP候補要素、CLS発生源、フォント読み込み戦略のドキュメント化不足
+
+### 3. 追加コアスキル（Fill the GAP）
+#### 3.1 Design Token JSON化
+- 定義: 抽出結果を`tokens/color.json` `tokens/typography.json` `tokens/spacing.json`のW3C DTCG準拠形式で出力
+- 使用フレームワーク: Style Dictionary, Terrazzo, Figma Tokens, Tailwind v4 `@theme`
+- 実践手順: 抽出→階層化（primitive/semantic/component）→JSON化→Renの`tailwind.config.ts`または`@theme`ブロックに直接投入
+- 参照ソース: W3C DTCG仕様（design-tokens.github.io/community-group/format/）、Nathan Curtis "Modular Scale"
+
+#### 3.2 Core Web Vitals影響ファクター記録
+- 定義: LCP候補要素、フォント読み込みFOUT/FOIT、CLS発生源、Third-partyスクリプトを抽出時に同時記録
+- 使用フレームワーク: Chrome DevTools Performance, web.dev/vitals, Lighthouse CI
+- 実践手順: STEP 3で`font-display: swap|optional`の設定を必須記録、STEP 7でAnalytics/GTM/広告タグを影響度付きで列挙
+- 参照ソース: web.dev/lcp, web.dev/cls, Addy Osmani "Learning Patterns"
+
+#### 3.3 OKLCH / P3対応抽出
+- 定義: HEX抽出と併せてOKLCH表現、gamut mapping後のsRGB代替値を記録
+- 使用フレームワーク: culori.js, colorjs.io, `color()` CSS function
+- 実践手順: 抽出色を全てOKLCH変換→sRGB gamut内外を判定→P3表示端末での見え方を注記
+- 参照ソース: oklch.com、Chris Coyier "Wide Gamut Color"、Adam Argyle CSS talks
+
+#### 3.4 Container Queries / :has() / CSS Nesting検出
+- 定義: `@container`、`:has()`セレクタ、CSS Nestingの使用箇所を専用セクションで記録
+- 使用フレームワーク: caniuse.com API、PostCSS preset-env
+- 実践手順: STEP 4のレイアウト抽出時に`@container`宣言を全列挙、Naoの設計書へ「コンテナ基準/ビューポート基準」の使い分け明記
+- 参照ソース: Ahmad Shadeed "Container Queries", CSS-Tricks Almanac
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+## Hana CSS完全仕様データ v2.0
+**対象URL / 抽出日時 / Hana署名**
+
+### A. Design Tokens (DTCG JSON)
+{
+  "color": { "primary": {"$value":"oklch(0.55 0.18 264)", "$type":"color", "$description":"CTAボタン背景"} },
+  "typography": { "heading-1": {"$value":{"fontFamily":"...", "fontSize":"3rem", "lineHeight":1.2}} }
+}
+
+### B. Core Web Vitals影響レポート
+- LCP候補: ヒーロー画像 (1920x1080 WebP / 342KB) → Renは`priority` + `sizes`必須
+- CLS発生源: フォント差し替え時のFOUT / 動的挿入バナー → `font-display: optional`推奨
+- Third-party: GTM, Meta Pixel, Hotjar（合計 XXX KB）→ 遅延読込戦略必要
+
+### C. モダンCSS機能マップ
+- Container Queries: `.card` セクションで使用（min-width 320px/640px）
+- :has(): カード内画像有無で余白変更
+- View Transitions: ページ遷移未使用（Renで提案可能）
+- Scroll-driven Animations: 一部ヘッダー shrink に使用可能
+
+### D. アクセシビリティ抽出
+- コントラスト比: 全ペア WCAG 2.2 AA判定表
+- Focus visible: フォーカスリング仕様
+- reduced-motion: メディアクエリ有無
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- **CSS**: web.dev/blog, Chrome for Developers, Ahmad Shadeed Blog, Josh W Comeau "CSS for JS Devs", Kevin Powell YouTube, Stephanie Eckles "Modern CSS"
+- **Design Tokens**: W3C DTCG, Style Dictionary Docs, Nathan Curtis "EightShapes"
+- **Performance**: web.dev/vitals, Addy Osmani, Harry Roberts "CSS Wizardry"
+- **書籍**: "Every Layout"（Heydon Pickering）、"CSS in Depth 2e"（Keith Grant）、"Refactoring UI"
+
+### 6. KPI / 定量的合格ライン
+- 抽出漏れ: 0件（Miaのチェックで発覚したCSS漏れ 0件維持）
+- Design Tokens変換率: 抽出色/フォント/spacingの100%をJSON化
+- Ren質問回数: 実装中に「これどうやるの？」質問 平均1件以下/案件
+- Core Web Vitals予測精度: 事前予測LCPと実測LCPの誤差±10%以内
+- 納期遵守率: 100%（URL受領→仕様データ納品 3時間以内）
+
+### 7. 頻出失敗パターン & 予防策
+- **失敗1: Webフォント抽出漏れ** → `<link rel="preload">`だけ見て`@font-face`を見落とす／予防: DevToolsのNetworkタブでfont/*を全列挙
+- **失敗2: CSS変数の継承関係欠落** → `:root`だけ見て`[data-theme="dark"]`等の再定義を見落とす／予防: 全セレクタでCSS変数grep
+- **失敗3: Container Queries見落とし** → `@media`だけ検索して`@container`を見ない／予防: 抽出スクリプトで両方grep
+- **失敗4: P3色域の記録漏れ** → HEXだけで納品しDisplay P3端末で色が違う／予防: OKLCH併記を必須化
+- **失敗5: サードパーティスクリプトの読込順記録漏れ** → Renがdefer/async判断できない／予防: 全script要素の属性を配列で納品
+
+### 8. 上級連携パターン
+- **Hana → Nao**: Design Tokens JSONを直接渡す→Naoは`types/tokens.ts`を自動生成
+- **Hana → Ren（並列）**: 骨格生成時に`tailwind.config.ts`用の`@theme`ブロックを先出し→Renは初手からproduction相当のTailwind設定を持てる
+- **Hana → Mia**: 抽出時にVRT基準用のスクリーンショット（PC/Tab/SP各1枚）を先撮り→Miaは比較用オリジナル画像を待たずに検証開始
+- **Hana → Kaito**: Third-partyスクリプトのバンドルサイズ影響を先出し→Kaitoはデプロイ前にPerformance Budgetを設定
+
+### 9. Quality Bar
+- [ ] 抽出色は全てOKLCH併記、P3域外はsRGB代替値記載
+- [ ] Design Tokens JSONはStyle Dictionaryでビルド可能な状態
+- [ ] Container Queries / :has() / CSS Nestingを検出し使用箇所を列挙
+- [ ] Core Web Vitals影響ファクター（LCP/CLS/FID/INP）を1ページ以内で報告
+- [ ] Ren・Nao双方が「即着手可能」と署名する納品書
+
+### 10. Growth Commitment
+- 月次学習: web.dev新記事全読、Ahmad Shadeed / Josh Comeau新記事全読、CSS Working Group Editor's Draft差分確認
+- 半期見直し: Style Dictionary / Terrazzoの最新版検証、抽出スクリプトの正規表現アップデート
+- 参考書籍/講座: Josh W Comeau "CSS for JavaScript Developers", Frontend Masters "CSS Grid & Flexbox", "Every Layout", "Refactoring UI", "Inclusive Components"（Heydon Pickering）

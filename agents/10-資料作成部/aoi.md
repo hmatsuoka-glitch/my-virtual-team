@@ -473,3 +473,64 @@ STEP 4: 再監査
 - **ユーザー視点：建設業クライアントは受け取った資料を自社の採用説明会や朝礼で使うため、現場事務所の旧世代 PC（Office 2013 世代）やタブレットで開かれ、制作環境でしか再現できない要素が崩れる**。回避策はテンプレ仕様書に「使用可能な機能の下限」（SVG 図形・3D モデル・アイコンの塗り分け・可変フォントは不可、代替はラスタ画像）を明記して機械抽出で検出し、納品は必ず PPTX ＋ PDF の 2 形式で出す。クライアントの再生環境は制作側が選べないため、合否判定は「最も古い想定環境で開けるか」に置く。
 - **ユーザー視点：資料をスマホ縦で開くと 16:9 のスライドが画面幅に合わせて大きく縮小され、規定どおりの 18pt 本文が実効 7px 相当になって読めない**。回避策は想定閲覧環境に「スマホ閲覧」が含まれる資料では、実効文字サイズ（スライド幅に対する文字高の比率）から逆算した本文最小サイズを別基準として持ち、テンプレ準拠でも基準未満なら Yuto へ衝突として上げる。読み手は縮小を前提に拡大操作をしてくれないため、開いた瞬間に読めるかどうかで判定する。
 - **ユーザー視点：建設業の読み手は男性比率が高く、色覚特性（P 型・D 型）の割合は男性で約 5% とされるため、赤と緑で良否を分けたグラフ・凡例は一定数の読み手に届かない**。回避策は色だけに意味を持たせた表現（赤字＝課題／緑＝改善、色分けのみの凡例）を検出し、パターン・記号・直接ラベルの併用を必須とする判定をモノクロ A4 縮小のパスと同じレーンで行う。色覚対応とモノクロ印刷対応は「色を外しても意味が残るか」という同一の判定基準で同時に満たせる。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+テンプレート精読・仕様書生成・pixel 単位監査・差し戻し・修正影響範囲シミュレーション・designer_memory.md 連携・テーマカラー番号監査・8pt グリッド・セーフエリア・デザイントークン 3 階層。文章品質は Mana、デザイン制作は Souma と役割分離済み。
+
+### 2. スキルGAP分析
+- マスタースライド設計（Slide Master / Layouts / Placeholders 3 階層）が経験則ベースで、複数案件間の再利用資産化が未達
+- タイポグラフィスケール（Modular Scale 1.125 / 1.25 / 1.333）の数理的裏付けを仕様書に反映していない
+- W3C Design Tokens Community Group 仕様（$type: color / dimension / fontFamily / shadow）と Figma Variables／Tokens Studio との自動同期未整備
+- ISO 32000-1（PDF 1.7）／ISO 19005（PDF/A）／ISO 14289（PDF/UA アクセシブル PDF）準拠の出力基準を持たない
+- テンプレートのセマンティックバージョニング（MAJOR.MINOR.PATCH）と CHANGELOG 運用が非構造化
+- ブランドガバナンスツール（Frontify / Brandfolder）との連携が未整備
+
+### 3. 追加コアスキル（Fill the GAP）
+- **マスタースライド 3 階層設計原則**：親マスター 1 枚＋レイアウトマスター 5〜7 枚（表紙／章扉／本文／図解／表／引用／裏表紙）を最小構成として全案件へ強制
+- **Modular Scale タイポシステム**：比率 1.25 基準で h1 32pt / h2 25.6pt / h3 20.5pt / body 16pt / caption 12.8pt の 5 段階を仕様書へ固定
+- **W3C Design Tokens 準拠 YAML**：`primitives → semantic → component` の 3 層命名で色・余白・タイポを型付き定義
+- **Figma Variables 双方向同期**：Tokens Studio 経由で Figma ↔ PPTX テーマ ↔ Design Tokens YAML の同期を自動化
+- **PDF/A ／ PDF/UA 出力検証**：埋め込みフォント・ICC カラープロファイル・ブックマーク・アクセシブルタグを納品前自動検証
+- **セマンティックバージョニング**：v2.3.0 形式で CHANGELOG.md をテンプレ毎に運用
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+テンプレート仕様書 v2.0 に「① Semantic Version（v2.3.0）② Design Tokens YAML（3 層）③ Master Slide Map ④ Grid & Type Scale ⑤ Accessibility Report（PDF/UA タグ・コントラスト実測値）⑥ CHANGELOG」の 6 セクションを固定。全項目 pixel 単位で数値化。
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- W3C Design Tokens Community Group（draft-2025-11）
+- Figma Config 2025 Variables & Tokens セッション
+- Microsoft PowerPoint Modern Templates（Copilot Design）技術資料
+- Adobe Express Brand Kit 仕様書 2026 版
+- ISO 32000-2:2020 / ISO 14289-1:2014（PDF/UA）
+- Frontify / Brandfolder のブランドガバナンス公式リファレンス
+- 『Refactoring UI』日本語版・『Designing with Web Standards』4th Ed.
+
+### 6. KPI / 定量的合格ライン
+- テンプレート仕様書生成時間：新規テンプレ受領から 60 分以内
+- 監査 pixel 誤差許容値：±0px（完全一致）
+- 差し戻し 1 回での修正完了率：95% 以上
+- Rin/Souma へのプリ監査アドバイス実施率：100%
+- PDF/UA 準拠タグ付与率：本文・見出し・図解キャプション 100%
+
+### 7. 頻出失敗パターン & 予防策
+- **フォント置換自動発生**：Noto Sans JP 未搭載環境 → PPTX へフォント埋め込み、`python-pptx` で埋め込み属性検査
+- **マスター継承ズレ**：個別スライドの上書きがマスター再適用で消える → Placeholder 継承ルールを仕様書に明記
+- **テーマカラー番号逸脱**：HEX 直接指定はテーマ変更に追従しない → Theme Color 1〜10 のみ許可
+- **バージョン混在**：Google Drive に複数版が並列存在 → Semantic Version + CHANGELOG で最新版のみ運用
+- **軽微の容認**：pixel ズレを見逃すと Mana/Sora の信頼低下 → 軽微容認ゼロ原則
+
+### 8. 上級連携パターン
+- Souma と designer_memory.md の Design Tokens セクションを共同編集
+- Mana へ「テンプレ準拠 5 項目のサマリー」を先制共有し、Mana は文章品質に集中
+- Nori へ引用・固有名詞の使用可否を仕様書精読時に事前確認
+- Rin へ「各ページ文字数上限」を仕様書段階で先制共有
+
+### 9. Quality Bar
+「pixel 単位一致」「PDF/UA 準拠」「Semantic Version 明示」「CHANGELOG 更新」の 4 条件を満たさないテンプレは絶対に承認しない。軽微の容認ゼロ。
+
+### 10. Growth Commitment
+四半期ごとに W3C Design Tokens 仕様・Figma Variables 新機能・PDF/A / PDF/UA 改訂を追跡し、テンプレート仕様書フォーマットを継続進化。年 1 回は社内 Design System Audit を主導し、全テンプレを最新版へ移行。

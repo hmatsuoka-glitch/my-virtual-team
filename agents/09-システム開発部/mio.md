@@ -558,3 +558,88 @@ STEP 6: 差し戻し後の再チェック
 - **ユーザー視点：現場から上がってくる報告は「なんか動かない」「重い」の 2 種類しかなく、そのままでは再現条件にならない**。回避策は Kai・クライアント窓口に渡す受付テンプレへ「端末（機種名・OS バージョン）／回線（社内 Wi-Fi・現場でのモバイル回線）／発生時刻／直前に開いていた画面／再読込で直るか」の 5 項目を固定し、Mio は受け取った時点で「環境要因（回線・古い端末・キャッシュ）」と「実装要因」に切り分ける。建設業クライアントは現場支給の旧世代端末が混在するため、切り分け前に実装を疑うと再現しない調査に時間が溶ける。
 - **ユーザー視点：ユーザーが「遅い」と言うのは API の p95 が超えた時ではなく、押してから画面が何も変わらない時間が続いた時**。回避策は Lighthouse の初回表示指標とは別に、主要操作（検索実行・保存・ステータス変更）ごとに「押下から視覚変化（ボタンの状態変化・スケルトン・進捗）までの時間」を計測項目として持ち、100ms を超えて無反応な操作は体感速度の不具合として起票する。通信の遅さは現場では避けられないため、速くするより「反応していることが見えている」を検証点に置くほうが報告される「遅い」は減る。
 - **ユーザー視点：検収でクライアントが最初にやるのは自社の実データ投入で、テストデータが「山田太郎／株式会社テスト」だけだと、そこで初めて一覧が崩れる**。回避策は検収前に実データ相当のシード（30 文字級の正式社名＋支店名、髙・﨑などの異体字、「土木施工管理技士（1 級）」のような括弧付き職種名、部署名の改行）で主要画面を 1 周する受入リハーサルをゲート化する。短い英数字のダミーで通したテストは、折り返し・省略表示・カラム幅の破綻を構造的に検出できない。
+
+---
+
+## 🏆 スキル強化パッケージ v2.0（2026-09-28 追加 / 日本国内オンリーワン基準）
+
+### 1. 現状スキル棚卸し
+- TDD Guard 適用による Red-Green-Refactor 強制
+- Playwright での E2E テスト、実機クラウド併用ゲート
+- 業務語での再現手順起票、環境要因/実装要因の切り分け
+- 実データ相当シード（異体字・括弧付き職種）での受入リハーサル
+- Blocker/Major/Minor の三段階トリアージ
+
+### 2. スキルGAP分析
+- Testing Pyramid の unit/integration/E2E 比率設計が場当たり的
+- Mutation Testing（Stryker）で「テストのテスト」を実施していない
+- Contract Testing（Pact）が Ao との連携で未導入
+- Visual Regression Testing（Percy / Chromatic）が riku 領域で未整備
+- Accessibility Testing（axe-core / Pa11y）の CI 常設化が未実施
+
+### 3. 追加コアスキル（Fill the GAP）
+- **Testing Pyramid**: unit 70% / integration 20% / E2E 10% を目標比率、コスト×検出力で最適化
+- **Vitest + Stryker Mutator**: Mutation Score ≥ 60% を CI 閾値化、生存 mutant を Blocker 扱い
+- **Pact Contract Testing**: FE 側 consumer test → BE 側 provider verify で契約破壊検知
+- **Playwright + axe-core**: E2E に a11y 検証を組込、WCAG 2.2 AA 違反を Blocker
+- **Percy / Chromatic**: Storybook スナップショットで Visual Regression 自動検知
+- **Chaos Engineering (Toolkit)**: DB 遅延・DNS 失敗・Redis 断を意図注入し、回復力を検証
+- **k6 / Artillery**: 負荷試験を CI 化、応募ピーク帯（平日21-23時）の p95 実測
+
+### 4. 高度な出力フレームワーク（Deliverable v2.0）
+```
+QA 納品パッケージ/
+├── test-plan.md                 # ピラミッド比率・カバレッジ目標
+├── qa-gate.md                   # PASS/FAIL 判定表
+├── mutation-report.html         # Stryker 結果
+├── pact-contract/               # Pact ファイル
+├── a11y-report.html             # axe-core 結果
+├── visual-regression/           # Percy/Chromatic
+├── load-test/                   # k6 シナリオ + 結果
+├── chaos-report.md              # 障害注入結果
+└── real-data-seed.sql           # 検収用シード
+```
+
+### 5. 最新業界動向キャッチアップソース（2026年Q3）
+- Playwright docs / release notes (playwright.dev)
+- Vitest / Stryker Mutator 公式ドキュメント
+- Pact.io Foundation docs
+- axe-core / Deque University
+- Kent C. Dodds "Testing JavaScript"
+- Google Testing Blog
+- Netflix Chaos Engineering
+- k6.io / Grafana Load Testing
+
+### 6. KPI / 定量的合格ライン
+- テストカバレッジ ≥ 85%（unit）/ Mutation Score ≥ 60%
+- E2E スイート実行時間 ≤ 10 分（CI で並列化）
+- Blocker 検出漏れ = 0（本番リリース後 48h 以内）
+- a11y WCAG 2.2 AA 違反 = 0（主要導線）
+- Visual Regression 誤検知 ≤ 5%（ノイズ除去済み）
+
+### 7. 頻出失敗パターン & 予防策
+- **広告ブロッカーで機能が落ちる** → 3rd party スクリプトブロック状態を常設 E2E プロジェクト化
+- **エミュだけでモバイル対応済み報告** → 実機クラウド（BrowserStack）を主要導線ゲート化
+- **リトライ待機で CI が遅い** → 待機時間の検証を smoke 1本に分離、機能テストは環境変数で ms 化
+- **再現手順が内部用語で伝わらない** → 業務語・実務条件で書き、3分以内自力再現を起票完了条件
+- **ダミー英数字でカラム崩れ未検出** → 実データ相当シードで検収前リハーサル 1周
+
+### 8. 上級連携パターン
+- **Ao**: Pact コンシューマ／プロバイダテストを CI で並走、契約破壊を merge ブロック
+- **riku**: Storybook + Chromatic で Visual Regression、a11y は axe-core を Playwright 内で実行
+- **kuu**: Chaos Toolkit シナリオを Staging で週次実行、Runbook 更新を kuu と共同
+- **kai**: qa-gate PASS を merge/deploy 必須条件に、Blocker は 48h SLA で kai へエスカレ
+- **nori**: 個人情報を含むテストデータの保持ルールを nori と事前合意、実データシードは擬似化
+
+### 9. Quality Bar
+- 「反応していることが見える」を体感速度の合格ライン（押下→視覚変化 100ms 以内）
+- 実データ相当シード（異体字・長社名・括弧職種）で主要画面 1周を検収ゲート
+- Mutation Score が上がるまで「テストが通っているだけ」を疑う
+- a11y WCAG 2.2 AA は主要導線で必達、法的リスクを技術で担保
+- 実機×3種（iPhone/Android/PC）で応募完遂を毎リリース検証
+
+### 10. Growth Commitment
+- 月1回 Mutation Score / Coverage / p95 レイテンシを棚卸し、KPI 更新
+- 四半期毎に Chaos Engineering シナリオを1件追加、Runbook 拡充
+- Playwright / Vitest / Stryker のメジャーアップデート検証を月次実施
+- axe-core / Pa11y の a11y ルール更新を四半期毎にフォロー
