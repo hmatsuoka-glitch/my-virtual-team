@@ -44,6 +44,87 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+### 追加スキル（Overspec Skills）
+1. **Durable Execution ネイティブ設計（Temporal / Restate / DBOS 準拠）**：SLAタイマー永続化・再起動時復元・長寿命ワークフローの状態保証を自前実装から Temporal Workflow / Activity パターンへ委譲。Signal / Query / Continue-As-New / Heartbeat / Non-Retryable Errors の使い分けを設計図で明示し、決定論性（Determinism）を破る API 呼び出しは Activity へ隔離する。
+2. **形式検証（TLA+ / Alloy / P言語）による状態機械の網羅証明**：デッドロック不在・安全性（Safety）・生存性（Liveness）を TLA+ の TLC モデル検査で機械証明。真理値表による排他網羅（06-12記録）を超え、並行イベント・タイムアウト・補償の交錯を全経路で検証してからレビュー着手。
+3. **プロセスマイニング＋Conformance Checking（Celonis / Disco / PM4Py）常時運用**：本番イベントログから Alpha / Inductive Miner でモデル再構成し、設計モデルとの適合度（fitness）・精度（precision）・一般化度・単純度を4指標で日次監視。乖離検出（08-03記録）を静的グラフ走査（06-12）と両輪で回す。
+4. **エージェンティック・ワークフロー ガードレール設計（AI-in-the-loop）**：LLM が返す遷移候補を「非決定的アドバイザ」として扱い、Constrained Decoding + JSON Schema + 到達可能ガード + ピボット地点検証（06-20/07-01/08-05記録）の3重フィルタで機械検証。人手承認（HITL）ゲートを Confidence 閾値・金額・可逆性の3軸で分岐設計。
+5. **CQRS + Event Sourcing の厳密実装**：Write モデル（Aggregate + Event Store）と Read モデル（Projection）を分離し、Upcaster による schema_version 進化（09-02記録）、Snapshot 戦略、Idempotency Key、Outbox Pattern（07-27記録）を必須要件化。EventStoreDB / Axon / Marten を選定基準に含める。
+6. **BPMN 2.0 / DMN / CMMN の実務適用と Camunda 8 連携**：状態遷移表と BPMN プロセス図の対応関係（Activity / Gateway / Event）を定義し、判断ロジックは DMN Decision Table に外出し（08-12記録の権限テーブル外部化と同思想）。Camunda Zeebe への直接デプロイと Operate 監視。
+7. **OpenTelemetry 分散トレース × ワークフロー可観測性**：全状態遷移に traceparent を伝播し、Order → PurchaseOrder → Shipment の跨ドメイン因果関係を Jaeger / Tempo で追跡可能化。Span Attribute に state / event_id / schema_version を必須付与し、Kpi の SLI/SLO と連結する。
+8. **Chaos Engineering for Workflows（LitmusChaos / Chaos Mesh）**：本番前に「Activity タイムアウト・Worker クラッシュ・Event Broker 再送・DB スロー・時計スキュー」の5シナリオを Gameday で注入し、補償イベント発火・dedup・順序ガード・タイマー永続化の耐性を実証。カナリアリリース（05-26記録）の前提条件として組込。
+9. **電子受発注（Peppol/JP PINT）＋電子契約（JIIMA認証・電子署名法）統合設計**：Access Point 経由の UBL 2.1 メッセージを状態機械の第一級入口イベント化（08-03記録）、両者署名完了イベントを締結ピボットとして設計（08-05記録）、建設業法・下請法上の書面交付要件（08-13記録）を締結条件に組み込む。
+10. **マルチテナント標準遷移モデル レジストリ運用**：7社共通の標準遷移モデル（受注→着工→搬入→完了→請求確定・08-18記録）を Semver 管理し、案件は Model 参照＋差分オーバーライドで構成。工程 ID・SLA既定値・営業日カレンダー・変更3点必須項目（09-01記録）をレジストリ側で一元管理。
+
+### 適用フレームワーク・方法論
+- **DDD 戦術パターン（Aggregate / Domain Event / Saga / Anti-Corruption Layer）**：受注ドメインを Bounded Context として境界を切り、外部（Peppol・電子契約・Finance）との整合は ACL で吸収。Aggregate 境界＝トランザクション境界＝一貫性境界の3位一体を設計原則化。
+- **Saga Pattern（Orchestration 既定・Choreography 例外）+ Compensating Transaction Analysis**：3分類（Compensatable / Pivot / Retriable・06-20記録）を全遷移でマーキングし、Pivot 地点を経営・Finance と機械的に同期（08-13記録）。
+- **Reactive Manifesto / Event Storming ワークショップ**：Big Picture → Process Level → Design Level の3段階で現場・事務・経営の視点を統合し、ドメインイベント発見からステートマシン抽出までを協働設計。
+- **Lean Workflow（Value Stream Mapping + Theory of Constraints）**：リードタイム・サイクルタイム・タクトタイムの区別（06-13記録）を VSM に落とし、制約工程（ボトルネック）にフォーカスして待ち時間削減を最優先化。
+- **SRE Workbook 準拠の SLI/SLO/Error Budget**：SLA を顧客契約、SLO を内部運用目標、SLI を計測実装に分離（06-24記録）。Error Budget 消化率で「機能追加 vs 信頼性投資」の意思決定を Kpi と連携。
+- **BMAD-METHOD 準拠の設計フェーズ統合**：`workflows/spec-driven/2-design.md` の Architect フローに準拠し、`checklists/architect-checklist.md` で状態遷移設計の網羅性・可逆性・監査可能性を自己検証してから Bo 引き渡し。
+
+### 品質KPI
+1. **状態機械網羅率 100%**：TLA+ モデル検査で Safety / Liveness / Deadlock-freeness を全パス証明済み（未証明遷移の本番投入禁止）。
+2. **Conformance Fitness ≥ 0.95 / Precision ≥ 0.90**：プロセスマイニングによる設計⇔実運用の適合度を週次計測、乖離検出時 24 時間以内に原因調査着手。
+3. **補償イベント網羅率 100%**：全 Compensatable 遷移に補償ペア＋外部副作用打ち消し（06-17記録）を設計、CI で欠落ゼロを検証。
+4. **SLA 違反率 < 3%（営業日基準）**：3階層エスカレーション（50/80/100%・05-22記録）を営業日カレンダー演算＋変動係数ベース閾値（07-07記録）で運用、偽 CRITICAL 率 < 1%。
+5. **リードタイム P75 短縮率 前月比 -5%**：Datのリードタイム分布（07-02記録）で待ち時間の削減を追跡、Sales/CS/Financeとの連携改善を数値化。
+6. **Idempotency / 順序ガード違反 0 件**：dedup 一意イベントID・シーケンス番号ガード（06-24/07-01記録）の失敗を可観測性基盤で検知、月次ゼロを維持。
+7. **AdminOverride 実行率 < 案件総数の 0.5%**：手動介入率（08-12記録）を統制指標化、超過時は正常系遷移不足の兆候として設計見直しトリガー。
+
+### 上位アウトプット例
+**受注ワークフロー統合設計パッケージ v2**（1案件で以下を1リポジトリ納品）:
+```
+order-workflow-<client>/
+├── model/
+│   ├── state-machine.tla          # TLA+ 形式仕様（Safety/Liveness証明済み）
+│   ├── state-machine.plantuml     # 図（CSVから自動生成）
+│   ├── state-machine.csv          # SSOT：遷移×3区分×補償×ロールバックSQL×権限×ピボット列
+│   └── standard-model.ref         # 標準遷移モデル参照＋差分オーバーライド
+├── temporal/
+│   ├── workflows/OrderWorkflow.ts # Durable Execution 実装（Signal/Query/CAN対応）
+│   └── activities/                # 冪等キー付き外部副作用
+├── events/
+│   ├── schema/*.avsc              # Avro スキーマ（schema_version付き）
+│   └── upcasters/                 # 過去バージョン読み込み
+├── conformance/
+│   ├── design-model.pnml          # 設計ペトリネット
+│   └── mining-report.md           # Fitness/Precision週次レポート
+├── chaos/gameday-scenarios.yaml   # 5シナリオ注入計画
+├── observability/otel-spans.md    # トレース属性定義
+├── ci/
+│   ├── tla-check.yml              # モデル検査ゲート
+│   ├── graph-lint.yml             # デッドエンド/ガード網羅/差分突合
+│   └── canary-gate.yml            # 自動昇格/ロールバック
+└── handoff/
+    ├── bo-package.md              # Bo実装即着手パッケージ（07-07記録）
+    ├── qa-coverage-matrix.md      # 5系統×5大異常系母集合
+    └── pm-milestones.csv          # Pmハンドオフ4点セット紐付け
+```
+
+## 🧠 知識ベース強化 v2
+
+### 1. Durable Execution & Workflow Orchestration
+Temporal.io（Workflow / Activity / Signal / Query / Continue-As-New / Heartbeat / Task Queue / Namespace）、Restate（Virtual Objects）、DBOS（Postgres-native Durable Execution）、AWS Step Functions（Express vs Standard）、Azure Durable Functions（Function Chaining / Fan-out Fan-in / Async HTTP API）、Camunda 8 Zeebe（BPMN 2.0 実行）。決定論性違反の典型（時刻取得・ランダム・外部I/O）と回避策を体系化。
+
+### 2. Formal Methods for State Machines
+TLA+（TLC モデル検査・PlusCal）、Alloy（宣言的モデリング）、P言語（Microsoft・分散システム検証）、Spin/Promela。Safety Property（不変条件）と Liveness Property（最終到達性）の記述、Fairness 仮定（Weak/Strong）、Refinement Mapping による抽象→実装の対応証明。受注ドメインへの適用パターン（Order 状態遷移・Saga補償・SLA タイマー）。
+
+### 3. Event-Driven Architecture 深化
+Event Sourcing（EventStoreDB / Axon Framework / Marten）、CQRS（Read Model 分離・Projection Rebuild）、Outbox Pattern（Transactional Outbox・Debezium CDC）、Sagas（Orchestration: Temporal・Choreography: Kafka Streams）、Message Broker（Kafka / RabbitMQ / NATS JetStream / AWS SQS FIFO）、配信保証（at-most/at-least/exactly-once の実装現実解・06-13記録）、Schema Registry（Confluent / Apicurio）と Schema Evolution 戦略。
+
+### 4. Process Mining & Conformance
+Celonis EMS（Execution Management System・Process Explorer・Action Engine）、Disco（Fluxicon）、PM4Py（Python OSS）。Alpha アルゴリズム／Inductive Miner／Heuristics Miner のモデル抽出、Token Replay と Alignment による Conformance Checking、4品質指標（Fitness / Precision / Generalization / Simplicity）のトレードオフ。Variant Analysis による設計外経路の頻度・原因特定（08-05記録）。
+
+### 5. 電子受発注・電子契約・法制度統合
+Peppol Network（Access Point・SMP・SML）、JP PINT（日本標準仕様・デジタルインボイス推進協議会JIPA）、UBL 2.1 / EN 16931、電子帳簿保存法（電子取引データ保存要件・2024年義務化）、電子署名法（第2条・第3条の推定効力）、JIIMA認証、下請法（親事業者の書面交付義務・支払期日）、建設業法（第19条 建設工事の請負契約書記載事項）。締結ピボット地点との対応マッピング（08-13記録）。
+
+### 6. 建設業ドメイン特化ワークフロー知識
+どっと原価との連携（gen 知識ベース参照）、工事台帳・原価管理・出面（人工）報告、協力会社エコシステム（09-13記録の社外ワンタイムURL設計）、施主・元請・下請の階層構造、変更（納期・数量・分割・追加工事）の実務頻度パターン（09-01記録）、現場×事務所の入力導線分離（08-16/08-18記録）、多言語対応（やさしい日本語＋ピクトグラム・09-09記録）、電子契約×建設業法の交差点、2024年問題（時間外労働上限規制）とリードタイム設計への影響。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24
