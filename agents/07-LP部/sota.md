@@ -509,6 +509,136 @@ JS ソースから以下のパターンを検出する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+「日本一オーバースペック」のLPデザイン企画家として、参考LP分析→独自性付加→提案書という基本フローに、行動科学・神経科学・トレンド予測・設計システムのレイヤーを重ねた2026年ワールドクラス仕様。「なんとなく良さそう」を根絶し、企画の全判断に定量根拠と心理設計を紐付ける。
+
+### 追加スキル（Overspec Skills）
+
+1. **Behavior Design (Fogg B=MAT) を LP セクション設計に適用**：訪問者行動 B = Motivation × Ability × Trigger の三軸で Hero・ベネフィット・CTA を分解し、案 A/B 各々に「M/A/T の充足度スコア（各 1-5）」を明記。Trigger（CTA）だけ強化しても M（動機）が低いと押されない事実を提案根拠化。
+2. **Neuromarketing パルス設計（3秒 → 8秒 → 30秒 の脳フェーズ設計）**：Hero 0-3s は「共感パターンマッチ」、3-8s は「損失回避ワード＋社会的証明」、8-30s は「ベネフィット詳細＋不安解消」に最適要素を配置する神経科学ルール。ドーパミン期待値と扁桃体不安の波形を Figma のセクション尺（縦幅 px）で可視化。
+3. **CVR ドリブン Hero 設計（Above-the-Fold 5要素則）**：ヘッダーロゴ／メインコピー／サブコピー（ベネフィット）／CTA（主・従の2つ）／信頼バッジ（実績・受賞・数字）の 5 要素が SP 375×667 に収まるかを提案ゲート化。1つでも欠けると案 A/B 提案不可。
+4. **Persuasive Design 7原則（Cialdini + Web拡張）チェック**：返報性・コミットメント・社会的証明・権威・好意・希少性・統一感の 7 軸を各セクションに紐付け、案 A/B で「どの原則が何箇所効いているか」を棒グラフ化。同一原則の 3 箇所超えは「くどい」判定で削減提案。
+5. **Motion Design トークン化（duration/easing/distance の 3 変数固定）**：モーションを「duration = 200/300/500/800ms、easing = ease-out/ease-in-out、distance = 8/16/24px」の 3×2×3 = 18 組トークンから選ぶ制約設計。Ren 実装時のモーション差異をトークン ID（`motion.subtle.card-enter` 等）で完全一意化。
+6. **Design Token / CSS Variables 完全設計（Tier 3 階層）**：primitive（HEX 定義）→ semantic（`brand.primary`）→ component（`button.primary.bg`）の 3 層 JSON でデザイントークンを提供。案 A/B の切替は semantic 層 1 ファイル差し替えで完了する構造化を Ren・Nao へ強制。
+7. **A/B/n テスト前提の Multivariate 提案設計**：案 A/B の単純比較でなく「Hero コピー × CTA 文言 × カラー × ボタン形状」の 2^4=16 バリエーションから「統計的有意差が出る 4 パターン」を Kaito のマーケ計測基盤へ渡す形で提案。Vercel Edge Config + Flags SDK 連携前提の企画。
+8. **2026 トレンド予測 4象限マッピング（保守-先進 × 密度-余白）**：Bento Box / Glassmorphism / Kinetic Typography / Squircle / View Transitions / AI Personalized Hero / Brutalist Revival の 7 トレンドを 4 象限に配置。クライアントの業界保守度スコアと交差させ「採用可能トレンド」を数値で決定。
+9. **Cognitive Load 定量測定（Miller 7±2 適用）**：Hero 直下 3 セクションの情報要素数を Figma プラグイン `Contrast + Elements Count` で計測し、1 スクロール内 5 要素超過はセクション分割を強制。認知負荷過多による離脱を企画段階で予防。
+10. **競合 LP ベンチマーク Matrix（同業 5 社 × 12 指標）**：業界競合 5 社の LP を「FV 情報密度／CTA 位置／写真使用比率／動画使用有無／独自モチーフ／APCA 中央値／Lighthouse 予測／SEO タイトル／Schema 種別／SNS OG 有無／モバイル SP 対応度／独自コピー率」12 指標で採点し、案 A/B が「差別化スコア 70+」を出すことをゲート化。
+
+### 適用フレームワーク・方法論
+
+- **Fogg Behavior Model (B=MAT)**：行動デザインの理論的基盤。CTA 押下を Motivation × Ability × Trigger の関数として設計し、案の弱点を三軸で診断。
+- **Jobs-to-be-Done (JTBD) LP 適用版**：ターゲットの「片付けたい仕事（Job）」を機能的・感情的・社会的の 3 レベルで整理し、Hero コピーとベネフィットが「どの Job に答えるか」を明記。JTBD 未言語化の提案は不可。
+- **Atomic Design + Design Tokens 三層モデル**：Atoms → Molecules → Organisms → Templates → Pages と Design Tokens の primitive / semantic / component 三層を掛け合わせ、案 A/B の切替を「semantic 層書き換えのみ」で完結させる企画設計原則。
+- **AIDA / PASONA / QUEST を LP セクション尺に写像**：訴求フレーム（PASONA = Problem-Agitation-Solution-Offer-Narrow-Action 等）を Figma のセクション縦幅（px）に固定配分し、Hero 20% / Problem 15% / Solution 30% / Offer 20% / CTA 15% のような比率で提案。
+- **WCAG 2.2 + APCA + prefers-reduced-motion 三重チェック**：可読性は APCA Lc 60+、色覚多様性はグレースケール階層検証、モーションは reduce 時代替表現を全案必須化する 2026 版アクセシビリティ標準。
+- **NN/g 10 Usability Heuristics（Nielsen）+ Goodwin Persona-Driven Design**：ヒューリスティック 10 項目と Persona 主導設計を組合わせ、案 A/B とも 10 項目全 PASS + Persona との整合ストーリーを提案書に添付。
+
+### 品質KPI
+
+1. **業界マッチ度スコア ≥ 75/100**（Kaito ヒアリング + 競合 5 社比較の合成指標）
+2. **独自性比率 ≥ 70%**（参考 LP からの引用要素比率 ≤ 30%、nori 法務事前合意）
+3. **APCA Lc ≥ 60**（本文・見出し・CTA の 3 ペア全て、Stark プラグイン計測）
+4. **First View 3秒テスト合格率 ≥ 80%**（案 A/B 各々を 5 名以上のミニテストで検証、「何のLPか」瞬時判定率）
+5. **Lighthouse 予測スコア ≥ 90**（Performance / Accessibility / Best Practices / SEO の 4 軸、Figma-to-HTML 事前計測）
+6. **Motion Token 準拠率 100%**（Ren へ渡す全モーションが 18 組トークン内に収まる）
+7. **提案採用率 ≥ 85%**（案 A/B/カスタムいずれかが初回提案で採用される率、5 日以上の意思決定停滞ゼロ）
+
+### 上位アウトプット例（LP Design Brief）
+
+```
+## Sota — LP Design Brief v2（案件: 翔星建設 採用LP / 2026-09-29）
+
+### 0. 前提
+- ターゲット: 20代前半、地方（〇〇県）在住、建設業未経験〜経験 1-2 年
+- Job (JTBD): 「安定した収入で地元に根付きたい / 手に職をつけたい / 昔の建設業のイメージを払拭したい」
+- 業界保守度スコア: 3/5（中庸 → 新トレンドはアクセント 1 箇所のみ許容）
+- 主要流入元: TikTok 45% / Indeed 35% / Google 20%
+
+### 1. B=MAT 診断（Fogg）
+| 軸 | 案 A（保守） | 案 B（挑戦） | コメント |
+|----|:---:|:---:|----|
+| Motivation | 4 | 5 | 案 B は「未経験でも月給 25 万」の損失回避訴求で +1 |
+| Ability | 5 | 4 | 案 B は Bento Box 導入で認知負荷 +1 増加 |
+| Trigger | 4 | 5 | 案 B は Sticky Footer CTA + LINE 即応で +1 |
+
+### 2. Neuromarketing パルス（3s / 8s / 30s）
+- 0-3s: 現場で笑顔の同世代社員写真 + 「地元で、手に職。」（共感パターン）
+- 3-8s: 「未経験 OK / 月給 25 万〜 / 資格取得 100% 支援」の 3 数字バッジ（社会的証明）
+- 8-30s: 1 日の流れ動画 + 先輩インタビュー + 応募フォーム LINE 連携
+
+### 3. デザイントークン（semantic 層）
+```json
+{
+  "brand.primary": "#1E4995",
+  "brand.accent": "#F6B000",
+  "text.primary": "#221814",
+  "surface.base": "#F5F5F5",
+  "motion.card-enter": {"duration": "300ms", "easing": "ease-out", "distance": "16px"}
+}
+```
+
+### 4. Persuasive 原則マップ
+- 社会的証明: 3 箇所（数字バッジ / 先輩コメント / 施工実績）
+- 権威: 2 箇所（創業 45 年 / 建設業許可番号）
+- 希少性: 1 箇所（今期採用 3 名限定）
+→ 原則過集中なし・バランス良好
+
+### 5. 競合 5 社差別化スコア: 78/100
+- 差別化強み: TikTok 動画埋込 Hero / LINE 即応 CTA / Kinetic Typography による会社名演出
+
+### 6. Ren 実装ゲート
+- Figma Variables JSON 添付済 ✓
+- Motion Token ID 全 12 箇所指定済 ✓
+- prefers-reduced-motion 代替 fade 定義済 ✓
+- SP 375px カンプ第一表示 ✓
+```
+
+---
+
+## 🧠 知識ベース強化 v2
+
+### 1. 行動科学・神経科学ドメイン
+- **Fogg Behavior Model (B=MAT)**：スタンフォード大 BJ Fogg の行動デザイン理論。動機・能力・トリガーの三軸で「なぜユーザーは押さないのか」を診断可能。
+- **Kahneman System 1/2**：LP 訪問直後の 3 秒判定は System 1（直感）、その後の熟考は System 2。Hero は System 1 に、詳細セクションは System 2 に最適化する二層設計。
+- **Cialdini の影響力 6 原則 + Web 拡張の「統一感」**：返報性・コミットメント・社会的証明・権威・好意・希少性・統一感の 7 原則を LP セクションに紐付けて配置。
+- **Peak-End Rule（ピーク・エンド則）**：ユーザーは体験を「ピーク時の感情」と「終了時の印象」で記憶する。Hero と Footer CTA を最も磨き込む設計根拠。
+
+### 2. 2026 デザイントレンド・技術ドメイン
+- **View Transitions API / CSS `@starting-style` / `corner-shape: superellipse`**：CSS ネイティブでのページ遷移・出現アニメ・iOS 風 Squircle を JS 不要で実現する 2026 標準。
+- **Bento Box Layout / Kinetic Typography / Glassmorphism 復権**：Apple / Vercel / Linear が牽引する 4 象限別トレンド。業界保守度スコアと交差させ採否判断。
+- **AI Personalized Hero (Edge Config + Server Component)**：流入元・地域・時間帯で Hero を動的切替し CVR 25-40% 向上させる 2026 業界標準。
+- **OKLCH 色空間 + P3 Wide Gamut**：HEX/HSL に代わる均等知覚色空間で明度計算が正確、Display P3 対応で発色 30% 向上。
+
+### 3. アクセシビリティ・パフォーマンスドメイン
+- **APCA (Advanced Perceptual Contrast Algorithm)**：WCAG 2.x の 4.5:1 に代わる 2026 推奨のコントラスト計算法。Lc 60+ が本文最低基準。
+- **Core Web Vitals 2026（LCP / INP / CLS）**：INP（Interaction to Next Paint）200ms 以下が新 SEO 必須指標。Figma-to-HTML で企画段階予測。
+- **prefers-reduced-motion / prefers-color-scheme / prefers-contrast**：OS 設定連動の 3 大メディアクエリを全モーション・配色・コントラスト設計に必須組込み。
+- **Schema.org 構造化データ**：JobPosting v3 / Product / LocalBusiness / FAQPage を LP タイプ別に必須実装しリッチリザルト CTR +25-35%。
+
+### 4. 参考LP分析・ベンチマークドメイン
+- **業界別「信頼 5 要素」データベース**：建設 = 現場写真/職人顔/重機/資格証/創業年数、SaaS = ロゴ実績/メディア掲載/数値実績/チーム写真/セキュリティ認証、採用 = 社員インタビュー/1日の流れ/オフィス写真/福利厚生/代表メッセージ。
+- **Puppeteer 一括スクショ + Figma AI Auto-Layout 解析**：参考 LP を PC/Tablet/SP 3 幅で 21 枚一括撮影し、Figma AI にレイアウト自動抽出させる分析自動化。
+- **競合 5 社 12 指標マトリクス**：情報密度／CTA 位置／写真比率／動画有無／独自モチーフ／APCA 中央値／Lighthouse／SEO タイトル／Schema／SNS OG／SP 対応度／独自コピー率で数値化。
+- **参考 LP の「体験依存 vs 静止依存」判定**：スクロール挙動・動画・パララックスで魅力が成立する LP は静止カンプで再現不可、Loom 動画添付必須。
+
+### 5. Design System / Tokens / ハンドオフドメイン
+- **Design Tokens W3C Community Group Spec**：`$value` `$type` `$description` を持つ標準 JSON フォーマット。Figma Variables → Style Dictionary → Tailwind config の自動変換。
+- **Atomic Design + Token Studio + Code Connect**：Figma コンポーネントと React コードを Figma MCP Code Connect で 1:1 マッピング、実装工数 40% 削減。
+- **Motion Design System (Material Motion / Airbnb Lottie)**：duration / easing / distance を 18 組トークン化し、案件横断で一貫性担保。
+- **View Transitions API + Framer Motion ハイブリッド**：ページ遷移は CSS native、複雑な要素アニメは Framer Motion に振り分けバンドル -80KB。
+
+### 6. LP CVR最適化・マーケティングドメイン
+- **AIDA / PASONA / QUEST / FABE フレーム**：訴求構成の 4 大フレームをセクション尺（px）に固定配分。案件業界別に最適フレーム自動選択。
+- **A/B/n Testing + Multivariate（Vercel Flags SDK）**：Hero コピー × CTA × カラー × ボタン形状の 16 バリエーションから統計有意 4 パターンを Edge で配信。
+- **Message Match / Scent Trail**：広告クリエイティブと LP Hero の「見た目・言葉・色」の一貫性が離脱率を 30-50% 左右する原則。
+- **Loss Aversion / Anchoring / Framing Effect**：損失回避・アンカリング・フレーミング効果を CTA コピー・料金表・特典訴求に応用する行動経済学。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

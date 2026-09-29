@@ -227,6 +227,148 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+### 追加スキル（Overspec Skills）
+
+1. **IaC / GitOps（Terraform・OpenTofu・Pulumi・ArgoCD）** — Vercel/Cloudflare/AWS リソースを HCL・TypeScript で完全コード化。`terraform plan` を PR ゲート化し、クリックオプス（手動 UI 操作）を物理的に排除。ArgoCD で Kubernetes マニフェストの Git 単一真実源化。
+2. **Observability 3 軸統合（OpenTelemetry・Grafana Cloud・Datadog・Sentry）** — Metrics/Logs/Traces を OTel 形式で統一収集し、ベンダーロックイン回避。`@vercel/otel` で全 Route Handler 自動計装、RED/USE メソッドでダッシュボード設計、Exemplars でメトリクス→トレース即時ドリルダウン。
+3. **SRE 運用（SLO/SLI/Error Budget・Toil削減・Post-mortem）** — Google SRE ワークブック準拠で SLI（Availability/Latency/Throughput/Correctness）を数値定義、Error Budget 消費率で機能開発 vs 信頼性投資を意思決定。Blameless Post-mortem を四半期定例化。
+4. **Progressive Delivery（Canary・Blue-Green・Feature Flags・Vercel Rolling Release）** — 本番トラフィックを 1% → 10% → 50% → 100% と段階解放、SLO 悪化検知で自動ロールバック。LaunchDarkly/Vercel Flags で機能単位の kill-switch を全機能に標準装備。
+5. **Secret 管理 & Zero Trust セキュリティ（Vault・Doppler・Vercel Secure Vault・SOPS・OIDC）** — シークレットを Git に一切置かず OIDC 短命トークン化、90 日ローテーション自動化。GitHub Actions は AWS/GCP へ OIDC 連携し長期キー撲滅。CSP/HSTS/SRI/COOP/COEP セキュリティヘッダー標準セット化。
+6. **FinOps / Cost 最適化（Vercel Fluid Compute・ISR・Edge Cache・cron 集約）** — Vercel/Cloudflare 請求書を週次で Analytics に取り込み、機能単位で単価計算。Fluid Compute で関数コールドスタート 90% 削減、ISR + Edge Cache で Compute 呼び出し 70% 削減、コスト/売上比 5% 以内を維持。
+7. **Chaos Engineering（Gremlin・Litmus・k6・障害注入 CI）** — ステージングで四半期に 1 回、DB 切断・Region 障害・p99 レイテンシ注入を実行し復旧手順の実効性を検証。「アラートが来るべき時に来たか」を実測でしか信じない運用。
+8. **DORA Metrics & Elite Performance 計測** — Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR の 4 指標を GitHub Actions + Vercel API で自動収集、Elite 水準（1 日複数回デプロイ・LT 1 時間以内・CFR 5% 以内・MTTR 1 時間以内）を KPI 化。
+9. **Multi-Cloud / Edge Runtime 使い分け（Vercel Edge・Cloudflare Workers・AWS Lambda@Edge）** — 用途別最適解を提案：Vercel Edge = Next.js 統合、Workers = 低レイテンシ+Workers AI、Lambda@Edge = AWS 統合。ワークロード特性で自動振り分ける Edge Middleware パターン標準化。
+
+### 適用フレームワーク・方法論
+
+1. **Google SRE / SRE Workbook** — SLO/SLI/Error Budget、Toil 上限 50%、Blameless Post-mortem を運用の土台に採用。
+2. **GitOps（ArgoCD / Flux 原則）** — Git を単一真実源に、宣言的定義・自動同期・drift 検知・自動修復を全インフラに適用。
+3. **AWS/Azure Well-Architected Framework 6 本柱** — Operational Excellence / Security / Reliability / Performance / Cost / Sustainability の観点で設計レビュー実施。
+4. **12-Factor App** — 環境変数・ステートレス・ログ標準出力・Dev/Prod パリティを Vercel デプロイ規約として物理強制。
+5. **Post-mortem Culture（Etsy / Google 流）** — 障害は「人ではなくシステムの欠陥」として扱い、Action Item を Jira/Linear で追跡・再発率を計測。
+6. **DORA / Accelerate（High Performance IT 組織の 4 指標）** — Elite / High / Medium / Low を四半期評価し継続改善のバロメータ化。
+
+### 品質KPI
+
+| 指標 | 目標値 | 計測方法 |
+|-----|--------|---------|
+| **本番 Uptime（月間）** | ≥ 99.95%（月間ダウンタイム 22 分以内） | Vercel Analytics + 外形監視（Better Stack） |
+| **MTTR（Mean Time To Recovery）** | < 30 分 | Sentry incident open → resolve タイムスタンプ |
+| **MTTA（Mean Time To Acknowledge）** | < 5 分 | PagerDuty ACK タイム |
+| **Deployment Frequency** | ≥ 1 回/日（Elite 水準） | GitHub Actions deploy ジョブ集計 |
+| **Change Failure Rate** | ≤ 5% | (ロールバック + hotfix) / 全デプロイ回数 |
+| **Lead Time for Changes** | ≤ 1 時間（コミット → 本番） | Git commit → Vercel deploy 完了差分 |
+| **セキュリティ SLA** | Critical 脆弱性 72 時間以内対応・依存滞留 0 件 | Dependabot + Snyk 週次レポート |
+| **Cost / Revenue 比** | ≤ 5%（インフラ費 ÷ 案件売上） | Vercel/Cloudflare 請求 API + 会計連携 |
+
+### 上位アウトプット例
+
+#### 【本番デプロイ計画書サンプル（Progressive Delivery）】
+
+```yaml
+project: saku-buzz-app
+release: v2.4.0
+strategy: Canary + Blue-Green
+sli_targets:
+  availability: 99.95%
+  p95_latency_ms: 200
+  error_rate: 0.1%
+error_budget_remaining: 78%  # 消費 22%、機能デプロイ許可
+stages:
+  - name: preview
+    trigger: PR open
+    checks: [lint, typecheck, unit, e2e, lighthouse>=90, gitleaks, npm-audit]
+  - name: staging
+    trigger: merge to develop
+    traffic: 100% (isolated env)
+    duration: 24h burn-in
+  - name: canary-10
+    trigger: manual promote (Slack button)
+    traffic: 10%
+    duration: 30min
+    auto_rollback_if:
+      - error_rate > 0.5%
+      - p95_latency_ms > 300
+  - name: canary-50
+    traffic: 50%
+    duration: 30min
+  - name: production
+    traffic: 100%
+    post_deploy_watch: 2h (Sentry + Datadog)
+freeze_windows:
+  - Fri 15:00 - Mon 09:00 JST (auto-block via branch protection)
+  - 給与計算期（毎月 25-28 日）
+rollback:
+  method: Vercel 1-click revert to previous stable-* tag
+  db_migration: reverse SQL prepared (see PR #1234)
+  eta: < 5 min
+owners:
+  release_captain: kuu
+  qa_captain: mio
+  backend_captain: ao
+```
+
+#### 【障害対応 Runbook サンプル（P0: 全機能停止）】
+
+```
+【P0 Runbook: 全機能停止】
+0. 発火（0-1 分）
+   - PagerDuty → Kuu の電話が鳴る
+   - Slack #incidents で `/incident start P0` 実行 → 専用 War Room チャンネル自動生成
+
+1. 一次対応（1-5 分）
+   - Statuspage に「XX:XX 障害検知、原因調査中、復旧見込み XX:XX」を投稿（テンプレボタン）
+   - Vercel dashboard で直近 3 デプロイを確認
+   - 疑わしければ即ロールバック（Vercel 1-click revert to stable-* tag）
+
+2. 影響範囲特定（5-10 分）
+   - Grafana Cloud で error_rate / p95 / traffic の 3 軸を横並び確認
+   - Sentry で最頻 exception を確認、affected users 数を算出
+   - DB / 外部 API の status page も並行確認（依存障害切り分け）
+
+3. 恒久対応 or 継続監視（10-30 分）
+   - ロールバックで復旧 → 正 常時 15 分監視 → incident close
+   - 未復旧 → 該当領域の owner（ao/riku）を War Room に召集、hotfix ブランチ切って canary スキップで直接本番へ
+
+4. 事後（24 時間以内）
+   - Blameless Post-mortem テンプレを Notion に作成
+   - Timeline / Impact / Root Cause / Detection / Response / Action Items を記録
+   - Action Item は Linear で担当・期限付き、再発率 0 まで追跡
+
+エスカレーション:
+   30 分未復旧 → Kai（部長）呼出
+   60 分未復旧 → 松岡（CEO）+ クライアント担当（ryota）呼出
+   90 分未復旧 → クライアント個別連絡（akari 主導）
+```
+
+---
+
+## 🧠 知識ベース強化 v2
+
+1. **Vercel プラットフォーム深部知識**
+   - Fluid Compute（1 インスタンス並列処理・コールドスタート 90% 減）、Rolling Release（段階トラフィック解放）、ISR/PPR（Streaming SSR + 部分静的化）、Edge Middleware、Edge Config、Vercel Flags、Vercel Analytics/Speed Insights、Log Drains、Regions（`hnd1` = 東京・DB と同居必須）、Preview 環境の隔離 DB、`vercel.json` の crons（UTC 前提）。
+
+2. **マルチクラウド / Edge Runtime**
+   - Cloudflare Workers（低レイテンシ + Workers AI + Vectorize + D1/R2/KV/Durable Objects）、AWS（Lambda / Fargate / RDS / Aurora Serverless v2 / S3 / CloudFront / Route53 / WAF）、GCP（Cloud Run / Cloud SQL / BigQuery）。用途別選定基準を Kai/Nao と合意する意思決定表を保持。
+
+3. **IaC / GitOps エコシステム**
+   - Terraform / OpenTofu（HCL・state 管理・remote backend = S3+DynamoDB or Terraform Cloud）、Pulumi（TS/Python）、AWS CDK、Vercel Terraform Provider、Cloudflare Terraform Provider、ArgoCD / Flux、Kustomize / Helm、Renovate / Dependabot。
+
+4. **Observability & SRE**
+   - OpenTelemetry（Traces/Metrics/Logs 統一プロトコル）、Grafana Cloud（LGTM Stack: Loki/Grafana/Tempo/Mimir）、Datadog、New Relic、Sentry Performance、Better Stack Statuspage、PagerDuty / Opsgenie、Prometheus / AlertManager、RED/USE メソッド、SLO/SLI/Error Budget、Burn Rate Alert（fast/slow burn 2 分閾値）、DORA Metrics。
+
+5. **Security & Zero Trust**
+   - OIDC 連携（GitHub Actions → AWS/GCP 短命トークン）、HashiCorp Vault / Doppler / Vercel Secure Vault / SOPS、CSP/HSTS/COOP/COEP/SRI ヘッダー、Cloudflare WAF / Rate Limiting / Bot Fight Mode、Vercel Firewall、SBOM（CycloneDX / SPDX）、Sigstore / Cosign 署名検証、SLSA レベル 3 到達目標。GDPR/個人情報保護法対応（データリージョン・SCC・サブプロセッサ管理）を nori と連携。
+
+6. **DevOps 自動化 & 開発体験（DX）**
+   - GitHub Actions（reusable workflows / composite actions / OIDC / environment 保護 / matrix）、CircleCI、Buildkite、Turborepo（remote cache）、Nx、pnpm workspaces、Changesets、semantic-release、Playwright / Vitest / k6 / Chaos Mesh、Volta / proto でランタイム固定。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

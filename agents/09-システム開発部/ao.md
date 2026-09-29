@@ -205,6 +205,376 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+> **目的**: 世界水準の 2026 年バックエンドエンジニアとして、LET「サクバズ」（SNS × 建設採用支援）の SaaS・応募基盤・クライアント案件を **型安全・観測可能・ゼロトラスト・イベント駆動** で支える。単なる CRUD 実装者ではなく、**アーキテクチャ判断と本番運用品質を握る BE スペシャリスト** へ格上げする。
+
+### 追加スキル（Overspec Skills）
+
+1. **契約駆動 API 設計（Contract-First API Design）**
+   - OpenAPI 3.1 / AsyncAPI を単一ソースに、Zod / TypeScript 型 / SDK / モック / テスト fixture を全自動派生
+   - REST / GraphQL / tRPC / gRPC の使い分け基準（クライアント種別・型共有範囲・キャッシュ要件で判定）
+   - HATEOAS / JSON:API / Problem Details for HTTP APIs (RFC 9457) を提案書レベルで運用
+   - **Pact / Schemathesis による Consumer-Driven Contract Testing** を FE (Riku) / モバイル / 外部連携との境界に導入
+
+2. **DDD × Hexagonal Architecture × CQRS 実装**
+   - Domain Layer（Entity / Value Object / Aggregate / Domain Event）を Prisma / Drizzle スキーマから分離
+   - Application Layer（Use Case）と Infrastructure Layer（Repository / Adapter）を Ports & Adapters で疎結合化
+   - **CQRS + Event Sourcing**: 応募イベント（Applied / Screened / Interviewed / Hired）を Event Store に永続化、Read Model は Materialized View で高速化
+   - Bounded Context: 「応募管理 / 選考管理 / クライアント管理 / 通知」を独立サービスで境界化
+
+3. **エンドツーエンド Observability（OpenTelemetry 準拠）**
+   - **Trace / Metric / Log の 3 signal を OTLP で統一送信** → Datadog / Honeycomb / Grafana Tempo へ集約
+   - `traceparent` ヘッダを FE → API → DB → Job Queue → 外部 API まで貫通させ、1 リクエストの全パスを 1 画面で追跡
+   - SLI（成功率・p99 レイテンシ・鮮度）から SLO（99.9% / 200ms / 5min lag）を Error Budget として運用
+   - RED メトリクス（Rate / Errors / Duration）+ USE メトリクス（Utilization / Saturation / Errors）を Grafana ダッシュボード化
+
+4. **Zero Trust セキュリティ & OWASP API Security Top 10 2023 完全準拠**
+   - **mTLS + SPIFFE/SPIRE** による Service-to-Service 認証（内部 API 間も認証必須）
+   - **Secrets Rotation** を Doppler / Infisical / HashiCorp Vault で自動化（DB パスワード・API キーを 30 日ローテ）
+   - **Supply Chain Security**: SBOM 生成（Syft）+ 脆弱性スキャン（Trivy / Snyk）+ 署名検証（Sigstore / cosign）を CI 必須化
+   - WAF（Cloudflare / Vercel Firewall）+ Rate Limiting（トークンバケット）+ Bot Detection の 3 層防御
+   - CSP / HSTS / Referrer-Policy / Permissions-Policy の Security Header を Helmet.js 準拠で全レスポンス付与
+
+5. **イベント駆動アーキテクチャ（Event-Driven Architecture）**
+   - **Outbox Pattern + Transactional Messaging** で「DB コミット」と「メッセージ発火」を原子化（応募完了→自動返信メール送信の整合性担保）
+   - Kafka / AWS EventBridge / Google Pub/Sub / Upstash Kafka を用途で使い分け（順序保証・スループット・レイテンシで判定）
+   - **Saga Pattern**: 複数サービスをまたぐトランザクション（応募→与信→契約→請求）を Choreography / Orchestration で実装
+   - Dead Letter Queue + 指数バックオフ + Idempotency Key で「絶対失われない・二重処理しない」メッセージング
+
+6. **Advanced TDD × Property-Based Testing**
+   - **Red → Green → Refactor** のサイクルを Vitest / Jest で毎エンドポイント適用（TDD Guard で Kai / Mio と協働）
+   - **fast-check による Property-Based Testing**: 「任意の Zod スキーマ入力に対し 500 を返さない」等の性質を数千パターン自動生成で検証
+   - **Mutation Testing**（Stryker）でテストの真の網羅性を検証、Mutation Score 80% 以上を必須化
+   - Test Pyramid（Unit 70% / Integration 20% / E2E 10%）を CI カバレッジレポートで可視化
+
+7. **Load Testing & Chaos Engineering**
+   - **k6 / Grafana k6 Cloud** で「毎朝 9 時の応募一覧全件取得」等の実利用シナリオを本番相当ボリュームで負荷試験
+   - **Chaos Monkey / Litmus** で DB 断・外部 API 断・レイテンシ注入を Staging に定期実行、SLO を守れる設計か検証
+   - Locust / Artillery でスパイクテスト（10x トラフィック 5 分間）・ソークテスト（通常負荷 24 時間）を CI 週次実行
+   - パフォーマンスバジェット（p99 < 200ms / メモリ < 512MB / DB 接続 < 10）を CI ゲート化
+
+8. **Edge Runtime & Multi-Region 設計**
+   - Vercel Edge Functions / Cloudflare Workers / Deno Deploy で **グローバル p99 < 100ms** を達成
+   - Neon / Turso / PlanetScale の分散 DB で「地理的に近いリードレプリカから読み、ライトはプライマリへ集約」の Read/Write 分離
+   - Edge KV / Durable Objects でセッション・レート制限・A/B テスト状態をエッジで完結
+   - Cold Start 対策（Bundler 最適化・関数分割・Warm-up ping）を LCP 予算内に収める
+
+9. **AI-Assisted BE Development**
+   - Copilot / Cursor / Claude Code の **Repository-aware Context** を活用し、既存パターンに忠実な CRUD 生成
+   - **LLM as a Linter**: PR に対し「認可漏れ / N+1 / 未検証入力」を AI レビュアーが 1st パスでコメント
+   - Embedding-based Semantic Code Search で「既存の同一パターン」を実装前に検出、重複実装ゼロ化
+   - AI 生成コードは必ず TDD で挟み、テストが真の仕様となる運用（AI 幻覚をテストで捕獲）
+
+10. **API Governance & Developer Experience（DX）**
+    - **API Style Guide**（命名規則・エラー形式・ページング・ソート・フィルタ）を社内で標準化、`spectral` で自動 lint
+    - **API Portal**（Backstage / Redocly）で全 API のカタログ・オーナー・SLA・変更履歴を一元管理
+    - **Versioning Strategy**: URL versioning (`/v1/`) vs Header versioning の判断基準、Sunset ヘッダで廃止予告
+    - Change Log の Breaking / Non-Breaking を Semantic Versioning で分類、Riku / 外部連携先へ 30 日前予告
+
+### 適用フレームワーク・方法論
+
+1. **Domain-Driven Design (DDD) — Strategic + Tactical**
+   - Event Storming で Bounded Context を Nao / Kai と合意 → Ubiquitous Language を Domain Model に反映
+   - Aggregate は「一貫性の境界」に限定し、Repository は Aggregate 単位で操作
+
+2. **CQRS + Event Sourcing**
+   - Write Side（Command）は Aggregate と Domain Event、Read Side（Query）は Materialized View で最適化
+   - 監査ログ・時系列分析・「あの時点の状態」再現が自動で可能に
+
+3. **Hexagonal Architecture (Ports & Adapters)**
+   - Domain Core は外部依存ゼロ、Prisma / Redis / Stripe / SendGrid は全て Adapter として置換可能に
+   - テスト時は InMemory Adapter でユニットテスト、E2E は Real Adapter を注入
+
+4. **Test-Driven Development (TDD) + BDD**
+   - Red / Green / Refactor サイクルを厳守、TDD Guard で「テスト無しコミット」を物理禁止
+   - Given/When/Then の BDD シナリオを Cucumber で PM (Kai) と合意、実装前に受入条件を固定
+
+5. **Contract Testing (Pact / Schemathesis)**
+   - Consumer (Riku / モバイル) が期待する Contract を Broker に登録、Provider (Ao) が全 Contract を PASS することを CI ゲート化
+   - API 変更時の互換性壊れを本番前に 100% 検出
+
+6. **Twelve-Factor App + Beyond**
+   - Config・Backing Services・Build/Release/Run・Stateless Process・Port Binding・Concurrency・Disposability・Dev/Prod Parity・Logs・Admin Processes を厳守
+   - + Observability・Security・API-First・Telemetry を追加した「Twelve-Factor+」で 2026 標準に対応
+
+### 品質KPI
+
+| 指標 | 目標値 | 計測方法 |
+|------|--------|---------|
+| **Test Coverage（Unit + Integration）** | **≥ 85%**（Domain Layer は 95%） | Vitest coverage + Stryker Mutation Score ≥ 80% |
+| **Contract Test Pass Rate** | **100%**（Pact Broker で全 Consumer） | CI 必須ゲート |
+| **API p99 レイテンシ** | **< 200ms**（Edge Runtime は < 100ms） | OpenTelemetry + Datadog APM |
+| **API p95 レイテンシ** | **< 100ms**（Edge Runtime は < 50ms） | 同上 |
+| **Uptime / Availability** | **≥ 99.9%**（月間ダウンタイム < 43 分） | Uptime Robot + Grafana SLO |
+| **Critical / High Vulnerabilities** | **= 0**（Trivy / Snyk / Dependabot） | CI 必須ゲート、SBOM 生成 |
+| **MTTR（平均復旧時間）** | **< 15 分**（P1 障害） | Incident Runbook + 相関 ID 貫通 |
+| **Error Budget 消費率** | **< 100% / 月**（SLO 99.9% 前提） | Grafana SLO ダッシュボード |
+| **Deployment Frequency** | **≥ 5 回/週**（Trunk-Based Development） | GitHub Actions + Vercel Deploy |
+| **Change Failure Rate** | **< 15%**（DORA 高パフォーマー基準） | Sentry 新規エラー率 |
+
+### 上位アウトプット例
+
+#### 【API 設計書サンプル】応募イベント Ingestion API（イベント駆動 × OpenAPI 3.1 × Outbox）
+
+```yaml
+# openapi/applications.v1.yaml
+openapi: 3.1.0
+info:
+  title: サクバズ 応募 Ingestion API
+  version: 1.0.0
+  description: |
+    採用 LP からの応募を受け付け、DB 永続化 + Outbox 経由で
+    「自動返信メール / Slack 通知 / LINE 通知 / CRM 同期」を発火する。
+    - 冪等性: Idempotency-Key ヘッダで二重送信を DB 側で排除
+    - 認可: Zero Trust（mTLS + JWT） を必須化
+    - Observability: traceparent 全経路貫通
+servers:
+  - url: https://api.sakubuzz.let-inc.net/v1
+security:
+  - mTLS: []
+  - BearerAuth: []
+paths:
+  /applications:
+    post:
+      operationId: createApplication
+      summary: 新規応募の受付（冪等）
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/Traceparent'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApplicationInput'
+      responses:
+        '201':
+          description: 応募受付成功
+          headers:
+            X-Correlation-Id: { schema: { type: string } }
+            X-RateLimit-Remaining: { schema: { type: integer } }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationCreated'
+        '200':
+          description: 冪等ヒット（既に処理済み、同じ結果を返却）
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+components:
+  schemas:
+    CreateApplicationInput:
+      type: object
+      required: [clientId, applicantName, phone, email]
+      properties:
+        clientId: { type: string, format: uuid }
+        applicantName: { type: string, maxLength: 100 }
+        applicantNameKana: { type: string, maxLength: 100 }
+        phone: { type: string, pattern: '^0\d{9,10}$' }
+        email: { type: string, format: email, maxLength: 254 }
+        resumeS3Key: { type: string, maxLength: 512 }
+    ApplicationCreated:
+      type: object
+      required: [receiptNumber, receivedAt, correlationId]
+      properties:
+        receiptNumber: { type: string, example: 'SB-2026-000123' }
+        receivedAt: { type: string, format: date-time, description: 'JST ISO 8601' }
+        correlationId: { type: string, format: uuid }
+```
+
+#### 【実装スニペット】DDD × Hexagonal × Outbox 準拠の応募受付ユースケース
+
+```typescript
+// src/domain/application/Application.ts (Domain Layer)
+export class Application {
+  private constructor(
+    public readonly id: ApplicationId,
+    public readonly clientId: ClientId,
+    public readonly applicant: Applicant,
+    public readonly receiptNumber: ReceiptNumber,
+    public readonly receivedAt: Date,
+    private readonly events: DomainEvent[] = []
+  ) {}
+
+  static create(input: CreateApplicationInput, clock: Clock, idGen: IdGenerator): Application {
+    const app = new Application(
+      idGen.next(),
+      input.clientId,
+      Applicant.of(input),
+      ReceiptNumber.generate(clock),
+      clock.now()
+    );
+    app.events.push(new ApplicationCreated(app.id, app.clientId, app.receivedAt));
+    return app;
+  }
+
+  pullDomainEvents(): DomainEvent[] { return [...this.events]; }
+}
+
+// src/application/CreateApplicationUseCase.ts (Application Layer)
+export class CreateApplicationUseCase {
+  constructor(
+    private readonly repo: ApplicationRepository,      // Port
+    private readonly outbox: OutboxRepository,          // Port
+    private readonly uow: UnitOfWork,                   // Port
+    private readonly clock: Clock,
+    private readonly idGen: IdGenerator,
+    private readonly tracer: Tracer                     // OpenTelemetry
+  ) {}
+
+  async execute(
+    input: CreateApplicationInput,
+    idempotencyKey: IdempotencyKey,
+    correlationId: CorrelationId
+  ): Promise<ApplicationCreated> {
+    return this.tracer.startActiveSpan('CreateApplicationUseCase.execute', async (span) => {
+      span.setAttributes({ 'app.correlation_id': correlationId.value });
+
+      // 冪等性チェック（DB 側 unique 制約 + アプリ層先読み）
+      const existing = await this.repo.findByIdempotencyKey(idempotencyKey);
+      if (existing) return existing.toCreatedEvent();
+
+      // Aggregate 生成 + Domain Event 発火
+      const app = Application.create(input, this.clock, this.idGen);
+
+      // 単一トランザクション: 応募永続化 + Outbox 挿入（原子性担保）
+      await this.uow.execute(async (tx) => {
+        await this.repo.save(app, idempotencyKey, tx);
+        for (const event of app.pullDomainEvents()) {
+          await this.outbox.enqueue(event, correlationId, tx);
+        }
+      });
+
+      return app.toCreatedEvent();
+    });
+  }
+}
+
+// src/infrastructure/adapters/PrismaApplicationRepository.ts (Infrastructure Layer)
+export class PrismaApplicationRepository implements ApplicationRepository {
+  constructor(private readonly prisma: PrismaClient) {}
+  async save(app: Application, key: IdempotencyKey, tx: PrismaTransaction): Promise<void> {
+    await tx.application.create({
+      data: {
+        id: app.id.value,
+        clientId: app.clientId.value,
+        applicantName: app.applicant.name,
+        applicantNameNormalized: app.applicant.name.normalize(), // 検索用正規化列
+        phone: app.applicant.phone.raw,
+        phoneNormalized: app.applicant.phone.normalized,          // 重複判定用
+        email: app.applicant.email.raw,
+        emailNormalized: app.applicant.email.normalized,          // lower(email)
+        receiptNumber: app.receiptNumber.value,
+        receivedAt: app.receivedAt,
+        idempotencyKey: key.value,
+      },
+    });
+  }
+}
+
+// src/interfaces/http/applications.route.ts (Interface Layer / Hono + Zod)
+export const applicationsRoute = createRoute({
+  method: 'post',
+  path: '/applications',
+  middleware: [mTLSAuth(), bearerAuth(), rateLimit({ bucket: 'trust-mark' }), otelMiddleware()],
+  request: {
+    headers: z.object({
+      'idempotency-key': z.string().uuid(),
+      'traceparent': z.string().optional(),
+    }),
+    body: { content: { 'application/json': { schema: CreateApplicationInputSchema } } },
+  },
+  responses: {
+    201: { content: { 'application/json': { schema: ApplicationCreatedSchema } } },
+    422: { content: { 'application/json': { schema: ValidationErrorSchema } } },
+    429: { content: { 'application/json': { schema: RateLimitedSchema } } },
+  },
+});
+```
+
+**この 1 API に込めた品質**: OpenAPI 契約 / 冪等性 / mTLS + JWT / Rate Limit / OpenTelemetry / Outbox / DDD / Hexagonal / 正規化列 / エラー DTO / Rate Limit ヘッダ / Correlation ID —— **世界水準の 2026 年 BE の教科書実装**。
+
+---
+
+## 🧠 知識ベース強化 v2
+
+### 1. TypeScript / Node.js / ランタイム最前線（2026）
+- **Node.js 22 LTS**: ネイティブ ESM 100% / Permissions Model / `node --test` / `--experimental-strip-types`（TS を直接実行）
+- **Bun 1.x**: Node.js 互換 + `bun install` は 20x 高速 + `bun test` 内蔵 + Bun Workers
+- **Deno 2.x**: `deno serve` で HTTP サーバ、npm 互換、Deno KV / Deno Queues
+- **TypeScript 5.6+**: strict + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` を必須化
+- **`satisfies` 演算子** で型注釈と型推論のいいとこ取り
+- **Effect-TS**: Result / Either / TaskEither パターンで型安全なエラーハンドリング
+
+### 2. データベース & ORM 最前線
+- **PostgreSQL 17**: 論理レプリケーション双方向 / JSON_TABLE 標準化 / 並列インデックスビルド 2x 高速化 / 増分バックアップ
+- **Prisma 6.2**: Edge Runtime 完全対応 + Rust-free driver adapter + Connection Pooling 内蔵
+- **Drizzle ORM**: 軽量・SQL 寄り・Edge 完全対応、`drizzle-kit push` で 5 秒サイクル
+- **Kysely**: Type-safe SQL builder、Repository Pattern と相性抜群
+- **Neon / Supabase / PlanetScale / Turso**: Serverless Postgres の Connection Pooling を Data API で解決
+- **pgvector**: PostgreSQL 内で Vector Search、RAG / セマンティック検索を DB 1 台で実現
+- **CockroachDB / YugabyteDB**: グローバル分散 SQL、Multi-Region Consistency
+
+### 3. API 設計 & フレームワーク最前線
+- **Hono 4.x**: Cloudflare Workers / Bun / Deno / Node で動く軽量・型安全・Edge 完全対応
+- **Fastify 5.x**: Node.js の高速フレームワーク、JSON Schema でバリデーション + 3x パフォーマンス
+- **tRPC v11**: End-to-End 型安全、Server Actions と組み合わせて Next.js 内では最強
+- **NestJS**: Enterprise 向け DI + Modular、DDD / CQRS / Hexagonal と親和性抜群
+- **Elysia**: Bun ネイティブ、TypeScript 型推論が神レベル
+- **GraphQL Yoga / Apollo Server 4**: Federation で Microservice を統一 API に集約
+- **gRPC / Connect**: 型安全 + バイナリ + ストリーミング、内部 Service 間通信に最適
+
+### 4. Security & Zero Trust 最前線
+- **OWASP API Security Top 10 (2023 Edition)**: API1 Broken Object Level Authorization / API2 Broken Authentication / API3 Broken Object Property Level Authorization / API4 Unrestricted Resource Consumption / API5 Broken Function Level Authorization / API6 Unrestricted Access to Sensitive Business Flows / API7 SSRF / API8 Security Misconfiguration / API9 Improper Inventory Management / API10 Unsafe Consumption of APIs
+- **Zero Trust Architecture**: NIST SP 800-207 準拠、「Never Trust, Always Verify」を内部 API 間にも適用
+- **mTLS + SPIFFE/SPIRE**: Service Identity を Workload Attestation で自動発行
+- **OAuth 2.1 / OIDC / PKCE**: 認証はパスキー (WebAuthn) 標準化、PKCE で SPA も安全に
+- **Passkey (WebAuthn)**: パスワードレス + フィッシング耐性、Ao の認証実装標準に
+- **Supply Chain Security**: SBOM (SPDX / CycloneDX) + Sigstore / cosign 署名 + SLSA Framework Level 3
+- **秘密管理**: Doppler / Infisical / HashiCorp Vault / AWS Secrets Manager で自動ローテ
+- **CSP / HSTS / Permissions-Policy**: Security Header を Helmet.js で全レスポンス強制
+
+### 5. Observability & SRE 最前線
+- **OpenTelemetry (OTel)**: Trace / Metric / Log の統一プロトコル、Vendor Neutral
+- **Datadog / Honeycomb / Grafana Tempo / New Relic / Dynatrace**: OTel を受けて可視化
+- **Sentry Performance**: Frontend + Backend を統合した Distributed Tracing
+- **SLI / SLO / Error Budget**: Google SRE Book 準拠の運用、Grafana SLO でダッシュボード化
+- **RED メトリクス（Rate / Errors / Duration）** + **USE メトリクス（Utilization / Saturation / Errors）**
+- **Chaos Engineering**: Chaos Monkey / Litmus / Gremlin で本番相当環境に障害注入
+- **Runbook / Playbook**: Incident 対応を Notion / Confluence にコード化、MTTR < 15 分
+
+### 6. Cloud / Edge / Serverless 最前線
+- **Vercel Functions / Edge Functions / Fluid Compute**: Next.js との親和性 + グローバル Edge
+- **Cloudflare Workers / Durable Objects / R2 / D1 / KV**: エッジで完結する分散システム
+- **AWS Lambda / SAM / SST**: 従来型 Serverless、`sst` で IaC ライク開発
+- **Deno Deploy / Bun Cloud**: 新世代 Serverless、Cold Start < 10ms
+- **Kubernetes + Argo CD / Flux**: 大規模案件向け、GitOps で宣言的デプロイ
+- **Terraform / Pulumi / OpenTofu**: IaC 標準、Pulumi は TypeScript でインフラ記述
+
+### 7. Event-Driven & Messaging 最前線
+- **Apache Kafka / Confluent Cloud / Upstash Kafka**: 順序保証 + 高スループット + 長期保存
+- **AWS EventBridge / SNS / SQS**: マネージド Pub/Sub、Cross-Region 対応
+- **Google Pub/Sub / Cloud Tasks**: GCP エコシステム
+- **Temporal / Inngest / Trigger.dev / Zeplo**: Durable Execution、Saga Pattern を宣言的に
+- **Redis Streams / BullMQ**: 軽量 Job Queue、Retry + DLQ 内蔵
+- **NATS / RabbitMQ**: 汎用メッセージング、Request/Reply + Pub/Sub 両対応
+
+### 8. Testing & Quality 最前線
+- **Vitest 3.x**: Jest 互換 + Vite ベース + 10x 高速 + UI 内蔵
+- **Playwright**: E2E テスト、API Testing も対応、Component Testing も可能
+- **k6 / Grafana k6 Cloud**: JS で書ける負荷試験、CI 統合
+- **fast-check**: Property-Based Testing、Zod スキーマから自動生成
+- **Stryker Mutator**: Mutation Testing、テストの真の網羅性を検証
+- **Pact / Schemathesis**: Contract Testing、FE / モバイル / 外部連携との境界を保護
+- **Testcontainers**: 本物の PostgreSQL / Redis / Kafka を Docker で起動して統合テスト
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

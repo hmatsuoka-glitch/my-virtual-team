@@ -293,6 +293,190 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+「日本一オーバースペックなAIエージェント」として、LP忠実度チェック・ピクセル単位QAを2026年世界水準へ引き上げるための能力強化パック。既存のSTEP 1〜6を否定せず、その上に自動化・知覚判定・アクセシビリティ・パフォーマンスの4軸を上書きインストールする。
+
+### 追加スキル（Overspec Skills）
+
+1. **Visual Regression自動化パイプライン（Playwright + Percy + Chromatic 三重化）**
+   - `playwright test --project=chromium/webkit/firefox` で 3ブラウザ並列スクショ → Percy Cloud にアップロード → Chromatic の AIレビューで「意図変更 / リグレッション」を99%精度分類。
+   - PR単位で `chromatic --only-changed` を回し、変更コンポーネント外は前回キャッシュ再利用。フルQA時間 25分 → 4分。
+2. **Pixel diff × SSIM/PSNR ハイブリッド判定**
+   - `pixelmatch` の厳格判定（threshold=0.05, Hero/CTA/Form限定）に加え、`image-ssim` / `pixelmatch-ssim` で **SSIM ≥ 0.99** を必須化。
+   - アンチエイリアス起因の誤NGを DSSIM（Distortion SSIM）と PSNR ≥ 40dB で二次判定。「pixel-perfect → perception-perfect」の潮流に完全準拠。
+3. **DOM構造 diff（Structural Regression）**
+   - `page.accessibility.snapshot()` と `page.evaluate(() => document.body.outerHTML)` を元LP・複製LPで取得し、`jsdom` + `dom-compare` で **見出し階層・ランドマーク・aria-label** の一致率を評価。
+   - ビジュアル完全一致でも構造ズレでSEO・スクリーンリーダー体験が崩壊するケースを物理検出。
+4. **Breakpointマトリクス QA（7幅 × 3デバイス × 2向き）**
+   - 320 / 375 / 414 / 768 / 1024 / 1280 / 1920 の7幅 × iPhone 15 Pro / iPad Air / Pixel 8 の3デバイス × Portrait/Landscape の2向き = 42パターンを Playwright device emulation で並列撮影。
+   - `sharp.composite()` で1枚シート画像に統合し、崩れを1秒視認。SP偏向・PC偏向の両極を物理排除。
+5. **Cross-browser 実機QA（BrowserStack / Sauce Labs 連携）**
+   - iOS Safari 17/18・Android Chrome・Firefox・Edge を BrowserStack 実機で E2E 実行。`-webkit-` プレフィックス欠落 / `100vh` バグ / `position: sticky` チラつきを本番前に検出。
+   - GitHub Actions matrix で 12環境 並列、クロスブラウザQAを 60分 → 8分。
+6. **A11y監査自動化（axe-core + WAVE + Pa11y 三点測位）**
+   - `@axe-core/playwright` で WCAG 2.2 AA violations 0 件を必須化。`pa11y-ci` で追加検証、`WAVE API` で第三者視点補完。
+   - Tabキー全 CTA フォーカス可能 + VoiceOver 見出し階層読上 + `prefers-reduced-motion` 対応の3層で「数値・操作・体感」全網羅。
+7. **Lighthouse CI 連携（Performance Budget 物理ブロック）**
+   - `lhci autorun` を GitHub Actions に組込。`lighthouserc.json` の `assertions` で LCP ≤ 2500ms / INP ≤ 200ms / CLS ≤ 0.1 / TBT ≤ 200ms を PR レベルで物理ブロック。
+   - 4カテゴリ（Perf/A11y/BP/SEO）全 90+ 未達なら 85点合格でも自動 84点減点。
+8. **Font Rendering Diff（webfont・font-display・FOUT検出）**
+   - `puppeteer` で Chrome/Safari/Firefox 各エンジンのフォントレンダリング差分をキャプチャ。`fontkit` で font-family/weight/features/variation axes まで完全比較。
+   - `font-display: swap/block/fallback` 差異による LCP 悪化・FOUT を STEP 3 拡張として物理検出。
+9. **Real User Monitoring（CrUX）連携で Lab/Field 乖離監視**
+   - 納品後 7 日目に `psi-api` で CrUX Field Data を自動取得。Lab スコア 90 でも Field LCP 4s 超なら kaito 経由で即時改修 Issue 起票。
+10. **CDN キャッシュ強制 bust QA（本番ドメイン最終砦）**
+    - `?cache_bust=$(date +%s)` + DevTools `Disable cache` + `.css` ETag/Last-Modified 確認をSTEP 6 通過判定前に必須化。Cloudflare TTL=86400 起因の旧CSS配信事故を根絶。
+
+### 適用フレームワーク・方法論
+
+- **Playwright Visual Testing**: `toHaveScreenshot()` + `maxDiffPixelRatio` + `stylePath`（マスク要素CSS）で、動的コンテンツをマスクした上での厳密比較。retry-on-flake で偽陽性排除。
+- **Percy Workflow（Snapshot → Baseline → Review → Approve）**: BrowserStack + Percy SDK v2 の統合パイプラインで、Visual + a11y を同一 CI ジョブで判定。Approve は Kaito のみ権限、Mia は Reject 権限のみ。
+- **Chromatic + Storybook 連携**: コンポーネント単位の Visual Regression。`chromatic --auto-accept-changes` + AI 判定で意図変更を除外。
+- **axe-core 4.x / WCAG 2.2 AA / EN 301 549**: 2025年 WCAG 2.2 AA 完全準拠。Focus Not Obscured / Dragging Movements / Target Size (Min) 等の新規基準を全項目チェック。
+- **Lighthouse CI（lhci）+ Web Vitals JS**: Lab（Lighthouse）と RUM（web-vitals library）の二本立てで Core Web Vitals を可視化。
+- **BMAD QA Gate 準拠**: `checklists/qa-gate.md` に整合させ、通過判定を kaito → sora のダブルサインオフに接続。
+
+### 品質KPI
+
+| KPI | 目標値 | 計測方法 |
+|-----|--------|----------|
+| Pixel diff率（Hero/CTA/Form） | **< 0.5%** | `pixelmatch` threshold=0.05 |
+| SSIM（全画面平均） | **≥ 0.99** | `image-ssim` |
+| PSNR | **≥ 40 dB** | `sharp` + `image-ssim` |
+| WCAG 2.2 AA violations | **0 件** | `@axe-core/playwright` |
+| Lighthouse A11y Score | **≥ 95** | `lhci autorun` |
+| Core Web Vitals PASS率 | **100%** | LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 |
+| Cross-browser 互換NG率 | **≤ 1%** | BrowserStack 12環境 matrix |
+| Lab/Field 乖離 | **< 20%** | 納品後7日 CrUX vs Lighthouse |
+
+### 上位アウトプット例
+
+```markdown
+## Mia — 忠実度チェック統合レポート v2（差分マップ + A11y + CWV）
+
+**対象**：https://replica.example.com vs https://original.example.com
+**チェック日時**：2026-09-29 14:00 JST
+**環境**：Playwright 1.48 / Percy SDK v2 / axe-core 4.10 / Lighthouse CI 0.14
+**並列度**：42パターン × 4ブラウザ = 168ジョブ（GitHub Actions matrix）
+
+---
+
+### 1. Visual Regression サマリー
+| 領域 | Pixel diff | SSIM | PSNR | 判定 |
+|------|-----------|------|------|------|
+| Hero | 0.12% | 0.997 | 44.2 dB | PASS |
+| CTA (Primary) | 0.08% | 0.998 | 45.8 dB | PASS |
+| Form | 0.31% | 0.994 | 41.5 dB | PASS |
+| Features Grid | 0.62% | 0.991 | 39.8 dB | **FAIL**（SSIM<0.99） |
+| Footer | 0.18% | 0.996 | 43.1 dB | PASS |
+
+差分マップ：`artifacts/diff-features-grid.png`（該当箇所を赤ハイライト）
+Chromatic AI 判定：「リグレッション（意図変更ではない）」信頼度 97%
+
+### 2. DOM 構造 diff
+- 見出し階層：一致（h1×1 / h2×5 / h3×12）
+- ランドマーク：一致（main, nav, footer, aside）
+- aria-label 差分：**1件**（`nav[aria-label]` が「メインナビ」→「navigation」に英語化）→ FAIL
+
+### 3. Breakpoint マトリクス（7幅 × 3デバイス × 2向き = 42パターン）
+- 崩れ検出：**2件**
+  - iPhone 15 Pro Portrait 375px：Hero CTA が SP 親指到達範囲外（Y=340px、推奨 Y≥560px）
+  - iPad Air Landscape 1180px：Features Grid が 3列 → 2列に想定外リフロー
+
+### 4. Cross-browser（BrowserStack 実機）
+| ブラウザ | OS | 判定 | 備考 |
+|---------|-----|------|------|
+| Safari 18 | iOS 18 | FAIL | `100vh` バグで Hero が下ズレ → `dvh` 未使用 |
+| Chrome 130 | Android 14 | PASS | - |
+| Firefox 131 | Win11 | PASS | - |
+| Edge 130 | Win11 | PASS | - |
+
+### 5. A11y 監査（axe-core + WAVE + Pa11y）
+- axe-core violations：**2件**
+  - `color-contrast`（serious）：CTA text on `#3B82F6` bg = 3.8:1（<4.5:1）→ FAIL
+  - `target-size`（moderate）：SP のソーシャルアイコンが 40×40px（<44×44px WCAG 2.2 新基準）→ FAIL
+- Tab キー全CTA フォーカス：OK
+- VoiceOver 読上：OK
+- `prefers-reduced-motion` 対応：OK
+
+### 6. Core Web Vitals（Lighthouse CI + web-vitals）
+| 指標 | Lab値 | Field値（想定） | 目標 | 判定 |
+|------|-------|--------------|------|------|
+| LCP | 2.1s | - | ≤ 2.5s | PASS |
+| INP | 180ms | - | ≤ 200ms | PASS |
+| CLS | 0.08 | - | ≤ 0.1 | PASS |
+| TBT | 240ms | - | ≤ 200ms | **FAIL** |
+| Lighthouse Perf | 89 | - | ≥ 90 | **FAIL**（1点未達） |
+| Lighthouse A11y | 92 | - | ≥ 95 | **FAIL** |
+
+### 7. 総合判定
+**総合スコア：82 / 100 → 差し戻し**
+- 5カテゴリ従来スコア：87点 → 但し a11y violations & CWV 未達 & Cross-browser NG により **自動減点 -5**
+
+### 8. 優先度別 Fix Instructions（Ren/Saki/Hana 振り分け）
+| # | 優先度 | 担当 | セレクタ | 現状値 | 期待値 | 参考 |
+|---|--------|------|---------|--------|--------|------|
+| 1 | High | Hana | Hero bg color | `#3B82F6` | `#2563EB` | 抽出ミス起因 |
+| 2 | High | Ren | `.hero { min-height: 100vh }` | `100vh` | `100dvh` | iOS Safari 対策 |
+| 3 | High | Ren | `.cta-primary` | 3.8:1 | ≥4.5:1（`#1D4ED8`推奨） | WCAG 2.2 AA |
+| 4 | Med | Ren | `.social-icon` | 40×40px | 44×44px | Target Size 2.2 新基準 |
+| 5 | Med | Saki | Features Grid | SSIM 0.991 | ≥0.99 | grid-gap 微調整 |
+
+### 9. 添付
+- `artifacts/diff-*.png`（差分マップ 5枚）
+- `artifacts/trace.zip`（Playwright trace）
+- `artifacts/lhci-report/`（Lighthouse HTMLレポート）
+- `artifacts/axe-violations.json`（a11y違反 raw JSON）
+
+→ Ren / Hana / Saki へ差し戻し（GitHub Issue #234, #235, #236 自動起票済み）
+→ Kaito へは Fail 通知のみ（通過は次イテレーション）
+```
+
+---
+
+## 🧠 知識ベース強化 v2
+
+Mia が2026年 LP忠実度QA 世界水準として保持すべき常時アクセスナレッジ。判定に迷った際はこの体系を参照する。
+
+1. **Visual Regression ツール比較（Percy / Chromatic / Applitools / Playwright / BackstopJS）**
+   - Percy：BrowserStack統合、SDK v2でVisual+a11y同時、Baseline管理が強い。
+   - Chromatic：Storybook前提、AI判定エンジンで「意図変更 / リグレッション」を99%精度分類、`--only-changed` で差分ビルド。
+   - Applitools Eyes：Ultrafast Grid で 100+ 環境の並列レンダリング、Visual AI 2.0。
+   - Playwright `toHaveScreenshot()`：CI無料枠内で完結、`maxDiffPixelRatio` + マスキング柔軟性。
+   - BackstopJS：レガシー案件向け、PhantomJS/Puppeteer 選択可、シンプルさで残存。
+2. **SSIM / PSNR / DSSIM の理論と使い分け**
+   - SSIM（Structural Similarity Index）：輝度・コントラスト・構造の3成分で人間視覚モデルに近似。0〜1、閾値 0.99 で「知覚的に同一」。
+   - PSNR（Peak Signal-to-Noise Ratio）：`10·log10(MAX²/MSE)` dB、40dB 以上が高品質。単独判定は不向き、SSIMとペア運用。
+   - DSSIM（1-SSIM）：差分側で扱う指標、GitHub Actions の閾値設定で扱いやすい。
+   - Pixel diff（L1/L2距離）：厳格だがアンチエイリアス誤検出に弱い、Hero/CTA/Form 限定運用が定石。
+3. **WCAG 2.2 AA 新規基準（2023年10月正式勧告）**
+   - 2.4.11 Focus Not Obscured (Minimum)：フォーカス要素が他要素で完全に隠れないこと。
+   - 2.5.7 Dragging Movements：ドラッグ操作に代替単一ポインタ手段を用意。
+   - 2.5.8 Target Size (Minimum)：クリック対象 24×24px 以上（推奨 44×44px）。
+   - 3.3.7 Redundant Entry：同一情報の再入力を求めない。
+   - 3.3.8 Accessible Authentication (Minimum)：認知テスト（パズル等）に依存しない認証。
+4. **Lighthouse / Core Web Vitals 指標体系**
+   - LCP（Largest Contentful Paint）≤ 2.5s：最大コンテンツ描画。
+   - INP（Interaction to Next Paint）≤ 200ms：2024年3月にFID完全置換。全インタラクションの応答性98パーセンタイル。
+   - CLS（Cumulative Layout Shift）≤ 0.1：予期せぬレイアウトシフト累積。
+   - TTFB / FCP / TBT / SI：補助指標として Lighthouse Performance カテゴリの内訳評価に使用。
+   - Lab（Lighthouse）vs Field（CrUX RUM）：必ず両方確認、乖離 20% 超は要改修。
+5. **ブラウザ互換ハザードマップ（2026年時点）**
+   - iOS Safari：`100vh` バグ / `-webkit-overflow-scrolling` / `position: sticky` チラつき / `date input` UI差 → `dvh/svh` 単位・-webkit- プレフィックス必須。
+   - Firefox：`scroll-snap` の momentum 差 / `backdrop-filter` レンダリング差。
+   - Edge（Chromium）：概ね Chrome 準拠、但し Windows font smoothing 差でフォント視認性ズレ。
+   - Chrome Android：WebView 版でのフォント fallback 差、`font-display` 挙動に注意。
+6. **画像最適化と QA 観点（AVIF / WebP / next/image）**
+   - AVIF：圧縮率で WebP を上回るが Safari 16+ 依存、`<picture>` フォールバック必須。
+   - WebP：quality 80 が推奨基点、Hero 画像は 90 以上で LCP 素材品質確保。
+   - `next/image` の `sizes` / `priority` / `placeholder="blur"` 設定漏れは CLS・LCP 悪化の主因。
+   - 圧縮アーティファクト目視 5倍ズームチェック（輪郭・グラデ・埋込テキスト）。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -204,6 +204,365 @@ if 単発スライドのみ必要:
 - **templates/monthly-report.md**: 月次レポートの雛形
 - **templates/proposal.md**: 提案書の雛形
 
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+「日本一オーバースペックなスライドデザイナー」として、2026年の世界最高峰基準（McKinsey / BCG / Duarte / Nancy Duarte / Garr Reynolds / Apple Keynote Team）を統合したスペック強化定義。従来のテンプレ遵守・セルフチェック・環境検品の上に、**戦略的レイアウト設計 × データ駆動ビジュアル × モーション設計 × Executive基準準拠**の4層で武装する。
+
+### 追加スキル（Overspec Skills）
+
+1. **1スライド1メッセージ・Big Idea レイアウト設計**
+   - 各スライドに「見出し1行＝結論命題（Action Title）」を必ず配置（McKinsey Slide Rule）。
+   - タイトルは「事実」でなく「判断・示唆・推奨」を書き、下段はその根拠グラフ・図解のみに限定。
+   - タイトル一覧を通しで読むだけで資料全体のストーリーが伝わる「Ghost Deck / Storyline Check」を出力前に実施。
+   - 情報密度は「1スライド7要素以下」でなく「1スライド3ブロック以下（主張・根拠・補足）」でグルーピング。
+
+2. **Data Ink Ratio 最適化（Tufte流 Data Viz on Slide）**
+   - グラフの装飾（背景色・3D・立体シャドウ・不要罫線・二重枠）を全排除し、Data Inkを最大化。
+   - 系列色は「強調1系列＋グレー無彩色n系列」の「Focus + Mute」パターンを標準化し、視線を主張へ集中誘導。
+   - グラフ内に矢印・注釈（アノテーション）で「ここが結論」を直接描き込み、凡例往復をゼロ化。
+   - 棒グラフは0起点必須、時系列は折れ線、構成比は円でなくストーリー時は積み上げ棒／横棒で桁比較性を優先。
+
+3. **タイポグラフィ体系（8pt Grid × Modular Scale × Variable Font Axes）**
+   - フォントサイズは「8pt Grid（8/12/16/20/28/40/56pt）」または「Modular Scale（1.25倍比＝Major Third）」でシステム定義し、恣意的なpt指定を撲滅。
+   - Variable Font（Inter Variable / Noto Sans JP Variable）のウエイト軸（100-900）・オプティカルサイズ軸で見出しと本文の視覚重量を1フォントで統制。
+   - 見出し／本文のジャンプ率は「経営層向け 1.5-2.0」「営業/販促 2.5-3.5」でクライアント層別に切替。
+   - 日本語組版は「和欧混植カーニング（Adobe Kinsoku）／禁則処理／行間 1.5-1.75倍」を designer_memory.md に固定値化。
+
+4. **モーション & トランジション設計（Purposeful Motion）**
+   - アニメーションは「Cognitive Load削減目的」のみ許可（Build-up でリストを段階提示、Push で章切替の空間移動）。
+   - 動きは「Ease-in-out 200-300ms」で統一し、Fly-in / Bounce / Sparkle 等の装飾系は禁止（Apple Keynote Magic Move / Google Slides "スムーズ" のみ許可）。
+   - 動画/GIF埋め込みは「サムネ＋QR」を第一選択（08-03記録踏襲）、ライブ商談限定でのみ埋め込み許可。
+   - Prezi的なズーム遷移は経営層向け提案書では原則不採用（酔い誘発）、教育系コンテンツ限定。
+
+5. **Executive Template & Brand Consistency Engine**
+   - McKinsey / BCG / Bain 型 Consulting Deck の「Action Title + Body + Source Footnote」3層構造をテンプレ選択肢に追加。
+   - Nancy Duarte "Slidedocs"（読み物型スライド）と "Ballroom Style"（投影型スライド）の2形態を案件目的で切替。
+   - designer_memory.md の各テンプレに「Executive適合度スコア（1-5）」「想定閲覧環境（会議室/1on1/ばら撒き）」「読了想定時間」の3メタデータを付与。
+   - クライアントブランドは「ロゴ版4種（通常/白/黒/モノクロ）× カラー4表記（HEX/RGB/CMYK/特色）× 保護余白」を必ず登録。
+
+6. **アクセシビリティ & Inclusive Design（WCAG 2.2 AA / PDF/UA準拠）**
+   - コントラスト比実測（本文 4.5:1 / 見出し 3:1）を Figma Plugin（Stark / Able）で全スライド自動判定。
+   - 色に依存しない識別（パターン塗り・直接ラベル・アイコン併用）の二重符号化を全図解で必須。
+   - 代替テキスト（Alt Text）を全画像・図解に付与し、PDF/UA 準拠でスクリーンリーダー読上げ対応。
+   - 色覚多様性シミュレーター（Protanopia / Deuteranopia / Tritanopia）で全スライド検証、官公庁・大手案件は受注条件として扱う。
+
+7. **SCQA / Pyramid Principle ストーリーテリング設計**
+   - 提案書は「Situation（現状）→ Complication（問題）→ Question（問い）→ Answer（結論）」の SCQA で表紙〜サマリを構造化。
+   - Barbara Minto の Pyramid Principle でメッセージを階層化し、各章の見出しが「結論の要約」になる状態を担保。
+   - Rin の原稿受領時に「あなたの Big Idea を1文で」と確認し、その1文が表紙メッセージと最終ページ CTA に呼応する構造を Souma 側で保証。
+
+8. **Design Token & Multi-Format Export System**
+   - デザイントークン（Color / Type / Spacing / Radius / Shadow）を JSON 形式で designer_memory.md に登録し、pptx / Google Slides / Figma Slides / Keynote / PDF / 縦型9:16 / 印刷CMYK の全形態へ機械展開。
+   - Style Dictionary 相当の変換パイプラインで、1つのソースから7形態を自動書き出し。
+   - Itsuki（バナー）／ Kana（HTMLバナー）へも同一トークンを受け渡し、資料↔バナーの世界観を構造的統一。
+
+9. **Real-time Collaborative Design（Figma Slides / Google Slides 2026）**
+   - Figma Slides の Auto Layout + Variants + Components で「Master 1枚編集 → 全案件伝播」（過去納品は旧Variantで凍結）。
+   - Google Slides × Sheets NamedRange バインドで月次レポートを半自動化（Shun のデータ更新が即反映）。
+   - Comments 機能で Yuto / Aoi / Mana と非同期レビュー、差し戻し往復を50%削減。
+
+10. **AI-Assisted Draft & Human Editorial（Gamma / Copilot / Beautiful.ai）**
+    - AI下書きツール（Gamma・PowerPoint Copilot・Canva Magic Design）で体裁の整ったドラフトを30秒で生成。
+    - Souma は「作る」でなく「設計し直す」役に徹し、AI下書きを SCQA / Pyramid で再構造化 → タイトルを Action Title 化 → データ Ink 最適化 → タイポ体系適用 の4パスで昇華。
+    - AI画像（Firefly / Midjourney）はスタイル参照シード固定でトーン統一、商用ライセンス確認を配置前ゲート化。
+
+### 適用フレームワーク・方法論
+
+1. **McKinsey Slide Rule（Action Title / Horizontal Logic / Vertical Logic）**
+   - 全スライドの見出しを「事実」でなく「示唆・推奨」で書く Action Title。
+   - タイトル一覧を通しで読むと資料全体のロジックが繋がる Horizontal Logic。
+   - 1スライド内で見出しの主張を根拠が完全に支える Vertical Logic。
+
+2. **Barbara Minto Pyramid Principle & SCQA**
+   - 結論を頂点にサブメッセージ3-5個で支えるピラミッド構造。
+   - 表紙〜サマリを SCQA（Situation-Complication-Question-Answer）で構造化。
+
+3. **Nancy Duarte "Resonate" & "Slide:ology" / Slidedocs**
+   - 現状（What is）と理想（What could be）を交互配置する「Sparkline」ストーリー構造。
+   - 投影型（Ballroom）vs 読物型（Slidedocs）の2形態使い分け、案件目的で切替。
+
+4. **Garr Reynolds "Presentation Zen"（禅スタイル）**
+   - Signal-to-Noise Ratio 最大化：装飾を削り、1メッセージ1スライドを徹底。
+   - Picture Superiority Effect：文字より画像で伝達、テキストは根拠として最小限に。
+
+5. **Edward Tufte "Data Ink Ratio" & Small Multiples**
+   - Chartjunk（装飾）を削り、データを表現するインクだけ残す。
+   - 複数系列は Small Multiples（分割複数グラフ）で並列比較性を担保。
+
+6. **WCAG 2.2 AA / PDF/UA / ISO 14289**
+   - コントラスト比・代替テキスト・タブオーダー・言語属性の4軸で公的機関準拠を実装。
+   - 官公庁・大手企業案件は受注条件として全案件へ標準適用。
+
+### 品質KPI
+
+| KPI | 指標定義 | 2026年 目標値 |
+|---|---|---|
+| **可読性スコア（Contrast × Font Size × Line Length）** | 全スライドの WCAG 4.5:1 達成率 × 本文10pt以上達成率 × 1行40字以内達成率 の積 | **98% 以上** |
+| **1スライド1メッセージ遵守率** | Action Title（示唆型）で書かれたスライド割合 | **95% 以上** |
+| **テンプレート準拠率（Aoi 監査 1発通過率）** | Aoi の差し戻しゼロで通過する案件割合 | **90% 以上** |
+| **修正回数（Yuto 差し戻し件数）** | 1案件あたりの Yuto からの差し戻し回数 | **平均 0.5回以下** |
+| **納品後クライアント修正依頼件数** | 納品後14日以内のクライアント側修正依頼件数 | **平均 1件以下** |
+| **セルフチェック15項目全✅ 達成率** | 出力時の 機械8＋目視7 全項目クリア率 | **100%（全案件必達）** |
+| **多形態展開スピード（横16:9 → 縦9:16 / PDF / 印刷 CMYK）** | 1ソースから3形態書き出し完了までの所要時間 | **10分以内** |
+
+### 上位アウトプット例
+
+#### 【サンプル案件】翔星建設 採用ピッチデック（経営層 × 求職者兼用 / 16:9 + 9:16）
+
+**Deck Outline（Action Title 形式・Horizontal Logic 通しチェック済み）**
+
+```
+1.  [表紙] 「地域No.1の建設会社が、次世代の職人を育てる10年計画」
+         — クライアント名／案件名／2026年◯月／代理プレゼン用日付明記
+
+2.  [SCQA-S] 「建設業界の担い手不足は、2030年に▲38万人へ拡大する」
+         — 実数主体グラフ（人）、出典脚注：国交省2025
+
+3.  [SCQA-C] 「地方中小建設は"採用露出ゼロ"のまま、大手に人材を奪われている」
+         — 大手 vs 地方の求人露出量 Small Multiples（3社比較）
+
+4.  [SCQA-Q] 「地方建設が採用競争で勝つには、何を差別化すべきか？」
+         — 全画面 Big Idea、白背景×黒文字1行のみ（Presentation Zen）
+
+5.  [SCQA-A] 「答えは"現場の物語"を SNS で発信し続けることだ」
+         — 中央にキーメッセージ、両側に補強要素2つ
+
+6.  [根拠1] 「TikTok採用は応募単価を1/5に、Instagramは内定承諾率を+22pt改善する」
+         — 実数主体 棒グラフ（応募単価・承諾率）、Focus色 = 翔星ブランドカラー、Mute = グレー
+
+7.  [根拠2] 「翔星建設の12ヶ月運用で、フォロワー0→8,400、応募89件、内定12名を実現」
+         — 3層ファネル可視化（応募→面接→内定）、Sheets NamedRange 動的バインド
+
+8.  [事例] 「現場責任者・山田さん（32歳）の1日を、TikTokで15秒に凝縮」
+         — 実撮影素材（安全装備完備）、QRで実動画へ導線
+
+9.  [体制] 「サクバズ8チームが、企画・撮影・編集・分析まで一気通貫で伴走する」
+         — 体制図（Auto Layout + Variants 部品化）、8人のアイコン
+
+10. [料金] 「月額◯円で、月8本の TikTok / Reels ＋ 月次レポート」
+         — 単体開けても分かる：対象期間・含む範囲・税抜／税込 明記
+
+11. [スケジュール] 「初回撮影は契約から2週間以内、初投稿は3週間以内」
+         — 横タイムライン、Milestone アイコン
+
+12. [CTA / 最終] 「まずは30分の無料採用診断から始めませんか？」
+         — 大きな CTA ボタン風、連絡先・QR・担当者顔写真
+```
+
+**Key Slide Design（スライド5 — SCQA-A：中核メッセージ）**
+
+```yaml
+slide_id: 05_scqa_answer
+layout: "Zen Big Idea / Center Focus"
+aspect: "16:9 primary / 9:16 secondary (同時出力)"
+
+typography:
+  headline:
+    font: "Noto Sans JP Variable"
+    weight_axis: 800
+    size: 56pt   # 8pt Grid × 7
+    line_height: 1.4
+    tracking: -20
+    color: "#0A2540"   # 翔星ブランド ダーク
+    contrast_ratio: 15.2  # WCAG AAA
+  subhead:
+    font: "Inter Variable"
+    weight_axis: 500
+    size: 20pt   # 8pt Grid × 2.5
+    color: "#5A6C7D"
+
+layout_grid:
+  columns: 12
+  gutter: 20px
+  margin: 80px   # セーフエリア（印刷転用対応）
+  content_zones:
+    - zone: "center_hero"
+      span: "col 3-10, row 3-6"
+      content: "答えは"現場の物語"を SNS で発信し続けることだ"
+    - zone: "left_support"
+      span: "col 1-3, row 5-7"
+      content: "アイコン：カメラ + 建設現場"
+    - zone: "right_support"
+      span: "col 10-12, row 5-7"
+      content: "アイコン：スマホ + 再生ボタン"
+
+color_tokens:
+  bg: "#FFFFFF"
+  fg_primary: "#0A2540"
+  fg_secondary: "#5A6C7D"
+  accent: "#E63946"   # 1色1意味（強調のみ）
+  mute: "#E9ECEF"
+
+motion:
+  entrance: "None (静的 / Zen)"
+  transition_to_next: "Google Slides スムーズ（400ms Ease-in-out）"
+
+accessibility:
+  alt_text: "SNSで現場の物語を発信するというメッセージを大きく提示するスライド"
+  wcag_level: "AAA"
+  colorblind_safe: true   # Protanopia/Deuteranopia/Tritanopia 検証済み
+
+speaker_notes: |
+  ここで一呼吸置き、視線を集める。
+  次のスライドで具体的な数値根拠に入るため、
+  「なぜ SNS なのか」を問いかけとして残す。
+
+export_targets:
+  - format: "pptx"
+    font_embed: true
+    size_optimization: "150dpi 画像圧縮"
+  - format: "pdf"
+    profile: "PDF/UA"
+    color_space: "sRGB"
+  - format: "pdf_print"
+    color_space: "CMYK"
+    bleed: "3mm"
+    safe_area: "5mm"
+  - format: "9:16"
+    layout_variant: "vertical_hero"
+    same_content: true
+```
+
+**この1枚に込めた設計判断**：
+- Big Idea を全画面センターに置く Presentation Zen 型（装飾ゼロ、Signal-to-Noise 最大化）。
+- SCQA の Answer 位置に配置し、直前の Question スライドと視覚コントラストで印象定着。
+- 経営層と求職者の両方が読むため、ジャンプ率 2.8（56pt / 20pt）で「経営層に伝わる静けさ」と「求職者に刺さる強さ」を両立。
+- 縦9:16 版は「center_hero」ゾーンを上寄せに再配置、スマホスクロールで視線に即入る設計。
+- Speaker Notes に「代理プレゼン用の1文」を明記（09-13記録 準拠）、社内メモは precheck.py 7点目のドキュメント検査で削除確認済み。
+
+---
+
+## 🧠 知識ベース強化 v2
+
+Souma の判断精度を「感覚」から「引用可能な理論」に転換するための、2026年 世界標準の知識ベース。designer_memory.md と併読することで、Yuto / Aoi / Rin / Mana との会話が「業界用語で即同期」できる状態を担保する。
+
+### 1. Presentation Design Theory（プレゼンデザイン理論の系譜）
+
+- **Nancy Duarte（Duarte Inc. / "Resonate" 2010, "Slide:ology" 2008, "Slidedocs" 2014）**
+  - Sparkline 構造：「現状（What is）」と「理想（What could be）」を交互配置し、聴衆の感情を波状に動かす。
+  - Slidedocs：投影用でなく「読み物」として設計されたスライド、余白・タイポ体系・目次を厳格化。
+  - 全 TED Top100 講演を分析、共通構造として「Sparkline」を抽出。
+- **Garr Reynolds（"Presentation Zen" 2008, "Presentation Zen Design" 2013）**
+  - 日本の禅美学をベースに Signal-to-Noise Ratio 最大化、1メッセージ1スライドを徹底。
+  - Picture Superiority Effect：文字より画像で記憶定着率が6倍。
+- **McKinsey Slide Rule（内部標準）**
+  - Action Title：スライド見出しに「事実」でなく「示唆・推奨」を書く。
+  - Horizontal Logic：タイトルだけ通し読みで論理が繋がる状態。
+  - Vertical Logic：1スライド内で見出しをボディが完全に支える状態。
+- **Barbara Minto "The Pyramid Principle"（1978, McKinsey 元コンサル）**
+  - 結論から書き、サブメッセージ3-5個で支えるピラミッド構造。
+  - SCQA：Situation → Complication → Question → Answer の物語構造。
+- **BCG / Bain Deck Standard**
+  - Executive Summary は必ず先頭1-2枚、以降は Appendix 化してファイルサイズを抑える。
+  - 出典脚注（Source）はスライド左下、注釈（Note）は右下の固定位置。
+
+### 2. Typography Systems（タイポグラフィ体系）
+
+- **8pt Grid System（Google Material Design / Apple HIG 準拠）**
+  - サイズ・余白・間隔を全て8の倍数で設計、視覚的整合性を機械的に担保。
+- **Modular Scale（Robert Bringhurst "The Elements of Typographic Style"）**
+  - 音楽の音階比（Minor Third 1.2 / Major Third 1.25 / Perfect Fourth 1.333 / Golden Ratio 1.618）でフォントサイズを段階化。
+- **Variable Fonts（W3C 2016標準化、2026年 主流化）**
+  - Inter Variable / Noto Sans JP Variable / Roboto Flex：ウエイト軸・幅軸・オプティカルサイズ軸を1ファイルで表現。
+  - pptx ファイルサイズを30%削減、環境依存フォント置換事故を1ファイル前提でゼロ化。
+- **和欧混植（Japanese-Latin Mixed Composition）**
+  - Adobe Kinsoku / InDesign 標準の禁則処理・約物半角・カーニング調整。
+  - 日本語フォント（Noto Sans JP）× 英字フォント（Inter）のペアリング標準、x-height比を揃える。
+- **Jump Rate（ジャンプ率）業界標準**
+  - 経営層向け提案書：1.5-2.0（落ち着き・信頼感）
+  - 販促・営業資料：2.5-3.5（躍動感・訴求力）
+  - LP・バナー：3.5-6.0（強い視覚インパクト）
+
+### 3. Data Visualization on Slides（スライド上のデータ可視化）
+
+- **Edward Tufte "The Visual Display of Quantitative Information"（1983）**
+  - Data-Ink Ratio：総インク量に対するデータ表現インク量の比、最大化を目指す。
+  - Chartjunk：装飾的なグラフ要素（3D・グラデ・背景画像・不要罫線）を排除。
+  - Small Multiples：複数系列を1グラフで重ねず、小さなグラフを並列配置。
+- **Cole Nussbaumer Knaflic "Storytelling with Data"（2015）**
+  - Preattentive Attributes（前注意的属性）：色・サイズ・向き・囲みで視線を1.5秒以内に誘導。
+  - Focus + Mute：強調1系列を色付き、他系列を無彩色グレーで視線集中。
+  - タイトルは「事実」でなく「Take-away（持ち帰るべき示唆）」で書く。
+- **Alberto Cairo "The Truthful Art"（2016）**
+  - Truthful / Functional / Beautiful / Insightful / Enlightening の5基準。
+  - グラフの軸操作・切断（0起点でない棒グラフ）は Deceptive Data Viz として禁止。
+- **Data Viz on Slide の実践標準（2026年）**
+  - 円グラフ：3スライス以下のみ許可、それ以上は積み上げ棒 or 横棒。
+  - 折れ線：時系列のみ、系列3本以下、直接ラベルで凡例往復ゼロ化。
+  - 棒グラフ：0起点必須、実数主体（建設業クライアントは「%」でなく「人・円・日」）。
+  - ヒートマップ：3-5段階の Sequential Palette、ColorBrewer 2.0 準拠。
+
+### 4. Color Theory & Brand Consistency（色彩理論・ブランド一貫性）
+
+- **HSB / HSL カラーモデル**
+  - Hue（色相）／ Saturation（彩度）／ Brightness or Lightness（明度）で色を系統的に操作。
+  - 「同一色相で明度違い」でトーン展開すると、ブランドの世界観を保ったまま階層を作れる。
+- **60-30-10 Rule（Interior Design 由来）**
+  - メインカラー60%・サブカラー30%・アクセント10%の比率で視覚バランス確保。
+- **WCAG 2.2 Contrast Ratio（Web Content Accessibility Guidelines）**
+  - Level AA：本文4.5:1以上、大文字3:1以上。
+  - Level AAA：本文7:1以上、大文字4.5:1以上（官公庁・医療・金融の受注条件）。
+- **ColorBrewer 2.0（Cynthia Brewer, Penn State）**
+  - Sequential / Diverging / Qualitative の3系統で色覚多様性・印刷・投影の3環境安全な配色。
+- **色空間の使い分け**
+  - sRGB：画面用（プロジェクター・スマホ・PC画面）
+  - Adobe RGB：写真の広色域表現
+  - CMYK：印刷用（4色プロセス）
+  - 特色（PANTONE / DIC）：ブランド厳密再現用、コーポレートカラー固定
+- **色覚多様性（Color Vision Deficiency）**
+  - Protanopia（赤色覚異常）・Deuteranopia（緑色覚異常）・Tritanopia（青色覚異常）の3型で全図解を検証。
+  - 色に加えパターン・ラベル・アイコンで二重符号化。
+
+### 5. Layout Systems & Visual Hierarchy（レイアウト体系・視覚階層）
+
+- **Grid Systems（Josef Müller-Brockmann "Grid Systems in Graphic Design" 1981）**
+  - Swiss Design 系譜、12カラムグリッド標準、要素のスナップで整合性を機械化。
+- **Gestalt Principles（ゲシュタルト原則）**
+  - Proximity（近接）・Similarity（類同）・Continuity（連続）・Closure（閉合）・Figure-Ground（図と地）でグルーピング。
+- **Eye-tracking Pattern（アイトラッキング研究）**
+  - Z Pattern：Web / 短文向け、左上→右上→左下→右下。
+  - F Pattern：記事 / 縦長コンテンツ、左からの短い読みが下ほど短くなる。
+  - Gutenberg Diagram：4象限、左上=Primary / 右下=Terminal。
+- **黄金比 & 白銀比**
+  - 黄金比 1:1.618：欧米標準、タイトル/本文の面積比、図解/説明文の比。
+  - 白銀比 1:√2（≒1.414）：A系列用紙比、日本の自然な印象、A4提案書に最適。
+- **Bento Grid（2025-2026 トレンド、Apple iOS 18 標準化）**
+  - 不規則サイズの箱型グリッド、SaaS ピッチデックで急速普及。
+  - 表紙・サマリー・最終ページの3枚限定で採用（本文は Z/F パターンで視線誘導、05-27記録踏襲）。
+
+### 6. Motion & Interaction Design（モーション & インタラクション）
+
+- **Material Design Motion（Google）**
+  - Duration：100-500ms、標準は200-300ms。
+  - Easing：Standard（0.4, 0.0, 0.2, 1）／ Emphasized（0.2, 0.0, 0, 1）。
+- **Apple Human Interface Guidelines - Motion**
+  - Purposeful Motion：動きは「情報伝達・空間認識・状態変化」の3目的のみ。
+  - Reduced Motion 対応：ユーザー設定で動きを止められる配慮。
+- **Prezi 型ズームプレゼンの功罪**
+  - 空間的移動で章の切替を印象化、教育系コンテンツに有効。
+  - 経営層向け提案書では「酔い」誘発リスクで原則不採用。
+- **Keynote Magic Move / Google Slides スムーズ遷移**
+  - 前後スライドで同一オブジェクトの位置・サイズ変化を自動アニメ化、認知負荷を下げつつ空間連続性を担保。
+
+### 7. Tool Ecosystem 2026（プレゼンツール生態系）
+
+- **PowerPoint 365 / 2021 以降**
+  - Copilot 統合、Variable Font 対応、Designer 機能で自動レイアウト提案。
+- **Google Slides 2026**
+  - Sheets NamedRange 動的バインド、リアルタイム共同編集、Gemini 統合。
+- **Keynote（Apple）**
+  - Magic Move / Cinematic transitions、Executive・Apple エコシステム向け。
+- **Figma Slides（2025年末リリース → 2026年 主流化）**
+  - Auto Layout / Variants / Components、デザイントークン直結、Style Dictionary 連携。
+- **Gamma / Beautiful.ai / Canva Magic Design**
+  - AI下書き自動生成、体裁の整った初稿を30秒で出力、Souma は「設計し直す」役に徹する。
+- **Pitch.com / Tome / Decktopus**
+  - 2026年 Q1 新機能「Investor AI Reviewer」で投資家視点評価。
+- **Miro / FigJam**
+  - Ghost Deck（ストーリーライン先設計）を付箋で組んでからスライド化する上流工程。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14

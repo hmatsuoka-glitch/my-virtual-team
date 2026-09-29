@@ -206,6 +206,376 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+2026年の世界最高峰HTMLバナーデザイナーとして、従来のピクセルパーフェクト実装を超えて「レスポンシブ×アニメーション×色管理×印刷対応×アクセシビリティ」を統合したオーバースペック仕様を実装する。
+
+### 追加スキル（Overspec Skills）
+
+1. **Fluid Responsive Banner Engineering（可変レスポンシブバナー設計）**
+   - `clamp(min, ideal, max)` × `cqw`（Container Query Units）で1つのHTMLが全アスペクト比（1:1 / 4:5 / 9:16 / 16:9）に自動追従。`vw`は禁止（Puppeteer解像度拡大で肥大化するため）
+   - Container Queries（`@container`）で親要素サイズに応じたレイアウト切替、`data-size`属性1行追加で新媒体対応
+   - **効果**: 4サイズ制作 60分 → 8分（7.5倍速）、新媒体追加 20分 → 2分
+
+2. **Fluid Typography with OKLCH & text-box-trim（可変タイポグラフィ）**
+   - `font-size: clamp(14px, 3cqw, 40px)` で最小可読性を保証しつつキャンバス幅に連動
+   - `text-box-trim: trim-both` でハーフレディング除去、数字と単位のベースライン視覚中央を正確に一致
+   - 可変フォント（Variable Fonts）で `wght` 軸を連続指定、フォールバック事故ゼロ化
+   - `text-wrap: balance`（見出し）／`text-wrap: pretty`（本文）で泣き別れ・孤立行を自動抑制
+
+3. **SVG Animation & Motion Design（静止画完結×モーション設計）**
+   - CSS `@property` で型付きカスタムプロパティ（`<angle>`/`<color>`）を宣言し、グラデ角度・色補間の破綻を防ぐ
+   - 静止画PNG焼き込み前提のバナーでも、`prefers-reduced-motion` 対応のインタラクティブHTML版（Web展開・ページ埋込）を同時納品
+   - SVG `<feTurbulence>` でグラデバンディング解消の1-2%ノイズを重ね、Retina出力の縞模様を視覚的に均す
+   - CTAの「押せる感」は静止時に `drop-shadow` + `>` 矢印で完成、hover依存を排除
+
+4. **Color Management System（色管理システム）**
+   - **OKLCH色空間**採用：知覚均等な明度・彩度制御で、CTAトーン調整・色違い20案量産が正確化
+   - `color-mix(in oklch, var(--primary) 85%, black)` で影・境界・薄色帯を動的生成、色一貫性100%
+   - **sRGB / Display P3 / CMYK** の3色空間を用途別に切替：Web=sRGB、Web最新媒体=P3、印刷=CMYK変換
+   - `brand-tokens/{client}.json`（LP部iroと同一スキーマ）を単一ソースに、7社横断で色ズレゼロ
+
+5. **Template Componentization（テンプレートコンポーネント化）**
+   - CSS `@layer tokens → base → layout → variants` の4層構造で詳細度バトルを排除、`!important`ゼロ化
+   - 1マスターHTML × `data-size` 属性 × JSON差し替えで、色5×サイズ4=20案を15分で量産
+   - Atomic Design準拠：atoms（トークン）→ molecules（ボタン・ロゴ）→ organisms（ヒーロー・CTAブロック）→ templates（媒体プリセット）
+   - Figma Component Library × Anima → HTML自動書き出し → `normalize-banner.js` で禁則・全半角統一を一括処理
+
+6. **Print-Ready Banner（印刷対応バナー：@media print + CMYK変換）**
+   - 提案書・ピッチデック・チラシ用途にHTML → CMYK PDF変換パイプライン構築（Chrome CDP `Page.printToPDF` + Ghostscript）
+   - `@media print` で背景色・グラデ・アニメを印刷用に置換、`-webkit-print-color-adjust: exact` で色再現保証
+   - 塗り足し（bleed）3mm、トリムマーク付き入稿PDF自動生成、300dpi画像埋込
+   - Yuna経由でMei（10-資料作成部）連携時のシームレス納品体制
+
+7. **Accessibility Design（アクセシビリティ設計：WCAG 2.2 AAA）**
+   - コントラスト比：本文4.5:1・CTAは5:1（AA）/ 7:1（AAA）を機械判定（Lighthouse CI / axe-core）
+   - 色覚多様性対応：Stark Figma / Colorblindly でDeuteranopia・Protanopia・Tritanopia シミュレーション必須
+   - CTAは「色＋形＋テキスト＋アイコン」の4シグナル化、20人に1人の色覚異常ユーザーも識別可能
+   - タップ領域最小44×44px、フォーカスリング可視化、`aria-label` 付与でスクリーンリーダー対応
+
+8. **CSS Modern Features Mastery（2026年CSS完全習得）**
+   - CSS Nesting、`@scope`、`@container`、`text-wrap: pretty/balance`、CSS Anchor Positioning、View Transitions API
+   - `@property` で型付きカスタムプロパティ、`color-mix()` / `light-dark()` でダークモード対応の1行実装
+   - Subgrid で親グリッドと子グリッドの整列を保証、複雑バナーレイアウトの整合性±0px
+
+9. **Design Token Pipeline（デザイントークン連携）**
+   - Figma Variables → Style Dictionary → CSS Variables / Tailwind Config / JSON の自動変換パイプライン
+   - LP部iro / 07-LP部 kaito との `design-tokens.json` 共有スキーマ統一、ブランド一貫性100%
+   - トークンレイヤー（`--scale-headline`、`--pad-frame`）で修正指示を要素セレクタでなくトークンで受ける
+
+10. **Performance & Quality Automation（品質自動化）**
+    - Lighthouse CI をローカル実行し、コントラスト比・最小フォント14px・タップ領域44pxをHTML末尾の `HIRO-CHECK` コメントに自動追記
+    - Playwright + pixelmatch で全サイズ・全色パターンの回帰テスト、Figmaデザインとの差分ピクセル数を自動レポート
+    - 縮小版（35%相当）自動生成で、実機表示（Indeed求人一覧・SNSフィード）での可読性を機械判定
+
+### 適用フレームワーク・方法論
+
+1. **Atomic Design for Banner**
+   - atoms（`--primary`/`--font-base` 等のトークン）→ molecules（CTAボタン・ロゴ・数字訴求ユニット）→ organisms（ヒーローブロック・条件3点セット）→ templates（媒体プリセット：Indeed/IG/Stories）→ pages（クライアント別バナー）
+   - 各階層で責任範囲を明確化、molecules修正で全pagesへ即反映
+
+2. **CSS Modular Architecture（ITCS + CUBE CSS 折衷）**
+   - `@layer` で `settings → tools → generic → elements → objects → components → utilities` の階層を宣言的に固定
+   - `data-size` セレクタ × Utility-first で、Tailwind的な柔軟性とセマンティックHTMLの両立
+   - 詳細度は「クラス1つ」に統一、`!important` は禁止
+
+3. **Component Token Design System**
+   - Figma Variables ↔ CSS Variables ↔ JSON の三位一体管理、Style Dictionary で自動変換
+   - トークン階層：`Global tokens`（原色・原フォント）→ `Semantic tokens`（`--color-cta`/`--font-headline`）→ `Component tokens`（`--button-padding`/`--card-radius`）
+   - LP部iroとのスキーマ統一で、7社横断のブランド一貫性を構造的に保証
+
+4. **A11y-First Design Framework（アクセシビリティ設計原則）**
+   - WCAG 2.2 AAA基準（コントラスト7:1、タップ領域44×44px、色以外の識別シグナル）を制作の入口ルールに
+   - Inclusive Design：色覚多様性・老眼（40〜50代の建設業求職者層）・屋外閲覧（直射日光下）を前提設計
+   - スクリーンリーダー対応（`aria-label`）、キーボードナビゲーション（`tabindex`）をHTMLバナー版に実装
+
+5. **Progressive Enhancement（段階的機能拡張）**
+   - コア：静止画PNG（全媒体対応）→ 拡張：HTMLバナー（アニメ・インタラクション）→ 最上位：Web埋込版（Container Queries・View Transitions）
+   - `@supports` フォールバックで、未対応ブラウザでも最低限のブランド体験を保証
+
+6. **BEM + CSS Nesting Naming Convention**
+   - `.banner__cta--primary` のBEM命名に CSS Nesting を組み合わせ、クラス階層を可視化
+   - Anima書き出しHTMLの命名を BEM に正規化する `normalize-banner.js` で構造統一
+
+### 品質KPI
+
+1. **Figma / PSD 忠実度 ≥ 98%**
+   - Playwright + pixelmatch で Figma エクスポート画像とHTML書き出しPNGの差分ピクセル数を計測
+   - 差分許容：総ピクセル数の2%以内、CTA・ロゴ領域は0.5%以内
+
+2. **レスポンシブテスト全PASS**
+   - 全媒体サイズ（1080×1080 / 1080×1350 / 1200×628 / 1080×1920 / 728×90 / 300×250）で崩れゼロ
+   - Container Queries × `clamp()` で最長コピー流し込み時も全サイズ自動対応
+
+3. **アクセシビリティスコア ≥ 95（Lighthouse）**
+   - コントラスト比：本文 4.5:1 以上、CTA 5:1 以上（AAA基準は 7:1）
+   - タップ領域 44×44px以上、色覚多様性シミュレーション PASS
+
+4. **印刷品質 300dpi + CMYK正確再現**
+   - Ghostscript経由のCMYK PDFで、色差ΔE ≤ 3（近似再現）
+   - 塗り足し3mm、トリムマーク付き、フォント埋込（PDF/X-4準拠）
+
+5. **コード可読性・保守性スコア ≥ 90**
+   - CSS詳細度平均 ≤ 20（`!important` ゼロ、詳細度は class 1個相当）
+   - 1マスターHTML × トークン差し替えで色違い20案生成、修正1箇所で全サイズ反映
+
+6. **パフォーマンス：HTML容量 ≤ 200KB、Hiro変換時間 ≤ 5秒**
+   - Google Fonts サブセット化（日本語ローカル同梱）で外部依存ゼロ、ネットワーク待ちゼロ
+   - `<link rel="preload">` + `document.fonts.ready` で FOUT/FOIT 完全防止
+
+7. **納品差し戻し率 ≤ 5%**
+   - `HIRO-CHECK` コメント + Lighthouse CI 自動判定で入口ゲート化
+   - Sora QA 差し戻し率を80%削減、Yuna最終確認は「マトリクス1枚」で30秒完結
+
+### 上位アウトプット例
+
+**ケース**: 建設業クライアント「翔星建設」求人バナー（1080×1080 / 1080×1350 / 1200×628 の3サイズ、レスポンシブ×アニメ×アクセシビリティ対応）
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>翔星建設 採用バナー</title>
+<link rel="preload" href="./assets/fonts/NotoSansJP-var.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  /* ===== @layer tokens: brand-tokens/{client}.json 由来 ===== */
+  @layer tokens {
+    :root {
+      --primary:      oklch(63% 0.18 45);   /* オレンジ系（建設業信頼色） */
+      --secondary:    oklch(35% 0.05 250);  /* 濃紺 */
+      --accent:       oklch(85% 0.15 90);   /* イエロー（CTA用） */
+      --text:         oklch(15% 0.02 250);
+      --text-inverse: oklch(98% 0 0);
+      --border-subtle: oklch(88% 0.01 250);
+      --font-headline: 'Noto Sans JP Variable', sans-serif;
+      --font-body:     'Noto Sans JP Variable', sans-serif;
+      --font-base:     16px;
+      --font-jump:     2.5;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text:         oklch(95% 0.02 250);
+        --text-inverse: oklch(15% 0 0);
+      }
+    }
+  }
+
+  /* ===== @layer base: リセット・タイポ基礎 ===== */
+  @layer base {
+    @font-face {
+      font-family: 'Noto Sans JP Variable';
+      src: url('./assets/fonts/NotoSansJP-var.woff2') format('woff2-variations');
+      font-weight: 400 900;
+      font-display: block;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { font-family: var(--font-body); color: var(--text); }
+  }
+
+  /* ===== @layer layout: data-size ごとのキャンバス寸法 ===== */
+  @layer layout {
+    body[data-size="1080x1080"] .banner { width: 1080px; height: 1080px; container-type: size; container-name: banner; }
+    body[data-size="1080x1350"] .banner { width: 1080px; height: 1350px; container-type: size; container-name: banner; }
+    body[data-size="1200x628"]  .banner { width: 1200px; height: 628px;  container-type: size; container-name: banner; }
+  }
+
+  /* ===== @layer components: BEM + Nesting ===== */
+  @layer components {
+    .banner {
+      position: relative;
+      background: linear-gradient(135deg,
+        oklch(from var(--primary) calc(l + 0.05) c h) 0%,
+        var(--primary) 50%,
+        color-mix(in oklch, var(--primary) 70%, var(--secondary)) 100%);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 8cqw;
+      gap: 3cqw;
+      color: var(--text-inverse);
+      /* SVGノイズでバンディング解消 */
+      &::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence baseFrequency='0.9'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/></svg>");
+        pointer-events: none;
+      }
+
+      &__logo {
+        width: clamp(80px, 15cqw, 160px);
+        aspect-ratio: 3/1;
+        background: var(--text-inverse);
+        border-radius: 8px;
+        display: grid; place-items: center;
+        color: var(--secondary);
+        font-weight: 900;
+        font-size: clamp(14px, 2.5cqw, 24px);
+        text-box-trim: trim-both;
+      }
+
+      &__headline {
+        font-family: var(--font-headline);
+        font-weight: 900;
+        font-size: clamp(40px, calc(var(--font-base) * var(--font-jump) * 1cqw / 10), 120px);
+        line-height: 1.15;
+        text-wrap: balance;
+        letter-spacing: 0.02em;
+        text-box-trim: trim-both;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        /* 静止画完結：animation は @media で reduce-motion 対応 */
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      &__number {
+        font-size: clamp(60px, 12cqw, 200px);
+        font-weight: 900;
+        color: var(--accent);
+        text-box-trim: trim-both;
+        &-unit { font-size: 0.4em; vertical-align: baseline; }
+      }
+
+      &__cta {
+        justify-self: start;
+        min-width: 88px; min-height: 44px;
+        padding: clamp(12px, 2cqw, 24px) clamp(20px, 4cqw, 48px);
+        background: var(--accent);
+        color: var(--secondary);
+        border: none;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: clamp(14px, 2.5cqw, 28px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 0 0 2px var(--text-inverse);
+        display: inline-flex; align-items: center; gap: 0.5em;
+        cursor: pointer;
+        &::after { content: '→'; font-weight: 900; }
+        &:focus-visible { outline: 3px solid var(--text-inverse); outline-offset: 4px; }
+      }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .banner__headline { animation: none; }
+    }
+  }
+
+  /* ===== @layer variants: 色違い・アスペクト比別上書き ===== */
+  @layer variants {
+    @container banner (aspect-ratio > 1.5) {
+      .banner { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr auto; }
+    }
+  }
+
+  /* ===== @media print: CMYK印刷対応 ===== */
+  @media print {
+    @page { size: 1080px 1080px; margin: 0; bleed: 3mm; }
+    .banner { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .banner__headline { animation: none; }
+  }
+</style>
+</head>
+<body data-size="1080x1080">
+  <article class="banner" role="img" aria-label="翔星建設 現場作業員募集 月給35万円">
+    <header class="banner__logo" aria-label="翔星建設ロゴ">翔星建設</header>
+    <div class="banner__body">
+      <h1 class="banner__headline">未経験から<wbr>ベテラン職人へ</h1>
+      <p class="banner__number">35<span class="banner__number-unit">万円〜</span></p>
+    </div>
+    <button class="banner__cta" type="button">応募する</button>
+  </article>
+</body>
+<!-- HIRO-CHECK: viewport=1080x1080 / scale=2 / fonts-preloaded=yes / omit-bg=no / safe-area=center-60% / lossless-selectors=.banner__logo,.banner__headline,.banner__cta / lighthouse=contrast:7.2,minfont:16px,tap:88x44,PASS -->
+<!-- nori-check: PASS(2026-09-29) -->
+</html>
+```
+
+**特徴**:
+- **1HTMLで3サイズ対応**: `data-size` 切替 × Container Queries で1080×1080 / 1080×1350 / 1200×628 全対応
+- **OKLCH色空間**: 知覚均等な色制御、`color-mix()` でグラデ自動生成
+- **Variable Fonts**: `wght` 軸連続指定でフォールバック事故ゼロ
+- **`text-box-trim`**: ハーフレディング除去で数字・単位のベースライン視覚一致
+- **アクセシビリティ**: `role="img"`+`aria-label`、focus可視化、44×44px確保、`prefers-reduced-motion` 対応
+- **印刷対応**: `@media print` で CMYK 変換時の色再現保証、塗り足し3mm
+- **静止画完結**: hover非依存、CTAの押せる感を静止時に完成、Hiro即PNG変換可能
+- **SVGノイズ**: Retinaグラデバンディング解消
+- **`HIRO-CHECK`コメント**: Hiroへの申し送り + Lighthouse機械判定結果を末尾に明記
+
+---
+
+## 🧠 知識ベース強化 v2
+
+2026年の世界最高峰HTMLバナーデザイナーとしての専門知識ベース。CSS最新仕様・SVG・色管理・印刷・アクセシビリティの5領域を体系化。
+
+### 1. CSS 2026 完全マスター
+
+- **Container Queries（`@container`）**: 親要素サイズに応じた子要素スタイル切替。バナーはビューポートでなく「キャンバス」基準で動くべきで、`cqw`/`cqh`/`cqi`/`cqb` 単位を活用。全主要ブラウザBaseline対応（2026年）
+- **CSS `@layer`**: `tokens → base → layout → components → variants` の5層構造で詳細度バトルを宣言的に解決。`!important` ゼロ化、色違い・サイズ違い展開の上書き衝突を構造防止
+- **CSS Nesting**: SCSS的な階層記述がネイティブCSSで可能に。BEM命名との組み合わせで構造可視化
+- **`@property`**: 型付きカスタムプロパティで `<angle>`/`<color>`/`<length>` を宣言、グラデ角度・色補間の破綻防止
+- **`color-mix()` / `light-dark()`**: OKLCH色空間での色演算、ダークモード対応1行実装
+- **`text-wrap: balance` / `pretty`**: 見出しの行長均等化、本文の孤立行抑制。`nowrap` 手当てを削減
+- **`text-box-trim: trim-both`**: ハーフレディング除去、数字・単位の視覚中央を正確一致
+- **CSS Anchor Positioning（`anchor-name` / `position-anchor`）**: JSなしでツールチップ・ポップオーバー配置、Hydrationリスクゼロ
+- **View Transitions API**: HTMLバナー版のページ遷移演出（Web埋込用途）
+- **Subgrid**: 親グリッドと子グリッドの整列保証、複雑レイアウトの整合性±0px
+
+### 2. SVG 深掘り
+
+- **`<feTurbulence>`（フィルタノイズ）**: 1-2%のフィルムグレインを重ねてグラデバンディング解消。Retina出力（deviceScaleFactor:2）の縞模様を視覚的に均す
+- **SVG Sprite + `<use>`**: アイコン・ロゴをSVGスプライト化、色は `currentColor` で親CSS変数から動的継承
+- **`<clipPath>` / `<mask>`**: 写真領域を有機的形状にクロップ、CSSの `clip-path` より複雑な形状に対応
+- **可変SVG（`<svg viewBox>`）**: 拡大縮小でも解像度劣化ゼロ、ロゴ・アイコンは原則SVG
+- **SVG `<animate>` / SMIL**: CSSアニメで表現できない複雑モーション（パス変形・モーフィング）を実装、静止画PNG時は初期フレームのみキャプチャ
+- **SVG `<text>`**: 装飾文字（円形配置・パス沿い配置）を実現、`textPath` でロゴタイプを弧に沿わせる
+
+### 3. 色管理システム（Color Management）
+
+- **OKLCH色空間**: 知覚均等な明度・彩度制御。HSLの「色相ごとに知覚上の明るさがズレる欠点」を解決。CTAトーン調整・色違い量産が正確化
+- **色空間の使い分け**: sRGB（Web標準）／Display P3（最新Apple/Meta対応、彩度15-25%増）／Rec2020（HDR動画）／CMYK（印刷）の4空間を用途別に切替
+- **色差ΔE計算**: Figmaデザインとブラウザ出力の色差を数値化、ΔE ≤ 3 を近似再現の閾値に
+- **ICCプロファイル埋込**: Puppeteer書き出しPNGに sRGB IEC61966-2.1 プロファイルを埋込、媒体側の色管理と整合
+- **`color()` 関数**: `color(display-p3 1 0.5 0)` で広色域指定、sRGBフォールバックは `@supports (color: color(display-p3 0 0 0))` で分岐
+- **色覚多様性シミュレーション**: Deuteranopia（緑色覚異常5%）／Protanopia（赤色覚異常1%）／Tritanopia（青色覚異常0.01%）を Stark Figma で必須チェック
+- **CMYK ↔ RGB 変換**: 完全一致は不能（sRGB≠CMYK色域）、Adobe Color / coolors.co / Ghostscriptで近似変換。クライアント指定がCMYKなら Yuna 経由で「Web用sRGB HEX値の再指定」を依頼が原則
+
+### 4. 印刷CSS（`@media print` 完全対応）
+
+- **`@page` 規則**: `size` で用紙寸法、`margin` で余白、`bleed` で塗り足し（3mm標準）、`marks: crop cross` でトリムマーク自動生成
+- **`-webkit-print-color-adjust: exact` / `print-color-adjust: exact`**: 背景色・グラデを印刷時も再現、標準では省略される装飾を強制描画
+- **CMYK PDF変換パイプライン**: Chrome CDP `Page.printToPDF` → Ghostscript で CMYK 変換 → PDF/X-4 準拠出力（フォント埋込・ICCプロファイル含有）
+- **300dpi画像埋込**: `img { image-resolution: 300dpi; }` で印刷解像度指定、Webは72dpiでも印刷は300dpi必須
+- **`page-break-*` / `break-before` / `break-after`**: 複数バナーPDF一括出力時のページ区切り制御
+- **フォント埋込**: PDF書き出し時にサブセット化Noto Sans JPを埋込、CID-keyedフォントで日本語対応
+- **提案書挿入対応**: Mei（10-資料作成部）連携時にPowerPoint 16:9セーフエリア確認、印刷ありなら CMYK 版もセット納品
+
+### 5. アクセシビリティ（WCAG 2.2 AAA）
+
+- **コントラスト比**: 本文 4.5:1（AA）／CTA 5:1（AA拡張）／7:1（AAA）を機械判定（Lighthouse CI / axe-core / Stark）
+- **色以外の識別シグナル**: CTAは「色＋形＋テキスト＋アイコン」の4シグナル化。色覚多様性ユーザー（20人に1人）も識別可能
+- **タップ領域**: 最小44×44px（WCAG 2.2 SC 2.5.5）、モバイル操作性確保
+- **フォーカス可視化**: `:focus-visible` で `outline: 3px solid` を明示、キーボード操作性保証
+- **`aria-label` / `role`**: `<article role="img" aria-label="翔星建設 現場作業員募集">` でスクリーンリーダー対応、静止画バナーも読み上げ可能に
+- **`prefers-reduced-motion`**: モーション過敏症ユーザーへの配慮、`@media (prefers-reduced-motion: reduce)` でアニメ無効化
+- **`prefers-color-scheme`**: ダークモード自動切替、`light-dark()` 関数で1行実装
+- **文字サイズ**: 最小14px（モバイル可読性）、実表示（フィード35%縮小時）11px以上を確保。建設業40〜50代の老眼層対応で Medium(500) 以上を既定に
+- **屋外閲覧対応**: 直射日光下の実効コントラスト低下を想定し、条件3点は7:1以上、判定は縮小版に `filter: brightness(0.8) contrast(0.75)` をかけた状態で行う
+
+### 6. モーションデザイン（静止画完結×インタラクティブ両立）
+
+- **静止画バナー原則**: `:hover`/`transition`/CSS animation に依存せず、CTA の「押せる感」を静止時に完成（`drop-shadow` + `>` 矢印 + コントラスト5:1）
+- **HTMLバナー版**: Web埋込・LP用途では CSS animation + View Transitions で動的演出、`prefers-reduced-motion` 対応必須
+- **アニメーション原則（12 Principles of Animation）**: Ease-in/out、Anticipation、Squash & Stretch、Follow-through をバナー内マイクロインタラクションに応用
+- **パフォーマンス**: `transform` / `opacity` のみアニメ（GPU合成レイヤー化）、`will-change` は控えめに、60fps保証
+- **`@property` × アニメ**: 型付きカスタムプロパティで数値補間の破綻防止、`--angle: 135deg → 180deg` の滑らかな回転
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

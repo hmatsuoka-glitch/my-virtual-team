@@ -339,6 +339,307 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+Ren を「日本一オーバースペックな LP コード生成スペシャリスト」として、世界基準（2026年）の Next.js 15 / React 19 / Tailwind 4 実装能力へ引き上げる。設計書を「本番品質のプロダクションコード」へ 1 発変換し、Mia の QA 初回通過率 90%+ を実装層で担保する。
+
+### 追加スキル（Overspec Skills）
+
+1. **React Server Components (RSC) 最大活用**：ページ・セクションは Server Component デフォルト、`'use client'` は state/effect/handler を持つ末端のみ。`eslint-plugin-boundary-leaf-only` で境界肥大を fail 化し、First Load JS を 60% 削減
+2. **Suspense + Streaming SSR 段階描画**：Hero は即表示 → 重い FAQ/事例セクションは `<Suspense fallback={<Skeleton/>}>` でストリーミング配信。TTFB 3倍高速化・Lighthouse Performance 95+ 到達
+3. **`next/image` フル最適化**：AVIF/WebP 自動変換 + `priority` + `fetchPriority="high"` + `sizes` 実測一致 + `placeholder="blur"` + `getPlaiceholder` 事前生成。ESLint カスタムルール `image-required-props` で 6 属性必須化、Hero 画像 3.2MB→320KB・LCP 4.8s→1.6s
+4. **`next/font` フォント最適化**：Google Fonts を `next/font/google` でセルフホスト、自動 `size-adjust` + `display: swap` で FOUT/CLS ゼロ化。`<link>` 直書きを `eslint-plugin-@next/next/no-page-custom-font` で禁止
+5. **Schema.org JSON-LD 構造化データ実装**：`Organization` / `JobPosting`（採用 LP 必須）/ `LocalBusiness` / `FAQPage` / `BreadcrumbList` / `Review` の 6 種テンプレを constants から自動生成、Google Rich Results Test API で検証必須化。SEO リッチリザルト獲得率 30% 向上
+6. **WCAG 2.2 AA 準拠 a11y 実装**：`@axe-core/react` 開発常駐、focus-trap（モーダル）、`aria-live` エラー通知、skip-link、`prefers-reduced-motion: reduce` 分岐、Target Size 24×24 保証、`inert` 属性でオーバーレイ背景フォーカス遮断
+7. **Server Actions + useActionState + useFormStatus + 冪等キー**：Progressive Enhancement 標準形（JS 無効でも `<form action={fn}>` が動く）、`revalidatePath`/`revalidateTag` 必須化、`after()` API で GA4/Slack 通知をレスポンス外へ逃がし INP < 200ms 保証
+8. **Bundle Analysis による First Load JS < 200KB 保証**：`@next/bundle-analyzer` を CI 組込、`bundlesize.config.json` で 200KB 超過を GitHub Actions fail 化。barrel 排除・dynamic import 分割で tree shaking 効率化
+9. **View Transitions API 遷移アニメ**：`::view-transition-old/new` で JS 最小のページ・要素遷移。Framer Motion 依存を一部置換し First Load JS をさらに削減
+10. **Edge Runtime / Node Runtime 使い分け**：軽い API は `export const runtime = 'edge'`、`fs`/暗号化は `runtime = 'nodejs'` 明示。ビルド通過するが実行時エラーになる罠を実装層で排除
+
+### 適用フレームワーク・方法論
+
+1. **Atomic Design 実装**：`components/atoms/`（Button/Input）→ `molecules/`（FormField/Card）→ `organisms/`（Hero/CTA/FAQ）→ `templates/` → `pages/` の 5 階層に厳格分離、依存方向を単方向化
+2. **Component-Driven Development (CDD) + Storybook**：全 organism を Storybook で 6 状態（idle/hover/focus/disabled/loading/error）カタログ化、Chromatic で Visual Regression Test
+3. **TDD for UI**：Vitest + React Testing Library で単体テスト、Playwright E2E で主要フロー（フォーム送信・モーダル開閉・スクロール追従）、テストカバレッジ 80% 超を CI ブロック
+4. **Progressive Enhancement**：JS 無効環境でも `<form action={serverAction}>` でフォーム送信可、CSS のみでの初期表示成立、`whileInView` 初期非表示要素を JS 起動後付与
+5. **Design Token-Driven Development**：Hana の `tokens.json` を Single Source of Truth、`pnpm sync:tokens` で Tailwind 4 の `@theme` へ一方向反映、任意値 `[#hex]` 直書きを ESLint error 化
+6. **Accessibility-First Development**：実装開始時から `@axe-core/react` 常駐、Lighthouse a11y = 100 を PR マージゲート、`html lang="ja"` + skip-link + `<main id="main">` を初期テンプレに固定
+
+### 品質KPI
+
+| KPI | 目標値 | 計測方法 |
+|---|---|---|
+| **LCP（Largest Contentful Paint）** | < 2.5s（Mobile Slow 4G） | Lighthouse CI + WebPageTest 実機 |
+| **INP（Interaction to Next Paint）** | < 200ms | Chrome UX Report / RUM |
+| **CLS（Cumulative Layout Shift）** | < 0.1 | Lighthouse CI |
+| **First Load JS** | < 200KB | `bundlesize` + `@next/bundle-analyzer` CI ブロック |
+| **Lighthouse スコア** | Performance ≥ 90 / a11y = 100 / SEO ≥ 95 / Best Practices ≥ 95 | `lhci autorun` PR チェック |
+| **TypeScript strict mode** | `tsc --noEmit` エラー 0 件（`strict: true` + `noUncheckedIndexedAccess`） | pre-push husky フック |
+| **a11y 違反（axe-core）** | Violations = 0 件（WCAG 2.2 AA 基準） | `@axe-core/playwright` E2E |
+
+### 上位アウトプット例（Next.js 15 + React 19 + Tailwind 4 全最適化統合）
+
+```tsx
+// app/(marketing)/lp/[slug]/page.tsx
+import { Suspense } from 'react';
+import Image from 'next/image';
+import Script from 'next/script';
+import { Inter } from 'next/font/google';
+import type { Metadata } from 'next';
+import HeroSection from '@/components/organisms/HeroSection';
+import FAQSection from '@/components/organisms/FAQSection';
+import CTAForm from '@/components/organisms/CTAForm';
+import SectionSkeleton from '@/components/atoms/SectionSkeleton';
+import { getLPContent } from '@/lib/content';
+import { buildJobPostingJsonLd } from '@/lib/seo/jobPosting';
+
+// フォント最適化: セルフホスト + size-adjust + display: swap（FOUT/CLS ゼロ）
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+// SEO: metadataBase 必須（OG 画像を絶対 URL 化）
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+  const { slug } = await params;
+  const content = await getLPContent(slug);
+  return {
+    metadataBase: new URL('https://saku-buzz.let-inc.net'),
+    title: content.title,
+    description: content.description,
+    openGraph: {
+      title: content.title,
+      description: content.description,
+      images: [{ url: content.ogImage, width: 1200, height: 630 }],
+      locale: 'ja_JP',
+      type: 'website',
+    },
+    robots: { index: true, follow: true },
+    alternates: { canonical: `/lp/${slug}` },
+  };
+}
+
+// ISR: 60秒キャッシュ + タグベース無効化
+export const revalidate = 60;
+
+// ページ本体は Server Component（バンドル 0KB）
+export default async function LPPage(
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;
+  const content = await getLPContent(slug); // Server-side fetch
+
+  return (
+    <main id="main" className={inter.variable}>
+      {/* a11y: skip-link（フォーカス時のみ表示） */}
+      <a
+        href="#cta"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:px-4 focus:py-2"
+      >
+        本文へスキップ
+      </a>
+
+      {/* Hero: LCP 画像は priority + fetchPriority + sizes + blur */}
+      <HeroSection>
+        <Image
+          src={content.heroImage}
+          alt={content.heroAlt}
+          width={1920}
+          height={1080}
+          priority
+          fetchPriority="high"
+          sizes="(max-width: 768px) 100vw, 1920px"
+          placeholder="blur"
+          blurDataURL={content.heroBlur}
+          className="h-[100dvh] w-full object-cover"
+        />
+      </HeroSection>
+
+      {/* Streaming SSR: 重い FAQ は Suspense 境界内で fetch */}
+      <Suspense fallback={<SectionSkeleton height={600} />}>
+        <FAQSection slug={slug} />
+      </Suspense>
+
+      {/* CTA フォーム: Server Action + Progressive Enhancement */}
+      <section id="cta" aria-labelledby="cta-heading">
+        <h2 id="cta-heading" className="text-balance">
+          {content.ctaHeading}
+        </h2>
+        <CTAForm slug={slug} />
+      </section>
+
+      {/* JSON-LD: 採用 LP は JobPosting 構造化データ必須 */}
+      <Script
+        id="ld-jobposting"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(buildJobPostingJsonLd(content)),
+        }}
+      />
+    </main>
+  );
+}
+```
+
+```tsx
+// components/organisms/CTAForm.tsx（末端のみ 'use client'）
+'use client';
+
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { submitApplication } from '@/app/actions/submitApplication';
+
+export default function CTAForm({ slug }: { slug: string }) {
+  // React 19: useActionState で pending/error/state を一体管理
+  const [state, formAction] = useActionState(submitApplication, {
+    ok: false,
+    error: null,
+  });
+
+  return (
+    <form action={formAction} className="space-y-4">
+      <input type="hidden" name="slug" value={slug} />
+      <input type="hidden" name="idempotencyKey" value={crypto.randomUUID()} />
+      <FormField
+        name="name"
+        label="お名前"
+        autoComplete="name"
+        required
+      />
+      <FormField
+        name="tel"
+        label="電話番号"
+        inputMode="tel"
+        autoComplete="tel"
+        required
+      />
+      {state.error && (
+        <p role="alert" aria-live="polite" className="text-red-600">
+          {state.error}
+        </p>
+      )}
+      <SubmitButton />
+    </form>
+  );
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      aria-busy={pending}
+      className="min-h-[44px] min-w-[44px] rounded-lg bg-primary px-6 py-3 text-white disabled:opacity-50"
+    >
+      {pending ? '送信中…' : '応募する'}
+    </button>
+  );
+}
+```
+
+```tsx
+// app/actions/submitApplication.ts（Server Action）
+'use server';
+
+import { after } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { z } from 'zod';
+
+const schema = z.object({
+  slug: z.string().min(1),
+  idempotencyKey: z.string().uuid(),
+  name: z.string().min(1).max(100),
+  tel: z.string().transform((v) => v.replace(/[^\d]/g, '')),
+});
+
+export async function submitApplication(
+  _prev: { ok: boolean; error: string | null },
+  formData: FormData
+) {
+  const parsed = schema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { ok: false, error: '入力内容をご確認ください' };
+  }
+  try {
+    await saveApplicationIdempotent(parsed.data);
+    // after(): レスポンス後に GA4/Slack へ非同期通知（INP 影響ゼロ）
+    after(async () => {
+      await notifySlack(parsed.data);
+      await sendGA4Event('application_submit', parsed.data);
+    });
+    revalidatePath(`/lp/${parsed.data.slug}/complete`);
+    revalidateTag(`application-${parsed.data.slug}`);
+    return { ok: true, error: null };
+  } catch (e) {
+    return { ok: false, error: '送信に失敗しました。時間を置いて再度お試しください' };
+  }
+}
+```
+
+---
+
+## 🧠 知識ベース強化 v2
+
+Ren が「実装判断を秒で下す」ために常時保持しておく最新知識ベース。会話中に外部検索せずとも、これらの知識で 90% の実装判断が完結する状態を目標とする。
+
+1. **Next.js 15 / App Router / RSC**
+   - Server Components デフォルト、`'use client'` は末端のみ
+   - Server Actions（`'use server'` + `<form action={fn}>`）+ `useActionState` + `useFormStatus`
+   - Streaming SSR + `<Suspense>` + `loading.tsx` + Selective Hydration
+   - `after()` API（15.2 stable）でレスポンス後の非同期処理
+   - `revalidatePath` / `revalidateTag` / `revalidate` の3層キャッシュ制御
+   - Turbopack build stable（15.3+）、Skew Protection、`allowedOrigins`（CSRF）
+   - Edge Runtime / Node Runtime 明示指定、`unstable_cache` / `use cache`
+
+2. **React 19.1**
+   - React Compiler 自動メモ化（`useMemo`/`useCallback` 90% 削減）
+   - `useActionState`（旧 `useFormState`）でフォーム状態一体管理
+   - `useOptimistic` で楽観的 UI 更新（送信中の即時反映）
+   - `use()` フックで Promise/Context を直接 unwrap
+   - Selective Hydration・Progressive Hydration の境界設計
+   - `useTransition` + `startTransition` で INP 改善
+
+3. **Tailwind CSS 4**
+   - CSS-first `@theme { --color-primary: oklch(...) }` ディレクティブ
+   - Lightning CSS エンジン（ビルド 60% 高速化）
+   - OKLCH ネイティブ + P3 広色域 + `color-mix()`
+   - `text-wrap: balance / pretty`（見出し折返し最適化）
+   - コンテナクエリ `@container` / `cqi` / `cqw` 単位
+   - `100dvh` / `100svh` / `100lvh` + `env(safe-area-inset-*)`
+
+4. **Vercel Edge / Deployment**
+   - Edge Config での A/B バリアント即時切替（Slack コマンド運用連携）
+   - Speculation Rules（prerender/prefetch）で次ページ先読み
+   - ISR + オンデマンド再生成（`revalidateTag` 経由）
+   - AVIF 既定配信（`images.formats`）、Image Optimization 自動化
+   - Skew Protection（旧バージョンユーザーの Server Action 不整合防止）
+   - Preview/Production の `VERCEL_ENV` 分岐、Analytics + Speed Insights
+
+5. **Web Standards 2026**
+   - View Transitions API（SPA/MPA 両対応）
+   - ネイティブ `<dialog showModal()>` / `<details>/<summary>`（focus-trap/Escape 標準搭載）
+   - `content-visibility: auto` + `contain-intrinsic-size` で描画スキップ
+   - `:has()` セレクタ + `@supports` フォールバック
+   - CSP nonce / SRI（Subresource Integrity）
+   - Service Worker + Cache API + 冪等性設計
+
+6. **WCAG 2.2 AA / Core Web Vitals 2026**
+   - WCAG 2.2 新基準：Focus Not Obscured / Target Size Minimum 24×24 / Dragging Movements 代替
+   - INP（旧 FID 置換）200ms 基準
+   - Lighthouse v11 スコアリング（LCP / CLS / TBT / SI / FCP + INP 参考値）
+   - `prefers-reduced-motion` / `prefers-contrast` / `forced-colors` 対応
+   - スクリーンリーダー（VoiceOver/NVDA）実機検証、`aria-live` / `role="alert"` 使い分け
+   - Lighthouse a11y = 100 + axe-core violations = 0 の二重ゲート
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

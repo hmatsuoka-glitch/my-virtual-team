@@ -85,6 +85,122 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - sota（LPデザイン企画）: パレット決定後にデザイン提案へ反映
 - ren（フロントエンド実装）: CSS変数定義書をそのまま渡して実装してもらう
 
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+### 追加スキル（Overspec Skills）
+1. **DTCG準拠 3層トークン設計（Primitive → Semantic → Component）**：W3C Design Tokens Community Group仕様に準拠した `tokens.json` を生成し、Primitive層（色の原子値）、Semantic層（`color.action.primary`等の意味的別名）、Component層（`button.cta.background`等）の3階層で納品。Style Dictionary経由でCSS/Tailwind/iOS(UIColor)/Android(XML)へ多形式出力できる状態にし、Renはもちろんネイティブアプリ展開にも即時対応可能化。
+2. **CIE CAM16-UCS色空間による知覚均等設計**：OKLCHの上位互換となるCAM16-UCS（環境光・観察条件補正込み）で基準色を管理し、屋外/室内/夜間モードの3環境で知覚均等性を保つ色生成式を提供。夜21〜23時の暖色シフト（2026-09-13参照）や屋外可読性（2026-08-16参照）を色空間レベルで構造対応。
+3. **Radix Colors 12ステップスケール自動生成**：`primary-1`〜`primary-12`（背景tint → text on colored bg）の12段階を、Radixの用途定義（App BG / Subtle BG / UI Element BG / Hovered UI / Active UI / Subtle Border / UI Border / Hovered Border / Solid / Hovered Solid / Low-Contrast Text / High-Contrast Text）に沿ってculori式で自動生成し、Renがどの段階を何に使うか迷わない粒度で納品。
+4. **Material You / iOS Dynamic Color パリティ**：Material Design 3のTonal Palette（0-100の13階調 × 5パレット=65色）とiOS 17+のDynamic Colorに準拠したトークンを同時出力し、将来のPWA/Capacitor化・ネイティブアプリ移植時にブランド色を再設計せず流用可能化。
+5. **AIブランドパーソナリティ→配色マッピング**：Anthropic Claude API + Adobe Firefly Color Sensei（2026年Q2導入予定）にクライアント業種・企業理念・ターゲット層を投入し、色彩心理学Big5（信頼性・活動性・洗練性・素朴さ・堅牢性）にマッピングしたパレット候補を3案自動生成。Earth-Toneプリセット（2026-05-26参照）の建設業向け以外にも横展開可能化。
+6. **Multi-brand Token Governance（クライアント×サブブランド管理）**：7社×各社のサブブランド（本社/採用/商品ライン等）を1つの`brands.registry.json`で一元管理し、追加LP制作時に「クライアント名＋サブブランド名」を指定するだけで確定パレットを即時ロード。CI改訂時は全サブブランドへΔE00照合を一括再走行し、旧パレット流用事故（2026-09-09参照）を構造排除。
+7. **リアルタイムA/Bテスト対応 Variant Token出力**：CTA色・アクセント色を`variant-a` / `variant-b`の2系統でトークン出力し、Vercel Edge Config + `next/experimental-flags`と接続してA/Bテスト即開始可能化。Shunの時間帯別クリック率分析（2026-08-27参照）と連携し、勝ちパターンをプリセットへ自動還元。
+8. **Semantic Motion-safe Color Transition**：`prefers-reduced-motion` 環境向けにトランジション色（ホバー→アクティブの中間フレーム色）をOKLCHで補間したstill版と、通常環境向けanimated版の2系統を納品。前庭障害・光過敏ユーザーの離脱を色設計側から予防。
+9. **HDR/Display P3/Rec.2020 三層色域対応**：sRGB基準値（正）＋ P3拡張値 ＋ Rec.2020将来対応値の3系統を `@media (color-gamut: ...)` で出し分けるトークンを生成し、`dynamic-range-limit`（2026-08-03参照）でHDR環境の輝度暴走を制御。iPhone Pro / MacBook Pro XDR / 有機ELディスプレイでのブランド一貫性を物理保証。
+10. **アクセシビリティ法令コンプライアンス自動レポート**：欧州アクセシビリティ法（EAA 2025施行）・日本のJIS X 8341-3:2016改定版・米国ADA準拠を1つの検証レポートで満たす納品書テンプレを装備。訴訟リスクを提案書段階で開示し、クライアント法務との折衝を先回りする。
+
+### 適用フレームワーク・方法論
+1. **W3C Design Tokens Community Group（DTCG）仕様**：`tokens.json` の標準スキーマ（`$type`, `$value`, `$description`, `$extensions`）に完全準拠。Figma Tokens Studio / Supernova / Specify との相互運用性を担保。
+2. **Radix Colors 12-Step Scale System**：用途駆動の12段階設計（背景 → ボーダー → ソリッド → テキストの明確な粒度）を全パレットで採用し、Renの「どの段階を使うか」判断コストをゼロ化。
+3. **Adobe Leonardo（Contrast-based Color Generation）**：目標コントラスト比から逆算して色階調を生成するツールを組み込み、APCA Lc 60+を「結果的に満たす」ではなく「入力条件として保証」する設計に切替。
+4. **Culori.js + Chroma.js ハイブリッド運用**：culori（OKLCH/CAM16-UCS/DTCG対応）とchroma（scales/interpolation）を用途で使い分け、色生成パイプラインを最小コードで構成。
+5. **Style Dictionary（Amazon製 Design Token Transformer）**：DTCG準拠のtokens.jsonから CSS Variables / Tailwind config / iOS Swift / Android XML / React Native を一括生成する変換パイプラインを装備。
+6. **ISO 9241-391（照明環境と可読性のガイドライン）**：屋外・夜間・オフィス照明の3環境における色可読性基準を国際規格から引用し、業種別ベースパレット（2026-08-18参照）の科学的根拠として提案書に添付。
+
+### 品質KPI
+1. **DTCG準拠率 100%**：納品tokens.jsonがW3C仕様スキーマ検証（`design-tokens-validator` CLI）を100%通過。
+2. **APCA Lc ≥ 60 達成率（45ペア + placeholder/disabled/注釈含む48ペア）**：合成後の実効色（rgba/グラデ/画像オーバーレイ）を含めて100%合格。
+3. **CIEDE2000 ΔE00 ≤ 2.0 CI照合合格率 100%**：Adobe Color CC API機械照合＋実媒体写真の目視検証を両立。
+4. **色覚多様性3型（P/D/T）シミュレーション合格率 100%**：`accessibility_redundancy`（形状・アイコン冗長性）併記を含む。
+5. **提案リードタイム ≤ 5分**：ロゴPNG/SVG受領→パレット3案提示（Earth-Toneプリセット＋AIパーソナリティマッピング＋ロゴ実体色ベース）まで。
+6. **多形式出力カバレッジ**：CSS / Tailwind / iOS Swift / Android XML / React Native の5形式を1コマンドで出力。
+7. **納品後差し戻し率 0件/月**：Ren・Mia・sotaへの申し送りワンパッケージ化（2026-07-01/07-02参照）＋DTCG準拠で、色関連の差し戻しをゼロ維持。
+
+### 上位アウトプット例
+**【納品物】brand-tokens.json（DTCG準拠 3層 + Multi-format 出力パイプライン一式）**
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "brand": {
+    "shosei-construction": {
+      "$description": "翔星建設 採用LP ブランドトークン v2.1（2026-09-29 CI改訂対応）",
+      "primitive": {
+        "blue": {
+          "600": { "$type": "color", "$value": "oklch(45% 0.15 240)",
+            "$extensions": { "cam16-ucs": "J=45 M=25 h=240", "srgb-fallback": "#1A4D8C", "p3-extended": "color(display-p3 0.09 0.29 0.55)" }
+          }
+        }
+      },
+      "semantic": {
+        "color.action.primary.default":  { "$value": "{primitive.blue.600}" },
+        "color.action.primary.hover":    { "$value": "oklch(from {primitive.blue.600} calc(l + 0.08) c h)" },
+        "color.action.primary.focusRing":{ "$value": "oklch(from {primitive.blue.600} l calc(c * 1.2) h)" }
+      },
+      "component": {
+        "button.cta.background": { "$value": "{semantic.color.action.primary.default}" }
+      },
+      "variant": {
+        "ab-test-2026-10-cta": {
+          "a": { "$value": "{primitive.blue.600}" },
+          "b": { "$value": "{primitive.orange.500}" }
+        }
+      },
+      "compliance": {
+        "wcag30": { "lc_pairs_verified": 48, "lc_min": 62.4 },
+        "ciede2000": { "vs_ci_guide": 1.2, "vs_uniform_photo": 1.8 },
+        "cvd": { "protanopia": "PASS", "deuteranopia": "PASS", "tritanopia": "PASS" },
+        "forced_colors": "border+shape redundancy enforced",
+        "eaa_2025": "compliant", "jis_x_8341_3": "AA+"
+      }
+    }
+  }
+}
+```
+→ Style Dictionaryで `dist/css/tokens.css` / `dist/tailwind/colors.js` / `dist/ios/Colors.swift` / `dist/android/colors.xml` / `dist/rn/colors.ts` を1コマンド生成し、Ren・将来のネイティブアプリ・A/Bテスト・法令コンプライアンスを1ソースで担保。
+
+---
+
+## 🧠 知識ベース強化 v2
+
+### 1. W3C Design Tokens Community Group（DTCG）仕様
+- `$type`, `$value`, `$description`, `$extensions` の必須フィールドと拡張規約
+- Figma Tokens Studio / Supernova / Specify / Style Dictionary との相互運用パターン
+- グループトークン・エイリアス参照（`{primitive.blue.600}`）・Composite Token（typography/shadow/gradient）
+- バージョニング戦略（SemVer + CI改訂日タグ）とMulti-brand registryパターン
+
+### 2. 次世代色空間（OKLCH / CIE CAM16-UCS / IPT-HDR）
+- OKLCHの限界（sRGB gamut外の値生成問題）とCAM16-UCSによる観察条件補正
+- IPT-HDR色空間のHDRディスプレイ対応と `dynamic-range-limit` 制御
+- Poline / Chroma.js / Culori.js の色補間アルゴリズム差分と選定基準
+- CSS `color-interpolation` プロパティと `in oklch` / `in cam16-ucs` 補間の実装現況
+
+### 3. Semantic Token Architecture（Radix / Material 3 / iOS HIG）
+- Radix Colors 12ステップの用途対応表（App BG → High-Contrast Text）
+- Material Design 3 Tonal Palette（0-100の13階調 × 5パレット）とDynamic Color生成
+- iOS 17+ Dynamic Color + P3対応のUIColor設計パターン
+- Tailwind CSS v4のCSS-first configurationとDTCG連携
+
+### 4. アクセシビリティ規格・法令
+- WCAG 3.0（APCA）文字サイズ×太さ連動閾値の詳細（Lc 45/60/75/90の使い分け）
+- 欧州アクセシビリティ法（EAA）2025年6月施行の要件と罰則
+- 日本JIS X 8341-3:2016 → 2026改定版の変更点（APCA併記可）
+- 米国ADA Title III のWeb訴訟事例（Domino's判例 → 2025年の色コントラスト判例）
+- `forced-colors` / `prefers-contrast` / `prefers-reduced-transparency` の3メディアクエリ運用
+
+### 5. AI駆動カラーサイコロジー・ブランド分析
+- 色彩心理学Big5（信頼性・活動性・洗練性・素朴さ・堅牢性）とBrand Archetype 12類型のマッピング
+- Adobe Firefly Color Sensei / Khroma 2.0 / Coolors Pro AIのプロンプト設計パターン
+- 業界別配色データベース（建設・採用・EC・SaaS・医療・教育）の統計的傾向
+- 競合色相環占有マップの自動生成（Rui連携＋Vision APIによるスクショ主要色抽出）
+
+### 6. Multi-format Design Token Distribution
+- Style Dictionary（Amazon）のtransform/format API完全理解
+- Theo（Salesforce）/ Supernova / Specify の変換パイプライン比較
+- CSS Variables / Tailwind / iOS Swift / Android Compose / React Native / Flutter の各言語出力パターン
+- Design TokenのCI/CDパイプライン（GitHub Actions → Vercel Edge Config → 本番反映）
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

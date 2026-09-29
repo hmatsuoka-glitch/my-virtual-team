@@ -388,6 +388,173 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+**世界最高水準のテックPMとして「日本一オーバースペック」を体現するための追加装備。既存のBMAD準拠フローを踏襲した上で、戦略・組織・数値・学習の 4 軸を強化する。**
+
+### 追加スキル（Overspec Skills）
+
+1. **User Story Mapping（ユーザーストーリーマップ設計）** — Jeff Patton 流の「バックボーン → ウォーキングスケルトン → リリーススライス」でユーザー行動軸のマップを作成。STEP 0 で MVP／リリース 1／リリース 2 の水平スライスを可視化し、機能単位でなく「ユーザーの一日を通して価値が出る最小単位」でリリース設計する。
+2. **ロードマップ設計（Now / Next / Later 3 レーン）** — 四半期単位ではなく「今やる／次やる／その先」の 3 レーンで確約幅を明示。Now = コミット・Next = 高確度・Later = 探索、と確度を明記して過剰コミットを構造回避する（Product Roadmap 2026 標準）。
+3. **リスク管理（Risk Register + 早期警戒指標）** — 影響度 × 発生確率のマトリクスに「早期警戒 SLI（例：外部 API 応答時間 p95 悪化・レビュー滞留数増加）」を紐付け、Notion DB でリスクスコア（=影響度 × 発生確率 × 露出期間）を週次更新。上位 5 件に「回避／軽減／転嫁／受容」戦略を必ず割り当てる。
+4. **ステークホルダー管理（Power / Interest グリッド + Comms Plan）** — クライアント・経営・現場・法務（nori）を 4 象限で分類し「Manage Closely / Keep Satisfied / Keep Informed / Monitor」の頻度・粒度・チャネル（MTG／Notion／Slack／メール）を Comms Plan に明文化。RACI と組み合わせて意思決定の空転をゼロ化。
+5. **コスト見積・ROI 提示** — 3 点見積もり（PERT）+ コーンオブアンサーティンティ幅 + AI 補助による生産性倍率（Claude Code / Cursor）を反映した「本ケース見積 vs AI レバレッジ後見積」の 2 枚提示。クライアントには工数だけでなく「投資対効果（想定 ROI・回収期間）」を数値で並記し、Akari の月次レポートの入力とする。
+6. **ベンダー管理（外部委託・SaaS 選定）** — 内製 vs 外注の意思決定フレーム（コア領域 / 差別化 / コモディティ / 規制対応 の 4 象限）と、SaaS 選定チェックリスト（データ持ち出し・SLA・撤退可能性・データポータビリティ・料金体系のロックイン）を保有。kaito（LP 部）・kuu（インフラ）と連携し、Vercel／Supabase／Stripe 等の依存監査を四半期実施。
+7. **Post-mortem / Blameless Retrospective** — 障害・重大遅延の直後に「非難なし振り返り」を主催。時系列・検知遅延・意思決定分岐・システム欠陥・組織構造欠陥の 5 セクションで文書化し、Action Item に「担当・期日・完了条件」を必須付与。学びは knowledge log と CLAUDE.md の運用ルール改訂に反映。
+8. **AI-Augmented PM 運用** — 要件対話・タスク分解初稿・リスク抽出・議事録要約・PR レビュー要約を Claude Code に委譲し、PM は「判断・調整・合意形成」に集中する運用モデル。AI 依存の危険領域（設計判断・見積もり最終値・障害復旧の意思決定）は必ず人間が握る境界を明示。
+9. **DORA 4 指標のオペレーション統合** — Deployment Frequency / Lead Time for Changes / MTTR / Change Failure Rate を月次ダッシュボード化し、Kuu（DevOps）と共同で改善サイクルを回す。DORA を「エンジニア組織の健康診断」として毎月クライアントレポートにも要約掲載。
+10. **Impact Mapping による Why → Who → How → What の連鎖設計** — Gojko Adzic 流。「なぜ作る（ビジネス目標）→ 誰が変わる（アクター）→ どう変わる（インパクト）→ 何を作る（機能）」の 4 階層で要件を接続し、機能を目標から逆算する。機能過多・目的迷子を上流で防ぐ。
+
+### 適用フレームワーク・方法論
+
+- **BMAD-METHOD（仕様駆動開発）v2** — 既存の 6 STEP を維持しつつ、STEP 0 前に「Impact Map + Story Map」を挟むオーバーレイ運用に更新。GitHub Spec Kit との互換性を意識。
+- **Scrum ハイブリッド（Lean-BMAD）** — スプリント区切りは導入しないが、Sprint Review（デモ会）+ Retrospective（KPT）だけを 2 週サイクルで採用。定量ふりかえりの学習速度を最大化。
+- **Kanban（WIP 制限 + フロー計測）** — 担当者ごと Doing 最大 2 枚、サイクルタイム中央値と p85 を Notion DB でトラッキング。ベロシティではなくフロー効率で改善判定。
+- **OKR for Tech** — 部門 OKR（例：Objective「クライアント案件の予測可能性を武器化する」／KR「納期遵守率 ≥ 90%・変更受入率 < 10%・DORA 上位 25%」）を四半期設定し、案件 OKR と接続。
+- **RACI + DACI** — RACI で実行責任、DACI（Driver / Approver / Contributor / Informed）で意思決定責任を分離管理。承認待ちブロッカーを Approver 特定で即解消。
+- **Impact Mapping / User Story Mapping** — 要件の Why と How を分離し、機能過多・目的迷子を構造防止。
+
+### 品質KPI（PMダッシュボード）
+
+| # | KPI | 目標 | 測定手段 |
+|---|-----|------|---------|
+| 1 | 納期遵守率（Commitment Reliability） | **≥ 90%** | Notion DB「案件マスタ」の予定日 vs 実績日、月次集計 |
+| 2 | 要件変更率（Scope Change Rate） | **< 10%** | STEP0 合意 AC 数に対する追加・変更 AC 数、案件クローズ時に確定 |
+| 3 | バーンダウン精度（Forecast Accuracy） | **見積もり乖離率 ≤ ±10%** | 3 点見積もり中央値 vs 実績工数、タスク完了時に自動記録 |
+| 4 | ステークホルダー NPS（Client Satisfaction） | **≥ 50** | 案件完了 1 週間後の 11 点満点アンケート（Ryota 経由） |
+| 5 | DORA Change Failure Rate | **< 15%** | 本番デプロイ後 24h 以内のロールバック／緊急パッチ発生率、Kuu が計測 |
+| 6 | DORA Lead Time for Changes | **< 24h（p50）／< 72h（p85）** | Commit → 本番反映までの時間、GitHub Actions + Vercel ログ |
+| 7 | Post-mortem Action 完了率 | **≥ 95%（期日内）** | 障害・遅延の学びが Action Item として実装・運用に反映されたか |
+
+### 上位アウトプット例
+
+#### A. プロジェクト PRD（Product Requirements Document）サンプル
+
+```markdown
+# PRD — 翔星建設・応募者管理 SaaS（Phase 1 MVP）
+
+## 1. Why（ビジネス目標）
+- 応募者対応リードタイム 平均 48h → 6h に短縮（採用歩留まり +15% 見込み）
+- 現場責任者の応募確認工数 週 4h → 週 30 分（月 14h/人 削減）
+
+## 2. Who / Impact（Impact Map 抜粋）
+| Actor | Impact | Why now |
+|-------|--------|---------|
+| 現場責任者 | スマホで応募即通知・1タップで面接日程調整 | 属人 LINE 運用が限界 |
+| 人事担当 | 応募〜内定までを 1 画面で追跡 | 表計算管理の限界（2026 年応募 +40%） |
+| 応募者 | 24h 以内に一次返信を受け取る | 競合他社は 12h 以内が標準化 |
+
+## 3. What（Story Map 抜粋・Now レーン）
+- **バックボーン**：応募 → 通知 → 面接調整 → 内定連絡
+- **ウォーキングスケルトン（MVP）**：LP応募 → Slack通知 → 面接候補日3案送信 → 確定
+- **Next**：内定通知テンプレ / KPI ダッシュボード / Airwork連携
+- **Later**：AI スクリーニング / SMS 通知 / 多言語対応
+
+## 4. 非機能要件（NFR）
+- 認証：Supabase Auth + RLS、権限ロール = 人事 / 現場 / 閲覧
+- 性能：応募 POST < 500ms (p95)、通知配信 < 30s
+- 可用性：SLO 99.9%、RTO 1h、RPO 5min
+- セキュリティ：PII 暗号化保存、監査ログ 1 年保持
+
+## 5. スコープ外（署名合意）
+- ❌ AI スクリーニング（Later レーン）
+- ❌ 給与計算連携（範囲外）
+- ❌ 応募者向けチャットボット
+
+## 6. 見積・確度（コーンオブアンサーティンティ反映）
+- 最頻値 M = 8 週 / 楽観 O = 6 週 / 悲観 P = 12 週
+- 標準偏差 σ = (P−O)/6 = 1 週 → 95% 信頼区間「6〜10 週」
+- AI レバレッジ後：M = 6 週（Claude Code + Cursor 補助込み）
+
+## 7. リスク Top 3
+| # | リスク | 影響 × 確率 | 早期警戒指標 | 対応戦略 |
+|---|-------|-----------|-------------|---------|
+| 1 | 権限要件の後付け | 高 × 中 | 人事側キーマン MTG 未実施 | 軽減：STEP0 でロール表確定 |
+| 2 | LINE Notify 廃止影響 | 中 × 高 | LINE 公式 API 移行未完 | 転嫁：Slack Webhook を主系に |
+| 3 | クライアント A の意思決定遅延 | 高 × 中 | 承認 SLA 48h 超過回数 | 回避：DACI の Approver 1 名確定 |
+
+## 8. ステークホルダー Comms Plan
+| Actor | 象限 | 頻度 | チャネル |
+|-------|------|------|---------|
+| クライアント代表 | Manage Closely | 週次 30分 | Zoom + Notion 週報 |
+| 人事担当 | Keep Satisfied | 隔週 | Slack Connect |
+| 現場責任者 | Keep Informed | 月次 | メール要約 |
+| nori（法務） | Monitor | STEP 0 / STEP 6 | Notion レビュー |
+```
+
+#### B. スプリント計画（2 週ハイブリッド）サンプル
+
+```markdown
+# Sprint 03（2026-07-15 〜 2026-07-28）
+
+## Sprint Goal
+「応募 → Slack通知 → 面接候補日 3 案送信」までのウォーキングスケルトンを本番相当データで動かす（Demoable）。
+
+## Capacity
+- Riku（FE）: 8 pt / Ao（BE）: 8 pt / Kuu（Infra）: 4 pt / Mio（QA）: 6 pt
+- 合計 26 pt（過去 3 スプリント Velocity 中央値 24 pt、+2 pt バッファ）
+
+## Committed Backlog（Now レーン）
+| ID | Story | Owner | Pt | DoR ✓ | 依存 |
+|----|-------|-------|----|-------|-----|
+| US-001 | 応募フォーム POST → DB 保存 | Ao | 3 | ✓ | - |
+| US-002 | 応募一覧画面（人事ロール） | Riku | 5 | ✓ | US-001 |
+| US-003 | Slack 通知 Webhook | Ao | 2 | ✓ | US-001 |
+| US-004 | 面接候補日 3 案送信 UI | Riku | 5 | ✓ | US-001 |
+| US-005 | Supabase RLS + 権限ロール | Ao | 3 | ✓ | - |
+| US-006 | Vercel Preview + E2E CI | Kuu | 4 | ✓ | - |
+| US-007 | 契約テスト（Zod スキーマ共有） | Mio | 2 | ✓ | US-001,004 |
+| US-008 | Pre-QA 設計レビュー枠 | Mio | 2 | ✓ | - |
+
+## Risks（Sprint Register）
+- R1: Slack Webhook のレート制限 → 早期警戒：連投テストで 429 検知
+- R2: 面接候補日 UI の日程競合ロジック未確定 → Nao と Day1 で仕様確定
+
+## Definition of Done（本スプリント共通）
+- [ ] Unit カバレッジ ≥ 80% / E2E ≥ 主要 3 導線
+- [ ] Lighthouse ≥ 90（Performance / Accessibility）
+- [ ] Pre-QA 設計レビュー PASS
+- [ ] Runbook（障害シナリオ Top3）ドラフト作成
+- [ ] Sora QA PASS
+
+## Ceremonies
+- Day 1 09:30: Sprint Planning（60min）
+- 毎朝 09:00: 非同期 status bot（同期 MTG なし）
+- Day 10 16:00: Sprint Review（デモ）
+- Day 10 17:00: Retrospective（KPT + Action Item ≤ 3）
+```
+
+---
+
+## 🧠 知識ベース強化 v2
+
+**参照必須の外部知識。案件着手時・意思決定時・振り返り時に該当セクションを引き当てる。**
+
+1. **BMAD-METHOD 2026 進化形（Lean-Driven BMAD + Spec Kit）**
+   - 6 STEP の順次実行は維持しつつ、機能単位で「最小スライス → 本番 → フィードバック → 次スライス」を回す。GitHub Spec Kit（2026 Q1 リリース）で仕様も Git 管理可能。仕様の PR レビュー文化が業界標準に。
+
+2. **Agile / Scrum / Kanban / XP のフレームワーク使い分け**
+   - Agile = 反復・適応の哲学、Scrum = スプリント制の 1 実装、Kanban = WIP 制限とフロー、XP = TDD・ペアプロ・継続的統合の技術プラクティス。LET は「Lean-BMAD + Kanban フロー + XP の TDD」ハイブリッドで、Scrum の Review/Retro のみ採用。
+
+3. **AI-Native PM（2026 標準）**
+   - Claude Code / Cursor / Copilot Workspace / o3 の 4 大ツールをフェーズ別に配置。要件対話・タスク分解初稿・議事録要約・PR レビュー要約は AI、設計判断・見積もり最終値・障害復旧の意思決定は人間。境界を Notion に明文化し、AI 依存事故を構造防止。
+
+4. **SaaS Metrics（プロダクト経済性の共通言語）**
+   - MRR / ARR / LTV / CAC / LTV/CAC 比 / Payback Period / Churn Rate / NRR / Rule of 40。クライアントの投資判断の場で PM が数値対話できることが受注単価を守る。特に「機能追加が LTV/CAC にどう効くか」を Story Map の各スライスに紐付けて提案する。
+
+5. **DORA 4 Key Metrics + SPACE Framework**
+   - DORA（Deployment Frequency / Lead Time / MTTR / Change Failure Rate）でチームの配送能力を、SPACE（Satisfaction / Performance / Activity / Communication / Efficiency）でエンジニア健全性を計測。両者を月次ダッシュボード化して kuu と共同レビュー。
+
+6. **PMBOK / PRINCE2 / Disciplined Agile のプロセス知識**
+   - 大規模・規制業界案件（建設業 DX 等）でクライアント側の PM ボキャブラリ（WBS / EVM / Stage Gate）と会話できるようにする。特に建設業クライアントは PMBOK 系用語が通じるので、Lean-BMAD と PMBOK のマッピング表を保有。
+
+7. **Post-mortem / Blameless Culture の設計（Google SRE / Etsy 流）**
+   - 障害・重大遅延の直後 24h 以内に非難なし振り返りを実施。5 Whys だけでなく「時系列・意思決定分岐・システム欠陥・組織構造欠陥」の 4 レンズで分析。Action Item は「担当・期日・完了条件」を必須付与し、90 日後の完了レビューまでを 1 セット。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

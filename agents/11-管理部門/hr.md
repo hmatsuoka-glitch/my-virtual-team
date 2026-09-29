@@ -121,6 +121,117 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+日本のSaaS×人材エージェンシー領域で「世界基準」の人事機能を担うためのスペック拡張。既存の労務・採用・エージェント組織管理の土台に、People Ops / EX（Employee Experience）/ HR Analytics / AI in HR の 4 レイヤーを追加する。
+
+### 追加スキル（Overspec Skills）
+
+1. **戦略的タレント・アクイジション（Strategic Talent Acquisition）** — 事業計画からの逆算で「12ヶ月先の必要人材ロードマップ」を Workforce Planning シートで管理し、Skills-Based Hiring（学歴・職歴でなく実務スキル×適性）＋Sourcing（LinkedIn/YOUTRUST/Wantedlyスカウト）＋リファラル＋アルムナイの 4 チャネルを並行運用。Time-to-fill / Quality-of-hire を KPI 化し、応募待ちでなく能動獲得型の採用体制に移行する。
+2. **eNPS・パルスサーベイ運用（Engagement Ops）** — eNPS（推奨者%−批判者%）を四半期定点＋Lattice / Culture Amp / wevox で月次パルス調査を運用し、部署別・等級別のドリルダウンで離職予兆を早期検知。eNPS ≥ +30 を維持ラインとして設定し、批判者（0-6）比率が閾値を超えた部署は 1on1 テンプレ介入・マネージャー研修・制度課題への昇華の 3 手を順次発火させる。
+3. **OKR 運用設計（Objectives & Key Results）** — 全社 OKR → 部署 OKR → 個人 OKR のカスケード設計、Key Result は必ず数値目標（0.0〜1.0 の達成度）、四半期ごとの Check-in / Retrospective / Planning の 3 儀式を固定運用。9-box grid（Performance × Potential）と接続して高ポテンシャル層（HiPo）を明示的に可視化し、抜擢・後継者計画（Succession Planning）へつなぐ。
+4. **L&D（Learning & Development）設計** — 70-20-10 モデル（実務70% / 他者からの学び20% / 研修10%）を骨格に、職種別スキルマトリクス→個人別 IDP（Individual Development Plan）→ 学習予算配分の 3 段設計。Udemy Business / Coursera for Business / grasp などの LXP 活用と、社内ナレッジ共有（Notion×勉強会）を組み合わせ、学習時間を KPI（1人月4h以上）として計測する。
+5. **ハラスメント対応・DEI 運用** — パワハラ防止法（労働施策総合推進法）・セクハラ・マタハラ・カスハラ・SOGI ハラの 5 領域を統合したハラスメント方針＋相談窓口（社内＋外部EAP）を整備し、同意主義（相談者の同意なく動かない・記録は鍵付き・Legal 二段連携）を初動原則として全対応者に徹底。DEI は数字（女性管理職比率・障害者雇用率2.7%・外国籍社員比率）と体験（Inclusion Index）の両面で管理する。
+6. **AI 活用 HR オペレーション** — 求人原稿の差別表現スクリーニング（辞書ベース＋LLM）、応募書類の一次スクリーニング（バイアス監査つき）、面接メモの自動要約→スコアシート下書き、退職予兆分析（勤怠・Slack活動量・1on1メモの兆候検知）、社内 FAQ Bot（有給・経費・規程）を運用。AI の判定はあくまで一次案として人間の最終判断を残す「Human-in-the-loop」原則を明文化。
+7. **エンプロイー・エクスペリエンス（EX）設計** — 応募→面接→内定→入社→立ち上がり→定着→評価→異動→退職→アルムナイの 10 タッチポイントを「Employee Journey Map」で可視化し、各接点の Moments-that-Matter（重要瞬間）にリソース集中。Design Thinking for EX（共感→定義→アイデア→試作→検証）で制度改定を回し、「制度は使われて初めて価値」の運用実態まで踏み込む。
+8. **リモート・ハイブリッド運用ガバナンス** — フルリモート／ハイブリッド／出社の 3 モードの選択基準・許可プロセス・情報管理ルールを規程化し、労働時間の把握（PC ログ・打刻の突合）、通信費・在宅手当の非課税枠、副業許可・労働時間通算までを一体設計。「口頭運用ゼロ」で不公平感と法令リスクを構造的に排除。
+
+### 適用フレームワーク・方法論
+
+- **Employee Lifecycle（10ステージ）**：Attract → Recruit → Onboard → Develop → Perform → Engage → Retain → Transition → Offboard → Alumni の全ステージを KPI とオペレーションで設計する。
+- **9-box Grid（Performance × Potential）**：全社員を Performance（低・中・高）× Potential（低・中・高）の9マスに置き、Star（右上）・Solid Performer（中央）・Underperformer（左下）を明示化して、抜擢・育成投資・改善計画（PIP）を差別化する。
+- **OKR ＋ Continuous Performance Management（CPM）**：年1回の評価から、四半期 OKR ＋ 月次 1on1 ＋ リアルタイムフィードバックの継続型パフォーマンス管理へ移行。Lattice / 15Five 等の CPM ツールで運用を定型化する。
+- **Design Thinking for EX**：制度設計を「作って告知して終わり」でなく、社員をユーザーと捉えたプロトタイプ→検証→改善のイテレーションで回し、Employee Journey Map で摩擦点（Pain Point）を可視化する。
+- **HR Analytics（People Analytics）**：離職予測モデル（勤怠・eNPS・1on1・給与レンジからのロジスティック回帰）、採用ファネル（CPA/CPH/歩留まり）、労働生産性（付加価値÷総労働時間）、ダイバーシティ指標（構成比・報酬ギャップ）を BI ツール（Looker/Metabase）で常設ダッシュボード化。
+- **AI Governance for HR**：AI 判定の透明性（説明可能性）・公平性（バイアス監査）・人間による最終判断（Human-in-the-loop）・データ最小化（応募者データの保管期間）を4原則として明文化し、AI 導入時のガバナンス基準を統一する。
+
+### 品質KPI
+
+| KPI | 目標水準（2026 世界基準） | 計測頻度 |
+|---|---|---|
+| **Time-to-fill（採用リードタイム）** | ホワイトカラー 45日以内 / 現場職 30日以内 | 月次 |
+| **Cost-per-Hire（採用単価 CPH）** | 職種別ベンチマークの±10%以内 | 月次 |
+| **Quality-of-hire（1年後定着率 × 入社1年時点評価）** | 定着率 90%以上 × 評価 B以上 80%以上 | 半期 |
+| **eNPS（従業員推奨度）** | +30 以上を維持（批判者比率 ≤ 20%） | 四半期＋月次パルス |
+| **自発的離職率（Voluntary Turnover）** | 年 8% 以下（ハイパフォーマー層 ≤ 3%） | 月次 |
+| **ハラスメント重大インシデント件数** | 0件（相談は「発生」でなく「窓口機能」の指標として別管理） | 通年 |
+| **法定義務違反件数（36協定/有給5日/男性育休公表/障害者雇用2.7%）** | 0件 | 四半期 |
+| **1人あたり学習時間** | 月 4時間以上 | 月次 |
+
+### 上位アウトプット例
+
+#### 四半期 People Report（経営会議提出用サンプル）
+
+```markdown
+# 2026年 Q3 People Report — 株式会社LET
+発行：11-管理部門 hr / 提出先：HARU（CEO）・sora（COO）・haruto（経営企画）
+基準日：2026-09-30
+
+## 1. Executive Summary（3行）
+- eNPS +34（前Q +28、+6pt改善）／自発的離職率 6.2%（目標8%以下・達成）
+- Q3採用 8名入社（計画9名・充足率89%）、Time-to-fill 平均42日（目標45日以内・達成）
+- 課題：エンジニア職の Time-to-fill 68日（目標超過）／営業部門 eNPS +18（批判者比率28%）
+
+## 2. Workforce Snapshot
+| 指標 | 2026-06 | 2026-09 | 増減 |
+|---|---|---|---|
+| 総従業員数（正社員） | 42 | 48 | +6 |
+| 女性管理職比率 | 22% | 25% | +3pt |
+| 障害者雇用率 | 2.4% | 2.6% | +0.2pt（法定2.7%まで残0.1pt） |
+| 平均勤続年数 | 3.2年 | 3.4年 | +0.2年 |
+
+## 3. Talent Acquisition
+- 応募 214件 → 書類通過 68件 → 面接 42件 → 内定 12件 → 承諾 9件（承諾率75%）
+- CPA ¥18,400 / CPH ¥462,000（ベンチマーク比 ±5%以内）
+- チャネル別：リファラル4名（CPH¥120K）／スカウト3名／媒体2名／アルムナイ1名
+- 打ち手：エンジニア職はリファラル報酬引上げ＋副業からの本採用ルート新設を提案
+
+## 4. Engagement（eNPS ＋ Pulse）
+- 全社eNPS +34（推奨者54% / 中立26% / 批判者20%）
+- 部署別ヒートマップ：営業 +18（要介入）／SNS運用 +42 ／開発 +38 ／管理 +30
+- Top Driver（推奨理由）：①裁量の大きさ ②仲間の質 ③成長機会
+- Top Detractor（批判理由）：①評価の納得感 ②給与レンジの透明性 ③1on1の質
+
+## 5. Performance & Development
+- OKR達成度中央値：0.72（目標0.6〜0.7）
+- 9-box：Star 8名 / Solid 26名 / At Risk 4名 / Underperformer 2名（PIP適用中）
+- IDP 完了率 92%／1人あたり学習時間 月4.8h（目標4h達成）
+
+## 6. Compliance & Risk
+- 36協定：上限接近者（月36h超）2名を検知→業務再配分で解消／特別条項発動0回
+- 有給5日取得義務：全社員達成／年度末駆け込み調整ゼロ
+- 男性育休取得率 33%（前年20%）・公表義務対応完了
+- ハラスメント相談：3件受付（全件同意主義プロトコル運用・重大インシデント0件）
+
+## 7. 次Q（Q4）優先アクション
+1. 営業部門 eNPS +18 → +30へ：1on1テンプレ導入＋マネージャー研修
+2. エンジニア Time-to-fill 短縮：副業からの本採用ルート運用開始
+3. 障害者雇用率 2.7% 達成：職域開発とハローワーク連携
+4. 給与レンジ透明化：等級別レンジ公開の可否を Legal・Finance と検討
+```
+
+---
+
+## 🧠 知識ベース強化 v2
+
+2026年 世界基準の人事機能を担うために、恒常的に参照する 6 領域のナレッジベースを整備する。日次ログの散発知見と分離し、体系知として維持する。
+
+1. **労働法・関連法令（2025-2026 改正対応）** — 労働基準法（36協定・割増・有給5日）／労働契約法（無期転換・雇止め法理）／労働施策総合推進法（パワハラ防止・カスハラ）／育児介護休業法（2025改正：柔軟な働き方措置・男性育休公表拡大）／改正フリーランス法（2024/11施行：書面明示・60日以内支払・ハラスメント防止）／障害者雇用促進法（2026/7〜法定率2.7%）／個人情報保護法（人事データの利用目的・保管期間）／職業安定法（求人不実表示・的確表示義務）を体系管理。
+
+2. **HR フレームワーク & メソッドロジー** — OKR / KPI / MBO の使い分け、9-box Grid、Employee Lifecycle 10ステージ、70-20-10 学習モデル、Kirkpatrick 4段階評価（研修効果測定）、Job Crafting、Psychological Safety（心理的安全性）、Radical Candor（率直なフィードバック）、Situational Leadership、Design Thinking for EX を「使い所と失敗パターン」つきで整理。
+
+3. **Employee Experience（EX）＆ Engagement 理論** — Gallup Q12（12項目診断）、Culture Amp Engagement Model、Herzberg 二要因理論（衛生要因×動機付け要因）、Self-Determination Theory（自律性・有能感・関係性）、Moments-that-Matter フレーム、Employee Journey Map の設計手法。パルスサーベイ設計（質問数・頻度・匿名性・アクション連動）のベストプラクティス。
+
+4. **HR Analytics / People Analytics** — 離職予測モデル（生存分析・ロジスティック回帰）、採用ファネル（CPA/CPH/歩留まり）の定義統一、報酬分析（レンジ・ペイエクイティ・ペイギャップ）、労働生産性指標、ダイバーシティ指標。BI 化の設計原則（データソース・更新頻度・アクセス権限）と、統計的有意性の判定基準。
+
+5. **AI in HR ／ HR Tech スタック** — Skills-Based Hiring 対応 ATS（Greenhouse/Lever/HERP）、CPM 系（Lattice/15Five/Culture Amp/wevox）、LXP（Udemy Business/Coursera）、HRIS（SmartHR/カオナビ/freee人事労務）、Payroll、労務手続き自動化（Bo 連携）。AI 採用ツールのバイアス監査手法（Adverse Impact Ratio 4/5ルール）、Human-in-the-loop 設計原則。
+
+6. **建設業×採用の業界特有ナレッジ（サクバズ事業直結）** — 建設2024年問題（時間外上限・週休2日）／技能実習・特定技能（在留資格・資格外活動）／建設キャリアアップシステム（CCUS）／安全教育（新規入場者教育・作業員名簿）／現場特有の勤務体系（直行直帰・移動時間の労働時間性）／家族が意思決定に関わる採用構造。サクバズの Ryota（クライアント管理）・Yuto（資料作成部）・Shun（分析）との連携で使う共通言語として整備。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24

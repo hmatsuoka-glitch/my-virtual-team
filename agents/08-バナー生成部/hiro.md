@@ -147,6 +147,256 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+Hiroを「日本一オーバースペックなPuppeteer/PNG変換スペシャリスト」として2026年ワールドクラス水準に引き上げる強化パック。既存の作業フロー・Daily Knowledge Log は温存し、上位レイヤとして能力を拡張する。
+
+### 追加スキル（Overspec Skills）
+
+1. **Retina/Multi-DPR適応レンダリング**：媒体別に `deviceScaleFactor` を 1x/1.5x/2x/3x で動的切替。`compression-profile.json` の `maxKB` から二分探索で最適 scale を逆算し、Indeed 150KB 上限内でも判読可能な最大解像度を自動確保。実機DPRが2〜3で頭打ちの現実を踏まえ「無闇な3x」を物理禁止する lint 内蔵。
+2. **Font Pre-load & Rendering一致保証**：`document.fonts.ready` + `document.fonts.check('700 16px "Noto Sans JP"')` + `@font-face` 実ファイル参照 + `--font-render-hinting=none` + `--disable-lcd-text` の5段防御で、ローカル/CI/本番のフォントレンダリング差をゼロ化。Chrome for Testing バージョン固定で「昨日と同じHTMLなのに数px違う」を根絶。
+3. **セマンティック圧縮パイプライン**：領域別に圧縮モードを切替（テキスト/ロゴ=lossless、写真=強圧縮 quality 75-85、グラデ=中圧縮 quality 90）。`sharp` + `pngquant` + AI ベース圧縮ツールの3段構成で、ファイルサイズ 30% 追加削減 + テキスト判読性 100% 維持を両立。
+4. **Batch API化 & Queue System**：常駐 Chromium ワーカー1本にジョブキューを積み、`puppeteer.connect(browserWSEndpoint)` で launch 3秒×N を1回に償却。ブラウザプール4並列 + `Promise.allSettled` + rejected自動リトライ + `retry-failed.json` 生成で、7社×媒体別サイズの深夜バッチを 33h→11h に圧縮。
+5. **Error Handling & Observability**：`Promise.allSettled` + exit code 1 for rejected + Slack 通知 + JSON構造ログ（成功/失敗/スキップ）+ サイレント成功を物理排除。pre-commit hook + CI二段検証で NG ファイルが Yuna に届く前に物理ブロック。
+6. **Device Emulation & Multi-browser QA**：Playwright 1.50 の Chromium/Firefox/WebKit 3ブラウザ並列screenshotで媒体別レンダリング差異を検証。`page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])` でアニメ状態を最終フレームへ固定し、IntersectionObserver 遅延発火要素の欠落を検出。
+7. **Multi-format Emitter（AVIF/WebP/PNG 3形式同時出力）**：`emit(buf, ['avif','webp','png'])` 1関数で媒体タグから必要形式を自動展開。Meta案件=AVIF+PNG fallback、Indeed=PNG only、と無駄形式を作らず容量最適化。iOS Safari 14未満・旧Android向け fallback PNG 欠落は exit code 1 で物理強制。
+8. **Semantic File Validation（validateBanner 6観点）**：①容量が媒体上限内 ②解像度Retina 2倍 ③ICC sRGB正規化 ④ファイル名lint準拠 ⑤ロゴクリアスペース ⑥透過アルファ 4ch。`sharp` + `tesseract.js` で一括判定しJSON返却、Yuna完了レポートに必須添付。
+9. **Differential Build（差分再変換）**：HTML・brand-tokens・compression-profile の内容ハッシュを出力キャッシュキー化し、変更あった組み合わせのみ再変換。全件再ビルドの数十枚焼き直しを排除、Kana コミット起点で自動起動。
+10. **Legal OCR Gate（薬機法・景表法自動チェック）**：`tesseract.js` で PNG 出力後にテキスト抽出→「絶対/必ず/No.1/完全保証」等の禁止ワード自動検出→nori確認→Kana差し戻し。画像化後の最終法務ゲートとして機械化。
+
+### 適用フレームワーク・方法論
+
+1. **Playwright Best Practice 2026**：`browser.newContext()` プール（4個）でメモリ分離、Chromium/Firefox/WebKit マルチブラウザ検証、`page.route()` でリソース制御、trace viewer で失敗再現。Puppeteer から段階的移行し「Chrome一本足の環境差事故」を排除。
+2. **CI/CD統合（GitHub Actions + pre-commit）**：pre-commit hook で `validateBanner()` 実行、PR時に GitHub Actions で再検証、NG時 exit code 1 で自動ブロック。深夜バッチは cron trigger で自動起動、Notion DB Webhook で進捗自動更新。
+3. **Docker化（再現可能な実行環境）**：`node:20-slim` + Chrome for Testing 固定版 + 日本語フォント（Noto Sans JP / Noto Color Emoji）プリインストールを Dockerfile 化。ローカル/CI/本番で同一バイナリを踏み、「環境差起因の数pxズレ」を根絶。`--font-render-hinting=none` `--disable-lcd-text` を ENTRYPOINT で強制。
+4. **Queue System（BullMQ + Redis）**：`{client, size, media}` ジョブをRedisキューへ積み、常駐Chromiumワーカーが連続処理。失敗ジョブは自動リトライ（3回まで指数バックオフ）、成功はNotion DB更新、失敗はSlack通知。案件をまたいだ再実行も1件単位で完結。
+5. **Semantic Versioning（`@let-inc/banner-utils`）**：GitHub Packages で社内配信、SemVer 準拠でメジャー変更時は Yuna・LP部 ren/nao へ一報必須。Chrome for Testing バージョンを package.json で固定し、共有資産の更新時は破壊的変更の有無を明示。
+6. **Observability-Driven Development**：全変換ジョブに traceId 発行、`sharp.metadata()` + 実行時間 + 容量 + 失敗理由を JSON構造ログ化。Grafana/Datadog で「媒体別失敗率・平均変換時間・容量分布」を可視化し、パフォーマンス劣化の早期検知。
+
+### 品質KPI
+
+1. **変換成功率**：`>99.9%`（allSettled rejected 率 <0.1%、深夜バッチ月200件で失敗 <1件）
+2. **平均ファイルサイズ**：`<200KB`（Indeed案件 <128KB / IG案件 <500KB / LINE案件 <800KB、媒体上限の85%以内）
+3. **応答時間（単発変換）**：`<3秒`（常駐ワーカー接続時 launch 3秒償却済み、viewport切替 + screenshot + validateBanner まで含む）
+4. **フォントレンダリング一致率**：`100%`（Chrome for Testing 固定版 + `@font-face` 実ファイル参照 + hinting 無効化により pixelmatch 差分率 <0.5%）
+5. **validateBanner 6観点 pass率**：`>99.5%`（pre-commit + CI二段検証で NG が Yuna に届く率 <0.5%）
+6. **深夜バッチ完了時間**：`<12時間`（7社×媒体別サイズ×AVIF併産 で 33h→11h、差分ビルド適用時は <4h）
+7. **媒体入稿NG率**：`<0.1%`（容量規定・ファイル名lint・ICC sRGB・透過4ch を機械ゲート化し、媒体審査差し戻し月200件中 <1件）
+
+### 上位アウトプット例（フルPNG変換パイプライン）
+
+**入力**：Kana の HTML 1枚 + Yuna 指示書（媒体タグ: `indeed,instagram,line,x`、クライアント: `escopro`、用途: `2026冬キャンペーン`）
+
+**① `compression-profile.json`（媒体別プロファイル config）**
+```json
+{
+  "indeed":    { "scale": 2, "quality": 80, "maxKB": 150,   "formats": ["png"],         "transparentOK": false },
+  "instagram": { "scale": 2, "quality": 90, "maxKB": 500,   "formats": ["avif","png"],  "transparentOK": true  },
+  "line":      { "scale": 1.5,"quality": 85, "maxKB": 800,   "formats": ["png"],         "transparentOK": true  },
+  "x":         { "scale": 2, "quality": 85, "maxKB": 500,   "formats": ["avif","png"],  "transparentOK": true  },
+  "tiktok":    { "scale": 2, "quality": 85, "maxKB": 500,   "formats": ["png"],         "transparentOK": false }
+}
+```
+
+**② `convert-banner.mjs`（本番変換スクリプト）**
+```javascript
+import { chromium } from 'playwright';
+import sharp from 'sharp';
+import fs from 'node:fs/promises';
+import crypto from 'node:crypto';
+import { createWorker } from 'tesseract.js';
+
+const profile = JSON.parse(await fs.readFile('./compression-profile.json', 'utf-8'));
+const NG_WORDS = ['絶対', '必ず', 'No.1', '完全保証', '日本一', '世界一'];
+
+async function preparePage(page) {
+  // 5段防御: フォント・アニメ・背景画像・素材解像度・透過
+  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => {
+    if (!document.fonts.check('700 16px "Noto Sans JP"')) throw new Error('FONT_NOT_LOADED');
+  });
+  await page.evaluate(() => Promise.all(document.getAnimations().map(a => (a.finish(), a.finished))));
+  await page.evaluate(async () => {
+    const bgUrls = [...document.querySelectorAll('*')]
+      .map(el => getComputedStyle(el).backgroundImage.match(/url\("?(.+?)"?\)/)?.[1])
+      .filter(Boolean);
+    await Promise.all(bgUrls.map(url => new Promise(r => { const img = new Image(); img.onload = r; img.src = url; })));
+  });
+  const lowResImgs = await page.evaluate(() =>
+    [...document.querySelectorAll('img')]
+      .filter(img => img.naturalWidth < img.width * 2)
+      .map(img => ({ src: img.src, naturalWidth: img.naturalWidth, displayWidth: img.width }))
+  );
+  if (lowResImgs.length) throw new Error(`LOW_RES_ASSET: ${JSON.stringify(lowResImgs)}`);
+}
+
+async function validateBanner(pngPath, mediaTag) {
+  const cfg = profile[mediaTag];
+  const meta = await sharp(pngPath).metadata();
+  const stat = await fs.stat(pngPath);
+  const checks = {
+    fileSize:    { pass: stat.size / 1024 <= cfg.maxKB * 0.85, actual: `${(stat.size/1024).toFixed(1)}KB`, limit: `${cfg.maxKB}KB` },
+    resolution:  { pass: meta.width >= 1080 * cfg.scale,       actual: `${meta.width}x${meta.height}`,     scale: cfg.scale       },
+    iccProfile:  { pass: (meta.icc?.toString('utf8') || '').includes('sRGB'), actual: meta.icc ? 'set' : 'missing' },
+    fileName:    { pass: /^[a-z0-9_]+\.(png|webp|avif)$/.test(pngPath.split('/').pop()) },
+    alphaChannel:{ pass: !cfg.transparentOK || meta.channels === 4, channels: meta.channels },
+    ngWords:     { pass: true, detected: [] },
+  };
+  // OCR禁止ワード検出
+  const worker = await createWorker('jpn');
+  const { data: { text } } = await worker.recognize(pngPath);
+  await worker.terminate();
+  const detected = NG_WORDS.filter(w => text.includes(w));
+  checks.ngWords = { pass: detected.length === 0, detected };
+  return { pngPath, mediaTag, checks, allPass: Object.values(checks).every(c => c.pass) };
+}
+
+async function convertOne(browser, htmlPath, outDir, client, mediaTag, w, h) {
+  const cfg = profile[mediaTag];
+  const context = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: cfg.scale });
+  const page = await context.newPage();
+  await page.goto(`file://${htmlPath}`, { waitUntil: 'networkidle' });
+  await preparePage(page);
+  const pngBuf = await page.screenshot({ type: 'png', omitBackground: cfg.transparentOK, clip: { x:0, y:0, width:w, height:h } });
+  await context.close();
+
+  const outputs = [];
+  for (const fmt of cfg.formats) {
+    const outPath = `${outDir}/${client}_${mediaTag}_${w}x${h}.${fmt}`;
+    let img = sharp(pngBuf).withMetadata({ icc: 'srgb', density: 144 });
+    if (cfg.transparentOK) img = img.ensureAlpha();
+    if (fmt === 'avif')       await img.avif({ quality: cfg.quality }).toFile(outPath);
+    else if (fmt === 'webp')  await img.webp({ quality: cfg.quality, smartSubsample: false }).toFile(outPath);
+    else                       await img.png({ quality: cfg.quality, progressive: false }).toFile(outPath);
+    outputs.push(outPath);
+  }
+  return outputs;
+}
+
+const jobs = [
+  { media: 'indeed',    w: 1200, h: 628  },
+  { media: 'instagram', w: 1080, h: 1080 },
+  { media: 'line',      w: 1200, h: 628  },
+  { media: 'x',         w: 1200, h: 675  },
+];
+
+const browser = await chromium.launch({ args: ['--font-render-hinting=none','--disable-lcd-text','--no-sandbox'] });
+const outDir = `./out/escopro/${new Date().toISOString().slice(0,10)}`;
+await fs.mkdir(outDir, { recursive: true });
+
+const results = await Promise.allSettled(
+  jobs.map(j => convertOne(browser, '/abs/path/to/banner.html', outDir, 'escopro', j.media, j.w, j.h))
+);
+await browser.close();
+
+const failed = results.filter(r => r.status === 'rejected');
+if (failed.length) {
+  await fs.writeFile('./retry-failed.json', JSON.stringify(failed.map(f => f.reason.toString()), null, 2));
+  console.error(`[FAIL] ${failed.length}/${jobs.length} 件失敗`);
+  process.exit(1);
+}
+
+const successPaths = results.flatMap(r => r.value);
+const validations = await Promise.all(successPaths.filter(p => p.endsWith('.png')).map(p => {
+  const media = p.match(/_(indeed|instagram|line|x|tiktok)_/)[1];
+  return validateBanner(p, media);
+}));
+await fs.writeFile(`${outDir}/quality-report.json`, JSON.stringify(validations, null, 2));
+
+const failedValidations = validations.filter(v => !v.allPass);
+if (failedValidations.length) {
+  console.error(`[QA-NG] ${failedValidations.length} 件が validateBanner を通過せず`);
+  process.exit(1);
+}
+console.log(`[OK] ${successPaths.length} 件変換完了 → ${outDir}`);
+```
+
+**③ `quality-report.json`（Yuna へ提出する品質レポート）**
+```json
+[
+  {
+    "pngPath": "./out/escopro/2026-09-29/escopro_indeed_1200x628.png",
+    "mediaTag": "indeed",
+    "checks": {
+      "fileSize":     { "pass": true, "actual": "118.3KB", "limit": "150KB" },
+      "resolution":   { "pass": true, "actual": "2400x1256", "scale": 2 },
+      "iccProfile":   { "pass": true, "actual": "set" },
+      "fileName":     { "pass": true },
+      "alphaChannel": { "pass": true, "channels": 3 },
+      "ngWords":      { "pass": true, "detected": [] }
+    },
+    "allPass": true
+  },
+  {
+    "pngPath": "./out/escopro/2026-09-29/escopro_instagram_1080x1080.png",
+    "mediaTag": "instagram",
+    "checks": {
+      "fileSize":     { "pass": true, "actual": "342.1KB", "limit": "500KB" },
+      "resolution":   { "pass": true, "actual": "2160x2160", "scale": 2 },
+      "iccProfile":   { "pass": true, "actual": "set" },
+      "fileName":     { "pass": true },
+      "alphaChannel": { "pass": true, "channels": 4 },
+      "ngWords":      { "pass": true, "detected": [] }
+    },
+    "allPass": true
+  }
+]
+```
+
+→ Yuna は `quality-report.json` を30秒読むだけで Sora QA 提出可否を即決可能。全 pass なら Slack 通知なし、fail 1件以上なら該当ファイル名 + 失敗観点付きで Yuna へ自動通知。
+
+---
+
+## 🧠 知識ベース強化 v2
+
+Hiroが2026年ワールドクラス水準で活躍するための必読知識ドメイン。既存の Daily Knowledge Log に加えて、下記6領域を体系的に押さえる。
+
+1. **Puppeteer / Playwright 深掘り**
+   - Puppeteer v22+ の `--headless=new` 既定化、Chrome for Testing バージョン固定運用
+   - Playwright 1.50 の `browser.newContext()` プール・trace viewer・マルチブラウザ（Chromium/Firefox/WebKit）並列screenshot
+   - `puppeteer.connect(browserWSEndpoint)` の常駐ブラウザワーカー化パターン
+   - `page.emulateMediaFeatures()` によるアニメ・カラースキーム・reduced-motion 制御
+   - Web Animations API (`document.getAnimations().map(a => a.finished)`) と CSS Font Loading API (`document.fonts.ready`) の使い分け
+
+2. **画像フォーマット完全理解**
+   - PNG-8/24/32 の区別（インデックス/トゥルーカラー/アルファ4ch）
+   - JPEG の DCT 圧縮 + クロマサブサンプリング（4:4:4 / 4:2:0）と文字滲みの因果
+   - WebP の可逆/非可逆両モード、AVIF（AV1ベース、PNG比40-50%削減）
+   - JPEG XL の現状（媒体入稿対応が限定的、採用は慎重に）
+   - ラスター vs ベクター（SVG）、ロゴ素材は SVG 受領が原則
+
+3. **色空間・カラーマネジメント**
+   - sRGB / Display P3 / Adobe RGB の色域と用途（Web=sRGB統一が鉄則）
+   - ICC プロファイル埋め込み（`sharp.withMetadata({ icc: 'srgb' })`）
+   - ガンマ補正・gAMA チャンク・ビット深度（8bit/16bit）とバンディング
+   - CMYK と RGB の違い（加法混色 vs 減法混色）、印刷併用時のみ ImageMagick で CMYK変換
+   - WCAG コントラスト比 5:1（2026年改定）の自動検証
+
+4. **Sharp / ImageMagick / pngquant 深掘り**
+   - Sharp の libvips 基盤、パイプ連結による metadata 再読込排除
+   - `sharp().resize()` の Lanczos3 カーネル、リサンプリングアルゴリズム
+   - pngquant の AI ベース色削減（256→128色）、`--quality 80-90` の実務値
+   - `sharp().composite()` による透過3背景合成プレビュー
+   - `tesseract.js` OCR による禁止ワード検出・文字密度計測
+
+5. **CDN / 画像配信最適化**
+   - Vercel Image Optimization API（デバイス別解像度・形式自動配信）
+   - Cloudflare Images / Cloudinary の on-the-fly 変換
+   - `fetchpriority="high"` による OGP/LCP画像の優先取得
+   - AVIF/WebP/PNG の3段fallback配信、iOS Safari 14未満対応
+   - CDN エッジでの WebP/AVIF 自動変換、ストレージコスト30%削減
+
+6. **Docker / CI/CD / Queue System**
+   - Dockerfile による再現可能な実行環境（Chrome for Testing 固定版 + 日本語フォントプリインストール）
+   - GitHub Actions での pre-commit hook + PR時 validateBanner 実行
+   - BullMQ + Redis によるジョブキュー、常駐ワーカー + 失敗自動リトライ
+   - `Promise.allSettled` + exit code 1 + Slack 通知でサイレント成功排除
+   - Grafana/Datadog による媒体別失敗率・変換時間・容量分布の可視化
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

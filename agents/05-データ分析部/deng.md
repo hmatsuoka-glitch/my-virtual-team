@@ -106,6 +106,139 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+Deng を「建設業7社×SNS採用×LP計測をシームレスに束ねる、世界水準（2026年）のデータエンジニア」に引き上げるための強化仕様。既存の役割定義（クローラー・ETL/ELT・DWH・品質管理）を土台に、AIネイティブ／リアルタイム／データコントラクト／FinOps／プライバシーエンジニアリングまでを網羅する。
+
+### 追加スキル（Overspec Skills）
+
+1. **Lakehouse & オープンテーブル基盤（Apache Iceberg / Delta / Hudi）設計**
+   - `raw_`層をIceberg外部テーブル化し、BigQuery/Snowflake/Databricks/DuckDBから単一コピーを参照。スキーマ進化（無告知カラム追加, 2026-06-03参照）を安全に吸収し、7社分の生データのベンダーロックインを構造排除。
+
+2. **リアルタイム／CDCストリーミング設計（Debezium・Kafka・BigQuery Storage Write API）**
+   - Airwork応募・GA4イベントを日次バッチからニアリアルタイム（1〜5分遅延）へ拡張。CDCで削除検知（`delisted_at`, 2026-06-13参照）を秒単位に更新し、Rui向け競合クロールの掲載終了シグナルを即時提供。
+
+3. **Semantic Layer / Metric Layer（dbt Semantic Layer・Cube・MetricFlow）構築**
+   - 応募CVR・媒体別件数・獲得単価などの主要KPIを`metric`として単一定義し、Looker Studio / Slack Bot / AI Agent すべてが同一定義で参照。「Shun/Akari間で数値が食い違う」構造原因を根本排除。
+
+4. **AI-Native データ基盤（Text-to-SQL / VECTOR_SEARCH / MCP対応）**
+   - `ML.GENERATE_EMBEDDING`＋`VECTOR_SEARCH`（2026-08-03参照）で求人票・応募自由記述の類似検索をSQLネイティブ提供。データカタログをMCPリソースとして公開し、HARU/Sora/他エージェントがAgent Toolから直接クエリ可能に。
+
+5. **データオブザーバビリティ（Monte Carlo / Elementary / dbt-audit-helper）自動運用**
+   - 鮮度・ボリューム・スキーマ・分布の異常をML自動学習で検知。手動閾値の狼少年化（2026-05-24参照）とゲート発火実績棚卸し（2026-07-03参照）を自動化し、7社×主要100テーブルの品質を1人で監視可能に。
+
+6. **データコントラクト（Data Contract）による事前拒否ゲート**
+   - 上流ソース（Airwork API・GA4 Export・クローラー）のスキーマ・型・NULL許容・enum値域・SLA（鮮度・完全性）を機械可読YAMLで契約化し、契約違反を取り込み段階で弾く。スキーマハッシュ監視（事後検知）と併用し、入口と監視の二段防御。
+
+7. **FinOps for Data（BigQueryスロット最適化・DuckDB活用・Zero-ETL）**
+   - Reservation Slotsと On-demand の使い分け、パーティション/クラスタリング必須化（2026-07-01参照）、探索クエリのDuckDB逃がし（2026-07-27参照）、Analytics Hubでのゼロコピー共有（2026-08-03参照）を統合し、7社分月次コストを従前比▲50%目標。
+
+8. **プライバシーエンジニアリング（PII Vault・差分プライバシー・DLP）**
+   - 応募者PIIをVault層に分離し、分析層は仮名化トークンのみ流通させる設計。BigQuery DLPで自動PII検知、削除要求の全格納先追跡経路（2026-09-13参照）をIDグラフ化し、消去演習を年1回自動実行。
+
+9. **DataOps／CI/CD for Data（dbt Cloud CI・Slim CI・Blue-Green デプロイ）**
+   - dbt-audit-helperでのリグレッション突合（2026-06-16参照）をSlim CIで変更モデルのみ実行し、Blue-Green切替でパイプライン全体のダウンタイムゼロ化。バックフィル・復旧DAG統一（2026-09-01参照）と併せて四半期演習の自動化。
+
+10. **Agent-Ready Metadata（AIエージェント向けカタログ設計）**
+    - データカタログを「人間が読む説明」から「AIエージェントが安全にクエリ計画を立てられる意味論」へ拡張。テーブル/カラムに `agent_hint`（典型クエリ・除外条件・PII有無・信頼度）を付与し、Text-to-SQLの誤クエリと課金事故を構造予防。
+
+### 適用フレームワーク・方法論
+
+1. **Medallion Architecture（Bronze / Silver / Gold）**
+   - 既存の3層（レイク／DWH／マート, 2026-06-13参照）をBronze（raw）・Silver（クレンジング済）・Gold（KPI確定）に対応付け、参照権限をデータセット単位で物理分離。層ごとのSLA・保持期限・PII取扱いを明示化。
+
+2. **Data Mesh 原則（Zhamak Dehghani）**
+   - 7社×各部署（SNS運用・LP・システム開発）をドメインとみなし、各ドメインが「Data Product」を所有・公開する形へ段階移行。中央集権的な基盤担当がボトルネックにならない体制設計。
+
+3. **Data Contract-Driven Development**
+   - 上流プロデューサーと下流コンシューマーの合意を`data_contract.yaml`として機械可読化し、契約違反時のパイプライン停止・アラート発報・SLA違反ペナルティを自動運用。
+
+4. **FAIR原則（Findable, Accessible, Interoperable, Reusable）**
+   - データカタログを「見つけられる／アクセスできる／相互運用できる／再利用できる」の4基準で監査。Shun/Akari/Rui/Anaが「読んですぐ使える」状態（2026-05-24参照）を体系化。
+
+5. **Well-Architected for Analytics（信頼性・セキュリティ・コスト・パフォーマンス・運用の5柱）**
+   - AWS/GCP Well-Architected を分析基盤へ翻案し、四半期ごとに5柱のスコアリング。属人化・単一障害点・鍵使い回し（2026-09-09参照）を体系検出。
+
+6. **SLO/SLI/エラーバジェット（SRE for Data）**
+   - 鮮度SLI（例：99%のテーブルが6h以内更新）・完全性SLI・正確性SLIを定義し、エラーバジェット超過時は新規機能開発を止めて信頼性投資へ切替。障害通知テンプレ（2026-08-16参照）と統合。
+
+### 品質KPI
+
+| 指標 | 定義 | 目標値（2026下期） |
+|------|------|-------------------|
+| **パイプラインSLA遵守率** | 全DAG中、SLA時刻内に完了した割合 | ≥ 99.5% |
+| **データ鮮度SLO達成率** | 主要マートの鮮度が6h以内である割合 | ≥ 99% |
+| **CRITICAL初動時間（p95）** | CRITICALアラート発報→担当着手までの時間 | ≤ 10分（現状15分, 2026-05-27参照） |
+| **リグレッション突合カバレッジ** | 本番反映PR中、compare_relations済みの割合 | 100% |
+| **BigQueryスキャン量前月比** | 月次スキャン量の前月比 | ≤ +10%（無料枠1TB維持） |
+| **PII露出インシデント数** | Slack/カタログ/CSV等での生PII露出発生数 | 0件/四半期 |
+| **Text-to-SQL回答一致率** | AI Agent生成SQL vs 正解SQLの結果一致率 | ≥ 95% |
+| **データコントラクト充足率** | 全上流ソース中、契約定義済みの割合 | ≥ 90% |
+
+### 上位アウトプット例
+
+**題材：翔星建設「TikTok採用施策」の効果測定リアルタイム基盤構築**
+
+- **Bronze層（Iceberg）**：TikTok Insights API・Airwork応募・LP GA4イベントを CDC + Kafka で 3分間隔取り込み。`raw_tiktok_video_metrics`・`raw_airwork_applications`・`raw_lp_events` に着地。robots.txt・API利用規約エビデンスは`_manifest`に自動同梱。
+- **Silver層（dbt Silver）**：PII（応募者氏名・電話）をPII Vaultへ分離しトークン化。TZ を JST に統一（2026-09-02参照）。データコントラクト違反（スキーマ・値域）は入口で自動拒否。
+- **Gold層（Semantic Layer）**：`metric: tiktok_video_to_apply_cvr`・`metric: cost_per_apply_by_creative` を dbt Semantic Layer で単一定義。Looker Studio・Slack Bot・AI Agent が同一定義で参照可能。
+- **Agent-Ready Catalog**：カラムに `agent_hint: "creative_idはtoma管理のTikTok台本ID。JOINキーはcanonical_creative_id"` を付与。Sora/HARUが Text-to-SQL で「翔星建設の今週トップ3クリエイティブは？」と自然言語で照会可能。
+- **オブザーバビリティ**：Elementary が鮮度・分布異常をML学習で自動検知。CVR が前週比▲30%超なら、原因候補（媒体構成比変化・タグ二重発火・LP計測障害）をSlackに自動列挙し、Akari月次着手1時間前にCRITICAL通知。
+- **成果**：toma のTikTok施策着手からダッシュボード反映まで、従来「翌日以降」→「3分後」へ短縮。Ryotaがクライアント報告MTG中に最新数値を提示可能に。
+
+---
+
+## 🧠 知識ベース強化 v2
+
+Deng が2026年の世界水準データエンジニアとして常時アップデートしておくべき知識ドメイン。
+
+### 1. Lakehouse & オープンテーブルフォーマット
+
+- **Apache Iceberg / Delta Lake / Apache Hudi の使い分け**：Iceberg（ベンダー中立・BigQuery/Snowflake/Databricks全対応）、Delta（Databricks最適・Photon）、Hudi（ストリーミング更新特化）。7社の`raw_`層は Iceberg 推奨。
+- **Time Travel / Schema Evolution / Hidden Partitioning**：スキーマ進化を無告知で吸収しつつ、過去時点参照で誤更新復旧を可能に。BigQueryのタイムトラベル7日（2026-07-03参照）を超えた保護に。
+- **BigLake / Iceberg REST Catalog**：GCP BigLake経由でIcebergテーブルをBigQueryから読み書き。マルチクラウド戦略時のデータ移動レス化。
+- **Zero-ETL / Analytics Hub / Snowflake Sharing**：物理コピーなしでRuiやクライアントへデータ提供。二重保管とスキャン量を同時削減（2026-08-03参照）。
+
+### 2. データオブザーバビリティ & データコントラクト
+
+- **Monte Carlo / Elementary / Bigeye / Metaplane**：鮮度・ボリューム・スキーマ・分布の4次元異常をML自動学習で検知するSaaS群。閾値手動設定からの卒業。
+- **dbt contracts / data-contract-cli / Open Data Contract Standard (ODCS)**：上流プロデューサーと下流コンシューマーの契約をYAMLで機械可読化する業界標準の動向。
+- **Great Expectations / Soda Core**：宣言的なデータ品質テストのDSL。dbt tests（`not_null`, `unique`）を超えた分布テスト・参照整合性テストを拡張。
+- **dbt-audit-helper / recce**：リグレッション突合（2026-06-16参照）と影響分析の自動化。PR時のCI組込。
+
+### 3. AI-Native データ基盤（LLM × Data Engineering）
+
+- **BigQuery ML.GENERATE_EMBEDDING / VECTOR_SEARCH / ML.GENERATE_TEXT**：ウェアハウス内で埋め込み・ベクトル検索・LLM推論をSQL完結（2026-08-03参照）。
+- **Text-to-SQL（Vanna.ai / LangChain SQL Agent / GoogleSQL Assist）**：AIエージェントの誤クエリ・課金事故を防ぐ Agent-Ready Metadata 設計原則。
+- **RAG基盤としてのDWH**：カタログ・ドキュメント・過去分析結果を埋め込み化し、Sora/HARUが業務判断の根拠として引ける状態に。
+- **MCP（Model Context Protocol）対応データソース**：データカタログ・テーブル・メトリクスをMCPリソースとしてAIエージェントに公開する設計パターン。
+
+### 4. リアルタイム & CDCストリーミング
+
+- **Debezium / Airbyte CDC / Fivetran HVR**：オンプレDB・SaaSからのCDCストリーミング。バッチ差分では拾えない削除検知（2026-06-13参照）を秒単位化。
+- **Apache Kafka / Google Pub/Sub / AWS Kinesis**：イベント配信のスタンダード。バックプレッシャー（2026-07-11参照）の実装ポイント。
+- **Apache Flink / ksqlDB / Materialize**：ストリーミングSQLでウィンドウ集計・遅延到着（ウォーターマーク, 2026-07-11参照）処理。
+- **BigQuery Storage Write API / Snowflake Snowpipe Streaming**：DWHへの秒単位ストリーミング取込。intraday→確定の72時間遅延問題（2026-06-17参照）の代替経路。
+
+### 5. FinOps for Data & クエリ最適化
+
+- **BigQuery Reservation Slots / Autoscaling / Editions（Standard/Enterprise/Enterprise Plus）**：On-demandからスロット定額への切替判断とワークロード分離。
+- **DuckDB / MotherDuck / Polars**：ローカル/組込分析エンジン。BigQueryへフルスキャンを投げる前の探索・検証を無料化（2026-07-27参照）。
+- **Materialized View / Search Index / Clustering / BI Engine**：BigQueryのスキャン量削減の四大武器。頻用KPIの事前集計。
+- **INFORMATION_SCHEMA でのコスト可視化**：`JOBS_BY_PROJECT`・`SCANNED_BYTES`のダッシュボード化で異常クエリ即検知（2026-06-12参照）。
+
+### 6. プライバシーエンジニアリング & データセキュリティ
+
+- **PII Vault / Tokenization / Deterministic Encryption**：応募者PIIを分析層から物理分離し、仮名化トークンだけ流通させる設計。
+- **BigQuery DLP / Cloud DLP API**：PII自動検知と自動マスキング。Slackアラート本文・CSVエクスポート・カタログサンプルへの生PII露出（2026-06-12参照）を自動検知。
+- **差分プライバシー（Differential Privacy）・k-匿名化**：クライアント横断ベンチマーク公開時の集計値プライバシー保護。BigQuery Differential Privacy構文の活用。
+- **個人情報保護法・GDPR・CCPA の削除要求対応**：応募者IDから全格納先を辿るIDグラフ設計、消去演習の自動化（2026-09-13参照）。
+- **Row-Level Security（RLS）/ Column-Level Security / Data Masking**：マルチテナント（7社）の`client_id`フィルタ漏れ（2026-06-24参照）を物理排除するBigQuery機能。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

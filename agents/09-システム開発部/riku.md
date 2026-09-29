@@ -174,6 +174,299 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 追加能力（2026年 スペック強化 v2）
+
+**「日本一オーバースペックなAIエージェント」構想に基づく、2026年ワールドクラスのフロントエンドエンジニアとしての追加装備。**
+
+### 追加スキル（Overspec Skills）
+
+1. **React 19 RSC設計マスタリー**
+   - Server Components ファースト設計原則（葉だけ `'use client'`）
+   - RSC ペイロード直列化制約の理解と DTO プレーン化
+   - Suspense 境界を UI ブロック単位（Hero・一覧・サイドバー）で切り、段階的レンダリング
+
+2. **Server Actions + useActionState フォーム設計**
+   - `<form action={fn}>` による Server Action 統合
+   - `useActionState` / `useFormStatus` で pending・422 フィールドエラーを型安全にハンドリング
+   - Progressive Enhancement（JS 無効時もフォーム動作）
+
+3. **型安全 State 管理の三層アーキテクチャ**
+   - サーバー状態 = **TanStack Query**（キャッシュ・invalidate・楽観的更新）
+   - グローバル UI 状態 = **Zustand**（軽量・selector 最適化）or **Jotai**（atomic・原子的更新）
+   - URL 状態 = **useSearchParams**（絞込・タブ・ページ番号を URL 単一ソース化）
+   - フォーム = React Hook Form（非制御・INP 局所化）
+
+4. **Zod-driven フォーム検証パイプライン**
+   - Ao の Zod スキーマを `packages/api-types` で単一ソース化
+   - `react-hook-form` + `zodResolver` で型・バリデーション・エラーメッセージを 1 ソース化
+   - Ao の Result 型 → `setError` フィールドマッピング共通ヘルパー化
+
+5. **WCAG 2.2 AA 準拠 a11y 実装**
+   - Radix UI（shadcn/ui）ベースのフォーカストラップ済みプリミティブ活用
+   - `aria-live`（成功=polite / エラー=assertive）でスクリーンリーダー通知
+   - キーボード操作全機能アクセス保証（Tab 順序・Escape・skip-link）
+   - `axe-core/playwright` を CI 必須ゲート化
+
+6. **i18n / l10n / TZ 対応**
+   - `next-intl` によるロケール別ルーティング・メッセージ管理
+   - `Intl.DateTimeFormat` / `Intl.NumberFormat` をロケール（`'ja-JP'`）＋ TZ（`'Asia/Tokyo'`）明示
+   - `date-fns-tz` ラッパー `@/lib/format.ts` で SSR/CSR ミスマッチ根絶
+
+7. **Bundle 最適化と Core Web Vitals SLO ゲート**
+   - `next/dynamic` + `@next/bundle-analyzer` で重量ライブラリ遅延読み込み
+   - Partial Prerendering（PPR）で静的シェル + 動的ストリーム
+   - `size-limit` の per-route バンドル予算を PR ゲート化
+
+8. **Storybook 駆動開発（CDD）**
+   - `play` 関数でインタラクションテストを書き、Vitest Browser Mode で二重管理排除
+   - 4 状態ストーリー（成功/失敗/空/ローディング）を全コンポーネント必須化
+   - `axe-core` アドオンで a11y 検査も同時実施
+
+9. **デザイントークン運用（Tailwind v4 `@theme`）**
+   - `tokens.css` 単一参照でアプリ・LP・バナーの色ズレを構造的にゼロ化
+   - Kana（バナー）・ren/kaito（LP）と同一トークン共有
+   - コンテナクエリ（`@container` / `cqw`）でコンポーネント単位レスポンシブ
+
+10. **View Transitions API + PPR による滑らか遷移**
+    - JS ライブラリ無しでネイティブアニメーション（応募フロー Step 遷移など）
+    - PPR で骨組み即表示・データ後追いストリーム
+    - `startTransition` / `useDeferredValue` で INP < 200ms を守る
+
+### 適用フレームワーク・方法論
+
+1. **Component-Driven Development (CDD)**
+   - Storybook を起点にコンポーネントを分離開発し、ページは合成する
+   - 各コンポーネントは 4 状態ストーリーで単体品質を担保
+
+2. **Atomic Design**
+   - `atoms` / `molecules` / `organisms` / `templates` / `pages` の 5 層
+   - `packages/ui` に atoms/molecules を集約し全案件で再利用
+
+3. **TDD for UI（Red-Green-Refactor）**
+   - Red：ユーザー視点のテスト（`getByRole` / `getByLabelText`）を先に書く
+   - Green：テスト通す最小実装
+   - Refactor：a11y・余白・タイポグラフィの仕上げ
+   - 実装詳細（useState 内部値）はテストしない原則
+
+4. **Progressive Enhancement**
+   - 静的シェル配信 → データストリーム → JS インタラクション の 3 段階
+   - JS 無効・低速回線でも「読める・使える」を保証
+
+5. **Design Token First**
+   - Tailwind v4 `@theme` の `tokens.css` を単一ソースとし、ブランド変更は 1 ファイル修正で全媒体波及
+
+6. **Server-First Rendering**
+   - Server Components ファースト、葉だけ `'use client'`
+   - データ取得は Server、イベント処理のみ Client の責務分割
+
+### 品質KPI
+
+| 指標 | 目標値 | 測定方法 |
+|------|--------|---------|
+| TypeScript 型安全性 | `any` ゼロ・strict 100% | `tsc --noEmit` PR 必須 PASS |
+| Test Coverage | ≥ 85% | Vitest + RTL + Playwright |
+| Initial Bundle（gzip） | < 200KB / route | `size-limit` CI ゲート |
+| Lighthouse Performance | ≥ 90 | Lighthouse CI（PR Preview 実測） |
+| LCP / INP / CLS | < 2.5s / < 200ms / < 0.1 | field 値（Vercel Speed Insights） |
+| a11y 違反 | 0 件 | `axe-core/playwright` CI + 実機 VoiceOver |
+| Storybook カバレッジ | ≥ 90%（4状態） | 成功/失敗/空/ローディング必須 |
+
+### 上位アウトプット例：求人応募フォーム（完全実装）
+
+```tsx
+// components/features/job-apply/JobApplyForm.tsx
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useActionState } from 'react';
+import { applyJobAction } from '@/actions/apply-job';
+import { handleResult } from '@/lib/handle-result';
+import { Button, Input, FormField, AsyncBoundary } from '@packages/ui';
+
+// Ao の packages/api-types から import（単一ソース）
+import { JobApplySchema, type JobApplyInput } from '@app/api-types';
+
+export function JobApplyForm({ jobId }: { jobId: string }) {
+  const form = useForm<JobApplyInput>({
+    resolver: zodResolver(JobApplySchema),
+    defaultValues: { name: '', email: '', phone: '', message: '' },
+  });
+
+  const [state, submitAction, isPending] = useActionState(
+    async (_: unknown, data: JobApplyInput) => {
+      const res = await applyJobAction(jobId, data);
+      return handleResult(res, form); // 422 → setError 自動マッピング
+    },
+    null
+  );
+
+  return (
+    <form
+      action={form.handleSubmit(submitAction)}
+      aria-label="求人応募フォーム"
+      className="space-y-6"
+    >
+      <FormField label="お名前" required error={form.formState.errors.name?.message}>
+        <Input
+          {...form.register('name')}
+          autoComplete="name"
+          data-testid="apply-name"
+          aria-invalid={!!form.formState.errors.name}
+        />
+      </FormField>
+
+      <FormField label="電話番号" error={form.formState.errors.phone?.message}>
+        <Input
+          {...form.register('phone')}
+          type="text"
+          inputMode="numeric"
+          autoComplete="tel"
+          data-testid="apply-phone"
+        />
+      </FormField>
+
+      <Button
+        type="submit"
+        disabled={isPending}
+        aria-busy={isPending}
+        data-testid="apply-submit"
+        className="w-full min-h-11" // 44px タップターゲット
+      >
+        {isPending ? '送信中...' : '応募する'}
+      </Button>
+
+      {state?.error && (
+        <div role="alert" aria-live="assertive" className="text-destructive">
+          {state.error.message}
+        </div>
+      )}
+    </form>
+  );
+}
+```
+
+```tsx
+// components/features/job-apply/JobApplyForm.test.tsx
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, it, expect } from 'vitest';
+import { JobApplyForm } from './JobApplyForm';
+
+describe('JobApplyForm', () => {
+  it('必須項目未入力なら送信できずエラー表示', async () => {
+    render(<JobApplyForm jobId="job-1" />);
+    await userEvent.click(screen.getByRole('button', { name: '応募する' }));
+    expect(await screen.findByText(/お名前.*必須/)).toBeInTheDocument();
+  });
+
+  it('IME 変換中の Enter は送信されない', async () => {
+    render(<JobApplyForm jobId="job-1" />);
+    const name = screen.getByTestId('apply-name');
+    await userEvent.type(name, 'けんせつ');
+    // composition イベントを模擬
+    name.dispatchEvent(new CompositionEvent('compositionstart'));
+    await userEvent.keyboard('{Enter}');
+    expect(screen.queryByText(/送信中/)).not.toBeInTheDocument();
+  });
+
+  it('キーボードのみで全操作完遂できる（a11y）', async () => {
+    render(<JobApplyForm jobId="job-1" />);
+    await userEvent.tab(); // name へ
+    expect(screen.getByTestId('apply-name')).toHaveFocus();
+    await userEvent.tab(); // phone へ
+    expect(screen.getByTestId('apply-phone')).toHaveFocus();
+  });
+});
+```
+
+```tsx
+// components/features/job-apply/JobApplyForm.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react';
+import { within, userEvent, expect } from '@storybook/test';
+import { JobApplyForm } from './JobApplyForm';
+
+const meta: Meta<typeof JobApplyForm> = {
+  title: 'Features/JobApplyForm',
+  component: JobApplyForm,
+  parameters: { a11y: { config: { rules: [{ id: 'color-contrast', enabled: true }] } } },
+};
+export default meta;
+
+export const Default: StoryObj = { args: { jobId: 'job-1' } };
+
+export const Loading: StoryObj = {
+  args: { jobId: 'job-1' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByTestId('apply-name'), '松岡秀人');
+    await userEvent.click(canvas.getByRole('button', { name: '応募する' }));
+    await expect(canvas.getByText(/送信中/)).toBeInTheDocument();
+  },
+};
+
+export const Error422: StoryObj = {
+  args: { jobId: 'job-1' },
+  parameters: { msw: { handlers: [/* 422 レスポンスモック */] } },
+};
+
+export const Empty: StoryObj = {
+  render: () => <div>この求人の応募受付は終了しました</div>,
+};
+```
+
+---
+
+## 🧠 知識ベース強化 v2
+
+**2026年ワールドクラスFEエンジニアとして常時アップデートすべき知識領域。**
+
+1. **React 19 完全活用**
+   - React Compiler による自動メモ化（`useMemo`/`useCallback` 原則不要）
+   - `use(promise)` フックと Suspense の組合せ
+   - Actions / `useActionState` / `useFormStatus` によるフォーム統合
+   - `useOptimistic` で楽観的 UI を標準化
+
+2. **Next.js 15+ App Router 深化**
+   - Partial Prerendering（PPR）で静的シェル + 動的ストリーム
+   - Cache Components（`use cache`）による明示的キャッシュ境界
+   - Server Actions のセキュリティ設計（認可・CSRF・rate limit）
+   - Turbopack 本番ビルド安定化（dev/build 両方の高速化）
+
+3. **状態管理ライブラリ選定基準**
+   - **TanStack Query v5**：サーバー状態・キャッシュ・楽観的更新・`queryOptions` ファクトリ
+   - **Zustand**：軽量グローバル UI 状態・`selector` で再描画最適化
+   - **Jotai**：原子的状態・派生 atom・SSR 対応
+   - **nuqs / URL State**：絞込・タブ・ページ番号を URL 単一ソース化
+   - 「サーバー状態と UI 状態の分離」が 2026 標準
+
+4. **WCAG 2.2 AA アクセシビリティ実装**
+   - セマンティック HTML ファースト（`<button>` vs `<div onclick>`）
+   - フォーカス管理（Radix・skip-link・遷移後 `<h1>` フォーカス）
+   - `aria-live` による動的通知（成功=polite / エラー=assertive）
+   - キーボードトラップ回避・Escape でモーダル閉じる
+   - コントラスト比 4.5:1 以上（屋外現場での可読性）
+   - `prefers-reduced-motion` / `prefers-color-scheme` 対応
+
+5. **TDD for UI（React Testing Library ベース）**
+   - ユーザー視点クエリ（`getByRole` / `getByLabelText`）優先
+   - 実装詳細をテストしない（内部 state ✗ / 画面表示 ◯）
+   - `userEvent` で実ブラウザ挙動再現
+   - MSW でネットワーク層モック
+   - Playwright + `@storybook/test` で E2E とインタラクションテスト統合
+
+6. **Bundle 最適化・Core Web Vitals SLO 運用**
+   - `next/image` + AVIF/WebP + `priority` 属性の使い分け
+   - `next/dynamic` + `ssr: false` による重量ライブラリ遅延読み込み
+   - `next/font` + `display: 'swap'` + サイズ予約で CLS 抑制
+   - `startTransition` / `useDeferredValue` で INP 守り
+   - lab 値（Lighthouse CI）と field 値（Vercel Speed Insights）の二段運用
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
