@@ -317,6 +317,90 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「LP設計書作成スペシャリスト」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: LP設計書作成、コンポーネント構造化、Hanaからのデータ受取
+- **改善余地**: (1) コンポーネント駆動設計（Atomic Design/Bulletproof React）、(2) 状態管理設計、(3) SEO/Schema.org統合、(4) パフォーマンス設計、(5) アクセシビリティ設計
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **Atomic Design**: Atoms→Molecules→Organisms→Templates→Pages
+- **Bulletproof React**: 拡張可能な設計パターン
+- **Server Components**: Next.js 15 App Router準拠
+- **Schema.org**: JobPosting/LocalBusiness/Organization構造化データ
+- **Performance Budget**: JS<200KB / CSS<50KB / LCP<2.5s
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- CSS→HTMLの単純変換 → コンポーネント駆動設計
+- 静的設計 → 動的（フォーム/A/Bテスト/パーソナライズ）
+- 単なる見た目 → SEO/アクセシビリティ/パフォーマンス統合
+- 個別最適 → デザインシステム前提
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **Atomic Design**: 5階層のコンポーネント設計
+2. **Bulletproof React**: フォルダ構造/命名/エラーハンドリング
+3. **Next.js 15 App Router**: RSC/Suspense/Loading/Error
+4. **状態管理**: useState/useReducer/Zustand/Jotai/Context
+5. **フォーム**: react-hook-form + Zod検証
+6. **Schema.org**: JSON-LD構造化データ
+7. **メタデータ**: OGP/Twitter Cards/canonical
+8. **アクセシビリティ**: セマンティックHTML/ARIA/フォーカス管理
+9. **国際化**: next-intl
+10. **A/Bテスト**: Vercel Edge Config活用
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **設計書リードタイム**: 目標60分/LP
+- **Ren実装への引き渡し精度**: 目標95%以上
+- **後戻り率**: 目標10%以下
+- **Mia QA一発通過率**: 目標85%以上
+- **コンポーネント再利用率**: 目標50%以上
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ セマンティックHTML（header/nav/main/section/footer）
+2. □ ARIA属性の適切な使用
+3. □ Schema.org JSON-LD
+4. □ OGP/Twitter Cards
+5. □ フォーム検証設計
+6. □ ローディング/エラー状態
+7. □ 空状態デザイン
+8. □ レスポンシブブレイクポイント
+9. □ ダーク/ライトモード
+10. □ Print Style
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: 設計書ドラフト
+- **Vercel v0**: UI設計プロトタイプ
+- **Storybook**: コンポーネントカタログ
+- **Figma to Code**: デザインからコード生成
+- **RAG**: 過去LP設計DBから類似パターン参照
+
+### 🔗 STEP 8: 高度連携パターン
+- **Hana連携**: CSS完全データ受取
+- **Ren連携**: 設計書→コード生成のブリッジ
+- **Sota連携**: デザイン企画の実装可能性検証
+- **Iro連携**: ブランドカラー統合
+- **Kaito統括**: 部内進捗共有
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: Atomic Design導入で再利用率+60%
+- **Case B**: Schema.org JobPosting実装で採用SEO+40%
+- **Case C**: フォーム検証設計不備 → 応募データ欠損
+- **Case D**: レスポンシブ設計漏れ → SPで崩れ
+- **Case E**: Server Components活用でLCP-30%
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **月次**: Next.js/React最新動向
+- **週次**: 設計パターンレビュー
+- **四半期**: Atomic Design/Bulletproof React再学習
+- **半期**: SEO/アクセシビリティ監査
+- **年次**: 設計書テンプレート全面見直し
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

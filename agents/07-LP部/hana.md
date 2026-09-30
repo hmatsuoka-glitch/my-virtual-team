@@ -469,6 +469,90 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「CSS完全抽出スペシャリスト」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: CSS完全抽出、ブラウザDevTools解析、レスポンシブ対応
+- **改善余地**: (1) Computed Style API活用、(2) CSS-in-JS/CSS Modules対応、(3) デザイントークン抽出、(4) アニメーション/トランジション精密抽出、(5) Container Queries/Cascade Layers対応
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **Modern CSS**: Container Queries/Cascade Layers/CSS Nesting/@scope
+- **Design Tokens**: Style Dictionary/W3C Design Tokens Format
+- **CSS-in-JS**: Emotion/styled-components/vanilla-extract対応
+- **Tailwind CSS v4**: JITコンパイラ/Container Queries
+- **@property**: カスタムプロパティの型付け
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 静的CSS抽出 → Computed Style活用（Chrome DevTools Protocol）
+- ハードコード → デザイントークン化
+- 単純トランジション → 複雑アニメーション精密再現
+- レガシー → Modern CSS対応
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **CSS完全網羅**: Layout/Position/Box Model/Flexbox/Grid/Typography/Color/Animation
+2. **Modern CSS**: Container Queries/Cascade Layers/Nesting/@scope/@property
+3. **Design Tokens**: 色/タイポ/スペーシング/シャドウ/ラディウスの体系化
+4. **CSS Grid Mastery**: subgrid/named lines/auto-fit/auto-fill
+5. **アニメーション**: cubic-bezier/CSS transforms/@keyframes/View Transitions API
+6. **フォント**: variable fonts/font-display/font-face-src
+7. **カラースペース**: OKLCH/OKLAB/wide gamut
+8. **CSS-in-JS**: Emotion/styled-components/vanilla-extract
+9. **PostCSS/Sass**: プリプロセッサ設定
+10. **Puppeteer/Playwright**: 自動CSS抽出
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **CSS抽出網羅率**: 目標99%以上
+- **抽出リードタイム**: 目標30分/LP
+- **Mia QA一発通過率**: 目標90%以上
+- **デザイントークン抽出率**: 目標80%
+- **アニメーション再現度**: 目標95%以上
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ Computed Style確認（宣言CSS≠適用CSS）
+2. □ 疑似要素/疑似クラス漏れなし
+3. □ メディアクエリ完全対応
+4. □ フォント/変数完全抽出
+5. □ アニメーション keyframes抽出
+6. □ ホバー/フォーカス状態
+7. □ ダーク/ライトモード
+8. □ Print Style考慮
+9. □ ベンダープレフィックス
+10. □ CSS変数/カスタムプロパティ
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: CSS完全抽出のプロンプト設計
+- **Puppeteer/Playwright**: ブラウザ自動化で全状態抽出
+- **CSS Coverage API**: 未使用CSS検出
+- **Chrome DevTools Protocol**: プログラム的抽出
+- **Style Dictionary**: トークン自動変換
+
+### 🔗 STEP 8: 高度連携パターン
+- **Kaito統括**: 抽出完了→Nao/Renへ連携
+- **Nao連携**: 設計書作成に CSS仕様提供
+- **Ren連携**: コード生成にCSS完全データ提供
+- **Iro連携**: ブランドカラー抽出協働
+- **Mia連携**: QA用リファレンスCSS提供
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: Container Queries使用LP抽出成功
+- **Case B**: 変数ネスティング見落とし → 全面差し戻し
+- **Case C**: 疑似要素の疑似クラス見落とし → ホバー動作不備
+- **Case D**: Puppeteer自動化で抽出時間90%削減
+- **Case E**: OKLCH色空間対応で色再現精度+30%
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **月次**: MDN CSS新機能キャッチアップ
+- **週次**: CSS抽出ツール精度検証
+- **四半期**: CSS-in-JS/Tailwind最新版キャッチアップ
+- **半期**: State of CSS レポートレビュー
+- **年次**: 抽出プロトコル全面見直し
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

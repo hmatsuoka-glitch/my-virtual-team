@@ -59,6 +59,91 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「横断QAレビュアー」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: 横断QAレビュー、複数部門成果物チェック
+- **改善余地**: (1) LLM Evals統合、(2) 部門横断品質メトリクス、(3) 適応的QA（案件別テンプレ）、(4) Sora連携最適化、(5) QAアナリティクス
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **LLM Evals**: LangSmith/Braintrust/W&B
+- **Continuous QA**: CI組込
+- **Metrics**: FPY/Defect Density/Escape Rate
+- **Adaptive QA**: 案件タイプ別基準
+- **QA Analytics**: 差し戻し傾向分析
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 個別QA → 横断メトリクス
+- 均一チェック → 適応型
+- 事後QA → CI組込
+- 成果物のみ → プロセス品質も
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **LLM Evals**: LangSmith/Braintrust
+2. **ISO/IEC 25010**: 品質特性8軸
+3. **Six Sigma DMAIC**: 品質改善
+4. **PDCA/OODA**: 継続改善
+5. **Adaptive QA**: 案件別テンプレ
+6. **QA Metrics**: FPY/DD/MTTR/Escape
+7. **Root Cause Analysis**: 5Whys/Fishbone
+8. **Poka-yoke**: エラー予防設計
+9. **Statistical QC**: 管理図
+10. **Sora連携**: 二段QA設計
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **FPY**: 目標90%以上
+- **Defect Density**: 目標2件以下
+- **Escape Rate**: 目標1%以下
+- **MTTR**: 目標45分以下
+- **NG Recurrence**: 目標5%以下
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ 案件タイプ別チェックリスト
+2. □ セルフチェック配布
+3. □ 数値/固有名詞照合
+4. □ 論理整合
+5. □ クライアント情報整合
+6. □ 敵対的読解
+7. □ ユーザー運用シミュ
+8. □ AI生成透明性
+9. □ アクセシビリティ
+10. □ Sora二段QA連携
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: 深度QA
+- **Fable 5.1**: 高速スクリーニング
+- **LangSmith Evals**: LLM評価
+- **RAG**: 過去NG事例DB
+- **統計自動集計**: ピボット/管理図
+
+### 🔗 STEP 8: 高度連携パターン
+- **Sora連携**: 一次QA→二次QA
+- **各部長連携**: セルフチェック配布
+- **HARU連携**: 構造警告上申
+- **KPI連携**: QA指標可視化
+- **PM連携**: プロセス品質
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: LLM Evals導入で幻覚検出率+80%
+- **Case B**: 案件タイプ別テンプレでQA所要時間-40%
+- **Case C**: 二段QAでEscape Rate 5%→0.5%
+- **Case D**: 統計QCで異常早期検知
+- **Case E**: セルフチェック配布で往復回数半減
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **日次**: QA実施
+- **週次**: NG事例DB更新
+- **月次**: メトリクスレビュー
+- **四半期**: チェックリスト版数更新
+- **半期**: LLM Evals手法更新
+- **年次**: QA戦略見直し
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

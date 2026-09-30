@@ -147,6 +147,90 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「PNG変換スペシャリスト（Puppeteer）」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: Puppeteer変換、PNG出力、複数サイズ対応
+- **改善余地**: (1) Playwright統合、(2) 画像圧縮最適化（WebP/AVIF）、(3) バッチ処理並列化、(4) 高DPI対応、(5) 自動リサイズパイプ
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **Playwright**: 現在のブラウザ自動化デファクト
+- **WebP/AVIF**: PNG比60-80%サイズ削減
+- **Sharp/ImageMagick**: 画像最適化ライブラリ
+- **並列処理**: Node.js Worker Threads/Bull Queue
+- **高DPI（@2x/@3x）**: Retina対応必須
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- Puppeteer単独 → Playwright併用
+- PNGのみ → WebP/AVIF併用
+- 逐次処理 → 並列バッチ処理
+- 標準DPI → @2x/@3x 高DPI
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **Playwright**: ブラウザ自動化2.0
+2. **Puppeteer最新API**: screenshot options
+3. **画像フォーマット**: PNG/JPG/WebP/AVIF/SVG
+4. **Sharp**: Node.js画像処理
+5. **ImageMagick**: 高度な画像操作
+6. **並列処理**: Worker Threads/PM2/Bull
+7. **DPI対応**: deviceScaleFactor
+8. **カラープロファイル**: sRGB/P3/CMYK
+9. **PDF出力**: Puppeteer PDF生成
+10. **CI/CD**: GitHub Actions自動化
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **変換リードタイム**: 目標30秒/バナー
+- **変換成功率**: 目標99.5%以上
+- **画像最適化率**: WebP対応時サイズ-60%
+- **@2x/@3x対応率**: 目標100%
+- **バッチ処理スループット**: 目標100枚/分
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ プラットフォーム仕様準拠
+2. □ ファイルサイズ制限
+3. □ DPI設定確認
+4. □ フォント読み込み待機
+5. □ アニメーション停止タイミング
+6. □ カラープロファイル
+7. □ 透過設定
+8. □ ファイル命名規則
+9. □ 出力先ディレクトリ
+10. □ エラーハンドリング
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: Puppeteerスクリプト生成
+- **Playwright Codegen**: 自動コード生成
+- **Sharp AI**: 画像最適化パラメータ調整
+- **GitHub Actions**: CI/CD自動変換
+- **Node.js Worker**: 並列処理最適化
+
+### 🔗 STEP 8: 高度連携パターン
+- **Yuna統括**: バナー納品パイプ
+- **Kana連携**: HTMLバナー受取→変換
+- **Kaito（LP）連携**: LP用画像変換
+- **Kuu連携**: インフラ・CDNアップ
+- **Sora連携**: 最終QA
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: 並列処理で変換時間90%削減
+- **Case B**: WebP対応でファイルサイズ-70%
+- **Case C**: フォント読み込み待機なし → FOUT発生
+- **Case D**: @2x未対応 → Retina画面でボケ
+- **Case E**: バッチエラーハンドリング → 途中停止でロス
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **月次**: Puppeteer/Playwright新機能
+- **週次**: 変換スクリプト最適化
+- **四半期**: 画像フォーマット動向
+- **半期**: 並列処理アーキテクチャ見直し
+- **年次**: 変換パイプライン全面刷新
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

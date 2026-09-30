@@ -104,6 +104,91 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「広報・PRマネージャー」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: 広報、PR、メディアリレーション
+- **改善余地**: (1) デジタルPR/SEO PR、(2) Influencer/UGC戦略、(3) Crisis Management、(4) PR効果測定（Barcelona Principles）、(5) ステマ規制対応
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **PESO Model**: Paid/Earned/Shared/Owned
+- **Barcelona Principles 3.0**: PR測定
+- **AMEC Framework**: 効果測定
+- **Crisis Management**: 24時間初動
+- **ステマ規制**: 2023年10月〜/表示義務
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 単発PR → PESO統合
+- 露出重視 → Outcome重視
+- 事後対応 → 危機予防
+- 露出数 → Barcelona Principles
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **PESO Model**: 4種メディア統合
+2. **Barcelona Principles 3.0**: Impact重視
+3. **AMEC Framework**: 目標→出力→成果
+4. **Crisis Management**: 予防/初動/収束
+5. **プレスリリース**: PRTIMES/@Press/共同PR
+6. **メディアリレーション**: 記者リスト管理
+7. **Influencer**: 選定/契約/効果測定
+8. **UGC戦略**: 自然発生促進
+9. **ステマ規制**: 景表法対応
+10. **メディアトレーニング**: 経営層向け
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **メディア露出**: 目標月次20件
+- **Share of Voice**: 業界内シェア
+- **Sentiment Score**: ポジ80%以上
+- **Crisis Response Time**: 目標2h以内
+- **Owned Media Traffic**: 目標+30%
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ ステマ規制対応（明示）
+2. □ nori事前チェック
+3. □ 事実確認（一次ソース）
+4. □ メディアクレジット
+5. □ 引用元表記
+6. □ 差別/差止め表現排除
+7. □ Crisis対応プレイブック
+8. □ Sentiment監視
+9. □ プライバシー配慮
+10. □ 業界団体自主基準
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: プレスリリース生成
+- **Perplexity**: メディアリサーチ
+- **Brandwatch**: Sentiment監視
+- **Meltwater**: メディアクリップ
+- **RAG**: 過去PR事例DB
+
+### 🔗 STEP 8: 高度連携パターン
+- **Marketing連携**: マーケPR統合
+- **Sho/Toma連携**: SNS広報
+- **nori連携**: 事前リーガル
+- **HR連携**: 採用広報
+- **HARU連携**: 経営広報
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: PESO統合で露出+50%
+- **Case B**: Crisis 2h対応で炎上抑制
+- **Case C**: ステマ規制違反 → 措置命令
+- **Case D**: Sentiment監視でネガ早期発見
+- **Case E**: Barcelona準拠でPR価値定量化
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **日次**: Media Clip確認
+- **週次**: Sentiment分析
+- **月次**: PR効果レポート
+- **四半期**: PR戦略見直し
+- **半期**: メディアリスト更新
+- **年次**: PR体制再設計
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24

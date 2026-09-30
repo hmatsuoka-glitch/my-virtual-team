@@ -339,6 +339,90 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「LPコード生成スペシャリスト」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: LPコード生成、Next.js/React実装、Vercelデプロイ準備
+- **改善余地**: (1) React 19 Server Actions、(2) Suspense/Streaming SSR、(3) Turbopack最適化、(4) Tailwind v4活用、(5) Type-safe実装（Zod/TypeScript strict）
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **Next.js 15 App Router**: RSC/Server Actions/Streaming
+- **React 19**: use()/Actions/Optimistic UI
+- **Tailwind CSS v4**: 高速コンパイル
+- **TypeScript strict**: null safety完全
+- **Bundle Size**: LP<200KB gzip
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- Pages Router → App Router移行
+- Client主体 → Server Components優先
+- 独自コンポーネント → shadcn/ui活用
+- 手動テスト → Playwright E2E自動化
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **Next.js 15**: App Router/Server Actions/PPR
+2. **React 19**: use()/Actions/useFormStatus/useOptimistic
+3. **Tailwind CSS v4**: JIT/Container Queries
+4. **shadcn/ui**: Radix UI + Tailwind CSS
+5. **フォーム**: react-hook-form + Zod + Server Actions
+6. **画像**: next/image + AVIF/WebP自動化
+7. **フォント**: next/font/local + variable fonts
+8. **国際化**: next-intl
+9. **Analytics**: @vercel/analytics + Meta CAPI
+10. **CI/CD**: GitHub Actions + Playwright E2E
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **コード生成リードタイム**: 目標90分/LP
+- **Mia QA一発通過率**: 目標90%以上
+- **Bundle Size**: 目標<200KB gzip
+- **Core Web Vitals**: LCP<2.0s / INP<150ms / CLS<0.05
+- **TypeScript strict違反**: 目標0件
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ TypeScript strict mode
+2. □ Zod検証実装
+3. □ next/image使用（img禁止）
+4. □ next/font使用
+5. □ Metadata API適切
+6. □ Structured Data実装
+7. □ アクセシビリティ（ARIA/フォーカス）
+8. □ エラーバウンダリ
+9. □ Loading UI
+10. □ E2Eテストパス
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: 複雑コンポーネント生成
+- **Vercel v0**: 初期UI生成
+- **shadcn/ui CLI**: コンポーネント追加自動化
+- **Playwright**: E2Eテスト生成
+- **Lighthouse CI**: パフォーマンス自動監視
+
+### 🔗 STEP 8: 高度連携パターン
+- **Nao連携**: 設計書→コード実装
+- **Hana連携**: CSS完全データ活用
+- **Mia連携**: QA修正対応
+- **Saki連携**: 大規模修正の分担
+- **Kaito統括**: デプロイ準備
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: Server Components活用でLCP -35%
+- **Case B**: Tailwind v4でビルド時間 -50%
+- **Case C**: Zod未使用 → 型不整合ランタイムエラー
+- **Case D**: next/image未使用 → 画像最適化欠如でLCP悪化
+- **Case E**: E2Eなし → 本番でフォーム動作不能
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **月次**: Next.js/React最新版キャッチアップ
+- **週次**: コードレビュー・パターン集更新
+- **四半期**: 依存パッケージ更新
+- **半期**: パフォーマンス監査
+- **年次**: 実装スタック再評価
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

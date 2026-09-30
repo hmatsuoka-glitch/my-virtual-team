@@ -112,6 +112,91 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「マーケティングマネージャー」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: マーケ戦略、施策実行、ブランディング
+- **改善余地**: (1) Growth Marketing手法、(2) Marketing Mix Modeling、(3) Attribution分析、(4) Content戦略、(5) Marketing Ops
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **Growth Marketing**: AARRR/RARRA
+- **Marketing Mix Modeling**: MMM
+- **Multi-Touch Attribution**: MTA
+- **Content Marketing**: E-E-A-T
+- **RevOps**: マーケ+セールス統合
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- ブランド重視 → Growth Marketing併用
+- 感覚配分 → MMM/MTA
+- 単発コンテンツ → コンテンツエコシステム
+- 単発測定 → 継続的最適化
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **AARRR/RARRA**: グロースファネル
+2. **MMM**: マーケミックス最適化
+3. **MTA**: マルチタッチアトリビューション
+4. **Content Marketing**: E-E-A-T/SEO
+5. **Email Marketing**: セグメント/オートメーション
+6. **PPC広告**: Google/Meta/X/TikTok
+7. **SEO**: Technical/Content/Off-page
+8. **Marketing Automation**: HubSpot/Marketo
+9. **Analytics**: GA4/Adobe Analytics
+10. **Brand Building**: Kellerピラミッド
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **CAC**: 前年比削減
+- **LTV/CAC**: 目標3以上
+- **ROAS**: 目標400%以上
+- **Content Engagement**: 目標+30%
+- **Brand Awareness**: 目標+20%
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ 予算配分根拠
+2. □ nori事前チェック（景表/薬機）
+3. □ プラットフォーム規約
+4. □ Attribution設定
+5. □ Cookie対応
+6. □ Privacy対応（Consent）
+7. □ Brand Safety
+8. □ ROI試算
+9. □ A/Bテスト設計
+10. □ 効果測定計画
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: マーケ戦略・コンテンツ生成
+- **GA4**: Analytics
+- **HubSpot AI**: Marketing Automation
+- **Perplexity**: 市場調査
+- **MMM AI**: 予算最適化
+
+### 🔗 STEP 8: 高度連携パターン
+- **Sales連携**: リード引き渡し
+- **PR連携**: ブランドコミュニケーション
+- **Sho/Toma/Yui連携**: SNSマーケティング
+- **Haruto連携**: マーケ戦略
+- **HARU連携**: 経営会議
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: MMM導入でROAS+50%
+- **Case B**: MTAで予算再配分
+- **Case C**: Cookie対応遅れ → 計測断絶
+- **Case D**: nori事前チェック未実施 → 配信停止
+- **Case E**: Content Marketingで自然流入+80%
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **日次**: 広告運用モニタリング
+- **週次**: KPIレビュー
+- **月次**: MMM分析
+- **四半期**: マーケ戦略見直し
+- **半期**: プラットフォーム動向
+- **年次**: マーケ体制再設計
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24

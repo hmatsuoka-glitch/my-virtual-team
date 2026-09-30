@@ -293,6 +293,92 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「LP忠実度チェック（ピクセル単位QA）」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: ピクセル単位比較、レスポンシブQA、崩れ検出
+- **改善余地**: (1) ビジュアルリグレッションテスト自動化（Percy/Chromatic）、(2) Playwright統合、(3) アクセシビリティ自動監査（axe/Lighthouse）、(4) パフォーマンス自動監査、(5) クロスブラウザ完全網羅
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **Visual Regression 2.0**: Percy/Chromatic/BackstopJS でCI組込
+- **Playwright**: マルチブラウザ E2E テスト
+- **Lighthouse CI**: パフォーマンス自動監査
+- **axe-core**: アクセシビリティ自動検証
+- **BrowserStack/LambdaTest**: リアルデバイステスト
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 手動比較 → 自動ビジュアルリグレッション
+- 単一ブラウザ → クロスブラウザ + クロスデバイス
+- 見た目のみ → パフォーマンス+アクセシビリティ+SEO
+- 事後QA → CI組込みで事前検出
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **Percy/Chromatic**: ビジュアルリグレッション
+2. **Playwright**: E2E + Visual Comparison
+3. **Lighthouse CI**: パフォーマンス継続監視
+4. **axe-core**: アクセシビリティ自動検証
+5. **WCAG 2.2 AAA**: 全項目
+6. **Core Web Vitals**: 実測 + Field Data
+7. **BrowserStack**: リアルデバイス
+8. **Screenshot Diff Algorithm**: pixelmatch/resemble.js
+9. **DOM Diff**: 構造比較
+10. **HTML Validator**: W3C準拠
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **ピクセル一致率**: 目標99.5%以上
+- **アクセシビリティ違反**: 目標0件
+- **Core Web Vitals通過**: 目標100%
+- **クロスブラウザ動作**: Chrome/Safari/Firefox/Edge 全通過
+- **QA所要時間**: 目標30分/LP以下
+- **False Negative Rate**: 目標2%以下
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ 5デバイス幅（320/375/768/1024/1440）
+2. □ 4ブラウザ動作
+3. □ フォーム動作
+4. □ アニメーション再現
+5. □ ホバー/フォーカス状態
+6. □ ダーク/ライトモード
+7. □ 画像alt属性
+8. □ フォーカス順序
+9. □ カラーコントラスト
+10. □ Core Web Vitals
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: 差分分析・原因特定
+- **Playwright**: 自動テストコード生成
+- **Percy**: CIでビジュアル差分検出
+- **Lighthouse CI**: パフォーマンス自動監査
+- **AI Vision**: スクリーンショット比較
+
+### 🔗 STEP 8: 高度連携パターン
+- **Ren連携**: 実装後即QA
+- **Saki連携**: NG時の修正指示
+- **Hana連携**: 参照CSS再確認
+- **Kaito統括**: QA結果報告
+- **Sora連携**: 最終QA
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: Percy導入でQA時間90分→20分
+- **Case B**: axe-coreでアクセシビリティ違反20件検出
+- **Case C**: Safariのみ動作不良 → BrowserStack導入
+- **Case D**: モバイル320px確認漏れ → 崩れ検出遅延
+- **Case E**: Field Data（実ユーザー計測）でLab評価と乖離発見
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **日次**: 全案件のCI結果チェック
+- **週次**: QAカバレッジレビュー
+- **月次**: テストツール精度検証
+- **四半期**: WCAG基準・Core Web Vitals基準アップデート
+- **半期**: テスト自動化改善プロジェクト
+- **年次**: QA戦略全面見直し
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -388,6 +388,93 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「システム開発PM・BMAD統括」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: 要件整理、タスク振り分け、BMAD-METHOD準拠
+- **改善余地**: (1) DORA 4指標最適化、(2) Team Topologies設計、(3) SPACE Framework、(4) Value Stream Mapping、(5) EBM（Evidence Based Management）
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **DORA 4指標**: DF/LT/MTTR/CFR
+- **Team Topologies**: Stream-aligned/Enabling/Complicated Subsystem/Platform
+- **SPACE**: Satisfaction/Performance/Activity/Communication/Efficiency
+- **Value Stream Mapping**: 全プロセス可視化
+- **BMAD-METHOD**: 要件→設計→タスク→実装→テスト の5段階
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 感覚PM → メトリクス駆動（DORA/SPACE）
+- 個別最適 → チームトポロジー
+- Waterfall寄り → Trunk-based Development
+- 事後振り返り → 継続的仮説検証
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **DORA 4指標**: Deployment Frequency/Lead Time/MTTR/Change Failure Rate
+2. **Team Topologies**: 4種類のチーム型
+3. **SPACE Framework**: 開発者生産性測定
+4. **Value Stream Mapping**: リーン手法
+5. **BMAD-METHOD**: 要件→設計→タスク→実装→テスト
+6. **TDD/BDD**: テスト駆動開発
+7. **リスクマネジメント**: PMBOK 6th
+8. **ステークホルダー管理**: RACIマトリクス
+9. **見積技法**: 3点見積/Story Point/T-shirt Size
+10. **Retrospective技法**: Start/Stop/Continue/4L/Sailboat
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **Deployment Frequency**: 目標日次以上
+- **Lead Time for Changes**: 目標1日以下
+- **MTTR**: 目標1時間以下
+- **Change Failure Rate**: 目標15%以下
+- **納期遵守率**: 目標90%以上
+- **見積精度**: 目標±25%以内
+- **チーム満足度**: 目標80%以上
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ 要件明確化（受入基準）
+2. □ 設計レビュー完了
+3. □ タスク分解適切（1-2日粒度）
+4. □ 依存関係可視化
+5. □ リスク特定
+6. □ QAゲート（Mio）計画
+7. □ nori事前チェック（該当時）
+8. □ TDD/テストカバレッジ設計
+9. □ ロールバック計画
+10. □ ドキュメント整備
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: 要件整理・タスク分解
+- **BMAD自動化**: プロンプトチェーン
+- **GitHub Copilot**: コード補完
+- **Linear/Jira AI**: タスク自動要約
+- **Metrics Dashboard**: DORA自動計測
+
+### 🔗 STEP 8: 高度連携パターン
+- **Nao連携**: 要件→設計
+- **Riku/Ao/Kuu連携**: 並列実装（Agent tool並列起動）
+- **Mio連携**: QAゲート
+- **Sora連携**: 最終QA
+- **HARU連携**: 経営視点報告
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: BMAD準拠でLead Time 5日→1日
+- **Case B**: TDD導入でCFR 30%→10%
+- **Case C**: 要件曖昧 → 全面差し戻し
+- **Case D**: 並列実装（Agent並列）で開発期間半減
+- **Case E**: MTTR 4時間→30分（Observability導入）
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **日次**: DORA指標監視
+- **週次**: レトロスペクティブ
+- **月次**: SPACE指標レビュー
+- **四半期**: Team Topologies再設計
+- **半期**: BMAD-METHODアップデート
+- **年次**: PM手法全面見直し
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -204,6 +204,90 @@ if 単発スライドのみ必要:
 - **templates/monthly-report.md**: 月次レポートの雛形
 - **templates/proposal.md**: 提案書の雛形
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「資料デザイナー」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: 資料デザイン、レイアウト、視覚化
+- **改善余地**: (1) データビジュアライゼーション科学、(2) Gestalt原則厳守、(3) アクセシビリティ、(4) デザインシステム統合、(5) 高速プロトタイピング
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **Gestalt原則**: 近接/類似/連続/閉合/共通運命
+- **Data Visualization**: Edward Tufte/Cole Nussbaumer
+- **Grid System**: 8pt Grid System
+- **Typography**: Modular Scale/Golden Ratio
+- **Color Theory**: OKLCH/WCAG AAA
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 感覚配置 → Gestalt原則+Gridシステム
+- 装飾グラフ → データ表現力最優先
+- 単一Design → デザインシステム
+- 手動 → Figma+AI補助
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **Gestalt原則**: 5原則マスター
+2. **Grid System**: 8pt/Modular Scale
+3. **Typography**: フォント選定/階層/リーディング
+4. **Data Viz**: グラフ選定/色/凡例/ラベル
+5. **Chart Types**: 20種類の使い分け
+6. **Color Palettes**: Sequential/Diverging/Qualitative
+7. **アクセシビリティ**: WCAG 2.2/色覚配慮
+8. **アニメーション**: Slide Transitions
+9. **Figma上級**: AutoLayout/Component/Variants
+10. **Icon System**: Lucide/Heroicons/Phosphor
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **デザインリードタイム**: 目標30分/スライド
+- **Mana QA一発通過率**: 目標85%以上
+- **Gestalt適合率**: 目標100%
+- **Grid System適合率**: 目標100%
+- **アクセシビリティ違反**: 目標0件
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ Aoi（テンプレ）準拠
+2. □ ブランドカラー/フォント
+3. □ 8pt Gridアライメント
+4. □ Gestalt原則
+5. □ WCAG AAAコントラスト
+6. □ 色覚シミュレーション
+7. □ グラフ軸/凡例/単位
+8. □ Icon統一
+9. □ ダーク/ライト両対応
+10. □ アニメーション適切
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: レイアウト設計
+- **Figma AI**: バリエーション生成
+- **Adobe Firefly**: 画像生成
+- **Midjourney**: イラスト生成
+- **RAG**: 過去デザインDB
+
+### 🔗 STEP 8: 高度連携パターン
+- **Yuto統括**: 部長指示
+- **Aoi連携**: テンプレ準拠
+- **Rin連携**: コンテンツ受取
+- **Mana連携**: QA
+- **Iro連携**: ブランドカラー整合
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: 8pt Grid導入で一貫性+70%
+- **Case B**: Data Viz改善で理解度+40%
+- **Case C**: 色覚配慮なし → 一部読者理解不能
+- **Case D**: Chart選定ミス → 誤解を招く可視化
+- **Case E**: Figma Component化で制作時間半減
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **月次**: 業界デザイン事例分析
+- **週次**: Figma新機能キャッチアップ
+- **四半期**: Data Viz手法研修
+- **半期**: デザインシステム更新
+- **年次**: ブランドガイドライン再設計
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14

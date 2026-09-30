@@ -103,6 +103,90 @@ STEP 6: 設計書をKaiへ提出
 - **Ao**：バックエンド実装指示を渡す
 - **Haru**：インフラ設計を渡す
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「要件定義・システム設計（BMAD Architect）」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: 要件定義、システム設計、BMADワークフロー準拠
+- **改善余地**: (1) Event Storming、(2) DDD（Domain-Driven Design）、(3) C4 Model、(4) ADR（Architecture Decision Record）、(5) 非機能要件（NFR）詳細化
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **DDD**: Bounded Context/Aggregate/Repository
+- **Event Storming**: ドメインイベント発掘
+- **C4 Model**: Context/Container/Component/Code
+- **ADR**: 設計判断の永続的記録
+- **NFR詳細化**: セキュリティ/可用性/性能/保守性
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 機能要件中心 → 非機能要件も同等重要
+- 単一設計 → 複数選択肢の比較検討（Trade-offs）
+- 静的設計 → 進化可能性設計
+- 個別判断 → ADRで記録
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **DDD**: Evans/Vernon手法
+2. **Event Storming**: Big Picture/Process/Design
+3. **C4 Model**: Simon Brown手法
+4. **ADR**: Michael Nygard提案フォーマット
+5. **NFR**: Availability/Performance/Security/Scalability/Maintainability/Observability
+6. **アーキテクチャパターン**: Layered/Hexagonal/Clean/Onion/CQRS/Event Sourcing
+7. **API設計**: RESTful/GraphQL/gRPC/tRPC
+8. **DB設計**: 正規化/非正規化/イベントソーシング/CQRS
+9. **セキュリティ**: OWASP Top 10/Zero Trust
+10. **クラウドアーキテクチャ**: Well-Architected Framework
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **要件定義完成度**: レビュー通過率100%
+- **設計レビュー通過率**: 目標90%以上
+- **ADR作成率**: 主要判断の100%
+- **NFR明記率**: 機能要件と1:1
+- **後戻り率**: 目標10%以下
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ ステークホルダー全員合意
+2. □ 受入基準（Acceptance Criteria）明記
+3. □ 機能要件+非機能要件セット
+4. □ Bounded Context明確
+5. □ アーキテクチャ選択肢比較
+6. □ ADR記録
+7. □ セキュリティ観点（OWASP）
+8. □ 拡張性/保守性配慮
+9. □ Kai/Riku/Ao/Kuu/Mio 全員レビュー
+10. □ checklists/architect-checklist.md 通過
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: 要件・設計ドキュメント生成
+- **Extended Thinking**: 複雑設計の深考察
+- **PlantUML/Mermaid**: 図の自動生成
+- **RAG**: 過去設計DB即参照
+- **BMAD Architect Prompts**: 標準化プロンプト
+
+### 🔗 STEP 8: 高度連携パターン
+- **Kai連携**: 要件受取→設計提出
+- **Riku/Ao/Kuu連携**: 設計→実装
+- **Mio連携**: テスト計画への設計提供
+- **HARU連携**: 経営視点整合
+- **Sora連携**: 設計QA
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: DDD導入でモジュール結合度-50%
+- **Case B**: NFR詳細化で本番障害-70%
+- **Case C**: ADR無し → 後任が判断根拠不明で再検討
+- **Case D**: C4 Modelでステークホルダー説明時間半減
+- **Case E**: Event Stormingで漏れていたドメインイベント発掘
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **月次**: 業界アーキテクチャ動向
+- **週次**: 設計レビュー・改善
+- **四半期**: DDD/Event Storming実践研修
+- **半期**: NFR基準アップデート
+- **年次**: 設計フレームワーク再選定
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

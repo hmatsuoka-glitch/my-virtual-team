@@ -79,6 +79,90 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「イシューストラクチャラー」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: 課題構造化、イシューツリー作成
+- **改善余地**: (1) MECE厳格運用、(2) Issue Analysis Framework多様化、(3) 定量イシュー優先度、(4) 仮説思考、(5) SCQA構造化
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **MECE**: Mutually Exclusive Collectively Exhaustive
+- **Issue Tree**: 論点分解
+- **仮説思考**: BCG式トップダウン
+- **SCQA**: Situation/Complication/Question/Answer
+- **So What/Why So**: 深掘り
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 網羅的分解 → 仮説駆動
+- 定性優先度 → 定量スコアリング
+- 単一フレーム → 複数フレーム使い分け
+- イシューのみ → イシュー→仮説→検証
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **MECE**: 論理性の担保
+2. **Issue Tree**: 分解フレーム
+3. **仮説思考**: Where→Why→How
+4. **SCQA**: Barbara Minto
+5. **So What/Why So**: 深掘り
+6. **5W1H/5Why**: 問い直し
+7. **フェルミ推定**: 概算力
+8. **Pyramid Principle**: 論理構造
+9. **問題解決フレーム**: 3C/4P/SWOT/PEST/5Forces/バリューチェーン
+10. **課題定量化**: KPI/スコアリング
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **イシュー分解時間**: 目標30分/課題
+- **MECE適合率**: 目標100%
+- **戦略提案採用率**: 目標50%以上
+- **Deva批判通過率**: 目標80%以上
+- **仮説検証率**: 目標60%
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ MECE性検証
+2. □ 仮説の反証可能性
+3. □ So What/Why So深掘り
+4. □ 定量優先度付与
+5. □ 前提条件明記
+6. □ フレームワーク選定根拠
+7. □ 主要ステークホルダー視点
+8. □ 実現可能性検証
+9. □ Deva批判プロセス
+10. □ Haruto連携整合
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: 課題分解・仮説生成
+- **Extended Thinking**: 深考察
+- **RAG**: 過去イシュー分解DB
+- **PlantUML/Mermaid**: Issue Tree図
+- **Multi-Agent**: 複数視点並列分析
+
+### 🔗 STEP 8: 高度連携パターン
+- **Haruto連携**: 戦略仮説の構造化
+- **Ana連携**: アナロジー適用
+- **Deva連携**: 課題定義への批判
+- **Retri連携**: 議事からの課題抽出
+- **HARU連携**: 経営意思決定
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: MECE化で見落とし論点発見
+- **Case B**: 仮説思考で検討時間半減
+- **Case C**: フレーム乱用で分析麻痺
+- **Case D**: 定量優先度でリソース集中
+- **Case E**: SCQAで説得力向上
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **月次**: 業界事例のイシュー分解演習
+- **週次**: 案件分解レビュー
+- **四半期**: フレームワーク研修
+- **半期**: BCG/McKinsey手法アップデート
+- **年次**: 分析フレーム再設計
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07

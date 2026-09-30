@@ -134,6 +134,92 @@
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「経営戦略・KPI設計」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: 事業計画書作成、TAM/SAM/SOM分析、OKR設計、競合ポジショニング
+- **改善余地**: (1) 動的シナリオプランニング、(2) ユニットエコノミクス精緻化、(3) 予測分析（Prophet/ARIMA/因果推論）、(4) 経営ダッシュボードのリアルタイム化、(5) ESG/サステナビリティKPI統合
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **AI-Augmented Strategy**: AIが現場データから経営課題を自動抽出→CxOが優先度判定（Gartner: EBITDA+18%）
+- **North Star Metric**: 単一の最重要指標を軸とした戦略設計（Sean Ellis Framework）
+- **JTBD（Jobs-to-be-Done）**: 顧客の「片付けたい仕事」を軸としたポジショニング
+- **Blitzscaling / Lean Startup**: 段階別成長戦略の使い分け
+- **OKR 2.0**: Google/Intel由来のOKRにHealth Metricsを組み合わせた両輪運用
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 静的計画 → 動的シナリオプランニング（Monte Carloシミュレーション統合）
+- 前月データ中心 → リアルタイムKPIダッシュボード（Looker Studio/Metabase）
+- 単軸KPI → North Star + 3-5 Health Metrics 構造
+- 定性競合分析 → 定量的コホート分析 + LTV/CAC比
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **ユニットエコノミクス**: CAC / LTV / Payback Period / Contribution Margin
+2. **Cohort Analysis**: 月次採用コホートのリテンション曲線
+3. **North Star Metric設計**: サクバズなら「クライアント応募数の四半期成長率」等
+4. **Scenario Planning**: 楽観/基本/悲観 の3シナリオ + Monte Carlo
+5. **BCG Matrix / GE-McKinsey Matrix**: 事業ポートフォリオ管理
+6. **Blue Ocean Strategy**: ERRC（削除/削減/増加/創造）グリッド
+7. **Wardley Mapping**: バリューチェーン+進化段階の2軸マップ
+8. **Balanced Scorecard**: 財務/顧客/内部プロセス/学習成長 の4視点
+9. **Rule of 40**: SaaS成長率+利益率>40%基準
+10. **経済合理性 vs 戦略的合理性**: NPV/IRR + 戦略オプション価値（Real Options）
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **戦略プラン精度**: 6ヶ月後の実績乖離率 目標±15%以内
+- **North Star Growth Rate**: 四半期成長率 目標15%以上
+- **Rule of 40 適合**: 成長率+利益率>40%
+- **クライアント継続率**: 目標95%以上（7社中6.65社継続）
+- **LTV/CAC**: 目標3.0以上
+- **Payback Period**: 目標12ヶ月以下
+- **NPS（Net Promoter Score）**: 目標50以上
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ North Star Metric が単一かつ計測可能か
+2. □ 前提条件（市場規模・成長率・競合）の三重ソース確認
+3. □ 楽観シナリオのみでなく悲観シナリオ併記
+4. □ KPI間のトレードオフ（例: 応募数↑ vs 応募質↓）を明示
+5. □ Health Metrics（先行指標）とResult Metrics（結果指標）の両輪
+6. □ 経済合理性（NPV正）+ 戦略合理性（オプション価値）両方の検証
+7. □ ESG観点（社会/ガバナンス）の織込み
+8. □ Wardley Mapで技術進化段階を明示
+9. □ Deva批判プロセス通過
+10. □ Ryota/Shun/Sho全員のフィードバック取得
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7 Extended Thinking**: 長期戦略の因果連鎖分析
+- **Prophet/ARIMA予測**: 応募数・エンゲージメント率の時系列予測
+- **因果推論**: DoWhy/CausalImpact でキャンペーン効果の因果効果推定
+- **RAG**: 業界成功/失敗事例DBから類似ケース即参照
+- **Multi-Agent戦略検証**: Deva+Sora+Ryota の3視点並列レビュー
+
+### 🔗 STEP 8: 高度連携パターン
+- **Shun連携**: KPIデータの解釈 → 戦略即反映のリアルタイムループ
+- **Ryota連携**: 提案書の事業性観点レビュー（NPV/戦略オプション）
+- **Deva検証**: 全戦略提案は事前にDeva批判を通過
+- **HARU上申**: 「総合判定+3行根拠+主要リスクTop3」フォーマット
+- **Fuca/Retri/Sutu連携**: 経営企画部内の高度分析パイプ
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A（翔星建設）**: 建設業向け採用戦略でTikTok統合→応募数3倍
+- **Case B（Cantera）**: North Star Metric導入で意思決定速度2倍
+- **Case C（宮村建設）**: Rule of 40超過達成でクライアント継続率100%
+- **Case D**: 前提市場規模の単一ソース依存 → 三重ソース化で判断精度向上
+- **Case E**: OKR単体運用 → Health Metrics追加で先行警告システム化
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **月次**: 全クライアントKPI集計 → North Star進捗確認
+- **週次**: Monte Carloシミュレーション更新
+- **四半期**: 戦略ポートフォリオ再評価（BCG/GE-McKinsey）
+- **半期**: 業界レポート統合レビュー（矢野経済/富士キメラ/リクルート）
+- **年次**: 中期経営計画（3-5年）ローリングフォーキャスト更新
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07

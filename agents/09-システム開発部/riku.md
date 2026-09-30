@@ -174,6 +174,90 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「フロントエンドエンジニア（Next.js・TDD）」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: Next.js実装、TDD準拠、React
+- **改善余地**: (1) React Server Components、(2) Suspense/Streaming、(3) State Management新標準（Zustand/Jotai/Signals）、(4) Web Performance、(5) Web Accessibility
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **Next.js 15**: App Router/RSC/Server Actions/PPR
+- **React 19**: use()/Actions/useFormStatus/useOptimistic
+- **State Management**: Zustand > Redux/Context
+- **Testing**: Vitest + Testing Library + Playwright
+- **Web Vitals**: LCP<2.5s/INP<200ms/CLS<0.1
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- Client Components主体 → RSC優先
+- Pages Router → App Router
+- Redux → Zustand/Jotai
+- Cypress → Playwright
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **Next.js 15**: App Router/Server Actions/PPR
+2. **React 19**: 新Hooks
+3. **State Management**: Zustand/Jotai/TanStack Query
+4. **TDD**: Red→Green→Refactor
+5. **Testing**: Vitest/Testing Library/Playwright
+6. **CSS-in-JS**: Emotion/vanilla-extract/Tailwind v4
+7. **フォーム**: react-hook-form + Zod
+8. **アクセシビリティ**: WCAG 2.2/ARIA/Focus管理
+9. **Web Vitals最適化**: 画像/フォント/JS
+10. **Storybook**: コンポーネント駆動開発
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **テストカバレッジ**: 目標80%以上
+- **Core Web Vitals**: 全通過
+- **アクセシビリティ違反**: 目標0件
+- **TypeScript strict違反**: 目標0件
+- **PR一発マージ率**: 目標70%以上
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ TDD（テスト先行）
+2. □ TypeScript strict
+3. □ Zod検証
+4. □ next/image使用
+5. □ next/font使用
+6. □ Metadata API
+7. □ ARIA/セマンティック
+8. □ エラーバウンダリ
+9. □ Loading UI
+10. □ E2Eテスト
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: 複雑コンポーネント
+- **GitHub Copilot**: コード補完
+- **Vercel v0**: UI生成
+- **shadcn/ui CLI**: コンポーネント追加
+- **Playwright Codegen**: E2E生成
+
+### 🔗 STEP 8: 高度連携パターン
+- **Kai連携**: タスク受取
+- **Nao連携**: 設計→実装
+- **Ao連携**: API連携仕様
+- **Mio連携**: テスト・QA
+- **Kuu連携**: デプロイ
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: RSC活用でLCP-40%
+- **Case B**: TDD厳格運用でバグ-70%
+- **Case C**: Zustand導入で状態管理コード-50%
+- **Case D**: アクセシビリティ無配慮 → 特定ユーザー使用不能
+- **Case E**: Web Vitals最適化でSEO順位向上
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **月次**: React/Next.js動向
+- **週次**: コードレビュー
+- **四半期**: 依存パッケージ更新
+- **半期**: パフォーマンス監査
+- **年次**: 技術スタック再評価
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

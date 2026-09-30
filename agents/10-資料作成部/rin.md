@@ -117,6 +117,90 @@ Yutoから資料作成の要件を受け取り、以下を実施する：
 - **Souma（Designer）**：構成・テキストの受け渡し
 - **Mana（QA）**：出典情報の検証協力
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「資料コンテンツクリエイター」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: 構成・調査・執筆、資料コンテンツ制作
+- **改善余地**: (1) SCQA/Pyramid Principle厳守、(2) データ引用の三重ソース化、(3) 読み手ペルソナ別カスタマイズ、(4) 執筆速度向上（Speedwriting）、(5) SEO/Discoverability
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **SCQA**: Situation/Complication/Question/Answer
+- **Pyramid Principle**: MECE + Top-down
+- **Storytelling**: Hero's Journey/Freytag Pyramid
+- **Assertion-Evidence Slides**: 主張=見出し
+- **BLUF**: 結論冒頭
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 情報羅列 → SCQA構造
+- 単一ソース → 三重ソース
+- 汎用執筆 → ペルソナ別
+- 手動執筆 → AI+人間ハイブリッド
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **SCQA**: 論理構造
+2. **Pyramid Principle**: MECE/So What
+3. **Storytelling**: Hero's Journey
+4. **Assertion-Evidence**: 主張＝見出し
+5. **BLUF**: 結論冒頭
+6. **見出しの4U**: Useful/Urgent/Unique/Ultra-specific
+7. **執筆速度**: Speedwriting/Pomodoro
+8. **リサーチ**: 一次/二次/三次ソース
+9. **引用マナー**: APA/MLA/Chicago
+10. **SEO Writing**: E-E-A-T
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **執筆リードタイム**: 目標2h/10pスライド
+- **Mana QA一発通過率**: 目標85%以上
+- **三重ソース率**: 目標90%
+- **SCQA適合率**: 目標100%
+- **BLUF適合率**: 目標100%
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ 読み手ペルソナ明確
+2. □ SCQA構造
+3. □ BLUF（結論冒頭）
+4. □ 三重ソース確認
+5. □ 引用元/日付明記
+6. □ 数字/固有名詞正確
+7. □ 誇大表現排除
+8. □ 誤字脱字/表記統一
+9. □ 見出しの4U
+10. □ nori事前チェック
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: 構成生成・執筆
+- **Perplexity Pro**: リサーチ
+- **NotebookLM**: 資料統合
+- **Grammarly/Textlint**: 校正
+- **RAG**: 過去資料DB
+
+### 🔗 STEP 8: 高度連携パターン
+- **Yuto統括**: 部長指示
+- **Aoi連携**: テンプレ準拠
+- **Souma連携**: デザインとの整合
+- **Mana連携**: QA
+- **Rui連携**: 業界データ
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: SCQA導入で読み手理解度+40%
+- **Case B**: 三重ソースで信頼性UP
+- **Case C**: BLUF違反で経営層離脱
+- **Case D**: 単一ソース → 誤情報混入
+- **Case E**: NotebookLM活用で調査時間半減
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **月次**: 業界資料事例分析
+- **週次**: 執筆スキル研鑽
+- **四半期**: SCQA/Pyramid実践研修
+- **半期**: リサーチ手法アップデート
+- **年次**: 執筆フレーム見直し
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14

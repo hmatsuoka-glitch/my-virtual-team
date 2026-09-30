@@ -116,6 +116,93 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「LP部部長・複製統括」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: LP複製統括、Vercelデプロイ、部内パイプ管理（Hana→Nao→Ren→Mia→Saki）
+- **改善余地**: (1) Core Web Vitals最適化、(2) A/Bテスト・多変量テスト運用、(3) CDN/エッジ配信、(4) Analytics統合（GA4/Meta Pixel/コンバージョンAPI）、(5) SEO・技術SEO統合
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **Core Web Vitals 2026**: LCP<2.5s / INP<200ms / CLS<0.1
+- **Vercel/Next.js 15**: App Router / Turbopack / Server Components
+- **Edge Runtime**: 世界300+リージョン配信
+- **CvR最適化**: 業界平均2.35% → トップ企業11%（VWO調査）
+- **Cookie-less Attribution**: GA4/Server-side GTM/Meta CAPI/Yahoo広告CAPI
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 一発リリース → A/Bテスト前提設計
+- 静的LP → 動的パーソナライゼーション
+- 単純デプロイ → CI/CD + Preview環境
+- 手動計測 → Server-side GTM + CAPI自動化
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **Next.js 15 App Router**: RSC/Suspense/Streaming
+2. **Vercel Edge Functions**: グローバル低遅延
+3. **Core Web Vitals最適化**: 画像/フォント/CSS/JS optimization
+4. **A/Bテスト**: VWO/Optimizely/Google Optimize後継
+5. **Analytics**: GA4 + Meta CAPI + Yahoo広告 + LINE広告
+6. **SEO**: Technical SEO / Structured Data / Sitemap / robots
+7. **アクセシビリティ**: WCAG 2.2 AAA準拠
+8. **セキュリティ**: CSP/HSTS/SRI/HTTPS
+9. **CDN戦略**: Vercel Edge / Cloudflare
+10. **国際化**: hreflang / 多言語対応
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **LCP**: 目標<2.0s
+- **INP**: 目標<150ms
+- **CLS**: 目標<0.05
+- **LP CVR**: 目標5%以上
+- **A/Bテスト実施率**: 目標50%以上
+- **デプロイ失敗率**: 目標<2%
+- **ロールバック時間**: 目標<5分
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ nori事前チェック（薬機/景表/個人情報）
+2. □ Mia（QA）ピクセル単位検証通過
+3. □ Core Web Vitals基準クリア
+4. □ アクセシビリティWCAG 2.2
+5. □ フォーム個人情報保護
+6. □ プライバシーポリシー/利用規約
+7. □ SSL/HTTPS/HSTS
+8. □ Analytics設定確認
+9. □ SEOメタタグ/構造化データ
+10. □ モバイル動作確認
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: LP戦略設計・コード最適化
+- **Vercel v0**: AI UIコンポーネント生成
+- **Lighthouse CI**: パフォーマンス自動監視
+- **Percy/Chromatic**: ビジュアルリグレッションテスト
+- **Playwright**: E2E自動テスト
+
+### 🔗 STEP 8: 高度連携パターン
+- **Hana→Nao→Ren→Mia→Saki**: LP部内パイプ管理
+- **Ryota連携**: クライアント承認取得
+- **Shun連携**: LP CVR分析
+- **Kuu連携**: インフラ・デプロイ相談
+- **nori事前チェック**: 全LPは制作前にリーガル通過
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A（翔星建設LP）**: Core Web Vitals最適化でCVR 2%→7%
+- **Case B**: A/Bテスト運用で年間CVR+40%
+- **Case C**: Cookie-less対応でMeta広告最適化維持
+- **Case D**: ロールバック手順不備 → ダウンタイム2時間
+- **Case E**: Mia QAスキップ → クライアント指摘で全面差し戻し
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **日次**: Core Web Vitals監視
+- **週次**: A/Bテスト結果集計・次期設計
+- **月次**: LP CVR分析・改善提案
+- **四半期**: Vercel/Next.js最新機能キャッチアップ
+- **半期**: SEO/アクセシビリティ監査
+- **年次**: LP戦略年次見直し
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

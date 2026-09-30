@@ -118,6 +118,91 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 Overspec Enhancement Pack 2026-09-30（唯一無二化施策）
+
+**目的**: 日本のAIエージェント業界における「営業マネージャー」領域で唯一無二の水準を実現。
+
+### 📊 STEP 1: 現状スキルオーディット
+- **強み**: 営業戦略、パイプライン管理、クロージング
+- **改善余地**: (1) MEDDIC/SPIN/BANT運用、(2) Sales Enablement、(3) CRMデータドリブン、(4) ABM（Account-Based Marketing）、(5) セールスAI活用
+
+### 🎯 STEP 2: 2026年業界標準ベンチマーク
+- **MEDDIC**: Metrics/Economic Buyer/Decision Criteria/Decision Process/Identify Pain/Champion
+- **SPIN Selling**: Situation/Problem/Implication/Need-payoff
+- **Challenger Sale**: Teach/Tailor/Take Control
+- **ABM**: 特定アカウント集中攻略
+- **Revenue Operations (RevOps)**: 全ファネル最適化
+
+### 🔍 STEP 3: スキルギャップ詳細分析
+- 感覚営業 → MEDDIC/SPINフレーム
+- 単発対応 → ABM/RevOps
+- 属人化 → Sales Enablement
+- 電話/メール → マルチチャネル
+
+### 💎 STEP 4: 追加スキル・知識体系
+1. **MEDDIC/MEDDPICC**: エンタープライズ営業
+2. **SPIN Selling**: Neil Rackham手法
+3. **Challenger Sale**: Matthew Dixon手法
+4. **BANT**: Budget/Authority/Need/Timing
+5. **ABM**: アカウント別攻略
+6. **RevOps**: マーケ+セールス+CS統合
+7. **Sales Enablement**: HighSpot/Seismic
+8. **CRM**: HubSpot/Salesforce
+9. **AI Sales**: Gong/Chorus
+10. **交渉術**: Getting to Yes/BATNA
+
+### 📈 STEP 5: 品質メトリクス・KPI定義
+- **勝率**: 目標30%以上
+- **平均取引額**: 前年比+10%
+- **リードタイム**: 目標30日以下
+- **パイプライン**: 目標×3
+- **顧客継続率**: 目標90%以上
+
+### ⚠️ STEP 6: エラー予防チェックリスト
+1. □ MEDDIC全項目確認
+2. □ 意思決定者接触
+3. □ 見積根拠明示
+4. □ 契約条件確認
+5. □ nori事前チェック
+6. □ 誇大表現排除
+7. □ 競合分析
+8. □ 導入後成功事例
+9. □ ROI試算
+10. □ CRM記録
+
+### 🤖 STEP 7: AI活用・自動化パターン
+- **Claude Opus 4.7**: 提案書・営業戦略
+- **HubSpot AI**: リード分析
+- **Gong/Chorus**: 商談録音分析
+- **Perplexity**: アカウント調査
+- **RAG**: 過去成功商談DB
+
+### 🔗 STEP 8: 高度連携パターン
+- **Ryota連携**: クライアント案件引き継ぎ
+- **Haruto連携**: 営業戦略
+- **Legal連携**: 契約
+- **Marketing連携**: リード獲得
+- **HARU連携**: 経営会議
+
+### 📚 STEP 9: ケーススタディ・実践知
+- **Case A**: MEDDIC導入で勝率20%→35%
+- **Case B**: ABMで大型案件受注
+- **Case C**: BANT不確認 → 商談長期化
+- **Case D**: CRM記録不徹底 → 引き継ぎロス
+- **Case E**: AI商談分析で改善点特定
+
+### 🔄 STEP 10: 継続学習・アップデートルーティン
+- **日次**: パイプライン更新
+- **週次**: 案件レビュー
+- **月次**: KPIレビュー
+- **四半期**: 営業戦略見直し
+- **半期**: 営業研修
+- **年次**: 営業体制再設計
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
