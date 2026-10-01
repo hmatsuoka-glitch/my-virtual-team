@@ -643,3 +643,259 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **求職者はスマホを横向きにしないが、クライアントの承認者はiPadを横向きに置いて確認している**：検証マトリクスにクライアント確認端末を1枠入れる運用（2026-08-16参照）は機種・ブラウザ・OSバージョンまでしか押さえておらず、向きの指定がないため縦でしか撮っていない。Playwrightのプロジェクト設定（2026-08-18参照）のクライアント端末枠だけはportrait/landscapeの2構成を持ち、横向きでコンテナクエリの分岐が変わって2カラムに割れる／固定CTAが実表示高さを圧迫する崩れを承認前に検出する
 - **求職者の端末は低電力モードで動作しており、出現アニメの初期状態が解除されずCV直結要素が最後まで表示されないことがある**：`prefers-reduced-motion`を有効化した環境ではAOS等が`opacity: 0`のまま止まり、実績数値・社員写真・CTAが「遅れて出る」のではなく「一度も出ない」状態になる。これはスクショ差分では元LPと複製LPの双方が同じく消えるため差分なしで通過する。検証条件（2026-08-18参照）にreduced-motion有効の1構成を追加し、この条件下で主要セクションの主要素が`opacity`・`transform`ともに初期値から解除されているかを`getComputedStyle`で機械判定してから通過させる
 - **片手操作の求職者は画面端スワイプで「戻る」を多用するため、横スクロールの実績カルーセルを送ろうとしてページから離脱する**：タップターゲットの寸法と親指到達域は座標判定で機械化済み（2026-09-01参照）だが、スワイプ操作の競合は寸法にも位置にも現れない。SP幅の実機確認項目に「画面左端24px を起点にした水平スワイプでブラウザバックが発生しないか」を追加し、`overflow-x`のカルーセル・スライダーが画面端まで到達している場合は左右に安全余白を設けるようRenへ差し戻す。機材条件では数値化できない操作系の項目として、人的QAの2項目（2026-09-01参照）と同じ枠で扱う
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+| 領域 | 現状能力 | 強み | 弱み |
+|------|---------|------|------|
+| ピクセル差分 | 全画面＋セクション単位スクショ比較、±2px許容、HEX完全一致 | セクションID単位の絞り込み再QA、凍結ベースライン運用 | 知覚的差分（SSIM/CIEDE2000）での重み付けが未整備 |
+| カラー/フォント | HEX比較、サブセット欠落検査、Network配信確認 | 外字（髙・﨑・濵）までカバー、non-integer DPR対応 | OKLCH/P3色域・CSS color-mix()・font-variation-settings未検査 |
+| アニメーション | duration/easing/delay比較、prefers-reduced-motion検査 | AOS初期状態の`getComputedStyle`判定 | View Transitions API・scroll-driven animations未対応 |
+| レスポンシブ | DPR 1/1.25/1.5/2 × 幅7ステップ×portrait/landscape | クライアント承認端末枠を1枠確保 | Dynamic Viewport（dvh/svh/lvh）・Foldable検査が未整備 |
+| アクセシビリティ | コントラスト、タップターゲット、alt、見出し階層、親指到達域 | 座標判定で機械化、人的QAは体感速度と識別性のみ | WCAG 2.2 AAA・ARIA 1.3・forced-colors mode未検査 |
+| 性能 | PlaywrightからのINP計測、CPU 4xスロットリング | ミドルレンジAndroid想定で機材条件を固定 | Lighthouse CI化・CrUX統合・RUM連携未着手 |
+| CI/運用 | 差分率・a11y違反数・INPのJSON集約、デプロイID＋コミットハッシュ記録 | スコア表自動生成、転記ミス排除 | PR統合・ゲーティング自動化・履歴可視化が弱い |
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+| ツール/標準 | 2026Q4での位置づけ | Mia への示唆 |
+|------------|------------------|-------------|
+| **Chromatic 10.x**（Storybook連携） | コンポーネント単位のVisual Regression標準、TurboSnap＋AI差分トリアージ搭載 | PR単位のPreview URL比較を自動化、component scopeのbaseline管理 |
+| **Percy by BrowserStack** | 複数DPI・複数ブラウザのクロスマトリクス差分、Responsive Snapshotsが標準化 | 承認端末マトリクスの外部化、Edge/旧iPad Safari相当の実行基盤に委譲 |
+| **Applitools Eyes（Visual AI 2026）** | SSIM＋ML（Ultrafast Grid）で動的コンテンツを無視した知覚差分 | 季節バナー・A/Bテスト差分の「意味ある差」のみ抽出 |
+| **BackstopJS 6** | OSS、Dockerizedで案件横断の再現性 | 内製CIの最後の砦。クライアント環境ロックイン対策 |
+| **Playwright 1.50＋Visual Comparisons** | `toHaveScreenshot()`＋ `maxDiffPixelRatio` + `stylePath`でマスク、Trace Viewer 2.0 | 現運用の中核。CDP CPUスロットリング・clock固定が標準API化 |
+| **Pixelmatch / Odiff** | GPU加速の高速ピクセル差分（Odiff）、knee threshold可変 | セクション単位比較の高速化、CIジョブ時間30%短縮の見込み |
+| **Lighthouse CI 0.14** | CrUX API・INP p75・LCP要素フィンガープリント対応 | 性能ゲートをLHCIサーバーで一元化、履歴トレンドの可視化 |
+| **Pa11y 7 / Pa11y CI** | WCAG 2.2 AA/AAA、axe-core 4.10エンジン内蔵、HTML CodeSnifferと併用可 | バッチa11yスキャンの第二基準、Vercel Preview Hook連携 |
+| **axe-core 4.10 / axe DevTools Pro** | WCAG 2.2 全達成基準＋ARIA 1.3、Needs Review項目のML提案 | 現運用のa11y判定エンジン、ルールセットのcustom extend |
+| **WAVE 3.3 / IBM Equal Access** | 政府・大企業の第三者監査で引用、JIS X 8341-3対応 | 建設業クライアントの発注元（元請ゼネコン）確認用の外部エビデンス |
+| **WCAG 2.2 AA / AAA** | 2023確定、2026時点でJIS X 8341-3:2025として国内義務化領域が拡大 | Focus Appearance (AA)・Target Size (AAA 24px→44px)・Dragging Movements対応 |
+| **INP計測（web-vitals 4.x / CrUX）** | 2024年3月にFIDを置換、2026年Q4ではp75 200ms未満が「Good」基準 | 現行200ms閾値を維持しつつ、p75・p90の2段階ゲートを導入 |
+| **Storybook 9 / Figma Dev Mode MCP** | デザイントークン⇔コード一致検証が自動化 | Hanaのトークン原本と実装値の自動突合、トークン起因差分判定の精度向上 |
+| **PageSpeed Insights＋INP Debugger** | 現場端末のRUMをフィードバック、CrUX分位の原因要素特定 | 本番公開後72時間のRUMをQA通過判定に組み込む |
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **知覚的差分（SSIM・CIEDE2000・ΔE2000）未導入**：ピクセル差分率のみでは、人間が気づく「色の違和感」を数値化できない。承認者が「なんか違う」と言う色ズレを定量化できていない。
+2. **AI差分トリアージ未導入**：Chromatic TurboSnap・Applitools Visual AIのように「動的コンテンツ由来の差分」を自動除外する仕組みがなく、季節バナー差し替え時に偽陽性で全セクションがNGになる。
+3. **PR統合・ゲーティング自動化が弱い**：JSON集約はあるがGitHub PR Checksに結合しておらず、Rikuや外注先がPRをマージする前に差分を把握できない。
+4. **Lighthouse CIサーバーでの履歴蓄積がない**：INP実測を案件横断で時系列比較できず、「どの実装パターンがINPを悪化させるか」の学習が貯まらない。
+5. **WCAG 2.2 AAA基準（Focus Appearance強化・Target Size 44px・Dragging Movements）が任意扱い**：建設業採用LPは障害者雇用枠の案件も増え、AAA準拠の説明責任が必要になりつつある。
+6. **forced-colors / Windows High Contrast Mode検査がない**：Edge法人環境のアクセシビリティ設定下での崩れを検出できない。
+7. **View Transitions API・scroll-driven animations検査未対応**：2026年主要ブラウザで本格普及、Renが使い始めた際の差分検出手段がない。
+8. **CrUX / RUMとの連携がない**：公開後の実ユーザー計測がQAループに戻ってこないため、「QA通過＝本番保証ではない」線引きは明記しつつも、実測の裏取りがない。
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **SSIM / CIEDE2000ベースの知覚差分スコアリング**：Pixelmatchの `anti-aliasing` + Odiffの `--threshold` に加え、SSIM≥0.98・ΔE2000≤2.0 を領域別閾値として導入。装飾は≤5.0、Hero/CTA/Formは≤2.0。
+2. **AI動的コンテンツマスキング**：Applitools Visual AI相当のロジックを `data-dynamic="true"` 属性＋Playwright `mask` オプションで内製。季節バナー・日付・在庫数は差分計算から除外。
+3. **GitHub PR Checks統合**：`mia-visual-regression` / `mia-a11y` / `mia-perf` の3チェックをPRステータスへ出力。ブロッキング条件はカテゴリ別下限割れ時のみ。
+4. **Lighthouse CI サーバー運用**：Vercel Preview URLごとにLHCIを回し、INP・LCP・CLS・TBTの時系列を `.lighthouseci/` に蓄積。p75・p90の2段階ゲート。
+5. **WCAG 2.2 AAA 準拠検査モード**：障害者雇用枠案件のオプトインで `wcag22aaa` ルールセットを適用。Target Size 44px・Focus Appearance 強化・Dragging Movements代替手段を機械判定。
+6. **forced-colors / High Contrast Mode検査**：Playwrightの `forcedColors: 'active'` でEdge法人環境を再現。背景色依存のアイコン・影・区切り線が消えないか `getComputedStyle` で判定。
+7. **View Transitions API / scroll-driven animations検査**：`view-transition-name` の整合性、`animation-timeline: scroll()` の進捗値をスクラブ再生して期待値と比較。
+8. **CrUX / RUM逆流**：公開後72時間のCrUX API結果（Field Data）を取得し、QA通過スコアと実測の乖離を Kaito 経由でレポート。乖離が閾値超なら実装パターンの要注意リストへ追記。
+9. **Figma Dev Mode MCP との双方向トークン検証**：Hanaの CSS トークンと Figma の変数定義を MCP 経由で突合。トークン起因差分判定（2026-08-27参照）の一次証拠として採用。
+10. **Dynamic Viewport（dvh/svh/lvh）検査**：iOS Safariのツールバー伸縮に伴うビューポート変動で、Hero・固定CTAが隠れないか `window.visualViewport` の遷移で検証。
+11. **Container Query / `:has()` フォールバック検査**：旧iPad Safari・Edge法人環境でのフォールバックCSSの発動を実機・エミュレータ双方で確認（Hana 2026-07-27参照の継続強化）。
+12. **実機ラボ（BrowserStack / LambdaTest）連携**：クライアント承認端末の実機セッションを週次で回し、エミュレータでは出ないGPUレンダリング差（iOS特有のblur・backdrop-filter）を検出。
+13. **スクリーンリーダー音声出力の差分検査**：VoiceOver / NVDA / TalkBack の読み上げ順序と内容を `axe-core` の `aria-text` ルール＋手動1回で確認。SEO画像テキストと二重読み上げがないかを判定。
+14. **Cookie同意後のタグ発火検証**：GA4 DebugView API を自動化し、拒否→0件 / 同意→期待イベント発火 を機械判定（2026-09-09参照の継続強化）。
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール | 用途 | 導入形態 | 判定基準との紐付け |
+|-------|------|---------|------------------|
+| **Chromatic 10.x** | コンポーネント単位Visual Regression、TurboSnap | Storybook（Ren連携）＋GitHub Actions | 差分率≤0.5%（Hero/CTA）/≤1.5%（装飾） |
+| **Playwright 1.50** | E2E＋Visual Snapshot＋Trace | 既存運用の中核・プロジェクト設定で検証条件固定 | `toHaveScreenshot({maxDiffPixelRatio: 0.002})` |
+| **Odiff** | GPU加速ピクセル差分 | Playwrightのカスタムcomparator | SSIM≥0.98 + ΔE2000≤2.0 |
+| **Applitools Eyes（Visual AI）** | 動的コンテンツ無視の知覚差分 | 季節バナー・A/Bテスト案件のみオプトイン | Match Level: `Strict Content` + `Layout` 併用 |
+| **Lighthouse CI 0.14 + LHCI Server** | 性能ゲート＋履歴蓄積 | Vercel Preview Hook＋`.lighthouseci/` | INP p75 ≤ 200ms / LCP ≤ 2.5s / CLS ≤ 0.1 |
+| **axe-core 4.10 + Pa11y 7 + WAVE API** | WCAG 2.2 AA/AAA自動検査 | GitHub Actionsで並列実行 | Violations=0（critical/serious）、AAAはオプトイン |
+| **web-vitals 4.x + CrUX API** | 本番RUMとCrUX逆流 | Kaitoデプロイ後72時間ポーリング | p75実測とQAスコアの乖離≤10% |
+| **Figma Dev Mode MCP** | トークン⇔コード突合 | Hanaのトークンレポートと紐付け | トークン外の色・サイズ出現=0 |
+| **BrowserStack Live/Automate** | 実機ラボ | クライアント承認端末の週次実機セッション | iOS実機GPU差分の目視1点 |
+| **Storybook 9** | コンポーネントbaseline管理 | Renのコンポーネントパッケージに同梱 | component-scopedスコア |
+
+### 6. 強化された意思決定フロー
+
+```
+【入力】Ren の Preview URL + オリジナルLPのURL + デプロイID + コミットハッシュ
+
+STEP A: 検証条件の自動セットアップ
+  - Playwrightプロジェクト設定を案件ブランチへclone（DPR 1/1.25/1.5/2 × 幅7 × portrait/landscape）
+  - Kaitoから受け取ったクライアント承認端末構成を1枠追加
+  - CPUスロットリング4x / Slow 4G / reduced-motion / forced-colors の4条件を標準に固定
+
+STEP B: ベースライン整合性チェック
+  - 元LPスクショは着手日に凍結したものを使用（撮り直し禁止）
+  - Saki の baseline 部分更新申請があれば該当セレクタのみ差し替え
+
+STEP C: 並列検査（4レーン同時実行）
+  レーン1: Visual Regression（Playwright + Odiff + Chromatic）
+    → セクション単位 + コンポーネント単位、SSIM/CIEDE2000付き
+  レーン2: Accessibility（axe-core + Pa11y + WAVE）
+    → WCAG 2.2 AA（必須）+ AAA（オプトイン）、forced-colors含む
+  レーン3: Performance（Lighthouse CI + web-vitals）
+    → INP/LCP/CLS/TBT、p75・p90、CPU 4x固定
+  レーン4: Semantic / i18n（文字列照合 + 改行位置 + 外字レンダリング）
+    → 正式社名・代表者名・許可番号を期待値として機械判定
+
+STEP D: 動的コンテンツマスキング & 知覚差分判定
+  - data-dynamic="true" / Applitools Visual AI で季節要素を除外
+  - Hero/CTA/Form: ΔE2000≤2.0 / 装飾: ≤5.0
+  - 1pxボーダー消失・外字豆腐はDPR 1.25/1.5で必ず走る
+
+STEP E: 承認者視点検査（人的2項目のみ）
+  - 実機の体感速度（iPad landscape・ミドルAndroid portrait）
+  - 案A/B並置時の識別性
+
+STEP F: スコア集約＆判定（JSON自動生成）
+  - カテゴリ別下限割れ: 1項目でもあれば差し戻し
+  - カテゴリ別合格 + 総合85点以上 + ブロッカーa11y 0件 + INP p75 200ms以下 → 通過
+  - トークン起因（2箇所以上同種逸脱）の疑いがあればSaki経由でHana/iroへ遡上
+
+STEP G: PR Checks出力＆ハンドオフ
+  - mia-visual-regression / mia-a11y / mia-perf の3チェックをPRへ
+  - 通過時: Kaito へスコア表JSON + デプロイID + コミットハッシュ + 承認者端末エビデンスを引き継ぐ
+  - 差し戻し時: Saki の受付5分類（色／サイズ／写真／余白／情報密度）+ トークン起因フラグで整形
+
+STEP H: 公開後RUM逆流（通過48〜72時間後）
+  - CrUX APIで実測p75を取得、QAスコアと乖離≤10%か確認
+  - 乖離が閾値超 → 要注意実装パターンとしてDaily Knowledge Logへ追記
+```
+
+### 7. 新・出力フォーマット
+
+#### 7-1. 統合QAレポート v3（JSON）
+
+```json
+{
+  "report_version": "v3-2026Q4",
+  "deploy_id": "dpl_xxxxx",
+  "commit_sha": "a1b2c3d",
+  "preview_url": "https://project.vercel.app",
+  "original_url": "https://client-example.co.jp",
+  "baseline_frozen_at": "2026-10-01T09:00+09:00",
+  "checked_at": "2026-10-02T14:32+09:00",
+  "verdict": "pass | conditional_pass | fail",
+  "overall_score": 92,
+  "category_scores": {
+    "visual_regression": {"score": 95, "ssim": 0.991, "deltaE_p95": 1.6, "max_pixel_ratio": 0.0018},
+    "accessibility":    {"score": 100, "wcag22_aa_violations": 0, "aaa_violations": 2, "forced_colors_pass": true},
+    "performance":      {"score": 88,  "inp_p75_ms": 185, "lcp_p75_ms": 2200, "cls": 0.04},
+    "semantic_i18n":    {"score": 100, "glyph_fallback": 0, "line_break_mismatch": 0}
+  },
+  "section_breakdown": [
+    {"section": "hero",   "ssim": 0.993, "pixel_ratio": 0.0009, "a11y": 0, "notes": "合格"},
+    {"section": "cta",    "ssim": 0.998, "pixel_ratio": 0.0003, "a11y": 0, "notes": "合格"},
+    {"section": "form",   "ssim": 0.985, "pixel_ratio": 0.0021, "a11y": 1, "notes": "label-forの関連付けを1件要修正"}
+  ],
+  "device_matrix_results": {
+    "sp_portrait_dpr1":   "pass",
+    "sp_portrait_dpr2":   "pass",
+    "sp_portrait_dpr1_25":"pass",
+    "ipad_landscape":     "pass",
+    "edge_forced_colors": "conditional"
+  },
+  "token_origin_suspects": [
+    {"type":"color","value":"#2563EB","occurrences":3,"handoff":"hana/iro"}
+  ],
+  "rum_lookback": {
+    "status": "pending_72h",
+    "crux_p75_inp_ms": null,
+    "drift_vs_qa_pct": null
+  },
+  "handoff": {
+    "to_saki": [],
+    "to_kaito": {
+      "deploy_id": "dpl_xxxxx",
+      "approver_device_evidence": "/evidence/ipad_landscape.png",
+      "cdn_scope_note": "本番CDN・env・到達性はKaitoゲート"
+    }
+  }
+}
+```
+
+#### 7-2. PR Checksサマリー（Markdown）
+
+```markdown
+### Mia QA v3 — [PASS / CONDITIONAL / FAIL]
+
+| Check | Score | Threshold | Status |
+|-------|-------|-----------|--------|
+| Visual Regression (Odiff + Chromatic) | 95 | ≥90 | ✅ |
+| Accessibility (axe-core 4.10, WCAG 2.2 AA) | 100 | =0 violations | ✅ |
+| Performance (LHCI, INP p75) | 185ms | ≤200ms | ✅ |
+| Semantic / i18n (外字・改行) | 100 | =0 mismatch | ✅ |
+
+**Section下限割れ**: なし
+**Token起因疑い**: #2563EBが3箇所 → Hana/iroへ遡上
+**RUM lookback**: 72時間後にCrUX取得予定
+
+→ Kaito へハンドオフ
+```
+
+#### 7-3. 差し戻し指示（Saki向け5分類タグ付き）
+
+```markdown
+### Mia 差し戻し v3 — [FAIL]
+
+| 分類 | 箇所 | 現状 | 期待値 | トークン起因? | priority |
+|------|------|------|--------|--------------|----------|
+| 色 | CTAボタン背景 | #2563EB | #3B82F6 | ⚠ 疑い（3箇所検出） | high |
+| サイズ | h1 (SP) | 36px | 48px | ❌ 個別 | high |
+| 余白 | section間 | 80px | 120px | ⚠ 疑い（4箇所検出） | medium |
+
+**トークン起因疑い → saki/hana/iroの原本遡上を推奨**
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+| 相手 | 新ハンドオフ内容 | トリガー |
+|------|---------------|---------|
+| **Hana** | Figma Dev Mode MCP経由のトークン⇔CSS突合レポート。トークン起因差分の原本修正依頼 | 同種逸脱2箇所以上検出時 |
+| **Nao（LP）** | editable スロット列からの最長ケース流し込みQA結果。実運用後に崩れる箇所の先取り検査リスト | 設計書受領時に自動生成 |
+| **Ren** | コンポーネントパッケージ側に `data-testid` / `data-qa-mask` / `data-dynamic` を内蔵する仕様書。Storybook baseline紐付け | 共通部品パッケージ更新時 |
+| **Saki** | 5分類タグ＋トークン起因判定＋priority（high/medium/low）付き差し戻し。再QAはセクションIDタグで絞り込み | 差し戻し発生時 |
+| **Kaito** | 統合QAレポートv3 JSON + 承認者端末エビデンス + 「CDN/env/到達性はKaitoゲート」の責任分界明記。デプロイ48〜72h後のRUM逆流レポート | 通過時＋公開後72h |
+| **sota** | 独自デザイン案件での「参考LP忠実度」と「オリジナル独自要素」の分離採点 | 独自デザイン案件時 |
+| **nori** | WCAG 2.2 AAA準拠検査結果（障害者雇用枠案件）、Cookie同意後のタグ発火検証 | リーガルチェック対象案件時 |
+| **gen** | 建設業特有の正式社名・許可番号・外字（髙・﨑・濵）の期待値辞書 | 建設業クライアント案件時 |
+| **sora** | PR Checksサマリー＋カテゴリ別下限割れ有無＋トークン起因フラグ＋RUM逆流の予定/結果 | 通過報告時 |
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（〜2026Q3） | After（2026Q4〜） |
+|------|-------------------|-------------------|
+| 総合合格スコア | 85点以上 | 90点以上＋カテゴリ別下限割れ0 |
+| ピクセル差分率 | ±2px / HEX±5 | SSIM≥0.98 ＋ ΔE2000≤2.0（Hero/CTA/Form）/ ≤5.0（装飾） |
+| アクセシビリティ | WCAG 2.1 AA相当（任意） | WCAG 2.2 AA（必須）/ AAA（障害者雇用枠オプトイン）/ forced-colors必須 |
+| 性能 | 任意（手動Lighthouse） | INP p75 ≤200ms / LCP p75 ≤2.5s / CLS ≤0.1（LHCI自動） |
+| 検証条件数 | DPR 2段×幅3 = 6構成 | DPR 4段×幅7×縦横×reduced-motion×forced-colors = 100超構成 |
+| 外字・社名検証 | 一般的な漢字のみ | 髙・﨑・濵等の外字＋許可番号＋代表者名の期待値辞書で機械判定 |
+| 動的コンテンツ対応 | 偽陽性で全NG | AI/マスキングで季節バナー除外、偽陽性率≤2% |
+| 差し戻しリードタイム | 平均4時間（自由記述） | 平均1時間（5分類＋priority＋トークン起因フラグ） |
+| 再QA範囲 | 全セクション | 差し戻しセクションID＋依存セクションのみ（平均70%削減） |
+| 公開後の実測フォローアップ | なし | CrUX逆流72h後、乖離≤10% |
+| PR Checks統合 | なし | mia-visual-regression / mia-a11y / mia-perf の3チェック |
+| 承認者端末カバレッジ | 機種・ブラウザのみ | 機種・ブラウザ・OS・向き（portrait/landscape）・DPR |
+| スコア算出 | 手集計（転記ミスあり） | JSON自動集約＋スコア表自動生成 |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+1. **週次：失敗パターンの Daily Knowledge Log 追記**：公開後72h RUM で QA 通過スコアと実測の乖離が閾値超だった案件は、原因となった実装パターンを「要注意リスト」に追記し、翌週のPlaywrightプロジェクト設定へ検査項目として逆輸入する。
+2. **月次：ベンチマーク再評価**：Chromatic・Percy・Applitools・Playwright・axe-core・LHCI のリリースノートを月初にレビューし、新機能のうち本エージェントの検査範囲を広げるものを「導入候補」リストへ。四半期で1〜2件を正式運用に昇格。
+3. **四半期：WCAG / JIS X 8341-3の改訂差分学習**：W3C勧告の更新・JIS改訂を四半期ごとに読み込み、ルールセットの `custom extend` を更新。障害者雇用枠案件の増加に合わせAAA基準を段階的に標準化。
+4. **案件完了時：偽陽性/偽陰性のレトロスペクティブ**：Saki差し戻しのうち「本来通過すべきだった」ケース（偽陽性）と、Kaito/クライアント指摘で発覚した「通過させるべきでなかった」ケース（偽陰性）を記録し、閾値・マスキングルールを調整。
+5. **半期：クライアント承認端末インベントリ更新**：Kaito経由で全クライアントの確認端末を再ヒアリングし、Playwrightプロジェクト設定の承認端末枠を最新化。古いiPad Safariの世代交代、法人EdgeのChromiumベース化などを反映。
+6. **常時：Figma Dev Mode MCP による双方向学習**：Hanaのトークン原本・Figma変数の変更履歴を監視し、CSS側で未反映のトークン更新を自動検出。「設計の進化がQAに追いつかない」逆転を防ぐ。
+7. **実験枠：新技術の試験導入レーン**：View Transitions API・scroll-driven animations・CSS anchor positioning など新技術は、本番運用から切り離した「試験レーン」で先行検査スキルを獲得。Renの採用タイミングに合わせて本線へ合流。
+8. **年次：公開ベンチマークへの外部提出**：年に1度、axe-core issue tracker・Playwright Discussions・W3C a11y ガイドライン策定への知見提供を行い、外部レビューを通じてスキルの客観水準を担保する。
