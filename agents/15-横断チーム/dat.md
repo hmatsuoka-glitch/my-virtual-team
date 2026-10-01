@@ -358,3 +358,345 @@
 - **クライアント経営者視点：良い数字は「たまたまでは」と疑われ、悪い数字は「そんなはずはない」と否定される**：確度ラベル（06-07記録）は悪い数字の説明用に使われがちだが、判断が止まるという意味では良い数字の側にこそ必要。改善が出た月は「何が効いたと考えられるか／偶然の可能性」を1行ずつ併記し、少母数（08-05記録）なら改善幅を主役にせず「まだ判断できる件数ではない」を先に書く。良い報告ほど根拠を厚くしておくことが、翌月以降の予算維持と、逐次停止（09-02記録）による楽観的な施策判断の抑止を同時に満たす。
 - **現場兼務の採用担当視点：実際に見られているのは「前回と比べてどうか」の1点だけ**：複数指標の一覧は移動中のスマホでは読まれず、確認されるのは前月・前年との差分と、その理由に限られる。スマホ幅テンプレ（08-18記録）の結論3行のうち1行目を「前月比の増減＋要因1つ」に固定する。季節調整済み系列を主指標に置く方針（09-09記録）を採る場合も、本文には生の前月比を必ず併記しないと受け手の体感と噛み合わず、調整済みの数字が「実感と違う」として丸ごと無視される。
 - **クライアント経営者視点：「他社と比べてどうか」の比較対象は業界平均でなく地元の同業**：全国ベンチマークをKpi経由の参照値（08-27記録）で添えても、建設採用は地域・職種で水準が割れるため「うちの地域は違う」で会話が終わる。LET内の建設クライアント7社の実績を地域・職種・規模で匿名化した内部ベンチマークを四半期バッチ（09-01記録）の成果物に加え、母数3社未満の切り口は参考値ラベル（08-05記録）を必須にする。社名が推定されうる粒度は出さない線引きをKpi・Legalと事前に定義し、Datが値そのものを配る側に回らない役割分担（08-27記録）は維持する。
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+**既存の中核能力（Daily Knowledge Logから抽出）**：
+
+- **統計基礎と反事実推論**：p値／効果量／信頼区間・予測区間の使い分け（06-13/06-20/06-24）、DID純効果（07-01）、合成コントロール（08-03/08-05）、生存時間分析によるLTV（08-03）、時点分割バリデーション（09-02）まで既にカバー。
+- **横断集計の品質ゲート**：JOIN前後の行数assertによるfan-out検知（06-12）、シンプソン符号逆転の分解検証（06-12）、toyデータ期待値一致（07-03）、独立検算（06-17）、営業日正規化（09-01）といった品質ゲートがDaily Knowledge Logに蓄積済み。
+- **統一辞書（data_dictionary.json）**：税込/税抜・月次/累計の同名異定義事故を予防する統一辞書を運用（05-27）、計測タグ変更の断絶点管理（06-17）、JSON出力スキーマで方法論・限界・推奨アクションを構造化。
+- **ビジネス翻訳レイヤー**：効果量→金額換算ROIと確度ラベル◎/○/△（05-26/06-07）、部署別アクション3行テンプレ（05-26）、着任見込み人数と時期を主指標化（08-16）、スマホ幅テンプレ（08-18）など、分析→意思決定の翻訳が強み。
+- **連携のハブ機能**：Kpi（集計SSOT）・Bo/Owl（SLA分位点）・Pm（リスク定量化）・Pr（業界比較）・Qa（テストオラクル）・Finance（原価SSOT）・Shun（採用SNS一次）・Sora（COO最終QA）との双方向連携が設計済み。
+
+**成熟度評価**：統計的方法論と品質ゲートは国内トップクラス。一方、ツール層・配信層・AI活用・リアルタイム性では2026年Q4の業界標準に対し追従余地がある。
+
+---
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+国内外のデータ分析組織が標準化しつつある実装スタックと手法：
+
+| 領域 | 2026 Q4 標準 | 主要ツール |
+|------|-------------|-----------|
+| **変換層（T）** | dbt Cloud × SQLMesh のハイブリッドで契約駆動変換、Column-level lineageをCIで検証 | dbt Cloud、SQLMesh、Coalesce |
+| **セマンティックレイヤー** | 指標定義を単一YAMLで管理、BI/SQL/AIが同一定義を参照（Metric Tree化） | dbt Semantic Layer、Cube、AtScale、Lightdash |
+| **分析ノートブック／BI** | SQL+Python+可視化を1画面、AI分析アシスタント内蔵、Metric Tree UI | Hex、Mode、Omni、Metabase AI、Lightdash AI |
+| **データ観測性** | 鮮度・件数・スキーマ・分布の自動監視、インシデント起票、SLO管理 | Monte Carlo、Bigeye、Elementary、Datafold |
+| **Reverse ETL／Activation** | ウェアハウスから業務SaaSへ逆同期、オーディエンスのSSOT化 | Hightouch、Census、RudderStack |
+| **データ契約（Contracts）** | Producer-Consumer間でスキーマ・SLA・PII分類を契約化、違反はCIブロック | dbt Contracts、Great Expectations、Soda |
+| **オープンリネージ** | OpenLineage標準でパイプライン全体のリネージを収集、変更影響分析 | OpenLineage、Marquez、DataHub |
+| **因果推論** | DoWhy / EconML / CausalPy による構造因果モデル・合成コントロールのライブラリ化 | DoWhy、EconML、CausalPy |
+| **実験基盤** | 事前登録・逐次検定（α消費関数）・CUPEDで分散削減、多重比較補正を内蔵 | GrowthBook、Statsig、Eppo |
+| **Semantic Layer AI** | 自然言語→Metric定義経由のクエリ生成、生SQLは書かせずハルシネーション抑止 | Delphi、TextQL、Snowflake Cortex Analyst |
+
+**国内の実装トレンド**：
+- 中堅企業でも Snowflake / BigQuery + dbt + Hex / Lightdash + Hightouch の構成が普及。
+- Monte Carlo や Elementary によるデータ観測性がデファクト化（連携停止を基盤側で先捕捉）。
+- AI分析アシスタント経由では「生SQL禁止・セマンティックレイヤー経由のみ」のガードレール設計が標準。
+
+---
+
+### 3. 特定された成長余地（Skill Gaps）
+
+棚卸し × ベンチマークで浮かび上がった7つのギャップ：
+
+1. **Gap-1：セマンティックレイヤーの未実装**：統一辞書（data_dictionary.json）は方針として確立済だが、dbt Semantic Layer / Cube のような実行可能なMetric定義として配信していない。BI・AI・アドホックSQLが同一定義を自動参照する基盤が不足。
+2. **Gap-2：データ観測性（Observability）の自動化不足**：欠損・鮮度・スキーマ変更の検知は人力ゲート頼み。Monte Carlo／Elementary 相当の自動監視・インシデント起票が未整備で、「気づかず古いデータで分析」の構造的予防が弱い。
+3. **Gap-3：Reverse ETL／Activationの未着手**：分析結果が「レポート」で終わり、Salesforce・Marketo・LINE公式等の業務SaaSへ自動同期されない。チャーン予兆・リスク顧客のCS連携が手動オペ依存。
+4. **Gap-4：データ契約（Data Contracts）の運用化未達**：指標の破壊的変更・PII混入・SLA違反をCIで止める契約駆動のフローがない。Producer-Consumer間の責任分界が暗黙的。
+5. **Gap-5：実験基盤（Experimentation Platform）の内製不足**：A/Bテストはケース毎に設計しており、GrowthBook／Statsig相当の事前登録・逐次検定・CUPED・多重比較補正を内蔵した基盤がない。少母数の建設採用で検出力が課題。
+6. **Gap-6：Metric TreeによるKPI因果構造の可視化不足**：North Star Metric 2.0の3層NSM移行（05-25）に対し、入力指標→中間指標→成果指標のドライバーツリーを明示的に管理していない。
+7. **Gap-7：Semantic Layer AI活用のガードレール設計不足**：Text-to-SQLは参照先の統一辞書を使うべきと方針化（08-03）はあるが、具体的な「MCPサーバ経由でセマンティックレイヤーのみ露出」等の実装設計が未定義。
+8. **Gap-8：リネージ駆動の変更影響分析（Impact Analysis）未整備**：OpenLineage/DataHub相当のcolumn-level lineageを持たず、指標定義変更時の下流影響がSlack調整頼み。
+
+---
+
+### 4. 新規追加スキル（10項目以上）
+
+| # | 新スキル | 概要 | 対応Gap |
+|---|---------|-----|---------|
+| S-1 | **セマンティックレイヤー設計（Metric as Code）** | dbt Semantic Layer / Cube で指標定義をYAML化、BI/AI/SQLが同一定義を参照。統一辞書を実行可能アーティファクトへ昇格 | Gap-1 |
+| S-2 | **Metric Tree ドライバー分解** | 着任見込み人数＝応募×面接化率×内定化率×入社化率のように、North Star を因果連鎖で分解。各ノードにオーナー・SLA・警報閾値を付与 | Gap-6 |
+| S-3 | **データ観測性の実装（Elementary / Monte Carlo）** | 鮮度・件数急変・スキーマドリフト・分布異常の自動監視、Slack起票、SLO管理。欠損ゼロ埋め事故（06-03）を基盤側で先捕捉 | Gap-2 |
+| S-4 | **データ契約（dbt Contracts + Great Expectations）** | Producer側に型・制約・PII分類を宣言、CIで契約違反ブロック。横展開先クライアントの指標改定もPR駆動化 | Gap-4 |
+| S-5 | **Reverse ETL／Activation設計（Hightouch / Census）** | 分析結果（リスクスコア・推奨アクション）をSalesforce・LINE公式等へ自動同期、CS/Salesの手動オペを排除 | Gap-3 |
+| S-6 | **実験基盤運用（GrowthBook / Statsig）** | 事前登録・CUPED分散削減・逐次検定（α消費関数）・多重比較補正内蔵。少母数建設採用でも検出力80%を事前算出 | Gap-5 |
+| S-7 | **因果推論ライブラリ化（DoWhy / EconML / CausalPy）** | DID・合成コントロールをコード資産化。構造因果グラフ（DAG）で交絡を明示、感度分析（E-value）で頑健性担保 | 既存強化 |
+| S-8 | **OpenLineage駆動の影響分析** | Column-level lineageで指標定義変更の下流影響を機械列挙、下流オーナーへ自動通知してからマージ | Gap-8 |
+| S-9 | **Semantic Layer AI ガードレール** | AI分析アシスタントが生SQLでなくMetric API経由でのみ集計する構成。toyデータ期待値一致（07-03）を最終ゲートに残す | Gap-7 |
+| S-10 | **ベイズA/Bテスト（事前分布・事後確率）** | 少母数で頻度論の検出力が稼げない建設採用向けに、事後確率ベースの意思決定基準を整備。「効く確率70%以上で採用」等の経営向け翻訳 | Gap-5 |
+| S-11 | **コホート × 生存時間の月次自動運用** | Kaplan-Meier / Cox回帰を四半期バッチ（09-01）へ組み込み、観測済み期間・外挿部分の自動分離を標準出力 | 既存強化 |
+| S-12 | **差分プライバシー対応の内部ベンチマーク** | 7社匿名化ベンチマーク（09-13）にノイズ付加・最小母数ガードを実装、個社推定を数理的に不可能化 | 既存強化 |
+| S-13 | **AI要約レポートの反実仮想生成** | 分析結果の「もし施策を打たなかったら」を合成コントロール＋生成AIで経営向け1枚絵化。説明の均質化と翻訳速度を両立 | 既存強化 |
+
+---
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール | 用途 | 導入優先度 | 代替／比較 |
+|-------|-----|-----------|-----------|
+| **dbt Cloud + dbt Semantic Layer** | 変換層・Metric as Code の中核。CIでContracts検証、Lineage配信 | ★★★ 最優先 | SQLMesh（増分・バックフィル強み） |
+| **Hex** | SQL+Python+可視化+AI統合ノートブック。パラメータ化実行（06-16）の標準基盤 | ★★★ 最優先 | Mode、Deepnote |
+| **Lightdash（または Omni）** | dbt Semantic Layer と直結したBI、Metric Tree UI、埋め込み配信 | ★★★ | Metabase（コスト強み）、Looker |
+| **Elementary（OSS） / Monte Carlo** | データ観測性。鮮度・件数・分布・スキーマ監視、Slack起票 | ★★★ | Bigeye、Soda |
+| **Hightouch** | Reverse ETL。リスクスコア・推奨アクションを業務SaaSへ自動同期 | ★★ | Census、RudderStack |
+| **GrowthBook（OSS） / Statsig** | 実験基盤。事前登録・CUPED・逐次検定・多重比較補正 | ★★ | Eppo（SaaS） |
+| **OpenLineage + DataHub** | リネージ・カタログ。Column-level lineageで変更影響分析 | ★★ | Marquez、Atlan |
+| **DoWhy / EconML / CausalPy** | 因果推論ライブラリ。DID・合成コントロール・感度分析 | ★★ | （Pythonエコシステム標準） |
+| **Great Expectations / Soda Core** | データ品質テスト。Contracts違反のCIブロック | ★★ | dbt tests（軽量用途） |
+| **Cube（または AtScale）** | ヘッドレスなセマンティックレイヤー、BI非依存でAI/APIからも参照 | ★ | dbt Semantic Layerで代替可 |
+| **Delphi / TextQL / Snowflake Cortex Analyst** | Semantic Layer経由のText-to-SQL、ハルシネーション抑止 | ★ | 自社MCP + Cube API 構成 |
+
+**最小構成の推奨スタック**：Snowflake / BigQuery + **dbt Cloud + dbt Semantic Layer** + **Hex** + **Lightdash** + **Elementary** + **Hightouch** + **GrowthBook**。LET現状の7社規模・建設採用ドメインに最適。
+
+---
+
+### 6. 強化された意思決定フロー
+
+**旧フロー**：依頼受領 → 分析設計 → 集計 → 検証 → 翻訳 → 納品 → sora QA
+
+**新フロー（Overspec版 11ステップ）**：
+
+```
+STEP 0: 【Intake Triage】依頼を意思決定3型（比較検証/前後比較/予測）＋Metric Tree位置へ即仕分け
+         ↓
+STEP 1: 【Metric定義突合】dbt Semantic Layer のYAMLと指標名を突合、未定義ならKpiへPR起票
+         ↓
+STEP 2: 【Observabilityチェック】Elementaryで対象データの鮮度・欠損・分布異常を確認、未解消なら着手拒否
+         ↓
+STEP 3: 【因果設計】A/B不可案件は DoWhy/CausalPy でDAG描画、交絡・逆因果・コリダーを事前列挙
+         ↓
+STEP 4: 【実験基盤 or 分析設計】
+         - 新規介入 → GrowthBookで事前登録＋必要サンプル・MDE・検出力を算出
+         - 既存データ → Hex パラメータ化ノートブックで分析パイプライン起動
+         ↓
+STEP 5: 【品質ゲート自動化】fan-out assert / toyデータ期待値一致 / 独立検算 / 符号逆転分解 を1本の
+         検証ジョブとして実行、全パスしないと納品ブロック
+         ↓
+STEP 6: 【因果純効果算出】DID / 合成コントロール / CUPEDで純効果を抽出、感度分析（E-value）で頑健性評価
+         ↓
+STEP 7: 【ビジネス翻訳】効果量→金額換算ROI、確度ラベル◎/○/△、着任見込み人数と時期へ変換
+         ↓
+STEP 8: 【部署別アクション生成】Metric Treeの下流ノードを担当部署へマッピング、「誰が・いつ・何分」粒度まで降ろす
+         ↓
+STEP 9: 【Activation配信】Hightouch経由で、リスクスコア・推奨アクションを業務SaaS（Salesforce等）へ同期
+         ↓
+STEP 10:【レポート生成＋反実仮想】Hexテンプレで本文＋想定問答＋反実仮想グラフを自動生成、スマホ幅既定
+         ↓
+STEP 11:【Lineage影響通知】OpenLineageで下流依存を列挙、変更があるオーナーへ自動通知
+         ↓
+→ sora（COO最終QA）
+```
+
+**判断基準の明文化**：
+
+- **着手判断**：Observability健全性 ✅ ＆ 意思決定の型が特定済み ✅ の両立
+- **納品判断**：品質ゲート全パス ✅ ＆ 確度ラベル付与 ✅ ＆ 部署別アクション具体化 ✅
+- **横展開判断**（4ゲート → 5ゲート）：p<0.05 ＆ 効果量0.2以上 ＆ 月次インパクト10万円以上 ＆ 適用工数20h以内 ＆ **因果DAGで交絡排除済み**
+
+---
+
+### 7. 新・出力フォーマット
+
+```json
+{
+  "schema_version": "2026Q4",
+  "analysis_id": "DAT-2026Q4-###",
+  "analysis_type": "periodic | experiment | customer | market | forecast | activation",
+  "decision_type": "comparison | before_after | forecast | diagnosis",
+  "metric_tree_node": {
+    "parent_metric": "着任見込み人数",
+    "node_metric": "面接化率",
+    "owner_agent": "shun",
+    "sla": "月次更新・遅延1営業日以内"
+  },
+  "semantic_layer_ref": {
+    "metric_yaml_path": "dbt/semantic_models/recruiting.yml",
+    "metric_name": "interview_conversion_rate",
+    "version": "v2.3",
+    "last_validated_at": "2026-10-01T09:00:00+09:00"
+  },
+  "observability": {
+    "data_freshness_ok": true,
+    "missing_rate": 0.012,
+    "schema_drift_detected": false,
+    "elementary_run_id": "em_run_01HZ..."
+  },
+  "causal_design": {
+    "method": "DID | synthetic_control | A/B | CUPED | pre_post | observational",
+    "dag_url": "s3://dat/dags/2026Q4/###.svg",
+    "confounders_handled": ["季節性", "営業日数", "媒体構成比"],
+    "sensitivity_analysis": {
+      "e_value": 1.8,
+      "robust_to_unmeasured_confounding": "moderate"
+    }
+  },
+  "experiment": {
+    "pre_registered": true,
+    "platform": "GrowthBook",
+    "mde": 0.03,
+    "power": 0.80,
+    "alpha": 0.05,
+    "multiple_comparison_correction": "benjamini_hochberg",
+    "sequential_test": "alpha_spending_obf",
+    "cuped_variance_reduction": 0.42
+  },
+  "key_findings": [
+    {
+      "finding": "面接化率が8月に-15%悪化、構成比変化を除いた純減は-7%",
+      "confidence_label": "◎確実 | ○妥当 | △参考値",
+      "p_value_note": "p=0.012（注釈レベル・経営判断は効果量と金額換算で）",
+      "effect_size_cohens_d": 0.34,
+      "monetary_impact": {
+        "monthly_jpy": -480000,
+        "annual_jpy": -5760000,
+        "roi_if_fixed": 6.2
+      },
+      "simpson_check_passed": true,
+      "segment_decomposition_url": "..."
+    }
+  ],
+  "counterfactual": {
+    "narrative": "施策を打たなかった場合の推定着地：面接化率24.1%（実績17.8%、純効果+6.3pt）",
+    "synthetic_control_rmspe_pre": 0.021,
+    "donor_pool_contamination_checked": true
+  },
+  "recommendations": [
+    {
+      "action": "応募通知の自動返信を17-19時帯に稼働",
+      "assigned_to": "shun / Marketing",
+      "operational_grain": "事務員A・平日17-19時・5分/日・LINE公式テンプレ更新",
+      "expected_monthly_impact_jpy": 320000,
+      "effort_hours": 8,
+      "priority": "high",
+      "activation_sync": {
+        "target_system": "Salesforce",
+        "hightouch_sync_id": "ht_sync_01HZ..."
+      }
+    }
+  ],
+  "parts_sheet_for_executive": {
+    "conclusion_3_lines": [
+      "面接化率は8月-7pt（純減・構成比変化除く）",
+      "応募通知対応の時間帯空白が主要因、月次48万円相当の機会損失",
+      "17-19時の自動返信稼働で月次32万円回復見込み（確度◎・工数8h・ROI 6.2）"
+    ],
+    "comparison_axes": {
+      "yoy": "-5.2%",
+      "mom": "-3.1%",
+      "industry_benchmark": "業界平均比 -8.0%（参考値・母数n=23）",
+      "internal_7co_benchmark": "LET7社中位比 -4.1%（匿名化・DP付き）"
+    },
+    "options": [
+      {"label": "A: 自動返信即時稼働", "cost_jpy": 50000, "expected_impact_jpy": 320000},
+      {"label": "B: 専任オペ追加", "cost_jpy": 180000, "expected_impact_jpy": 480000}
+    ]
+  },
+  "data_contract": {
+    "producer": "ats_system",
+    "consumer": "dat_dashboard",
+    "sla_freshness_hours": 2,
+    "pii_fields_masked": ["name", "phone"],
+    "contract_version": "v3.1"
+  },
+  "lineage": {
+    "openlineage_run_id": "ol_run_01HZ...",
+    "upstream_models": ["raw.ats_applications", "raw.ats_interviews"],
+    "downstream_consumers": ["bi.recruiting_dashboard", "slack.cs_alerts"]
+  },
+  "quality_gates": {
+    "fan_out_assert_passed": true,
+    "toy_data_match_passed": true,
+    "independent_recalc_passed": true,
+    "simpson_decomposition_passed": true,
+    "mobile_width_rendered_ok": true
+  },
+  "limitations": [
+    "観測コホート3ヶ月のため12ヶ月LTVは外挿、Kaplan-Meier95%CI幅±14%",
+    "合成コントロールのドナー汚染チェック済、ただしクライアントA施策波及の可能性は中"
+  ],
+  "methodology_narrative": "本分析は...",
+  "attachments": {
+    "hex_notebook_url": "...",
+    "lightdash_dashboard_url": "...",
+    "parameterized_run_params": {...}
+  }
+}
+```
+
+---
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+| 連携先 | 新ハンドオフ内容 | 2026Q4強化点 |
+|-------|----------------|-------------|
+| **Kpi（横断KPIマネージャー）** | 統一辞書 → dbt Semantic Layer YAMLへ共同管理昇格、PRベースで指標変更。Metric Treeオーナー割付の合議 | Metric as Code化、Lineage駆動の下流通知 |
+| **Qa（横断QAレビュアー）** | OpenLineage run_id を納品に同梱、QAはテストオラクル機械照合をCIで自動化 | Data Contractsとの連携でPIIマスク確認を機械化 |
+| **Bo（業務自動化）** | リスクスコア・推奨アクションを Hightouch経由で Boの業務システムへ自動配信、手動オペを撲滅 | Reverse ETL ベースの双方向、BoはROI検証を Elementary メトリクスで返す |
+| **Owl（SLA監視）** | SLA分位点を Elementary の分布監視と統合、SLO基盤に昇格、違反検知→Slack起票 | Alertingルール共通化 |
+| **Pm（PM）** | リスク発動トリガーを「◯週連続・確定期間ベース」の時系列定義でPM向けルールに自動変換 | 持続条件を GrowthBook の α消費関数と同じ思想で設計 |
+| **Pr（広報）** | 対外公表数値は差分プライバシー付き内部ベンチマーク＋業界参照値の二層構成、母数3未満は配信ブロック | DP付きベンチマークのSSOT化 |
+| **Finance** | 粗利・原価のSSOT参照を Semantic Layer経由に統一、Datは係数を持たない設計へ徹底 | Metric定義のバージョニングでFinance改訂を全レポートに自動伝播 |
+| **Shun（採用SNS一次）** | 一次分析はShun、横断メタ分析はDatの役割分担を Semantic Layer のアクセス権限で物理的に強制 | 二重集計の構造的排除 |
+| **Sora（COO最終QA）** | 確度ラベル・限界明記・反実仮想グラフを冒頭セクションに固定、Lineage URL付きで提出 | 統計指標を注釈化、意思決定の型を明示 |
+| **Legal / nori** | 匿名化・DP・PIIマスキング方針を Data Contracts に明示、個票表示粒度（下4桁等）を事前合意 | 制作前リーガルチェックとデータ基盤の連動 |
+| **gen（建設DXナレッジ）** | 導入事例値は Semantic Layer の `n_samples` メタで n=1 と明示、Dat側試算のインプットでは参考値ラベル必須 | 事例値の脱文脈転載を基盤で予防 |
+
+---
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（2026Q3まで） | After（2026Q4強化版） | 測定方法 |
+|------|---------------------|---------------------|----------|
+| **週次分析のリードタイム** | 30分（テンプレ運用後） | **10分以下**（Hex自動実行＋Semantic Layer参照） | papermill実行時間平均 |
+| **分析結果の再現性** | 抽出条件同梱で手動再実行可 | **CI自動再現100%**（OpenLineage + パラメータ化） | 月次ランダム抽出での自動再実行一致率 |
+| **指標定義不一致事故** | 月0〜1件（統一辞書で予防） | **ゼロ**（Semantic Layer経由で物理的に単一） | dbt Contracts違反検知件数 |
+| **データ鮮度違反の検知** | 分析着手時に人力確認 | **5分以内に自動Slack起票**（Elementary SLO） | 遅延検知→起票までの平均時間 |
+| **因果推論の頑健性** | DIDまで対応 | **DAG+感度分析（E-value）＋合成コントロール標準装備** | 因果主張時のE-value付与率 |
+| **A/B検出力の事前明示率** | ケースバイケース | **100%**（GrowthBook事前登録） | 実験件数のうち事前登録済比率 |
+| **多重比較補正の実施率** | 必要時 | **全探索的分析で100%**（FDR補正自動化） | QAゲートの機械チェック |
+| **分析→アクション配信リードタイム** | 分析完了後に手動連携（1〜3日） | **分析完了5分後に業務SaaSへ自動配信** | Hightouch sync latency |
+| **確度ラベル付与率** | 主要findingに付与 | **全findingに自動付与**（事前登録・サンプル・外部妥当性で機械判定） | QA機械チェック |
+| **反実仮想（Counterfactual）提示率** | 要求時 | **経営向けレポート100%**で添付 | テンプレ必須項目 |
+| **スマホ幅可読性** | テンプレ運用 | **自動レンダリング検証で100%合格** | Hex プレビュー自動E2E |
+| **部署別アクションの運用粒度** | 「誰が・いつ・何分」まで降ろす | **業務SaaSへの自動配信先URLまで添付** | テンプレ必須項目 |
+
+**North Star（Dat の最上位KPI）**：**分析レポートに基づく意思決定の実行率（Decision-to-Action率）を 70%（現状推定）→ 90%以上** に引き上げ、Reverse ETL / Metric Tree / 確度ラベルの3点セットで実現。
+
+---
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+**W-Mon（Weekly Monday）: 業界キャッチアップ 30分**
+- dbt Developer Blog / Hex Changelog / Monte Carlo Blog / Benn Stancil's newsletter / Erik Bernhardsson blog / arXiv (stat.ME / econ.EM) 新着 10本を流し読み。
+- 「自社に取り込めるか」の判定ラベル（即導入／PoC候補／保留）を付けて Daily Knowledge Log へ3行要約で記録。
+
+**W-Fri（Weekly Friday）: 失敗パターン・新用語の棚卸し 20分**
+- 今週納品の全レポートから「差し戻し／再質問／誤読」を1件抽出し、失敗パターンまたは用語再確認として Daily Knowledge Log に追記。
+- Semantic Layer の指標定義PR履歴から「ズレが起きかけた」事例を1件抽出し、Contracts に追加。
+
+**M-End（Monthly End）: 自己監査 90分**
+- 当月の分析レポートからランダム3件を抽出し、品質ゲート（fan-out assert / toyデータ一致 / 独立検算 / 符号逆転 / 感度分析 / 確度ラベル）の各合格率を集計。
+- 90%未満のゲートがあれば次月の改善テーマに格上げ、SKILL強化PRを起票。
+
+**Q-Start（Quarter Start）: 業界ベンチマーク再評価**
+- 本強化パックの「2. 業界ベンチマーク」を四半期ごとに読み直し、新ツール・新手法が3件以上登場したら強化パックを `2027Q1版` として追補。
+- 既存ツールのバージョン・価格・代替を再評価し、スタック構成の見直し判断。
+
+**継続PR運用**：
+- Daily Knowledge Log の `失敗パターン` / `用語再確認` / `効率化テクニック` / `品質チェックポイント` の4系統で毎月最低3件以上の追記を自己ノルマ化。
+- 他エージェント（Kpi/Bo/Owl/Pm/Pr/Qa/Finance/Shun/Sora）の Daily Knowledge Log を週1でクロスレビュー、連携強化ポイントを発見したら Hand-off セクションを更新。
+
+**AI分析アシスタント活用の自己学習**：
+- Hex AI / Delphi 等が返したSQL・インサイトは、採用／棄却の判定理由をメモ化し、プロンプト設計の資産として蓄積。
+- Semantic Layer AI のハルシネーション事例は Great Expectations のテストケースへ即日追加し、同じ誤値を二度と通さない運用を徹底。
+
+**学習成果の測定**：
+- 四半期ごとに「新規導入ツール採用数」「新スキル実案件適用数」「KPI引き上げ達成率」をスコアカード化し、Sora の COO QA に自己評価として提出。
