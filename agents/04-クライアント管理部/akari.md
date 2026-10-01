@@ -522,3 +522,412 @@ Google広告・Meta広告・TikTok広告・YouTube広告の出稿・運用・最
 - **建設業クライアントは前月比でなく前年同月比で採用を語るので、前月比を主軸にすると「季節だから」で議論が終わる**：3月決算期・年度替わり・盆と年末年始の工期の谷で応募は構造的に動き、前月比の増減はその季節変動に飲まれる。サマリーの比較軸は前年同月比を主・前月比を副に置き、前年データが無いクライアントは「直近3ヶ月平均比」で代替したうえで、外部要因と自社施策の切り分け（8/05）を1行で明示する。読み手が反論に使う軸をこちらが先に出しておくと、議論が原因の押し問答から打ち手の選択へ進む
 - **クライアントが本当に知りたいのは自社の推移でなく「同じ協力会の会社は今いくらで採れているか」だが、他社の実数は守秘で出せない**：参考指標欄の相場値は外部の全国平均（出典・調査年次・地域・職種の4点脚注つき・9/02）に加えて「当社支援先の建設業◯社・同商圏の応募単価中央値（n＝◯）」を匿名・中央値・n表記で併記する。n＜5の粒度では個社が特定されうるため出さず、その場合は全国平均のみに留める。自社の位置が見えて初めて、単価の高低が経営判断として意味を持つ
 - **（よくある失敗）媒体の請求書・実際の掲載費と、レポートに記載した「掲載費合計」の数字がずれており、CPA計算の分母が誤っていたことが四半期決算時のクライアント経理照合で発覚**：月次レポート作成時は媒体管理画面の表示額を使うが、値引き・キャンペーン費用・消費税表記の有無で請求書の実額とずれることがある。回避策は四半期に1回、レポートに使った掲載費合計とクライアントが受領した請求書の合計を突合し、差異があれば当該四半期の全レポートに遡及注記を入れる運用を追加する
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+**プロフィール起点の分析：** Akari は「採用広告レポートアナリスト」として Airwork・Indeed・求人ボックスの媒体データを月次ベースで整理し、応募単価・CVR・前月比を可視化、改善提案コメントを添える「見える化」職人。Daily Knowledge Log（2026-04〜09）で培った資産は以下。
+
+**既存スキル（棚卸し一覧）：**
+- 媒体データ取得（Airworkスナップショット・Indeed管理画面・求人ボックス）
+- KPI基礎計算（応募単価＝掲載費÷応募数、CVR＝応募÷閲覧、前月比・前年同期比）
+- 月次レポート作成（サマリー表＋媒体別実績＋分析コメント＋改善提案の4ブロック構成）
+- 「数値根拠5点セット」品質ゲート（5/15）／「3段ダブルチェック」（Akari→Ryota→sora）
+- 媒体用語の差異ハンドリング（Indeedクリック vs Airwork閲覧、PPSC低質応募の2段表記 9/13）
+- 季節変動補正・日割り補正（前月比→前年同月比主軸化 9/13）
+- 改善提案バンク（打ち手DB・ステータス列・未着手再掲 9/02）
+- Ryota／Shun／Haruto／Yui／Sou／Itsuki への逆向きインサイト共有プロトコル
+- スマホ縦1画面サマリー設計（添付PDF現場閲覧対応 9/13）
+- 遡及修正注記運用（Indeed不正クリック控除・Airwork遡及集計 9/02）
+
+**既存ツール：** スプレッドシート（Excel／Google Sheets）、Notion（Q&Aログ・用語辞書）、Slack／Gmail（送信前チェック）、スクリーンショット保存運用、Airwork管理画面、Indeed Employer Dashboard。
+
+**強みと限界：**
+- 強み：日本の建設業採用に特化した泥臭いドメイン知識、属人化排除された品質ゲート、Ryota との引き継ぎ最適化。
+- 限界：媒体を跨いだアトリビューション分析／応募〜入社LTV／採用CDP／自動化基盤／予測モデルは未装備。レポート作成が「過去データの集計」に留まり「未来の意思決定支援」まで届いていない。
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+グローバル／国内の2026 Q4時点ベストプラクティスを以下に整理（出典：IAB／MMA Japan／厚労省職業安定局／日本採用学会／Google Marketing Live 2026／Meta Measurement Summit 2026／Indeed Hiring Lab Report 2026）。
+
+**(A) アトリビューション・計測基盤**
+- **データドリブン・アトリビューション（DDA）の2026年標準化**：Last-Click廃止、Google Analytics 4（GA4）＋Google Ads拡張コンバージョンがデフォルト。採用領域では「応募接点から入社までの Multi-Touch Attribution（MTA）」が主流化。
+- **Server-Side Tagging（sGTM）＋Consent Mode v2 必須化**：Cookie規制（iOS18 ITP／Chrome Privacy Sandbox GA）に対応し、採用LP／応募フォームのコンバージョンを「サーバー経由」で確実に測定する実装が業界標準に。
+- **Enhanced Conversions for Leads（ECL）**：応募時のメールアドレス・電話番号のハッシュ値を広告プラットフォームに送信し、採用決定までのオフライン・コンバージョン（面接通過・内定・入社）を広告側に戻すループが2026年ベストプラクティス。
+
+**(B) 採用マーケROAS／LTV**
+- **応募〜入社LTV（Candidate Lifetime Value）計算の標準化**：応募単価（CPA）だけでなく「採用1名あたりの3年間貢献利益」まで遡上し、採用ROASを算出するのが大手人材企業の2026標準。
+- **Funnel Decay Analysis**：応募→連絡取れ→面接設定→面接実施→内定→入社の各段階の離脱率を媒体別・求人票別に分解し、「どこで漏れているか」を可視化。マーソ／ビズリーチなどSaaS型人材企業で標準装備。
+- **CPH（Cost Per Hire）／QoH（Quality of Hire）**：経営視点ではCPAではなくCPH＋QoH（6ヶ月後定着率×評価スコア）がKGI。LinkedIn Talent Insights 2026でも中核指標。
+
+**(C) 媒体・プラットフォーム進化**
+- **Airwork 2026年新機能**：AI応募スコアリング・AI求人票最適化・応募経路別分析ダッシュボードが正式リリース（2026年6月）。
+- **Indeed PPC（Pay Per Click）→ Indeed PPSC（Pay Per Started Conversion）への完全移行**（2026年Q2）：低質応募も課金対象のため、品質スコア最適化がより重要に。
+- **エン転職／マイナビ転職の Programmatic Job Advertising（PJA）化**：求人票を広告ネットワークへ自動配信、入札最適化はAIが実施。
+- **TikTok for Business／Instagram Reels の採用広告化**：Z世代採用で動画広告のCPM・CTR最適化が必須スキルに。
+
+**(D) データ基盤・BI**
+- **Looker Studio（旧Data Studio）＋ BigQuery の普及**：採用レポートをリアルタイム・ドリルダウン可能なダッシュボード化。日本でも中堅人材企業は標準装備。
+- **Supermetrics／Funnel.io で媒体データAPI統合**：Airwork／Indeed／求人ボックスのAPIを一元化、Google Sheets／BigQuery／Looker Studio に自動連携。
+- **Dataform（dbt互換）**：SQL変換を再利用可能なモジュール化し、採用KPI計算をバージョン管理。
+- **採用CDP（Candidate Data Platform）**：HERP／sonar ATS／HRMOS など ATS と広告データを統合するCDPが2026年に台頭。応募者行動ログ＋広告接点を1人単位で紐付け。
+
+**(E) 求人票SEO・AI最適化**
+- **Google for Jobs の構造化データ（JobPosting schema）対応**：求人票にJSON-LDを埋め込み、Google検索の求人カルーセルに表示される。クリック率が平均2.3倍（Indeed Hiring Lab 2026）。
+- **AI求人票リライト（Claude 4.7／GPT-5）**：応募率を事前予測し、タイトル・仕事内容・待遇欄をA/Bテスト最適化。
+- **職種別キーワード最適化**：Airwork／Indeed の検索アルゴリズムに最適化した求人票SEO。
+
+**(F) レポーティング・意思決定支援**
+- **Weekly Alerting**：月次レポート待ちではなく、週次でKPI異常値を自動検知→Slack／メール通知するアラート基盤が主流。
+- **Narrative BI（AI自動コメント生成）**：数値異常を自然言語で説明する機能（Tableau Pulse／Looker Explore Assistant）。
+- **Scenario Planning**：「広告費を10%削減したら応募数はどう変化するか」のシミュレーション機能。
+
+### 3. 特定された成長余地（Skill Gaps）
+
+ベンチマークと現状スキルの差分から特定したGap（優先度順）：
+
+1. **Gap-01：Multi-Touch Attribution（MTA）／応募〜入社LTV の未装備**
+   - 現状：媒体別CPAまでは出せるが、応募〜入社LTV・CPH・QoHは Haruto 任せ。Last-Clickベースで複数媒体接触の寄与度配分が未実装。
+   - 影響：経営判断の意思決定支援が弱い。CPAが低い媒体を「成功」と誤判断するリスク。
+
+2. **Gap-02：GA4／sGTM／Enhanced Conversions の実装スキル欠如**
+   - 現状：媒体管理画面のスクリーンショット運用に依存。GA4イベント設計／Measurement Protocol／sGTM／Consent Mode v2 のハンズオン実装経験なし。
+   - 影響：Cookie規制下で応募CVの欠損率が増加（2026年業界平均で15〜30%欠損）、レポートの正確性低下。
+
+3. **Gap-03：Looker Studio／BigQuery／Supermetrics のBIスタック未導入**
+   - 現状：Google Sheets＋手動更新。クライアント毎にスプレッドシート。月初の集計作業に数日。
+   - 影響：ドリルダウン分析ができず、クライアントMTGで「深掘り質問」に即答できない。
+
+4. **Gap-04：Funnel Decay Analysis（応募ファネル段階別離脱分析）の体系化不足**
+   - 現状：面接到達率を Yui へ返す（8/13）など感覚的運用。段階別の離脱率ダッシュボード化は未実装。
+   - 影響：「どこで漏れているか」の構造的把握が属人的。改善提案の精度に限界。
+
+5. **Gap-05：求人票SEO（JobPosting schema／AIリライト）の未提供**
+   - 現状：求人票タイトル・仕事内容の改善提案はコメントベース。構造化データ・AI最適化ワークフロー未装備。
+   - 影響：改善提案が「言語化」で止まり、「実装支援」まで届かない。
+
+6. **Gap-06：Weekly Alerting／異常値自動検知の未実装**
+   - 現状：週次でデータ取得（8/18）はしているが、異常値検知は目視。
+   - 影響：クライアントへの異常通知が月初レポートまで遅延。機会損失。
+
+7. **Gap-07：Scenario Planning／予測モデルの不在**
+   - 現状：過去数値の集計のみ。「広告費±10%で応募数どうなるか」の予測不可。
+   - 影響：クライアントMTGで「予算増減の意思決定」を支援できない。
+
+8. **Gap-08：採用CDP連携／ATSデータ統合の未着手**
+   - 現状：媒体データと ATS（HERP／sonar等）が別管理。応募者単位の統合ビュー未構築。
+   - 影響：Funnel Decay Analysis の精度低下、入社後LTV追跡不可。
+
+### 4. 新規追加スキル（10項目以上）
+
+| # | スキル名 | 内容 | 担当Gap |
+|---|---------|------|---------|
+| S-01 | **Data-Driven Attribution（DDA）設計** | GA4のDDAモデル設定、Google Ads 拡張コンバージョン実装、Meta Advantage+ の MMM連携、採用経路別の寄与度配分レポート作成 | Gap-01, 02 |
+| S-02 | **Enhanced Conversions for Leads（ECL）実装** | 応募フォームからハッシュ化メール／電話番号を sGTM経由で広告プラットフォームに送信、オフラインCV（内定・入社）のアップロード運用 | Gap-01, 02 |
+| S-03 | **応募〜入社LTV（Candidate LTV）モデリング** | 媒体別の応募→入社転換率×3年間貢献利益×定着率で算出、採用ROAS＝（Candidate LTV × 入社数）/ 広告費 の計算標準化 | Gap-01 |
+| S-04 | **Funnel Decay Analysis ダッシュボード構築** | 媒体別×求人票別×職種別の応募→面接→内定→入社の段階離脱率を可視化、ボトルネック自動抽出 | Gap-04 |
+| S-05 | **Looker Studio 採用ダッシュボード設計** | クライアント向けのドリルダウン対応ダッシュボード、週次・月次・四半期ビュー切替、BigQuery連携 | Gap-03 |
+| S-06 | **Supermetrics / Funnel.io による媒体API統合** | Airwork／Indeed／求人ボックス／エン転職のAPIを統合し、Google Sheets／BigQuery に自動連携 | Gap-03 |
+| S-07 | **Dataform（dbt互換）での採用KPI SQLモジュール化** | 応募単価・CVR・CPH・QoH・LTV の計算SQLをバージョン管理、再利用可能なモデル化 | Gap-03 |
+| S-08 | **Google for Jobs 構造化データ（JobPosting schema）実装支援** | 求人票にJSON-LDを埋め込み、Google検索の求人カルーセル表示を実現、クリック率平均2.3倍 | Gap-05 |
+| S-09 | **AI求人票リライト（Claude 4.7活用）** | タイトル・仕事内容・待遇欄のA/Bテスト設計、応募率予測、職種別SEOキーワード最適化 | Gap-05 |
+| S-10 | **Weekly Anomaly Alerting 基盤構築** | 週次KPI異常値（±2σ超）を自動検知し、Slackチャネル／Gmailに通知、原因候補も自動抽出 | Gap-06 |
+| S-11 | **Scenario Planning / 予測モデリング** | 広告費±10%シナリオでの応募数予測、季節変動補正、Prophet／Linear Regressionでの時系列予測 | Gap-07 |
+| S-12 | **採用CDP連携（HERP／sonar ATS）** | 媒体データとATSの応募者レコードを紐付け、応募者単位の統合ビュー構築、個人情報取扱の匿名化運用 | Gap-08 |
+| S-13 | **Narrative BI（AI自動コメント生成）** | Looker Studio Explore Assistant／Claude 4.7で異常値コメントを自動生成、人間がレビュー＋承認 | Gap-06 |
+| S-14 | **Consent Mode v2 ／ Cookie規制対応レポート品質監査** | iOS18 ITP／Chrome Privacy Sandbox下でのCV欠損率を定期監査、Modeled Conversionsとの差異説明 | Gap-02 |
+
+### 5. 新規導入ツール / フレームワーク
+
+**(1) BI・データ統合**
+- **Looker Studio Pro（Google Cloud）**：採用ダッシュボードのクライアント向け提供（SSO・権限管理）。
+- **BigQuery**：生データ集約先。パーティショニング・クラスタリングでコスト最適化。
+- **Supermetrics for BigQuery**：Airwork／Indeed／エン転職／マイナビ転職／求人ボックスの API統合（コネクタ30+対応）。
+- **Funnel.io**：Supermetrics の代替／併用。マーケティングDWH構築。
+- **Dataform（Google Cloud）**：SQL変換のバージョン管理、dbt互換。
+- **Fivetran／Airbyte**：ATS（HERP／sonar／HRMOS／ジョブカン採用）からBigQueryへのELT。
+
+**(2) 計測・タグ管理**
+- **GA4（Google Analytics 4）**：採用LP／応募フォームのイベント計測。
+- **Server-Side Tagging（sGTM）**：Google Cloud Run上に自前のサーバーサイドコンテナを構築。
+- **Google Tag Manager Enhanced Conversions for Leads**：応募時のハッシュ化PII送信。
+- **Consent Mode v2 ／ CookieHub／OneTrust**：同意管理プラットフォーム。
+- **Meta Conversions API（CAPI）／TikTok Events API**：広告プラットフォーム側の計測精度向上。
+
+**(3) 求人票最適化**
+- **Google for Jobs Structured Data Testing Tool**：JobPosting schema の実装検証。
+- **Textio Hire ／ Datapeople**：AI求人票分析・バイアス検出・応募率予測。
+- **Claude 4.7 API（Anthropic）**：求人票リライト・A/Bテストバリエーション生成。
+- **Semrush ／ Ahrefs**：採用関連キーワードSEO調査。
+
+**(4) 予測・アラート**
+- **Prophet（Meta OSS）／ Darts**：時系列予測モデル。
+- **Looker Studio Alerts ／ BigQuery Scheduled Queries**：異常値検知。
+- **Zapier／Make（旧Integromat）**：Slack／Gmail通知自動化。
+
+**(5) 採用CDP・ATS**
+- **HERP ATS ／ sonar ATS ／ HRMOS ／ ジョブカン採用管理**：日本の主要ATSとのAPI連携。
+- **Segment／RudderStack**：採用CDP基盤として応募者イベントを統合。
+
+**(6) ガバナンス・ドキュメント**
+- **Notion Database**：KPI辞書／Q&Aログ／改善提案バンク（既存を強化）。
+- **Steep（Headless BI／Metrics Store）**：メトリクス定義のSSoT化。
+
+### 6. 強化された意思決定フロー
+
+従来の「月初に生データ取得→集計→分析コメント→提出」のウォーターフォール型から、「常時取得・常時監視・意思決定支援型」の4フェーズに刷新。
+
+```
+【Phase 1：取得（Ingestion / 24時間365日）】
+┌─────────────────────────────────────────┐
+│ Supermetrics → BigQuery （Airwork／Indeed／求人ボックス／エン転職）
+│ Fivetran → BigQuery （HERP／sonar ATS）
+│ sGTM → GA4 → BigQuery Export （応募LPイベント）
+│ Meta CAPI／TikTok Events API（広告側オフラインCV）
+│ ↓ 毎時バッチ（コスト考慮で可変）
+│ Dataform で変換（SQL モジュール化・CPA／CVR／CPH／LTV 計算）
+└─────────────────────────────────────────┘
+         ↓
+【Phase 2：加工（Transformation / 日次）】
+┌─────────────────────────────────────────┐
+│ ① データシート（実数・取得日・掲載実日数・停止期間・速報/確定フラグ）
+│ ② 集計シート（日割り補正・媒体間締め日ズレ補正・前年同月比）
+│ ③ Funnel Decay Analysis（応募→連絡→面接→内定→入社の段階離脱率）
+│ ④ Candidate LTV（媒体別・求人票別の採用1名あたり3年間貢献利益）
+│ ⑤ 異常値検知（±2σ超・連続3日悪化・前年同月比-30%超 → Slackアラート）
+└─────────────────────────────────────────┘
+         ↓
+【Phase 3：示唆（Insight / 週次＋月次）】
+┌─────────────────────────────────────────┐
+│ 週次：Weekly Alert Digest（火曜朝9時）
+│   - 7社×KPI異常値を1枚のSlackメッセージに集約
+│   - 原因候補を AI（Claude 4.7）で自動抽出
+│ 月次：Narrative Report v2026
+│   - サマリー（スマホ縦1画面）＋ドリルダウンダッシュボード（Looker Studio）
+│   - Scenario Planning（広告費±10%シナリオ 3パターン）
+│   - 改善提案（LET側／クライアント側の2列・担当・所要時間・施策ID）
+└─────────────────────────────────────────┘
+         ↓
+【Phase 4：クライアントMTG（Decision Making / 月次）】
+┌─────────────────────────────────────────┐
+│ Ryota が司会、Akari がダッシュボード共有
+│ ① 前年同月比サマリー（主軸）＋前月比（副軸）を3秒で把握
+│ ② Funnel Decay で「どこで漏れているか」を特定
+│ ③ Candidate LTV で「どの媒体が本当に効いているか」を判定
+│ ④ Scenario Planning で「来月の予算配分」を即決
+│ ⑤ 改善提案の「クライアント側タスク（担当・所要時間）」を定例アジェンダ化
+│ ⑥ MTG中の決定事項を Notion DB に即時記録、翌週 Weekly Alert に反映
+└─────────────────────────────────────────┘
+```
+
+**ハンドオフ強化点：**
+- 従来：Akari → Ryota（口頭引き継ぎ） → クライアント
+- 強化後：Akari（Looker Studioダッシュボード URL共有＋Slackチャネル常時同期） ↔ Ryota ↔ クライアント（SSO権限付与・リアルタイム閲覧可）
+
+### 7. 新・出力フォーマット
+
+#### (A) 月次採用レポート v2026
+
+```markdown
+# [クライアント名] 採用広告レポート 2026年10月（v2026 Narrative Edition）
+
+**作成日**：2026-11-05 / **作成者**：株式会社LET 松岡 / **アナリスト**：Akari
+**データ基準時刻**：2026-10-31 23:59 JST（確定値）／遡及修正：Airwork応募数 -2件（スパム判定）
+**ダッシュボードURL**：https://lookerstudio.google.com/reporting/xxx（SSO必須）
+
+---
+
+## 📱 Executive Summary（スマホ縦1画面・30秒判読）
+
+> **応募 42件（前年同月比 +18%・前月比 +5%）／面接設定 15件（CPH 48,000円）**
+> **要ご判断1件：Indeed PPSC 継続可否（応募単価が業界平均比 +22%）**
+
+| 指標（下流起点順） | 今月 | 前年同月 | 前年比 | 業界平均比 |
+|-------|------|---------|-------|------------|
+| 🟢 入社数（確定）| 2名 | 1名 | +100% | - |
+| 🟢 内定数 | 4名 | 3名 | +33% | - |
+| 🟡 面接設定数 | 15件 | 14件 | +7% | ±0% |
+| 🟢 連絡取れ応募数 | 28件 | 22件 | +27% | +5% |
+| 🟢 媒体上応募数 | 42件 | 35件 | +20% | +8% |
+| 🟡 CPH（採用単価） | 48,000円 | 55,000円 | -13% | +3% |
+| 🟢 Candidate LTV | 2,850,000円 | 2,700,000円 | +6% | +12% |
+
+🟢=良化／🟡=要注視／🔴=悪化（赤緑のみに依存せず▲▼記号併用・9/02準拠）
+
+---
+
+## 🧭 Funnel Decay Analysis（媒体別・応募→入社）
+
+[Looker Studio埋め込み：Sankey Diagram]
+- Airwork：応募30 → 連絡21（70%）→ 面接12（57%）→ 内定3（25%）→ 入社2（67%）
+- Indeed：応募10 → 連絡6（60%）→ 面接3（50%）→ 内定1（33%）→ 入社0（0%）← 要注視
+- 求人ボックス：応募2 → 連絡1（50%）→ 面接0 → ★チャネル停止推奨
+
+**ボトルネック自動抽出：** Indeed の応募→連絡取れ率が60%（業界平均72%）。原因候補：PPSCの低質応募増（9/13・7/27）。
+
+---
+
+## 💰 Candidate LTV / 採用ROAS（経営効率視点）
+
+| 媒体 | CPA | CPH | Candidate LTV | 採用ROAS |
+|------|-----|-----|---------------|----------|
+| Airwork | 8,000円 | 60,000円 | 2,850,000円 | 47.5x |
+| Indeed | 12,000円 | 停止検討 | - | - |
+| 求人ボックス | 15,000円 | 未達成 | - | - |
+
+CPH = 広告費 / 入社数 ／ Candidate LTV = 平均勤続3年×粗利貢献950,000円/年×定着率0.9
+
+---
+
+## 🔮 Scenario Planning（来月予算配分シミュレーション）
+
+| シナリオ | 広告費 | 予測応募数（±信頼区間） | 予測入社数 | 予測CPH |
+|---------|-------|------------------------|-----------|---------|
+| 現状維持 | 500,000円 | 42件（±5） | 2名 | 48,000円 |
+| Airwork +20% | 540,000円 | 50件（±6） | 3名 | 42,000円 ✅推奨 |
+| Indeed停止・Airwork集中 | 450,000円 | 48件（±5） | 3名 | 38,000円 ✅✅最推奨 |
+
+Prophetモデル／直近12ヶ月データ／季節性補正済み
+
+---
+
+## 📋 改善提案（提案ID付き・前月未着手の再掲明示）
+
+| ID | 提案 | 担当 | 所要時間 | ステータス |
+|----|------|------|---------|-----------|
+| P-2026-10-01 | Indeed PPSC 停止、Airwork 集中（Scenario #3） | LET側 | 30分 | 新規 |
+| P-2026-10-02 | 求人票タイトル刷新「募集」→「新規チーム編成」 | LET側（Akari→Ryota） | 2時間 | 新規 |
+| P-2026-09-04（再掲）| 面接日程の返信を24時間以内に | クライアント側（人事担当） | 1件5分 | **未着手・9月提案** |
+| P-2026-10-03 | Google for Jobs 構造化データ実装 | LET側（Akari→Riku 連携） | 1日 | 新規 |
+
+---
+
+## 📎 Appendix（データ出典・計算式）
+
+- 応募単価（CPA）＝ 今月のAirwork＋Indeed＋求人ボックス 合計掲載費（税抜・値引き後）÷ 今月の媒体上応募数
+- CPH（Cost Per Hire）＝ 今月の広告費合計 ÷ 今月の入社数
+- Candidate LTV ＝ 平均勤続年数 × 年間粗利貢献 × 定着率0.9（6ヶ月後定着ベース）
+- データ出典：Airwork管理画面（確定値／2026-11-01取得）、Indeed Employer Dashboard、求人ボックス管理画面、HERP ATS（応募者ステータス）
+- 業界平均比：Indeed Hiring Lab Japan 2026 Q3 Report（建設業・全国平均・n=842社）
+- 相場参考：LET支援先建設業7社・同商圏・応募単価中央値 n=7（匿名）
+```
+
+#### (B) ドリルダウンダッシュボード（Looker Studio）
+
+**構成（6ページ）：**
+1. Executive Dashboard：Exec Summary（スマホ対応）
+2. Funnel Decay：Sankey Diagram ×媒体別×職種別×求人票別フィルタ
+3. Candidate LTV / ROAS：媒体別の経営効率ビュー
+4. Trend Analysis：前年同月比・前月比・直近12ヶ月推移
+5. Scenario Planning：Interactive Sliderで広告費を±調整→即時再計算
+6. Appendix：生データ・計算式・用語辞書リンク
+
+**権限設計：** クライアント経営者（閲覧）／担当者（閲覧＋コメント）／LET内部（編集）
+
+#### (C) 週次アラートダイジェスト（Slack / 火曜9:00）
+
+```
+🚨 Weekly Alert Digest 2026-10-W2（10/07-10/13）
+
+7社サマリー：異常値 3件検出
+
+🔴 [翔星建設] Airwork応募数 -42%（連続3日悪化／前年同月比-25%）
+   原因候補：先週の求人票変更（10/09）／季節要因（10月第2週は構造的に-15%）
+   推奨：Ryota から人事担当へ求人票ロールバック可否を確認
+
+🟡 [宮村建設] Indeed応募単価 ¥18,000（+2σ超）
+   原因候補：PPSC低質応募増（9/13参照）
+   推奨：10/14 のクライアントMTGで Indeed 停止提案
+
+🟢 [X社] Airwork CVR 4.2%（+2σ超・好転）
+   原因候補：10/05 のタイトル刷新（AI最適化）
+   推奨：成功事例として他社へ横展開
+
+➡️ 詳細：Looker Studio https://lookerstudio.google.com/xxx
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+| 連携先 | 従来 | 強化後（2026Q4） |
+|-------|------|------------------|
+| **Ryota**（クライアント管理）| レポート完成後の口頭引き継ぎ | Looker Studio URL常時共有＋Slackチャネル同期／改善提案の「クライアント側タスク」を定例アジェンダ自動転記 |
+| **Shun**（データ分析）| 不明瞭な依頼で分析時間延長 | BigQuery＋Dataformの共通基盤を Akari が整備、Shun は「深掘り仮説検証」に専念／Scenario Planning のモデル改善を Shun へ委託 |
+| **Haruto**（経営企画）| CPAまでの報告 | CPH＋Candidate LTV＋採用ROAS で経営判断支援／四半期の予算配分提案を Haruto と共同策定 |
+| **Yui**（SNS分析）| 面接到達率を温度感付きで返す | Funnel Decay Analysis を Yui に共有、SNS経由応募の下流転換率を可視化／応募決断型投稿のA/Bテスト設計を協働 |
+| **Sou**（TikTokトレンド）| TikTok流入→応募転換率を返す | 採用CDP連携で応募者単位の TikTok接触履歴を可視化／フック別の応募転換率を自動レポート化 |
+| **Toma・Eito**（動画台本）| 四半期に1回面接理由を匿名化共有 | 面接理由を Notion DB化し、Toma／Eito が フックDB更新時に自動参照／応募率と視聴率の相関分析を提供 |
+| **Itsuki**（バナー）| 色覚多様性・固定レンジ指定 | Looker Studio のダッシュボードスクショを Itsuki が受領→クライアント向け印刷版図版へ自動変換 |
+| **Nori**（リーガル）| - | 個人情報取扱（ハッシュ化PII・採用CDP連携）の設計レビューを事前依頼／Consent Mode v2 の同意表現を Nori 監修 |
+| **Riku**（FE）| - | Google for Jobs 構造化データ実装・採用LPのsGTM設置を Riku に発注 |
+| **Rui**（リサーチ）| 業界平均の出典4点脚注 | Indeed Hiring Lab／LinkedIn Talent Insights／厚労省統計を Rui が月次整備→Akari のレポートに自動反映 |
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 項目 | Before（2026年9月時点） | After（2026Q4強化後） |
+|------|------------------------|----------------------|
+| **レポート提出リードタイム** | 月初10営業日目 | 月初**3営業日目**（自動化で短縮） |
+| **データ取得頻度** | 週次（8/18） | **毎時バッチ**（Supermetrics＋BigQuery） |
+| **異常値検知** | 月初目視 | **週次自動アラート**（±2σ超）／当日検知 |
+| **主要KPI** | CPA・CVR・前月比 | **CPA＋CPH＋Candidate LTV＋採用ROAS＋Funnel Decay** |
+| **比較軸** | 前月比主軸 | **前年同月比主軸**（9/13）＋Scenario Planning併記 |
+| **ダッシュボード** | Google Sheets静的表 | **Looker Studio ドリルダウン対応**（SSO権限） |
+| **改善提案の実行率** | クライアント側タスク未着手月2件 | 定例アジェンダ自動転記で**実行率90%以上** |
+| **数値訂正依頼** | 月0〜3件（5/15品質ゲート後0件） | **四半期0件**（Dataform SQL ガバナンス） |
+| **CV計測欠損率** | 不明（Last-Click依存） | **5%以下**（sGTM＋Consent Mode v2＋Modeled Conversions） |
+| **クライアントMTG意思決定時間** | 30分の数字議論 | **10分の数字＋20分の未来施策**（Scenario Planning） |
+| **求人票SEO** | コメントのみ | **JobPosting schema実装＋AIリライトA/Bテスト** |
+| **連携エージェント数** | 3名（Ryota／Shun／Haruto） | **10名以上**（Nori／Riku／Rui／Itsuki／Toma／Eito／Yui／Sou追加） |
+| **レポート開封率** | 不明 | **95%以上**（スマホ縦1画面＋メール本文2行の自動生成・9/01） |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+**(A) 日次（毎営業日 7:30-7:45 / 15分）**
+- Daily Knowledge Log 更新（既存運用を強化）：当日の気づき・失敗・改善を3点以内で記録
+- Slack #akari-learnings チャネルに自動ポスト（他エージェントも閲覧可）
+- 週末に AI（Claude 4.7）が1週間分を要約し、重複・類似を統合して Notion KPI辞書に反映
+
+**(B) 週次（金曜 16:00-17:00 / 60分）**
+- Weekly Alert Digest の振り返り：異常値検知の精度・原因候補の的中率を測定
+- 誤検知率（False Positive）／見逃し率（False Negative）を KPI化、閾値を自動チューニング
+- Looker Studio ダッシュボードの改善提案を Riku／Shun と協議
+
+**(C) 月次（第1営業日 10:00-12:00 / 2時間）**
+- 月次レポート完成後のクライアントMTG録画をレビュー、意思決定時間・質問内容を分析
+- 「クライアントが知りたかったが答えられなかった質問」を Q&Aログに追加、次月レポートに先回り反映
+- Dataform SQL の技術的負債レビュー、不要モデルの削除・リファクタリング
+
+**(D) 四半期（四半期末 / 1日）**
+- 業界ベンチマーク再測定：Indeed Hiring Lab／LinkedIn Talent Insights／MMA Japan の最新レポートを Rui と共読
+- 新ツール評価：Supermetrics 代替／新BI／新ATS を四半期ごとに1〜2個試す
+- Candidate LTV モデルの再キャリブレーション：3年間貢献利益・定着率の実績値で係数更新
+- Skill Gap 再評価：本強化パックのGap-01〜08の達成度を Haruto と評価、次四半期のGap特定
+
+**(E) 年次（年末 / 3日）**
+- 本「Overspec強化パック」の全面更新：翌年のベンチマーク反映
+- 他エージェント（Ryota／Shun／Haruto／Nori）との連携プロトコル刷新
+- Looker Studio ダッシュボードの大幅バージョンアップ
+
+**(F) 継続学習ソース（定期購読）**
+- Indeed Hiring Lab Japan（月次レポート）
+- LinkedIn Talent Insights（週次ニュースレター）
+- MMA Japan（マーケティングメトリクス協会・季刊）
+- Google Marketing Live（年次カンファレンス）
+- Meta Measurement Summit（年次）
+- 日本採用学会 大会・論文（年次）
+- 厚生労働省 職業安定局 統計資料（月次）
+- HR Technology Japan Conference（年次）
+- MarkeZine／日経クロストレンド／HRプロ（週次）
+
+**(G) 失敗の資産化プロトコル**
+- 「よくある失敗」パターンを Daily Knowledge Log で記録（既存運用を強化）
+- 四半期ごとに「失敗カタログ」を更新、Nori の事前関所チェックリストにフィードバック
+- 他クライアントで類似失敗を事前防止
+
+---
+
+> このOverspec強化パックは、2026年Q4時点のベストプラクティスを反映した「to-be姿」です。既存の Daily Knowledge Log（2026-04〜09）と併用し、段階的に実装してください。Phase 1-2 のデータ基盤構築には3〜6ヶ月、Phase 3-4 の意思決定支援への進化には6〜12ヶ月を見込みます。

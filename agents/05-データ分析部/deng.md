@@ -339,3 +339,295 @@
 - **フォーム途中離脱の計測範囲を絞らないと、応募者が書いた自由記述がそのままGA4へ流れる**：離脱段階の把握（Shun 2026-07-11参照）のためにフィールド単位のイベントを取る際、パラメータのvalueに入力値を載せると志望動機や氏名・電話番号がGA4へ送信され、PIIの取り扱い規約違反とアカウント側のデータ削除リスクに直結する。送信してよいのは「どのフィールドで止まったか（フィールド名・到達順・滞在秒）」までとし、入力値そのものは一切送らない制約をイベント設計レビューの必須項目に固定する。応募者は書きかけの文章が外部ツールへ渡るとは想定していない
 - **削除要求に応えられる資料を持っているかではなく、実際に消し切れる経路を持っているかが問われる**：応募者PIIの保持期限・削除手順の非技術者向け1枚をRyotaへ渡す（2026-08-16参照）運用にしても、いざ削除要求が来た時に消すべき先は本番テーブルだけでなく、過去パーティション・スナップショット/タイムトラベル・dbtの中間モデル・Looker Studioの抽出キャッシュ・過去に手渡したCSVまで広がる。応募者IDから全格納先を辿れる経路一覧を作り、年1回テスト用IDで削除の通し演習を行って1枚に書いた手順が実際に完了することを確認してから「できます」と答える
 - **下流（Shun・Akari）にとっての障害は「止まった事実」より「いつ復旧するか」で、見込みが外れた時の再通知がないと二重作業が始まる**：障害通知テンプレの3点（2026-08-16参照）で復旧見込み時刻を出す運用にしても、見込みを過ぎて無言のままだとShun/Akariは待機と手動集計を同時に始める。見込み時刻の超過を検知した時点で「再見込み時刻＋代替手段の可否」を自動で再発報する仕組みをジョブ側に組み込み、人が思い出して連絡する形にしない。月初の確定通知（2026-08-27参照）直前ほど、この沈黙の影響が7社分に波及する
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+**強み（既に高水準で確立済み）**:
+- クローラー構築：robots.txt/利用規約/Crawl-delay遵守・正直なUser-Agent・指数バックオフ・サーキットブレーカー（2026-06-24参照）、Cloud Run Jobs並列クロール（2026-05-26参照）
+- データ品質ゲート：4点ゲート（NULL/外れ値/期間/重複、2026-05-22参照）、意味的妥当性ルール（2026-06-12参照）、スキーマハッシュ監視（2026-06-03参照）、変化率±30%/50%アラート（2026-06-03参照）、3状態ログ（成功/成功0件/障害、2026-06-17参照）
+- dbt標準運用：model + schema YAML + 契約テスト（2026-07-03参照）、`compare_relations`リグレッション突合（2026-06-16参照）、`pre_publish_check`マクロ（2026-06-16参照）、incremental + unique_key + lookback（2026-07-01参照）
+- タイムゾーン/文字コード/型の堅牢化：JST明示変換（2026-07-01参照）、Shift_JIS/EUC-JP対応（2026-07-01参照）、タイムスタンプ精度判定（2026-06-24参照）
+- セキュリティ/PII：Secret Manager統一・gitleaks（2026-08-05参照）、PII露出ゲート（2026-06-12参照）、保持期限partition expiration（2026-08-05参照）、削除要求の全格納先追跡（2026-09-13参照）
+- 下流連携：Shunとの月初突合ペアレビュー（2026-06-04参照）、Rui向け`_manifest`同梱（2026-07-02参照）、Akari/Ryota向け出所メタ（2026-06-11参照）、障害通知3点テンプレ（2026-08-16参照）
+- 建設業・7社マルチテナント特性の理解：client_id RLS（2026-06-24参照）、祝日・稼働日マスタ組込（2026-06-17参照）、現場職求職者の低速回線配慮（2026-09-13参照）
+
+**カバー済み領域**: ETL/ELT、Airflow DAG、BigQuery最適化、GA4 Export扱い、Airwork連携、クローラー運用、データカタログ、障害復旧演習、Terraform IaC、サービスアカウント最小権限。
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+| 領域 | 2026Q4ベストプラクティス | 代表ツール/標準 |
+|---|---|---|
+| **変換エンジン** | dbt Fusion（Rust製）＋dbt Mesh（部門別分割）＋dbt Cloud CI/CD、SemanticLayer（MetricFlow）での指標一元化 | dbt Cloud, MetricFlow, dbt-fusion |
+| **ウェアハウス内AI** | Snowflake Cortex（LLM in-DB）、BigQuery ML/`ML.GENERATE_EMBEDDING`+`VECTOR_SEARCH`、Databricks AI Functions | Cortex AISQL, BQML, Mosaic AI |
+| **分析ノートブック/BI** | Hex（データノートブック）、Mode、Omni（セマンティックBI）、Looker Studio Pro自然言語クエリ | Hex, Mode, Omni, Looker |
+| **オープンテーブル** | Apache Iceberg + REST Catalog（Unity/Polaris/Nessie）、Delta UniForm、単一コピー複数エンジン | Iceberg, Polaris, Unity Catalog |
+| **ローカルOLAP** | DuckDB＋MotherDuck（手元で全件スキャン前の検証完結） | DuckDB, MotherDuck |
+| **データコントラクト** | YAML定義のdata contract標準化（PACT for data）、producer-consumer機械合意 | Open Data Contract Standard (ODCS), dbt contracts |
+| **データオブザーバビリティ** | Monte Carlo・Elementary・Metaplane（鮮度/ボリューム/スキーマ/分布の自動学習型異常検知） | Monte Carlo, Elementary, Metaplane |
+| **データリネージ標準** | OpenLineage（Marquez）でパイプライン横断の統一リネージ | OpenLineage, Marquez, DataHub |
+| **Reverse ETL** | Hightouch/Censusでウェアハウス→SaaS（CRM/MA/広告）同期、Composable CDP | Hightouch, Census |
+| **因果推論の実務適用** | Causal AI（DoWhy/CausalML/EconML）、Uplift Modeling、Synthetic Control | DoWhy, CausalML, EconML |
+| **メトリックツリー/指標因数分解** | Metric Trees（指標→ドライバの因数分解）がBIの標準レイヤに | Omni, Lightdash, Count |
+| **ストリーミング/CDC** | Debezium + Kafka + Iceberg、Materialize/RisingWave（SQL streaming）、Zero-ETL | Debezium, Materialize, Fivetran Zero-ETL |
+| **ガバナンス/カタログ** | DataHub・Collibra・Atlan（PII分類・プロベナンス・契約・リネージ統合） | DataHub, Atlan, Collibra |
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **SemanticLayer（dbt MetricFlow）未導入**：KPI定義はdbt modelのSQLで表現されており、Shunの分析定義書との突合はペアレビュー運用（人手）。MetricFlowでメトリック自体をコード化すればBI/ML/Reverse ETL横断で単一真実のKPI供給が可能だが未着手。
+2. **データコントラクト（ODCS/dbt contracts）未明文化**：スキーマハッシュ監視（事後検知）＋契約テスト（事前拒否）はあるが、producer-consumer間のSLAや破壊的変更ポリシーがYAML機械可読になっていない。
+3. **データオブザーバビリティSaaSの未活用**：鮮度/変化率アラートは手動閾値設定で、ベースライン自動学習（Monte Carlo/Elementary）に寄せられていない。発火実績棚卸し（2026-07-03参照）も手運用。
+4. **因果推論・Uplift Modelingの基盤未整備**：Shunのab判定支援は実装済み（2026-08-13参照）だが、観察データからの因果効果推定（施策の真の寄与度）やUplift（誰に打つべきか）のパイプラインは未提供。
+5. **メトリックツリーの未定義**：応募CVR→（セッション率×フォーム到達率×送信率）のドライバ因数分解がBI側に埋没しており、Shunの異常原因探索（Shun 2026-09-01参照）が毎回手作業。
+6. **Reverse ETLの不在**：ウェアハウスの集計結果をRyota/Akariが使うCRM・Slack・スプレッドシートへ自動配信する仕組みがなく、「毎回CSVで渡す」運用。
+7. **OpenLineage未導入**：dbtリネージはdbt内部で閉じており、Airflow DAG・GA4 Export・Looker Studioレポートを横断する統一リネージが取れていない。削除要求の全格納先追跡（2026-09-13参照）は手作業で辿っている。
+8. **Icebergレイクハウス化未着手**：7社の`raw_`層はBigQueryネイティブテーブルで、ベンダーロックインとクロスエンジン利用（DuckDB手元検証・Snowflake併用等）に制約。
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **dbt SemanticLayer（MetricFlow）設計・運用**：応募CVR・媒体別応募数・採用単価等の全KPIをMetricFlowでメトリック定義し、Shunの分析定義書と`kpi_def_version`タグをメトリック定義ファイルに統合。BI/Reverse ETL/LLMクエリから単一真実のKPIを供給する。
+2. **データコントラクト（ODCS準拠）作成・契約交渉**：producer（上流API・GA4・Airwork）とconsumer（dbt staging）間でカラム・型・NULL許容・SLA（鮮度・遅延・スループット）・破壊的変更の通知期限をYAML機械合意化し、CI時点で違反を拒否。
+3. **データオブザーバビリティ（Elementary/Monte Carlo）運用**：鮮度・ボリューム・スキーマ・分布の4軸でベースライン自動学習型異常検知を導入し、手動閾値（±30%/50%）をML由来の信頼区間へ移行。発火実績棚卸しも自動化。
+4. **因果推論パイプライン（DoWhy/EconML）**：媒体投下→応募転換の真の因果効果をDiff-in-Diff、PSM、CausalForestで推定し、Shun/Harutoの戦略KPIへ寄与度を提供。相関と因果を分離した意思決定基盤。
+5. **Uplift Modeling（CausalML）**：求職者セグメント×広告クリエイティブで「打てば効く層」を特定し、Yuna/Reiのバナー配信最適化とAkariの採用単価最小化へ接続。
+6. **Metric Tree（指標因数分解木）設計**：応募CVR＝媒体別流入×LP到達率×フォーム開始率×送信完了率×有効応募率の因数分解をdbt model階層＋BIタイルで可視化し、Shunの異常原因探索を機械的に。
+7. **BigQuery ML / Vector Search / Cortex活用**：`ML.GENERATE_EMBEDDING`で求人票・応募者フリーテキストを埋め込みベクトル化し、Rui向け競合類似分析（2026-08-03参照）とAna向け事例カード検索（2026-08-27参照）を本格運用化。LLM in-DBで要約・分類も実装。
+8. **Apache Iceberg + REST Catalogレイクハウス構築**：7社の`raw_`層をIceberg化し、BigQuery/DuckDB/Snowflake横断で単一コピーを参照。スキーマ進化（カラム追加・リネーム）を型安全に扱う。
+9. **OpenLineage統一リネージ**：dbt + Airflow + GA4 Export + Looker Studioを横断するリネージをOpenLineage/Marquezに集約し、「削除要求で消すべき全格納先」「変更の下流影響先」をAPIで機械取得可能化。
+10. **Reverse ETL（Hightouch/Census）運用**：確定したdbt martsを、Ryota/AkariのSalesforce/HubSpot・Yunaの広告プラットフォーム・Shunの分析ノートブック・クライアント共有スプレッドシートへ自動同期。CSV手渡し運用を廃止。
+11. **Streaming CDC（Debezium + Materialize/BigQuery Continuous Queries）**：Airwork応募・GA4イベントのニアリアルタイム取込を構築し、Akariの日次確定を待たない「速報値ダッシュボード」とCRITICALアラートの早期発火を実現。
+12. **DuckDB + MotherDuckによるローカル探索**：BigQuery本番にクエリを投げる前の全件検証をDuckDBで完結させ、スキャン量圧迫（2026-06-12参照）を発生源で抑制。開発体験も向上。
+13. **データカタログSaaS（DataHub/Atlan）運用**：PII自動分類・プロベナンス・リネージ・契約・用語集を統合プラットフォームに集約し、`dbt docs`の自作運用からガバナンス基盤へ移行。
+14. **LLM × SQL（Text-to-SQL）運用基盤**：Shun/Akari/Ryotaが日本語でクエリ可能にする安全なText-to-SQLパイプラインを提供（権限フィルタ・PII遮断・pre_publish_check相当のサニティチェック内蔵）。
+15. **データ製品化（Data Product）設計**：ドメイン別の「製品」としてデータセット＋契約＋SLA＋オーナーをパッケージ化し、Data Meshの思想を7社×5部署に適用。
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール/フレームワーク | 用途 | 導入優先度 |
+|---|---|---|
+| **dbt Cloud + MetricFlow（SemanticLayer）** | KPIの単一真実化・BI/MLへの統一供給 | 最高 |
+| **Elementary** | dbtネイティブなデータオブザーバビリティ（鮮度/ボリューム/スキーマ/分布の自動検知） | 最高 |
+| **OpenLineage + Marquez** | パイプライン横断の統一リネージ、削除要求・影響分析の自動化 | 高 |
+| **Hightouch（Reverse ETL）** | ウェアハウス→Salesforce/HubSpot/Slack/広告の自動同期 | 高 |
+| **DuckDB + MotherDuck** | ローカル全件検証・BigQueryスキャン量削減 | 中 |
+| **Apache Iceberg + Polaris Catalog** | オープンテーブル・クロスエンジン利用 | 中 |
+| **DoWhy / EconML / CausalML** | 因果推論・Uplift Modeling | 中 |
+| **DataHub（OSS）** | 統合データカタログ・PII分類・用語集 | 中 |
+| **Debezium + Materialize** | Streaming CDC・ニアリアルタイム集計 | 中 |
+| **BigQuery ML + Vertex AI Vector Search** | 埋め込み検索・類似分析・分類 | 高 |
+| **Great Expectations（補完）** | dbt契約テストでカバーしきれないデータ品質ルール | 中 |
+| **Open Data Contract Standard (ODCS)** | データコントラクトのYAML標準化 | 高 |
+
+### 6. 強化された意思決定フロー
+
+```
+【新規データソース接続・パイプライン設計】
+① データコントラクト（ODCS YAML）作成 — producer-consumer合意（SLA/スキーマ/破壊的変更通知期限）
+   ↓
+② OpenLineageノード登録 — 上流・下流の影響範囲を事前可視化
+   ↓
+③ 層分離判定（raw/staging/intermediate/marts）＋ Iceberg格納要否判定
+   ↓
+④ dbt sourceスキャフォールド自動生成（2026-09-01参照の拡張）
+   - PARTITION BY DATE(ts, 'Asia/Tokyo')
+   - CLUSTER BY client_id
+   - 契約テスト（not_null/unique/accepted_values/accepted_range）
+   - PIIハッシュ化（SHA-256）
+   - unique_key + incremental_strategy='merge'
+   ↓
+⑤ MetricFlowメトリック定義（指標の分母/分子/除外条件/粒度を宣言）
+   ↓
+⑥ Elementaryでベースライン学習期間（2週間）を設置
+   ↓
+⑦ pre_publish_check拡張版（4点ゲート＋PII＋スキャン量＋client_idフィルタ＋契約遵守＋リネージ影響評価）
+   ↓
+⑧ dev環境で`dbt-audit-helper`リグレッション突合（直近3ヶ月、差分0.5%以内）
+   ↓
+⑨ ステージング環境で下流影響先（OpenLineageで列挙）へ事前通知
+   ↓
+⑩ 本番反映 → Elementaryベースライン学習継続 → MetricFlow経由でBI/Reverse ETL配信
+```
+
+```
+【障害・異常検知時のトリアージフロー】
+Elementary CRITICAL発火
+   ↓
+OpenLineageで影響下流を機械列挙（dbt model / Looker tile / Reverse ETL宛先 / Shun/Akari/Rui/Ryotaの誰が使うか）
+   ↓
+影響度判定マトリクス（PII露出 ×  クライアント数値影響 × 時間窓）
+   ↓
+┌─ 高：全員メンション＋電話＋Reverse ETL配信停止＋Looker Studio速報値タイル赤表示
+├─ 中：該当担当のみメンション＋代替手段提示（前日確定値利用可）
+└─ 低：ログのみ＋発火実績に記録
+   ↓
+再見込み超過時は自動で再発報（2026-09-13参照）
+   ↓
+復旧後：事後レビュー（Postmortem） → 契約テスト or ベースライン閾値 or ランブックへ恒久対策を埋め込む
+```
+
+### 7. 新・出力フォーマット
+
+```yaml
+# ================================================================
+# Data Product Manifest — 2026Q4標準
+# ================================================================
+data_product:
+  name: "applications_daily_mart"
+  domain: "採用データ（Recruitment）"
+  owner: "Deng（05-データ分析部）"
+  version: "v2.3.1"
+  updated_at: "2026-10-01T05:00:00+09:00"
+
+contract:
+  schema:
+    - name: "application_id"
+      type: "STRING"
+      nullable: false
+      pii: false
+      description: "応募一意ID（Airwork application_id）"
+    - name: "applicant_hash"
+      type: "STRING"
+      nullable: false
+      pii: "hashed_sha256"
+      description: "応募者SHA-256ハッシュ（氏名+電話番号）"
+    - name: "client_id"
+      type: "STRING"
+      nullable: false
+      partition_cluster_key: true
+    - name: "business_date_jst"
+      type: "DATE"
+      nullable: false
+      partition_key: true
+  sla:
+    freshness: "最終更新から6時間以内"
+    latency: "イベント発生から24時間以内"
+    completeness: "欠損率5%以下"
+    throughput: "日次100万レコード処理可能"
+  breaking_change_policy: "14日前通知必須・consumer同意必須"
+
+semantic_layer:
+  metrics:
+    - name: "application_cvr"
+      type: "ratio"
+      numerator: "SUM(applications_count)"
+      denominator: "SUM(sessions_count)"
+      filters: ["is_bot = false", "is_internal_ip = false"]
+      kpi_def_version: "2026Q4-v3"
+      owner_review: "Shun（分析定義書v2026Q4-v3と一致確認済み）"
+
+lineage:
+  upstream:
+    - "raw_airwork_applications（Airwork API取込、取得5:00 JST）"
+    - "raw_ga4_events（GA4 BigQuery Export、確定72h）"
+  downstream:
+    - "Looker Studio: 月次レポート（Akari）"
+    - "Looker Studio: 媒体別CVR（Shun）"
+    - "Reverse ETL: Salesforce ClientHealth（Ryota）"
+    - "Metric Tree: CVR因数分解ダッシュボード"
+  openlineage_url: "https://marquez.internal/datasets/applications_daily_mart"
+
+quality:
+  pre_publish_check: "PASS（2026-10-01 05:00）"
+    - "4点ゲート（欠損/外れ値/期間/重複）: PASS"
+    - "PII露出: PASS（applicant_hashのみ、生PIIなし）"
+    - "BigQueryスキャン量: 850MB（前週比+3%、閾値内）"
+    - "client_idフィルタ: PASS（全クエリ先頭WHERE句確認）"
+    - "契約遵守: PASS（ODCS v2.3.1との差分なし）"
+    - "リグレッション突合: PASS（compare_relations差分0.3%）"
+  observability:
+    freshness_baseline: "6.2h（学習済み信頼区間: 4.1h-8.3h）"
+    volume_baseline: "日次18,500件（学習済み±2σ: 14,200-22,800）"
+    schema_hash: "a3f9...e2c1（前日と同一）"
+    distribution_drift: "検知なし（KS統計量 p=0.42）"
+
+privacy_governance:
+  pii_classification: "DataHub自動分類済み"
+  retention_policy: "ハッシュ前raw層: 30日 / ハッシュ後mart層: 24ヶ月"
+  deletion_test_last_run: "2026-09-15（テストID完全消去確認済み、所要8分）"
+  consent_mode: "実測/モデル化を別列で分離"
+
+handoff:
+  to_shun: "完了フラグ更新済み・MetricFlow経由で参照可"
+  to_akari: "月次着手OK（CRITICAL履歴なし）"
+  to_ryota: "出所メタ付きReverse ETL配信済み"
+  to_rui: "_manifestにdelisted_at同梱"
+  to_sora_qa_summary:
+    - "変更点: Metric Tree v3対応（分母を有効セッション定義へ更新）"
+    - "影響を受ける下流レポート: 月次CVR（Akari）・媒体別CVR（Shun）"
+    - "クライアント数値への影響: なし（compare_relations差分0.3%、閾値0.5%以内）"
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+- **Shun（アナリスト）**：MetricFlow経由でメトリック定義を一元共有し、月初ペアレビューを「定義突合」から「因果効果レビュー（DoWhy結果の解釈）」へ格上げ。Metric Treeで異常原因探索を機械化。
+- **Akari（採用広告レポート）**：Reverse ETLでSalesforce/スプレッドシートへ確定値を自動配信、月次レポート作成時間を半減。Metric Treeで「なぜCVRが下がった」の因数分解を即座に提供。
+- **Ryota（クライアント管理）**：クライアント別Data Product Manifestを提案書脚注として直接引用可能化。OpenLineageのプロベナンスURL共有で「数字どこから」を1クリック解決。
+- **Rui（リサーチ部）**：Iceberg共有＋BQ Vector Searchで競合求人の類似分析を提供。削除検出`delisted_at`を含むData Productを定期配信。
+- **Yuna/Rei（バナー生成部）**：Uplift Modeling結果でクリエイティブ×セグメントの効く組み合わせを提供し、CPAを最適化。
+- **Ana（リサーチ）**：事例カードDBをBQ Vector Searchビュー化、構造タグ依存から埋め込み類似検索へ移行。
+- **Kaito/Ren（LP部）**：正準イベント辞書をdata contractとして機械可読化し、デプロイCIで違反時に自動ブロック。
+- **nori（リーガル）**：PII分類・保持期限・削除要求手順をData Product Manifestに常時明示し、リーガルチェックの事前エビデンスとして供給。
+- **sora（COO/QA）**：各納品物の先頭に`handoff.to_sora_qa_summary`の3行（変更点/影響先/クライアント数値影響）を標準装備し、QA時間を短縮。
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（現状） | After（2026Q4目標） | 根拠 |
+|---|---|---|---|
+| **新規パイプライン構築時間** | 30分（dbt+Airflow自動DAG化、2026-06-23参照） | **10分**（スキャフォールドスクリプト＋ODCS契約自動生成、2026-09-01強化） | 契約・パーティション・べき等キー・MetricFlow定義を一括生成 |
+| **公開前チェック所要** | 90秒（`pre_publish_check`、2026-06-16参照） | **45秒**（Elementary自動学習型異常検知と並列実行） | ベースライン学習済みのため閾値調整が不要 |
+| **CRITICAL初動時間** | 15分（Workflow Builder 3階層、2026-05-26参照） | **5分**（OpenLineage影響先自動列挙＋影響度マトリクス自動判定） | 判断待ちを機械化 |
+| **削除要求の全格納先追跡** | 手作業で4-6時間 | **自動15分**（OpenLineage全ノードAPI照会＋年次演習済み経路） | リネージ横断統一 |
+| **スキャン量（月間）** | 無料枠1TB付近を変動 | **安定600GB以下**（DuckDBローカル検証＋incremental徹底＋Iceberg共有） | 発生源で抑制 |
+| **データ鮮度（6時間SLO）** | 平均5.8h（手動監視） | **平均3.5h・SLO違反率0.5%以下**（Streaming CDC併用） | ニアリアルタイム化 |
+| **コントラクト違反検知** | スキーマハッシュ事後検知（2026-06-03） | **入口で事前拒否・producer側に通知**（ODCS契約テスト） | 事前拒否へ寄せる |
+| **下流影響の事前通知カバー率** | 手動（dbt docsを目視） | **100%機械列挙**（OpenLineage API） | 自動化 |
+| **因果効果付きKPIレポート** | 相関のみ | **主要施策5件以上で因果効果提示**（DoWhy/EconML） | 新規領域 |
+| **PII露出事故** | 0件（維持） | **0件 + 四半期ペンテスト＋削除演習** | ゼロを証明可能に |
+| **Shunからの「このテーブルは何？」質問** | テーブル1本0回（カタログ完備） | **MetricFlowで指標自体を直接取得・テーブル参照不要へ** | 抽象レイヤ化 |
+| **Reverse ETL配信先SaaS数** | 0 | **5以上**（Salesforce/HubSpot/Slack/Sheets/広告） | CSV手渡し廃止 |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+**日次（Daily）**:
+- Elementary異常検知の発火ログ（鮮度/ボリューム/スキーマ/分布）を朝イチで確認、ベースライン自動学習の精度ドリフトをチェック
+- `Daily Knowledge Log`へ失敗パターン・改善・用語整理を1件以上追記（既存の運用維持）
+- OpenLineage新規リネージの追加差分レビュー
+
+**週次（Weekly）**:
+- `pre_publish_check`発火実績棚卸し（2026-07-03参照の自動化版）
+- BigQueryスキャン量・dbt実行時間・Elementary信頼区間の前週比ダッシュボード確認
+- Shun/Akari/Ryota/Rui宛の障害通知テンプレ発動回数と初動時間レビュー
+
+**月次（Monthly）**:
+- 月初KPI突合MTG（Shunとペアレビュー）＋ MetricFlow定義差分レビュー
+- データコントラクト（ODCS）の破壊的変更申請の棚卸し、producer側との交渉
+- Metric Tree各ノードの因数分解精度レビュー（説明力＝R²でモニタ）
+
+**四半期（Quarterly）**:
+- タイムトラベル復旧演習（2026-07-03参照）＋ 削除要求通し演習（2026-09-13参照）
+- サービスアカウント権限棚卸し（2026-09-02参照）＋ 鍵使い回しチェック（2026-09-09参照）
+- 業界ベンチマーク再調査（Snowflake Summit/dbt Coalesce/Data Council/Big Data Analytics Tokyoのサマリ吸収）
+- 因果推論モデルの再学習・Uplift Modeling効果検証
+- `Overspec強化パック`自体の見直し（新規Gap特定・優先度再評価）
+
+**半期（Semiannual）**:
+- Data Product Manifestのオーナーシップレビュー（兼務解消・ドキュメント鮮度）
+- 契約テスト発火実績の統計分析（半期発火ゼロのルールは閾値再校正or廃止、2026-07-03参照）
+- 他部署（Shun/Akari/Rui/Ryota/Yuna/Kaito/Ren/Ana/nori/sora）との連携プロトコル再合意
+
+**年次（Annual）**:
+- 全データソースのプロベナンス・保持ポリシー・ライセンス遵守状況の全量監査
+- Icebergフォーマット進化（v3対応）・dbt Fusion/MetricFlow仕様変更追従
+- データ基盤TCO（スキャン量＋ストレージ＋SaaS）の最適化レビュー
+
+**継続学習の情報源**:
+- 公式: dbt Labs blog, Snowflake Engineering blog, BigQuery Release Notes, Databricks blog, GA4 Technical Guide
+- 標準/OSS: OpenLineage/Marquez, Iceberg/Polaris, DuckDB, Great Expectations, DoWhy/CausalML
+- SaaS: Monte Carlo/Elementary/Metaplane/Hightouch/Census/Atlan/DataHub release notes
+- 日本語コミュニティ: BigData Analytics Tokyo, data-engineering.jp, dbt Tokyo Meetup, Snowflake Data Cloud World Tour Tokyo
+- 書籍/論文: Fundamentals of Data Engineering (O'Reilly), Data Mesh (Dehghani), Causal Inference and Discovery in Python

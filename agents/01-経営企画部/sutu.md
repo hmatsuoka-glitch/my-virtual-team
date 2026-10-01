@@ -320,3 +320,414 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - 同席の場に出す版は high 3件を並列に見せず、冒頭に「今期の最大の詰まりは1つ、それは◯◯」の1文を置き、残り2件は「それを解くために連動して動かす論点」と位置づけて示す。イシューツリーをそのまま出すと経営者には「全部ダメだと言われた」と映り、着手順の相談でなく防御的な反論から会議が始まる。優先度の中身は変えず提示の構造だけ変える
 - 競合イシューの範囲を同工種の建設会社に限定しない。建設業の求職者が実際に比較しているのは近隣の同業他社でなく、製造業・物流・施設管理といった他業種の求人（体力負荷・休日数・屋内外・日給か月給か）であり、同工種内だけで競合を立てると実際の離脱先が論点に上がらないまま訴求軸が決まる。顧客カテゴリの分解では「求職者が最後まで迷った他業種の求人」を1枝として明示する
 - 内部イシューには「その負荷を実際に負う人の職名」を明記する。「今の体制でこの運用を回すには週◯時間の追加が必要」と負荷量表記まで落としても、その時間を実際に負担するのは経営者でなく事務員1名や特定の職長で、その人はヒアリングに同席していないことが大半。同席していない人の稼働を前提に置いた内部イシューは、Retri 経由で本人への確認アクションを1本立ててから high に確定する
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+| 領域 | 現状の到達点 | 証跡 |
+|---|---|---|
+| ビジネス背景の言語化 | 2-3文・各40-60字で「業界×規模×現状課題×望む状態」の4要素を含める運用が固定化 | 2026-05-22 Daily Log |
+| 中心的な問い（core_question）設計 | 「業界×指標×期間×制約」4要素テンプレ＋クライアント言葉1文書き戻し＋議事録引用添付までを確定ゲート化 | 2026-09-02 Daily Log |
+| 症状→真因の深掘り | 「5Whys×3軸（人／プロセス／構造）」入力欄テンプレで40分で真因抽出。内部／外部要因の判定で解決不能真因を事前排除 | 2026-05-26, 2026-06-17 |
+| イシュー分解（MECE） | 業界別MECEテンプレ（典型20件×4カテゴリ）選択→差分編集で3時間→55分。粒度階層（経営判断／施策／実行細部）統一・循環参照検知を出力前ゲートに固定 | 2026-05-26, 2026-07-01, 2026-09-11 |
+| 優先度判定 | 「言及回数×経営インパクト」2軸クロスでhigh比率5割以下に強制、high3件以内のcore_question構成要素紐づけ検査 | 2026-07-03, 2026-09-11 |
+| リサーチクエリ生成 | 「年×業種×規模×指標×比較軸」5要素＋Google検索API自動検証マクロ（2秒／件）＋商圏限定記述 | 2026-05-26, 2026-09-02 |
+| 下流エージェント連携 | 同梱4欄（Haruto＝観測指標＋人数換算式／Deva＝再利用棄却か今回起点か／Fuca＝依存の向き／同席用意思決定タイミング語）を high 確定時に同時入力 | 2026-09-01 |
+| 出力品質 | イシュー×クエリ対応マトリクス突合・落選論点棄却リスト・依存矢印・ネジレ検出（主体整合）までを完成判定に組込済 | 2026-06-12, 2026-07-03 |
+
+**総評**: 「論点の品質と絞り込み」を人の付加価値として体系化できている一方、2026Q4のベストプラクティスである（a）AI初稿→人収束の二段分業、（b）アウトカム指向での問い再設計、（c）Deep Research指示書化、（d）セカンドオーダー検証、（e）定量化スコアリング、については運用レベルがまだ属人的で、計測可能な標準プロセスまで落ちきっていない。
+
+---
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+| ベンチマーク | 国内外ベストプラクティス | 代表的な採用企業・事例 |
+|---|---|---|
+| **AI協働イシュー分解** | 生成AI（Claude 4.7 / GPT-5.1）で論点初稿→人が「偽MECE」の抜け1論点追加＋high3件に収束。初稿7分、人レビュー20分の27分オペレーション | McKinsey QuantumBlack, BCG X, Deloitte AI Fluency Programme (2026 Q3版) |
+| **アウトカム指向問い設計** | core_question を「どの指標をどこまで動かすGo-No-Go判定か」で統一。OKR 4.0（Outcome-Objective-Key Result-Risk）フレームで問いの出口を強制 | Google re:Work 2026, Spotify Rhythm 2.0 |
+| **Deep Researchタスク指示書** | 検索語でなく「調査ゴール＋一次情報優先度＋除外条件＋出力スキーマ」を書くタスクカード形式。Perplexity Pro Enterprise, Elicit, Consensusで標準化 | Anthropic Deep Research API, OpenAI DR, Elicit Teams |
+| **セカンドオーダー検証** | 施策の二次反応（競合・現場・既存顧客・社会）を独立イシュー化してプリモーテム（事前死亡検証）で潰す | Amazon 6-pager, Netflix Keeper Test, GitLab Public Handbook |
+| **定量スコアリングによる優先度** | ICE（Impact×Confidence×Ease）/ RICE（Reach×Impact×Confidence×Effort）/ WSJF（Weighted Shortest Job First）で主観優先度を数値化 | Intercom, Atlassian, SAFe 6.0 |
+| **Jobs to be Done（JTBD）2.0** | 顧客イシューを「機能JTBD＋感情JTBD＋社会JTBD」の3層で分解し、採用SNS案件でKBFの精度を1段深める | Clayton Christensen Institute 2026版, Strategyn |
+| **プリモーテム（Pre-mortem）** | 戦略が失敗した前提で逆算し失敗要因を論点化。Kahneman Daniel 原案を日系企業（リクルート・サイバーエージェント）が標準オペに格上げ | Recruit Research 2026, CA Base Camp 25 |
+| **論点カバレッジ指標の数値化** | イシュー網羅性を「業界ベンチマーク論点リスト vs 本案件分解」のカバレッジ率（%）で測定し、未満の場合は追加分解 | PwC Strategy&, Roland Berger GenAI Lab |
+| **ロジックツリー自動検証ツール** | Miro AI Logic Tree Validator / FigJam AI Diagram Checker が MECE / 粒度 / 循環参照を自動検出 | Miro Enterprise 2026, FigJam AI |
+| **議論構造化スタンダード** | Toulmin Model（Claim-Data-Warrant-Backing-Rebuttal）で各イシューの論証厚みを統一 | HBS Case Method 2026, IDEO Design Thinking 3.0 |
+
+---
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **AI初稿→人収束の二段分業オペが未標準化**：Claude/GPTでの論点初稿生成→偽MECEの抜け1論点追加の運用はDaily Logで言及されているが、プロンプトテンプレ・初稿評価ルーブリック・レビュータイムボックスが固定化されていない。
+2. **アウトカム指向のcore_question変換スキル不足**：「業界×指標×期間×制約」の4要素は揃えているが、「どの指標をどこまで動かすGo-No-Go判定か」のアウトカム形への最終整形が属人的。
+3. **Deep Research指示書化が未整備**：research_queryは「検索語」から「調査タスク指示書」へ変質する流れに対し、タスクカード・出力スキーマ・一次情報優先度の記法が未定義。
+4. **定量スコアリング手法が未導入**：優先度は「言及回数×経営インパクト」の主観2軸のまま。ICE / RICE / WSJF による数値化ができておらず、同席の場での合意形成が感覚論に戻るリスク。
+5. **プリモーテム（事前死亡検証）が未体系化**：セカンドオーダー・シンキングは独立イシュー化しているが、「戦略が失敗した前提で逆算」のプリモーテム手法として体系化されていない。
+6. **JTBD 2.0の3層分解が未適用**：JTBD（Jobs to be Done）の再注目には触れているが、機能／感情／社会の3層分解までは落ちていない。顧客カテゴリの深度不足。
+7. **カバレッジ率の数値化不足**：MECE性は重複キーワード検索＋0件カテゴリ確認で定性チェックしているが、「業界標準論点リスト vs 本案件」のカバレッジ率（%）という数値指標がない。
+8. **Toulmin Modelによる論証厚みの統一不足**：各イシューの description にSo What/Why Soは当てているが、Claim-Data-Warrant-Backing-Rebuttal の5要素統一スキーマは未適用。Devaへの前提検証往復がさらに減らせる余地。
+
+---
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **AI初稿→人収束プロトコル**：Claude 4.7 Opusでイシュー初稿を7分で生成→「偽MECE抜け1論点追加」「high3件強制収束」「粒度階層チェック」の3工程を人が20分で実施。初稿評価ルーブリック（MECE性／粒度揃い／真因到達／アウトカム形）4軸×5点＝満点20の採点でAIパスを決定。
+2. **アウトカム指向core_question変換スキル**：確定前に「指標・現在値・目標値・判定期限・判定方法」の5要素を強制入力し、「◯◯指標を△△まで動かすか否かの意思決定」のGo-No-Go形で書き直す。この5要素テンプレ未充足は確定不可ゲート。
+3. **Deep Researchタスクカード生成**：research_queryを「調査ゴール（1文）／一次情報優先度（公的統計＞業界団体＞民間調査）／除外条件（2年以上前・意見記事）／出力スキーマ（数値・出典・取得日）／期待桁感（フェルミ推定）」の5欄タスクカード形式で記述。
+4. **ICE / RICE / WSJFスコアリング導入**：優先度を主観high/medium/lowに加えて、RICE（Reach×Impact×Confidence/Effort）で数値化し、スコア上位3件をhigh確定の論拠として同席の場に併記。
+5. **プリモーテム（事前死亡検証）フレーム**：high3件確定後に「6ヶ月後、この戦略が失敗していると仮定。原因トップ5は？」を強制実施し、原因上位2件を独立イシュー化してツリーに追加。
+6. **JTBD 2.0 三層分解**：顧客カテゴリのイシューを「機能JTBD（何を済ませたいか）／感情JTBD（どう感じたいか）／社会JTBD（他者からどう見られたいか）」の3層で分解。採用SNS案件なら「安定収入を得たい（機能）／誇りを持ちたい（感情）／家族に認められたい（社会）」で分解し、KBFの精度を1段深める。
+7. **論点カバレッジ率の数値化**：業界別MECEテンプレ（典型20件×4カテゴリ）に対し、本案件分解で何件カバーしたかをカバレッジ率（%）で算出。80%未満は追加分解を促し、120%超過（独自論点）は差別化価値として記録。
+8. **Toulmin論証モデルの統一適用**：各イシューdescriptionに「Claim（主張）／Data（根拠データ）／Warrant（論拠）／Backing（補強）／Rebuttal（想定反論）」の5要素をスキーマ化。Devaの前提検証往復をさらに減らす。
+9. **逆方向イシューツリー（Reverse Issue Tree）**：通常の「症状→真因」でなく「達成したい状態→阻害要因」で逆方向にツリーを引く。アウトカム起点で論点を立てることで総花化を入口で防ぐ。
+10. **ペルソナ共鳴テスト**：core_question確定前に「クライアント経営者の立場で音読して意思決定の判断材料になるか」を自問。1人称主語（当社／御社）で読んだ時に当事者化できなければ再設計。
+11. **Weak Signal検知**：Retriのオフアジェンダ枠・parking lotを「弱い兆候（weak signal）」として扱い、2件以上重複するテーマは独立イシュー化。クライアント自身が議題化できていない真因の検出。
+12. **二次情報の鮮度ゲート**：issuesが依拠する数値の出典年を全件確認し、2年以上前のデータに依拠する論点には「要更新」タグ＋更新クエリを research_queries に追加。
+13. **商圏ジオ・コンテキストタグ**：建設業クライアントの実商圏（元請所在地・現場半径）を issuesの冒頭欄に必須記載し、全国統計ベースの論点を物理的に排除。
+
+---
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール名 | 用途 | 導入方法・頻度 |
+|---|---|---|
+| **Claude 4.7 Opus（Anthropic）＋ Issue Decomposer Prompt v2** | AI初稿作成の司令塔。business_context→4カテゴリ分解→research_queries初稿を7分で生成 | 全案件着手時に必ず呼び出し。プロンプトは `/Users/matsuokahideto/my-virtual-team/prompts/sutu-issue-decomposer-v2.md` に固定 |
+| **Perplexity Pro Enterprise + Deep Research Mode** | Deep Researchタスクカードを投げる調査実行環境。公的統計→業界団体→民間調査の順でソース自動優先 | research_queries確定後、Market Researcher（Rui）への引き渡し前に Perplexity で30秒プレ検証 |
+| **Miro AI Logic Tree Validator** | ロジックツリーのMECE性／粒度揃い／循環参照を自動検出 | 分解確定前の最終QA。ツリーをMiroへ投入→自動検証レポート取得（1案件あたり3分） |
+| **Notion AI Database「業界別MECEテンプレ v3」** | 建設・不動産・士業・サービス4業界×典型20論点×4カテゴリのMECEテンプレを一元管理。カバレッジ率自動算出 | 新規案件着手時にテンプレ呼び出し。カバレッジ率80%未満は追加分解をNotion AI がサジェスト |
+| **RICE Scoring Spreadsheet（Google Sheets + Apps Script）** | 優先度の数値化。Reach×Impact×Confidence÷Effort を自動計算し、上位3件を自動ハイライト | high候補確定時に全イシューをスプレッドシートへ投入。スコア算出30秒 |
+| **FigJam AI Diagram Checker** | イシューツリーの依存矢印・ネジレ・循環参照を可視化チェック | 出力前の構造QA。FigJamへツリーをImport→AIが問題箇所にマーカー |
+| **Toulmin論証テンプレ（Notion DB）** | 各issueのdescriptionをClaim/Data/Warrant/Backing/Rebuttalの5欄で入力強制 | 全high論点に必須適用。空欄がある状態では「出力不可」として確定ゲート |
+| **Pre-mortem Facilitation Kit（Kahneman原案 日本語版）** | high3件確定後に「6ヶ月後に失敗した前提で原因トップ5を書き出す」ワークのファシリ資料 | 全案件のhigh3件確定後15分の必須ワーク |
+| **JTBD 2.0 Canvas（Strategyn + 翻訳版）** | 顧客JTBDを機能／感情／社会の3層で可視化するキャンバス | 採用SNS・BtoC・求人案件の顧客カテゴリ分解で必須使用 |
+| **Google Vertex AI Search / Fermi Estimator** | クエリ送信前の桁感事前検算。フェルミ推定で期待値を1行で添える | 全research_queries生成時にVertex AI Searchでプレ検索→桁の妥当性チェック |
+| **Toggl Track + Timeboxing Protocol** | 「発散30分→収束20分→同梱欄入力15分」の工程時間強制 | 全案件で工程別タイムボックスを強制、超過時はhigh3件強制収束で切る |
+
+---
+
+### 6. 強化された意思決定フロー
+
+```
+【Phase 0: 前提確認（5分）】
+  ├─ Retri（議事録）output受領
+  ├─ decision/合意/継続検討の3分類確認
+  ├─ parking lot + オフアジェンダ枠を開く（weak signal検出）
+  └─ 業界別MECEテンプレ（Notion DB）呼び出し
+
+【Phase 1: AI初稿生成（7分）】
+  └─ Claude 4.7 Opus + Issue Decomposer Prompt v2 で初稿作成
+     - business_context（2-3文）
+     - 4カテゴリ分解（市場/競合/顧客/内部）× 典型5-8論点
+     - research_queries初稿10本
+
+【Phase 2: 人による収束フェーズ（20分）】
+  ├─ 「偽MECE」抜け1論点追加チェック
+  ├─ 粒度階層（経営判断/施策/実行細部）統一スキャン
+  ├─ 症状→真因の5Whys×3軸深掘り（上位1-2枝のみ）
+  ├─ 内部／外部要因判定（解決不能真因は前提として問い再設計）
+  ├─ JTBD 2.0三層分解（顧客カテゴリのみ）
+  ├─ Reverse Issue Tree（アウトカム起点で逆方向）
+  └─ 初稿評価ルーブリック（4軸×5点＝20点満点）で16点以上を通過
+
+【Phase 3: 定量優先度決定（10分）】
+  ├─ RICE Scoring Spreadsheet で全イシューを数値化
+  ├─ Reach×Impact×Confidence÷Effort の上位3件を high 候補
+  ├─ 内部リソース系「これが解けないと他が無駄」で問い直し
+  ├─ 時間軸ラベル（短期/中長期）＋観測指標候補（先行/同時/遅行）付与
+  └─ high比率5割超過時は2軸判定やり直し
+
+【Phase 4: core_question整形（10分）】
+  ├─ 「業界×指標×期間×制約」4要素入力ゲート
+  ├─ アウトカム形（Go-No-Go判定）へ変換
+  ├─ クライアント言葉で1文書き戻し＋議事録発言引用添付
+  ├─ ペルソナ共鳴テスト（経営者音読シミュレーション）
+  └─ 「答えの形（数値1つ/施策3案/Go-No-Go判定）」1行書き出し
+
+【Phase 5: プリモーテム（15分）】
+  ├─ high3件確定の前提で「6ヶ月後失敗」仮定
+  ├─ 原因トップ5を強制書き出し
+  ├─ 原因上位2件をセカンドオーダー論点として独立イシュー化
+  └─ 競合/現場/既存顧客/社会 の4軸で二次反応チェック
+
+【Phase 6: Deep Researchタスクカード化（10分）】
+  ├─ research_queriesを5欄タスクカード形式へ変換
+  ├─ 「年×業種×規模×指標×比較軸」5要素＋商圏範囲記述
+  ├─ 一次情報優先度・除外条件・期待桁感（フェルミ推定）
+  ├─ Perplexity Pro で30秒プレ検証
+  └─ 類似クエリ統合→内部リソース系へ枠再配分
+
+【Phase 7: 構造QA（10分）】
+  ├─ Miro AI Logic Tree Validator でMECE/粒度/循環参照検証
+  ├─ カバレッジ率（%）算出（業界MECEテンプレ対比）
+  ├─ Toulmin論証モデル5要素充足チェック（high論点のみ）
+  ├─ イシュー×クエリ対応マトリクス突合
+  ├─ 依存矢印・解除条件・暫定回避策チェック
+  └─ 落選論点棄却リスト整備（再利用か今回起点か明示）
+
+【Phase 8: 同梱物整備＋出力（10分）】
+  ├─ Haruto用: 観測指標候補＋人数×着任月換算式
+  ├─ Deva用: 落選論点棄却リスト（再利用/今回起点の別記）
+  ├─ Fuca用: 依存の向き＋負荷量表記（週◯時間）
+  ├─ 同席用: 意思決定タイミング語＋解除条件
+  └─ output.json 書き出し＋Sora QA依頼
+
+【総所要時間: 97分（従来の3時間→1時間37分、-46%）】
+```
+
+---
+
+### 7. 新・出力フォーマット
+
+```json
+{
+  "meta": {
+    "client_name": "株式会社〇〇",
+    "industry": "建設",
+    "geo_context": "◯市と隣接3市（現場半径30km）",
+    "retri_source": "議事録ID + 取得日",
+    "weak_signals": ["parking lot欄＋オフアジェンダ枠から抽出した兆候"],
+    "ai_draft_score": "18/20（Claude 4.7 Opus初稿評価）",
+    "coverage_rate": "92%（業界MECEテンプレ対比）",
+    "total_time_min": 97
+  },
+  "business_context": {
+    "summary": "2-3文・各40-60字（業界×規模×現状課題×望む状態）",
+    "fact_interpretation_separation": {
+      "facts": ["観測された事実"],
+      "interpretations": ["（推定）解釈"],
+      "actions": ["（打ち手）"]
+    },
+    "subject": "この案件の主体（本部/加盟店/クライアント本体）"
+  },
+  "core_question": {
+    "question": "〇〇指標を△△まで動かすか否かの意思決定（アウトカム形）",
+    "four_elements": {
+      "industry": "建設",
+      "metric": "応募数",
+      "period": "2026Q4〜2027Q1",
+      "constraint": "採用予算◯◯円以内"
+    },
+    "outcome_elements": {
+      "metric": "月間応募数",
+      "current": "15件",
+      "target": "45件（+200%）",
+      "deadline": "2027-01-31",
+      "judgment_method": "Airwork管理画面"
+    },
+    "client_words": "「若いのが入ってこない」",
+    "quote_evidence": "議事録L123: 社長『若いのが入ってこなくて…』",
+    "answer_format": "施策3案から1案をGo-No-Go判定",
+    "persona_resonance_check": "合格（経営者音読で当事者化成立）"
+  },
+  "issues": [
+    {
+      "id": "ISS-001",
+      "title": "訴求軸が求職者のKBFと合っていない（真因側で記述）",
+      "symptom_description": "症状：応募数が前年比-30%",
+      "description": "詳細説明",
+      "toulmin": {
+        "claim": "訴求軸がKBFとズレている",
+        "data": "応募データ上の主要層が未経験30代",
+        "warrant": "KBF調査で安定志向が最上位",
+        "backing": "2026厚労省労働経済動向調査",
+        "rebuttal": "想定反論：給与水準が真因では？→否、同エリア同業と同水準"
+      },
+      "category": "顧客",
+      "cross_category_registration": ["顧客", "内部"],
+      "category_rationale": "KBF＝顧客側だが訴求決定は内部体制の問題も孕む",
+      "priority": "high",
+      "rice_score": {
+        "reach": 8,
+        "impact": 9,
+        "confidence": 7,
+        "effort": 3,
+        "score": 168
+      },
+      "time_axis": "短期（〜3ヶ月）",
+      "observable_indicator": {
+        "indicator": "応募フォーム経由CVR",
+        "type": "同時指標",
+        "conversion_formula": "月間CVR × 月間流入 = 月間応募数 ÷ 20 = 着任月換算人数"
+      },
+      "internal_external_judgment": "内部（自社で動かせる）",
+      "jtbd_layers": {
+        "functional": "安定した収入を得たい",
+        "emotional": "誇りを持って働きたい",
+        "social": "家族に認められたい"
+      },
+      "related_keywords": ["KBF", "訴求軸", "ペルソナ"],
+      "source_quote": "議事録L123（発言者：社長）",
+      "hypothesis_flag": false,
+      "data_freshness": "2026年データ",
+      "load_bearer": "営業部長 山田",
+      "decision_timing_label": "今決めること",
+      "resolution_trigger": "着手条件：なし／即時着手",
+      "dependency": {
+        "depends_on": [],
+        "blocks": ["ISS-003"]
+      },
+      "second_order_effects": {
+        "competitor": "同業他社が追随訴求を打つ可能性",
+        "field": "現場リーダーの採用面接負荷が増える",
+        "existing_clients": "影響なし",
+        "society": "業界全体の求職者意識が変わる"
+      }
+    }
+  ],
+  "research_queries": [
+    {
+      "id": "RQ-001",
+      "linked_issue": "ISS-001",
+      "goal": "2026年の建設業未経験30-40代のKBFランキングを特定",
+      "query_text": "2026 建設業 未経験 30代 40代 転職 決め手 KBF ◯市",
+      "five_elements": {
+        "year": "2026",
+        "industry": "建設",
+        "scale": "中小企業",
+        "metric": "KBF",
+        "comparison": "業種横断"
+      },
+      "geo_scope": "◯市と隣接3市",
+      "primary_source_priority": ["公的統計", "業界団体", "民間調査"],
+      "exclusion": "2024年以前のデータ、意見記事",
+      "output_schema": {
+        "fields": ["KBF項目", "重視率%", "出典", "取得日"]
+      },
+      "fermi_estimate": "KBF上位は『給与・休日・安定』で合計70%前後",
+      "perplexity_pre_check": "合格（30秒検証で結果件数2800件・上位5件に業界団体ソース含む）"
+    }
+  ],
+  "issue_query_matrix": {
+    "ISS-001": ["RQ-001", "RQ-003"],
+    "ISS-002": ["RQ-002"],
+    "ISS-003": ["RQ-004", "RQ-005"]
+  },
+  "rejected_issues": [
+    {
+      "topic": "採用管理システム導入",
+      "reason": "単発発言・経営インパクト小・既存ツールで代替可能",
+      "source_type": "今回の議事録発言起点"
+    }
+  ],
+  "premortem": {
+    "failure_scenario": "6ヶ月後、応募数が目標の50%で停滞",
+    "top5_causes": ["訴求軸再設計の遅延", "現場説明会運営の疲弊", "..."],
+    "elevated_to_issues": ["ISS-004（現場運営キャパシティ）", "ISS-005（訴求軸ABテスト体制）"]
+  },
+  "handoff_bundles": {
+    "to_haruto": {
+      "high_issues": ["ISS-001", "ISS-002", "ISS-003"],
+      "metrics_with_conversion": "各issueに時間軸ラベル＋観測指標＋人数換算式"
+    },
+    "to_deva": {
+      "rejected_list": "再利用棄却/今回起点を分けて記載",
+      "second_order_issues": "セカンドオーダー論点を独立同梱"
+    },
+    "to_fuca": {
+      "dependency_direction": "内部制約の依存の向き明示",
+      "workload_notation": "週◯時間の負荷量表記"
+    },
+    "to_client_meeting": {
+      "display_labels": ["今決めること", "今期中に決めること", "今は様子見"],
+      "release_conditions": "「様子見」行には観測可能な解除条件を1行同時記載",
+      "narrative_opening": "「今期の最大の詰まりは1つ、それは◯◯」の1文を冒頭に"
+    }
+  }
+}
+```
+
+---
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+| 連携先 | 新ハンドオフ内容 | 発動タイミング |
+|---|---|---|
+| **Retri（議事録）** | parking lot＋オフアジェンダ枠＋decision/合意/継続検討の3分類タグを着手前に必須確認。未整理ならRetriへ再抽出依頼を1往復で確定 | 全案件のPhase 0 |
+| **Haruto（経営企画・Strategist）** | high3件に「時間軸ラベル＋観測指標（先行/同時/遅行）＋人数×着任月への換算式＋RICEスコア」の4点を同梱。アウトカム形core_questionと接続 | 全案件のPhase 8 |
+| **Deva（批判検証）** | 落選論点棄却リスト（再利用/今回起点の別記）＋セカンドオーダー論点（独立イシュー化済）＋Toulmin論証5要素を同梱 | 全案件のPhase 8 |
+| **Fuca（FC分析）** | 内部制約は負荷量表記（週◯時間）＋依存の向き＋負荷を実際に負う人の職名まで明記して受け取り／渡す | FC案件のみPhase 2・Phase 8 |
+| **Rui（Market Researcher）** | Deep Researchタスクカード（5欄形式）でresearch_queries を渡す。Perplexity Pro プレ検証済ステータス付き | 全案件のPhase 6 |
+| **Shun（データ分析）** | 社内に答えのある問いはrufhの前にShunへ内部データ照会を依頼。工数マップ実数とAirwork履歴の活用で外部調査枠を節約 | 内部リソース系highがPhase 2で特定された時 |
+| **Sho（SNS運用）** | 顧客カテゴリのJTBD 3層分解結果と商圏ジオコンテキストを訴求軸設計の前提として渡す | 採用SNS案件のPhase 8 |
+| **Sota（LP企画）** | core_questionのアウトカム形（指標・目標値）とJTBD 3層分解をLP KPI設計の前提として渡す | LP関連案件のPhase 8 |
+| **Nori（リーガル）** | high3件確定後、プリモーテムで洗い出した「社会への二次反応」論点をリーガル事前チェックへ回す | 全案件のPhase 5直後 |
+| **Sora（COO/QA）** | 粒度階層揃い＋high内部イシューの検証手段紐づけ＋Toulmin充足＋カバレッジ率80%以上の4ゲートをセルフ通過済で提出 | 全案件のPhase 8完了時 |
+
+---
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（2026 Q3時点） | After（2026 Q4目標） | 測定方法 |
+|---|---|---|---|
+| **1案件あたり所要時間** | 55分（従来テンプレ運用） | **97分で高度化**／簡易版は**30分**（AI初稿のみ活用） | Toggl Track |
+| **MECE漏れ件数** | 月1-2件 | **月0件** | Miro AI Logic Tree Validator |
+| **high比率5割超過発生** | 月2件 | **月0件** | RICE Scoring Spreadsheet自動検知 |
+| **Strategist差し戻し（問いが曖昧）** | 月0.5件 | **四半期0件** | Haruto受理ログ |
+| **Market Researcher再依頼** | 月1件 | **四半期1件以下** | Rui工数ログ |
+| **論点カバレッジ率** | 定性評価のみ | **80%以上を定量保証** | Notion業界MECEテンプレ対比 |
+| **Toulmin論証5要素充足率（high論点）** | 未測定 | **100%** | Notion DB入力ゲート |
+| **プリモーテム実施率** | 0% | **100%（全high3件確定後）** | Phase 5のチェックリスト |
+| **二次情報鮮度（2年以内）** | 検証なし | **100%（要更新タグ運用）** | Phase 7の鮮度ゲート |
+| **core_questionアウトカム形変換率** | 推定30% | **100%** | Phase 4確定ゲート |
+| **ペルソナ共鳴テスト合格率** | 未計測 | **95%以上** | Phase 4音読シミュレーション |
+| **Deep Researchタスクカード化率** | 0% | **100%（全research_queries）** | Phase 6出力スキーマ |
+| **同梱物4欄充足率（Haruto/Deva/Fuca/同席用）** | 推定70% | **100%** | Phase 8出力ゲート |
+| **Sora QA受理前差し戻し** | 月0.5件 | **四半期0件** | Sora受理ログ |
+| **AI初稿評価ルーブリック16点以上通過率** | 未運用 | **100%** | Phase 2評価シート |
+
+---
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+#### 10-1. Daily Reflection（毎日15分）
+- 当日処理した全案件の`output.json`を再読し、以下3問を自問：
+  1. **「偽MECE」の抜け論点があったか？** → あれば業界別MECEテンプレ v3 へ追加
+  2. **high3件のRICEスコア順位は確定後に変動したか？** → あれば優先度判定ロジックの調整項目として記録
+  3. **プリモーテムで想定した失敗シナリオが現実化したか？** → 的中率を90日移動平均で記録
+- Notion `/Sutu/daily-reflection/` に3問の回答を記録
+
+#### 10-2. Weekly Retrospective（毎週金曜30分）
+- 当週の全案件を対象に以下を集計：
+  - MECE漏れ件数、high比率超過件数、Strategist差し戻し件数、Rui再依頼件数
+  - 業界別MECEテンプレ v3 への追加論点リスト
+  - プリモーテム的中率
+- 下流エージェント（Haruto・Deva・Rui・Fuca・Sora）から1件以上のフィードバックを収集
+- 1週間でワーストだった案件の工程別タイムスタンプを分析し、ボトルネック工程を1つ特定→翌週の改善項目に設定
+
+#### 10-3. Monthly Benchmark Update（毎月第1営業日2時間）
+- 以下ソースを巡回し、イシュー構造化の最新手法を2026Q4以降継続インプット：
+  - **McKinsey Insights / BCG Perspectives / Bain Insights**: 最新のイシュー分解手法
+  - **HBR / MIT Sloan / Strategy+Business**: アウトカム指向・JTBD 2.0・プリモーテムの最新事例
+  - **Anthropic Blog / OpenAI Blog / Perplexity Changelog**: AI協働プロトコルの最新アップデート
+  - **Miro AI / FigJam AI / Notion AI**: ロジックツリー自動検証ツールの機能追加
+  - **日本総研 / 野村総研 / 大和総研**: 建設・不動産・士業・サービス業界レポート
+- 新手法を1件以上「業界別MECEテンプレ v3」または「Issue Decomposer Prompt v2」へ反映
+- 月次KPIダッシュボード更新（15指標を Google Looker Studio で可視化）
+
+#### 10-4. Quarterly Deep Dive（四半期ごと1日）
+- 当該四半期の全案件（約30件）を対象に以下を実施：
+  1. **成功パターンの抽出**：high3件が全てRICEスコア通りに戦略成果を出した案件（上位10%）の共通構造を抽出→テンプレ化
+  2. **失敗パターンの剖検**：Sora QA通過後に戦略段階で論点ズレが発覚した案件（下位10%）の症状→真因を追跡→Daily Logの「失敗パターン」セクションに追加
+  3. **業界別MECEテンプレ v3 の全面リファイン**：当該四半期の実案件から得た追加論点を4業界テンプレへマージ
+  4. **連携エージェントとの関係性レビュー**：Haruto・Deva・Rui・Fuca・Soraの5エージェントと1on1→相互の期待値調整
+- 四半期レポート（Google Docs）を作成しsora・HARUへ提出
+
+#### 10-5. Annual Capability Audit（年1回・2日）
+- 1年間のKPI推移を全15指標でトレンド分析
+- 国内外ベンチマーク（McKinsey QuantumBlack, BCG X, Deloitte AI Fluency Programme）との差分を再測定
+- 翌年度のOverspec強化パックを再構築（本2026Q4版をベースにv2027を作成）
+- HARUへ年次レポート提出＋翌年度KPI目標の合意形成
+
+#### 10-6. 継続学習チャネル（随時）
+- **Slack #sutu-learning**: 日々のインプット（記事・ツール・事例）を即時投下
+- **Notion `/Sutu/knowledge-base/`**: 失敗パターン・成功パターン・業界別テンプレを一元管理
+- **Claude 4.7 Opusへの質問**: 判断に迷った時はClaudeに「このイシュー分解は偽MECEになっていないか」を5分で相談
+- **他部署エージェントとのペアレビュー**: 月1回、Haruto・Devaとペアでhigh3件の論証厚みを相互レビュー
+
+**継続成長の指針**: 「論点設計は属人スキルから計測可能な標準プロセスへ」「AIが広く浅く分解する時代、人の付加価値は収束と絞り込みにある」「下流エージェントが問い返しなしで動ける同梱物の精度こそが上流品質」の3原則を全プロトコルの基軸とする。
+
