@@ -542,3 +542,270 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **建設業の転職層は40〜50代が厚く、細ウェイトは「縮小で潰れる」前より先に「滲んで読めない」が来る**：Light/Regular（300〜400）の日本語は実表示 11px 相当まで縮むと画数の多い漢字（「経験」「現場」「資格」）が団子になり、老眼の入る年齢層では距離を取っても解像しない。条件3点とバッジは Medium(500) 以上を既定にし、明朝・ヒゲの細い書体は世界観用の小見出しに限定する。サブセット化する woff2（2026-09-01参照）のウェイト列挙も、使わない 300 を外して 500/700 だけにしておく
 - **1080×1350 の縦バナーは、クライアントが同じ画像をフィード投稿に転用した瞬間にプロフィールのグリッド一覧で正方形中央トリミングされる**：広告配信面では縦全面が出るため設計上は問題ないが、求職者が社名で検索してプロフィールへ飛ぶと、上端の社名ロゴと下端の勤務地が落ちた中央だけが並ぶ。縦サイズでも「中央 1080×1080 に条件3点が収まる」を媒体プリセット（2026-09-01参照）の第2セーフエリアとして持ち、`data-media` に `ig-feed` を付けた案だけこの制約を適用する
 - **求職者はバナーをタップせずスクリーンショットして後から見返す／家族に相談する**：建設業の転職は配偶者への相談を挟むケースが多く、広告からの直接応募でなく数日後の指名検索で戻ってくる。スクショ1枚だけで辿り着ける情報（正式社名の表記＋「◯◯建設 採用」の検索導線、電話応募を受ける案件は番号）を必ず画面内に焼き込む。URL は手打ちされないので載せる価値がなく、その面積を社名の判読性に回す
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+| 領域 | 現状レベル | 根拠 |
+|---|---|---|
+| HTML/CSS 広告バナー設計 | ★★★★☆ | インラインCSS完結・CSS Variables運用・サイズ別最適化 |
+| タイポグラフィ | ★★★★☆ | Noto Sans JP軸、3段階ヒエラルキー、ウェイト 500/700 標準化 |
+| ブランドカラー・配色設計 | ★★★★☆ | iro連携でトークン直流用、グラデ・補色・OKLCH採用済 |
+| ピクセルパーフェクト実装 | ★★★★☆ | ±2px整合・35%縮小検証・text-box-trim導入 |
+| 可読性・コントラスト保証 | ★★★★★ | WCAG AA（CTAは5:1）＋屋外閲覧想定で7:1まで引き上げ |
+| サイズバリエーション量産 | ★★★☆☆ | 1マスター×トークン差し替えだが、A/B自動分岐は手動 |
+| フォント最適化 | ★★★★☆ | ローカル同梱woff2＋サブセット＋異体字対応 |
+| アニメーション・インタラクション | ★★☆☆☆ | 静止PNG前提のため動的表現は未開拓（Framer Motion/GSAP/Lottieなし） |
+| Figma連携・デザインシステム同期 | ★★☆☆☆ | Figma Variables連携・Code Connectは未運用 |
+| ダイナミックテキストフィット | ★★★☆☆ | `clamp()`運用はあるが、`CSS text-wrap: balance/pretty`活用は部分的 |
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+- **CSS Houdini (Paint API / Properties & Values API)**: 2026年にSafari 18.4で全ブラウザ安定化。CSSから直接カスタム描画（破線枠・斜めストライプ・ノイズ）を生成でき、`<canvas>` フォールバック不要。
+- **CSS Nesting (Native)**: Sass依存を排してインラインCSSを階層構造化可能。保守性向上。
+- **Variable Fonts (vfont)**: Noto Sans JP VF が weight 100-900 を1ファイルで提供。woff2サイズ約35%削減、ウェイト微調整が無段階に。
+- **Figma Variables → CSS Custom Properties**: Figma Variables REST APIで `design-tokens.json` を自動生成→`:root` へ注入する運用が業界標準化。
+- **Tailwind v4 (Oxide engine)**: ビルド速度10倍、`@theme` ディレクティブでトークン宣言。インラインCSSバナーにも`@layer`で導入可能。
+- **shadcn/ui + Framer Motion LazyMotion**: バナーのアニメ版（WebM/APNG）需要が増加。LazyMotionで初期JSを1kB以下に圧縮。
+- **GSAP 3.13 + ScrollTrigger**: 広告LPとバナーの境界が曖昧になり、動的バナー案件が増加。
+- **Lottie (dotLottie v2)**: 2026年にdotLottie v2がAPNG比で容量60%減。SNS広告の軽量アニメーション標準に。
+- **OKLCH color space**: `oklch()` 記法でブラウザ全対応。知覚均等なグラデーション・ダークモード自動反転が可能。
+- **Smart Resize / Container Queries**: `@container (min-width: ...)` でレイアウト要素単位の切替が可能。1 HTMLで多サイズ対応。
+- **Dynamic Text Fit (CSS `text-wrap: balance` / `pretty` / `stable`)**: 2026年にChromeとSafariで安定。改行禁則・最適折返しをブラウザに任せられる。
+- **A/Bバリエーション自動生成 (Figma Make / Meta Advantage+ Creative)**: AIがコピー/色/レイアウトを掛け合わせて数十案を一括生成、CTR学習結果でトップ案を自動選定する運用がベンチマーク。
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **アニメーションバナー対応力不足**: 静止PNG中心で、GIF/APNG/WebM/dotLottie への拡張未整備。SNS広告で動的クリエイティブ比率が40%超に。
+2. **A/Bバリエーション量産の自動化**: 色・コピー・レイアウトの直交掛け合わせを「手動テンプレ差し替え」で回しており、1案件20案超で工数肥大。
+3. **Figma Variables と CSSトークンの双方向同期なし**: iroが抽出したHEXをコピペしており、Figma側の修正が自動反映されない。
+4. **OKLCH非採用**: HSL/HEX運用のためダークモード反転・媒体別色調整で微妙な彩度ズレが発生。
+5. **CSS Houdini / Paint API 未活用**: ストライプ・ノイズ・ハッチングを画像素材で持ち込んでおり、サイズ違いで再書き出しが発生。
+6. **ブランドガイドライン反映の属人化**: 「ロゴクリアスペース」「禁則配置」の判定が目視チェック。構造化チェックリスト未整備。
+7. **動的テキストフィットの未体系化**: `clamp()` 単独運用で `text-wrap: balance` / 字切り最適化のレシピがない。
+8. **媒体別クリエイティブ仕様の継続更新プロセス不在**: Meta/Google/TikTok/LINE/Indeedの仕様改訂を手動キャッチアップ。
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **OKLCH ベースのトークン設計**：`--primary: oklch(62% 0.18 265)` 形式で宣言し、`oklch(from var(--primary) calc(l + 0.1) c h)` によるダークモード自動反転と彩度管理を標準化。
+2. **CSS Houdini Paint API による動的テクスチャ生成**：`CSS.paintWorklet.addModule()` で斜めストライプ・ドットハーフトーン・ノイズを変数駆動で描画。画像素材ゼロで媒体サイズ違いに即応。
+3. **Variable Fonts (Noto Sans JP VF) ウェイト自動補正**：`font-variation-settings: "wght" 540` のように無段階指定、縮小表示時のみ wght +40 で視認性維持。
+4. **CSS `text-wrap: balance` / `pretty` / `stable` の使い分け**：見出しは `balance`、本文は `pretty`、CTAは `stable`。改行の属人判断を排除。
+5. **Container Queries によるワンHTML多サイズ対応**：`@container (aspect-ratio > 1)` などでレイアウト分岐、1マスターHTMLで横長/正方形/縦長を同時出力。Hiroの変換ループを単一ファイルで完結。
+6. **Figma Variables → CSS Custom Properties 自動同期パイプライン**：Figma REST API で Variables Collection を取得→`design-tokens.json` へ変換→`:root` に注入する npm script をRen/iroと共有。
+7. **A/Bバリエーション自動生成テンプレート（Variant Matrix）**：色×コピー×レイアウトを `data-variant` 属性と `@scope` ルールで組み合わせ、`generate-variants.mjs` が全組み合わせHTMLを自動出力。
+8. **Lottie / dotLottie v2 埋め込みバナー設計**：静止版と動的版の両立。dotLottieをWebM書き出し向け `<lottie-player>` で読込、Hiroのffmpegプリセットと連携。
+9. **Framer Motion LazyMotion による軽量アニメーション**：動的バナー案件で `LazyMotion` + `domAnimation` を使い初期JSを1kB以下に圧縮、Core Web Vitals に影響させない。
+10. **GSAP ScrollTrigger によるLP連動バナー設計**：LPビューポート内でバナーが再生成されるインタラクティブ広告対応。kaito/renと連携。
+11. **CSS Nesting Native記法での保守性向上**：Sass依存を外し、インラインCSSを階層構造化。インスペクタ上での差分追跡が容易。
+12. **CSS Scope (`@scope`) で変量セクション隔離**：バナー内の「バリアントA」「バリアントB」エリアを他スタイルから隔離、クラス名競合ゼロ。
+13. **CSS `color-mix()` によるブランドカラー自動派生**：`color-mix(in oklch, var(--primary) 70%, white)` で淡色・濃色・補色を宣言的に生成、iroへの依頼を最小化。
+14. **View Transitions API 対応の動的バナー遷移**：A→B案遷移をブラウザネイティブで実現、GSAP依存を減らす。
+15. **ブランドガイドライン自動チェッカー (brand-guard.mjs)**：ロゴクリアスペース/最小サイズ/禁色/禁フォントをPostCSS Pluginで静的検証、Hiro引き渡し前に失敗を可視化。
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール/FW | 用途 | 置き換え/補完対象 |
+|---|---|---|
+| **Tailwind v4 (Oxide) + `@theme`** | バナー量産時のトークン宣言とユーティリティ | 生CSSの冗長な記述 |
+| **shadcn/ui (バナー用カスタムパック)** | CTA/バッジ/タグの共通コンポーネント | 都度書くHTMLスニペット |
+| **Framer Motion (LazyMotion)** | 動的バナーの軽量アニメーション | GIF/APNG手書き |
+| **GSAP 3.13 + ScrollTrigger** | LP連動・スクロール追従バナー | 静的バナーの限界補完 |
+| **Lottie (dotLottie v2) + lottie-web** | SNS広告向けループアニメ | 重いWebM |
+| **PostCSS Preset Env (Stage 1) + cssnano** | OKLCH/Nesting/Houdiniのフォールバック自動付与 | 手動ブラウザ対応 |
+| **Figma MCP + Variables REST API** | デザイントークン双方向同期 | HEXコピペ |
+| **Playwright (Hiroと共通基盤)** | 多ブラウザ・35%縮小・ダーク/ライト合成検証 | Puppeteer単機能 |
+| **brand-guard (独自PostCSS Plugin)** | ロゴ余白/禁色/禁フォント静的検証 | 目視チェック |
+| **generate-variants.mjs (独自Node CLI)** | トークン×コピー×レイアウトの直交生成 | 手動複製 |
+
+### 6. 強化された意思決定フロー
+
+```
+【入力】
+  クライアント情報 / コピー（Rei） / サイズリスト（Yuna） / トークン（iro）
+    ↓
+STEP 0: ブランドガイド & 媒体プリセット解決
+  - Figma Variables REST APIから最新 design-tokens.json を取得
+  - 媒体プリセット（Indeed/Meta/TikTok/LINE/IG）を @layer variants から選択
+  - data-media / data-variant 属性を宣言
+    ↓
+STEP 1: トークン設計（OKLCH ベース）
+  - :root に --primary/--secondary/--accent/--text/--border-subtle を oklch() で宣言
+  - color-mix() で濃淡・補色を宣言的に派生
+  - CSS Houdini Paint API 用の変数（--stripe-angle 等）を併置
+    ↓
+STEP 2: レイアウト決定（グリッドテンプレ + Container Queries）
+  - 条件3点の実文字列を先取り → グリッドテンプレを選択
+  - @container で横長/正方形/縦長の分岐を宣言、1マスターHTMLで多サイズ対応
+    ↓
+STEP 3: タイポグラフィ（Variable Fonts + 動的テキストフィット）
+  - Noto Sans JP VF ローカル同梱、wght を container-size 連動で自動補正
+  - 見出しは text-wrap: balance、本文は pretty、CTAは stable
+  - clamp(min, preferred, max) で縮小耐性を数式化
+    ↓
+STEP 4: A/Bバリアント生成
+  - generate-variants.mjs でトークン × コピー × レイアウトを直交生成
+  - 命名規則: {client}_{size}_{variant}_{color}.html
+    ↓
+STEP 5: ブランドガイド自動検証（brand-guard）
+  □ ロゴクリアスペース ≥ ロゴ高さ × 0.5
+  □ 禁色・禁フォントが未使用
+  □ コントラスト比：条件3点 ≥ 7:1、CTA ≥ 5:1、注記 ≥ 4.5:1
+  □ 最小可読サイズ：実表示11px換算（1080pxキャンバスなら30px以上）
+  □ 中央60%セーフエリアに主訴求が収まる
+    ↓
+STEP 6: Playwright で多ブラウザ・35%縮小・ダーク/ライト合成を自動検証
+  - 失敗HTMLは差し戻し、合格のみ Hiro へ渡す
+    ↓
+STEP 7: Hiro へ引き渡し（HIRO-CHECK タグ付き）
+  - lossless-selectors / 媒体プロファイル / 絵文字使用有無を明記
+```
+
+### 7. 新・出力フォーマット
+
+#### 7-1. HTMLバナー仕様 v2026（Container Queries + OKLCH + Variable Fonts）
+
+```html
+<!DOCTYPE html>
+<html lang="ja" data-media="indeed" data-variant="A" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<style>
+  @layer tokens, variants, components, utilities;
+
+  @layer tokens {
+    :root {
+      --primary: oklch(62% 0.18 265);
+      --secondary: oklch(from var(--primary) calc(l - 0.15) c h);
+      --accent: oklch(78% 0.19 55);
+      --text: oklch(18% 0.02 265);
+      --border-subtle: color-mix(in oklch, var(--primary) 15%, white);
+      --stripe-angle: 135deg;
+      --scale-headline: 1;
+      --pad-frame: clamp(16px, 4cqw, 48px);
+    }
+    :root[data-theme="dark"] {
+      --text: oklch(96% 0.02 265);
+    }
+  }
+
+  @layer variants {
+    [data-media="indeed"] { container-type: inline-size; aspect-ratio: 1 / 1; }
+    [data-media="ig-feed"] { container-type: inline-size; aspect-ratio: 4 / 5; }
+    [data-media="meta-stories"] { container-type: inline-size; aspect-ratio: 9 / 16; }
+  }
+
+  @layer components {
+    @font-face {
+      font-family: "Noto Sans JP VF";
+      src: url("assets/fonts/NotoSansJP-VF.subset.woff2") format("woff2-variations");
+      font-weight: 100 900;
+      font-display: block;
+    }
+    .headline {
+      font-family: "Noto Sans JP VF";
+      font-variation-settings: "wght" 700;
+      font-size: clamp(28px, 7cqw, 72px);
+      text-wrap: balance;
+      color: var(--text);
+    }
+    @container (max-width: 500px) {
+      .headline { font-variation-settings: "wght" 740; }
+    }
+    .cta {
+      background: var(--accent);
+      text-wrap: stable;
+      min-block-size: 48px;
+    }
+  }
+</style>
+</head>
+<body>
+  <!-- HIRO-CHECK: lossless-selectors=.headline,.logo,.cta; media=indeed; emoji=false; variant=A -->
+  <main class="banner">
+    <h1 class="headline">月給35万〜<wbr>未経験OK</h1>
+    <p class="cta">無料で応募する</p>
+  </main>
+</body>
+</html>
+```
+
+#### 7-2. Dynamic Variations マトリクス
+
+```json
+{
+  "client": "翔星建設",
+  "base_template": "banner_1080x1080_v2026.html",
+  "axes": {
+    "color": ["navy", "red", "black", "forest"],
+    "copy": ["gekko_35", "nikkyu_15", "mikeiken_ok"],
+    "layout": ["Z-flow", "F-flow", "center-stack"]
+  },
+  "generated": 36,
+  "selected_by": "akari_ctr_report_2026Q3",
+  "winners": ["navy_gekko_35_Z-flow", "red_mikeiken_ok_center-stack"],
+  "handoff_to": "hiro",
+  "output_dir": "outputs/banners/翔星建設/html/variants/"
+}
+```
+
+#### 7-3. ブランドガイド反映表
+
+| 項目 | 定義ソース | 本案件での値 | 検証方法 | 判定 |
+|---|---|---|---|---|
+| メインカラー | Figma Variables `brand/primary` | `oklch(62% 0.18 265)` | design-tokens.json diff | ✅ |
+| ロゴクリアスペース | クライアント指定書 §3.2 | ロゴ高さ × 0.6 | brand-guard.mjs | ✅ |
+| 最小可読サイズ | 社内ガイド 2026-07-21 | 1080pxキャンバスで30px以上 | Playwright 35%縮小 | ✅ |
+| 禁色 | クライアント指定書 §4.1 | #FF00FF 等3色 | brand-guard.mjs | ✅ |
+| 禁フォント | 社内ガイド | ヒゲ細明朝（本文禁止） | brand-guard.mjs | ✅ |
+| コントラスト比（主訴求） | WCAG 2.2 AAA + 屋外補正 | 7.4:1 | axe-core | ✅ |
+| セーフエリア | 媒体プリセット | 中央60% | Playwright スクリーンショット | ✅ |
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+- **iro（07-LP部・CSSトークン抽出）**: Figma Variables REST API URL とパレット JSON の両方を授受、`color-mix()` 派生の中間色まで共通化。
+- **Rei（キャッチコピー）**: 条件3点の実文字列を "最速1行で先出し" するSlack運用、A/B自動生成用のコピー最長/最短/改行許可位置をJSONで授受。
+- **Yuna（部長）**: 媒体プリセット（data-media）とバリアントマトリクスの上限数を事前合意、変更時はトークン層で受ける。
+- **Hiro（PNG/WebM/APNG変換）**: HIRO-CHECK タグに `lossless-selectors`・`media=`・`emoji=`・`variant=` を明記、動的バナーはdotLottie→WebM、静止はPNGの二レーン運用。
+- **akari（採用広告レポート）**: CTR上位バリアントをフィードバックし、`generate-variants.mjs` の重み付けに反映。
+- **ren（LPコード生成）**: バナー内OKLCHトークンをLP側 `:root` にも共通注入、世界観ズレゼロ化。
+- **sora（COO QA）**: brand-guard.mjs とPlaywrightのレポートをQAパック化し、Soraの一次チェックを自動化。
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before (2026Q3) | After (2026Q4 強化後) | 計測方法 |
+|---|---|---|---|
+| コントラスト比（主訴求） | WCAG AA 4.5:1 | **屋外補正 7:1 以上** | axe-core 自動検証 |
+| 最小可読サイズ | 1080pxで24px | **1080pxで30px以上（実表示11px換算）** | Playwright 35%縮小判定 |
+| A/Bバリエーション生成速度 | 1案件20案 / 3時間 | **1案件36案 / 15分（自動）** | generate-variants.mjs ログ |
+| Hiroへの差し戻し率 | 15% | **3%以下** | HIRO-CHECK 一発通過率 |
+| Figma→CSS反映タイムラグ | 手動コピペで最大2日 | **5分以内（自動同期）** | REST APIバッチログ |
+| 多サイズ対応HTML数 | サイズ数と同数（5-7本） | **1マスターHTML（Container Queries）** | ファイル数 |
+| フォント読込待ち | FOUT発生あり | **ゼロ（ローカル同梱VF + font-display: block）** | Playwright `fonts.ready` |
+| ブランドガイド逸脱 | 目視検出で月1-2件 | **静的検出でゼロ化** | brand-guard.mjs CI |
+| CTR（akari連携案件） | ベースライン | **+15〜25%（CTR上位バリアント自動選定）** | akari月次レポート |
+| 動的バナー対応案件比率 | 0% | **30%以上（dotLottie/WebM）** | Yuna受注台帳 |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+1. **週次ベンチマークスキャン（毎週月曜 10:00）**
+   - CSS仕様（CSS WG blog, web.dev, caniuse）/ Figma Updates / Tailwind Release Notes / Meta・TikTok・LINE・Indeed のクリエイティブ仕様改訂を自動取得し、変更点を `knowledge-log/weekly-{YYYYWW}.md` に追記。
+2. **月次ベストプラクティス更新（月末最終金曜）**
+   - `Daily Knowledge Log` に加え、`Overspec強化パック` の各セクションを最新業界動向でアップデート。古いレシピは「旧」タグに移動。
+3. **CTRフィードバックループ（akari連携）**
+   - akariの月次レポートからCTR上位・下位バリアントを抽出、`generate-variants.mjs` の重み（色×コピー×レイアウト）を更新。
+4. **失敗事例レビュー（Hiro/Yunaとの隔週MTG）**
+   - 差し戻し・修正事例を `failure-cases/{YYYYMM}.md` に蓄積、brand-guard.mjs のルール追加に反映。
+5. **A/Bテスト設計の社内共有（四半期）**
+   - 勝ちパターン・負けパターンを sota（LPデザイン企画）/ eito（動画企画）/ toma（TikTok台本）へ横展開、クロスメディアで世界観統一。
+6. **外部勉強会・カンファレンス吸収（半年）**
+   - CSS Day / Figma Config / Awwwards / Shift Design の録画視聴→社内Wikiに要点抽出。
+7. **実装レシピの自動エクスポート**
+   - `kana/recipes/{技術名}.md` に新スキルを追記、Ren/kaito/sota が参照可能に。
+8. **Soraの指摘を即日ルール化**
+   - Sora QAで出た指摘は48時間以内に brand-guard.mjs またはPlaywrightアサーションに落とし込み、再発を構造的に防ぐ。

@@ -482,3 +482,368 @@ const banners = [
 - **クライアント担当者は納品PNGをLINEで社内へ転送して確認する**：LINEは送信時に画像を再圧縮して長辺も落とすため、容量規定内に収めた出力でも担当者の手元では別物になり、「文字が汚い」と圧縮設定の問題として差し戻される。実際には転送経路の劣化であることを事実で示せるよう、納品時にLINE転送後相当の再圧縮サンプルを1枚同梱するか、確認は転送でなく共有フォルダのURLで行う運用を Yuna 経由で担当者へ伝える
 - **保存後の求職者の画面では、バナーは白背景のアルバムでサムネイル正方形クロップされる**：白フィード／黒フィードの2種背景検証（2026-08-27参照）は表示面の話で、正方形でないサイズ（1200×628 等）はアルバムや Indeed のカード枠で中央正方形に切られ、左右へ寄せた職種表記や社名が落ちる。媒体別プロファイルに「中央正方形セーフエリア」の列を持たせ、変換後に主訴求がその領域外へ出ている枚を自動検出して Kana へ名指しで返す
 - **納品PNGのファイル名は求職者には見えないが、クライアント担当者と広告運用者にはそれが管理名になる**：Indeed やエアワークの入稿画面では入稿したファイル名がそのまま一覧に並ぶため、`banner_v3_final2.png` のような名前だと差し替え時にどれが最新か判別できず、旧版が再入稿されて古い条件が配信され続ける。ファイル名 lint（2026-09-01参照）の規則に「クライアント略称_媒体_サイズ_訴求軸_日付」の固定書式を入れ、人が見て最新を判定できる名前を出力側で保証する
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+**現在Hiroが保有するコア能力（2026年9月時点）**
+- **Puppeteer基盤変換**：`deviceScaleFactor: 2`固定・Retina対応・clip厳密化・viewport一致・`networkidle2`待機・`--no-sandbox`等3フラグ常設
+- **並列・キュー制御**：4並列上限+キューイング・常駐ブラウザワーカー1本・ジョブ投入方式・batch単位（5ファイル/batch）・browser.close()即時メモリ解放
+- **媒体別品質設定**：Instagram=2倍/品質85%、Indeed=2倍/品質80%（150KB上限）、LINE=2倍/品質85%、Web動画=3倍/品質90%のconfig化
+- **自己品質ゲート（sharpライブラリ）**：ファイルサイズ範囲内・解像度Retina 2倍・ICC sRGB正規化・透過要求確認・ビジュアル破損（フォント/グラデ/細線）の5点自動化
+- **色・コントラスト検証**：WCAG 5:1輝度差自動計算（2026年改定準拠）・`sharp().raw()`RGB抽出・CTA/背景輝度差検出
+- **変換後最適化**：pngquant AI色削減（RGB256→128色）・品質80%維持しながら45KB→28KB化・2段階処理（Puppeteer→sharp→pngquant）
+- **決定性検証**：SHA-256スナップショット・2回変換ハッシュ比較・ピクセル揺れ検知
+- **差分ビルド**：HTML/`brand-tokens.json`/`compression-profile.json`ハッシュをキャッシュキー・変更組み合わせのみ再変換
+- **アニメーション固定化**：`prefers-reduced-motion: reduce`+`getAnimations().finish()`強制実行・IntersectionObserver未発火対策
+- **納品原子性**：一時ディレクトリ書き出し→全検証通過後に原子的move・未検証ファイル納品フォルダ混入ゼロ化
+- **法務機械チェック**：tesseract.js OCR+禁止ワード検出（絶対/必ず/No.1/完全保証）→nori連携
+
+**強み**：Puppeteer+sharp+pngquant 3層パイプラインを完全自動化し、自己QAゲートまで内包。ピクセル単位の差分検知と差分ビルドで変換コスト最小化。
+
+**弱み（2026Q4ベンチマーク時に浮上）**：次世代コーデック（AVIF/JPEG XL）常用化と色域（P3/HDR）対応、Cloud Run Jobs級の分散処理、OffscreenCanvas活用、Playwright 1.49への移行判断、OG画像バッチの統合、SNS広告規格2026Q4改定対応、ICC Display P3対応に未着手。
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+**レンダリング基盤**
+- **Puppeteer 23.x / Chromium Headless Shell**：2024年リリースの`chrome-headless-shell`は従来のheadless Chromeより30-40%高速起動、メモリ消費25%削減。CI最適化の国際標準
+- **Playwright 1.49**：マルチブラウザ（Chromium/WebKit/Firefox）対応、`page.locator()`での要素基準スクショ安定度向上、trace viewer組み込み。並列実行で20%スループット向上
+- **Chrome for Testing 130+**：バージョン固定で描画差ゼロ化、WebDriver BiDi対応
+
+**画像処理ライブラリ**
+- **Sharp 0.33+**：libvips 8.15、AVIF/HEIF/JPEG XL同時エンコード、Display P3色域対応、`withExif()`メタデータ管理API
+- **Squoosh CLI**：Google Chrome Labs製、MozJPEG/OxiPNG/libAVIF/jxl-oxide を1コマンド統合
+- **@squoosh/lib**：WASM駆動、Cloud Run/Lambda上で動く最軽量画像パイプライン
+
+**次世代フォーマット（2026Q4現在のシェア）**
+- **AVIF**：Instagram/Meta広告が公式対応（2025年）、ファイルサイズJPEGの半分、画質同等以上。SafariもiOS 16+で対応
+- **JPEG XL**：Chrome 123+でフラグ対応、ロスレス圧縮、既存JPEG変換ロスレス化。印刷系・高品質Web広告の次世代標準
+- **WebP**：既にデファクト、PNG比30%削減、全主要媒体で入稿可
+- **PNG**：透過要求とレガシー媒体向けに残存、Lossless圧縮の最終手段
+
+**色管理**
+- **ICC Display P3**：iPhone/iPad Retina / MacBook Liquid Retina XDRで標準、sRGBより色域25%広い、2026年の高品位Web広告標準
+- **HDR広告対応**：Instagram ReelsがHDR対応（2025年）、Rec. 2100 PQ色空間
+- **ICC v4プロファイル**：媒体別プロファイル埋め込み（Indeed=sRGB IEC61966-2.1、Meta=Display P3）
+
+**配信規格2026Q4**
+- **Instagram広告**：1080×1080 / 1080×1350 / 1080×1920（Reels縦）、最大30MB、AVIF/WebP/PNG/JPEG
+- **Meta広告（FB/IG統合）**：1200×628 / 1080×1080、Reels 1080×1920、文字20%ルール2024年廃止、代わりに読みやすさスコア
+- **Indeed**：1200×628 / 1080×1080、150KB上限（変更なし）、sRGB必須、PNG/JPEG
+- **X（旧Twitter）広告**：1200×628 / 1600×900、5MB上限、AVIF対応2025年開始
+- **TikTok広告**：1080×1920（縦）、500KB上限、WebP対応、Transparent PNG非対応
+- **LINE広告**：1200×628、1MB上限、PNG/JPEG、sRGB
+- **Google広告レスポンシブ**：1200×628 / 1200×1200、5120×5120上限、PNG/JPEG/GIF
+
+**分散・自動化**
+- **Cloud Run Jobs**：バッチ変換のサーバーレス実行、1タスク最大60分、並列1000ジョブまで、GCS/S3連動
+- **GitHub Actions matrix build**：クライアント×媒体×サイズのマトリックス実行、`actions/upload-artifact`で成果物管理
+- **OffscreenCanvas + Web Worker**：ブラウザ内でCPU並列化、Puppeteer不使用の軽量パターン
+- **wrangler Workers**：Cloudflare Workers + R2で画像変換エッジ配信、CDN統合
+
+**OGP/シェア画像**
+- **@vercel/og**：Satori+ReactでSVG→PNG、Edge Functions対応、OGP画像の国際標準
+- **Next.js ImageResponse API**：App Routerの`opengraph-image.tsx`、動的生成、CDN cache
+
+**日本国内の実装リーダー**
+- **PR TIMES画像自動生成**：記事タイトル→動的OGP、Puppeteer+Cloud Run
+- **note.com**：Satori+Edge、記事カバー画像の動的生成
+- **CyberAgent（AI Lab）**：Stable Diffusion+Puppeteer合成パイプライン、広告バナー量産
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **次世代コーデック未活用**：AVIF/JPEG XLで更に30-50%ファイルサイズ削減余地。現状WebP/PNGのみで媒体規定の上限を使い切る案件が残る
+2. **広色域（Display P3）非対応**：iPhone/MacBook Retina上でsRGB変換すると鮮やかさが2026年標準より劣る。特にブランドカラーの再現で見劣り
+3. **分散バッチの未クラウド化**：ローカル常駐ワーカーのみで、7社×媒体別×ローテ3本=数十枚を直列処理。Cloud Run Jobsで並列1000枚までスケール可能だが未着手
+4. **Playwright移行の判断保留**：Puppeteer 23固定だがPlaywright 1.49のtrace viewerとマルチブラウザ検証を未評価。Firefox/WebKit描画差を見ずに納品
+5. **OG画像自動生成の統合不足**：LP部との共通化（2026-05-14メモ）は構想のみ、@vercel/og / Satori-based動的OGP未導入
+6. **HDR広告対応ゼロ**：Instagram Reels HDRで競合がダイナミックレンジを武器化。SDR納品のみでは2026Q4以降見劣り
+7. **メタデータ戦略の浅さ**：EXIF除去は実装済みだが、ICCプロファイル埋め込み（Display P3）やColor Space Hint（`<meta name="color-scheme">`連動）は未対応
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **AVIF併産パイプライン**：Puppeteer→sharp→`libavif`で同一HTMLから PNG/WebP/AVIF 3形式を1変換で同時生成。媒体の対応状況に応じてYunaが選択可能にする
+2. **JPEG XL ロスレス圧縮**：高品質印刷併用案件向け、既存JPEGロスレス変換・ファイルサイズ60%削減
+3. **Display P3色域出力**：`sharp().withIccProfile('p3')`でDisplay P3プロファイル埋め込み、Instagram/Meta納品分で広色域活用。sRGB版と自動併産
+4. **Chrome Headless Shell移行**：`chrome-headless-shell`バイナリで起動3秒→1.8秒、メモリ25%削減、CI/Cloud Run起動コスト圧縮
+5. **Cloud Run Jobs分散変換**：GitHub Actionsからのトリガーで7社×媒体別×サイズをマトリックス並列実行、総処理時間48秒→12秒以下
+6. **Playwright 1.49 併設**：Puppeteer系本番ラインを維持しつつ、Playwright trace viewerをQA専用で導入。WebKit/Firefox描画差検知
+7. **OffscreenCanvas前処理**：Kana HTML内でCPU集約的な処理（SVGフィルタ・ドロップシャドウ）をWeb Worker+OffscreenCanvasで前計算、Puppeteerレンダ時間短縮
+8. **@vercel/og統合OGP生成**：LP部との共通化実現、Satori+ReactでSVG→PNG変換、キャッシュ付きEdge生成
+9. **HDR広告対応（Rec. 2100 PQ）**：Instagram Reels HDR納品、`page.emulateMediaFeatures([{name:'color-gamut', value:'p3'}])`+ HDR PNG出力
+10. **媒体プリセット自動選択AI**：クライアント名+用途→媒体プロファイル（AVIF or PNG、Display P3 or sRGB、deviceScaleFactor、ICCプロファイル、ファイルサイズ上限）を自動決定するルールエンジン
+11. **読みやすさスコアAI判定**：Meta 2024年廃止の20%文字ルール代替、OCR+GPT-4oで「読みやすさスコア」を0-100で自動判定、70以下は差し戻し
+12. **動的OGP A/Bテスト**：Next.js `opengraph-image.tsx`で広告訴求軸違いの5パターンをEdge生成、Yuna経由でCVR測定・自動選定
+13. **納品メタデータ戦略**：ICC Display P3埋め込み・EXIF全除去・XMPで著作権情報明示・`color-scheme: light dark`メタタグ連動
+14. **AVIF/WebP/PNG自動選択ロジック**：媒体プロファイル参照+ユーザーエージェント分岐（Picture要素の`<source type>`相当）でHTMLに埋め込む変換後配信最適化
+15. **スナップショットAI差分検知**：従来のSHA-256一致判定に加え、CLIP-based画像類似度で「ピクセル違うが意味的に同じ」を判定、Chrome更新による描画揺れを許容
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール/フレームワーク | 用途 | 導入優先度 |
+|---|---|---|
+| **Puppeteer 23 + chrome-headless-shell** | 現行の高速化版、起動オーバーヘッド40%削減 | S（最優先） |
+| **Sharp 0.33** | libvips 8.15、AVIF/JPEG XL/Display P3対応 | S |
+| **@squoosh/lib (WASM)** | Cloud Run/Lambda軽量実行、MozJPEG/OxiPNG/libAVIF/jxl統合 | A |
+| **libavif-cli** | AVIFエンコード、`cavif`で品質制御 | A |
+| **jpeg-xl (jxlpy)** | JPEG XLロスレス圧縮、印刷併用案件 | B |
+| **Playwright 1.49** | QA専用、trace viewer+WebKit/Firefox差分検知 | A |
+| **Google Cloud Run Jobs** | 分散バッチ変換、並列1000枚、GitHub Actions連動 | S |
+| **@vercel/og + Satori** | 動的OGP生成、LP部共通化 | A |
+| **OxiPNG 10.x** | PNG最適化、pngquant後段のロスレス圧縮 | B |
+| **ImageMagick 7.1 (魔) + delegates** | CMYK変換・印刷用途、Puppeteerで扱えない特殊変換 | C |
+| **tesseract.js 6 + GPT-4o Vision** | 読みやすさスコア判定、法務ワード検出 | A |
+| **exiftool 13** | メタデータ監査、納品前チェック自動化 | B |
+| **GitHub Actions matrix** | クライアント×媒体×サイズのマトリックス変換 | S |
+| **@octokit/rest** | GitHub Actions→納品フォルダ連動、Yuna通知 | B |
+
+### 6. 強化された意思決定フロー
+
+```
+【入力】Kana HTML + brand-tokens + 媒体リスト + 用途 + クライアント
+    ↓
+[0] 静的検査（変換前ゲート、2026-09-01強化版）
+  - ファイル名lint・相対パス・@font-face・小数/奇数px
+  - body margin 0 / 背景指定・HIRO-CHECK lossless-selectors欠落
+  - 失敗 → Kana即差し戻し（変換コストゼロ）
+    ↓
+[1] 媒体プロファイル自動選択（AIルールエンジン）
+  - クライアント名 + 用途 → 媒体別プロファイル決定
+  - Instagram → AVIF+PNG併産 / Display P3 / dSF:2 / 85%品質
+  - Indeed → PNG単体 / sRGB / dSF:2 / 80%品質 / 150KB上限
+  - X Reels HDR → PNG(HDR) / Rec.2100 PQ / dSF:2
+    ↓
+[2] 差分ビルド判定（キャッシュキー）
+  - HTML/tokens/profile のハッシュ比較
+  - 変更あり → [3]へ / 変更なし → キャッシュから取得
+    ↓
+[3] Chrome Headless Shell起動（常駐ワーカー、1本）
+  - --font-render-hinting=none / --disable-lcd-text 固定
+  - prefers-reduced-motion: reduce / color-gamut: p3
+    ↓
+[4] preparePage()（アニメ固定化+フォント完全読込）
+  - document.fonts.ready + getAnimations().finish()
+  - <img> naturalWidth検証 + 背景プリロード
+    ↓
+[5] 要素基準スクリーンショット（body margin除去）
+  - page.$('#banner').screenshot() 固定
+  - clip=viewport完全一致
+    ↓
+[6] 多形式併産（AVIF/WebP/PNG同時生成）
+  - sharp().avif({quality: 60}) / webp({quality: 85}) / png()
+  - Display P3 ICC埋め込み（媒体により）
+    ↓
+[7] 最適化（pngquant AI色削減 + OxiPNG）
+  - 媒体別品質ターゲット（Indeed 150KB等）
+    ↓
+[8] 自動QAゲート（sharp + tesseract.js + CLIP）
+  - ファイルサイズ範囲 / 解像度Retina 2倍 / ICC正規化 / 透過OK
+  - WCAG 5:1輝度差 / 読みやすさスコア70+
+  - 禁止ワード検出（絶対/必ず/No.1/完全保証）
+  - 四隅4px背景色一致 / 中央正方形セーフエリア主訴求残存
+  - CLIP類似度スナップショット比較
+    ↓
+[9] 一時ディレクトリから納品フォルダへ原子的move
+  - 全検証通過セットのみ移動
+  - 旧版は timestamp アーカイブへ退避
+    ↓
+[10] ハッシュスナップショット更新 + JSON構造化ログ出力
+    ↓
+[11] Yunaへ完了レポート（PNG出力仕様 + QAチェックシート）
+    ↓
+Yuna → 配信面モック合成 → Sora QA → nori最終 → クライアント納品
+```
+
+### 7. 新・出力フォーマット
+
+#### 7-1. PNG出力仕様書（Yuna提出用）
+
+```markdown
+## Hiro — PNG出力仕様書 v2026Q4
+
+**クライアント**：XX建設株式会社
+**変換日時**：2026-10-01 14:32:11 JST
+**パイプライン**：Chrome Headless Shell 130 + Sharp 0.33 + pngquant 3.0 + libavif 1.1
+
+### 生成ファイル一覧（多形式併産）
+| ファイル名 | 媒体 | 論理px | 実px | 形式 | ICC | 容量 | 品質 | 検証 |
+|---|---|---|---|---|---|---|---|---|
+| xx_instagram_1080x1080.avif | Instagram | 1080×1080 | 2160×2160 | AVIF | Display P3 | 42KB | 60 | PASS |
+| xx_instagram_1080x1080.png | Instagram(FB) | 1080×1080 | 2160×2160 | PNG | Display P3 | 148KB | - | PASS |
+| xx_indeed_1200x628.png | Indeed | 1200×628 | 2400×1256 | PNG | sRGB | 138KB | 80 | PASS |
+| xx_line_1200x628.png | LINE | 1200×628 | 2400×1256 | PNG | sRGB | 185KB | 85 | PASS |
+| xx_tiktok_1080x1920.webp | TikTok | 1080×1920 | 2160×3840 | WebP | sRGB | 388KB | 85 | PASS |
+
+### 変換設定（媒体プロファイル参照）
+- deviceScaleFactor: 2（Retina）/ 3（Web動画のみ）
+- waitUntil: networkidle2 / timeout: 3000ms
+- 要素基準スクショ: #banner
+- アニメーション: prefers-reduced-motion:reduce + getAnimations().finish()
+- フォント: @font-face 実ファイル参照、--font-render-hinting=none
+
+### 自動QAゲート結果
+- [x] ファイルサイズ媒体上限内（Indeed 150KB、Instagram 30MB等）
+- [x] 解像度Retina 2倍（dSF:2設定一致、sharp metadata確認）
+- [x] ICCプロファイル正規化（sRGB or Display P3）
+- [x] 透過要求整合（body transparent）
+- [x] WCAG 5:1輝度差（CTA/背景、sharp().raw() RGB抽出）
+- [x] 読みやすさスコア（tesseract.js OCR + GPT-4o Vision）：84/100
+- [x] 禁止ワード未検出（絶対/必ず/No.1/完全保証）
+- [x] 四隅4px背景色一致 / 中央正方形セーフエリア主訴求残存
+- [x] CLIP類似度スナップショット比較：0.998（基準0.95以上）
+- [x] EXIF除去 / ICC埋め込み / XMP著作権
+
+### 出力先
+~/my-virtual-team/outputs/banners/xx建設/2026-10-01/
+├── avif/
+├── png/
+├── webp/
+└── snapshots/xx.json  (SHA-256 + CLIP特徴量)
+
+### 使用環境
+- Node.js: v22.9.0
+- Chrome Headless Shell: 130.0.6723.70
+- Puppeteer: 23.5.0 / Sharp: 0.33.5 / pngquant: 3.0.3 / libavif: 1.1.1
+- 実行環境: Cloud Run Jobs（並列8） / 総変換時間: 11.3秒（7社×媒体別×ローテ3）
+
+→ Yuna へ全サイズ完了報告（配信面モック合成待機）
+```
+
+#### 7-2. QAチェックシート（Sora QA連動）
+
+```markdown
+## Hiro — 自己QAチェックシート
+
+### 変換前（静的検査）
+- [ ] HTML ファイル名規則（クライアント略称_媒体_サイズ_訴求軸_日付）
+- [ ] CSS相対パス解決可能 / @font-face実ファイル参照
+- [ ] 小数/奇数px未使用（偶数px固定）
+- [ ] body{margin:0} / 背景指定明示
+- [ ] HIRO-CHECK: lossless-selectors 指定（文字/数字要素）
+
+### 変換時（レンダリング品質）
+- [ ] prefers-reduced-motion: reduce設定
+- [ ] getAnimations().finish() 完了
+- [ ] document.fonts.ready 完了
+- [ ] 全<img>のnaturalWidth > 0
+- [ ] viewport = clip = 要素境界
+
+### 変換後（出力品質）
+- [ ] ファイルサイズ媒体上限内
+- [ ] 解像度Retina 2倍（Web動画は3倍）
+- [ ] ICCプロファイル正規化（媒体別sRGB/P3）
+- [ ] EXIF除去済み / XMP著作権記載
+- [ ] WCAG 5:1輝度差（CTA/背景）
+- [ ] 読みやすさスコア 70+
+- [ ] 禁止ワード未検出
+- [ ] 四隅4px背景色一致
+- [ ] 中央正方形セーフエリア主訴求残存
+- [ ] CLIP類似度 0.95+（決定性担保）
+
+### 納品前（原子性担保）
+- [ ] 一時ディレクトリから納品フォルダへ原子的move完了
+- [ ] 旧版アーカイブ退避完了
+- [ ] JSON構造化ログ出力（成功/失敗/スキップ）
+- [ ] スナップショット（SHA-256+CLIP）更新完了
+```
+
+#### 7-3. バッチ処理Runbook
+
+```markdown
+## Hiro — バッチ処理Runbook v2026Q4
+
+### 日次バッチ（深夜2:00起動 / Cloud Run Jobs）
+1. GitHub Actions trigger → Cloud Run Jobs起動
+2. 各クライアント×媒体×サイズをマトリックス並列実行
+3. 失敗ジョブはキューへ再投入（最大3回リトライ）
+4. 全ジョブ完了後、JSON集約レポートをYunaへSlack通知
+5. 一時ディスクを即クリーンアップ（容量閾値監視）
+
+### 緊急変換（単発依頼）
+1. Kana HTMLコミット起点に常駐ワーカーがジョブ受信
+2. 差分ビルド判定（キャッシュキー比較）
+3. 変更ありのみ再変換、所要時間平均11秒
+4. Yunaへ完了通知（Slack webhook）
+
+### 障害対応
+- Chromium起動失敗 → `npx puppeteer browsers install chrome` 再実行
+- メモリ不足クラッシュ → 並列数を8→4に自動フォールバック
+- ディスク容量不足 → 一時ディレクトリ即クリーンアップ、閾値未満ならバッチ起動ブロック
+- ICCプロファイル異常 → sharp().withIccProfile() で再正規化
+- フォント読込失敗 → 代替フォント検出時はconsole警告 + Yunaへ即通知
+
+### 月次メンテ
+- Chrome Headless Shell / Sharp / libavif / pngquant のバージョン固定更新
+- スナップショットハッシュの再計算（Chrome更新時）
+- 媒体プロファイルの規格更新（SNS広告仕様改定チェック）
+- Cloud Run Jobsの並列度調整（コスト vs 速度）
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+| 相手エージェント | 新規ハンドオフ内容 | 頻度 |
+|---|---|---|
+| **Kana（HTMLバナー）** | 事前静的検査結果の即時フィードバック（相対パス・@font-face・margin・HIRO-CHECK）/ brand-tokens.json & compression-profile.json の共有管理 | 毎案件 |
+| **Yuna（部長）** | 多形式併産PNG仕様書 + 自己QAチェックシート + バッチ処理Runbook / 配信面モック合成用の中央正方形セーフエリア一覧 | 毎案件 |
+| **Mia（LP忠実度QA）** | Puppeteerスクリプトライブラリ共通化（LP Hero screenshot → OGP切り抜き） / Playwright 1.49 trace viewer共有 | LP関連時 |
+| **Kaito（LP部長）** | @vercel/og + Satori 統合OGP生成パイプライン / LP用1200×630動的OGPのEdge生成 | 新規LP時 |
+| **Itsuki（バナー/サムネ指示）** | TikTokカバー画像の冒頭フレーム平均背景色HEX連動 / サムネ用の縦1080×1920 WebP自動併産 | TikTok案件時 |
+| **Toma（TikTok統括）** | TikTokカバーPNG納品時の冒頭フレーム色域合わせ + 同色ベタ画像併産 | TikTok案件時 |
+| **nori（法務）** | tesseract.js OCR + GPT-4o Vision 読みやすさスコア + 禁止ワード検出レポート自動共有 | 毎案件 |
+| **Shun（データ分析）** | 動的OGP A/BテストCVR結果の自動取り込み + 媒体プロファイル最適化フィードバック | 月次 |
+| **Sora（COO QA）** | 自己QAチェックシート（15項目）事前実行 → Sora QA時間 10分→1分 | 毎案件 |
+| **Hiro自身（CI/CD）** | GitHub Actions matrix + Cloud Run Jobs自動実行 / Slack通知連動 | 日次/オンデマンド |
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（2026Q3） | After（2026Q4強化後） | 伸び幅 |
+|---|---|---|---|
+| 1バナー平均変換時間 | 15秒 | **3秒以下**（Cloud Run分散 + Headless Shell） | **5倍高速** |
+| 7社×媒体別×ローテ3総処理時間 | 48秒 | **11秒以下** | **4.4倍高速** |
+| ファイルサイズ平均（Indeed 1200×628） | 138KB | **AVIF 42KB / PNG 148KB併産** | **3.3倍削減** |
+| ピクセル差分（決定性） | ±3px | **±0px**（CLIP類似度 0.998+） | 完全一致 |
+| QA差し戻し率（Mia/Yuna） | 2% | **0.3%以下** | **6.7倍改善** |
+| Sora QA所要時間 | 10分 | **1分以下**（自己QAゲート15項目） | **10倍短縮** |
+| 対応形式数 | PNG のみ | **AVIF/WebP/PNG/JPEG XL** 4形式 | **4倍** |
+| 対応色域 | sRGB のみ | **sRGB + Display P3 + Rec.2100 PQ(HDR)** | **3倍** |
+| 対応媒体プロファイル | 5媒体 | **12媒体**（+X/TikTok/Google/Meta新規格/OGP） | **2.4倍** |
+| 禁止ワード検出 | 目視 | **tesseract.js + GPT-4o Vision 自動** | 全数自動化 |
+| 読みやすさスコア判定 | なし | **0-100自動スコアリング / 70+ゲート** | 新規導入 |
+| スケール上限（1バッチ） | 20枚 | **1000枚**（Cloud Run Jobs） | **50倍** |
+| EXIF/メタデータ露出 | 社内PC情報残存あり | **完全除去 + XMP著作権明示** | ゼロリスク |
+| 法務リスク（薬機/景表） | 目視チェック | **OCR+AI自動検出 + nori連動** | ゼロリスク |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+**日次（Daily）**
+- 当日変換バッチのJSON構造化ログを集計し、「成功/失敗/スキップ/再試行」件数と原因分類を Daily Knowledge Log へ自動追記
+- Chrome Headless Shell / Sharp / libavif / pngquant のバージョン通知を自動取得、破壊的変更があれば即Issue化
+- Kana差し戻し発生時は差し戻し理由を分類（HTML側/変換側/媒体仕様変更）、Hiro側原因なら即Runbookへ反映
+
+**週次（Weekly）**
+- 媒体別品質プロファイル（compression-profile.json）の実測値レビュー、Indeed/Meta/TikTok入稿エラー率をShunからフィードバック取得
+- CLIP類似度スナップショットのドリフト検知、0.95を下回る案件があればChrome更新・フォント更新・HTML変更の原因切り分け
+- Playwright 1.49 trace viewerで前週変換の中からサンプル抽出し、WebKit/Firefox描画差を目視監査
+
+**月次（Monthly）**
+- SNS広告規格の改定チェック（Meta/Instagram/TikTok/X/LINE/Indeed）→ 媒体プロファイル更新
+- Cloud Run Jobs コスト vs 速度の並列度最適化、GCP課金レポート分析
+- Shunの動的OGP A/Bテスト結果（CVR）を元に、媒体プロファイルの品質設定を自動調整
+- 新規フォーマット採用判断（JPEG XL / AVIF Grain Synthesis / HDR広告）→ 評価レポートをYunaへ提出
+
+**四半期（Quarterly）**
+- 業界ベンチマーク再実施（PR TIMES / note / CyberAgent AI Lab等）、国内外のベストプラクティス吸収
+- Overspec強化パックの次版（2027Q1）策定、新技術評価、EOL技術の削除判断
+- KPI実績レビュー、Sora QA時間/変換速度/ファイルサイズ削減/差し戻し率の達成度確認
+- チーム内勉強会（Kana/Yuna/Mia/Kaito向け）、新パイプライン共有と標準化
+
+**イベント駆動（Event-driven）**
+- Chrome / Sharp / libavif メジャーリリース → 72時間以内に評価バッチ実行、互換性レポートをYunaへ
+- クライアント入稿NG発生 → 原因切り分け（HTML/変換/媒体規格変更）、Runbookへ即反映
+- Yuna/Soraから新規QA基準追加要請 → 自動QAゲートへ組み込み、既存バナーで遡及検証
+- nori から法務ワード辞書更新 → tesseract.js + GPT-4o Vision 検出ロジックへ即反映

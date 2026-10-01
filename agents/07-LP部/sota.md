@@ -860,3 +860,292 @@ JS ソースから以下のパターンを検出する:
 - **社長が言う「若い人に響くデザイン」は、自社の20代社員の感覚ではない**：決裁者が想像するターゲット像は自身の子供世代や他業種の広告イメージで、実際に応募してほしい層とズレたまま案が選ばれ、公開後に応募が来ない理由が特定できなくなる。案 A/B の提示前にクライアント社内の該当年代社員2〜3名へ SP 幅で見せ、「自分の知り合いに勧めるならどちらか」を聞いて回答を提案書へ1行添える。好みの議論を決裁者個人でなく社内の当事者の反応で受ける
 - **Android Chrome の自動ダークテーマは、白基調のLPを求職者側で勝手に反転させる**：端末がダークモード設定だと背景が暗転し、明度差だけで成立させた配色・薄いグレーの区切り線・白抜き文字のCTAがまとめて崩れる。承認の基準面が SP（2026-08-18参照）である以上、この反転は求職者の実閲覧環境として扱う。配色を決める段階で `color-scheme: only light` を前提にするか反転されても成立する明度差を確保するかを選び、提案書の配色仕様へ明記して iro・Ren へ渡す
 - **「競合A社みたいにして」の指名は、デザインでなく条件で選ばれている場合が多い**：クライアントが挙げる同業他社の採用LPは、求職者から見ると給与・年間休日・寮の有無で先行していることが理由で、見た目を寄せても応募は動かず既視感（2026-09-01参照）を増やすだけになる。参考として名前が出た時点で、A社と自社の条件3点を1行で並べて提示し、差が条件側にあるなら Tsumugi 経由で条件見直しか訴求軸の変更を先に相談する。デザインで解けない依頼をデザインで受けない
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+| 現状スキル領域 | 現状レベル | 内訳 |
+|---|---|---|
+| 参考LPデザイン要素分析 | ★★★★☆ | カラー・フォント・レイアウト・CTA・キャッチコピーの5要素分析まで。感情・体験軸は未体系 |
+| 独自デザイン案策定（案A/B） | ★★★★☆ | 保守案・チャレンジ案の2案提示。差別化ポイント1〜2箇所に集中可 |
+| モーション・アニメーション設計 | ★★★★☆ | CSS/GSAP/Framer Motion/AOS対応。スクロール連動・ホバー演出まで |
+| カラー設計（OKLCH連携） | ★★★☆☆ | iroへOKLCHトークン渡し、60-30-10面積比をSP基準で指定可 |
+| 建設業採用LP特化知識 | ★★★★☆ | 現場写真の安全装備チェック・条件3点訴求・社長決裁の罠まで蓄積 |
+| Ren/Mia/iro/Nao連携 | ★★★★☆ | 共通コンポーネント骨格・ID名指し崩し指定・ベースライン単位連携 |
+| CRO/ヒートマップ分析 | ★★☆☆☆ | 公開後のユーザー行動データからの逆算改善が未体系 |
+| GEO/地域ランディング | ★★☆☆☆ | エリア×職種タグ付けはあるが、地域SEO/GEO設計は未着手 |
+| アクセシビリティ（WCAG2.2） | ★★☆☆☆ | color-scheme対応・ダークテーマ崩れ対策はあるが、WCAG2.2新基準は未対応 |
+| JTBD/ペルソナ・ニーズマップ | ★★☆☆☆ | 条件3点訴求はあるが、求職者のジョブ理論ベース設計は未体系 |
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+**国内外のLPデザイン潮流（2026 Q4）**
+- **Awwwards Site of the Day（2026年）**：Scroll-Driven Animations（CSS Native）がデファクト化。View Transitions API による SPA 風ページ遷移が普及
+- **Lapa Ninja / Landbook（2026年ランキング）**：Bento Grid レイアウト（Apple WWDC由来）が採用LPでも主流。情報密度と視覚整理を両立
+- **SaaS Landing Page（Fintech / HR Tech）**：Social Proof as Hero（顧客ロゴ・数値実績をHero直下に）、Interactive Product Demo が標準装備
+- **日本国内（2026年トレンド）**：3Dモデル×スクロール連動（Spline/Three.js）、音声LP（Voice-Guided LP）がBtoB系で台頭
+- **CRO 2.0（Conversion Rate Optimization）**：公開前にAI生成の仮想ユーザーで A/B 事前検証（Fluxon, Attention Insight 等）
+- **ヒートマップCRO**：Microsoft Clarity（無料・AI Insights 2026年版）がデファクト。Session Replay + Dead Click 検出が標準
+- **GEO（Geographic Experience Optimization）**：IP/位置情報ベースで Hero コピー・採用拠点・CTA を動的に差し替え（Vercel Edge Middleware）
+- **音声LPアクセシビリティ**：WCAG 2.2（2023年公開）→ 2.3 ドラフト対応。Focus Appearance（新達成基準）、Accessible Authentication、Target Size 24×24px 以上が必須
+- **Jobs-to-be-Done（JTBD）設計**：求職者の「本当に雇いたいジョブ」を Hero コピーに直結させる逆算型設計（Clayton Christensen 理論の採用LP応用）
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **公開後の行動データからの逆算改善が不足**：Microsoft Clarity / PostHog / Hotjar の Session Replay・Dead Click・Rage Click データを Sota が自ら読み、次案件のテンプレ更新に反映する運用が未整備
+2. **GEO（地域ランディング）設計が未体系**：建設業は都道府県・市区町村単位で採用市場が異なるにも関わらず、Hero コピーや拠点情報の動的差し替え設計が無い
+3. **WCAG 2.2 新基準への未対応**：Focus Appearance / Target Size 24px / Accessible Authentication / Dragging Movements の4新基準をデザイン段階で担保していない
+4. **JTBD（Jobs-to-be-Done）理論の未適用**：求職者のジョブ（例：「安定した収入で家族を安心させたい」）を Hero コピーに直結させる逆算設計が未体系。条件3点訴求だけでは感情ジョブに届かない
+5. **CRO 2.0 の事前検証不足**：公開前に Attention Insight（視線予測AI）/ Fluxon（仮想ユーザーテスト）で A/B の事前スコアリングを行っていないため、承認後のヒートマップ再設計が発生
+6. **Bento Grid / 3Dスクロール連動の実装パターン未整備**：2026年国内外トレンドの Bento Grid、Spline/Three.js のスクロール連動を建設業LPへ応用する型が無い
+7. **音声LP / 動画LP への対応不足**：求職者の約4割がスマホで音声再生を使う時代に、音声ガイド付きLP（Voice-Guided LP）・字幕埋め込み動画Hero の設計パターンが無い
+8. **ペルソナ・ニーズマップの未体系化**：ターゲット年代・家族構成・現職業種から「ニーズマップ」を作り、Hero 3型（人物／現場／数字）の選定根拠を可視化する運用が無い
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **JTBD-Hero逆算設計**：求職者のFunctional/Emotional/Social Job を3層でヒアリングし、Hero コピーに直結させる逆算型設計スキル。条件3点より上位にジョブを置く
+2. **Microsoft Clarity Session Replay 読解**：公開後2週間の Dead Click / Rage Click / Scroll Depth / Session Recording から改善仮説を立て、次案件のテンプレへ還流するスキル
+3. **GEO動的コピー設計**：Vercel Edge Middleware / Next.js Middleware で IP → 都道府県 → Hero コピー・採用拠点・CTA を動的差し替えする設計スキル
+4. **WCAG 2.2 新基準デザイン担保**：Focus Appearance（2px以上の視認可能なフォーカスリング）、Target Size（24×24px以上）、Dragging Movements（代替手段）、Accessible Authentication の4基準を提案書に明記するスキル
+5. **CRO 2.0 事前検証**：Attention Insight / Fluxon / Neurons AI で案A/Bの視線予測・Attention Score を事前取得し、承認前にヒートマップ予測を提示するスキル
+6. **Bento Grid レイアウト設計**：Apple WWDC由来のBento Grid（情報カード群の非対称グリッド配置）を建設業採用LPへ応用し、「仕事内容・待遇・社員の声・福利厚生」を1画面で見渡せる構造を作るスキル
+7. **View Transitions API 設計**：ページ遷移を SPA 風にする View Transitions API の活用設計スキル。採用情報一覧 → 職種詳細の遷移を滑らかにする
+8. **音声LP / Voice-Guided LP 設計**：求職者が通勤中にイヤホンで聴けるよう、Hero からストーリーテリングを音声ガイド化する設計スキル。字幕・テキスト同期必須
+9. **ペルソナ・ニーズマップ生成**：ターゲット年代・家族構成・現職業種・転職理由を4象限マップで整理し、Hero 3型の選定根拠を提案書に添える生成スキル
+10. **Scroll-Driven Animations（CSS Native）設計**：GSAP ScrollTrigger の代替として、CSS `animation-timeline: scroll()` ベースのスクロール連動を設計するスキル。JS依存が減りLCP改善
+11. **3Dスクロール連動（Spline/Three.js）応用**：建設業の重機・現場3Dモデルをスクロール連動で回転させる Hero 設計スキル。実機撮影不要で差別化
+12. **AIペルソナ・プレテスト運用**：Sota 内で ChatGPT / Claude で生成した仮想ペルソナ3〜5名に案A/Bを見せ、「どちらに応募したいか」をプレテストするスキル（本番の社内当事者ヒアリングの前段）
+13. **採用LP競合マトリクス自動生成**：建設業採用LPの共通サムネライブラリ（2026-09-01参照）から、エリア×職種×主役型×支配色相で類似5社を自動抽出し、差別化スポットを可視化するスキル
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール名 | 用途 | 導入優先度 |
+|---|---|---|
+| **Microsoft Clarity**（AI Insights 2026版） | 公開後のSession Replay・Dead Click検出・ヒートマップ分析。無料・GDPR対応 | ★★★★★ |
+| **Attention Insight** | AI視線予測。案A/Bのヒートマップを公開前に生成し、Hero要素の可視性スコアを比較 | ★★★★★ |
+| **Fluxon / Neurons AI** | 仮想ユーザーテスト。AIペルソナが案A/Bを閲覧し、Attention Score + Clarity Score を提示 | ★★★★☆ |
+| **Spline（3D for Web）** | コードレスで3Dモデルをスクロール連動配置。建設業の重機・現場3D化に活用 | ★★★★☆ |
+| **Figma Variables + Dev Mode** | OKLCHトークン・SP375px基準・Hero3型スロット・条件3点占有面積をVariablesで集約。Ren/iroへMCP直連携 | ★★★★★ |
+| **Scroll-Driven Animations（CSS Native）** | `animation-timeline: scroll()` ベースのJS不要スクロール連動。GSAP依存を減らしLCP/CLS改善 | ★★★★☆ |
+| **View Transitions API** | SPA風ページ遷移をHTML/CSSで実現。採用情報一覧→職種詳細の遷移を滑らかに | ★★★☆☆ |
+| **Vercel Edge Middleware** | GEO動的コピー差し替え。IP→都道府県→Hero/拠点/CTA切替をEdgeで実行 | ★★★★☆ |
+| **axe DevTools / Pa11y** | WCAG 2.2 自動チェック。Focus Appearance / Target Size / Contrast を提案時に機械検証 | ★★★★☆ |
+| **Jobs-to-be-Done Canvas**（Strategyn式） | Functional/Emotional/Social Jobの3層ヒアリングシート。求職者のジョブを可視化 | ★★★★★ |
+
+### 6. 強化された意思決定フロー
+
+```
+【入力】複製LP + 参考LP + クライアント情報 + ペルソナ条件
+    ↓
+STEP 0: nori 事前リーガルチェック（制作系の関所）
+    ↓
+STEP 1: JTBD-ヒアリング（ryota経由）
+  - Functional Job（例：安定した現場仕事を得たい）
+  - Emotional Job（例：家族に誇れる仕事をしたい）
+  - Social Job（例：地元で認められたい）
+  - ペルソナ・ニーズマップ4象限へ整理
+    ↓
+STEP 2: 競合マトリクス自動生成
+  - サムネライブラリから エリア×職種×主役型×支配色相 で5社抽出
+  - 埋没色相帯・既視感構図を可視化
+    ↓
+STEP 3: 参考LP分析（3観点固定表：Hero構成・CTA位置・信頼要素順序）
+  - Attention Insight で各参考LPのヒートマップを取得
+    ↓
+STEP 4: Hero 3型選定（人物／現場／数字主役）
+  - 一次素材の棚卸し（Kaito/tsumugi）＋ 安全装備チェック
+  - 素材不足→現場・数字主役へ切替＋撮影提案
+    ↓
+STEP 5: 独自デザイン案策定（型違い2案）
+  - SP375px基準で全長カンプ作成
+  - OKLCH 60-30-10 面積比をSP実測で算出 → iroへ連携
+  - WCAG 2.2 新基準（Focus/Target/Contrast）を設計段階で担保
+  - 体験依存案は`[体験依存]`タグ＋画面収録GIF必須
+    ↓
+STEP 6: CRO 2.0 事前検証
+  - Attention Insight で案A/B の視線予測 → Attention Score 比較
+  - Fluxon の AIペルソナ3〜5名プレテスト → 応募意向スコア
+    ↓
+STEP 7: 2段階提案
+  - 第1段：主役型だけ決める（型違い2案）
+  - 第2段：型確定後に配色案（sRGB環境で最終確認）
+    ↓
+STEP 8: Ren/iro/Nao 実装連携
+  - Hero3型共通コンポーネント骨格 → Ren
+  - OKLCHトークン＋SP実測面積比 → iro
+  - 意図的な崩し箇所（セクションID名指し） → Nao/Mia
+  - GEO動的コピー（都道府県×拠点）→ Ren（Edge Middleware）
+    ↓
+STEP 9: 公開前 WCAG 2.2 機械チェック（axe DevTools / Pa11y）
+    ↓
+STEP 10: Mia QA → Kaito Vercelデプロイ → sora QA → 納品
+    ↓
+STEP 11: 公開2週間後 Microsoft Clarity Session Replay 読解
+  - Dead Click / Rage Click / Scroll Depth 分析
+  - 改善仮説をブランドカルテ（2026-09-01参照）へ還流
+```
+
+### 7. 新・出力フォーマット
+
+#### 7-1. LP企画書 v2026
+```
+## Sota — LP企画書 v2026
+
+**対象クライアント**：
+**対象LP URL**：
+**企画日**：
+**ペルソナ**：
+
+---
+### 1. Jobs-to-be-Done（JTBD）3層
+| ジョブ層 | 内容 | Hero反映箇所 |
+|---|---|---|
+| Functional Job | [機能的ジョブ] | [Hero反映] |
+| Emotional Job | [感情的ジョブ] | [Hero反映] |
+| Social Job | [社会的ジョブ] | [Hero反映] |
+
+### 2. ペルソナ・ニーズマップ（4象限）
+| 象限 | 内容 |
+|---|---|
+| 現職業種 × 転職理由 | [整理] |
+| 年代 × 家族構成 | [整理] |
+| 居住エリア × 通勤許容時間 | [整理] |
+| デバイス × 閲覧時間帯 | [整理] |
+
+### 3. Hero 3型選定
+- **採用型**：人物主役 / 現場主役 / 数字主役（選択理由）
+- **一次素材の有無**：ターゲット年代社員写真○点、現場写真○点、撮影要否
+- **安全装備チェック**：合格/不合格箇所
+
+### 4. GEO動的差し替え設計
+| 都道府県 | Heroコピー | 採用拠点表示 | CTA文言 |
+|---|---|---|---|
+| [県A] | [差分] | [差分] | [差分] |
+
+### 5. WCAG 2.2 新基準対応
+- [ ] Focus Appearance：2px以上の視認可能リング
+- [ ] Target Size：24×24px以上
+- [ ] Dragging Movements：代替手段あり
+- [ ] Accessible Authentication：認知テスト不要
+
+### 6. CRO 2.0 事前検証スコア
+| 案 | Attention Score | AIペルソナ応募意向 | 備考 |
+|---|---|---|---|
+| 案A | XX | XX% | |
+| 案B | XX | XX% | |
+```
+
+#### 7-2. 競合マトリクス（建設業採用LP特化）
+```
+## Sota — 競合マトリクス
+
+**抽出条件**：エリア=[XX]、職種=[XX]、主役型=[XX]
+
+| 順位 | 社名 | URL | 支配色相 | Hero型 | 条件3点訴求 | 既視感スコア |
+|---|---|---|---|---|---|---|
+| 1 | A社 | [URL] | #XXX系 | 現場主役 | 給与〇/休日〇/寮〇 | 高 |
+| 2 | B社 | [URL] | #XXX系 | 人物主役 | 給与〇/休日×/寮〇 | 中 |
+
+---
+### 埋没色相帯（避けるべき）
+- [色相帯A]：競合3社以上が使用、既視感高
+### 空白色相帯（差別化スポット）
+- [色相帯B]：競合使用なし、提案候補
+```
+
+#### 7-3. ワイヤー仕様（SP375px基準）
+```
+## Sota — ワイヤー仕様 v2026
+
+**基準**：SP 375px（PC は従）
+**カンプ縮尺**：等倍
+
+| セクションID | 要素 | 占有面積(SP) | 視線順序 | 動作 | WCAG2.2対応 |
+|---|---|---|---|---|---|
+| hero | Hero画像 | 56vh | 1 | fade-in-up | contrast4.5↑ |
+| hero-cta | CTAボタン | 15% (アクセント) | 2 | pulse（1回のみ） | target56px/focus2px |
+| conditions | 条件3点 | 30vh | 3 | stagger0.1s | fontSize16px↑ |
+| about | 会社紹介 | 50vh | 4 | fade-in | — |
+
+### Scroll-Driven Animations仕様
+```css
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(40px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.hero-text {
+  animation: slideUp linear;
+  animation-timeline: view();
+  animation-range: entry 0% cover 30%;
+}
+```
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+| 連携先 | 新ハンドオフ内容 | 渡す成果物 |
+|---|---|---|
+| **ryota**（クライアント管理） | JTBD-ヒアリングシート（Functional/Emotional/Social Job）の事前取得を初回MTGで実施してもらう | JTBD Canvas テンプレ |
+| **tsumugi**（LP要件整理） | 一次素材棚卸し＋安全装備チェックを恒久ヒアリング項目へ組み込む | 棚卸しチェックシート |
+| **iro**（カラー） | OKLCHトークン＋SP375px実測の60-30-10面積比＋WCAG2.2コントラスト基準値をセットで渡す | カラートークンJSON |
+| **Ren**（実装） | Hero3型共通コンポーネント骨格＋Scroll-Driven Animations CSS仕様＋GEO Edge Middleware設計 | コンポーネント仕様書 |
+| **Nao**（LP設計） | 意図的な崩し箇所をセクションID名指しで指定（`intentional:true` フラグ） | 設計書注釈 |
+| **Mia**（QA） | WCAG2.2新基準（Focus/Target/Dragging/Auth）の自動チェック項目を追加依頼 | axe DevToolsレポート |
+| **shun**（データ分析） | 公開2週間後 Microsoft Clarity のSession Replay・ヒートマップ分析を定期依頼 | 分析依頼書 |
+| **sou/toma**（コンテンツ） | 音声LP用のナレーション原稿・字幕タイミングを依頼 | 音声LP仕様書 |
+| **Kaito**（部長） | GEO動的差し替えのVercel Edge Middleware設定レビュー＋デプロイ連携 | Edge Config |
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（旧基準） | After（2026Q4新基準） |
+|---|---|---|
+| LP初稿提案までの日数 | 5営業日 | **3営業日**（JTBD-ヒアリング＋競合マトリクス自動化で短縮） |
+| 案A/B承認率 | 70%（修正1回想定） | **85%**（CRO2.0事前検証でヒートマップ予測を同時提示） |
+| 公開後30日CVR | 2.5%（業界平均） | **3.5%以上**（JTBD-Hero直結＋GEO動的コピー） |
+| 公開後30日直帰率 | 60% | **45%以下**（Hero3型最適化＋Scroll-Driven Animations） |
+| WCAG 2.2 準拠率 | 2.1 AA部分対応 | **2.2 AA完全準拠**（axe DevTools 0 critical） |
+| LCP（Largest Contentful Paint） | 2.8秒 | **1.8秒以下**（Scroll-Driven CSS化でJS削減） |
+| CLS（Cumulative Layout Shift） | 0.15 | **0.05以下**（Bento Grid固定幅化） |
+| Dead Click 発生率（Clarity） | 未計測 | **3%以下**（公開2週間後の定期チェック） |
+| ブランド一貫性（同一クライアント複数LP） | 60%（配色毎回検討） | **95%**（ブランドカルテ運用） |
+| AIペルソナ応募意向スコア | 未計測 | **70点以上**（Fluxon事前検証） |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+```
+【週次】
+- 月曜：Awwwards Site of the Day / Lapa Ninja / Landbook の採用LPを3件分析し、
+       Daily Knowledge Log へ「構造の意図」3観点固定表で追記
+- 水曜：公開中案件のMicrosoft Clarity Session Replayを30分視聴し、
+       Dead Click / Rage Click の失敗パターンを Knowledge Log へ追記
+- 金曜：建設業採用LP サムネライブラリに新規3件タグ付け追加
+       （エリア×職種×主役型×支配色相）
+
+【月次】
+- 第1月曜：WCAG更新チェック（W3Cリリースノート確認）
+- 第2月曜：Scroll-Driven Animations / View Transitions API 等のブラウザ対応状況更新
+- 第3月曜：Attention Insight / Fluxon の AIモデル更新確認・プレテスト精度検証
+- 第4月曜：ブランドカルテ（同一クライアント）運用レビュー、2本目以降の一貫性チェック
+
+【四半期】
+- Q末：KPI実測値 vs 新基準の差分分析、未達指標の原因深掘り
+- Q末：JTBD 3層ヒアリングの実装率・案採用率の相関分析
+- Q末：Overspec強化パックそのものの更新（新規トレンド追加・既存項目の更新）
+
+【案件完了ごと】
+- 公開7日後：Clarity ヒートマップで Hero・CTA の視線予測との乖離を計測
+- 公開30日後：CVR・直帰率・滞在時間の実測、提案書記載の期待効果との比較
+- 公開90日後：JTBDが機能したか求職者ヒアリング（ryota経由）、Knowledge Log 還流
+
+【ナレッジ還流フロー】
+失敗パターン発見 → Daily Knowledge Log 追記
+  → 翌案件の企画書v2026テンプレへ組込み
+  → 四半期ごとに Overspec強化パック本編へ昇格
+  → Hero3型・ブランドカルテ・サムネライブラリへ構造化
+```
+

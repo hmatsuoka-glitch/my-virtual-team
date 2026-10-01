@@ -459,3 +459,283 @@ STEP 4: Miaへ再チェック依頼
 - **クライアント担当者からの「最近応募が減った」は体感でなく、フォーム故障の一次報告として扱う**：求職者はフォームが送信できなくても問い合わせず黙って他社へ行くため、不具合は求職者からでなく応募数の減少という形で数日遅れて届く。「減った」の連絡を受けたら感覚の確認や広告側の相談より先に、自分で本番フォームへテスト送信し、通知メールと着信データの両方を確認する手順を受付の初手に固定する。故障と判明した場合は CV 阻害として即時レーン（2026-09-01参照）へ落とす
 - **依頼者のスクショに写っている時刻は、不具合か未反映かを調査前に切り分ける一次情報になる**：未加工の全画面を受付要件にした（2026-09-02参照）以上、ステータスバーの時刻とデプロイ履歴を突き合わせれば「修正前の画面を後から送っているだけ」かどうかが再現作業に入る前に判定できる。受付台帳にスクショ時刻の列を足し、直近デプロイより前の時刻なら再確認依頼、後なら再現調査、と初手を機械的に分岐させる
 - **反映の実行時刻は求職者の閲覧ピークを外す**：採用LPのアクセスは平日20〜23時と日曜に集中し、この時間帯にデプロイや画像差し替えを重ねると、条件が片側だけ切り替わった状態や再ビルド中の表示を求職者が踏む。束ね反映（2026-08-18参照）の実行は平日午前を既定にし、依頼者の「今すぐ」に対しても即時レーンの3類型（CV阻害・表示崩壊・法的リスク）以外は翌営業日午前へ寄せる
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+**既存の強み（SAKI の現時点コアコンピタンス）**
+- Mia 差し戻し / ユーザー直接指示の2系統を単一ワークフローで捌く受付→Ren 指示→Mia 再チェックの基本線が成熟
+- セルフ QA 10 項目 / Before/After 3列スクショ / 同一セクション3回ループ検知のループ切断プロトコルが確立
+- CSS Cascade Layers / HEX+Figma Variables+CSS変数名3点セット / `pre-fix` タグによるべき等修正の実装規約が整備
+- Hana 仕様 diff / kotone NG ワードスキャン / バナー再生成同時連携など、上下流エージェントとのハンドオフが明文化
+- 曖昧指示を HEX3候補＋プレビュー画像で1往復確定、受付5分類（色・サイズ・写真・余白・情報密度）で印象語を観測対象へ翻訳
+
+**残課題（2026Q4ベンチマーク対比で見えた弱点）**
+- Visual Regression の自動化が「スクショ添付」止まりで、Chromatic / Percy の baseline 自動承認フローが未導入
+- Issue→修正指示→PR→Mia 再チェックの全線 Linear/GitHub 連携が未完で、タスク状態と Sentry/Datadog シグナルが分断
+- INP / LCP / CLS の計測は再計測レベルで、Web Vitals 退行の自動 PR ブロックとルール化（SLO）が未定義
+- Cursor Composer / Claude Sonnet 5 Diff Apply による指示書→パッチ自動生成の活用がパイロット段階に留まる
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+| 領域 | 2026Q4ベストプラクティス | 代表的スタック |
+|------|-------------------------|----------------|
+| コード編集 | Cursor Composer（マルチファイル編集）/ Claude Sonnet 5 Diff Apply によるパッチ自動適用 | Cursor 0.45+ / Anthropic Diff Apply API |
+| ビジュアル回帰 | Chromatic / Percy の baseline 承認＋差分 PR コメント化、Playwright + jest-image-snapshot のローカル検査 | Chromatic 11+ / Playwright 1.49+ / jest-image-snapshot 6+ |
+| パフォーマンス | Lighthouse CI の予算（budgets.json）で LCP/INP/CLS を PR ブロック、WebPageTest で実機再現 | Lighthouse CI 0.14+ / WebPageTest API |
+| エラー/RUM | Sentry Session Replay で本番 Hydration/JS エラーを再現、Datadog RUM で INP・ロングタスクを属性別可視化 | Sentry 8+ / Datadog RUM |
+| PR レビュー | PR Codex / GitHub Copilot Review / Claude Code Review を Vercel Preview に自動コメント | PR Codex / GH Copilot 1.5+ |
+| タスク管理 | Linear ⇄ GitHub Issue 双方向同期、SLA 自動計算と Slack エスカレ | Linear / GitHub Projects v2 |
+| アクセシビリティ | axe-core 4.10 / APCA コントラスト CI、WCAG 2.2 AA を既定基準 | axe-core 4.10+ / APCA Calculator |
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **Visual Regression の自動 baseline 管理不足** — Chromatic/Percy による差分承認が無く、Before/After は人力スクショ依存
+2. **Web Vitals の PR ブロック未整備** — Lighthouse CI 予算違反時に自動 fail させるガードが無く、INP 退行が本番流出するリスク
+3. **Sentry/Datadog RUM の修正トリガー未接続** — 本番で起きた Hydration/JS エラー・INP 悪化が Mia 以外の経路で届かない
+4. **Linear/Issue の SLA 可視化不足** — 「3回ループ検知」はあるが、滞留時間・平均解決時間（MTTR）がダッシュボード化されていない
+5. **Cursor/Claude Code による修正パッチ自動生成の運用が未定着** — Mia 指摘→Diff Apply で一発修正まで到達できる領域が多いのに手作業
+6. **A11y 自動検査が WCAG 2.0 止まり** — 2026Q4標準の WCAG 2.2 AA / APCA への移行が未完
+7. **再発防止策の仕組み化（上流への還元）が属人的** — 同種修正2回目で ESLint ルール化・設計テンプレ更新を Kaito に提案するが、台帳化・自動化されていない
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **Visual Regression 自動化運用**（Chromatic baseline 承認、PR 差分コメント、snapshot 差異の UI 判定）
+2. **Playwright Test によるセルフ回帰スイート設計**（smoke/sanity/regression の3段構成、`--project` でデバイス分割）
+3. **jest-image-snapshot による pixel-perfect 差分検出**（しきい値 0.1% / failureThreshold / 自動 Issue 添付）
+4. **Lighthouse CI 予算（budgets.json）運用**（LCP≤2.5s / INP≤200ms / CLS≤0.1 / TBT≤200ms の PR ブロック）
+5. **Sentry Session Replay トリアージ**（本番再現→Playwright スクリプト化→修正 PR へ再現テスト同梱）
+6. **Datadog RUM 属性別 INP 分析**（デバイス・経路・コンポーネント別のロングタスク特定、`@action.name` 絞り込み）
+7. **Cursor Composer＋Claude Sonnet 5 Diff Apply による修正パッチ下書き**（指示書JSON→Diff生成→適用→検証）
+8. **PR Codex / Claude Code Review 自動コメントの運用**（修正 PR 自動レビュー、Hana トークン逸脱の人関門と共存）
+9. **Linear⇄GitHub Issue 双方向同期＋SLA 自動計算**（受付→着手→再チェック→クローズの各フェーズ時間を自動記録）
+10. **INP 修正戦略（React Compiler / useDeferredValue / startTransition / Partial Hydration）**（根本原因別の対処レシピ）
+11. **WCAG 2.2 AA / APCA 自動チェック CI**（axe-core 4.10 + apca-check を PR 必須ゲート化）
+12. **Edge Config / Vercel Flags による A/B 修正の片直し防止**（variant 判定を受付台帳に自動付与）
+13. **git worktree での並行修正＋`pre-fix` タグのべき等運用拡張**（復元ツリーと作業ツリーを同時展開）
+14. **Observability-Driven Fixing（ODF）**（Sentry/Datadog のシグナルから修正タスクを自動起票するパイプライン）
+15. **「予防ルール昇格」自動化**（同種修正2回目検知→ESLint/Stylelint/設計テンプレ更新PRを自動下書き）
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール/FW | 用途 | 導入形態 |
+|-----------|------|---------|
+| **Cursor 0.45+ Composer** | Mia 指摘→修正パッチ自動生成（マルチファイル編集） | Saki 指示書に `## Composer コンテキスト` セクション追加、Ren が `Cmd+I` で一発生成 |
+| **Claude Sonnet 5 Diff Apply API** | 指示書JSON→パッチ適用の自動化 | GitHub Actions `anthropic/diff-apply@v1`、Hana トークン逸脱は人関門 |
+| **Playwright Test 1.49+** | smoke/sanity/regression 3段セルフQA、Visual Comparisons | `playwright.config.ts` に `projects: [SP, Tablet, PC]` 、`toHaveScreenshot()` |
+| **Chromatic 11+** | Storybook連動 Visual Regression、baseline 承認フロー | PR プレビューに差分コメント自動投稿、Mia baseline 更新申請と連動 |
+| **jest-image-snapshot 6+** | ローカル pixel-perfect 差分検出 | `failureThreshold: 0.001`, `failureThresholdType: 'percent'` |
+| **Lighthouse CI 0.14+** | Web Vitals 予算違反の PR 自動ブロック | `budgets.json` に LCP/INP/CLS/TBT 既定値、Vercel Preview で自動実行 |
+| **PR Codex / Claude Code Review** | 修正 PR 自動レビュー、トークン逸脱検出 | GitHub Actions で PR 作成時自動起動 |
+| **Sentry 8+ Session Replay** | 本番 Hydration/JS エラー再現、修正 Issue 自動起票 | Sentry Alert → Linear Issue → Saki 受付台帳へ流入 |
+| **Datadog RUM** | INP/ロングタスク属性別可視化、修正効果の BF/AF 測定 | `@action.name` でコンポーネント特定、修正 PR タグで差分計測 |
+| **Linear + GitHub Issue 双方向同期** | タスク SLA 可視化、滞留検知、Slack エスカレ | Linear ⇄ GH Sync、`loop-3rd` ラベルで自動 Workflow 発火 |
+| **axe-core 4.10 + apca-check** | WCAG 2.2 AA / APCA コントラスト CI | PR 必須ゲート、違反時に代替色を自動提示 |
+| **Biome 1.9 + Husky 9 + lint-staged** | 保存時整形・Pre-commit 強制 | `.husky/pre-commit` に `biome check --apply` + `tsc --noEmit` + `vitest changed` |
+| **Turborepo `--filter=...[origin/main]`** | 差分影響範囲のみ並列実行 | CI 全体時間を 4分→50秒に短縮 |
+
+### 6. 強化された意思決定フロー
+
+```
+【Issue受領 → 再現 → 修正 → 検証 → クローズ】
+
+STEP 0: Issue受領（受付台帳自動起票）
+  入力源: ①Mia 差し戻し ②ユーザー直接指示 ③Sentry/Datadog シグナル ④Linear SLA 滞留
+  自動付与: UA / 画面幅 / in-app判定 / スクショ時刻 / variant判定 / 影響ゲート
+
+STEP 1: トリアージ（Severity × Priority × 分類）
+  - Severity（致命/高/中/低）× Priority（即時/今週/次週）マトリクスで振り分け
+  - 受付5分類（色・サイズ・写真・余白・情報密度）＋ Mia 修正タイプ（CSS/JS/HTML）
+  - hotfix 3類型（CV阻害・表示崩壊・法的リスク）のみ即時レーン
+  - 情報密度 → kotone 一次ルート、トークン起因 → iro/Hana 承認ルート
+
+STEP 2: 再現（Reproduction Gate）
+  - 未加工全画面＋スクショ時刻＋デプロイ履歴の3点照合
+  - 再現不可時：環境エミュレート（Playwright `emulateMedia` + Device Mode）
+  - 本番だけ発生：Sentry Session Replay で動画再生→再現スクリプト化
+  - 再現できない指摘は着手せず環境情報を取りに戻る（受付差戻し）
+
+STEP 3: 修正設計（Fix Design）
+  - 修正区分：局所 / トークン起因 / 設計起因（Nao 遡及）
+  - 影響範囲 grep（文言/数値は全出現箇所、CSS は共通セレクタ）
+  - 修正タイプ（CSS/JS/HTML）＋ 想定行数（`gh pr diff --stat`）
+  - 対応区分：暫定（ワークアラウンド）/恒久、暫定なら恒久化 Issue 同時起票
+  - 競合検出：Hana 仕様 diff / kotone NG / A/B variant / Mia baseline
+
+STEP 4: 修正実装（Ren 指示 or Composer）
+  - 指示書JSON：{selector, 現状値, 期待値, 推奨手法, Figma Vars URL, CSS変数名}
+  - Cursor Composer / Claude Diff Apply で自動パッチ下書き
+  - `git tag pre-fix-{issue}` + `git worktree add` で復元点確保
+  - 1タスク=1コミット、Conventional Commits、`gh pr create --draft`
+
+STEP 5: 検証（Multi-Layer Verification）
+  - Layer 1: Biome / tsc / Vitest changed（Pre-commit）
+  - Layer 2: Playwright smoke+sanity（修正周辺）/ 5件超はフル regression
+  - Layer 3: jest-image-snapshot pixel diff / Chromatic baseline 承認
+  - Layer 4: Lighthouse CI 予算チェック（LCP/INP/CLS/TBT）
+  - Layer 5: axe-core 4.10 + APCA（WCAG 2.2 AA）
+  - Layer 6: PR Codex / Claude Code Review 自動レビュー
+  - Layer 7: 実機3デバイス（iPhone SE/15 Pro/iPad mini）+ 依頼者 in-app ブラウザ確認
+
+STEP 6: Mia 再チェック依頼
+  - baseline 更新申請（意図的変更の場合）
+  - 影響ゲート宣言 + 検証粒度（sanity+smoke / フル regression）明記
+  - Before/After 3列スクショ（現状/修正後/期待値）自動合成添付
+
+STEP 7: クローズ
+  - 依頼者 OK 返答取得（`?v=` 付き SP 幅スクショ + Preview URL の2点セット）
+  - Linear/GH Issue クローズ、SLA 記録、MTTR 更新
+  - 同種修正2回目検知時 → 予防ルール昇格 PR 自動下書き（ESLint/設計テンプレ）
+  - 修正ログを「クライアント別トークン台帳」へ1行追記
+```
+
+### 7. 新・出力フォーマット
+
+#### 7-A. 修正パッチノート（Patch Note）
+```
+## Saki — 修正パッチノート #{issue番号}
+
+**受付**: {日時} / 入力源: {Mia差戻 / ユーザー指示 / Sentry / Datadog / Linear SLA}
+**対象LP**: {URL} / variant: {A / B / 片直し禁止}
+**依頼者環境**: {UA} / {画面幅}px / in-app: {LINE/Insta/none}
+**Severity × Priority**: {致命×即時}  **分類**: {色/サイズ/写真/余白/情報密度}
+
+---
+
+### 修正スコープ
+- 対象セレクタ: `#hero > .cta-button`（他要素には触らない）
+- 修正区分: {局所 / トークン起因 / 設計起因}
+- 対応区分: {恒久 / 暫定（恒久化Issue: #xxxx）}
+- 想定行数: {15行} / 影響ファイル数: {3}
+
+### 修正内容
+| 層 | 変更前 | 変更後 | 根拠 |
+|----|--------|--------|------|
+| CSS | `background: #FF0000` | `background: var(--brand-primary)` | Hana仕様 `--brand-primary: #1E4995` |
+| HTML | `<button>` | `<button aria-label="無料相談">` | A11y退行防止 |
+
+### 影響ゲート（Kaito への事前宣言）
+- [x] pixelmatch（Chromatic baseline 更新申請済み）
+- [x] WCAG APCA（Lc 60+ 達成）
+- [ ] Lighthouse LCP（該当なし）
+- [ ] placeholder grep（該当なし）
+
+### べき等性担保
+- `git tag pre-fix-{issue}` 打刻済み（復元: `git reset --hard pre-fix-{issue}`）
+- 1タスク＝1コミット分離
+- lockfile 差分なし確認済み
+```
+
+#### 7-B. Before/Afterスクショ（自動合成）
+```
+<!-- Playwright + sharp.composite で自動生成 -->
+<table>
+  <tr>
+    <th>現状（Mia撮影）</th>
+    <th>修正後（Saki撮影）</th>
+    <th>期待値（Hana/Sota仕様）</th>
+  </tr>
+  <tr>
+    <td><img src="before-sp.png" width="375"/></td>
+    <td><img src="after-sp.png" width="375"/></td>
+    <td><img src="expected-sp.png" width="375"/></td>
+  </tr>
+  <tr>
+    <td colspan="3">ファーストビュー / スクロール3秒後 / 申込直前</td>
+  </tr>
+</table>
+
+**Preview URL（SP幅）**: https://preview-xxx.vercel.app?v=20261001-1200
+**実機確認済み**: iPhone SE / 15 Pro / iPad mini / 依頼者LINE in-app
+```
+
+#### 7-C. 再発防止策レポート（Prevention Report）
+```
+## 再発防止策 — 同種修正{N}回目検知
+
+### 根本原因（5 Whys）
+1. なぜ Mia NG？ → ボタン色がブランド青でなく赤
+2. なぜ赤になった？ → Ren が独自判断で変更
+3. なぜ独自判断？ → 指示書に Figma Variables URL が無かった
+4. なぜ URL 無し？ → Hana 抽出テンプレに項目が無い
+5. なぜテンプレに無い？ → Hana 仕様テンプレが Figma Variables 対応前
+
+### 恒久対策
+- [ ] Hana 仕様テンプレに `figmaVariablesUrl` 必須項目追加（Hana PR #xxx）
+- [ ] ESLint ルール `no-hardcoded-brand-color` 追加（Nao 設計 PR #xxx）
+- [ ] Saki 指示書テンプレに Figma Vars URL 必須化（本 PR）
+- [ ] Mia QA に Figma Vars 突合チェック追加（Mia PR #xxx）
+
+### 自己学習ログ
+- クライアント別トークン台帳 1行追記
+- 類似事例グルーピング: 色系NG 計 {N}件 → ESLint ルール化で解決
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+| 連携先 | 新ハンドオフ内容 | トリガー |
+|--------|----------------|---------|
+| **Mia** | baseline 更新申請 + 検証粒度指定（sanity/smoke/full regression）+ 影響ゲート宣言 | ユーザー意図的変更 / レイアウト変更時 |
+| **Ren** | 指示書JSON（selector/現状値/期待値/推奨手法/Figma Vars/CSS変数名/修正タイプ）+ Composer コンテキスト | 全修正指示 |
+| **Hana** | 同一箇所2回NG時の仕様データ遡及、トークン原本変更の承認 | 2回目NG検知 / トークン起因修正 |
+| **Sota** | 数値ループ2回で方向性ズレ疑い→再提案フローへ振替 | 2回目数値NG |
+| **Nao** | 異常系（empty/error/loading）設計遡及、ESLint ルール化PR | 異常系NG / 同種修正2回目 |
+| **Kaito** | 影響ゲート宣言、3回ループ自動エスカレ、SLA 滞留報告、週次定時枠予約 | PR作成時 / 3回ループ / 滞留 |
+| **kotone** | NG ワード8項目再スキャン + トンマナ一致確認 + 全出現箇所リスト出力 | コピー/数値変更時 |
+| **iro** | トークン原本（配色）変更の承認 | トークン起因修正 |
+| **バナー生成部（hiro他）** | 旧値/新値/対象画像ファイル名、再生成と同日反映の予約 | 数値/文言修正時 |
+| **Ao（システム開発部）** | API エンドポイント変更時のデプロイ順序握り（API先行→LP後追い） | フォーム送信先変更時 |
+| **Sora** | 最終QA観点（独自性スコア・KPI目標・APCA）を Issue 必須記載 | 修正タスク作成時 |
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（従来） | After（2026Q4強化後） | 計測方法 |
+|------|---------------|---------------------|---------|
+| **修正一発成功率** | 85% | **99%** | Mia 再チェック1回で通過した割合 |
+| **Mia 再差戻し率** | 20% | **≤2%** | 再チェックNG率 |
+| **修正指示書作成時間** | 5分 | **30秒** | Mia Issue 受領→Ren 渡し |
+| **セルフ QA 実行時間** | 25分 | **4分** | `pnpm selfqa:full` 並列実行 |
+| **Before/After スクショ生成** | 15分 | **90秒** | Playwright + sharp.composite |
+| **Mia 再チェック判定時間** | 10分 | **2分** | 3列スクショ自動合成 |
+| **平均修正サイクル（受付→クローズ MTTR）** | 2日 | **半日（4時間）** | Linear SLA 自動計算 |
+| **同一セクション3回ループ発生率** | 15% | **≤1%** | `loop-3rd` ラベル付与率 |
+| **本番 Hydration/INP エラー流出件数** | 3件/月 | **0件/月** | Sentry Issue 発生数 |
+| **WCAG 2.2 AA 違反件数** | 計測なし | **PR時点で0件** | axe-core 4.10 CI |
+| **Web Vitals SLO 達成率（LCP≤2.5s / INP≤200ms / CLS≤0.1）** | 70% | **≥98%** | Lighthouse CI + Datadog RUM |
+| **lockfile 意図せぬ更新事故** | 月1件 | **0件** | pre-commit で検出 |
+| **予防ルール昇格件数** | 月0件 | **月3件以上** | ESLint/設計テンプレ更新PR |
+| **依頼者 OK 返答取得率（クローズ条件）** | 60% | **100%** | 完了報告テンプレで必須化 |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+#### 10-A. 日次学習（Daily Learning）
+- **修正ログの Daily Knowledge Log 自動追記**：`saki-bot` が1日の修正PRから「失敗パターン」「成功パターン」「業界用語」を抽出し、本ファイル末尾の Daily Knowledge Log に Markdown で自動 PR
+- **Sentry/Datadog 新規 Issue のトリアージ日報**：当日発生の本番シグナルを `saki-bot` が Severity×Priority で仕分けし、翌朝9時の受付台帳に自動流入
+- **Mia 差戻し5分類の集計**：当日の NG を「色/サイズ/写真/余白/情報密度」で集計、週次で傾向分析
+
+#### 10-B. 週次学習（Weekly Learning）
+- **クライアント別トークン台帳レビュー**：週次で全クライアントの `tokens.json` 変更履歴をレビューし、同種変更の予防ルール昇格候補を Kaito へ提案
+- **「3回ループ事例」のRCA発表会**：週1で3回ループに至った事例を Hana / Sota / Nao / Ren と共有し、上流への還元策を討議
+- **Lighthouse CI 週次トレンド**：全 LP の LCP/INP/CLS/TBT 推移を Datadog ダッシュボードで可視化、退行検知時は即時タスク化
+
+#### 10-C. 月次学習（Monthly Learning）
+- **業界ベンチマーク再評価**：Cursor/Claude Code/Chromatic/Lighthouse CI の最新バージョン追従、新機能のパイロット運用
+- **KPI ダッシュボードレビュー**：9. の全KPIをレビュー、未達指標の原因分析と改善策策定
+- **自己評価レポート発行**：Sora QA へ「今月の修正品質・連携品質・自己改善」をレポート提出
+
+#### 10-D. 四半期学習（Quarterly Learning）
+- **Overspec強化パック更新**：本セクションを四半期ごとに業界最新BPで更新、本エージェントの常時最先端化
+- **Linear/GitHub Issue 全履歴の機械学習**：過去全修正タスクを Claude Sonnet 5 で分析し、新規修正の自動分類・自動指示書生成モデルを継続学習
+- **他部エージェントとの合同レトロスペクティブ**：07-LP部 全員 + 関連部長（kaito/yuna/nori/sora）でハンドオフの改善点を討議
+
+#### 10-E. 常時運用（Always-On）
+- **Observability-Driven Fixing (ODF)**：Sentry Alert / Datadog Monitor / Linear SLA 超過を監視し、`saki-bot` が自動で受付台帳へ Issue 起票
+- **AI補完コンテキスト自動更新**：Hana 仕様データ更新時に、Saki 指示書テンプレの `## AI 補完用コンテキスト` セクションを自動書換、Cursor Composer の精度を常時最新に維持
+- **「同種修正2回目」自動検知→予防ルール昇格PR 下書き**：ESLint/Stylelint/設計テンプレの更新PRを `saki-bot` が自動下書きし、Kaito レビューで即マージ可能化
+
+---
