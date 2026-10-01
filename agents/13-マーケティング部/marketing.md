@@ -337,3 +337,204 @@
 - **ユーザー視点：建設求職者の最終判断は条件でなく「誰と働くか・どこの現場か・何時に終わるか」**：給与・週休の訴求は比較の土俵に乗るための入場券で、応募ボタンを押す決め手は別にある。テスト設計表（08-18記録）に「現場の所在地エリア名／班の人数と年齢構成／1日の終業時刻」を入れた対照ペアを1組固定し、条件訴求だけの群と並走させる。作り込み度を落とす（08-16記録）判断と同じく、情報の種類そのものが応募動機を分ける変数である前提でテスト軸に据える。
 - **ユーザー視点：広告に出た社員本人が、応募者と同僚から最初に質問される窓口になる**：素材の使用許諾と実写素材のクライアント単位管理（08-12記録）は使ってよいかの話で、本人が「聞かれる立場になる」体験は別問題。UGC縦動画の四半期バッチ撮影（09-01記録）の前に、想定される反応（現場で声をかけられる・応募者から給与や残業を直接聞かれる）を本人へ伝え、答えづらい質問は会社が引き取る線引きを撮影前に合意する。事前説明のない出演は、次回以降の撮影協力が現場から得られなくなる形で効いてくる。
 - **ユーザー視点：月次レポートは経営者だけでなく顧問税理士・金融機関に転送されて独り歩きする**：広告費の妥当性を問われるのは社内でなく決算・融資の場で、その場に LET は同席していない。現場語対訳（08-18記録）で本文を読めるようにしたうえで、「当月広告費・応募数・応募1件あたりの広告費・採用に至った人数」を毎月同じ位置の1ページに固定し、そのページ単体で転送しても意味が通る形にする。定義3点セット（07-16記録）を本文の注釈でなくこのページ内へ併記しないと、転送先で数値だけが前提なしに評価される。
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+- **戦略**: 四半期マーケ戦略策定／ICP定義／チャネル別予算配分／KPI設定（リード数・CVR・CPA・LTV）
+- **コンテンツ**: コンテンツカレンダー（Notion DB＋月次自動生成）／ワンソース・マルチユース展開／UGC風縦動画テンプレ5種
+- **広告運用**: Meta/Google/TikTokの3チャネル分散／Dynamic Creative A/B／自動ルール（Freq4.5超＋CTR-20%で停止）／学習50件/週・7日据え置き
+- **計測**: UTM 5階層＋Slackスラッシュコマンド `/utm`／GA4・CAPI・実応募の3点突合／VTC/CTC分離／アトリビューション理解
+- **品質ゲート**: 7軸チェック（媒体審査・景表法・薬機法・ステマ・UTM・LP遷移・著作権）／配信前4ゲート（CVタグ・モバイルLCP2.5秒・審査承認・UTM）／textlintカスタム辞書
+- **連携**: Sales（リード温度スコア1行添付）／Itsuki（発注カード1本化）／Shun（実数値起点改善）／Sora（証跡✅化）／Bo（朝ダッシュボード）／nori（事前リーガル）／Yuto（現場語対訳）
+- **強みの限界**: 自社案件のインサイト蓄積は深いが、2026年Q4の生成AIマーケ・エージェント型CRM・C2PA署名・Dark Social定量化・ARRコンパウンド成長の方法論は未体系化
+
+### 2. 業界ベンチマーク（2026年10月時点）
+- **Google Ads**: Performance Max の AI Max for Search Campaigns が標準化、クリエイティブAI自動生成＋検索語句マッチ拡張で手動入札調整の効き代がほぼ消失
+- **Meta Advantage+**: Shopping/App/Leadsの3系統が完全統合、「Opportunity Score」85点以上がCPA安定ラインに
+- **TikTok**: Smart+ Campaigns が日本でもGA、Promote（オーガニック投稿のブースト）＋Spark Adsでクリエイター連携の運用が標準装備
+- **X Ads**: Grok連携のオーディエンス推論でB2B訴求のCPAが2025年比30%改善、ただし建設採用は依然リーチ不足
+- **Yahoo!広告**: 検索広告のレスポンシブ検索広告（RSA）全面移行、ディスプレイで AI クリエイティブスタジオが標準
+- **LINE Ads**: LINE Business Managerで広告・CRM・LINE公式アカウントを統合管理、CV API（CAPI相当）でiOS計測を補完
+- **GA4**: Advertising Workspace の予測指標（購入予測/離脱予測）活用、BigQuery Export連携での顧客LTV予測が中堅企業にも降りてきた
+- **MA/CRM**: HubSpot Breeze AI／Marketo Dynamic Chat／Salesforce Agentforce for Marketing／Braze Sage AI／Customer.io Journey AI／ActiveCampaign AI／Mailchimp Intuit Assist／FluentCRM（WordPress連携系）がエージェント型マーケに移行
+- **ARR Compound Growth**: 月次成長率7%＝ARR 2.3倍／年の複利公式を予算配分の基準線に据える動きがSaaS/支援業で定着
+- **Dark Social Attribution**: Fathom／Plausible／HockeyStack／Common Room／Dreamdataで指名検索リフト・DM計測・コミュニティ発言の定量化が実装可能に
+- **Agentic CMO**: 自律的に戦略立案→配信→測定→改善まで回すAIエージェントがPoCから本番運用へ
+- **Content Credentials (C2PA)**: AI生成コンテンツの来歴証明署名が広告審査の加点要素に、2026年末までにMeta/Googleで対応表明
+
+### 3. 特定された成長余地（Skill Gaps）
+1. **Agentic CMO連携設計の不在**: 自律エージェントによる24時間運用の設計・ガードレール・人間介在ポイントが未定義
+2. **Dark Social定量化手段の不足**: 指名検索リフト・DMシェア・口コミ量を06-07/07-27記録の定性観察から定量KPIに昇格できていない
+3. **ARRコンパウンド成長モデルの未導入**: 月間リード数の目標が静的（月20件）で、複利成長シナリオと予算配分のリンクが弱い
+4. **C2PA / Content Credentials対応ワークフロー不在**: AI生成素材の来歴署名・AIラベル表示を発注カード・公開前ゲートに未統合
+5. **LINE Ads / LINE Business Manager本格活用不足**: 08-03記録のLINE一次CV構成はあるが、LINE CAPI・LAP（LINE Ads Platform）の運用深度が浅い
+6. **ゼロパーティデータの構造化スキーマ不在**: 診断/アンケートの取得データが施策ごとに孤立、CDPへの統合設計がない
+7. **AIクリエイティブ生成ガバナンスの未整備**: Runway/Sora/Veoなど動画生成AI活用時の肖像権・景表法・ステマ・UGC偽装リスクの事前チェックフロー未体系化
+8. **予測LTV・予測離脱スコアの意思決定への未反映**: GA4予測指標・BigQuery予測モデルを予算配分や除外オーディエンスに未結線
+
+### 4. 新規追加スキル（10項目以上）
+1. **Agentic Marketing Orchestration**: 自律エージェントに「配信学習完了判定・差し替え着手・予算再配分」を委譲し、人間は週次の方針判断と例外対応に専念する運用設計。ガードレール（最大変動幅±20%／学習中セット非編集／景表法NG辞書照合）とKillSwitchをコード化
+2. **Dark Social KPIダッシュボード構築**: 指名検索リフト（Google Trends API・Search Console）／アンケート「知ったきっかけ」自己申告／LINE友だち追加の自己紹介経路／UTMなし自然流入／レビュー投稿増分、を1枚の月次KPIシートに集約
+3. **ARRコンパウンド成長モデリング**: 月次成長率×LTV×粗利率から12ヶ月後のARR複利シナリオを算出し、CPA許容値を「月次CPA目標」でなく「LTV連動の動的許容値」へ移行
+4. **C2PA Content Credentials署名ワークフロー**: AI生成素材の来歴メタデータを撮影／生成／編集／配信の各段階で署名・継承、公開前ゲートに「Credentials署名有効性チェック」を追加
+5. **LINE Ads Platform（LAP）＋LINE CAPI統合運用**: LINE Business Managerで広告・CRM・公式アカウントを一元管理、LINE CAPIでiOS計測欠損をサーバーサイドで補完、友だち追加→メッセージ配信→応募までを1本の計測線で可視化
+6. **Zero-Party Data 統合スキーマ運用**: 診断・アンケート・ショートのインタラクティブ回答を「希望職種／希望勤務地／不安項目／連絡希望手段」の統一スキーマで CDP に集約、ナーチャリングのセグメント設計を全案件横断で再利用
+7. **AI動画生成ガバナンス（Runway/Sora/Veo対応）**: 生成素材の肖像権リスク・実在誤認・景表法NG表現を事前チェックする辞書とプロンプトテンプレ、生成物にはC2PA署名＋「AI生成素材」ラベルを必須化
+8. **予測LTV連動の除外・入札戦略**: GA4予測指標／BigQuery予測モデルで「購入確度上位20%」をTarget CPA緩和、「離脱予測上位20%」をリタゲ除外に連結、オーディエンス設計を実績ベースから予測ベースへ格上げ
+9. **MMM（Marketing Mix Modeling）軽量導入**: Robyn／Meridian（Google OSS）を使い月次チャネル別貢献度を回帰分析、ラストクリック（06-20記録）やVTC（06-20記録）だけでは見えない上流接点の金額換算貢献をCEO報告に反映
+10. **Incrementality Testing（ジオリフト・ホールドアウト）**: 都道府県・市区町村単位のジオリフトテストで「配信した場合／しなかった場合」の増分応募数を実測、Advantage+/P-MAXの貢献を因果推論で切り出す
+11. **Programmatic SEO × GEO（Generative Engine Optimization）統合**: 業界平均比較値／自社実数／FAQ構造化データを含むページを型化して量産し、Google AI Overviews・ChatGPT検索・Perplexityでの引用獲得を監視
+12. **Compound Content System**: 1つの主軸記事を音声／縦動画／カルーセル／メルマガ／LinkedIn投稿／ショート動画／Spotifyポッドキャストへ自動展開するワークフロー（Descript＋Opus Clip＋Captions＋自前テンプレ）
+13. **CRM Agentic Journey Design**: HubSpot Breeze／Customer.io Journey AI／Braze Sage AI／ActiveCampaign AIを使い、応募ステータス・温度スコアに応じたマルチチャネル（Email＋LINE＋リタゲ）シーケンスをAIが自律調整
+14. **Brand Safety 2.0**: 配置面の品質監視を手動除外から IAS／DoubleVerify／Human（旧White Ops）相当の自動化へ、生成AIスパムサイトへの出稿リスクを配信前にスコアリング
+
+### 5. 新規導入ツール / フレームワーク
+- **Google Meridian（MMM OSS）／ Meta Robyn**: 月次マーケミックスモデリングで上流接点の金額換算貢献を可視化
+- **HockeyStack / Dreamdata / Common Room**: Dark Social Attribution・コミュニティ由来のパイプライン計測
+- **HubSpot Breeze AI / Marketo Dynamic Chat / Salesforce Agentforce for Marketing / Braze Sage AI / Customer.io Journey AI / Mailchimp Intuit Assist / ActiveCampaign AI / FluentCRM**: Agentic CRMスタック（案件とクライアントの既存基盤に応じて選定）
+- **LINE Business Manager / LINE CAPI / LAP**: LINE統合運用基盤（08-03記録のLINE一次CV構成を本格スケール）
+- **GA4 Advertising Workspace ＋ BigQuery Export ＋ Looker Studio**: 予測指標とLTV連動入札の意思決定基盤
+- **Google AI Overviews監視 / Perplexity Pages / Profound / Peec AI**: GEO/AI検索での自社言及・引用トラッキング
+- **Runway Gen-4 / OpenAI Sora / Google Veo 3 / HeyGen / Captions**: AI動画生成（ガバナンス6との組み合わせ必須）
+- **Descript / Opus Clip / Munch**: Compound Content System のワンソース展開エンジン
+- **C2PA Verify / Content Credentials Browser Extension**: 来歴署名の生成と検証
+- **IAS / DoubleVerify / Human**: Brand Safety 2.0（配置面リスク自動スコアリング）
+- **ジオリフト分析**: GeoLift（Meta OSS）／Google CausalImpact
+- **フレームワーク**: RICE Prioritization（Reach×Impact×Confidence÷Effort）／Jobs To Be Done／North Star Metric Framework／PLG + Compound Growth Loop／AARRR+Referral Loop
+
+### 6. 強化された意思決定フロー
+```
+STEP 0  : nori 事前リーガルチェック（既存／景表法・ステマ・薬機法・C2PA署名要否）
+STEP 1  : ICP再定義 × ARRコンパウンド成長シナリオ策定（月次成長率7%ベース）
+STEP 2  : LTV連動 CPA 動的許容値算出（GA4予測指標＋BigQuery LTV モデル参照）
+STEP 3  : チャネル×訴求×フォーマットのテスト設計表（四半期分バッチ）
+STEP 4  : AI生成素材/UGC素材の内製 → C2PA署名 → AIラベル要否判定
+STEP 5  : 配信前Slackワークフロー（LP URL投入1回で LCP/タグ/UTM/条件リスト/LINE導線/除外OA/C2PA/配置面リスクを一括判定）
+STEP 6  : Agentic Orchestration（自律エージェントが学習判定・差し替え・予算再配分・疲労検知を24h実行）
+STEP 7  : Dark Social KPIダッシュボード＋Incrementality Testing で上流接点を定量把握
+STEP 8  : MMM（Meridian/Robyn）で月次チャネル貢献を金額換算 → 次月予算配分
+STEP 9  : Agentic Journey（HubSpot Breeze/Customer.io/Braze）で温度スコア別マルチチャネル育成
+STEP 10 : 月次レポート（現場語対訳＋定義3点セット＋転送用1ページ＋MMM結果＋Dark Social指標）
+STEP 11 : sora 事後QA → クライアント／経営へ納品
+```
+
+### 7. 新・出力フォーマット
+```yaml
+# marketing_overspec_report.yaml
+meta:
+  client: "翔星建設"
+  period: "2026-10"
+  period_definition: "暦月（2026-10-01 00:00 ～ 2026-10-31 23:59 JST）"
+  denominator: "セッション（GA4）／クリック（媒体）を併記"
+  attribution: "ラストクリック（主）／データドリブン（補助）"
+  vtc_ctc: "CTC/VTC分離表示"
+  c2pa_signed: true
+compound_growth:
+  current_mrr: 0
+  mom_growth_target_pct: 7
+  arr_12m_forecast: 0
+  dynamic_cpa_ceiling: 0
+  ltv_prediction_source: "GA4 Predictive + BigQuery LTV v2.3"
+channels:
+  - name: "Meta Advantage+"
+    spend: 0
+    leads: 0
+    cpa_last_click: 0
+    cpa_mmm_adjusted: 0
+    freq: 0
+    opportunity_score: 0
+    creative_fatigue_flag: false
+  - name: "Google AI Max for Search"
+    spend: 0
+    leads: 0
+  - name: "TikTok Smart+"
+  - name: "LINE Ads Platform"
+    line_capi_health: "OK"
+  - name: "Yahoo! RSA"
+dark_social:
+  branded_search_lift_pct: 0
+  survey_how_did_you_hear:
+    sns: 0
+    friend_dm: 0
+    search: 0
+    other: 0
+  line_oa_added_from_organic: 0
+  review_delta_30d: 0
+mmm:
+  tool: "Google Meridian"
+  attributed_contribution:
+    meta: 0
+    google: 0
+    tiktok: 0
+    line: 0
+    organic: 0
+    pr: 0
+incrementality_tests:
+  - geo_lift_target: "広島県"
+    control: "岡山県"
+    lift_pct: 0
+    p_value: 0
+agentic_orchestration:
+  autonomous_decisions_count: 0
+  human_overrides_count: 0
+  kill_switch_triggered: false
+  guardrail_violations: 0
+content_credentials:
+  ai_generated_assets: 0
+  c2pa_signed_assets: 0
+  ai_label_shown: true
+quality_gates_passed:
+  pre_launch_slack_workflow: true
+  modile_lcp_under_2_5s: true
+  cv_tag_fired: true
+  utm_persisted_after_redirect: true
+  excluded_oa_updated_within_24h: true
+  brand_safety_score: 95
+recommendations:
+  - "LTV予測上位20%セグメント向けにMeta Advantage+の目標CPAを+15%緩和"
+  - "ジオリフト結果からTikTok Smart+の広島エリア配分を+20%"
+  - "Dark Social Liftが前月比+18%、PR連携でレビュー増分施策を継続"
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+- **Bo（業務自動化部）**: 朝ダッシュボードに「C2PA署名切れ検知」「LINE CAPIヘルス」「Advantage+ Opportunity Score低下」「Agent自律判断ログ」「ジオリフトP値監視」の5条件を追加
+- **Shun（データ分析部）**: Shunに BigQuery LTV予測モデル／Meridianモデルのチューニングを委ね、Marketingはシナリオ入力と意思決定に集中
+- **gen（建設業DX）**: 建設業の工期・季節性・現場繁忙期（9月決算期前後、年度末、GW/盆/年末の工事休止）を Compound Growthシナリオの季節係数へ反映
+- **Itsuki（コンテンツ制作）**: 発注カードに「AI生成の有無」「C2PA署名要否」「AIラベル必須フラグ」の3項目を追加、Runway/Sora利用時はガバナンスチェックリスト同梱
+- **sou/toma/takumi（TikTokチーム）**: Smart+ Campaigns 用の素材スペック（9:16／3秒以内フック／Spark Ads 対応クリエイターID）を発注テンプレに統合
+- **ryota（クライアント管理）**: 月次レポートの転送用1ページに「ARR複利シナリオ・ジオリフト結果・MMM貢献度」を追加し、顧問税理士・金融機関の決算/融資面での説明責任に耐える構成に
+- **nori（法務）**: ゼロパーティデータ取得・AI生成素材のC2PA署名・ステマ規制（PR表記）・景表法NG辞書更新を四半期監査サイクルで同期
+- **HR**: 退職者のBusiness Manager権限剥奪通知を即日連動、応募後の受け入れキャパ（24h初回連絡率）をスロットリング判定の入力に
+- **sora（COO最終QA）**: 「本質判断」としてAgentic判断ログの異常検知と意思決定の説明責任（Explainability）を監査
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+| 指標 | Before（従来） | After（Overspec 2026Q4） |
+|---|---|---|
+| 月間リード数 | 20件/月（静的目標） | ARR複利シナリオ連動の動的目標（成長率7%/月で複利） |
+| CPA判断 | 月次CPA目標値のみ | LTV予測連動の動的CPA許容値（セグメント別） |
+| インバウンド比率 | 60%以上 | 70%以上＋Dark Social起因比率25%以上 |
+| アトリビューション | ラストクリック中心 | ラストクリック＋MMM金額換算＋Incrementality Lift の3層報告 |
+| クリエイティブ疲労検知 | Freq4.5 + CTR-20% 手動 | Agentic監視＋自動差し替え着手、人間介入は週次例外のみ |
+| 配信前ゲート | 4ゲート手動 | Slackワークフロー1本・URL投入90秒・8項目一括判定 |
+| 計測精度 | GA4とCAPIの2点突合 | GA4＋CAPI＋LINE CAPI＋実応募＋媒体間重複排除の5点突合 |
+| コンテンツ産出 | 媒体別個別制作 | Compound Content System（1主軸→7媒体自動展開） |
+| AI素材ガバナンス | 景表法辞書のみ | 景表法＋肖像権＋C2PA署名＋AIラベル＋実在誤認辞書 |
+| レポート可読性 | 正式指標名のみ | 現場語対訳＋転送用1ページ＋MMM/Dark Social併記 |
+| 配置面安全性 | 手動除外リスト | Brand Safety 2.0（IAS/DVスコアリング自動） |
+| 意思決定の自律度 | 全て人手 | Agentic Orchestration（人は方針・ガードレール・例外のみ） |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+1. **週次（毎週月曜朝）**: 7社の朝ダッシュボード赤セル履歴を集約し、新しい失敗パターン・勝ちパターンを Daily Knowledge Log へ1件以上追記。Agentic Orchestration の自律判断ログも監査し、ガードレール違反・人間オーバーライド事例をスキルへ還元
+2. **月次（毎月第1営業日）**: Meridian/Robyn の MMM結果と前月予算配分の乖離を分析、Dark Social KPIと指名検索リフトの推移を Shun と共有し、次月予算配分へ反映
+3. **四半期（Q末）**: Google Ads/Meta/TikTok/LINE/Yahoo! の媒体アップデートログ、HubSpot Breeze/Customer.io/Braze のリリースノート、GA4/BigQuery の新機能、C2PA/生成AIガバナンス規定の変更点を棚卸し、本スキルを改訂
+4. **四半期（Q末）**: ジオリフトを少なくとも1件実施し、Incrementality の実測値を次四半期の予算配分根拠に接続
+5. **半期**: ARRコンパウンド成長モデルの前提（LTV・粗利率・成長率）を Finance／ryota と再キャリブレーション
+6. **自己評価5軸**: ①学習完了率（学習50件/週到達アカウント数）②Agentic自律判断成功率 ③Dark Social KPI 捕捉率 ④配信前ゲート通過率 ⑤レポート転送後の問い合わせ発生数（ゼロが理想）
+7. **知見の自己拡張**: 新規導入ツール／フレームワーク（5項参照）のうち毎四半期1つは必ずPoCで検証、再現可能な運用手順を Daily Knowledge Log と本強化パックに追記
+8. **外部参照の定点観測**: ThinkWithGoogle／Meta Blueprint／TikTok for Business／LINE for Business／Nielsen Marketing Mix／MarTech Alliance／Reforge の最新ケースを月次1件以上レビュー
+
