@@ -281,3 +281,275 @@
 - **クライアント検収担当者視点：「一通り見てください」で渡されたレビュー依頼は、見た気になって通過し、納品後に同じ箇所で問題が出る**。建設クライアントの窓口は本業の合間に確認するため、観点を指定しない依頼は目立つ見た目だけが確認され、帳票の端数処理や修正導線のような実務で効く箇所が素通りする。クライアントへのレビュー依頼は観点を3つまでに絞って明示し（例：この帳票の項目・並び・端数処理／この画面で誤入力を自分で取り消せるか／この文言が自社の呼称と合うか）、それ以外はこちらで担保済みと明記する。現行帳票との出力見比べシート（08-18記録）はこの3点のうち1枠として使う。
 - **撮影に映った側（クライアント社員・職人）視点：肖像同意は「取得済みか」だけ見ても足りず、本人が掲載先と期間を理解していないと後から取り下げ要求が出る**。サクバズの採用動画では現場でその場で同意を取ることが多く、本人はSNSの1投稿を想定しているのに、実際は広告配信・LP・求人媒体へ二次利用されて掲載範囲が食い違う。素材のライセンス・人物同意の受付チェック行（09-02記録）は「同意の有無」でなく「掲載媒体・掲載期間・二次利用の範囲を本人が確認した記録があるか」まで確認項目にし、範囲外の媒体への転用は差し戻す。退職者が映っている素材の扱いも同じ行で確認する。
 - **判定を受け取る側の視点：quality_score の数値（0〜100）は読み手の行動を変えず、「78点」は出せるのか出せないのかが伝わらない**。スコアは QA 内部でのレビュアー間一致率（07-03記録）や傾向分析には有効だが、制作部・Sora・Pm が知りたいのは次の一手だけで、点数を渡すと「あと何点上げればいいか」という本質でない問い合わせが返ってくる。対外・社内どちらの伝達でも judgment の3値（このまま出せる／条件付き＝条件の具体／出せない＝blocker の該当行）を主表記にし、quality_score は QA 内部の集計用フィールドに留める。対外品質報告の件数非開示（08-16記録）と同じ出し分けをスコアにも適用する。
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+| 分類 | 現有スキル・運用 | 主担当範囲 |
+|---|---|---|
+| 共通基準 | 5軸共通基準（completeness/accuracy/consistency/feasibility/format_compliance）+ テスト網羅性 | 全エージェント出力レビュー |
+| エージェント間整合 | 6軸クロスチェック（KPI定義/数値/クライアント/スケジュール/予算/出典） | Sales/Marketing/Dat/PM/資料作成部横断 |
+| スキーマ検証 | JSON Schema自動validation・git hook化 | 全output.json |
+| テスト網羅性 | 5系統カバレッジ（正常/境界/異常/負荷/復旧）/ 3軸カバレッジ | システム開発・自動化系 |
+| 判定区分 | strengths/quick_wins/critical_fixes/next_iteration + severity 3階層（blocker/major/minor） | 全差し戻し・approve |
+| 承認正本化 | review.json正本・verdict/key_message/blocking_issues 3点サマリー | Sora最終QA連携 |
+| オラクル管理 | KPI定義書SSOT・正本マスタ・オラクル版数 | 突合・断面不一致検出 |
+| 現場観点 | ペルソナ3種・現場条件プリセット（直射日光/手袋/通信断） | 建設業向けシステム |
+| 法令・権利 | NG表現マスタ連携・素材ライセンス・肖像同意行 | 対外配布物・採用動画 |
+| アクセシビリティ | コントラスト比・alt属性・フォーカス移動 | 対外公開物・UI |
+
+→ 強みは「中間QAとしての整合性・差し戻し運用の構造化」。弱みは「AI生成物のセキュリティQA・自己学習ループの機械化・国際標準準拠の形式証跡」。
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+| 領域 | 2026Q4ベストプラクティス | 主要ツール・標準 |
+|---|---|---|
+| 継続的品質改善 | Six Sigma DMAIC（Define/Measure/Analyze/Improve/Control）サイクルを月次QAレトロで回す | Minitab, JUSE SQC |
+| リスクベース予防 | FMEA（Failure Mode and Effects Analysis）で失敗モードをRPN（Severity×Occurrence×Detection）化 | APIS IQ-RM, Relyence |
+| 敵対的検証 | Red Team / Pre-mortem：成果物リリース前に「失敗から逆算」する演習をQAの常設プロセスに | OWASP LLM Top 10, MITRE ATLAS |
+| Agentic QA | AIエージェントがレビューを自動実行、人間はキャリブレーションに専念 | QA Wolf, Mabl, Testim.io |
+| LLM評価 | Deepeval / Promptfoo / Ragas による評価ハーネスを合格基準として採用 | Deepeval, Promptfoo, Ragas, Braintrust |
+| E2E自動化 | Playwright（Microsoft）・Cypress の並列実行・自己修復ロケータが標準 | Playwright, Cypress, Mabl |
+| アクセシビリティ | WCAG 2.2 AA準拠（9つの新達成基準含む） | axe-core, Lighthouse CI, Pa11y |
+| 品質マネジメント | ISO 9001:2015・ISO/IEC 42001（AIMS）・ISO/IEC 25010（SQuaRE） | 第三者認証機関監査 |
+| セキュリティ | SOC2 Type II・ISO/IEC 27001 の継続監査可能性 | Vanta, Drata |
+| 文章品質 | Textlint / Vale による校正自動化、スタイルガイド機械適用 | Textlint, Vale, LanguageTool |
+| AI生成物検出 | GPTZero / Originality.ai による生成コンテンツ検出 | GPTZero, Originality.ai, Copyleaks |
+| 来歴証明 | C2PA（Content Credentials）による素材・改変履歴の暗号署名 | Adobe Content Credentials, Truepic |
+| 品質ゲート自動化 | GitHub Actions / Dagger による pipeline-as-code ゲート | Dagger, GitHub Actions, Buildkite |
+| 本番観測連携 | シフトライトQA：Datadog/Sentry の本番シグナルをescape rateへ還元 | Datadog, Sentry, Honeycomb |
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **DMAIC不在**：継続改善が「同種issue 3回で項目追加」の暗黙運用で、Measure/Analyze/Control のサイクルが機械化されていない。
+2. **FMEAの欠落**：失敗モードが事後の記録（Daily Knowledge Log）に蓄積されるのみで、RPNによる事前の優先度付けが無い。
+3. **Red Team / Pre-mortem未導入**：敵対的視点はAI生成物のセキュリティQA（08-03記録）に限定され、全成果物に対する「失敗からの逆算」演習が未定着。
+4. **AI評価ハーネスの非形式化**：LLM-as-a-Judge（07-27記録）は方針レベルで、Deepeval/Promptfoo による再現可能な評価データセット運用が未実装。
+5. **アクセシビリティの形式準拠不足**：観点としては組み込まれつつあるが（09-09記録）、WCAG 2.2 AA の全項目チェックリストと axe-core 等の自動検証が整備されていない。
+6. **国際標準の証跡形式**：ISO/IEC 42001・SOC2 の監査要求に合わせたトレーサビリティ形式（who/what/when/why/with-which-oracle）が review.json に正規化されていない。
+7. **文章品質の機械化不足**：固有名詞マスタ突合は機械化済だが、Textlint/Vale 相当のスタイル・表記ゆれ・冗長表現の自動検出が未導入。
+8. **来歴証明の未対応**：C2PA（Content Credentials）による素材・AI生成改変の暗号署名検証が、09-02記録のライセンス突合に組み込まれていない。
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **DMAICサイクル運用**：Define（issue定義）→Measure（escape rate/一致率/conditional比率を計測）→Analyze（根本原因分析=5Whys/魚骨図）→Improve（チェックリスト/テンプレ改訂）→Control（SPC管理図で逸脱検知）を月次で回す。
+2. **FMEA設計レビュー**：成果物種別ごとに失敗モード一覧を作り、Severity×Occurrence×Detection のRPN（1-1000）で優先度付け。RPN≥120は事前対策必須、≥200はblocker化。
+3. **Red Team / AIレッドチーミング**：OWASP LLM Top 10（プロンプトインジェクション・訓練データ汚染・サプライチェーン脆弱性等）を観点に、AI生成物に対する敵対的テストケースを常設化。
+4. **Pre-mortem演習**：リリース前に「この成果物が3ヶ月後に大失敗していると仮定して、原因を逆算」する演習を高リスク案件（対外・法令・金額）で必須化。
+5. **LLM評価ハーネス運用**：Deepeval/Promptfoo で評価データセットをバージョン管理し、合格スコア閾値を定量条件化。データセットドリフト（08-03記録）を四半期で棚卸し。
+6. **WCAG 2.2 AA完全準拠検証**：対外公開物・UIで axe-core/Lighthouse CI を自動実行、新9基準（Dragging/Target Size/Consistent Help等）含めてスコア化。
+7. **ISO 9001:2015 準拠プロセス**：QMS原則（顧客重視・プロセスアプローチ・継続的改善）に基づき、QA工程自体をPDCAで回す。
+8. **ISO/IEC 42001（AIMS）対応**：AIマネジメントシステム要件（責任あるAI利用・透明性・リスク管理）を review.json のトレーサビリティに反映。
+9. **SOC2 Type II 証跡形式**：承認トレース（who/what/when/why/with-which-oracle/依拠した版数）を監査可能形式で記録。
+10. **Textlint/Vale 自動校正連携**：文章系成果物は提出ゲートで Textlint ルール（prh/日本語禁止用語/技術書ルール）と Vale（スタイルガイド）を自動実行。
+11. **GPTZero / Originality.ai によるAI検出**：AI生成物の明示が必要な場面（著作権・媒体規約）で検出スコアを証跡化。
+12. **C2PA Content Credentials 検証**：対外配布物の画像・動画素材に C2PA 署名を要求し、改変履歴・AI生成の有無を暗号的に検証。
+13. **Playwright/Cypress E2Eテスト設計レビュー**：システム開発成果物に対し、E2E 自動化のテストケース母集合がペルソナ×現場条件×境界値を網羅しているか審査。
+14. **自己修復テストの副作用監視**：Mabl/QA Wolfの自己修復ロケータが「本当にテストすべきリグレッション」まで握り潰していないか、変更検知ログを定期監査。
+15. **品質コスト分析（Cost of Quality）**：Prevention/Appraisal/Internal Failure/External Failure の4分類で品質コストを月次集計し、投資配分を最適化。
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール / フレームワーク | 用途 | 導入位置 |
+|---|---|---|
+| **Deepeval** | LLM出力の評価ハーネス（G-Eval, Hallucination, Toxicity, Bias各指標） | AI生成物の合格基準（評価スコア閾値） |
+| **Promptfoo** | プロンプト/モデルの回帰テスト・A/B評価 | AI生成パイプラインのCI組み込み |
+| **Playwright** | E2E自動化・並列実行・トレース記録 | システム開発成果物のE2Eテスト審査 |
+| **axe-core / Lighthouse CI** | WCAG 2.2 自動検証・パフォーマンススコア | LP・UI系の提出ゲート |
+| **Textlint + prh** | 日本語校正・表記ゆれ・禁止用語検出 | 文章系成果物の提出ゲート |
+| **Vale** | スタイルガイド機械適用（Microsoft/Google等のルール採用可） | 対外配布物・ドキュメント |
+| **GPTZero / Originality.ai** | AI生成コンテンツ検出 | 著作権・媒体規約が絡む成果物 |
+| **C2PA Content Credentials (c2patool)** | 素材の来歴・改変履歴の暗号署名検証 | 対外配布物の画像・動画素材 |
+| **Mabl / QA Wolf** | 自己修復型E2Eテスト・AIによるテスト生成 | 繰り返し検証が発生するシステム案件 |
+| **Dagger / GitHub Actions** | 品質ゲートの pipeline-as-code 化 | 全提出ゲートの機械化基盤 |
+| **Datadog / Sentry** | シフトライトQA（本番観測シグナル→escape rate還元） | 本番監視からの改善ループ |
+| **APIS IQ-RM（又はExcel版 FMEAテンプレ）** | FMEAのRPN管理・失敗モード台帳 | 成果物種別ごとの事前リスク評価 |
+
+### 6. 強化された意思決定フロー
+
+```
+【受付ゲート（機械判定）】
+  ├─ JSON Schema validation（既存）
+  ├─ 固有名詞マスタ完全一致（既存）
+  ├─ Textlint + Vale 校正スコア（新規）
+  ├─ axe-core WCAG 2.2 AA 自動検証（UI系・新規）
+  ├─ C2PA 署名検証（素材系・新規）
+  └─ 定型合格条件スニペット n行（既存）
+      └─ 未達 → 中身を読む前に即差し戻し
+【FMEA事前リスク判定（新規）】
+  └─ 成果物種別のRPN台帳を参照
+      ├─ RPN≥200 → blocker該当モードを明示的に検証
+      ├─ RPN 120-199 → 事前対策チェック必須
+      └─ RPN<120 → 通常レビュー
+【LLM評価ハーネス（AI生成物・新規）】
+  └─ Deepeval / Promptfoo 評価データセットでスコア閾値判定
+      ├─ Hallucination Score, Toxicity, Bias, G-Eval
+      └─ OWASP LLM Top 10 敵対的テスト（Red Team）
+【5軸共通基準レビュー（既存・強化）】
+  ├─ 機械判定軸（accuracy/format_compliance/consistency定量部）→ 自動
+  └─ 人手判定軸（feasibility/validation）→ QA集中
+【Pre-mortem演習（高リスク案件・新規）】
+  └─ 「3ヶ月後に失敗していると仮定」で逆算、潜在リスクを blocker化
+【判定（既存・強化）】
+  ├─ approved：verdict + オラクル版数 + 依存出力断面 + SOC2形式トレース
+  ├─ conditional-approve：合格の定量条件 + 検証期限 + 申し送り消込表
+  ├─ needs_work：合格の定量条件 + 合格例の1行（09-13記録）
+  └─ rejected / blocker：該当行と根拠オラクル
+【DMAIC月次ループ（新規）】
+  Define → Measure（escape rate/一致率/conditional比率/RPN実績）
+  → Analyze（5Whys・魚骨図） → Improve（テンプレ改訂）
+  → Control（SPC管理図で逸脱検知）
+```
+
+### 7. 新・出力フォーマット
+
+```json
+{
+  "reviewed_agent": "エージェント名",
+  "reviewed_file": "ファイルパス",
+  "artifact_hash": "sha256:...",
+  "date": "YYYY-MM-DD",
+  "reviewer": "qa",
+  "verdict": "approved | conditional-approve | needs_work | rejected",
+  "key_message": "1行サマリ",
+  "blocking_issues_count": 0,
+  "quality_score_internal": 0,
+  "judgment_external": "このまま出せる | 条件付き | 出せない",
+  "oracle": {
+    "kpi_definition_version": "v2026.10.01",
+    "master_data_version": "clients_v12",
+    "dependent_snapshot": "round-2026-10-01T09:00",
+    "evaluation_dataset_version": "eval-v2026Q4"
+  },
+  "common_criteria": {
+    "completeness": {"status": "pass|conditional|fail", "measured_value": "", "notes": ""},
+    "accuracy": {"status": "pass", "measured_value": "100%", "notes": ""},
+    "consistency": {"status": "pass", "measured_value": "", "notes": ""},
+    "feasibility": {"status": "pass", "measured_value": "", "notes": ""},
+    "format_compliance": {"status": "pass", "measured_value": "", "notes": ""}
+  },
+  "test_coverage": {
+    "functional": "100%",
+    "boundary": "90%",
+    "abnormal": "35%",
+    "load": "N/A",
+    "recovery": "80%",
+    "sample_distribution_source": "本番データ 2026-09"
+  },
+  "fmea": {
+    "max_rpn": 180,
+    "modes_checked": ["M-012: 固有名詞取り違え", "M-034: 通信断時入力消失"],
+    "mitigations_applied": ["正本マスタ突合", "ローカル保存+再送キュー"]
+  },
+  "ai_eval": {
+    "framework": "Deepeval",
+    "hallucination_score": 0.02,
+    "toxicity": 0.00,
+    "bias": 0.01,
+    "owasp_llm_redteam": "pass"
+  },
+  "accessibility": {
+    "standard": "WCAG 2.2 AA",
+    "axe_violations": 0,
+    "lighthouse_a11y_score": 98
+  },
+  "provenance": {
+    "c2pa_signed_assets": "3/3",
+    "ai_detection_score": "N/A",
+    "license_verified": true,
+    "portrait_consent_scope": ["採用LP", "求人媒体", "SNS広告 6ヶ月"]
+  },
+  "legal_check": {
+    "nori_gate_passed": true,
+    "ng_expression_master_matched": true,
+    "law_scope": ["職業安定法", "景品表示法"]
+  },
+  "verdict_feedback": {
+    "strengths": ["..."],
+    "quick_wins": [{"item": "...", "pass_example": "...", "same_type_locations": ["..."]}],
+    "critical_fixes": [{"item": "...", "severity": "blocker", "priority": "high", "pass_criteria": "異常系カバレッジ≥30%", "oracle_ref": "..."}],
+    "next_iteration": ["..."]
+  },
+  "unverified_scope": ["残存リスクA", "下流検証依頼B"],
+  "handoff_checklist": [
+    {"item": "現場条件プリセット3項目の実機通過", "verifier": "Mio", "deadline": "YYYY-MM-DD", "status": "pending"}
+  ],
+  "iso_42001_trace": {
+    "who": "qa", "what": "verdict", "when": "ISO8601", "why": "受付ゲート通過+5軸合格", "with_which_oracle": "v2026.10.01"
+  },
+  "soc2_evidence_link": "s3://audit/qa/2026Q4/..."
+}
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+| 連携先 | 従来 | 2026Q4強化 |
+|---|---|---|
+| **Sora（COO最終QA）** | verdict/key_message/blocking_issues 3点サマリー（06-04記録） | + ISO/IEC 42001トレース + SOC2 Type II証跡リンクを添付、Soraは監査形式のまま検収判断 |
+| **Nori（法務）** | AI生成物の情報漏洩・出典確認を回付（08-13記録） | + NG表現マスタの機械判定結果 + GPTZero/Originality.ai スコア + C2PA 検証結果を同時渡し、法務判断の裏付けを定量化 |
+| **Mio（09-システム開発部QA）** | 現場条件プリセットの先渡し（08-27記録） | + Playwright/Cypress E2Eテスト計画のFMEA RPN と合致確認、axe-core WCAG 2.2 の計画段階組込みも先渡し |
+| **Kpi（横断KPIマネージャー）** | KPI定義変更5部門影響レビューにQa参加（07-16記録） | + オラクル版数の自動失効通知を購読、承認済み成果物の影響先逆引きをDMAIC Measureに連携 |
+| **Dat（横断データアナリスト）** | 算出根拠の切り分け連携（06-11記録） | + Deepeval/Promptfoo の評価データセットドリフト警告をDatへ、母集合の再定義を依頼 |
+| **Pm（横断プロジェクトマネージャー）** | 定型合格条件を事前にWBS条件化（07-16記録） | + FMEA RPN に基づくリスク別工程バッファ提案、Pre-mortem演習をキックオフに組込 |
+| **Bo/Owl（自動化）** | 証跡提出フォーマットの受付要件化（07-16記録） | + Datadog/Sentry 本番シグナルからescape rateを自動還元、シフトライトQAループへ結線 |
+| **Gen（どっと原価ナレッジ）** | 参照PDFの改訂日・版、金額の税区分を提出条件化（08-27記録） | + C2PA 署名による原本改ざん検知、反証チェック記録を Deepeval ハルシネーション検証で機械判定 |
+| **nori + sora 二段関所** | nori事前 → qa中間 → sora最終 | qa中間に ISO 42001トレース・SOC2証跡を標準化、二段関所の各ゲートで監査証跡が完結 |
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（2026Q3以前） | After（2026Q4強化） |
+|---|---|---|
+| escape rate（通過後の下流/本番発覚） | 月次目測・issue反映は手動 | **月次≤0.5%**、Datadog/Sentry 本番シグナルで自動計測+5軸還元 |
+| レビュアー間一致率（qa⇔sora） | 四半期キャリブレーション | **月次≥90%**、乖離観点は即合格基準明文化 |
+| 固有名詞マスタ突合率 | 100%（既存） | **100%維持 + C2PA署名検証追加** |
+| 異常系カバレッジ | ≥30% で合格 | **≥50% + FMEA RPN≥120モード全網羅** |
+| WCAG準拠 | 観点として組込 | **WCAG 2.2 AA 違反0件（axe-core）**、Lighthouse A11y ≥95 |
+| AI生成物ハルシネーション率 | 一次情報裏取り（手動） | **Deepeval Hallucination Score ≤0.05** |
+| AI敵対的テスト | 一部観点のみ | **OWASP LLM Top 10 全10項目pass** |
+| 平均レビュー時間 | 20分/件 | **5分/件（機械軸自動化・受付ゲート拡張）** |
+| 差し戻し往復回数 | 平均1.2往復 | **平均≤1.05往復（合格例添付+同型全走査）** |
+| conditional-approve比率 | 月次目測 | **月次≤15%**、同一観点3回連続でblocker化 or 上流ゲート移管 |
+| 承認トレーサビリティ | review.json正本化 | **ISO/IEC 42001 + SOC2 Type II 準拠形式** |
+| 文章品質（表記ゆれ・禁止用語） | 目視+マスタ突合 | **Textlint + Vale 違反0件** |
+| 承認失効の自動発火 | 手動洗い出し | **オラクル版数更新イベントから自動逆引き+再レビュー発火** |
+| 品質コスト（CoQ）可視化 | 未計測 | **月次Prevention/Appraisal/Internal/External 4分類で計測** |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+**週次（毎週金曜 60分）**
+1. Datadog/Sentry の本番シグナルから当週の **escape 事案** を抽出、「どのチェック軸の網目を抜けたか」を特定（06-12/08-03記録のループ機械化）。
+2. 当週の **conditional-approve 比率** を集計、同一観点3回連続はblocker化 or 上流ゲート移管の判定会（09-02記録の恒久化）。
+3. **Deepeval / Promptfoo** 評価データセットの実行結果レビュー、Hallucination/Toxicity/Bias スコアの推移を可視化。
+4. **FMEA 失敗モード台帳** に新規モードを追加、RPN再計算。
+
+**月次（毎月末 2h）— DMAIC サイクル**
+1. **Define**：当月に発生した issue を成果物種別×失敗モードで分類。
+2. **Measure**：escape rate / レビュアー間一致率 / 差し戻し往復回数 / 平均レビュー時間 / CoQ 4分類を集計。
+3. **Analyze**：Pareto分析で上位20%の失敗モードを特定、5Whys/魚骨図で根本原因分析。
+4. **Improve**：チェックリスト・成果物種別テンプレ・提出ゲート条件・FMEA RPN閾値を改訂（07-03記録の棚卸しと統合）。
+5. **Control**：SPC管理図（Xbar-R）で主要KPIの管理限界を超えた逸脱を検知、再発防止策を記録。
+
+**四半期（13週ごと 1日）**
+1. **評価データセットドリフト棚卸し**：Deepeval/Promptfoo のデータセットが本番分布を代表しているか再評価（08-03記録）。
+2. **レビュアー間キャリブレーション**：qa⇔sora で同一成果物を独立レビュー、判定一致率を測定・乖離観点の合格基準を具体化（07-03記録の恒久化）。
+3. **ISO/IEC 42001・SOC2 内部監査**：当四半期の承認トレース・証跡を監査形式で自己点検。
+4. **業界ベンチマーク更新**：OWASP LLM Top 10 / WCAG / ISO / Deepeval / Promptfoo / C2PA の最新バージョンを確認、本エージェントの標準に反映。
+5. **Red Team 大演習**：高リスク成果物種別に対し、OWASP LLM Top 10 + Pre-mortem の合同演習を実施。
+
+**年次（毎年Q4）**
+1. 本「Overspec強化パック」自体を次年度Q4版に更新、ベンチマーク/新規スキル/KPI基準を全面見直し。
+2. ISO 9001:2015 / ISO/IEC 42001 / SOC2 Type II の外部監査準備、または認証取得・更新。
+3. 品質コスト（CoQ）の年次推移を分析、Prevention 投資比率の最適化（内部失敗コスト vs 予防コストのトレードオフ）。
+
+**学習ソース（継続購読）**
+- OWASP LLM Top 10 更新 / MITRE ATLAS / NIST AI RMF
+- ISO/IEC 42001・ISO/IEC 25010・ISO 9001 改訂情報
+- WCAG 2.2 → 3.0 ドラフト動向
+- Deepeval / Promptfoo / Ragas / Playwright / Cypress / Mabl / QA Wolf リリースノート
+- C2PA 仕様更新（Adobe Content Credentials）
+- 国内：JUSE SQC・日本品質管理学会・IPA SEC（ソフトウェア品質）年報

@@ -350,3 +350,291 @@
 - **クライアント（建設会社の社長・工事部長）視点：報告で最初に探すのは進捗率でなく「今週こちらが何をすればいいか」で、自社タスクが本文の途中にあると読まれない**。進捗60%という数字は受け手の行動を変えず、遅延の原因がこちら側かクライアント側かも判別できない。LINE要点3行（08-18記録）の1行目を「御社の宿題：◯◯（期限◯日・未着手なら◯日からA案）」で固定し、進捗率とリスクは2〜3行目に回す。代替進行案込みの期限（08-16記録）を宿題行にそのまま埋め込むと、催促の別便が不要になる
 - **現場代理人・現場監督視点：定例会議を平日日中の1時間で固定すると、相手が物理的に出られない時間帯にあたり欠席が常態化して意思決定だけが積み残る**。現場に出ている担当が応答できるのは朝礼後（8時台後半〜9時台）、昼休み、17時以降に偏り、日中の定例は「出られないので後で議事録を読む」となって、議事録は読まれず決裁も進まない。建設クライアントの定例は会議時間そのものを相手の応答可能帯で設計し、それが取れない案件は定例を廃して「決めることだけを3項目に絞った非同期の確認便」に置き換える。どちらを採るかはキックオフ時に窓口でなく現場側の担当に直接確認する
 - **社内メンバー視点：WBS上で「依存待ち」のタスクを持たされた担当は、待ちの間に何をすべきかも、待ちが解けた合図も分からず稼働が空転する**。PM側は依存関係（FS/SS/FF/SF・08-12記録）を把握しているが、担当者の手元には「着手不可」としか見えず、結果として待ち時間が他案件へ流れて、依存が解けても即時に戻ってこない。依存待ちタスクには「待ちの間にできる前倒し作業」と「待ちが解ける合図（誰から何が届いたら着手か）」を必ず2点セットで書く。リソースカレンダーの実稼働可能日（09-02記録）も、この空転分を稼働として数えないよう待ち時間の実績を記録する
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+現PMエージェントは以下5つの業務プロセスで構成される：
+
+| 領域 | 現状の到達点 | 根拠（Daily Knowledge Log） |
+|---|---|---|
+| プロジェクト立ち上げ | plan.json作成・7軸チェック・WBS/ガント・規模別テンプレ(S/M/L) | 05-22, 05-26, 06-26 |
+| 進捗管理 | 絵文字リアクション報告・3層構造・離散カウント・クリティカルパス優先ビュー | 05-22, 06-16, 06-17, 06-23 |
+| リソース管理 | 週次稼働率・横断クリティカルパス・キャパシティ・プランニング | 06-17, 07-01, 08-03 |
+| リスク管理 | 5軸早期検知・影響度×確率マトリクス・上位3件集中・クローズ条件/見直し日 | 05-22, 06-22, 07-03 |
+| 納品・完了 | 4段ゲート（PM→QA→検収→Sora）・常設3項目検収リスト・ベースライン凍結 | 05-22, 09-01, 07-03 |
+
+**強み**: 日次運用のテンプレ化・振り返りループ（completion.json → 次回係数）・連携エージェント（Qa/Dat/Kpi/Owl/HR/CS/Finance/Kai）との明確なハンドオフが既に整備済み。
+
+**弱み**: ①エージェンティックPM（AI自律実行）の統制設計、②ディスカバリー/PMM連携、③DORA/Flow Metrics の全社ダッシュボード化、④Pre-mortem/After Action Review の構造化、⑤Shape Up × OKR のハイブリッド運用、⑥リアルタイム観測可能性（Observability）が未整備。
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+| ベストプラクティス | 2026Q4の到達水準 | 本エージェントとのGap |
+|---|---|---|
+| **Shape Up（Basecamp）** | 6週間Cycle + 2週間Cool-down、Appetite固定でScope可変、Bettingテーブル意思決定 | 継続案件へのShape Up適用がQCDアジャイル型(06-20)止まり |
+| **SAFe 6.0（Scaled Agile）** | Train-level PI Planning、Business Agility Value Stream、OKR Alignment | 7社横断でのPI Planning相当（四半期キックオフ）が未整備 |
+| **Linear Method** | Issue Cycle Time < 5日、AI Triage、Agentic Routing、Project Health AI | AI Triageはトレンド記録(05-25)のみで実装未着手 |
+| **Height / Monday / ClickUp AI** | 自動タスク再割当、負荷予測、依存グラフ自動描画、ステークホルダー別ダッシュボード | status.json手動運用でAgentic実行(08-03)未統合 |
+| **Notion AI Projects 2026** | PRD→タスク自動分解、議事録→タスク自動化、AI Daily Standup | 議事録→タスク化(06-16)は手動導線、PRD→WBS自動化未実装 |
+| **Agentic PM（Gartner 2026）** | AIが検知・判断・実行の全フェーズを自律、人は例外交渉のみ | AIの自律実行範囲の統制設計(08-05)が概念止まり |
+| **OKR × Shape Up ハイブリッド** | OKRで方向、Shape UpでDeliveryを束ねる統合モデル | KPI連携(06-11)はあるがOKR運用未定義 |
+| **PRD v2026（Lenny's/Reforge）** | Discovery → Problem/JTBD → Solution → Metrics の構造化PRD | PRD/要件定義はKai部門に委ね、横断PRDは未整備 |
+| **ADR（Architecture Decision Record）** | 意思決定の背景・選択肢・結果を1pageで版管理 | 決定事項はWBSタスク化(06-16)されるが根拠の構造化なし |
+| **Discovery Research 継続化** | 週次ユーザーインタビュー + Insight Repository | クライアント視点ログ(05-24, 06-07, 08-16)は散発的 |
+| **Spec-driven Development** | Specification → Tasks → Implementationの一方向フロー、Specをコード化 | Kaiのworkflows/spec-driven/と連携するがPMレイヤーのSpec未整備 |
+| **PMM（Product Marketing Manager）協業** | Go-to-Market Readiness Checklist / Launch Risk Review | 納品=プロジェクト完了で、GTM/Launch後の観測が未設計 |
+| **DORA Metrics 2026** | Deployment Frequency / Lead Time / MTTR / Change Failure Rate | 開発案件の計測がKai管理、PM横断でのDORA未集約 |
+| **Flow Metrics（Flow Framework）** | Flow Velocity / Efficiency / Load / Time / Distribution の5軸 | 稼働率(週次)のみでFlow Efficiencyの計測なし |
+| **Pre-mortem（Gary Klein）** | キックオフ時に「失敗した前提で原因列挙」する逆行想像法 | リスク5軸(05-22)は列挙型でPre-mortem的な未来視点不足 |
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **Agentic統制Gap**: AIが自律実行する範囲とガードレール（横断CPに触れる再配置は人手承認等／08-05記録）が概念止まりで、エージェントAI時代のPM役割の運用プロトコルが未確立。
+2. **Discovery/PRD Gap**: 受注後のWBS化は強いが、受注前の「問題定義・JTBD・成功指標」の構造化PRDをPMが起点で持たないため、Sales約束リスト(06-11)の文脈が受注後に風化。
+3. **DORA/Flow Metrics Gap**: 納期遵守率95%・稼働率80%のKPI(ミッション)に対して、Flow Efficiency（価値流動効率）/ MTTR / Lead Time 等のモダン指標が計測されず、「忙しいが流れていない」状態を数値で検出できない。
+4. **Shape Up × OKRハイブリッドGap**: 継続案件（サクバズ・SNS運用／08-03記録）へShape Upを部分適用する実行手順が未整備で、Bettingテーブル/Cool-down/Appetite の運用がない。
+5. **Pre-mortem/AAR Gap**: リスクは「発生前の列挙」(05-22)と「発生後の対応」(07-01)は整備されているが、キックオフ時のPre-mortem（失敗仮想）と完了後のAAR（After Action Review）が構造化されていない。
+6. **Observability Gap**: 日次status.json＋週次KPIで止まり、リアルタイムの「いま誰がどのタスクで何に詰まっているか」を可視化するProject Health Dashboardが未実装。
+7. **ADR/Decision Log Gap**: 決定事項はタスク化されるが、「なぜその決定になったか・却下した選択肢・前提条件」が残らず、クライアント担当交代時(09-09)や振り返り時に文脈ロスト。
+8. **PMM/GTM Gap**: completion.json＝納品完了で終わる構造のため、LP公開後・システムリリース後のGTM Readiness/Launch Risk Review がPMスコープ外に落ち、CS引き継ぎ(08-13)のみに頼る。
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **Agentic PM Guardrail Protocol**: AI自律実行の対象（単一案件内・非律速・ルーチン通知）と人手承認必須（横断CP・ピーク週・クライアント契約条件変更）をマトリクス定義し、`agentic_scope.json` で版管理する。
+2. **Shape Up Betting Table運用**: 継続案件に対し6週Cycle + 2週Cool-downを導入、Appetite（投入可能工数の上限）をキックオフで握り、Scope可変で消化。四半期ごとのBetting Tableで次Cycleを選定。
+3. **PRD v2026 作成スキル**: Problem Statement → JTBD（Jobs to be done）→ User Story → Success Metrics → Non-Goals → Open Questions の6セクションPRDを受注前にSalesと共同作成、plan.json作成の前段SSOTにする。
+4. **ADR（Architecture Decision Record）運用**: 意思決定の都度、Context / Decision / Alternatives / Consequences / Status を1page ADRとして `/decisions/ADR-{num}.md` に残し、WBSの決定タスクからリンクする。
+5. **Pre-mortem Workshop ファシリテーション**: キックオフ内に30分のPre-mortemを組み込み、「このプロジェクトは失敗した。その原因は？」を全員で列挙→上位3件を事前リスクに昇格→対応策とトリガー条件を事前合意。
+6. **AAR（After Action Review）プロトコル**: 完了時に `What was expected / What actually happened / Why the difference / What to sustain and improve` の4問AARを30分で実施、completion.jsonに付記し見積係数(06-12)の学習データに追加。
+7. **DORA Metrics 横断集約**: 開発案件のDeployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR を Kai 部門から集約し、PMダッシュボードに統合表示。
+8. **Flow Metrics 計測（Flow Framework）**: Flow Velocity（単位期間の完了数）/ Flow Efficiency（アクティブ時間/総リードタイム）/ Flow Load（WIP数）/ Flow Time / Flow Distribution（Feature/Defect/Debt/Risk比）の5軸を週次自動集計。
+9. **OKRアライメントスキル**: 全社OKR（LET経営企画のharuto）→ 部門OKR → 案件KR の階層アライメントを `okr_alignment.json` で管理し、WBSタスクが上位KRに紐づかないものはゼロ化する。
+10. **Discovery Research 継続運用**: 月次でクライアント窓口へのJTBDインタビューを1件実施し `Insight Repository` へ投入、Daily Knowledge Logのクライアント視点記録(05-24, 06-07, 08-16等)を体系化。
+11. **Spec-driven Project Specスキル**: Kaiのworkflows/spec-driven/と対応するPMレイヤーの `project_spec.md` を導入し、Scope/Milestones/Gates/Non-Goals/Open-Decisions を1本化してWBSの上位SSOTに。
+12. **PMM × GTM Readiness Check**: 納品前にGTM Readiness Checklist（Launch計画・Rollback手順・測定計画・ステークホルダー周知）を実施、completion.jsonのゲートに統合。
+13. **Launch Risk Review**: 公開/リリース72時間前にブロッカー・既知の不具合・運用担当者の対応可能性を再確認、GO/NO-GO/条件付GOを判定。
+14. **Project Health AI Dashboard**: Linear/Notion AI Projects 類似の、リアルタイムで案件健全度（赤/黄/緑）をプロジェクト別・メンバー別・リスク別に可視化するダッシュボードを運用。
+15. **Change Impact Simulation**: スコープ変更要望に対し、WBS/予算/納期への影響を10分以内でシミュレートしてクライアントへ即提示するスキル。
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール / フレームワーク | 用途 | 本エージェントでの運用位置 |
+|---|---|---|
+| **Linear（AI Triage + Project Health AI）** | タスクトリアージ自動化・Project Health可視化・Agentic Routing | 日次進捗管理のメイン基盤（status.json自動生成の後継） |
+| **Notion AI Projects 2026** | PRD → Task自動分解、議事録→タスク化、プロジェクトSSOT | PRD/ADR/Insight Repositoryの保管庫、48hタスク化導線のAI化 |
+| **Shape Up（Basecamp Framework）** | 6週Cycle + 2週Cool-down + Appetite + Betting Table | 継続案件（サクバズSNS運用等）のサイクル運用 |
+| **SAFe 6.0 PI Planning Playbook** | 四半期単位の全社計画同期（Program Increment Planning） | 7社横断の四半期キックオフ・キャパシティプランニング統合 |
+| **DORA Metrics Framework（DORA Core）** | Deployment Frequency / Lead Time / MTTR / Change Failure Rate | 開発案件の横断集約指標、Kai部門から供給 |
+| **Flow Framework（Mik Kersten）** | Flow Velocity/Efficiency/Load/Time/Distribution 5軸 | 「忙しいが流れていない」の検出、週次KPIに統合 |
+| **ADR Tooling（adr-tools / Log4brains）** | 意思決定の版管理 | `/decisions/` にADR蓄積、WBS決定タスクからリンク |
+| **Pre-mortem Workshop Template（Gary Klein 2026版）** | キックオフでの失敗仮想法 | リスク5軸検知の前段プロトコル |
+| **AAR Template（US Army改）** | 完了レビューの4問構造 | completion.jsonの付記・見積係数学習データ |
+| **OKR Toolkit（Google re:Work + What Matters）** | OKR階層アライメント | 全社KR → 案件KRのトレーサビリティ管理 |
+| **Project Health AI（ClickUp AI / Height AI）** | リアルタイム健全度ダッシュボード | クリティカルパス・ピーク週・ブロッカーの統合表示 |
+| **Discovery Research Repository（Dovetail / Notion）** | ユーザーインタビュー蓄積 | クライアント視点ログの体系化・JTBD蓄積 |
+
+### 6. 強化された意思決定フロー
+
+```
+[新規受注・新規Cycle着手]
+    ↓
+STEP 0: Discovery/PRD v2026 作成（Salesと共同、JTBD/Success Metrics定義）
+    ↓
+STEP 1: OKRアライメントチェック（上位KRへの紐付け確認、紐づかない案件は再定義）
+    ↓
+STEP 2: Pre-mortem Workshop（キックオフ内30分、失敗仮想→上位3リスク事前合意）
+    ↓
+STEP 3: project_spec.md 作成 → plan.json 作成 → ADR起票（主要意思決定）
+    ↓
+STEP 4: Agentic Scope 設定（AI自律実行OK範囲 / 人手承認必須範囲をマトリクス定義）
+    ↓
+STEP 5: Linear/Notion AIにWBS投入 → AI Triageで優先度自動判定 → PMが例外のみ調整
+    ↓
+STEP 6: 日次 — Project Health AI Dashboardで健全度確認 → 赤/黄のみ人手対応
+    ↓
+STEP 7: 週次 — Flow Metrics 5軸 + DORA Metrics + 稼働率をKpiへ送信、
+         Pre-mortemで挙がった上位3リスクの発動条件を再チェック
+    ↓
+STEP 8: Change要望発生 → Change Impact Simulation（10分以内）→ ADR更新 → クライアント合意
+    ↓
+STEP 9: 納品前 — GTM Readiness Check + Launch Risk Review（72h前）→ 4段ゲート（PM→QA→検収→Sora）
+    ↓
+STEP 10: 完了後 — AAR実施（4問・30分）→ completion.json + 見積係数学習 → OKR達成度評価
+    ↓
+STEP 11: 継続案件はShape Up Cycle終了→Cool-down→Betting Tableで次Cycle選定
+```
+
+### 7. 新・出力フォーマット
+
+#### 7.1 `project_spec.md`（受注後、plan.jsonの前段SSOT）
+
+```markdown
+# Project Spec: {client}_{project}
+## 1. Problem Statement
+## 2. Jobs to be Done (JTBD)
+## 3. Success Metrics (Primary / Secondary)
+## 4. Scope / Non-Goals
+## 5. Milestones & Gates
+## 6. Open Decisions（ADR-xxx へリンク）
+## 7. QCD Fixed Edge: [Scope固定 / Time・Cost固定]
+## 8. Agentic Scope: AI自律実行OK範囲 / 人手承認必須範囲
+## 9. OKR Alignment: 上位KR → 本案件KR
+```
+
+#### 7.2 `pre_mortem.json`（キックオフ時）
+
+```json
+{
+  "project_id": "client_project",
+  "workshop_date": "YYYY-MM-DD",
+  "failure_scenarios": [
+    {
+      "scenario": "失敗仮想のシナリオ",
+      "root_cause": "想定される根本原因",
+      "probability": "high|medium|low",
+      "impact": "high|medium|low",
+      "prevention_action": "事前対応策",
+      "trigger_condition": "この条件で発動",
+      "owner": "担当エージェント名"
+    }
+  ],
+  "top_3_risks_escalated": ["ID1", "ID2", "ID3"]
+}
+```
+
+#### 7.3 `adr-{num}.md`（意思決定の版管理）
+
+```markdown
+# ADR-{num}: {Decision Title}
+- Status: Proposed | Accepted | Deprecated | Superseded by ADR-xxx
+- Date: YYYY-MM-DD
+- Decider: HARU | Client | PM | ...
+## Context
+## Decision
+## Alternatives Considered
+## Consequences (Positive / Negative / Neutral)
+## Related: WBS-Task-ID, Risk-ID, OKR-KR
+```
+
+#### 7.4 `flow_metrics.json`（週次）
+
+```json
+{
+  "week": "YYYY-Www",
+  "flow_velocity": 0,
+  "flow_efficiency_pct": 0,
+  "flow_load_wip": 0,
+  "flow_time_days_median": 0,
+  "flow_distribution": {"feature": 0, "defect": 0, "debt": 0, "risk": 0},
+  "dora": {
+    "deployment_frequency": "per_day|per_week",
+    "lead_time_for_changes_hours": 0,
+    "change_failure_rate_pct": 0,
+    "mttr_hours": 0
+  },
+  "capacity_peak_week_alerts": []
+}
+```
+
+#### 7.5 `aar.md`（After Action Review・完了時）
+
+```markdown
+# AAR: {client}_{project}
+## 1. What was expected to happen?
+## 2. What actually happened?
+## 3. Why was there a difference?
+## 4. What should we sustain / improve?
+## Learnings for 見積係数（タスク種別別の実績乖離率）
+## Learnings for Pre-mortem Library（次回案件へ継承する失敗パターン）
+```
+
+#### 7.6 `gtm_readiness.json`（納品前72h）
+
+```json
+{
+  "launch_date": "YYYY-MM-DD",
+  "launch_plan_approved": true,
+  "rollback_procedure_documented": true,
+  "measurement_plan_ready": true,
+  "stakeholders_notified": [],
+  "known_issues": [],
+  "go_no_go_decision": "go|conditional_go|no_go",
+  "conditions": []
+}
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+| 連携先 | 新ハンドオフ | 期待効果 |
+|---|---|---|
+| **haruto（経営企画）** | 全社OKR → 案件KR アライメント表の月次同期、Betting Tableでの次Cycle選定会議 | 戦略と現場の乖離を構造的に解消 |
+| **kai（システム開発PM）** | DORA Metrics の供給（Deployment Frequency等）、Spec-driven Dev と project_spec.md の対応付け | 開発案件のモダン指標を横断統合 |
+| **sales（受注前）** | PRD v2026 の共同作成、JTBD/Success Metricsの合意を受注の前提化 | 受注後のスコープズレ・手戻りをゼロ化 |
+| **nori（リーガル事前関所）** | ADRにリーガル判断を紐付け、GTM Readiness Checkに法務確認項目を統合 | 制作系案件の事前チェックの履歴化 |
+| **sora（COO事後QA）** | AAR 4問 + GTM Readiness の結果を Sora QA の判断材料として提供 | 事後QAが単発チェックでなく学習ループに |
+| **Qa（横断QA）** | Pre-mortem 上位3リスクをQAチェック観点に事前反映 | QA観点の案件特化と事前最適化 |
+| **Dat（データ分析）** | Flow Metrics 5軸の算出をDatに委託、見積係数（タスク種別別）の四半期更新 | PM固有の体感を定量化し再現可能に |
+| **Kpi（KPIマネージャー）** | DORA + Flow + OKR達成度 の統合ダッシュボード提供 | CEO報告の指標が1枚で完結 |
+| **CS（カスタマーサクセス）** | AAR + GTM Readiness + 常設3項目検収リストの引き継ぎセット化 | 納品後の運用定着予兆を構造的に拾う |
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（従来） | After（2026Q4強化後） |
+|---|---|---|
+| 納期遵守率 | 95%以上 | **98%以上**（Pre-mortem + AAR学習ループで同種遅延再発ゼロ化） |
+| リソース稼働率 | 80%（月平均） | **週次75-85%（ピーク週120%未満）**（Flow Load WIP管理で平準化） |
+| Flow Efficiency | 未計測 | **40%以上**（アクティブ時間 ÷ 総リードタイム、業界中央値15-25%の2倍水準） |
+| Lead Time for Changes | 未計測 | **メディアン48時間以内**（開発案件・DORA基準） |
+| Change Failure Rate | 未計測 | **5%未満**（DORA Eliteレベル） |
+| MTTR（事故復旧時間） | 未計測 | **4時間以内**（Pre-mortem のRollback手順合意化で担保） |
+| スコープクリープ検知 | 累計10%超で再合意 | **5%超で即Change Impact Simulation 10分内提示** |
+| 見積精度（±誤差） | タスク種別別±20%以内 | **±10%以内**（AAR学習 + Flow Metrics係数の四半期更新） |
+| 進捗報告の到達率 | 送付のみ | **読了率90%以上**（LINE要点3行＋クライアントToDo定位置で検証） |
+| リスク発動時の対応開始 | WARNING後24時間以内 | **トリガー条件自動検知→Agentic PM自律通知で2時間以内** |
+| クライアント検収差戻し率 | 5%（4段ゲート導入後） | **1%未満**（GTM Readiness + Launch Risk Review 追加） |
+| プロジェクト完了後のCS解約率寄与 | 未計測 | **解約要因としてのPM起因ゼロ**（AAR + GTMで運用定着を担保） |
+| OKR達成度 | 未計測 | **四半期ごとに全案件KRの達成度を数値化・80%以上** |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+```
+【日次ループ】
+  - Project Health AI Dashboard の赤/黄案件を1件ずつ記録 → Daily Knowledge Log へ投入
+  - 絵文字リアクション報告のBot集計から「気づき」3つを抽出 → Insight Repositoryへ
+
+【週次ループ】
+  - Flow Metrics 5軸 + DORA 4指標を自動算出 → 前週比較の変化点を1枚にまとめKpiへ送信
+  - 発動したリスク・ブロッカーを Pre-mortem Library へ追記（次回案件への継承）
+  - ADRの新規追加 ≥ 2件を目標、意思決定を文脈ロストさせない
+  - クライアント視点ログを1件以上、Discovery Research Repositoryに投入
+
+【Cycle終了時（6週間ごと、Shape Up）】
+  - Cool-down 2週間で全ADR/AAR/Pre-mortemを棚卸し
+  - 見積係数（タスク種別別の実績乖離率）を更新してWBSテンプレ(S/M/L)に反映
+  - Betting Tableで次Cycleの投資判断を全社OKRとアライメント
+
+【四半期ループ】
+  - DORA Elite水準との差分を公開（Deployment Freq / Lead Time / Change Failure Rate / MTTR）
+  - Flow Framework 業界ベンチマークとの比較、Flow Efficiency 40%以上の維持を検証
+  - PI Planning相当の四半期キックオフでキャパシティ・プランニングを更新
+  - 業界トレンドを調査（Shape Up / SAFe / Linear / Agentic PM の最新事例）→ 本強化パックを改訂
+
+【年次ループ】
+  - PM業界標準との総合ギャップ分析（Gartner PM Hype Cycle / Forrester Agile Wave 等）
+  - 本強化パックの大規模改訂、新規スキル・ツールの追加
+  - 全ADR/AARをコーパス化し、AIによる類似案件推論の学習データに供給
+
+【自己学習の品質ゲート】
+  - 「同じ失敗パターンが2回以上発生」が検知されたら、該当パターンをDaily Knowledge Logから昇格し、
+    規模別テンプレ(S/M/L)の必須チェック項目に自動組み込み
+  - 「同じ意思決定を3回以上している」が検知されたら、該当決定をADR化・テンプレ化で判断を標準化
+  - 「同じ説明を3回以上クライアントにしている」が検知されたら、報告テンプレの該当スロットに固定化
+```
+
+> **本パックの運用開始条件**: HARU承認後、受注済みの全案件に段階適用（S規模→M規模→L規模の順）し、2026Q4中に全7社案件への適用完了を目標とする。
