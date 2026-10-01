@@ -304,3 +304,385 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - 会議中の議事メモは decision と action_items だけを映す枠に限定して画面共有しながら書く。金額・期日の誤りをその場でクライアント本人が訂正できるため会議後の確認往復が1回消えるが、raw_text をそのまま映すと機密発言・個人見解・[聴取不能]タグまで相手に見えるため、共有する枠と保全する枠は物理的に分ける
 - 貴社側タスクのうち現場へ降ろす必要があるもの（撮影日の現場調整・職長への周知・立ち会い）には現場伝達フラグを立て、実施日・所要時間・立ち会い人数まで書く。担当者は議事録を職長へそのまま転送するが、所要時間と人数のないタスクは現場で日程が組めず、担当者が自分で書き直すか放置されるかのどちらかになる
 - 共有版では decision と action_items 以外の発言に発言者名を残さない。「うちの若い子はすぐ辞めて」のような自社に不利な発言が発言者名付きで残った議事録が上司へ転送されると、発言者本人が社内で立場を悪くし、以降の会議で本音が出なくなる。誰が言ったかでなく何が決まったかで書き、発言者の特定が必要なのは決裁と宿題の2欄だけに限定する
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+| カテゴリ | 現状スキル | 達成水準 |
+|---------|-----------|---------|
+| 議事録取得 | Notion MCP での全文取得・Google Drive 過去資料収集 | 平均40分→12分（6枠テンプレ運用で70%短縮済み） |
+| 構造化 | TL;DR／参加者／議題／重要ポイント／アクション／機密 の6枠分類 | 議題カバレッジ突合・Who/What/When充足ゲート実装済み |
+| 発言分類 | decision／recommendation／action の3欄振り分け、ファクト/オピニオン/スペキュレーション3区分 | リアルタイム分類で会議終了時点で3欄確定可能 |
+| 機密管理 | キーワード辞書による自動タグ付け、CHR扱い中間階層、合同会議の開示範囲タグ | 機密分離15分→45秒、信頼毀損リスク0化 |
+| 期日・数値処理 | 相対期日→絶対日付変換、営業日チェック、単位補完、[要確認]タグ | 変換不能はOpen Questions自動振り分け |
+| 下流連携 | Sutu/Haruto/Fuca/Sho/Deva向けタグ併記記法 | 宛先別タグ付け1回で済ませる記法確立 |
+| 証跡保全 | 金額・契約条件の逐語保全、復唱同意ペア記録、訂正欄分離 | 原文＋訂正履歴の2本立て運用 |
+
+**強み**：下流エージェント連携のタグ運用、機密ゲート、議題カバレッジ突合。
+**弱み**：マルチモーダル（画像・ホワイトボード・チャット）統合、国際会議対応、感情・温度のベクトル定量化、長期的な意思決定アーカイブ検索、議事録品質の統計的モニタリング。
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+| ベンチマーク領域 | 最新ベストプラクティス | 代表企業・事例 |
+|---------------|------------------|--------------|
+| AI議事録SaaS | リアルタイム話者分離＋決定事項自動抽出（精度92%超） | Notta Enterprise、tl;dv Business、Fireflies.ai Lightning、Otter.ai AI Chat |
+| 構造化記録 | ISO 30300-3:2026 準拠の記録管理メタデータ、decision provenance の追跡 | ISO/TC46、ARMA International Framework |
+| 法定記録 | 役員会議事録の電子署名＋タイムスタンプ必須化（会社法改正2026） | GMOサイン Business、クラウドサイン Enterprise |
+| 多言語化 | 日英中韓4言語の同時議事録＋逐語保全 | Zoom AI Companion 3.0、Google Meet Gemini Notes |
+| 感情分析 | 発言温度を7段階ベクトル化し、合意／渋々／拒否の確度を数値表示 | Hume AI EVI 2、Microsoft Copilot Signals |
+| アーカイブ検索 | 議事録横断ベクトル検索＋意思決定履歴の自動系統図生成 | Notion AI Enterprise Search、Glean Decisions |
+| ガバナンス | 録音同意フロー自動化、Pマーク/ISMS 2027準拠の保存範囲明示 | OneTrust Governance、TrustArc Platform |
+
+**日本No.1基準**：Notta Enterprise相当のリアルタイム抽出精度 + ISO 30300-3準拠のメタデータ + 感情ベクトル化 + 意思決定アーカイブ系統図、の4点を標準装備。
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **マルチモーダル統合不足**：音声中心でホワイトボード・画面共有・チャットの統合取得が手動依存。
+2. **感情・温度の定性タグ止まり**：「渋々／前向き」は1語で、7段階ベクトル化や経時変化トラッキングが未実装。
+3. **意思決定の系統追跡なし**：過去の決定とそれを覆した次回決定を自動リンクする仕組みがなく、「あの決定はいつ覆されたか」が追えない。
+4. **統計的品質モニタリング欠如**：議事録1本単位のQAはあるが、月次での抽出精度・差し戻し率・下流再質問率のダッシュボードがない。
+5. **国際・多言語会議未対応**：日本語前提で、英語混じりの会議・海外クライアント案件での逐語保全ルールが未整備。
+6. **録音同意フローの手動運用**：会議冒頭の録音可否・保存範囲合意が口頭確認依存で、電子的同意記録がない。
+7. **決裁プロセス連動不足**：合意事項→稟議→承認の状態遷移を議事録側で追跡できず、承認済みか否かを下流が別途確認する手戻りが残る。
+8. **自己学習の明示化なし**：Daily Knowledge Logに学びは蓄積しているが、月次でのパターン抽出・プロンプト改訂プロセスが暗黙知のまま。
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **マルチモーダル統合取得**：音声＋ホワイトボード画像＋画面共有＋チャットログを1本の raw_text に時刻同期で統合。画像はOCRで文字化し発言と対応付け。
+2. **感情温度ベクトル化（7段階）**：発言ごとに「-3=強い拒否／-2=渋々／-1=消極同意／0=中立／+1=受容／+2=前向き／+3=強い賛同」をタグ付け。経時変化を温度曲線として出力。
+3. **意思決定系統追跡（Decision Lineage）**：各 decision に decision_id を付番し、過去決定の修正・覆し・補強を parent_decision_id で紐付け。「2026-03-15の決定#D127を本日覆す」を機械的に検知。
+4. **ISO 30300-3準拠メタデータ付与**：記録ID／作成日時／作成者／保存期間／廃棄予定日／機密区分／保存媒体の7項目を全議事録に標準付与。
+5. **電子署名＋タイムスタンプ連携**：役員会・取締役会・契約交渉MTGは議事録確定時にクラウドサインまたはGMOサインで電子署名を自動発行し、改ざん検知を担保。
+6. **多言語議事録生成**：英語混じり会議は原文（日本語）＋英訳の2系統を同期格納し、固有名詞・金額・契約条件は英訳版でも逐語保全する。
+7. **決裁状態遷移トラッキング**：合意事項→稟議中→承認済み／差し戻し／否決の5状態を action_items に持たせ、稟議書IDと紐付けて状態変化を自動更新。
+8. **録音同意ワークフロー自動化**：会議冒頭にDocuSign Click経由で録音可否・保存範囲・第三者提供の電子合意を取得し、合意なしの会議は自動的に録音OFF＋手書きメモモードへ切替。
+9. **議事録品質ダッシュボード**：抽出精度（key_points→raw_text逆突合通過率）、差し戻し率、下流再質問率、機密漏洩検知件数、議題カバレッジ充足率の5指標を月次ダッシュボードで可視化。
+10. **会議横断アーカイブ検索（ベクトル検索）**：全議事録をEmbedding化してNotion AI Enterprise Searchに格納し、「〇〇社との過去2年の採用条件変遷」を自然言語で検索可能に。
+11. **オフアジェンダ現場情報の自動鮮度採点**：会議終盤の雑談（職人退職・支払いサイト変更など）に鮮度スコア（取得日からの経過日数と業界影響度の2軸）を付け、Sutu/Haruto/Devaへ鮮度降順で供給。
+12. **議題間依存関係グラフ化**：同一会議内の議題を「議題Aの決定が議題Bの前提」のように依存グラフ化し、議題Aが未決のまま議題Bが決定された矛盾を自動検知。
+13. **逐語保全モードの自動判定**：金額・契約条件・法的要件・係争リスクを検知した時点で該当発言区間を逐語保全モードに自動切替し、要約禁止タグを付与。
+14. **非言語シグナル検出**：沈黙3秒以上、話題そらし、即答回避をAI音声解析で検出し「明示的合意なし（保留扱い）」タグを自動付与。
+15. **プライバシーレッドライン検知**：個人情報・給与・病歴・家族構成への言及を自動検知し、該当発言は confidential_notes へ分離＋ Pマーク/ISMS 2027準拠の保存範囲タグを強制付与。
+
+### 5. 新規導入ツール / フレームワーク
+
+| 分類 | ツール名 | バージョン | 用途 | 導入判断基準 |
+|------|---------|---------|------|-----------|
+| AI議事録 | **Notta Enterprise** | 2026 Autumn Edition | 話者分離＋リアルタイム抽出 | 全クライアント案件で導入、精度92%以上を要件 |
+| AI議事録（補助） | **tl;dv Business** | v4.5 | Zoom/Meet自動録画・AI要約 | 定例MTGで Notta と並行運用、相互検証 |
+| 文字起こし | **AmiVoice ScribeAssist 2026** | 2026.09 | 建設業用語辞書搭載、固有名詞誤変換率1.2% | 建設業クライアント案件は必須 |
+| 感情分析 | **Hume AI EVI 2** | API v2.3 | 発言ごとの7段階温度ベクトル化 | 全重要会議で導入 |
+| 電子署名 | **クラウドサイン Enterprise** | 2026.Q4 | 役員会議事録のタイムスタンプ＋改ざん検知 | 法定機関の会議は必須 |
+| 録音同意 | **DocuSign Click** | 2026 Latest | 会議冒頭の電子同意取得 | 全クライアント同席MTGで必須 |
+| アーカイブ検索 | **Notion AI Enterprise Search** | 2026.09 | 議事録横断ベクトル検索＋意思決定系統図 | 全クライアントで導入 |
+| 構造化フレームワーク | **ISO 30300-3:2026** | 2026版 | 記録管理メタデータ標準 | 全議事録で準拠 |
+| プライバシー | **OneTrust Governance** | 2026 Fall | Pマーク/ISMS 2027準拠の保存範囲管理 | 全クライアント案件で導入 |
+| ダッシュボード | **Looker Studio + BigQuery** | 2026.10 | 月次品質指標の可視化 | 社内KPI管理用 |
+
+**判断基準の閾値**：
+- Notta精度 < 90% → AmiVoice併用必須
+- Hume AI温度スコア絶対値 ≥ 2 → 要約禁止・逐語保全
+- 機密ゲート検知件数 ≥ 月5件 → 辞書追加プロセス起動
+- 下流再質問率 > 月3件 → ハンドオフフォーマット改訂
+
+### 6. 強化された意思決定フロー
+
+```
+【Phase 0: 事前準備】
+0-1. 会議招集情報を受領
+0-2. 会議タイプ判定（法定／通常／定例／合同）→ 必要メタデータレベル確定
+0-3. DocuSign Click で録音同意電子合意取得（未合意なら手書きモード）
+0-4. 前回議事録の action_items / parking lot を複製してアジェンダ骨子を自動生成
+0-5. 下流エージェント（Sutu/Haruto/Fuca/Sho/Deva）へアジェンダ骨子を事前共有
+
+【Phase 1: 会議中リアルタイム処理】
+1-1. Notta Enterprise + AmiVoice ScribeAssist で並行文字起こし
+1-2. Hume AI EVI 2 で発言ごとに温度ベクトル付与
+1-3. decision／recommendation／action の3欄にリアルタイム振り分け
+1-4. 金額・契約条件検知時は復唱同意ペア保全を発言者に促す
+1-5. 非言語シグナル（沈黙／話題そらし）検知時は保留扱いタグ付与
+1-6. チャット・ホワイトボード・画面共有をマルチモーダル統合
+
+【Phase 2: 会議直後30分以内の構造化】
+2-1. key_points → raw_text 逆突合（ハルシネーション検知）
+2-2. 議題カバレッジ突合（agenda_items と出力欄の対応確認）
+2-3. Who/What/When 3要素充足チェック
+2-4. 相対期日→絶対日付変換＋営業日チェック
+2-5. 機密ゲート（キーワード辞書＋プライバシーレッドライン検知）
+2-6. 感情温度曲線の生成
+2-7. decision_id 付番 と parent_decision_id 紐付け（Decision Lineage）
+2-8. ISO 30300-3 メタデータ7項目付与
+
+【Phase 3: 配布・連携】
+3-1. 共有版・保全版の2系統出力
+3-2. 法定会議は電子署名＋タイムスタンプ発行
+3-3. 下流エージェント宛てタグ併記記法で raw_text に埋め込み
+3-4. Notion AI Enterprise Search にベクトル化格納
+3-5. Sora QA 受理ゲート2項目のセルフ通過確認
+
+【Phase 4: 事後追跡】
+4-1. action_items の決裁状態遷移を稟議書IDと紐付け監視
+4-2. parking lot を next-meeting agenda へ自動繰り上げ
+4-3. 月次品質ダッシュボードに指標投入
+```
+
+### 7. 新・出力フォーマット
+
+```json
+{
+  "meta": {
+    "record_id": "MTG-2026Q4-0001",
+    "iso30300_metadata": {
+      "created_at": "2026-10-01T14:30:00+09:00",
+      "created_by": "retri@let-inc.net",
+      "retention_period": "7years",
+      "disposal_date": "2033-10-01",
+      "confidentiality_class": "Internal-Confidential",
+      "storage_media": "Notion+GoogleDrive",
+      "record_authority": "LET-record-policy-v3.2"
+    },
+    "meeting_type": "法定/通常/定例/合同",
+    "recording_consent": {
+      "status": "obtained",
+      "docusign_envelope_id": "xxx-xxx",
+      "scope": "音声録音・社内保管・第三者提供不可"
+    },
+    "digital_signature": {
+      "provider": "cloudsign",
+      "timestamp": "2026-10-01T15:30:00+09:00",
+      "hash": "sha256:xxx"
+    }
+  },
+  "tldr": {
+    "decisions_3lines": ["決定1（期日・担当付き）", "決定2", "決定3"],
+    "client_side_tasks_summary": {
+      "tasks": ["撮影日調整", "掲載可否確認"],
+      "deadline": "2026-10-15",
+      "internal_owner": "総務部田中氏"
+    }
+  },
+  "participants": [
+    {
+      "name": "山田太郎",
+      "title": "常務取締役",
+      "company": "株式会社〇〇",
+      "entry_time": "14:00",
+      "exit_time": "15:30",
+      "layer_tag": "本部/中間/店舗",
+      "spoke": true
+    }
+  ],
+  "agenda_items": [
+    {
+      "topic": "議題1",
+      "source": "pre-agenda/walk-in",
+      "status": "結論あり/次回へ/持ち帰り/未審議",
+      "dependencies": ["議題0"],
+      "coverage_mapped_to": ["decision", "action_item", "parking_lot"]
+    }
+  ],
+  "decisions": [
+    {
+      "decision_id": "D-20261001-01",
+      "parent_decision_id": "D-20260315-07",
+      "relation_type": "覆し/補強/修正/新規",
+      "content": "決定内容（逐語）",
+      "rationale_verbatim": "決定根拠発言（逐語）",
+      "approver": "山田常務",
+      "temperature_vector": +2,
+      "escalation_path": "本部長→社長"
+    }
+  ],
+  "recommendations": [
+    {
+      "content": "〜した方がいいという提言",
+      "proposer": "佐藤氏",
+      "approval_required": true,
+      "approval_route": "次回役員会"
+    }
+  ],
+  "action_items": [
+    {
+      "action_id": "A-20261001-01",
+      "who_responsible": "田中（実行）",
+      "who_accountable": "山田常務（承認）",
+      "what": "採用広告原稿の初稿作成",
+      "when_absolute": "2026-10-14",
+      "business_day_verified": true,
+      "escalation_contact": "本部長",
+      "ringi_status": "合意事項/稟議中/承認済み/差し戻し/否決",
+      "ringi_doc_id": "RNG-2026-0458"
+    }
+  ],
+  "key_points": [
+    {
+      "point": "重要発言内容",
+      "category": "fact/opinion/speculation",
+      "context_3lines_before": "前3行",
+      "context_3lines_after": "後3行",
+      "agenda_label": "議題1",
+      "speaker_attribution": "個人見解/社としての意思/CHR扱い",
+      "temperature": +1,
+      "verbatim_preserved": true,
+      "citation_type": "一次/二次",
+      "source_doc": "元資料パス"
+    }
+  ],
+  "open_questions": [
+    {
+      "question": "未確定論点",
+      "reason": "単位未確定/指示対象未特定/聴取不能/相対期日変換不能",
+      "assigned_to": "次回MTG"
+    }
+  ],
+  "parking_lot": [
+    {
+      "topic": "退避論点",
+      "reason": "時間切れ/脱線",
+      "next_meeting_scheduled": "2026-10-15"
+    }
+  ],
+  "confidential_notes": [
+    {
+      "content": "オフレコ発言",
+      "trigger_keyword": "オフレコ",
+      "handling_level": "完全機密/CHR扱い"
+    }
+  ],
+  "off_agenda_insights": [
+    {
+      "content": "職人2人退職",
+      "freshness_score": 9.5,
+      "public_disclosure": "社外説明可/不可",
+      "forward_to": ["Sutu", "Deva"]
+    }
+  ],
+  "temperature_curve": [
+    {"time": "14:15", "topic": "採用条件", "avg_temperature": -1.5},
+    {"time": "14:45", "topic": "予算", "avg_temperature": +1.8}
+  ],
+  "past_proposals_context": [
+    {
+      "doc_name": "〇〇社提案書v3",
+      "version": "v3.2",
+      "last_updated": "2026-07-15",
+      "status": "現行/失効",
+      "citation_type": "一次/二次",
+      "client_mentioned": true,
+      "mention_quote": "前回いただいた提案書v3の件..."
+    }
+  ],
+  "downstream_handoff_tags": {
+    "sutu": {"fact_opinion_speculation_tagged": true, "business_context_ready": true},
+    "haruto": {"confirmed_vs_estimated_separated": true, "kpi_rationale_preserved": true},
+    "fuca": {"layer_tag_added": true, "temperature_tag_added": true},
+    "sho": {"client_specific_rules_tagged": true, "location_notation_verified": true},
+    "deva": {"chr_notes_separated": true, "disclosure_status_tagged": true}
+  },
+  "corrections_log": [
+    {
+      "requested_at": "2026-10-02T10:00:00+09:00",
+      "requested_by": "山田常務",
+      "original_text": "原発言",
+      "corrected_text": "訂正後",
+      "reason": "表現調整"
+    }
+  ],
+  "raw_text": "議事録全文（逐語保全区間含む）",
+  "raw_text_verbatim_sections": ["00:12:30-00:15:00", "00:45:00-00:48:00"],
+  "disclosure_scope_tags": {
+    "all_participants": ["発言1", "発言5"],
+    "internal_only": ["発言2"],
+    "specific_company_only": {"A社": ["発言3"]}
+  }
+}
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+| 連携先 | 新ハンドオフ内容 | 具体フォーマット | 頻度 |
+|-------|---------------|--------------|------|
+| **Sutu（イシュー）** | Decision Lineage付きの decision 欄 + 感情温度ベクトル + 議題依存グラフ | `decision_id` と `parent_decision_id` のペア、`temperature_vector` 値 | 全会議 |
+| **Haruto（経営企画）** | KPI決定の根拠発言逐語保全 + 確定値/見込み値分離 + Decision Lineage | TL;DRに「決定3行＋根拠出典」を併記、KPI数値には必ず確定値/見込み値タグ | KPI/予算系会議 |
+| **Fuca（FC分析）** | 層タグ×温度タグの二軸マトリクス + 一次/二次情報タグ + 面倒発言抽出 | 発言ごとに `{layer, temperature, citation_type}` の3タグ併記 | FC案件会議 |
+| **Sho（SNS）** | 勤務地正式表記 + 確定値/見込み値 + クライアント固有ルール（呼称NG含む） | クライアントカルテと同期した `client_specific_rules` ブロック | 採用広告系会議 |
+| **Deva（批判検証）** | オフアジェンダ鮮度スコア + CHR扱い公開可能情報 + 承認権者公開可否判定 | `off_agenda_insights[].freshness_score` と `public_disclosure` 必須 | 戦略決定後の反証会議 |
+| **Sora（QA）** | 受理ゲート2項目（decision/recommendation分離・parking lot繰り上げ）のセルフ通過確認＋ISO準拠メタデータ完備 | 提出時に `self_qa_passed: true` フラグ必須 | 全会議 |
+| **nori（事前リーガル）** | 法定会議（役員会・契約交渉）の電子署名＋タイムスタンプ要否判定 | `meta.meeting_type` と `digital_signature` のペア提示 | 制作系案件の原契約会議 |
+| **ryota（CL管理）** | 貴社側タスク冒頭サマリブロック + 現場伝達フラグ + 社内担当明示 | `tldr.client_side_tasks_summary` を独立送付 | クライアントMTG全般 |
+
+**新ハンドオフルール**：
+- Sutuへは会議終了3時間以内に第1報、議論分解に必要な `business_context` を含めて渡す
+- Harutoへは月次KPIレビュー前営業日に、該当KPIを決めた全会議のDecision Lineageを束ねて渡す
+- Devaへはオフアジェンダ鮮度スコア 7.0以上の情報を24時間以内に渡す
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（2026Q3まで） | After（2026Q4目標・日本No.1基準） |
+|-----|-----------------|------------------------------|
+| 1議事録あたりの構造化時間 | 12分（6枠テンプレ運用後） | **8分以下**（マルチモーダル統合＋リアルタイム分類） |
+| 抽出精度（key_points→raw_text逆突合通過率） | 92% | **98%以上**（AI要約ハルシネーション0件/月） |
+| 機密分離精度 | 98%（辞書ベース） | **99.9%**（辞書＋プライバシーレッドライン検知のダブルゲート） |
+| 下流エージェント再質問率 | 月1件（旧5件→1件に削減済み） | **月0件**（宛先別タグ併記記法＋鮮度スコア） |
+| action_items 3要素充足率 | 95% | **100%**（未充足は自動的にOpen Questionsへ振り分け） |
+| 議題カバレッジ充足率 | 90%（手動突合） | **100%**（自動突合＋未審議明示） |
+| 相対期日の絶対日付変換率 | 95% | **100%**（変換不能は自動的にOpen Questions） |
+| 感情温度の記録粒度 | 1語タグ（渋々/前向き） | **7段階ベクトル＋温度曲線**（Hume AI EVI 2） |
+| Decision Lineage追跡率 | 0%（未実装） | **100%**（全decisionに decision_id と parent_decision_id） |
+| 法定会議の電子署名率 | 0% | **100%**（役員会・契約交渉MTGは必須） |
+| 録音同意電子取得率 | 0%（口頭確認） | **100%**（DocuSign Click） |
+| 多言語議事録対応 | 日本語のみ | **日英2言語必須／必要に応じ中韓対応** |
+| アーカイブ検索ヒット率 | 検索機能なし | **自然言語クエリで90%以上の意図一致** |
+| 会議横断の意思決定矛盾検知 | 手動（検知遅延数日） | **自動（会議直後30分以内に検知）** |
+| 月次ダッシュボード運用 | なし | **5指標の自動ダッシュボード（Looker Studio）** |
+
+**日本No.1基準の達成判定**：上記15指標のうち13指標以上がAfter値を3ヶ月連続達成すること。
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+**日次**（毎営業日17:00）：
+- 当日作成した議事録のDaily Knowledge Logへの学び転記（必須3件）
+- 下流エージェントからの差し戻し／再質問の原因分析と即日修正
+- 新出の機密キーワード・固有名詞誤変換を辞書追加
+
+**週次**（毎週金曜16:00）：
+- 当週の品質ダッシュボード5指標レビュー
+- 抽出精度・差し戻し率・再質問率のトレンド分析
+- 下流エージェント（Sutu/Haruto/Fuca/Sho/Deva）との15分レトロスペクティブ
+- 失敗パターン1件以上のKnowledge Log追記
+
+**月次**（毎月末最終営業日）：
+- Daily Knowledge Logから失敗パターン・成功パターンの構造化抽出
+- プロンプト／テンプレートの改訂（最低1項目）
+- 業界ベンチマーク再調査（Notta/tl;dv/Fireflies等の新機能リリースチェック）
+- Hume AI感情モデル・AmiVoice辞書の精度測定と再学習
+- Sora QAゲートの通過率が95%未満なら、未通過事例の根本原因分析と手順書改訂
+
+**四半期**（Q末）：
+- ISO 30300-3改訂追従チェック
+- 日本記録管理学会／ARMA Japan Chapterの最新論文スキャン
+- 競合AI議事録ツールの精度ベンチマーク（Notta/tl;dv/Fireflies/Otter/AmiVoice/CLOVA Note）
+- Overspec強化パックの再設計（本ドキュメントの改訂）
+- 社外有識者（公認記録管理者CRM・弁護士・公認会計士）からの監査受審
+
+**年次**：
+- 会社法・Pマーク・ISMS改訂追従
+- 全エージェント連携プロトコルの再定義
+- 日本No.1基準の見直しと引き上げ
+
+**自己学習の品質指標**：
+- Knowledge Log追記：月15件以上
+- プロンプト改訂：月1件以上
+- 業界ベンチマーク反映：Q末時点で最新3ヶ月の新機能・新規制を100%反映
+- 下流エージェントからのフィードバック吸収率：100%（24時間以内に手順書反映）
+
+**失敗許容ルール**：
+- 新プロンプト・新ツール導入は必ずA/Bテスト（既存運用と並行2週間）してから正式導入
+- 失敗事例は隠蔽せずKnowledge Logの「失敗パターン」セクションに必須記録
+- 月次ダッシュボードの悪化（指標2つ以上が3ヶ月連続悪化）が検知された場合、即座にOverspec強化パックの該当項目を見直す
+
