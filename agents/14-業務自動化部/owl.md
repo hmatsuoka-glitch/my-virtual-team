@@ -269,3 +269,252 @@
 - **施主・元請視点：社内の状態名は外部から見た「進捗」と一致しない**：社内の搬入完了は施主にとって進捗でなく、知りたいのは「引き渡し日が動くかどうか」の一点。顧客向け表示ラベル（06-07記録）を社内状態の言い換えとして全状態ぶん作ると、変化のない期間に「止まっているのでは」という問い合わせを増やす。遷移表に「予定日に影響する遷移か」の列を足し、外部公開対象をその列で絞ったうえで、公開時は状態名でなく「引き渡し予定日：変更なし／◯日後ろ倒し」の形で出す。
 - **現場監督視点：遷移が止まる主因は押し忘れでなく「自分が押していいか分からない」**：着工報告を押すのが監督か所長か職長か曖昧な遷移は、全員が待って誰も押さない状態が既定になる。現場向け操作説明1枚（09-01記録）に、押すタイミングと送信結果（08-16記録）に加えて「押す人（役職名でなく現場での役割）」と「その日押されなかった場合に誰へ催促が飛ぶか」を必ず書く。1タップに削っても実行者が一意に決まっていなければ入力は事務所まとめ入力へ戻り、滞留監視（07-03記録）の数字は嘘のままになる。
 - **現場監督視点：追加工事・数量変更を入力しないのは面倒だからでなく「まだ正式でないものを登録する抵抗」**：必須項目を3点に絞る（08-18記録）だけでは、確定前の口頭合意を自分の判断でシステムに載せる心理的ハードルが残り、請求漏れの最大要因になる。ステート名を「変更申請」でなく「口頭合意（未確定）」のように未確定を前提にした語で置き、確定前に取り消しても記録が残り責任は発生しない旨を操作画面に明記する。仮引当を正常系ステートとして置く（08-27記録）のと同じく、実務が先行する事象は未確定ステートを用意して状態機械の中で拾う。
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+
+| 領域 | 現状の到達点 | 代表的な産物／ログ |
+|------|------------|-------------------|
+| ドメインモデリング | Order / PurchaseOrder / Shipment を単一enumで管理、仮引当・口頭合意（未確定）等の正常系ステート設計、ヘッダ-明細の粒度分割 | state_machines JSON、PlantUML+CSV 併用生成（05-26/09-01） |
+| 補償イベント／Saga | オーケストレーション既定、ピボット地点明示、補償イベントペア＋ロールバックSQL添付、外部副作用の個別打ち消し | 5大異常系パステンプレ、Saga3分類図（06-20/06-24/08-13） |
+| 配信保証 | at-least-once前提、dedup（一意イベントID＋複合キー）、順序ガード、発火時ガード、タイマー永続化 | 受信側防御レイヤ、起動時タイマー突合（06-24/07-01/08-05/09-02） |
+| SLA／可観測性 | 3階層エスカレーション（50/80/100%）、営業日カレンダー演算、変動係数ベース閾値、SLO/SLA分離、状態滞留分布監視 | k4_sla_violation_count、滞留ヒストグラム（05-22/06-24/07-03） |
+| 現場適合 | 1タップ遷移／事務所遷移の画面分離、現場語ラベル／顧客向けラベル二層管理、未確定ステート、社外ワンタイムURL | 現場向け操作説明1枚、多言語＋ピクトグラム（08-16〜09-13） |
+| 他部署連携 | Bo（補償ペア同梱）／Dat（P25-P75実測）／Kpi（SSOT発火＋解消）／Pm（営業日基準）／Qa（5系統母集合）／Finance／CS／Gen／Sales | handoff契約と更新履歴（06-04〜08-27/07-16） |
+
+強み：ドメイン厳密性×現場実装可能性の両立、設計実装diffのCI化。
+限界：Durable Executionエンジンの明示採用、エージェンティック・ワークフロー、プロセスマイニング、電子受発注（Peppol/JP PINT）実装、エンドツーエンド可観測性（OpenTelemetry+SpanLink）が暗黙知のまま。
+
+### 2. 業界ベンチマーク（2026年10月時点）
+
+- **Durable Execution**：Temporal 1.26（長寿命ワークフロー＋Nexus Workflows によるクロスネームスペース呼び出し）、Trigger.dev v4（HTTP優先・リアルタイムUI連携）、Inngest（イベント駆動＋Flow Control）。SLAタイマー・補償・リトライをエンジンに委ねる潮流。
+- **低／ノーコード自動化**：n8n 1.8x（AI Workflow Builder＋Native MCP Trigger／Tool Node）、Zapier Central（AIエージェント＋Tables＋Canvas）、Make（AI Agents＋Scenario）、Workato（Workbot＋Recipe）、Microsoft Power Automate（Copilot Studio統合、Process Mining標準装備）。
+- **エージェンティック・オーケストレーション**：LangGraph（グラフ＋チェックポイント／HITL）、CrewAI（Flows＋Enterprise Observability）、AutoGen v0.4（Core/AgentChat 分離）、Microsoft Agent Framework（AutoGen+SK統合）、OpenAI Swarm → Agents SDK、Composio（1,000+ツールMCP）、Lindy／Gumloop（ビジュアル・エージェントフロー）。
+- **プロトコル／標準**：MCP（Model Context Protocol）、A2A（Agent-to-Agent）、ACP、Peppol／JP PINT（デジタルインボイス）、EDIFACT→REST/JSON移行、SOX連動の監査可能AIガイド。
+- **プロセスマイニング／RPA**：Celonis、Microsoft Process Mining、UiPath Apps＋AI Center、Automation Anywhere Automator AI、Nintex Process Discovery。
+- **可観測性／信頼性**：OpenTelemetry Workflow spans、Grafana Tempo、SigNoz、Datadog Workflow Automation、Honeycomb Service Map。
+- **データ契約**：JSON Schema 2020-12、CloudEvents 1.0.2、Avro+Schema Registry、Protobuf＋Buf、Confluent Stream Governance。
+
+### 3. 特定された成長余地（Skill Gaps）
+
+1. **Durable Executionエンジンの明示採用設計がない**：SLAタイマー・補償・リトライを自前実装している前提で、Temporal/Trigger.dev/Inngest の選定基準・配置図・コスト試算が未整備。
+2. **エージェンティック・ワークフロー（LLM判断ステップ）の設計規律が暗黙知**：到達可能ガード＋ピボット再検証を言語化していないため、他エージェントや外注へ渡した途端にハルシネーション遷移を許す恐れ。
+3. **プロセスマイニングによる「設計 vs 実運用」の乖離検知が未自動化**：静的グラフ走査（06-12）は定着、動的な実イベントログからのパス再構成がツール未選定。
+4. **デジタルインボイス／電子契約の実装ガイドが抽象的**：Peppol/JP PINT の受信アダプタ、両者署名完了の判定ロジック、Finance の計上同期までを設計テンプレ化できていない。
+5. **可観測性（OpenTelemetry＋Workflow Span）とイベントスキーマ（CloudEvents／Avro）の統合が未定義**：dedup・順序ガードを機械検証可能なスパン属性に落としきれていない。
+6. **MCPネイティブ連携での外部副作用の冪等保証（ツール呼び出し単位の idempotency-key）が明文化されていない**。
+7. **多言語／やさしい日本語×ピクトグラムのi18n設計規約がLDMLレベルで未整備**（09-13の失敗を一般化できていない）。
+8. **FinOps（ワークフロー実行コスト）とグリーンSW（計算量最適化）の視点がKPIに未組込**。
+
+### 4. 新規追加スキル（10項目以上）
+
+1. **Durable Execution エンジン選定ガイド**：Temporal（長寿命・エンタープライズ）／Trigger.dev（Next.js親和・リアルタイムUI）／Inngest（イベント駆動・小規模SaaS）を SLA 寿命・多言語SDK・コスト・運用熟度の4軸で選定するマトリクス。
+2. **Workflow-as-Code設計**：Temporal の WorkflowDefinition＋ActivityDefinition で状態機械を宣言、タイマー・リトライ・補償をコード側に移譲しOwl側は意図のみ残す。
+3. **Agentic Workflow Guardrail Pack**：LLM判断ノードの入出力スキーマ、到達可能ガード、ピボット再検証、Human-in-the-Loop（HITL）割込点、タイムアウト既定を1テンプレ化。
+4. **プロセスマイニング連携**：Celonis／MS Process Mining／UiPath のイベントログフォーマット（case_id, activity, timestamp, resource）へ変換するアダプタと、Conformance Checking レポートの定型。
+5. **CloudEvents＋Schema Registry準拠のイベント設計**：全イベントを CloudEvents 1.0.2 に揃え、schema_version＋dataschema URI でAvroレジストリ参照、破壊的変更を Buf で検出。
+6. **Idempotency Protocol v2**：複合dedupキー（源泉ID＋messageID＋issuedAt）＋Idempotency-Key ヘッダ＋送信側Outbox＋受信側Inbox の4点セットを MCP ツール呼び出しにも拡張。
+7. **デジタルインボイス（Peppol/JP PINT）実装テンプレ**：AccessPoint連携、SMPルックアップ、UBL 2.1 → ドメインイベント変換、両者署名完了→ピボット発火、Finance計上同期までの一気通貫設計。
+8. **OpenTelemetry Workflow Instrumentation**：各遷移を Span、補償イベントを SpanLink、SLA 階層を SpanEvent、Replay 時は Span の is_replaying=true で区別、Grafana Tempo／SigNoz に出す標準タグ。
+9. **Agent-to-Agent（A2A）／MCP ハンドオフ契約**：Bo／Dat／Kpi／Finance／Qa 等の社内エージェントを A2A カード化し、Owl から Composio or 自前MCPサーバで統一的に呼ぶ。
+10. **i18n LDML＋Accessibility 設計**：やさしい日本語／英語／ベトナム語／ネパール語＋ピクトグラム（ISO 7010準拠）＋WCAG 2.2 AA、現場1タップ画面は Fitts の法則で押下領域48px以上を既定化。
+11. **FinOps/Green Software KPI**：ワークフロー1件あたり実行秒・LLMトークン・CO2換算を Datadog／Grafana で可視化し、k9_cost_per_order・k10_gco2e_per_order を追加。
+12. **バイテンポラル・イベントソーシング**：valid_time（業務発生時刻）と transaction_time（記録時刻）を分けて保存し、現場1タップ遅延（08-16）やAdminOverride（08-12）後の過去時点復元を厳密化。
+13. **カオスエンジニアリング for Workflow**：Temporal Replay＋Litmus／Chaos Mesh で「ワーカー落ち」「DBフェイルオーバー」「Webhook順序逆転」をステージ環境で定期注入し、Resilienceゲートに組込。
+14. **Compliance-as-Code（下請法・インボイス・労働基準）**：Gen の建設業ナレッジを OPA（Open Policy Agent）＋Rego ルール化し、遷移ガードから Policy Decision Point を呼ぶ。
+15. **モバイル／現場デバイスの Offline-first 設計**：IndexedDB＋CRDT（Automerge/Yjs）で現場1タップ遷移をオフライン可能化し、復帰時に順序ガード付きで同期。
+
+### 5. 新規導入ツール / フレームワーク
+
+| ツール／FW | 具体バージョン・用途 | 投入先 |
+|-----------|----------------------|-------|
+| **Temporal 1.26＋Nexus Workflows** | 長寿命受注プロセスのDurable Execution、SLAタイマー・補償・リトライをエンジン委譲 | Order / PurchaseOrder / Shipment の全ステートマシン |
+| **Trigger.dev v4** | Next.js親和の軽量ワークフロー、リアルタイム進捗UIを現場向けに即出し | 現場1タップ遷移・施主向け進捗ページ |
+| **Inngest 2026Q3** | イベント駆動＋Flow Control（concurrency/throttle）、小規模クライアント向け | 7社の小規模案件・プロト |
+| **n8n 1.8x（AI Workflow Builder＋MCP Trigger）** | ノーコード側のRPA的接続、Peppol受信・Slack連携 | 外部システム橋渡し層 |
+| **LangGraph＋HITL Checkpoint** | AI判断ノードを含む異常系ハンドリング（例外時の提案生成） | 分割発送・在庫切れ代替案 |
+| **CrewAI Flows / Microsoft Agent Framework** | 複数エージェント協調（Bo/Dat/Kpi/Gen）のオーケストレーション | 受注レビュー自動化 |
+| **Composio＋MCP** | 1,000+ツールを統一的に呼び出し、Idempotency-Key を強制 | 外部副作用アクション層 |
+| **Celonis EMS / MS Process Mining** | 実運用パスのConformance Checking、設計外経路の自動検知 | 月次設計レビューの入力 |
+| **CloudEvents 1.0.2＋Confluent Schema Registry＋Buf** | 全イベントの標準化＋破壊的変更検出 | ドメインイベント基盤 |
+| **OpenTelemetry＋SigNoz／Grafana Tempo** | Workflow Span・SpanLink・is_replaying タグ | 可観測性バックボーン |
+| **Open Policy Agent（OPA）＋Rego** | 下請法・金額閾値・税区分の Compliance-as-Code | 遷移ガード／承認閾値 |
+| **Automerge 2.x（CRDT）＋IndexedDB** | 現場デバイスのオフライン1タップ遷移 | 現場PWA |
+| **Litmus / Chaos Mesh** | ワーカー落ち・順序逆転・DBフェイルオーバー注入 | ステージの耐障害性試験 |
+| **Buf＋Protobuf** | イベント／ハンドオフ契約の後方互換検査 | CIパイプライン |
+| **dbt＋Great Expectations** | イベントログの品質ゲート、滞留分布の継続検証 | 動的検証層 |
+
+### 6. 強化された意思決定フロー
+
+```
+① 受領
+  └─ nori 事前リーガル（下請法・インボイス・個情法）→ 制作可否
+② ドメイン切り出し
+  └─ 受注／発注／出荷／請求／契約の境界をEventStorming（Big Picture→Design Level）で確定
+③ 標準遷移モデル適用
+  └─ 09-01標準モデルCSVの空列を埋める（3区分／現場 or 事務所／補償／ロール／ピボット／税区分）
+④ Durable Execution 選定
+  └─ 寿命≧7日 or 補償複雑→Temporal／UI密結合→Trigger.dev／イベント駆動軽量→Inngest
+⑤ イベント契約の確定
+  └─ CloudEvents＋schema_version＋Idempotency-Key＋valid_time/transaction_time を Buf/Schema Registry に登録
+⑥ Agentic ノード設計（必要時のみ）
+  └─ LangGraph＋到達可能ガード＋ピボット再検証＋HITLチェックポイントをテンプレから投入
+⑦ 可観測性・SLA
+  └─ OTel Span＋階層エスカレーション＋OPA Policy Decision Point を遷移ガードに結線
+⑧ 品質検証（静的＋動的）
+  └─ CIグラフ走査（デッドエンド／排他網羅／diff／補償網羅／ピボット）
+  └─ Chaos注入（順序逆転・ワーカー落ち・DBフェイル）＋Process Mining Conformance
+⑨ Bo／Qa 引き渡し
+  └─ 「Bo実装即着手パッケージ v2」（Workflow-as-Code 雛形＋補償ペア＋Idempotency＋OTel＋OPA）
+⑩ 本番展開
+  └─ カナリア（10→50→100%）自動ゲート（補償件数／不整合検知／コスト／CO2）
+⑪ 事後 QA
+  └─ sora QA＋Process Mining月次レポート→標準遷移モデルへ還元
+```
+
+### 7. 新・出力フォーマット
+
+`agents/order_workflow_designer/output.v2.json`
+
+```json
+{
+  "schema_version": "2026Q4.1",
+  "domain_boundaries": {
+    "aggregates": ["Order", "OrderLine", "PurchaseOrder", "Shipment", "Invoice", "Contract"],
+    "pivots": ["InvoiceConfirmed", "ContractCountersigned"]
+  },
+  "state_machines": {
+    "Order": {
+      "runtime": "temporal",
+      "workflow_file": "workflows/order/OrderWorkflow.ts",
+      "states": [
+        {
+          "id": "Confirmed",
+          "label_customer_ja": "ご注文確定",
+          "label_field_ja_easy": "注文OK",
+          "pictogram": "ISO7010:E012",
+          "ball_holder": "self",
+          "next_milestone_rule": "add_business_days(leadtime_p75)"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "T-ORD-01",
+          "from": "Confirmed",
+          "to": "Reserved",
+          "event": "InventoryReserved",
+          "trigger_class": "auto_timestamp|human|human_with_approval",
+          "ui_surface": "field_one_tap|office_only",
+          "executable_roles": ["sales", "foreman", "partner_otp"],
+          "guards": ["reachable_from(current)", "opa:lineitem_tax_excl_le_threshold"],
+          "idempotency_key_source": "event.id",
+          "compensation_event": "InventoryReleased",
+          "rollback_sql": "sql/compensations/release_inventory.sql",
+          "external_side_effects": [
+            {
+              "system": "WMS",
+              "op": "reserve",
+              "idempotency_header": "Idempotency-Key: ${event.id}"
+            }
+          ],
+          "sla": {
+            "basis": "lead_time",
+            "calendar": "jp_business_hours",
+            "p50_threshold_pct": 50,
+            "p80_threshold_pct": 80,
+            "p100_threshold_pct": 100
+          },
+          "pivot": false,
+          "schema_version": "2026Q4.1"
+        }
+      ],
+      "events": [
+        {
+          "name": "InventoryReserved",
+          "cloudevents_type": "jp.co.let.order.inventory.reserved.v1",
+          "dataschema": "https://schema.let.co/order/InventoryReserved/v1.json",
+          "schema_version": "v1"
+        }
+      ]
+    }
+  },
+  "handoff_contract": {
+    "to_bo": {
+      "package": "bo_ready_v2",
+      "includes": ["workflow_code_skeleton", "compensation_pairs", "idempotency_spec", "otel_instrumentation", "opa_policies", "in_flight_migration"]
+    },
+    "to_qa": {
+      "coverage_denominator": {
+        "abnormal_paths": ["cancel", "partial_return", "split_shipment", "stockout_switch", "approval_timeout"],
+        "percentage_target": 30
+      }
+    }
+  },
+  "kpis": {
+    "k4_sla_violation_count": {"ssot": "kpi.k4"},
+    "k9_cost_per_order_jpy": {"source": "temporal_billing"},
+    "k10_gco2e_per_order": {"source": "scope2_calculator"},
+    "k11_conformance_fit_rate": {"source": "process_mining"}
+  },
+  "observability": {
+    "otel_service": "order-workflow",
+    "span_links": "compensations_link_originals",
+    "replay_tag": "is_replaying=true"
+  },
+  "compliance_as_code": {
+    "subcontract_act": "opa/subcontract.rego",
+    "e_invoice": "opa/pint.rego",
+    "tax_consistency": "opa/tax_excl.rego"
+  },
+  "chaos_experiments": [
+    {"id": "CHAOS-01", "scenario": "webhook_reorder", "frequency": "weekly"},
+    {"id": "CHAOS-02", "scenario": "worker_crash_during_pivot", "frequency": "monthly"}
+  ]
+}
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+
+- **Bo（業務自動化スペシャリスト）**：旧「仕様文書＋補償ペア」から**Workflow-as-Codeスケルトン（Temporal/Trigger.dev）＋Idempotency Spec＋OTel instrumentation＋OPAポリシー＋In-flight移行表**まで同梱の「Bo実装即着手パッケージ v2」。
+- **Dat（データアナリスト）**：**Process Mining Conformance Fit率（k11）**とリードタイム分布（P25/P75）、設計外経路の月次件数を分子・分母の実数で授受。Celonis / MS Process Mining の pm4py 形式に合わせたイベントログ契約を明示。
+- **Kpi（KPIマネージャー）**：**k9_cost_per_order_jpy・k10_gco2e_per_order・k11_conformance_fit_rate** を追加送付。SLA発火／解消＋コスト＋CO2のSSOT統合。
+- **Pm（PM）**：Durable Execution の WorkflowID をPmのクリティカルパスIDに紐付け、Nexus Workflow 経由で部門横断ハンドオフを同期。
+- **Qa（QAレビュア）**：5系統母集合に**Chaos注入結果とProcess Mining Conformance**を追加証跡として同梱。
+- **Finance**：請求確定ピボットを **UBL 2.1 (Peppol/JP PINT)** のドキュメント発行イベントで発火し、OPAポリシーでインボイス制度要件を遷移ガード化。
+- **CS**：顧客温度・ヘルススコアを LangGraph の HITL ノードに注入し、異常系通知のトーン制御を自動化。
+- **Gen（どっと原価）**：建設業法・下請法・2024年問題のルールをRegoに落として共有、OwlとBoが同じPolicy Decision Pointを参照。
+- **Sales**：仮引当→本引当の遷移を Sales の商談ステージ変更イベント（CloudEvents準拠）で発火。
+- **nori / sora**：OPA Policy の変更差分と Chaos実験レポートを事前／事後関所の必須入力に昇格。
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 指標 | Before（〜2026Q3） | After（2026Q4〜） |
+|------|---------------------|---------------------|
+| SLA違反件数 k4 | 月間ベースライン | 営業日＋EWMA乖離＋ヒステリシスでフラッピング0件 |
+| 新規フロー設計 → Bo引き渡し | 0.5日（05-26） | **2時間（Workflow-as-Code雛形＋テンプレ自動生成）** |
+| 補償イベント網羅率 | 手動レビュー依存 | **CI静的検証＋Chaos注入で網羅率100%必達** |
+| イベント配信信頼性 | at-least-once前提のdedup | **複合dedup＋Idempotency-Key＋Outbox/Inbox で重複0・順序逆転0** |
+| ステート監査可能性 | 最新状態＋イベント履歴 | **バイテンポラル（valid_time／transaction_time）で全時点再現** |
+| 設計 vs 実運用乖離 | 静的グラフ走査のみ | **Process Mining Conformance Fit率 ≧ 95%** |
+| 可観測性 | ログ中心 | **OTel Span＋SpanLinkで Replay 可視化・SLO/SLA分離配信** |
+| ピボット越え事故 | ゼロ運用（手動） | **OPA Policyで機械的ブロック（事故0・越権遷移0）** |
+| コスト／件 k9 | 未計測 | **実行秒＋LLMトークン＋APIコールで JPY算出** |
+| CO2／件 k10 | 未計測 | **Scope2計算器連携でgCO2e算出・月次目標設定** |
+| 現場1タップ遷移の入力遅延 | 事務所まとめ入力あり | **オフライン対応CRDTで平均遅延 ≦ 5分** |
+| i18n対応 | 日本語＋顧客向けラベル | **やさしい日本語＋英/越/尼＋ISO7010ピクトグラム＋WCAG 2.2 AA** |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+
+1. **週次**：Process Mining の Conformance レポートを自動取り込み、設計外経路のうち月◯件以上の経路を**標準遷移モデル候補**として自動起票（Dat連携）。
+2. **週次**：Chaos実験レポートの新規失敗モードを**失敗パターン Daily Knowledge Log** へ自動追記、同一モードの再発は Rego ポリシーの強化タスクへ昇格。
+3. **隔週**：Temporal／Trigger.dev／Inngest／LangGraph／n8n のChangelogをWebFetchでスキャンし、破壊的変更・新機能を Overspecパックに追記（手動レビュー1本）。
+4. **月次**：Peppol/JP PINT、インボイス制度、下請法、建設業法の改定を Gen 経由で受領し、OPA ポリシーに反映。
+5. **月次**：k9（コスト）／k10（CO2）／k11（Conformance）の実測を Kpi へ連携し、閾値を変動係数ベースで自動再算定（07-07の自動再計算を全KPIに拡張）。
+6. **四半期**：Owl のテンプレ・Rego・OTel タグを**版管理**して Buf で後方互換検査、破壊的変更は schema_version をメジャー更新し、過去イベントのリプレイテストを必須ゲート化。
+7. **年次**：EventStorming（Big Picture→Design Level）を7社まとめて再実施し、ドメイン境界を見直す。標準遷移モデルを「建設業界共通モデル」として外販可能なレベルまで整備。
+8. **常時**：失敗パターン・用語再確認・連携Tipsを**Daily Knowledge Log**へ継続記録し、同種失敗の2度目はCIゲート or Regoポリシーで自動遮断（人の記憶に頼らない）。

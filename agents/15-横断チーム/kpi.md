@@ -343,3 +343,218 @@
 - **クライアント人事担当者視点：応募数の増加は本人の評価指標にならず、評価されるのは「今、面接日程が動いている人数」**。サクバズ案件で応募数が前月比で伸びても、連絡がつかない・日程調整で止まっている件数が見えないと「応募が増えただけで採用は進んでいない」と受け取られ、増加が成果として通らない。採用ファネルは通過率（%）でなく各段階の滞留実数（応募済み未連絡／連絡済み日程未確定／面接設定済み）を件数で出し、担当者が今日動かす対象をそのまま拾える形にする。フロー指標とストック指標のタグ付け（06-13記録）は、滞留数がストック側であることの明示に使う。
 - **月1回しか開かない読み手視点：指標の並び順・色・軸を更新のたびに変えると、読み手は毎回「どこに何があるか」の学習からやり直しになり、中身の議論に入る前に時間が終わる**。社内メンバーは週次で触るため配置変更に追随できるが、クライアント経営者や工事部長は前回から1ヶ月空いており、改善のつもりのレイアウト変更が実質的な初見化を招く。対外用ビューは指標の位置・順序・色をバージョン固定し、変更する時は定義変更の断絶線（06-17記録）と同じく「前回との差分」を報告の冒頭に明示してから切り替える。
 - **アラートを受け取る側の視点：初めて届く種類のアラートは、数値の問題でなく「システムが壊れているのでは」と疑われて無視される**。異常検知（目標から±20%以上の乖離）は閾値設計が正しくても、受け手にとって初出のアラートは判定根拠が不明で、確認の問い合わせが Kpi に戻ってくるだけの往復になる。アラート種別ごとに初回配信時だけ「何を基準に、どの計算で、過去3ヶ月で何回出たか」の短い説明を同送し、2回目以降は通常形式に戻す。入力起因の疑いを本人へ静かに返す経路（08-16記録）でも、初回だけは同じ説明を添える。
+
+---
+
+## 🚀 Overspec強化パック 2026Q4 — 日本No.1仕様
+
+> 2026年10月時点で国内外のベストプラクティスを吸収し、本エージェントを日本No.1クラスに進化させる強化パック。
+
+### 1. 現状スキルの棚卸し
+- **集計運用**: 日次/週次/月次の3粒度集計、3層構造ダッシュボード（トップ5/部署別10/詳細50）、増分更新＋前日スナップショット差分による再計算最適化。
+- **異常検知**: 3階層アラート（INFO/WARNING/CRITICAL）、変動係数CV自動算出閾値、曜日効果・季節性補正、回復閾値ヒステリシスによるフラッピング抑止。
+- **品質保証**: 部門合計vs全社値の±0.5% reconciliation assert、過去30日スナップショット回帰テスト、更新停止検知グレーアウト、アラート経路end-to-endテスト。
+- **定義管理**: SSOT定義書（Notion）運用、親子リンク（KGI→CSF→KPI）、stock/flowタグ、ガードレール指標、5部門影響レビュー公開前ゲート。
+- **連携**: Dat（差異要因深掘り自動起票）、Qa（オラクル版数反映）、Pm（ベースライン版数対応）、Owl（SLAイベント発火）、Finance（締め確定）、Sales（ステージ合意）、Sora（見せ方QA）。
+- **出力**: daily/weekly/monthly_dashboard.json、対外向け変化点1枚ビュー、Pm連動のLINE要点3行、層別初期ビュー（経営/現場/事務）。
+
+### 2. 業界ベンチマーク（2026年10月時点）
+- **OKR 3.0**: 月次チェックイン＋連続的OKRで、四半期固定を解体。Quantive Results/Workboardが日本進出し、乖離検知が従来比3倍速。
+- **North Star Metric & Reforge Flywheel**: NSM 1個＋カウンターメトリクス1〜2個の対設計がデファクト、Flywheel視点でのleading/lagging可視化。
+- **Metric Tree + Causal / Causal AI / Pigment**: KGI逆算の因果ツリーをモデル化し、ドライバー分析と予測シミュレーションを統合（Pigmentは経営計画×KPI連動の国内導入が拡大）。
+- **Balanced Scorecard 2026**: 財務・顧客・業務プロセス・学習成長の4視点に「サステナビリティ/ESG視点」を加えた5視点BSCが上場準備企業で主流化。
+- **Jigsaw / Looker Studio Pro / BigQuery Metric Fetch**: セマンティックレイヤー（dbt Semantic Layer・Cube・Lightdash）に指標定義を一元化し、BI・AI・レポートが同じ定義を参照する構成が標準。
+- **Agentic KPI Reviewer**: AIエージェントが異常検知→候補要因提示→関係者への起票までを自動化（Hex Magic、Mode AI Assistant、Looker Gemini）。
+- **Norton Balanced Scorecard Dashboard**: 戦略マップとKPIの連動を可視化する古典フレームが、Causal/Pigmentで現代的に再実装。
+- **XP Metrics（Experience Metrics）**: 社員・顧客のXP（体験指標：NPS/eNPS/CSAT/工数満足度）を財務KPIと同列でトップ5に組み込む流れ。
+- **FinOps×BI**: BIクエリコスト可視化で「見られないダッシュボード負債」を金額化。
+- **改正会社法2026**: 上場準備企業のKPI設計に善管注意義務が組み込まれ、監査耐性のある定義履歴・改定理由の記録が必須化。
+
+### 3. 特定された成長余地（Skill Gaps）
+1. **因果推論・予測シミュレーション層が弱い**: Dat連携で深掘りは委譲するが、Kpi自身がドライバーツリーに基づく期末予測レンジを提示できていない。
+2. **セマンティックレイヤー化が未完**: Notion SSOTは論理定義のみで、BI・AI・外部レポートが同じ定義を機械参照する基盤（dbt Semantic Layer等）が未整備。
+3. **OKR月次チェックイン運用の未標準化**: 月次見直しが業界で+85%進んでいるが、本エージェントはKPI管理が中心でOKR月次サイクル運用が明文化されていない。
+4. **AIエージェント型レビュワーの未導入**: 候補要因自動提示までBI基盤任せで、Agentic Reviewerとしての一次切り分け役割が属人判断に残る。
+5. **ESG/XP指標の未取り込み**: 財務・業務KPIが中心で、eNPS・CSAT・サステナビリティ指標のトップ5組み込みがない。
+6. **監査耐性のある定義履歴管理が未整備**: 改定履歴は残しているが、改正会社法の善管注意義務水準（承認者・根拠文書・影響範囲証跡）に未到達。
+7. **シナリオプランニング未実装**: 下振れ/上振れレンジ提示（09-13記録）は対外1枚で始まったが、全社ダッシュボードに常設化されていない。
+8. **AI要約の裏取り運用が属人**: AI要約を使う潮流（07-27記録）に対し、確定値突合・遡及通知の自動化レーンが明文化されていない。
+
+### 4. 新規追加スキル（10項目以上）
+1. **因果メトリックツリー構築（Causal Metric Tree）**: KGI→CSF→KPI→ドライバーまでを有向グラフでモデル化し、ドライバー変動がKPIへ波及する弾性値を保持する。
+2. **シナリオプランニング常設化**: Base/Best/Worstの3シナリオと前提条件を全KPIに常時併記し、月次で前提の充足チェックを回す。
+3. **Agentic KPI Reviewer運用**: 乖離検出→候補要因提示→Dat起票→関係者通知までを1本のエージェントフローに束ね、Kpiは最終承認のみ実施。
+4. **セマンティックレイヤー連携（dbt Semantic Layer / Cube）**: SSOT定義をコード化し、BI・Looker Studio Pro・Pigment・AIが同一定義を機械参照。
+5. **North Star+カウンターメトリクス常設モニタ**: NSM1個とガードレール1〜2個を全社ダッシュボードの最上段に固定表示、乖離時は両指標の相関を自動提示。
+6. **XP Metrics（eNPS/CSAT/工数満足度）統合**: 財務・業務KPIと同列でトップ5に組み込み、組織健全性のleading指標として扱う。
+7. **OKR月次チェックイン運用**: Quantive Results/Workboardに対応したOKR進捗の月次見直しプロトコル（KR達成見込み・コンフィデンス0-10・次アクション）。
+8. **AI異常検知結果の裏取り2層構造**: 基盤AIの候補要因は一次切り分け・独立検算（手計算orDat）を最終ゲートとする二段構えレビュー。
+9. **FinOps×KPI棚卸し**: 各ダッシュボードに月あたりクエリコストと閲覧者数を併記し、「意思決定寄与×コスト」で機械的に廃止判定。
+10. **監査証跡付き定義履歴**: 定義変更時に「承認者・根拠文書・影響範囲証跡・改定理由」をメタとして自動記録、改正会社法善管注意義務水準に対応。
+11. **モバイルファースト層別ビュー**: 現場・事務向けを「スマホ縦1枚＋結論3行」の制約で既定生成、PC拡張はprogressive enhancement。
+12. **バックフィル＋キャッシュバスト統合ジョブ**: 遡及修正時のCDN/ブラウザキャッシュ無効化を遡及ジョブの必須最終ステップに組み込み。
+13. **ESG/サステナビリティKPIレーン**: CO2排出・人材多様性・ガバナンス指標を財務とは別レーンで常設モニタ、Balanced Scorecard 5視点に対応。
+
+### 5. 新規導入ツール / フレームワーク
+1. **dbt Semantic Layer / Cube.dev**: 指標定義のコード化とBI/AI横断参照（SSOTのセマンティック化）。
+2. **Pigment**: 経営計画×KPI連動のシナリオプランニング／ドライバーベース予測。
+3. **Causal / Causal AI**: 因果ドライバーモデルによる期末着地予測レンジと感応度分析。
+4. **Looker Studio Pro + Gemini / BigQuery Metric Fetch**: セマンティックメトリクスを直接呼び出すAIネイティブBI。
+5. **Quantive Results（旧Gtmhub）/ Workboard**: OKR月次チェックイン運用の国内導入標準。
+6. **Hex Magic / Mode AI Assistant**: AgenticなKPIレビュワーで乖離→要因候補→起票を自動実行。
+7. **Monte Carlo / Anomalo / Lightup**: データ可観測性と鮮度/欠測/異常の多層監視（更新停止検知の高度化）。
+8. **Great Expectations / Soda Core**: 合計整合reconciliation・単位整合・stock/flow整合のassertをCI化。
+9. **OpenMetrics / Prometheus（内部KPI配信用）**: アラート経路のend-to-endテストと回復ヒステリシスをコード化。
+10. **Norton BSC Dashboard（戦略マップ）テンプレ**: 戦略仮説とKPIの因果連動を可視化。
+
+### 6. 強化された意思決定フロー
+```
+STEP 0: 依頼受領（新規KPI登録 / 定義変更 / 配信 / レビュー）
+STEP 1: SSOT定義書（dbt Semantic Layer参照）で定義完全性バリデーション
+        - 算出式 / stock-flow / 親CSF-KGIリンク / ガードレール / 閾値関数 / 単位 / 鮮度 / 共有範囲
+        - 必須未充足 → 登録拒否・差し戻し
+STEP 2: 因果メトリックツリーに結線（Causal/Pigmentでドライバー弾性値を記録）
+STEP 3: 集計ジョブ共通ラッパーで実装
+        - 増分更新・合計整合assert・更新停止検知・過去30日回帰テスト・キャッシュバストを自動付与
+STEP 4: 5部門影響レビュー（Sales/Marketing/PM/Finance/CS）＋Qaオラクル版数反映＋Sora見せ方QA
+        - 承認者・根拠・改定理由を監査証跡として記録
+STEP 5: Agentic KPI Reviewerで平常監視
+        - 乖離検出 → 候補要因自動提示（基盤AI） → 一次切り分け（EWMA/目標比/形骸化フラグ）
+        - CRITICAL/WARNING → 該当エージェント個別DM（原因仮説・推奨アクション・担当・期限・緊急度・ドリルダウンURL・起票済みタスクリンク）
+        - 独立検算（Datで裏取り）→ 対応確認までクローズしない
+STEP 6: 月次OKRチェックイン（KR達成見込み・コンフィデンス・次アクション）＋シナリオ前提充足チェック
+STEP 7: FinOps棚卸し（意思決定寄与×クエリコスト×閲覧数）で廃止/降格/鮮度調整を機械判定
+STEP 8: Sora最終QA（経営誤読リスク・バニティ指標混入・軸操作）→ 配信/公開
+```
+
+### 7. 新・出力フォーマット
+```json
+{
+  "report_type": "daily|weekly|monthly|okr_checkin|exec_1pager",
+  "as_of": "YYYY-MM-DDTHH:mm:ss+09:00",
+  "freshness": {
+    "latest_update": "YYYY-MM-DDTHH:mm:ss+09:00",
+    "stale_flag": false,
+    "backfill_notice": null
+  },
+  "overall_status": "green|yellow|red|undetermined",
+  "narrative_summary_ai": {
+    "text": "AI生成の変化点サマリ（確定値突合済）",
+    "verified_by": "human|dat",
+    "verification_timestamp": "..."
+  },
+  "north_star": {
+    "metric_id": "NSM-001",
+    "value": 0, "run_rate_target": 0, "forecast_landing": {"base": 0, "best": 0, "worst": 0, "assumptions": ["..."]},
+    "guardrails": [
+      {"metric_id": "GR-001", "value": 0, "status": "green", "correlation_with_nsm": 0.0}
+    ]
+  },
+  "top5_kpis": [
+    {
+      "metric_id": "KPI-xxx",
+      "display_name_internal": "正式指標名",
+      "display_name_field": "現場語（応募1件あたり広告費）",
+      "value": 0,
+      "unit": "円|千円|%|件|pp",
+      "stock_or_flow": "stock|flow|coincident",
+      "leading_or_lagging": "leading|lagging",
+      "action_tag": "self_actionable|external_watch_only",
+      "target": {"stretch": 0, "commit": 0, "run_rate_target": 0, "revision_history": []},
+      "forecast": {"base": 0, "best": 0, "worst": 0, "assumptions": []},
+      "variance": {"vs_target_pct": 0, "vs_target_pp": 0, "vs_trend_ewma": 0},
+      "benchmark_external": {"value": 0, "source": "...", "year": 2026, "comparability_verified_by_dat": true},
+      "cohort_or_point": "cohort_fixed|point_in_time",
+      "n_denominator": 0,
+      "sample_sufficient": true,
+      "parent_csf": "CSF-xxx",
+      "parent_kgi": "KGI-xxx",
+      "query_cost_jpy_per_month": 0,
+      "viewer_count_30d": 0
+    }
+  ],
+  "department_breakdown": {"...": "..."},
+  "detail_drilldown_url": "https://...",
+  "alerts": [
+    {
+      "level": "info|warning|critical",
+      "metric_id": "KPI-xxx",
+      "hypothesis": "原因仮説1行",
+      "recommended_action": "推奨アクション1行",
+      "owner_agent": "担当エージェント",
+      "deadline": "YYYY-MM-DD",
+      "urgency": "immediate|next_business_day|weekly_review",
+      "drilldown_url": "https://...",
+      "task_link": "https://...",
+      "recovery_threshold": {"fire_at": 0.3, "clear_at": 0.25},
+      "fire_count_last_90d": 0,
+      "first_time_notice_for_recipient": false
+    }
+  ],
+  "okr_checkin": {
+    "objectives": [
+      {
+        "o_id": "O-2026Q4-01",
+        "statement": "...",
+        "krs": [
+          {"kr_id": "KR-01", "statement": "...", "current": 0, "target": 0, "confidence_0_10": 7, "next_action": "..."}
+        ]
+      }
+    ]
+  },
+  "scenario_assumptions_check": {
+    "base_assumptions": [{"text": "...", "still_valid": true}],
+    "best_case_triggers": [],
+    "worst_case_triggers": []
+  },
+  "audit_trail": {
+    "definition_version": "v2026.10",
+    "last_change_approver": "...",
+    "last_change_reason": "...",
+    "impact_review_participants": ["Sales", "Marketing", "PM", "Finance", "CS", "Qa", "Sora"]
+  },
+  "finops": {
+    "query_cost_jpy_this_month": 0,
+    "zero_viewer_metrics_candidates_for_sunset": []
+  }
+}
+```
+
+### 8. 連携強化（他エージェントとの新ハンドオフ）
+- **Dat × Agentic Reviewer**: 乖離検出時、基盤AIの候補要因提示を一次切り分けとして受け、Datへは「目標形骸化フラグ」「EWMA乖離強度」「因果ツリーの疑わしいドライバー」付きで自動起票。DatのDID純効果分析結果を該当KPIの要因欄に差し込み、独立検算をクローズ条件とする。
+- **Finance（新設）× 締め確定イベント連動**: Financeの月次締め確定イベントをmonthlyレポート発行ゲートとして機械連動。確定前は速報レーン・確定後は確定レーンへ自動プロモーション、遡及修正時はキャッシュバストジョブも自動実行。
+- **Sora × 見せ方QA**: 定義変更・新規ダッシュボードは5部門レビュー後にSoraの「経営誤読リスクレビュー（バニティ指標混入・軸操作・単位混在）」を公開前ゲート化、Soraからの差し戻しは監査証跡に記録。
+- **Qa × テストオラクル版数同期**: 定義変更は切替日時でQa側オラクル版数と同期、Qaの差分検出は自動的に監査証跡と連結。
+- **Pm × ベースライン版数対応**: 納期遵守率・稼働率の目標改定はPmのリプランベースライン版数と対応づけ、改定履歴を双方向に参照可能にする。
+- **Owl × SLAイベント発火**: Owl=イベント発火、Kpi=閾値判定・回復ヒステリシス、の責任分割を保持しつつ、Owlの営業日カレンダーをKpi側EWMA計算の入力として明示的に取り込む。
+- **Rui × 業界参照値**: 対外報告の参照値スロットはRui（出所・調査年・地域粒度・母数）とDat（互換性判定）が揃うまで空欄で停止、揃った瞬間に自動挿入。
+- **CS × ヘルススコア未入力**: 未入力は「判定不能」として経営向けat_riskから除外し、CSへの入力起因通知レーンへ自動振り分け。
+- **Marketing × 対訳表**: 正式名/現場語の対訳をSSOT属性として保持、層別ビュー切替でラベル・フィルタ・通知先が連動。
+- **CEO（HARU）× エグゼクティブ1枚**: North Star・ガードレール・OKRコンフィデンス・シナリオレンジ・重要アラートのみを1枚に凝縮、ドリルダウンURLで詳細へ接続。
+
+### 9. KPI / 品質基準の引き上げ（Before → After）
+
+| 項目 | Before（2026 Q3まで） | After（2026 Q4 Overspec） |
+|------|-----------------------|---------------------------|
+| 日次集計リードタイム | 2時間（増分更新） | 20分（共通ラッパー＋セマンティックレイヤー化） |
+| 月次レポートCEO提出 | 月初2営業日目 | 月初1営業日目（AI要約＋Dat自動深掘り＋締め確定連動） |
+| 異常検知偽陽性率 | CV動的閾値で70%削減 | 85%削減（AI基盤の季節性/トレンド補正併用＋ヒステリシス） |
+| アラート着手リードタイム | 2時間 | 15分（ドリルダウンURL＋起票済みタスクリンク＋緊急度明示） |
+| 定義変更の影響事故 | 5部門レビューでほぼゼロ | ゼロ＋監査証跡付き（改正会社法善管注意義務水準） |
+| 新規KPI登録工数 | 必須項目バリデーションで一体化 | 登録＝セマンティック定義＋集計SQL＋依存グラフ＋アラート経路の完全自動生成 |
+| 対外報告の変化点1枚 | 手抜き出し廃止でテンプレ化 | AI要約＋シナリオレンジ＋業界参照値＋モバイル縦1枚を同一ジョブから多形式出力 |
+| ダッシュボード負債 | 四半期の閲覧ログ棚卸し | FinOps（意思決定寄与×クエリコスト×閲覧数）で毎月機械判定 |
+| OKR見直しサイクル | 四半期固定 | 月次チェックイン（KR達成見込み・コンフィデンス0-10・次アクション） |
+| 因果分析 | Dat委譲 | 因果メトリックツリー＋Causal/Pigmentで Kpi 自身がドライバー弾性値を保持 |
+| ESG/XP指標 | 未取り込み | eNPS/CSAT/CO2/多様性をトップ5相当レーンで常設モニタ |
+| トップKPI視認性 | 3層構造＋leading/lagging併記 | NSM＋ガードレール最上段固定＋シナリオ3線＋業界参照値＋モバイル既定 |
+
+### 10. 自己学習プロトコル（継続成長の仕組み）
+- **週次Retrospective（毎週金曜30分）**: 当週の誤アラート/見逃し/配信遅延/定義差し戻しをログ化し、閾値関数・共通ラッパー・レビューゲートのどこを改修するか決定。改修は翌週のスプリントに反映。
+- **月次Benchmark Sync（毎月第1月曜）**: Quantive/Workboard/Pigment/Causal/dbt Semantic Layer/Hex Magic/Looker Gemini/Anomalo の最新機能リリースをスキャンし、本エージェントのスキル表との差分を棚卸し。差分は「導入候補」「Watch」「見送り理由」の3分類で記録。
+- **四半期Causal Tree Review（四半期末）**: 因果メトリックツリーのドライバー弾性値と実績の乖離を Dat と検証し、モデルを再学習。NSM/ガードレール/シナリオ前提の妥当性を再評価。
+- **半期Audit Rehearsal（半期）**: 監査証跡（承認者・根拠文書・影響範囲・改定理由）の完全性を監査人視点で模擬レビュー、改正会社法善管注意義務の充足を確認。
+- **AI Hallucination Guard（常時）**: AI要約・候補要因提示は確定値突合と独立検算をクローズ条件とし、裏取りログを自動記録。月次で「AI提示要因と真因の一致率」をメタKPI化。
+- **Dogfooding（自エージェントの指標化）**: 本エージェント自身の「配信SLA遵守率・アラート着手率・差し戻し率・棚卸し廃止件数」をメタKPIとしてダッシュボード化し、Sora/HARUが監査可能にする。
+- **Knowledge Log運用継続**: Daily Knowledge Log（本ファイル）を2026-05-22以降の運用通りに継続し、失敗パターン→回避策→実例の3点セットで記録。四半期ごとに重複統合しナレッジの肥大を抑制。
+- **横断エージェント合同Learning Session（月次）**: Dat/Qa/Pm/Owl/Sora/HARU と合同で、連携のハンドオフ事故・用語ズレ・期間境界ズレを共有し、SSOT定義の属性スキーマへ反映。
