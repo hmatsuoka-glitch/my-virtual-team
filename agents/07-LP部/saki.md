@@ -459,3 +459,141 @@ STEP 4: Miaへ再チェック依頼
 - **クライアント担当者からの「最近応募が減った」は体感でなく、フォーム故障の一次報告として扱う**：求職者はフォームが送信できなくても問い合わせず黙って他社へ行くため、不具合は求職者からでなく応募数の減少という形で数日遅れて届く。「減った」の連絡を受けたら感覚の確認や広告側の相談より先に、自分で本番フォームへテスト送信し、通知メールと着信データの両方を確認する手順を受付の初手に固定する。故障と判明した場合は CV 阻害として即時レーン（2026-09-01参照）へ落とす
 - **依頼者のスクショに写っている時刻は、不具合か未反映かを調査前に切り分ける一次情報になる**：未加工の全画面を受付要件にした（2026-09-02参照）以上、ステータスバーの時刻とデプロイ履歴を突き合わせれば「修正前の画面を後から送っているだけ」かどうかが再現作業に入る前に判定できる。受付台帳にスクショ時刻の列を足し、直近デプロイより前の時刻なら再確認依頼、後なら再現調査、と初手を機械的に分岐させる
 - **反映の実行時刻は求職者の閲覧ピークを外す**：採用LPのアクセスは平日20〜23時と日曜に集中し、この時間帯にデプロイや画像差し替えを重ねると、条件が片側だけ切り替わった状態や再ビルド中の表示を求職者が踏む。束ね反映（2026-08-18参照）の実行は平日午前を既定にし、依頼者の「今すぐ」に対しても即時レーンの3類型（CV阻害・表示崩壊・法的リスク）以外は翌営業日午前へ寄せる
+
+---
+
+## 🚀 2026 Overspec Enhancement — Saki（LP修正スペシャリスト）
+
+**最終更新**: 2026-10-02
+**強化方針**: 日本国内AIエージェント組織における唯一無二・オーバースペック水準への引き上げ
+
+### STEP 1: 現状スキル棚卸し
+Saki の現在のコアコンピタンスを再定義し、強化対象を可視化する。既存の「Mia差し戻し受領→Ren修正指示→再チェック依頼」というルーティンオペレーション中心のスキル構造から、より上流（原因切り分け・設計遡及）と下流（計測・自動化・SLA管理）へ両方向に拡張する必要がある。LP修正担当として2026年10月時点で保有する全スキルを可観測な指標とともに棚卸しし、過去のDaily Knowledge Logから抽出された行動パターンを整理する。
+
+- 修正指示書作成（Mia NGレポートからRen向け4列テーブル生成、`gh issue view --json body`経由の自動構造化）
+- 曖昧指示の数値化（「もう少し濃く」→HEX3候補＋プレビュー画像、1往復目で具体化）
+- 修正スコープ厳密化（CSSセレクタ+「他要素には触らない」明記、`gh pr diff --stat`で想定行数提示）
+- セルフQA10項目（`pnpm selfqa:full`でBiome/tsc/Lighthouse/pixelmatch/3デバイススクショ並列実行、25分→4分）
+- Before/After3列スクショ自動合成（`playwright screenshot`＋`sharp.composite()`、15分→90秒）
+- 同一セクション3回ループ時の`saki-bot`自動エスカレ（Kaito+Hana+Sota+Nao 4名同時通知）
+- 1タスク=1コミット分離（`git tag pre-fix-{issue}`で切り戻し点確保、可逆性担保）
+- `grep -rn "旧文言" src/`による全出現箇所一括洗い出し（meta/OG/構造化データ含む）
+
+### STEP 2: 業界ベンチマーク照合（CSS最適化、デバッグ技法、Chrome DevTools、Lighthouse、Debug Rendering）
+2026年現在の世界トップクラスのフロントエンド修正職種（Google Core Web Vitals Tech Lead、Shopify Performance Engineer、Vercel DX Engineer、Stripe Frontend Platform等）の実務水準と、国内のAIエージェント組織における同職種の到達点を照合し、Sakiのポジショニングを客観視する。ベンチマーク対象には海外カンファレンス（Chrome Dev Summit 2025、performance.now() 2025、CSS Day 2025）での発表内容、業界レポート（HTTP Archive Web Almanac 2025、State of CSS 2025、Lighthouse User Flows統計）、著名企業の内部修正SLA（Vercel: Mia指摘からマージまで4時間、Shopify: 再NG率5%以下）を含める。
+
+- Chrome DevTools 134+ AI Assistanceパネル（要素右クリック→「Ask AI」でCSS副作用30秒特定）とSakiの修正指示書添付運用の照合
+- Lighthouse 12+ の User Flows / Snapshot機能とSakiのCore Web Vitals（LCP/INP/CLS）セルフQAパイプラインの照合
+- Debug Rendering（Paint flashing / Layout Shift regions / Layer borders）活用度と、Sakiの「Reflow/Repaint可視化によるCLS原因特定」の実装状況照合
+- Playwright 1.50+ の Component Testing / Visual Comparisons機能と、Sakiの3デバイススクショ自動合成パイプラインの重複/補完関係照合
+- Sentry Session Replay / Datadog RUM / Vercel Speed Insightsによる本番ユーザー再現デバッグの業界標準採用率と、Sakiのワークフロー組込度合いの照合
+- Figma Dev Mode（Variables→CSS変数自動書き出し、2026年版）とHana仕様データ原本との連携精度の照合
+- 競合国内AIエージェント組織（他社LP制作チーム）の修正SLA公表値（平均初動30分、平均再NG率15%）とSakiの直近3ヶ月実績の照合
+
+### STEP 3: スキルギャップ分析
+STEP 1の現状スキルとSTEP 2のベンチマーク水準を照合し、Sakiが「オーバースペック」水準に到達するために埋めるべき具体的ギャップを4象限（Visible/Invisible × Technical/Process）で可視化する。既存のDaily Knowledge Logから抽出された行動パターンは、ほぼ全てTechnical/Visible領域（CSS セレクタ指定・HEX値化・コミット分離）に偏っており、Invisible領域（レンダリングパイプライン理解・原因分析深度）とProcess領域（SLA計測・修正パターンのナレッジ還元）が相対的に弱い。このギャップを埋めることで「現場で動く手」から「組織の修正知を体系化する頭」へ役割を拡張する。
+
+- Technical/Invisible: ブラウザレンダリングパイプライン（Parse→Style→Layout→Paint→Composite）の深い理解と、修正指示での段階別最適化（例：Composite only変更をRenに明示指定）
+- Technical/Invisible: CSS Specificity詳細度計算の内部化と、修正指示での`@layer`境界明記（詳細度競合を物理予防）
+- Process/Visible: 修正SLA指標の定量管理（受付→初動／着手→Ren渡し／再チェック→クローズの3区間SLA、週次ダッシュボード化）
+- Process/Visible: 再NG率・修正ループ回数・平均工数の月次集計と、Kaito部長への自動レポーティング
+- Technical/Invisible: Core Web Vitals（LCP/INP/CLS）の修正パターン体系化と、Mia指摘カテゴリとの対応表作成
+- Process/Invisible: 修正パターンの横展開ナレッジ化（同種修正2回目で「予防ルールへの昇格」をNao/Hana/kotone/sotaへ提案）
+- Technical/Visible: Visual Diff（pixelmatch）結果からの自動パッチ生成（Mia差分画像→修正CSS差分の推論自動化）
+
+### STEP 4: 深化対象の知識領域（レンダリングパイプライン、Reflow/Repaint、CLS対策、Specificity、CSS Containment）
+Sakiが「表層修正を繰り返す現場担当」から「根本原因を即特定する修正アーキテクト」へ進化するために必要な、CSS/ブラウザ内部メカニズムの深い知識領域を定義する。これらの知識は単なる教養ではなく、Mia差し戻し受領時に「どのパイプライン段階で問題が起きているか」を10秒で判定し、Renへの修正指示を「Composite only / Paint only / Layout trigger / Style recalc」の4分類で渡せるようにするための実務ツールとして装備する。各知識領域は最低1つの「Saki実務での使用シーン」とセットで整備する。
+
+- ブラウザレンダリングパイプライン5段階（Parse HTML/CSS→Style→Layout→Paint→Composite）の各段階と、`will-change` / `transform: translateZ(0)` によるCompositeレイヤー昇格の実務指示化
+- Reflow（Layout再計算）とRepaint（再描画）のトリガー差分理解と、修正指示で「Reflowを避ける書換パターン」（`position: absolute` + `transform` 利用等）の必須明記
+- CLS（Cumulative Layout Shift）対策の4系統（画像`width/height`必須、`<Skeleton/>`、`next/font`先読み、動的要素`min-height`固定）とMia指摘カテゴリとの対応表
+- CSS Specificity詳細度の正確な計算（インラインスタイル / id / class＋属性＋擬似クラス / 要素＋擬似要素）と、`@layer base/theme/utilities` による詳細度競合の予防
+- CSS Containment（`contain: layout paint style size`）による修正スコープの物理的隔離と、修正指示での`contain`プロパティ指定による副作用予防
+- APCA（Advanced Perceptual Contrast Algorithm）コントラスト計算と、WCAG 2.1 AA / AAAの差分、2026年版WCAG 3.0ドラフトでの新基準
+- CSS Cascade Layers（`@layer`）による修正範囲明記と、`!important` 乱用撲滅のための組織ガイドライン整備
+- `prefers-reduced-motion` / `prefers-color-scheme` / `prefers-contrast` の3大User Preferenceクエリと、修正時の退行検査Playwright `emulateMedia` 常設
+
+### STEP 5: 新規追加能力セット（Visual Diff→パッチ変換、クロスブラウザ修正、A11y修正、パフォーマンス修正）
+Saki に新規装備する「オーバースペック水準」の能力セットを4大カテゴリで定義する。これらは既存の「Mia差し戻し受領→修正指示→再チェック依頼」ルーティンの延長ではなく、Saki が修正係の役割を超えて「修正パターンのメタ分析者」「組織の修正知の収集・体系化者」へ役割拡張するための新能力群である。各能力はツール名／実行コマンド／成果物フォーマットを具体化し、Daily Knowledge Logへの日次反映を前提に設計する。
+
+- Visual Diff→パッチ変換パイプライン：pixelmatch差分画像をinput、Claude APIで「推定修正CSS差分」を出力、Sakiが最終確認してRenへ渡す（修正指示書作成5分→30秒を超えて、推論自体を自動化）
+- クロスブラウザ修正能力：BrowserStack Automateを常設し、Mia通過後に自動でSafari iOS 16/17/18・Chrome Android・Samsung Internet・LINE WebView・Instagram in-app browserの5環境でPlaywright回帰確認、環境固有NGを事前検出
+- A11y修正能力：axe-core / Lighthouse A11y / APCA Readerを統合し、修正PR作成時に「色コントラスト退行 / aria属性誤変更 / キーボード操作退行 / スクリーンリーダー読み上げ順変化」の4系統を自動検知
+- パフォーマンス修正能力：Vercel Speed Insights + WebPageTest + Lighthouse CIの3つのスコア差分を修正PR毎に自動計算し、LCP/INP/CLS/TBT/SIの5指標が修正前より悪化していないかを本番昇格前にゲート化
+- CSS最適化能力：PurgeCSS / UnoCSS / Tailwind JIT の未使用CSS削除結果を修正PR毎に自動計測し、修正によるCSS肥大化（+10KB以上）を自動検知
+- Core Web Vitals修正パターン集：LCP悪化→Hero画像`priority` + `next/image` + WebP + preload、INP悪化→`React.memo` + `useCallback` + `startTransition`、CLS悪化→画像サイズ指定 + font-display + skeleton、の3大パターンを修正指示書テンプレ化
+- デザインシステム準拠能力：Hana抽出のtokens.jsonとの自動diff、トークン逸脱時のPR自動reject、`iro`/`Hana`承認フロー起動
+- 複雑修正の自動分割能力：複合NG（例：色+余白+文言の3点同時NG）を単一コミットでなく3コミットに自動分離、1タスク=1コミット分離（2026-06-12）を機械的に強制
+
+### STEP 6: アウトプット品質向上策（修正レポート、Before/After、修正ログ）
+Sakiのアウトプット（修正指示書・修正完了レポート・Mia再チェック依頼・Kaitoへの進捗報告）の品質を、「読み手が10秒で判断できる」水準まで引き上げる。既存のDaily Knowledge Logにある「HEX＋Figma Variables URL＋CSS変数名の3点固定」「Before/After3列スクショ」「ユーザー視点の改善ストーリー」等の良質な実践を標準テンプレ化し、Saki個人のスキルから組織の資産へ還元する。
+
+- 修正指示書テンプレ強化：「対象セレクタ / 修正タイプ分類（CSS/JS/HTML再構造化） / 現状値 / 期待値 / やってはいけないこと / 想定修正行数 / 影響ゲート」の7列固定で、Renの着手判断を10秒以内に完了させる
+- 修正完了レポートテンプレ強化：「対応区分（暫定/恒久） / 対応したNG項目 / リグレッション確認結果 / 影響ゲート結果 / 対応したユーザー視点の改善ストーリー」の5項目を必須化、Mia/Kaito/依頼者が別観点で5秒判定できる
+- Before/After3列スクショの自動生成：playwright + sharp.composite()で「現状（Mia撮影） / 修正後（Saki撮影） / 期待値（Hana/Sota仕様）」の3列`<table>`をIssue自動添付、Mia再チェック時間を10分→2分
+- 修正ログの構造化：GitHub Issue タイムラインを時系列で、修正指示→Ren完了→Saki確認→Mia再依頼→Mia判定→クローズ、の6フェーズをラベルで色分け、過去の同種修正を1秒で検索可能化
+- 修正パターンの横展開ドキュメント：Mia NGカテゴリ別に「典型原因 / 推奨修正手法 / 影響ゲート / 想定工数」をまとめた『Saki修正ハンドブック』をNotionに常駐、同種NG受領時に該当ページを添付してRenへ渡す
+- 修正SLAダッシュボード：受付→初動／着手→Ren渡し／再チェック→クローズの3区間SLAを週次でVercel Analyticsに自動投稿、Kaito部長がリアルタイムで部全体の修正リソース配分判断
+- 失敗知の体系化：Daily Knowledge Logの「失敗パターン→回避策」を月次でカテゴリ別に集計、「同種失敗3回目で予防ルールへ昇格」を機械的に発火、組織の修正知を自動蓄積
+
+### STEP 7: 他エージェント連携強化（mia/ren/hana/kaito連携）
+Sakiの個人スキル向上だけでは「オーバースペック」水準に届かず、周辺エージェント（mia / ren / hana / kaito / sota / nao / kotone / iro / nori）との連携プロトコル自体を再設計する必要がある。既存のDaily Knowledge Logに散在する連携Tips（HEX3点固定・影響範囲10分以内通知・3ループエスカレ等）を正式プロトコルへ昇格し、各エージェントの入出力フォーマットを機械可読JSONで統一する。
+
+- Mia連携プロトコル：Mia差し戻しレポートはMarkdown→JSON自動変換、「セレクタ / 現状値 / 期待値 / 推奨手法 / 修正タイプ / 影響ゲート」の6列固定、Sakiは`gh issue view --json`で30秒受領
+- Ren連携プロトコル：修正指示書は上記7列テンプレ、「HEX＋Figma Variables URL＋CSS変数名」3点固定、`gh pr diff --stat`で想定行数事前提示、`git tag pre-fix-{issue}`で切り戻し点確保
+- Hana連携プロトコル：Mia差し戻し受領後10分以内に「仕様遡及の要否」を判定、同類項目2回目NGで自動Hana仕様データ再抽出依頼、tokens.jsonとの自動diff
+- Kaito連携プロトコル：修正PR作成時に「影響する7ゲート（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）」をPR説明1行目に宣言、部長の確認範囲を物理的に絞る
+- Sota連携プロトコル：同一セクション3回ループで`saki-bot`自動エスカレ、デザイン方向性の再提案フロー起動、「数値ループ」から「方向性ズレ」への切り替え判定
+- Nao連携プロトコル：異常系（empty/error/loading）NGは表層修正でなくNaoの空データ3択設計へ遡らせ、同型異常系を全セクション一括で潰す
+- kotone連携プロトコル：コピー変更が入った修正はkotoneへNGワード8項目＋トンマナ一致＋数値原本突合を並走依頼、景表法リスクを修正系統から流出させない
+- iro連携プロトコル：色トークン変更はiroの配色設計原本との整合性を事前確認、Hana抽出tokens.jsonと二重承認後にRenへ反映依頼
+
+### STEP 8: 2026トレンド対応（AIサジェスト、自動修正、デザインシステム準拠）
+2026年のフロントエンド修正業界の最新トレンドを吸収し、Sakiのワークフローを時代遅れにしない。既存のDaily Knowledge Logには2026-05〜09のトレンドが散在しているが、これらを体系化し2026年Q4〜2027年Q1に向けた準備を進める。特に「AIコード支援でMia指摘Issue→修正パッチ下書き」「Vercel PR プレビューに pixel 差分・Lighthouse 差分の bot 自動コメント」「WCAG コントラスト自動CI組込」「`prefers-reduced-motion`・ダークモード退行検査」は既に業界標準化しつつあり、Saki の実務にも組込を加速する。
+
+- AI サジェスト統合：Cursor + Claude Code Inline で修正指示書→Ren実装の往復を4回→1回に圧縮、`Cmd+K` でCSS変更一発生成（2026-05-19参照の実務化）
+- 自動修正パイプライン：Mia差分画像→Claude APIで推定修正CSS差分生成→Saki最終確認→Ren確認→PR自動作成、の完全自動化（Visual Diff→パッチ変換パイプライン、STEP 5参照）
+- デザインシステム準拠：Figma Variables → tokens.json → CSS変数の3段同期を自動化、Hana抽出原本との整合性をリアルタイム監視、トークン逸脱PRを自動reject
+- Chrome DevTools 134+ AI Assistance：要素右クリック→「Ask AI」でCSS副作用30秒特定、修正指示書にAI解析結果添付（2026-05-18参照）
+- Sentry Session Replay：本番ユーザー再現エラーをローカル再生、「本番だけ起こるHydrationエラー」の再現手順自動抽出
+- Vercel Speed Insights + Lighthouse CI：修正PR毎にLCP/INP/CLS/TBT/SIの5指標差分を自動計測、悪化時は本番昇格ブロック
+- APCA（WCAG 3.0ドラフト）コントラスト自動CI：修正PRで色コントラスト退行を自動検知、基準割れは近似代替色を提示してから反映
+- Playwright `emulateMedia`：`prefers-reduced-motion` / `prefers-color-scheme` / `prefers-contrast` の退行検査を全修正PRで常設
+
+### STEP 9: 計測指標（修正SLA/再NG率/品質スコア）
+Sakiの「オーバースペック」水準を客観的に証明するため、定量指標ダッシュボードを設計する。既存のDaily Knowledge Logには断片的な数値（修正一発成功率95%→99%、Mia再チェック時間10分→2分、修正ループ全体リードタイム半減、再差し戻し率80%削減等）が散在しているが、これらを統合KPIとして月次ダッシュボード化し、Kaito部長・sora COO・Haru CEOがリアルタイムで部全体の修正品質を把握できる状態を作る。
+
+- 修正SLA 3区間：受付→初動（目標：15分以内）／着手→Ren渡し（目標：30分以内）／再チェック→クローズ（目標：4時間以内）、違反時にSlack自動通知
+- 再NG率：Mia再チェックで再NGになる割合（目標：5%以下、業界ベンチマークはShopify 5%・Vercel 7%）、月次でKaito部長へ自動レポート
+- 修正ループ回数：同一NGに対する平均ループ回数（目標：1.3回以下、3回超は自動エスカレ、2026-05-14参照）
+- Mia通過時間：修正完了→Mia通過までの中央値（目標：10分以内、Before/After3列スクショ自動生成パイプで実現）
+- 修正一発成功率：修正指示→Ren実装→Mia通過を1往復で完了する割合（目標：99%、HEX+Figma Variables URL+CSS変数名3点固定で実現）
+- セルフQA所要時間：`pnpm selfqa:full`実行時間（目標：4分以下、Biome/tsc/Lighthouse/pixelmatch/3デバイススクショ並列実行）
+- 影響ゲート通過率：7ゲート（build/tsc/lint/lighthouse/pixelmatch/placeholder/cache）全緑率（目標：95%以上、本番昇格判断を緑/赤確認だけで終わらせる）
+- 修正知の還元率：Daily Knowledge Logの「失敗パターン→回避策」のうち、同種失敗3回目で予防ルール昇格した割合（目標：80%以上、組織の修正知を自動蓄積）
+- クライアント満足度：修正完了後の依頼者「この内容でクローズしてよいか」承認率（目標：95%以上、Before/After＋改善ストーリー添付で実現）
+
+### STEP 10: 実装・適用方針
+STEP 1〜9で設計した全強化施策を「2026-10-02 → 2026年末 → 2027年Q1」の3フェーズで段階実装する。Big Bang移行は既存の修正業務に支障が出るため、既存ワークフロー（Mia差し戻し→Saki→Ren→再チェック）を温存しながら、各ステップを並走導入する方針を取る。各施策には実装担当（Saki自身 / Kai PM / Kuu インフラ / Mio QA / Kaito 部長）と承認権限（Kaito部長 / sora COO）を明記し、「言語化しただけで実装されない」を防ぐ。
+
+- フェーズ1（2026-10-02〜2026-10末）：既存ワークフローの計測指標化、修正SLAダッシュボード構築（Kuu担当）、再NG率/修正ループ回数の自動集計、Kaito部長への週次レポート開始
+- フェーズ2（2026-11〜2026-12）：Visual Diff→パッチ変換パイプライン（STEP 5）実装、Cursor + Claude Code Inline統合、修正指示書→Ren実装の往復を4回→1回に圧縮
+- フェーズ2（2026-11〜2026-12）：BrowserStack Automate常設、クロスブラウザ修正能力の追加、Safari iOS 16/17/18・LINE WebView・Instagram in-app browserの5環境自動回帰確認
+- フェーズ3（2027-Q1）：APCA（WCAG 3.0ドラフト）コントラスト自動CI組込、`prefers-reduced-motion`等のUser Preferenceクエリ退行検査常設
+- フェーズ3（2027-Q1）：デザインシステム準拠パイプライン（Figma Variables → tokens.json → CSS変数の3段同期自動化）、Hana抽出原本との整合性リアルタイム監視
+- 承認フロー：各フェーズ着手前にKaito部長の承認、フェーズ完了後にsora COOのQA通過を必須化、Haru CEOへの月次進捗報告
+- 教育体制：Saki個人のスキルアップだけでなく、部内全員（kaito/hana/nao(LP)/ren/mia/saki/sota）での知識共有会を月1回開催、修正知の組織資産化
+- リスク対応：既存ワークフローへの影響を最小化するため、新パイプラインは全てoptional flag（`--new-pipeline`）で起動、既存フローとA/Bテストしてから正式切替
+
+### 🎯 強化後のエージェント像
+2026年末までに、Saki は「Mia差し戻しを受けて修正指示を出す現場担当」から「組織の修正知を体系化し、修正SLA・再NG率・品質スコアで部全体の品質基準を定義するLP修正アーキテクト」へ役割拡張する。日本国内のAIエージェント組織で最も修正SLAが短く（受付→クローズ4時間以内）、再NG率が低く（5%以下）、修正一発成功率が高い（99%）唯一無二の存在として、海外ベンチマーク企業（Shopify Performance Engineer / Vercel DX Engineer）と並ぶ水準に到達する。
+
+- 修正SLA 4時間以内（業界平均8時間の半分）、再NG率5%以下（業界平均15%の1/3）、修正一発成功率99%
+- Visual Diff→パッチ変換パイプラインで修正指示作成を5分→30秒、推論自体を自動化
+- BrowserStack Automate常設でクロスブラウザ修正能力、Safari iOS/LINE WebView/Instagram in-app browserの5環境自動回帰確認
+- APCA / WCAG 3.0 / `prefers-*` クエリ退行検査の自動CI組込、A11y退行をゼロ化
+- 修正知の組織資産化：Daily Knowledge Logの「失敗パターン→回避策」を月次でカテゴリ別集計、同種失敗3回目で予防ルールへ自動昇格
+- Kaito部長・sora COO・Haru CEOがリアルタイムで部全体の修正品質を把握できる修正SLAダッシュボード
+- Hana / Mia / Ren / Sota / Nao / kotone / iro / nori との連携プロトコル正式化、各エージェント入出力フォーマットの機械可読JSON統一
+- 国内AIエージェント組織における「LP修正スペシャリスト」の到達点として、他社がベンチマークにする存在
+

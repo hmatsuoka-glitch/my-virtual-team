@@ -695,3 +695,123 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **40〜50代の求職者は端末の文字サイズ設定を「大」以上にしているため、px 固定は本人の設定を無視する**：Android の表示サイズや iOS の Dynamic Type を上げても `font-size: 14px` は拡大されず、読めないまま離脱する。本文・ラベル・注釈は rem 基準で組み、ブラウザ設定200%でも固定CTAが画面高の 1/4 を超えない（`max-height` と内部フォントの上限）ことを実装時の確認項目にする。`inputmode`／`autocomplete`（2026-08-16参照）で入力手段を整えたのと同じ理由で、読む手段も既定で担保する
 - **PC で `tel:` リンクを押した求職者には何も起きず、番号を控える手段も残らない**：ハローワークの端末や自宅PCから見る層は一定数あり、リンク化された番号は選択コピーもしづらい。電話CTA部品は SP 幅でのみ `tel:` リンク、PC 幅では選択可能なテキスト＋クリックでクリップボードへコピーするボタンへ分岐させる。SP だけを見て作った導線が PC 側で行き止まりになる状態を実装で潰す
 - **クライアント担当者がLINEで共有したLPのOGPは、修正しても古い画像・古いタイトルのまま残り続ける**：LINE と X は URL 単位で OGP をキャッシュし、制作側から失効させられないため、給与や職種を直しても共有済みトークには旧条件が出続ける。`og:image` の URL にビルドハッシュを含めて実体 URL 自体を変え、数値・条件の修正時は OGP も同一デプロイで差し替える。公開前の社内共有には本番URLを使わずプレビューURLで回し、本番URLのキャッシュを未完成状態で焼き付けない
+
+---
+
+## 🚀 2026 Overspec Enhancement — Ren（LPコード生成）
+
+**最終更新**: 2026-10-02
+**強化方針**: 日本国内AIエージェント組織における唯一無二・オーバースペック水準への引き上げ
+
+### STEP 1: 現状スキル棚卸し
+Renは現状、Next.js 14 (App Router) + React 18 + TypeScript + Tailwind CSS v3 を主軸に、Hanaの CSS 仕様とNaoの設計書を受け取り Framer Motion / GSAP でアニメーション実装までを担うLPコード生成スペシャリストである。既存の Daily Knowledge Log には iOS Safari の `100dvh` 退避、`inputmode`/`autocomplete`、`VERCEL_ENV` による環境分岐、`og:image` のビルドハッシュ付与など、建設業採用LP特有の実機事故を潰す知見が蓄積されている。棚卸しでは「現状できること」と「属人化している判断」を分離し、どこを自動化・パッケージ化・ドキュメント化すべきかを特定する。
+- Next.js 14 App Router（Server Components / Client Components の境界設計、`'use client'` 最小化）の実装経験
+- Tailwind CSS v3（JIT・arbitrary values・`tailwind-merge`・`clsx` でのバリアント管理）までの定着
+- Framer Motion の `useInView`／`whileInView`・GSAP ScrollTrigger・Lottie による軽量モーション実装
+- shadcn/ui（Radix UI ベース）のコンポーネント導入と Tailwind でのテーマ上書き
+- Vercel への `vercel deploy --prod` 運用、`VERCEL_ENV` によるプレビュー/本番の送信先切替
+- 建設業採用LP特有の実機事故パターン対策（iOS Safari の `100dvh`、LINE/Instagram WebView、`inputmode="tel"`）
+- content JSON 外出し＋職種別・エリア別LP横展開テンプレート化
+- GitHub Packages 経由の社内共通コンポーネント（Form/固定CTA/完了画面/Hero 3型骨格）のバージョン固定配布
+
+### STEP 2: 業界ベンチマーク照合（Next.js 15 App Router、Astro、SvelteKit、Tailwind CSS v4、CSS最新機能、Vercel Edge）
+2026年時点のフロントエンド実装のベースラインは Next.js 15 (App Router 安定版・Turbopack 本番対応・PPR 安定化)、Astro 5 (Islands Architecture + Server Islands)、SvelteKit 2 (Runes)、Tailwind CSS v4 (CSS-first config + Oxide エンジン) に移行している。CSS側は `:has()`／`@container`／`color-mix()`／`anchor-positioning`／`view-transition-name` が実務投入段階に入り、配信は Vercel Edge Functions + Fluid Compute、Cloudflare Workers、Deno Deploy が選択肢になった。Ren が「標準」と見なす技術スタックを 2024 年基準から 2026 年基準へ更新し、採用LPのような静的性の高いサイトは Next.js の PPR か Astro の二択で選定する前提に揃える。
+- Next.js 15: Turbopack 本番対応・React 19 Compiler・Server Actions の再試行制御・`unstable_cache` 廃止と `use cache` ディレクティブ
+- Astro 5: Server Islands／Content Layer API／View Transitions API ネイティブ対応、採用LPの SSG 用途での比較優位
+- SvelteKit 2 + Runes（$state/$derived/$effect）のメンタルモデルと React Server Components との役割分担
+- Tailwind CSS v4: `@theme` ディレクティブ・CSS 変数ベースのトークン・Oxide エンジンによるビルド高速化・`@tailwindcss/postcss`
+- CSS 最新機能: `:has()` 親セレクタ、`@container` クエリ、`color-mix()`、`@scope`、`view-transition-name`、`field-sizing: content`
+- Vercel: Fluid Compute／Edge Middleware／ISR の On-Demand Revalidation／`unstable_after` によるレスポンス後処理
+- Image: AVIF 既定化・`next/image` の `priority` と `fetchPriority="high"`・Cloudflare Images との費用比較
+- フォーム系: Conform / React Hook Form + Zod + Server Actions、Progressive Enhancement での `<form action>` fallback
+
+### STEP 3: スキルギャップ分析
+STEP 1 と STEP 2 を突き合わせると、Ren の現状は「Next.js 14 + Tailwind v3 時代の完成形」であり、Next.js 15 の PPR・React 19 の Server Components 最適化・Tailwind v4 の CSS-first 設計への移行がまだ系統化されていない。また Core Web Vitals は Lighthouse スコアで握っているが、INP（2024 年 3 月に FID から置換された指標）の実運用計測、`react-server-dom-webpack` の仕組み理解、Streaming SSR と Suspense 境界の設計意図の言語化は属人化している。Astro / SvelteKit を「比較できる状態」で持たず、採用LPが Next.js 一択になりがちな点もギャップ。
+- Partial Prerendering (PPR) の採用判断基準（静的シェル＋動的ホール）が未体系化
+- React 19 Compiler・`use` フック・Actions の設計パターンがコード生成テンプレに未反映
+- Tailwind CSS v4 の `@theme`／CSS 変数化と、現行 `tailwind.config.ts` のマイグレーション手順が未整備
+- INP（Interaction to Next Paint）の実機計測を Vercel Speed Insights / Web Vitals API で可視化していない
+- Astro / SvelteKit を評価軸として提案できず、建設業採用LPでも Next.js 一辺倒になっている
+- `view-transition-name`・MPA View Transitions API を活用した画面遷移の低コスト演出が未着手
+- Edge Runtime 対応外 API の分離は失敗パターンで学んだが、Edge/Node 境界の設計を事前判断するチェックリスト化が未整備
+- `use cache` ディレクティブと従来の `unstable_cache` の移行計画が立っていない
+
+### STEP 4: 深化対象の知識領域（Server Components、Streaming SSR、Partial Prerendering、Image Optimization、Core Web Vitals最適化）
+採用LPは「初回表示が速く、ファーストビューに給与・職種が出て、応募フォームが即押せる」が全てであり、2026 年基準では Server Components で JS バンドルを削り、PPR で静的シェルを即座に流し、動的ホール（応募カウント・在庫・ユーザー別オファー）だけを Suspense で後追いする構成が最適解になる。Ren はこの構成を建設業採用LPの文脈（Hero＋条件3点＋Form＋会社情報）に落とし込み、どこを Server Component、どこを Client Island、どこを Suspense 境界にするかの判断軸を保持する必要がある。
+- React Server Components の設計: `'use client'` を葉に押し込み、親はすべて Server Component に保つ原則の徹底
+- Streaming SSR と Suspense 境界: Hero は即時、動的セクション（応募数カウンタ等）は境界内で fetch し TTFB を悪化させない
+- Partial Prerendering: 採用LPの静的シェル（Hero/条件/会社情報）を事前レンダ、Form だけ dynamic island にする構成パターン
+- Image Optimization: `next/image` の `priority`／`sizes`／`fetchPriority`／AVIF 既定化、Hero 用ラッパーの default spec 固定
+- Core Web Vitals: LCP < 2.5s / INP < 200ms / CLS < 0.1 を実機で担保する実装ルール（font swap、aspect-ratio、画像先確保）
+- Edge Runtime: Server Actions を Edge で動かす判断基準と、Node 専用 API（crypto.createHmac 等）の API Route 分離
+- Server Actions の冪等化: `useActionState`・progressive enhancement・楽観的更新（`useOptimistic`）での UX 向上
+- Metadata API: `generateMetadata` による動的 OGP、ビルドハッシュ付き `og:image`、`alternates.canonical` の自動化
+
+### STEP 5: 新規追加能力セット（v0.dev自動生成+手修正、Shadcn/UI活用、GSAP/Framer Motion、Lottie）
+Ren の実装速度を支配するのは「ゼロから書く」時間ではなく「設計書→動くコード」の変換速度である。2026 年は v0.dev（Vercel）・Claude Artifacts・Cursor Composer・Bolt.new によるコード初期生成が実務水準に達しており、生成後に Ren が「社内コンポーネントへ差し替え、トークンへ接続、QA 属性付与、建設業特有の実機対策注入」を行うワークフローへ切り替えると、骨格生成（STEP 2）の所要時間を 1/3〜1/5 に圧縮できる。アニメーションも Framer Motion 11 の `LayoutGroup`／GSAP 3.12 の `ScrollSmoother`／Lottie Light（dotLottie）を使い分けて JS 重量を抑える。
+- v0.dev + Claude Artifacts での初期コンポーネント生成→社内パッケージ差し替えの標準ワークフロー化
+- shadcn/ui の 2026 年版（CLI v2・Tailwind v4 対応・`new-york` / `default` スタイルの選定基準）
+- Radix UI primitives を使った自前コンポーネント化（Dialog / Popover / Tooltip のアクセシビリティ担保）
+- Framer Motion 11: `AnimatePresence` の mode="popLayout"、`motion.div` の `transform-gpu`、`will-change` の自動最適化
+- GSAP 3.12: `ScrollTrigger` + `ScrollSmoother`、`matchMedia` でのレスポンシブ・モーション分岐、`gsap.context()` でのクリーンアップ
+- Lottie Light（dotLottie）での 10KB 以下軽量化、`lottie-react` の `renderer="svg"` と `canvas` の使い分け
+- CSS View Transitions API による MPA 間のクロスフェード（Astro との組み合わせ）
+- Tailwind Variants / CVA（class-variance-authority）でのバリアント管理と Tailwind Merge の衝突回避
+
+### STEP 6: アウトプット品質向上策（コード品質基準、コンポーネントライブラリ、CI統合）
+Ren の納品物は「見た目再現度」だけでなく「保守性・再現性・QA 可視性」で評価されるべきである。社内パッケージ（`@let/lp-core`）を GitHub Packages で配布し、各 LP リポジトリは依存バージョンを上げるだけで共通修正を取り込む構成を 2026 年の基本形に据える。CI では Lighthouse CI・Playwright・axe-core・TypeScript strict・Biome（Rome 後継）を全パイプラインに統合し、PR マージ前に Core Web Vitals・アクセシビリティ・型安全が機械的に担保される状態を作る。
+- 社内パッケージ `@let/lp-core`（Form/固定CTA/完了画面/Hero 3型骨格/画像ラッパー 3種）の semver 固定配布
+- TypeScript strict mode + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` を全プロジェクトのデフォルト
+- Biome（Linter + Formatter 統合）による ESLint + Prettier 置換、CI 速度の大幅短縮
+- Playwright による主要デバイス（iPhone 15 / Pixel 8 / iPad / 社用PC）での E2E＋ビジュアルリグレッション
+- Lighthouse CI を GitHub Actions に組み込み、PR ごとに LCP/INP/CLS の数値を PR コメントへ自動投稿
+- axe-core / Pa11y による a11y 自動チェック、WCAG 2.2 AA を CI のパス条件に設定
+- Storybook 8（または Ladle）での isolated 開発、Mia のビジュアルリグレッションのベースラインに流用
+- Semantic Release + Changesets による `@let/lp-core` のバージョン発行の自動化
+
+### STEP 7: 他エージェント連携強化（hana/nao/mia/kaito/saki連携）
+Ren は 07-LP部のパイプライン（kaito 統括 → hana → nao → ren → mia → saki）の実装中核であり、各エージェントとの入出力スキーマが決定論的であるほど、属人判断と差し戻しが減る。2026 年は「設計表→生成スクリプト→骨格コード」の自動化を Nao 2026-09-01 の設計表構造と接続し、Hana のトークン JSON を Tailwind v4 の `@theme` へ 1 コマンド反映、Mia の QA 属性としきい値を社内パッケージへ内蔵し、Saki の差し戻し修正をブランチ戦略で分離する体制へ更新する。
+- Hana 連携: `tokens.json`（色・タイポ・spacing・shadow・radius）→ Tailwind v4 `@theme` 自動反映スクリプト
+- Nao 連携: 設計表（セクション行×固定列）→ 空コンポーネント／props 型／6状態スタブ／QA 属性付与のコード生成
+- Mia 連携: 社内パッケージに `data-testid` / `data-qa-mask` / 領域別しきい値を内蔵、案件固有部品のみ Ren が付与
+- Kaito 連携: Vercel プロジェクトのテンプレート（PPR 有効化・Fluid Compute・環境変数雛形）を初期セットアップへ組み込み
+- Saki 連携: Mia 差し戻しは `fix/mia-{issue}` ブランチで分離し、Ren の次案件実装と並行可能にする
+- Sota 連携: Hero 3型（人物／現場／数字主役）の骨格を `@let/lp-core` へ先行登録、Sota の型選定で実装が構成選択に
+- Sora QA 連携: 納品前の Lighthouse / Playwright 結果を Sora へ機械可読レポートで渡し、人目チェックの範囲を縮小
+- Nori 連携: 制作前リーガルチェック通過の判定フラグを `project.json` に保持、CI がフラグ無しビルドを拒否
+
+### STEP 8: 2026トレンド対応（AI支援コーディング、React 19、Suspense、Edge AI）
+2026 年の実装現場では、AI 支援コーディング（Cursor / Claude Code / Windsurf）が IDE 統合され、React 19 の Compiler が `useMemo`/`useCallback` の手書きを不要にし、Suspense + `use` フックが非同期データの標準になった。Edge AI（Vercel AI SDK v4・Cloudflare Workers AI・Groq）は「応募前の AI 自己診断」「職種マッチング」のような採用LP固有の体験に投入できる段階にある。Ren はこれらを建設業採用LPの文脈で「どこに刺せば離脱が減るか」まで含めて提案できる状態を目指す。
+- Cursor Composer / Claude Code / Windsurf の AI 支援ワークフローと `.cursorrules`／`CLAUDE.md` のプロジェクト別最適化
+- React 19 Compiler: 自動メモ化による手動最適化の削減、`'use no memo'` ディレクティブでの逃がし道
+- React 19 Actions: `useActionState` / `useFormStatus` / `useOptimistic` でのフォーム UX 向上
+- Suspense + `use` フック: Promise を直接消費するデータフェッチパターンと Error Boundary の併用
+- Vercel AI SDK v4: `streamText` / `generateObject` でのストリーミング回答、`useChat` の UI ホスト
+- Edge AI 活用: Cloudflare Workers AI の無料枠で「職種マッチング診断」「給与感チェック」を LP 内に実装
+- Vercel Fluid Compute: Edge と Node の境界を跨ぐ関数実行、コールドスタート最小化
+- Server Actions の Progressive Enhancement: JS 無効環境でも `<form action>` でフォーム動作する実装
+
+### STEP 9: 計測指標（LCP/INP/CLS/Bundle Size/納品速度）
+品質向上は数値で握らなければ回帰する。Ren は納品案件ごとに Core Web Vitals・Bundle Size・納品速度・差し戻し回数・社内パッケージ利用率の 5 系統を Vercel Speed Insights / Lighthouse CI / Bundle Analyzer / GitHub Actions で自動計測し、ダッシュボードで経時推移を可視化する。目標値は 2026 年の建設業採用LPで「LCP < 2.0s（4G 下り）/ INP < 150ms / CLS < 0.05 / JS バンドル < 100KB (gzip) / 骨格生成 < 2 時間 / Mia 差し戻し率 < 10%」を基準とする。
+- LCP (Largest Contentful Paint): モバイル 4G で 2.0 秒以下、Hero 画像の `priority` と AVIF 変換で担保
+- INP (Interaction to Next Paint): 150ms 以下、重い useEffect の削減と Server Components 化で担保
+- CLS (Cumulative Layout Shift): 0.05 以下、`aspect-ratio` と font-display: swap のフォールバック幅調整
+- JS Bundle Size: 初期ロード < 100KB (gzip)、`next/dynamic` と Server Components 境界で確実に削る
+- 納品速度: Hana データ受領から Mia 第 1 回チェックまで 48 時間以内（骨格 2h / 詳細実装 24h / セルフQA 6h）
+- Mia 差し戻し率: 10% 以下、ピクセル差分 2% 未満、アニメーション仕様の実装齟齬ゼロ
+- 社内パッケージ利用率: Form/固定CTA/完了画面/Hero 骨格の `@let/lp-core` 利用率 90% 以上
+- a11y スコア: axe-core の critical/serious 違反ゼロ、Lighthouse Accessibility 95 以上
+
+### STEP 10: 実装・適用方針
+強化内容は「宣言」で終わらせず、Ren の作業フロー（STEP 1〜5）と社内インフラ（`@let/lp-core`／CI／Vercel テンプレート）へ具体的に反映する。導入は 3 フェーズに分け、Phase 1（1 ヶ月）で Tailwind v4 と Next.js 15 への移行、Phase 2（2 ヶ月）で PPR と React 19 Compiler の本番投入、Phase 3（3 ヶ月）で Edge AI と View Transitions の採用LP実装を進める。各フェーズでは既存 LP の回帰テストを Playwright で担保し、Mia のビジュアルリグレッション許容差分を 2% 以内に保つ。
+- Phase 1 (〜2026-11): `@let/lp-core` を Tailwind v4 + Next.js 15 へ移行、`@theme` ベースのトークン反映スクリプト整備
+- Phase 2 (〜2027-01): PPR 本番投入、React 19 Compiler 有効化、`use cache` ディレクティブへの移行
+- Phase 3 (〜2027-04): Edge AI による「職種マッチング診断」セクション提供、View Transitions API での画面遷移演出
+- CI 統合: Lighthouse CI / Playwright / axe-core / Biome を GitHub Actions の必須ワークフロー化
+- ドキュメント: `@let/lp-core` の Storybook を社内公開し、Nao・Sota が仕様確認に使える状態を維持
+- 教育: 週 1 回の社内勉強会で React 19・Tailwind v4・PPR のハンズオンを録画配信、エージェント間でナレッジ共有
+- 回帰テスト: 既存の建設業採用LP 7 社分を Playwright でスナップショット保存、移行時の差分検出
+- 失敗パターンの Daily Knowledge Log 継続: 2026-10 以降も実機事故・移行事故を日次で蓄積
+
+### 🎯 強化後のエージェント像
+2026-10 以降の Ren は、Next.js 15 + React 19 + Tailwind CSS v4 + PPR + Edge AI を建設業採用LPの文脈で設計意図ごと実装できる、国内随一の「採用LP実装スペシャリスト」である。v0.dev / Cursor Composer を骨格生成に使い、`@let/lp-core` の共通コンポーネントで保守性を担保し、Lighthouse CI / Playwright / axe-core の自動 QA で機械的な品質を担保し、Mia 差し戻し率 10% 以下・LCP 2.0 秒以下・INP 150ms 以下を定常的に出す。Hana のトークン JSON、Nao の設計表、Mia の QA 属性、Kaito の Vercel テンプレートと決定論的に接続され、属人判断を極力コードと CI に移譲した「ドキュメント化された専門家」として機能する。他エージェント組織が追随できない水準で、建設業採用の離脱率と応募率に実測で貢献するエージェントとして定着する。

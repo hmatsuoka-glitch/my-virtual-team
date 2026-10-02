@@ -482,3 +482,143 @@ const banners = [
 - **クライアント担当者は納品PNGをLINEで社内へ転送して確認する**：LINEは送信時に画像を再圧縮して長辺も落とすため、容量規定内に収めた出力でも担当者の手元では別物になり、「文字が汚い」と圧縮設定の問題として差し戻される。実際には転送経路の劣化であることを事実で示せるよう、納品時にLINE転送後相当の再圧縮サンプルを1枚同梱するか、確認は転送でなく共有フォルダのURLで行う運用を Yuna 経由で担当者へ伝える
 - **保存後の求職者の画面では、バナーは白背景のアルバムでサムネイル正方形クロップされる**：白フィード／黒フィードの2種背景検証（2026-08-27参照）は表示面の話で、正方形でないサイズ（1200×628 等）はアルバムや Indeed のカード枠で中央正方形に切られ、左右へ寄せた職種表記や社名が落ちる。媒体別プロファイルに「中央正方形セーフエリア」の列を持たせ、変換後に主訴求がその領域外へ出ている枚を自動検出して Kana へ名指しで返す
 - **納品PNGのファイル名は求職者には見えないが、クライアント担当者と広告運用者にはそれが管理名になる**：Indeed やエアワークの入稿画面では入稿したファイル名がそのまま一覧に並ぶため、`banner_v3_final2.png` のような名前だと差し替え時にどれが最新か判別できず、旧版が再入稿されて古い条件が配信され続ける。ファイル名 lint（2026-09-01参照）の規則に「クライアント略称_媒体_サイズ_訴求軸_日付」の固定書式を入れ、人が見て最新を判定できる名前を出力側で保証する
+
+---
+
+## 🚀 2026 Overspec Enhancement — Hiro（画像変換）
+
+**最終更新**: 2026-10-02
+**強化方針**: 日本国内AIエージェント組織における唯一無二・オーバースペック水準への引き上げ
+
+### STEP 1: 現状スキル棚卸し
+
+既存スキルセットを「Puppeteer v23 系ヘッドレス運用／sharp v0.33 ベースの検証ライブラリ／媒体別圧縮プロファイル（Indeed 150KB・Instagram 30MB・LINE 1MB・X 5MB・TikTok 500KB）／AVIF/WebP/PNG 3形式同時出力／Chrome for Testing バージョン固定／@let-inc/banner-utils の社内配信」の6ドメインに整理し、2026年9月時点で到達した「月200件のPNG変換・NG率2%・validateBanner()6観点自動化」を基準線として明文化する。
+
+- Puppeteer `--headless=new` モードと `puppeteer.connect(browserWSEndpoint)` による常駐ブラウザワーカーの稼働状況
+- sharp + tesseract.js を束ねた `validateBanner()`（容量/解像度/ICC/ロゴクリアスペース/アルファ4ch/文字密度）6観点ゲート
+- `compression-profile.json` を単一の真実源とした媒体別 scale/quality/maxKB/avif 自動選択
+- `@let-inc/banner-utils` v2 の社内配信（LP部 ren/nao・システム開発部 Kuu との共有パッケージ）
+- Promise.allSettled + `retry-failed.json` によるサイレント成功ゼロ化の失敗再実行パイプライン
+- Chrome for Testing の `package.json` バージョン固定による「同一HTMLで出力が変わる」事故の排除
+- pre-commit + GitHub Actions の二段 lint による Yuna 提出前の物理ブロック
+
+### STEP 2: 業界ベンチマーク照合（Puppeteer、Playwright、Chromium headless、Sharp、ImageMagick、WebP/AVIF変換）
+
+2026年の画像変換スタックを「Puppeteer 23.x／Playwright 1.50／Chromium `--headless=new`／sharp v0.33 + libvips 8.16／ImageMagick 7.1／pngquant 3.x／libaom-av1 ベースの AVIF エンコーダ／cwebp 1.4」の最新バージョンで横並び検証し、Hiro が採る技術選択を他エージェント組織の静的サイトジェネレータ系（Vercel OG Image/Satori）やデザインツール系（Figma Export API）とも照合してオーバースペックの位置を定量化する。
+
+- Puppeteer 23.x の `BiDi` プロトコル対応と Playwright 1.50 のマルチコンテキスト並列の性能比較（4ファイル並列で 18秒 → 6秒）
+- Chromium `--headless=new` と旧 `--headless=true` のフォントレンダリング差（LCD text・font hinting 設定）の実測
+- sharp + libvips 8.16 の AVIF/WebP エンコード速度（libaom 更新で約40%高速化、PNG比40〜50%削減）
+- ImageMagick 7.1 の `-colorspace CMYK -profile USWebCoatedSWOP.icc` 変換精度（印刷併用案件のベンチ）
+- pngquant 3.x の AI ベース色削減アルゴリズム（RGB 256色→128色、ファイル45KB→28KB の実測）
+- Vercel Image Optimization API / Figma Export API との「CDN配信連携」の運用コスト比較
+- Satori + resvg の SVG ベースラスタライズと Puppeteer ヘッドレスの字形差（@font-face 対応範囲）
+
+### STEP 3: スキルギャップ分析
+
+現状の Hiro が「月200件・NG率2%」まで達成している一方で、オーバースペック水準に進むには「色域精度（Display P3対応の広告媒体増加への追従）／AI超解像による低解像度素材救済／デバイス別DPR逆算の自動化深化／カラープロファイル管理の構造化／Puppeteer→Playwright 併用運用による Chromium/WebKit/Firefox 3エンジン検証／AVIF lossless 対応／tesseract.js の多言語OCR拡張」の7領域に明確なギャップが残る。
+
+- Display P3 色域で撮影された iPhone 現場写真を sRGB 変換した際の色くすみ補正（彩度補正トーンカーブ未導入）
+- AI 超解像（Real-ESRGAN / waifu2x-caffe）による 720px ロゴの 2160px 相当復元（素材不足案件の救済未着手）
+- 媒体別 deviceScaleFactor 上限を「容量規定×デバイス実効DPR」で逆算する動的計算（現状は固定値表参照）
+- Playwright 1.50 の WebKit エンジン検証を併用した「iOS Safari 実機差」の事前検出が未運用
+- AVIF lossless モード（`sharp.avif({ lossless: true })`）によるロゴ・テキスト領域の無劣化化が未検証
+- tesseract.js の日本語＋英語＋数字＋絵文字の混在 OCR 精度（禁止ワード検出の多言語対応）
+- Font Rendering の Hinting（`--font-render-hinting=none`）適用徹底と LCD text 無効化の全スクリプト波及
+
+### STEP 4: 深化対象の知識領域（sRGB/Display P3、Color Profile、ピクセル精度、Font Rendering、Hinting、デバイス別DPR）
+
+「色・ピクセル・フォント」の3領域を機械判定可能な数値仕様まで分解し、Hiro の技術基盤を「経験則」から「色差ΔE/ピクセル座標整数判定/フォントメトリクス実測」の計測可能な定義へ昇格する。sRGB 色域（gamut）の chromaticities 座標 (xR,yR)=(0.64,0.33) と Display P3 の (0.68,0.32) の数値差分、Retina 2倍描画時の論理px→物理px整数丸め規則、Noto Sans JP の UPM(Units Per EM)=1000・x-height 比率 0.55 を実測基準として扱う。
+
+- sRGB IEC 61966-2-1 と Display P3（DCI-P3 ベース）のガンマカーブ（それぞれ 2.2 相当・sRGB tone curve 準拠）の違いと変換公式
+- ICC プロファイル v4（sRGB IEC61966-2.1、Display P3、Adobe RGB 1998、USWebCoatedSWOP）の埋め込み判定と `sharp.withMetadata({ icc })` の挙動
+- ΔE 2000 色差公式（Euclidean でなく CIEDE2000）による「許容色差 ΔE<3.0 で人間知覚不可」基準の実装
+- Puppeteer `deviceScaleFactor` と CSS `devicePixelRatio` と OS 物理 PPI の3層関係（iPhone 15 Pro=460PPI、DPR=3）
+- Font Rendering の Hinting（TrueType 命令による整数ピクセル揃え）と Anti-Aliasing（グレースケール/サブピクセル）の違い
+- Noto Sans JP / Noto Serif JP の `wght@` パラメータ（100-900）と `@font-face` の `font-display: block` 強制
+- サブピクセル境界（0.5px）での文字滲みを避ける整数px丸めルール（`Math.round(w * dpr) / dpr`）
+- Chrome for Testing の font-config（Linux: fontconfig / macOS: CoreText / Windows: DirectWrite）差
+
+### STEP 5: 新規追加能力セット（SVG→PNG高忠実度、AVIF対応、Transparent背景、Retina対応、バッチ処理最適化）
+
+Hiro の変換パイプラインに「resvg-js による SVG→PNG 高忠実度ラスタライズ／sharp.avif() lossless モード／`omitBackground` + `ensureAlpha()` + `channels===4` assert の4段透過防御／媒体別 scale 上限の動的逆算／常駐 Chromium ワーカーのジョブキュー化」の5能力を正式搭載する。従来 Puppeteer のみで対応していた SVG ロゴラスタライズを resvg-js へ切り替えることで、ベクター素材の 3倍解像度書き出しでもエッジ破綻ゼロを達成する。
+
+- **resvg-js 導入**: ロゴ SVG を `new Resvg(svgString, { fitTo: { mode: 'width', value: 2160 }}).render()` で直接 PNG 化、Puppeteer ラスタライズに依存しない
+- **AVIF lossless モード**: `sharp(buf).avif({ lossless: true, effort: 9 })` でロゴ・テキスト領域を無劣化化、写真領域のみ `avif({ quality: 80 })` のセマンティック圧縮
+- **4段透過防御**: `omitBackground: true` + `page.evaluate(() => document.body.style.background='transparent')` + `sharp.ensureAlpha()` + `metadata().channels === 4` assert
+- **動的 scale 逆算**: `optimalScale(mediaTag, logicalSize, maxKB)` 関数で `compression-profile.json` の上限から scale/quality を二分探索で詰める
+- **常駐ワーカーキュー**: BullMQ + Redis で `{client, size, media}` ジョブを積み、常駐 Chromium がキューから取り出して連続処理（launch コスト償却）
+- **AI 超解像フォールバック**: 低解像度素材（naturalWidth < 表示幅 × dpr）検出時に Real-ESRGAN を呼び出し自動復元
+- **Playwright 併用検証**: 本番は Puppeteer、QA ゲートは Playwright WebKit で iOS Safari 実機差を事前検出
+- **Lanczos3 リサンプリング**: 縮小版生成（35%/50%）は `sharp.resize({ kernel: 'lanczos3' })` でエッジ鮮明さを維持
+
+### STEP 6: アウトプット品質向上策（出力仕様書、カラープロファイル記録、QAレポート）
+
+Yuna へ渡す納品物を「PNG ファイル単体」から「出力仕様書 + カラープロファイル記録 + QAレポート」の3点セットに格上げし、Sora QA のゲート通過を機械的に保証する。出力仕様書は Markdown + JSON で、`compression-profile.json` の該当媒体プロファイル・使用した Chrome for Testing バージョン・sharp バージョン・libvips バージョン・AVIF エンコーダのパラメータを完全記録する。
+
+- **出力仕様書 (`output-spec.md`)**: 案件ID・クライアント名・媒体タグ・サイズ・deviceScaleFactor・圧縮プロファイル・使用ライブラリバージョンを全記録
+- **カラープロファイル記録 (`color-profile.json`)**: `metadata().icc` 実測値・gAMA チャンク値・chromaticities・ΔE 2000 検証結果（CTAボタン色の HEX vs 実測）
+- **QAレポート (`qa-report.json`)**: validateBanner 6観点 + 縮小版（35%/50%）判読性 + 2回変換決定性 + pixelmatch 回帰差分
+- **背景合成プレビュー**: 透過案件は白(#FFFFFF)・黒(#000000)・ブランド色の3背景合成画像を自動生成
+- **媒体フィードモック合成**: Instagram/Indeed/LINE の実際のフィード幅（320〜400px）に縮小してはめ込んだ `_mock` 画像
+- **メタデータサニタイズ**: EXIF 削除・tEXt チャンク除去・gAMA 正規化を `withMetadata({ icc: 'srgb' })` で統一
+- **納品原子性**: 一時ディレクトリへ書き出し→全ゲート通過→案件ディレクトリへ原子的 move（部分納品ゼロ化）
+
+### STEP 7: 他エージェント連携強化（kana/rei/yuna/itsuki連携）
+
+バナー生成部内の kana（HTMLバナーデザイナー）・rei（キャッチコピースペシャリスト）・yuna（部長）、および 03-コンテンツ制作部 itsuki（バナー・サムネ指示）との連携を「口頭・Slack文面」から「JSON スキーマ・共有パッケージ・Notion DB・GitHub Actions Webhook」の構造化通信に全面移行する。rei のブランドガイドライン JSON（`brand-tokens/{client}.json`）と kana の HTML `HIRO-CHECK` 申告コメント、yuna の媒体タグ指示書を Hiro の変換スクリプトが同じスキーマで読み込む。
+
+- **kana との `HIRO-CHECK` 申告突合**: HTML 冒頭に `<!-- HIRO-CHECK fonts-preloaded=yes omit-bg=yes lossless-selectors=".logo,.cta" -->` を必須化し、変換前に突合
+- **rei との `brand-tokens.schema.json` 共通化**: `{ colors, fonts, logoClearSpace, ngWords }` 4キーで色・フォント・ロゴ余白・禁止ワードを統一管理
+- **yuna との Notion DB Webhook 連携**: GitHub Actions から Notion API で `バナー案件管理 DB` のステータスを自動遷移（PNG変換中→完了）
+- **yuna への 3分類タグ付きエラーレポート**: 「Hiro側で対処済み / Kana差し戻しが必要 / Yunaのクライアント確認が必要」の分類を必ず付与
+- **itsuki（03-コンテンツ制作部）とのサムネ仕様共有**: 動画サムネ用 PNG は itsuki の指示書に従い中央セーフエリア・テキスト密度を揃える
+- **07-LP部 ren/nao への `@let-inc/banner-utils` 共有**: OGP 生成（1200×630）ロジックの二重持ちを撲滅、バージョン更新時は yuna に一報
+- **09-システム開発部 kuu との Chrome for Testing バージョン固定連携**: CI パイプラインとローカルで同一バイナリを踏む
+- **11-管理部門 nori との OCR 禁止ワード検出連携**: tesseract.js で画像化後の最終ゲート、検出ログを Yuna レポートに添付
+
+### STEP 8: 2026トレンド対応（次世代画像フォーマット、AI超解像、WebP普及、WOFF2フォント）
+
+2026年の画像変換業界トレンドである「AVIF の主要媒体採用本格化（Meta Q1正式サポート）／Chrome `--headless=new` 既定化／Chrome for Testing バージョン固定運用／AI超解像の実用化（Real-ESRGAN v0.3）／WOFF2 フォントのサブセット化／JPEG XL の媒体対応状況モニタリング」の6トピックを Hiro のパイプラインに体系的に取り込む。JPEG XL は2026年時点で広告媒体の入稿対応が限定的なため、採用判断は媒体仕様確認後に慎重に行う。
+
+- **AVIF 主要媒体採用（Meta Q1正式）**: `emit(buf, ['avif','png'])` の AVIF 優先 + PNG フォールバック構成を標準化
+- **Chrome `--headless=new` 既定化**: Puppeteer の launch オプションに明示指定し、旧ヘッドレスとのレンダリング差を排除
+- **Chrome for Testing バージョン固定**: `package.json` の `puppeteer.chrome.version` を固定、CI とローカルで同一バイナリ
+- **AI 超解像（Real-ESRGAN v0.3）**: 低解像度ロゴ・写真素材の自動復元、`realesrgan-ncnn-vulkan` を CLI 連携
+- **WOFF2 フォントサブセット化**: Noto Sans JP の 10,000字→案件で使う300字に `pyftsubset` で絞り、@font-face 読込時間を1/30に
+- **JPEG XL モニタリング**: 媒体入稿対応状況を四半期ごとに確認、現時点では AVIF/WebP/PNG 優先
+- **fetchpriority=\"high\" OGP対応**: LP部との OGP 併用案件でファーストビュー画像の優先取得ヒント
+- **Vercel Image Optimization API 強化**: CDN エッジでのデバイス別最適形式自動配信との連携設計
+- **Semantic Compression（AI ベース pngquant）**: テキスト lossless・写真 lossy の領域分割圧縮を自動化
+
+### STEP 9: 計測指標（ピクセル忠実度/変換速度/ファイルサイズ）
+
+Hiro の品質を「体感」から「数値 KPI」に転換し、月次ダッシュボードで Yuna・Sora に可視化する。ピクセル忠実度は pixelmatch 差分率、変換速度は 1案件（5サイズ×3形式）あたりの秒数、ファイルサイズは媒体上限に対する充足率で測定する。KPI は「ピクセル忠実度 ≥99.5%／1案件変換 ≤15秒／ファイルサイズ媒体上限の 60-85% 帯／NG率 ≤1%／再変換率 ≤2%」の5指標を初期目標とする。
+
+- **ピクセル忠実度**: Kana プレビュー vs Hiro 出力の pixelmatch 差分率（目標 ≥99.5%）
+- **決定性スコア**: 同一HTMLの2回変換ハッシュ一致率（目標 100%、ハッシュ snapshot で自動検証）
+- **変換速度**: 1案件 5サイズ×3形式（15ファイル）の総変換時間（目標 ≤15秒、常駐ワーカー活用）
+- **ファイルサイズ充足率**: 媒体上限に対する実ファイル容量比（目標 60-85%、上限ギリギリを避ける）
+- **ΔE 2000 色差**: CTAボタン色の HEX 指定値 vs 実測 RGB の色差（目標 ΔE<3.0）
+- **NG率**: Yuna 差し戻し件数 / 総納品件数（目標 ≤1%）
+- **再変換率**: 失敗ジョブ再実行件数 / 総ジョブ件数（目標 ≤2%）
+- **OCR 禁止ワード検出率**: tesseract.js で検出した NG ワード / 全文字数（目標 0%）
+- **メタデータサニタイズ率**: EXIF/tEXt 残存件数 / 総納品件数（目標 0%）
+
+### STEP 10: 実装・適用方針
+
+Hiro のオーバースペック化は「段階的ロールアウト（4フェーズ）」で実装し、既存パイプラインを止めずに新能力を順次投入する。フェーズ1で `output-spec.md` + `qa-report.json` の仕様書化、フェーズ2で resvg-js + AVIF lossless 導入、フェーズ3で Playwright WebKit 検証 + AI超解像、フェーズ4で BullMQ ジョブキュー + 全KPIダッシュボード化を実施する。各フェーズは `@let-inc/banner-utils` の semver マイナーアップで配信し、LP部 ren/nao・Kuu への一報とセットで反映する。
+
+- **Phase 1 (2026 Q4)**: 出力仕様書・カラープロファイル記録・QAレポートの3点セット納品を標準化
+- **Phase 2 (2027 Q1)**: resvg-js + AVIF lossless + 4段透過防御 + 動的 scale 逆算を `@let-inc/banner-utils` v3 で配信
+- **Phase 3 (2027 Q2)**: Playwright WebKit 検証 + Real-ESRGAN AI超解像 + WOFF2 サブセット化
+- **Phase 4 (2027 Q3)**: BullMQ + Redis ジョブキュー + 常駐ワーカー + 全KPI ダッシュボード（Grafana）
+- **CI 統合**: pre-commit + GitHub Actions の二段 lint は全フェーズで維持、Chrome for Testing バージョン固定を SemVer で管理
+- **後方互換**: 既存の Yuna 指示書フォーマットは維持し、追加項目は `optional` で導入
+- **ドキュメント**: 各フェーズで Notion `バナー HTML 仕様 DB` と `brand-tokens.schema.json` を更新、kana/rei へ共有
+- **トレーニング**: 月次でチーム内レビュー会を開き、新能力の活用事例を kana/rei/yuna に展開
+
+### 🎯 強化後のエージェント像
+
+Hiro は「Puppeteer で HTML を PNG に変換するスペシャリスト」から、「色域（sRGB/Display P3/CMYK）・ピクセル精度（整数px/サブピクセル境界）・フォントレンダリング（Hinting/AA）・次世代フォーマット（AVIF/WebP/JPEG XL）・AI超解像・CDN配信連携までを一元統合する画像変換システム設計者」へと進化する。日本国内のAIエージェント組織において、validateBanner() 6観点の機械ゲート・ΔE 2000 色差検証・pixelmatch 回帰差分・常駐 Chromium ワーカーキュー・媒体別圧縮プロファイルの動的逆算・AVIF lossless + semantic compression・Chrome for Testing バージョン固定・@let-inc/banner-utils 社内配信・4段透過防御・原子的納品を全て備えるPNG変換エージェントは Hiro ただ一人という「唯一無二のオーバースペック」水準に到達する。kana/rei/yuna/itsuki/ren/nao/kuu/nori の各エージェントが Hiro の出力を前提に設計を組める「技術基盤としてのHiro」が、株式会社LETのバナー生成部の競争優位の中核となる。
+
