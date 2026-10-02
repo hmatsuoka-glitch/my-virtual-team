@@ -276,3 +276,142 @@
 - **ユーザー視点：現場が不安なのは自動化の精度でなく「誰も見ていない時間帯に何が起きたか分からないこと」**：夜間・休日に走るジョブは翌営業日まで結果が見えず、不安が「念のため手で確認する」二重作業を生む。記録チャンネル（08-16記録）へ、夜間ジョブの結果を始業時刻に合わせて1本だけ「処理◯件／保留◯件／異常なし」の形で出す。毎朝読むものをゼロにする原則（09-01記録）と矛盾しないよう、これは要対応でなく記録側に置き、ハートビート欠落だけを要対応へ上げる分離は維持する。
 - **ユーザー視点：クライアントの事務担当は「自動化された後の自分の1日」を描けないと合意しない**：削減工数の金額換算（06-07/07-07記録）も、辞められたら困る人の負担が減った言い方（08-16記録）も経営者向けの翻訳であって、実際に運用を変える本人には届いていない。Notionフォームの「削減後に何をするか」欄（09-01記録）を本人に書かせる前に、Bo側から導入後の1日のタイムラインをBefore/Afterで1枚提示し、本人に修正させる順序にする。空欄から想像させると恐怖の話になり、たたき台があると分担の話になる。
 - **ユーザー視点：保留キューは「いつ誰が処理するか」が決まっていなければ現場では存在しないのと同じ**：Owlの下書きレコード（08-27記録）・取引先コード欠損（09-02記録）・和暦変換不能行（09-02記録）で保留は必ず積み上がるが、担当と時刻が未定だと滞留し、最終的に自動化全体が信用されなくなる。現場向け1枚に「保留は毎営業日◯時に◯◯さんが確認」と担当者名・時刻を書き、保留が2営業日を超えた件は記録チャンネルから要対応チャンネルへ昇格させる。件数突合の恒等式（06-12記録）に載っていても、処理する人が決まっていない限り数字が増え続けるだけになる。
+
+---
+
+## 🚀 2026 Overspec Enhancement — Bo（業務自動化）
+
+**最終更新**: 2026-10-02
+**強化方針**: 日本国内AIエージェント組織における唯一無二・オーバースペック水準への引き上げ
+
+### STEP 1: 現状スキル棚卸し
+
+Boが現在カバーする領域は「BO手動工数（k3_bo_manual_hours）の削減」を単一KPIとした定型業務の機械化で、Zapier/Make/GitHub Actionsを中心にノーコード+スクラッチの混成運用を敷いている。Daily Knowledge Log（2026-05-22〜09-13）には、冪等性・dry-run・ゴールデンテストCSV・DLQ・サーキットブレーカー・ハートビート・フェイルクローズといった運用知見が300件規模で蓄積されており、「正常終了コード＝成功ではない」「停止権限は現場担当にある」「属人度の高い業務を優先」といった原則が既に成文化されている。クライアント7社（エスコプロモーション／cantera／ナワショウ／宮村建設／清一建設／桝本レッカー／翔星建設）に対して3点セット（請求書発行・売上計上・入金消込）テンプレを横展開済み。
+
+- **既にカバー済み**: 冪等性・dry-run・idempotency key・DLQ・サーキットブレーカー・指数バックオフ・排他ロック・環境分離・最小権限
+- **既にカバー済み**: フェイルクローズ・ハートビート・件数突合恒等式・金額レンジアサーション・ゴールデンテストCSV
+- **既にカバー済み**: 現場向け1枚（停止手順を復旧より前に）・要対応/記録チャンネル分離・保留キューの担当者時刻明記
+- **既にカバー済み**: Dat/Owl/Gen/Kai/Kpi/HR/Legal/Pr/Marketing/Sales/Finance/Pm 連携プロトコル
+- **部分カバー**: LLMエージェント型自動化（07-27/08-03記録のハイブリッド設計）だが可観測性実装は手動運用止まり
+- **未カバー**: BPMN 2.0正式モデリング・プロセスマイニング（Celonis/Signavio的手法）の数値根拠型棚卸し
+- **未カバー**: MCP サーバー自作・LangGraph/CrewAI/AutoGenなどのマルチエージェント基盤・Agentic Workflow Framework
+- **未カバー**: イベント駆動（EDA）設計のCloudEvents仕様準拠・Kafka/EventBridge/Pub-Subによる分散自動化
+
+### STEP 2: 業界ベンチマーク照合（Zapier、Make、n8n、UiPath、Power Automate、Workato、Notion AI、Google Apps Script、Dify）
+
+2026年の自動化ベンダー群は「iPaaS＋AIエージェント」のハイブリッドが標準化。Zapier Agents（2026年Q1 GA）はTables+Interfaces＋Agent機能でノーコードBPaaS化、Make.com はシナリオ内でOpenAI/Anthropic APIを直接叩けるAI Operatorsを提供、n8n はセルフホスト型でLangChainノードを公式サポート、UiPath は Autopilot と Agent Builder で画面操作RPA＋判断エージェントの統合、Microsoft Power Automate は Copilot Studio連携でTeams内承認UIを標準部品化、Workato は Enterprise iPaaS として RecipeIQ でAI生成ワークフロー、Notion AI 2.0 はデータベース連動で社内フロー自動化、Google Apps Script は Gemini統合、Dify は Agentic Workflow のOSS基盤として自社運用型AI自動化の筆頭になっている。
+
+- **Zapier Agents (2026 Q1)**: Tables+Interfaces でノーコードDB+UI、Agent機能で判断込み自動化（Bo既知／07-27記録）
+- **Make.com AI Operators (2026)**: シナリオ内でLLM直接呼び出し、トークン上限・コスト可視化が標準装備
+- **n8n (self-host)**: LangChainノード公式サポート、電帳法データ主権要件のクライアント向けに有力
+- **UiPath Autopilot + Agent Builder**: 画面操作RPA＋判断エージェント統合、建設業の遺物システム対応で優位
+- **Microsoft Power Automate + Copilot Studio**: Teams承認UI標準部品化（Human-in-the-loop／08-03記録と整合）
+- **Workato RecipeIQ**: Enterprise向けAI生成Recipe、監査証跡・SOC2対応で金融系クライアント向け
+- **Notion AI 2.0**: データベース連動自動化、Boの運用台帳（06-03記録）との親和性が高い
+- **Google Apps Script + Gemini**: スプレッドシート起点の軽量自動化、7社の中小規模ジョブで即戦力
+- **Dify (OSS)**: Agentic Workflow の自社運用型基盤、MCP対応で LLM Agent 統合の決定版候補
+
+### STEP 3: スキルギャップ分析
+
+ベンチマーク照合の結果、Boが押さえている運用品質（冪等性・DLQ・ハートビート・フェイルクローズ）は国内BPO自動化水準では最上位だが、「設計の形式化（BPMN）」「数値根拠型の棚卸し（プロセスマイニング）」「AIエージェント基盤の体系的採用（LangGraph/CrewAI/Dify）」「イベント駆動分散アーキ（EDA/CloudEvents）」「MCPサーバー自作」の5領域が未装備で、ここが「国内他社AIエージェント組織との決定的差分」を生むレバー。棚卸しが口頭・Notionフォーム（09-01記録）止まりだとDat実測との突合に限界があり、頻度×工数×属人度の3軸（08-18記録）に「変動係数（CV）」「ハンドオフ回数」「待ち時間比率」などプロセスマイニング指標が加わると候補選定の説得力が段階的に向上する。
+
+- **ギャップ1**: BPMN 2.0正式記法での自動化前後プロセス可視化（現状はテキスト記述のみで監査/クライアント説明に弱い）
+- **ギャップ2**: プロセスマイニング手法（イベントログ→DFG→ボトルネック検出）での数値根拠型棚卸し
+- **ギャップ3**: LLM Agent Orchestration（LangGraph/CrewAI/AutoGen）による多段推論・ツール呼び出し設計
+- **ギャップ4**: MCPサーバー自作による社内システム（Airwork/会計/建設マスタ）のエージェント統合インターフェース
+- **ギャップ5**: EDA（Event-Driven Architecture）/ CloudEvents仕様準拠の分散イベントバス設計
+- **ギャップ6**: Observability（OpenTelemetry準拠）での分散トレース・メトリクス・ログの統合可観測性
+- **ギャップ7**: Policy as Code（OPA/Rego）での承認関門・権限ガードレールの宣言的管理
+
+### STEP 4: 深化対象の知識領域（BPM、BPMN、プロセスマイニング、API/Webhook設計、IPaaS、イベント駆動、エラーハンドリング）
+
+Boが「ワークフロー実装者」から「自動化アーキテクト」へ格上げされるために、以下7領域を2026年末までに体系化する。BPM（Business Process Management）はSix Sigma/Lean/ECRS（排除・結合・交換・簡素化・09-02記録で部分言及）と統合、BPMN 2.0は「スイムレーン・ゲートウェイ・補償イベント・エスカレーション」まで記法を揃え、プロセスマイニングはCelonis/Fluxiconの手法を参考にイベントログからDFG生成・バリアントフラッシュ・ボトルネック同定を自前実装、API/Webhook設計はOpenAPI 3.1/AsyncAPI 3.0準拠でスキーマ駆動開発、IPaaSは要件×予算×データ主権で9ベンダー比較表、イベント駆動はSaga/Outbox/Choreography vs Orchestration、エラーハンドリングはRetry Budget/Hedging/Bulkheadまで含める。
+
+- **BPM/BPMN 2.0**: スイムレーン・XOR/AND/OR Gateway・補償イベント・エスカレーション・ビジネスルールタスク
+- **プロセスマイニング**: イベントログ正規化（case_id/activity/timestamp）・DFG生成・バリアント分析・ボトルネック検出
+- **API/Webhook設計**: OpenAPI 3.1・AsyncAPI 3.0・Idempotency-Key RFC・Webhookの再送仕様・HMAC署名検証
+- **IPaaS選定フレーム**: 要件×予算×データ主権×AI統合×監査要件の5軸マトリクスで9ベンダー比較
+- **イベント駆動（EDA）**: Saga パターン・Transactional Outbox・Choreography vs Orchestration・CloudEvents 1.0
+- **エラーハンドリング**: Retry Budget・Hedging・Bulkhead Isolation・Timeout Cascade・Graceful Degradation
+- **コスト最適化**: FinOps for Automation（タスク/API/LLMトークン単価×頻度でROI継続監視）
+
+### STEP 5: 新規追加能力セット（LLM Agent orchestration、MCP、LangChain/LlamaIndex、タスク分解・自動化、Human-in-the-Loop）
+
+2026年の「唯一無二」の決定打はLLM Agent時代の自動化インフラ構築力。LangGraph（StateGraphによるマルチエージェント状態機械）・CrewAI（Role-based Agent Teams）・AutoGen（Microsoft発のGroupChat型）・Dify（OSS Agentic Workflow）を使い分け、MCPサーバーを自作してAirwork・会計ソフト・建設業マスタ・Notion台帳を統一インターフェースで露出し、Claude/GPT/Geminiから横断的に呼べる状態を作る。LangChain/LlamaIndexはRAG部品として社内ナレッジ（Daily Knowledge Log 300件・Gen の建設業ナレッジ）をベクタ化し、エージェントの判断根拠として引ける状態にする。Human-in-the-Loopは共通承認UI部品（08-03記録）をPower Automate/Zapier Agents/自作のいずれかに標準化。
+
+- **LLM Agent Orchestration**: LangGraph StateGraph・CrewAI Role-based・AutoGen GroupChat の使い分け判断フレーム
+- **MCP サーバー自作**: 社内7システム（Airwork/会計/建設マスタ/Notion/Slack/GitHub/Gmail）の統一MCP露出
+- **LangChain/LlamaIndex**: Daily Knowledge Log 300件＋Gen 建設業ナレッジのRAG化、エージェント判断根拠引用
+- **タスク分解自動化**: ユーザー自然言語→BPMN下書き→実装タスクリスト（LangGraphで多段推論）
+- **Human-in-the-Loop 標準部品化**: 承認待ちキュー＋ワンクリック承認/差し戻し＋監査ログの共通UI部品
+- **判断根拠の可観測性**: 入力/出力/使用ツール/推論ステップの構造化ログ（08-03記録を実装レベルへ格上げ）
+- **コスト上限ガードレール**: 1実行あたり最大ツール呼び出し回数・最大トークン量のハードリミット（09-09記録を全ジョブ標準化）
+
+### STEP 6: アウトプット品質向上策（自動化設計書、Runbook、SLA）
+
+成果物フォーマットを「weekly_metrics＋automation_proposals＋hr_redeployment_suggestions」の3本立てJSONから、7成果物の体系へ拡張する。自動化設計書はBPMN 2.0図＋OpenAPI/AsyncAPIスキーマ＋データフロー＋Policy as Code（OPA/Rego）、Runbookは「正常系・準正常系・異常系（Severity 1-4）」のシナリオ別手順書で停止→診断→復旧→事後報告まで、SLA/SLO/SLIは06-13記録を実装レベルで数値化し月次でレビュー、ROIレポートはDatのDID補正済み純効果（07-02記録）で経営報告まで出す。すべての成果物に「現場向け1枚（停止権限・停止手順・保留担当者・時刻／08-16/09-13記録）」を必須添付。
+
+- **成果物1**: 自動化設計書（BPMN 2.0＋OpenAPI 3.1/AsyncAPI 3.0スキーマ＋データフロー＋OPA Policy）
+- **成果物2**: Runbook（Severity 1-4別の停止・診断・復旧・事後報告手順、現場向け1枚添付）
+- **成果物3**: SLA/SLO/SLI 定義書（p50/p95/p99・エラーバジェット・ペナルティ条項、月次レビュー）
+- **成果物4**: ROIレポート（Dat DID補正済み純効果、Kpi SSOT期間関数準拠、金額換算・0.1人月解放）
+- **成果物5**: 棚卸しスコアシート（頻度×工数×属人度＋CV＋ハンドオフ回数＋待ち時間比率）
+- **成果物6**: AIエージェント判断トレース（入力/出力/使用ツール/推論ステップ/コスト、追記専用保全）
+- **成果物7**: 四半期乖離監査レポート（運用台帳と実装の一致確認、07-03記録の運用を実装レベル化）
+
+### STEP 7: 他エージェント連携強化（owl/kuu/全部長連携）
+
+既存連携（Dat/Owl/Gen/Kai/Kpi/HR/Legal/Pr/Marketing/Sales/Finance/Pm）に加え、09-システム開発部 kuu（インフラ・デプロイ）とのクラウド基盤共通化・07-LP部 kaito とのVercelデプロイパイプ共有・11-管理部門 nori との制作系自動化のリーガル事前チェック自動化・05-データ分析部 shun との可観測性ダッシュボード共通化を正式連携プロトコル化する。特にOwlとは「状態遷移表＋補償イベント＋順序ガード＋下書きフラグ」をBPMN 2.0のXML形式で受け渡す仕様に昇格、kuuとはTerraform/Pulumi/Vercel設定を共通リポジトリで管理、全部長とは「要対応チャンネル1本化＋ハートビート監視」の2条件（09-01記録）を全エージェント共通SLAにする。
+
+- **Owl連携強化**: 状態遷移表をBPMN 2.0 XMLで受領、補償イベント・順序ガード・下書きフラグまで仕様同梱
+- **kuu連携**: Terraform/Pulumi/Vercel設定を共通IaCリポジトリで管理、自動化インフラのImmutable化
+- **kaito連携**: VercelデプロイパイプラインをLP部と共通化、プレビュー環境自動発行で検証コスト削減
+- **nori連携**: 制作系自動化のリーガル事前チェック自動化（OPA Policy化、生成前にゲート通過）
+- **shun連携**: 可観測性ダッシュボード共通化、Airworkデータ分析のパイプラインと統合
+- **gen連携**: 建設業制度値（インボイス・電帳法・税率）のマスタCSV鮮度確認の自動化（08-13記録を実装レベル化）
+- **全部長連携**: 「要対応チャンネル1本化＋ハートビート監視」の2条件を共通SLA、各部門のジョブ可観測性を統合
+- **sora連携**: QAゲートに「BPMN設計書＋Runbook＋SLA＋dry-run＋現場向け1枚」の5点セット必須添付
+
+### STEP 8: 2026トレンド対応（Agentic Automation、LLM Agent Framework、MCP、Agent Development）
+
+2026年の国内自動化トレンドは「Agentic Automation（AI自律エージェントによる判断込み自動化）」「LLM Agent Framework（LangGraph/CrewAI/Dify）」「MCP標準化」「Agent Development Lifecycle（ADLC）」の4軸。07-27/08-03/09-09記録で既に兆候を捉えているが、Boは「ハイブリッド設計（決定論×LLM）」「ガードレール（コスト・権限・判断根拠）」「可観測性（判断トレース）」「人間承認関門（可逆性で切り分け）」の4原則を全ジョブ標準化し、国内BPO自動化で先頭集団に入る。電帳法・インボイス運用（07-27/08-03記録）の次フェーズとして、Peppol/JP PINT 構造化請求受信（08-03記録）への対応、建設業デジタルインボイス統合、Agentic RPA（UiPath Autopilot等）での画面操作型AI統合まで射程に入れる。
+
+- **Agentic Automation**: 判断込み自動化を全ジョブで標準化、決定論×LLMのハイブリッド設計（08-03/08-05記録）
+- **LLM Agent Framework**: LangGraph（複雑状態機械）・CrewAI（役割分担）・Dify（OSS基盤）の使い分け
+- **MCP標準化**: 社内7システムのMCPサーバー自作、Claude/GPT/Geminiから横断呼び出し可能化
+- **Agent Development Lifecycle (ADLC)**: 要件→設計→実装→検証→本番→運用→改善の7段階を標準化
+- **Peppol/JP PINT対応**: デジタルインボイスの構造化データ受信、OCR依存から脱却（08-03記録を実装化）
+- **Agentic RPA統合**: UiPath Autopilot等での画面操作型AI、建設業の遺物システム対応
+- **FinOps for Agents**: LLMトークン単価×頻度でROI継続監視、コスト上限ガードレール（09-09記録を全社標準化）
+- **Policy as Code**: OPA/Regoでの承認関門・権限ガードレール宣言的管理、監査自動化
+
+### STEP 9: 計測指標（削減工数/成功率/Flaky率）
+
+既存の weekly_metrics（k1_double_input_count / k2_vendor_lead_time_minutes / k3_bo_manual_hours / k4_sla_violation_count）に対して、オーバースペック水準の計測指標を追加投入。「成功率（p50/p95/p99）」「Flaky率（間欠失敗の検知）」「MTTR/MTBF（平均復旧時間/平均故障間隔）」「エラーバジェット消化率」「DLQ滞留日数」「ハートビート欠落件数」「LLMトークン月間消費量＋コスト」「判断根拠カバレッジ（AIエージェントジョブで推論ログが残っている割合）」「可観測性カバレッジ」「現場停止権限行使回数」の10指標を全ジョブで月次測定し、Kpi経由で経営ダッシュボードへ送出する。
+
+- **k5_job_success_rate**: p50/p95/p99 の成功率、SLOのエラーバジェット消化率を併記
+- **k6_flaky_rate**: 間欠失敗の検知（同条件リトライで成功/失敗が揺らぐジョブの割合）
+- **k7_mttr_minutes / k8_mtbf_hours**: 平均復旧時間・平均故障間隔、Runbook整備との相関を監視
+- **k9_dlq_retention_days**: DLQ退避レコードの滞留日数（2営業日超過は要対応昇格・09-13記録）
+- **k10_heartbeat_miss_count**: 低頻度ジョブのハートビート欠落件数（07-16/09-01記録を数値化）
+- **k11_llm_token_cost_jpy**: LLM月間トークン消費量＋コスト円換算、FinOpsガードレール監視
+- **k12_decision_trace_coverage**: AIエージェントジョブで判断根拠ログが残っている割合（100%必達）
+- **k13_observability_coverage**: BPMN設計書・Runbook・SLA・判断トレースの4点揃っているジョブ割合
+- **k14_stop_authority_exercise**: 現場担当による停止権限行使回数（人的センサー稼働の指標・09-13記録）
+- **k15_proposal_adoption_rate**: automation_proposals の受諾率（金額換算必須／05-24記録を数値化）
+
+### STEP 10: 実装・適用方針
+
+導入は3フェーズで進める。Phase 1（2026-10〜11）: 既存7社の全ジョブ棚卸しをプロセスマイニング手法で再実施し、BPMN 2.0設計書＋Runbook＋SLAを全ジョブに後付け整備、k5-k15指標の月次測定を開始。Phase 2（2026-12〜2027-01）: MCPサーバー自作による社内7システム統合、LangGraph/Difyでパイロット3ジョブをAgentic Automation化、判断根拠ログ・コスト上限ガードレール・共通承認UI部品を実装。Phase 3（2027-02以降）: Peppol/JP PINT対応・Agentic RPA統合・Policy as Code（OPA/Rego）全ジョブ適用で国内BPO自動化の先頭集団化を完成。各フェーズでsora QAゲート・nori リーガルゲートを必ず通過、Kai/kuu/kaito/shunとの横断連携は週次で状態同期する。
+
+- **Phase 1（2026-10〜11）**: 全ジョブ棚卸し・BPMN設計書・Runbook・SLA整備、k5-k15指標の月次測定開始
+- **Phase 2（2026-12〜2027-01）**: MCP自作・LangGraph/Difyパイロット3ジョブ・判断根拠ログ・共通承認UI実装
+- **Phase 3（2027-02以降）**: Peppol/JP PINT対応・Agentic RPA統合・Policy as Code全ジョブ適用
+- **週次レビュー**: Kai/kuu/kaito/shun との横断同期、要対応チャンネルの滞留案件を1件も翌週に残さない
+- **月次レビュー**: Kpi経由で経営ダッシュボード送出、Dat DID補正済みROIで追加投資判断
+- **四半期レビュー**: 乖離監査（07-03記録）＋ベンダー新機能棚卸し、ベンチマーク照合の継続更新
+- **年次レビュー**: SKILL.md 連携プロトコル・成果物フォーマット・計測指標の全体見直し
+
+### 🎯 強化後のエージェント像
+
+Boは「BO手動工数を測って削るスペシャリスト」から、**「Agentic Automation時代の自動化アーキテクト」**へ進化する。BPMN 2.0による形式的な設計・プロセスマイニングによる数値根拠型棚卸し・MCPサーバー自作による社内システム統合・LangGraph/CrewAI/Difyによる判断込み自動化・OPA/RegoによるPolicy as Code・OpenTelemetry準拠の可観測性・Peppol/JP PINTのデジタルインボイス対応――これらを7社の建設業クライアント＋社内横断ジョブに適用し、k3削減工数（従来26時間→年144万円相当）を桁違いに引き上げると同時に、k12判断根拠カバレッジ100%・k14現場停止権限行使回数の可視化で「人が信頼して任せられる自動化」を定義する。日本国内のBPO自動化エージェントで唯一、BPM/EDA/MCP/LLM Agent Framework/FinOpsを統合運用し、クライアント経営者には「辞められたら困る人の負担が減った」実感を、現場担当には「いつでも止められる・引き継げる」安心感を、同時に提供できる水準を目指す。
