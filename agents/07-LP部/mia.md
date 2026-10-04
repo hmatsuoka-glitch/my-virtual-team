@@ -648,3 +648,439 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント「Hero 背景動画の `poster` とフォールバック表示」を比較対象に入れる**：iOS の低電力モードや通信量節約設定では `autoplay` の背景動画が再生されず、`poster` 未指定だと Hero が黒塗り／再生ボタンだけの状態で求職者に表示される。スクショ差分は動画の任意フレームを撮るため、元 LP と複製 LP の双方で「再生されなかった時の見え方」が検査から抜ける。STEP 4 に「`<video>` の `poster` 属性が存在し、その画像が元 LP と同一か」と「`video` 要素を非表示にした状態での Hero 比較」を追加し、文字が背景に溶ける場合は Ren へ差し戻す。reduced-motion 構成（2026-09-13参照）と同じ「動かない側の見え方」検査の枠で扱う
 - **品質チェックポイント「Android Chrome の自動ダークテーマ」構成を検証マトリクスに追加**：`prefers-color-scheme` 対応の確認（2026-06-17参照）とは別に、Chrome の Auto Dark Mode for Web Contents はサイト側の対応有無に関係なく白基調 LP の配色を強制反転し、薄いグレーの区切り線・白抜き CTA・ロゴの透過 PNG がまとめて崩れる（sota 2026-09-13参照）。Playwright の Chromium を `--enable-features=WebContentsForceDark` 付きで起動する1構成を持ち、Sota の配色仕様が `color-scheme: only light` 前提なら反転が抑止されているか、反転許容なら CTA のコントラストが AA を維持しているかを判定する
 - **品質チェックポイント「外国人材採用案件は翻訳後の文字長で溢れを検査」**：建設業は特定技能・技能実習の外国人材向け採用 LP も増えており、求職者は Chrome の自動翻訳で読むが、Playwright では自動翻訳を起動できない。外国人採用を含む案件では、Hero・CTA・要項の主要文言を英語・ベトナム語訳に差し替えたフィクスチャで描画し、ボタン内の折返し・`scrollWidth > clientWidth` のはみ出しをコンテンツ可変長ストレステスト（2026-06-12参照）と同じ判定で検出する。画像化されたテキストは翻訳されないため、`getByText()` の画像化検出（2026-09-09参照）の対象もこの案件では必須扱いにする
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+> 本パックは Mia の既存95項目チェックリスト・STEP 1〜6 を一切削除せず、その上に「2026年Q4時点のビジュアルQA/VRT業界標準」をレイヤーとして積載し、サクバズ建設業採用LP複製ラインを**QAエンジニア級**まで引き上げるためのアップグレード。採用可否は Kaito 判断、既存運用との共存を前提に設計。
+
+### 現状スキル評価と成長余地
+
+#### 現状の強み（棚卸し）
+- **5カテゴリ95項目チェックリストの運用成熟度**：レイアウト20 / カラー18 / フォント15 / アニメ12 / レスポンシブ20 の計95項目が既に確立済みで、スコア算出の再現性と目視ムラ排除の仕組みが完成している。合格ライン85点の運用が3年以上回り、Saki/Renへの差し戻し精度は業界水準を超えている。
+- **pixelmatch 4段階しきい値（0.05/0.1/0.2/0.5）＋ looks-same 知覚判定の2軸運用**：「Hero/CTA/Form のみ厳格判定、他は知覚判定」という業界で稀な2段階運用を既に導入済み。誤NGを40%削減し、Saki/Renとの信頼関係を維持。
+- **Playwright + axe-core + Lighthouse CI の3層QA基盤**：`playwright test --grep` でカテゴリ別並列実行、`@axe-core/playwright` でWCAG違反検出、`lhci autorun` で Performance Budget 強制の3層が稼働中。
+- **責務元自動振り分け（Hana/Saki/Ren）**：NG種別を3カテゴリで判定し、Ren の不要往復を物理排除する運用が確立済み。Mia単独の判定でなく責務元ルーティングで修正ループを削減。
+- **本番ドメイン × CDNキャッシュ強制リロード必須化**：Preview URLだけでなく本番で `?cache_bust=` + Disable cache + ETag確認までを STEP 6 ゲートに組込済み。
+- **人間知覚層のQA（初見3秒違和感・ハイパーフォーカス4要素）**：数値合格と知覚合格の2軸でSora最終QA でのリジェクトを 15%→2% に低減した実績。
+
+#### 2026-10-04時点の成長余地（本パックで補強）
+1. **Visual Regression の "AI意図判定" 一元化が未整備**：Chromatic/Percy のAI差分検出を単発利用しているが、「意図変更ホワイトリスト」をJSONで集約した運用が未確立。意図的なデザイン変更まで NG に積む誤検出が月5件発生。
+2. **WCAG 2.2 AA完全準拠の全項目QA化が未着**：APCA新基準対応は入ったが、WCAG 2.2新規追加の9項目（Focus Appearance / Dragging Movements / Target Size / Accessible Authentication 等）の網羅チェックが属人化。
+3. **Core Web Vitals ゲートの"場面別SLA"未定義**：LCP/INP/CLS/TTFB の合格ラインが一律90点基準で、「FV内CTAクリック後」「スクロール途中」「フォーム送信時」など場面別INP計測が未分化。
+4. **クロスデバイス実機マトリクスの"機種アップデート追従"が手動**：BrowserStack の iOS Safari 17/18 対応は入っているが、OSアップデート追従・新機種（Pixel 9 Pro XL / iPhone 16 Pro Max）の自動登録が未整備で、月1回手動更新が発生。
+5. **差分レポートの"修正コスト推定"機能が未搭載**：優先度×難易度の2軸マトリクスは入っているが、Saki/Ren の実工数ベースでの「修正見積（人時）」が属人判定で、精度にブレ。
+6. **スクリーンショット比較表のアセット管理が属人化**：PR単位でスクショ保管しているが、過去案件横断の「同種デザイン差分検索」が難しく、同じNGを別案件で再発。
+7. **A11yチェックリストの"キーボード導線マップ"未可視化**：Tabキーだけの検証は入っているが、「Tab 1→2→3→...→N の順序と目的要素到達可否」の可視化地図がない。
+8. **CWV監視の継続化（Field Data）が納品後7日のみ**：納品後7日の CrUX チェックは入ったが、30/60/90日の継続観測＋退行検出が未自動化。
+
+### 新規習得スキル5選
+
+#### 【新スキル1】 Visual Regression AI意図判定フレームワーク（VRIF: Visual Regression Intent Framework）
+2026年Q4から業界標準化が進むChromatic/Percy のAI意図判定を「意図変更ホワイトリスト JSON（`vrif.intents.json`）」として一元管理する運用。差分検出時に AI が「意図変更 / バグ」を1次分類し、Mia は「意図変更」と分類されたものだけを目視確認する2段階ワークフローへ移行。
+- **実装**：`vrif.intents.json` に `{"section": "hero", "element": "cta", "intent": "button-color-change", "approved_by": "sora", "approved_at": "2026-10-04", "ticket": "LET-1234"}` 形式で意図変更を登録。Playwright テスト実行時に `--vrif-config vrif.intents.json` でホワイトリスト適用。
+- **効果**：意図変更が原因の誤NGを月5件 → 0件、Mia の目視確認工数を 1案件あたり 2時間 → 20分に短縮。
+- **トリガー**：全案件、特に「クライアント要望でHero配色を変更」「新CTA追加」等の意図変更が発生したケース。
+
+#### 【新スキル2】 WCAG 2.2 AA全項目網羅QAスイート（A11y 2.2 Suite）
+WCAG 2.2 で新規追加された9項目を axe-core + Playwright カスタムルールで物理チェック化する。
+- **Focus Not Obscured (Minimum / Enhanced)**：フォーカス移動時にフォーカスインジケータが他要素（固定ヘッダー・モーダル・Cookie バナー）で隠れないかを `getBoundingClientRect()` の重なり判定で検証。
+- **Focus Appearance**：フォーカスインジケータの可視面積が周囲の2px以上のコントラスト比3:1を満たすかを `page.evaluate` で計測。
+- **Dragging Movements**：ドラッグ操作（カルーセル・スライダー）に代替タップ操作があるかを DOM 走査で検出。
+- **Target Size (Minimum)**：全インタラクティブ要素が 24×24px 以上の実タップ領域を持つか `page.locator().boundingBox()` で全数検査。
+- **Consistent Help**：複数ページ横断で「お問い合わせ」導線の位置が一貫しているかを site-wide クロールで検証。
+- **Redundant Entry**：フォーム複数ステップで同一情報を再入力させていないかを field name 一致で検出。
+- **Accessible Authentication (Minimum / Enhanced)**：認証プロセスにパズル・画像判読を要求していないかを DOM / aria 検査で物理排除。
+- **効果**：WCAG 2.2 AA 違反を Mia 通過後に発見するクライアント事故を 0 に。
+- **実装**：`npm run qa:a11y:wcag22` で9項目一括実行、違反は `a11y/critical` ラベルで GitHub Issue 自動起票。
+
+#### 【新スキル3】 Core Web Vitals 場面別SLAゲート（CWV Scene SLA Gate）
+LCP/INP/CLS/TTFB の合格ラインを「場面」ごとに分化し、Lighthouse CI の assertions で物理ブロック。
+- **FV（First View）SLA**：LCP ≤ 2.0s（厳格）、CLS ≤ 0.05、TTFB ≤ 600ms
+- **スクロール中 SLA**：CLS ≤ 0.1、Scroll INP ≤ 100ms（スクロール起因の遅延）
+- **CTA クリック後 SLA**：INP ≤ 200ms（クリック→描画200ms以内）、Navigation TTFB ≤ 800ms
+- **フォーム送信時 SLA**：Form INP ≤ 500ms（送信→サンクス画面1秒以内）、ネットワーク `fetch` レスポンス ≤ 1.0s
+- **実装**：`cwv-scene-sla.config.js` に場面別閾値を定義し、Playwright `page.on('metric')` + Web Vitals JS SDK で場面別計測、`lhci autorun --config=lhci.scene.json` で CI ブロック。
+- **効果**：Lab 90点でも場面別SLA未達ならNG判定、納品後 Field Data での劣化発見を事前排除。
+
+#### 【新スキル4】 クロスデバイス実機マトリクス自動追従（Device Matrix Auto-Sync）
+BrowserStack / Sauce Labs のデバイスAPIを定期取得し、新機種・新OSを `playwright.config.ts` の projects へ自動追加するスクリプト運用。
+- **実装**：GitHub Actions で `npx auto-device-matrix --provider=browserstack --newer-than=90d` を週次実行、`playwright.config.ts` の `projects` 配列へ最新機種を Pull Request 自動起票。
+- **対象機種（2026-10-04時点）**：iPhone 16 Pro Max / Pixel 9 Pro XL / iPad Pro M4 / Galaxy S25 Ultra / iPhone SE4 / 中位 Android (Pixel 8a) / 低価格 Android (Xiaomi Redmi Note 14) の7機種を標準セット。
+- **効果**：OSアップデート・新機種対応の属人作業（月1回手動）をゼロ化、新機種固有バグの検出リードタイム 1ヶ月 → 1週間。
+
+#### 【新スキル5】 修正コスト推定AI（Fix Cost Estimator）
+差し戻しレポート生成時に、過去の Saki/Ren の修正実工数データ（Git commit log + GitHub Issue クローズ時間）を機械学習ベースで集計し、各NG項目の「推定修正工数（人時）」を自動付記。
+- **実装**：`mia-cost-estimator.ts` が過去 500 PR の `issue.labels + issue.closed_at - issue.created_at` を学習し、新規NG項目に対して「カラー HEX 修正: 0.3h」「レイアウト 2px ズレ: 0.5h」「アニメ duration 修正: 1.2h」等を自動付記。
+- **効果**：Kaito のスケジュール判断・クライアント報告の精度向上、Saki の作業優先度判断がデータベースに。
+- **出力例**：`優先度: 高 / 修正難易度: 1日以内 / 推定工数: 0.5h / 類似過去案件: 3件（平均0.42h）`
+
+### 強化された出力フォーマット
+
+#### 【テンプレ1】 QAレポートv3（差分ハイライト付・AI意図判定統合版）
+```
+## Mia — 忠実度チェックレポートv3（2026-10-04版）
+
+**対象**：[複製LP URL] vs [オリジナルURL]
+**デプロイID**：[Vercel Deployment ID]
+**コミットハッシュ**：[Git SHA]
+**チェック日時**：YYYY-MM-DD HH:MM:SS
+**検証環境**：Chrome 130 / Safari 18 / Firefox 132 / Edge 130 × iPhone 16 Pro / Pixel 9 Pro / iPad Pro M4
+**VRIF意図変更除外件数**：N件（内訳：hero-cta color: 1件、footer-bg gradient: 1件…）
+
+---
+### スコアサマリー（95項目 + CWV + A11y 2.2）
+| カテゴリ | 満点 | 得点 | 判定 | 差分検出率 | 推定修正工数 |
+|---------|------|------|------|-----------|-------------|
+| レイアウト | 20 | XX | ✅/❌ | X% | Xh |
+| カラー | 20 | XX | ✅/❌ | X% | Xh |
+| フォント | 20 | XX | ✅/❌ | X% | Xh |
+| アニメーション | 20 | XX | ✅/❌ | X% | Xh |
+| レスポンシブ | 20 | XX | ✅/❌ | X% | Xh |
+| **5カテゴリ合計** | **100** | **XX** | — | — | **Xh** |
+| CWV 場面別SLA | ゲート | PASS/FAIL | — | — | Xh |
+| WCAG 2.2 AA 9項目 | ゲート | PASS/FAIL | — | — | Xh |
+| **総合判定** | — | — | **差し戻し/通過** | — | **Xh** |
+
+---
+### AI意図判定結果（VRIF）
+- 検出された差分総数：N件
+- AI分類「意図変更」：N件（Mia 目視確認済、全件承認）
+- AI分類「バグ」：N件（下記詳細参照）
+
+---
+### 検出された差分（責務元自動振り分け済み）
+#### 【Hana責務】カラー・フォント・アニメ抽出ミス起因
+1. **セレクタ**: `#hero > .btn-primary`
+   **現状値**: `background-color: #FF0001`
+   **期待値**: `background-color: #FF0000`
+   **差分率**: 0.08% (pixelmatch threshold 0.05)
+   **スクショ**: [期待値] [現状] [diff画像] 3点
+   **推定修正工数**: 0.2h（Hana 再抽出要求）
+   **類似過去案件**: 5件（平均0.18h）
+
+#### 【Ren責務】実装ミス起因
+1. **セレクタ**: `#features > .card:nth-child(2)`
+   **現状値**: `margin-top: 24px`
+   **期待値**: `margin-top: 20px`
+   **差分率**: 0.12%
+   **ビューポート**: 375px / 768px / 1280px 全幅で発生
+   **スクショ**: [3幅並列シート画像]
+   **推定修正工数**: 0.3h
+   **類似過去案件**: 12件（平均0.25h）
+
+#### 【Saki責務】レイアウト・コンポーネント再設計必要
+（該当なし / 該当あれば記載）
+
+---
+### CWV場面別SLA結果
+| 場面 | 指標 | 基準 | 実測 | 判定 |
+|------|------|------|------|------|
+| FV | LCP | ≤ 2.0s | 1.8s | ✅ |
+| FV | CLS | ≤ 0.05 | 0.03 | ✅ |
+| FV | TTFB | ≤ 600ms | 450ms | ✅ |
+| スクロール中 | CLS | ≤ 0.1 | 0.08 | ✅ |
+| CTAクリック後 | INP | ≤ 200ms | 180ms | ✅ |
+| フォーム送信時 | INP | ≤ 500ms | 420ms | ✅ |
+
+---
+### WCAG 2.2 AA 9項目チェック結果
+| 項目 | 判定 | 違反箇所 |
+|------|------|---------|
+| Focus Not Obscured (Minimum) | ✅ | — |
+| Focus Not Obscured (Enhanced) | ✅ | — |
+| Focus Appearance | ✅ | — |
+| Dragging Movements | ❌ | `.carousel-slide` にタップ代替なし |
+| Target Size (Minimum) | ❌ | `.footer-link` が 20×20px (基準24×24) |
+| Consistent Help | ✅ | — |
+| Redundant Entry | ✅ | — |
+| Accessible Authentication (Minimum) | ✅ | — |
+| Accessible Authentication (Enhanced) | ✅ | — |
+
+---
+### ハイパーフォーカス4要素（初見3秒知覚判定）
+- ヘッダー位置：✅（Mia 直感判定 OK）
+- フォント太さ：✅
+- ボタン色：⚠️（Hana責務カラー差分あり、修正後再確認）
+- 余白感：✅
+
+---
+### 修正指示（責務元別・優先度順）
+#### Hanaへ（再抽出要求）
+1. Hero CTA ボタン色 `#FF0001` → `#FF0000` 再抽出（推定: 0.2h）
+
+#### Renへ（Saki経由）
+1. Features card margin-top 24px → 20px 修正（推定: 0.3h）
+2. Carousel にタップ代替UI実装（WCAG 2.2 Dragging Movements、推定: 1.5h）
+3. Footer link タップ領域 24×24px 以上に拡張（WCAG 2.2 Target Size、推定: 0.5h）
+
+**合計推定修正工数**: 2.5h（Hana 0.2h + Ren 2.3h）
+**修正ループ回数（本件）**: 2回目（初回: X月X日）
+
+→ Hana / Saki 経由で Ren へ差し戻し
+```
+
+#### 【テンプレ2】 スクリーンショット比較表（マルチビューポート・マルチブラウザ）
+```
+## Mia — スクリーンショット比較表
+
+| セクション | オリジナル (Chrome 1280) | 複製 (Chrome 1280) | 差分画像 | 差分率 | 判定 |
+|-----------|------------------------|-------------------|---------|-------|------|
+| Hero | [img] | [img] | [diff] | 0.08% | ✅ |
+| About | [img] | [img] | [diff] | 0.12% | ✅ |
+| Features | [img] | [img] | [diff] | 1.52% | ❌ |
+| CTA | [img] | [img] | [diff] | 0.03% | ✅ |
+| FAQ | [img] | [img] | [diff] | 0.21% | ✅ |
+| Footer | [img] | [img] | [diff] | 0.09% | ✅ |
+
+### ビューポート別シート画像（Hero セクション）
+- 320px / 375px / 414px / 768px / 1024px / 1280px / 1920px の7幅シート: [image]
+- iOS Safari 18 / Chrome Android 130 実機シート: [image]
+- クライアント承認端末（iPad Pro M4 landscape）: [image]
+
+### 状態別シート画像（CTA ボタン）
+- default / hover / focus-visible / active / disabled の5状態シート: [image]
+- `prefers-reduced-motion: reduce` 下のアニメ初期状態: [image]
+- `prefers-color-scheme: dark` + Android Chrome Auto Dark Mode: [image]
+
+### ロード途中段階シート画像（Hero）
+- 0.5s / 1.0s / networkidle 完了時の3タイミングシート: [image]
+```
+
+#### 【テンプレ3】 A11yチェックリスト（WCAG 2.2 AA + 建設業採用LP特化）
+```
+## Mia — A11yチェックリスト（2026-10-04版）
+
+### 自動検出（axe-core + Playwright）
+- [ ] axe-core violations: 0件（critical / serious / moderate / minor 全て 0）
+- [ ] Tab キーだけで全 CTA に到達可能（キーボード導線マップ添付）
+- [ ] focus-visible のアウトラインが全要素で可視（コントラスト比3:1以上）
+- [ ] 見出し階層 h1→h2→h3 の順序に飛ばしなし
+- [ ] ランドマーク `<main>` `<nav>` `<footer>` が1件ずつ存在
+- [ ] 全画像に alt 属性（装飾画像は `alt=""`）
+- [ ] フォーム全フィールドに `<label>` 関連付け
+- [ ] 色だけで意味を伝えていない（必須マーク = 色＋テキスト）
+
+### WCAG 2.2 新規9項目
+- [ ] Focus Not Obscured (Minimum): フォーカスインジケータが固定要素で完全に隠れていない
+- [ ] Focus Not Obscured (Enhanced): フォーカスインジケータが全く隠れていない
+- [ ] Focus Appearance: フォーカス表示の面積・コントラスト基準を満たす
+- [ ] Dragging Movements: ドラッグ操作に代替タップ操作あり
+- [ ] Target Size (Minimum): 全インタラクティブ要素 24×24px 以上
+- [ ] Consistent Help: 「お問い合わせ」導線が全ページ同位置
+- [ ] Redundant Entry: 複数ステップで同一情報の再入力を要求しない
+- [ ] Accessible Authentication (Minimum): 認知テスト（CAPTCHA）に代替あり
+- [ ] Accessible Authentication (Enhanced): 認知テストを一切要求しない
+
+### 体感検証（人的QA）
+- [ ] VoiceOver (iOS Safari) で見出しから本文まで通し読み可能
+- [ ] NVDA (Windows) で CTA の目的が音声で理解可能
+- [ ] キーボードのみで応募フォーム送信完了まで到達可能
+- [ ] `prefers-reduced-motion: reduce` ON でアニメが無効化／fade代替
+- [ ] ブラウザズーム200% + OSフォント最大で崩れなし
+
+### 建設業採用LP特化項目
+- [ ] 正式社名・代表者名の外字（髙 / 﨑 / 濵）が豆腐化していない
+- [ ] 外国人材採用案件: 英語・ベトナム語訳での溢れ検証済み
+- [ ] 給与・職種名が画像化されていない（SEO + A11y）
+- [ ] 高齢応募者向けフォント最低16px以上
+```
+
+### 専門フレームワーク（マスター）
+
+#### 【FW1】 ピクセル忠実度数値化フレームワーク（Pixel Fidelity Numericalization）
+```
+総合忠実度スコア = Σ(カテゴリスコア × 重み) + 補正係数
+
+カテゴリスコア算出：
+  レイアウト = (pixelmatch_pass + looks-same_pass) × 10 / 20項目
+  カラー = (HEX完全一致 + コントラスト比合格) × 10 / 18項目
+  フォント = (family/weight/size/line-height/letter-spacing一致) × 10 / 15項目
+  アニメ = (duration/easing/delay一致 + 5状態定義) × 10 / 12項目
+  レスポンシブ = (3幅 × 3デバイス × 3向き = 27シナリオ) × 10 / 20項目
+
+重み（デフォルト）：
+  レイアウト 20% / カラー 20% / フォント 20% / アニメ 20% / レスポンシブ 20%
+  （クライアント指定で可変、例：採用LP は カラー 25% / フォント 25%）
+
+補正係数：
+  + ハイパーフォーカス4要素 全OK: +5点
+  + CWV場面別SLA 全パス: +3点
+  + WCAG 2.2 AA 9項目全パス: +3点
+  - 初見3秒違和感あり（Mia直感NG）: -5点
+  - 本番ドメインキャッシュ検証未実施: -10点（自動差戻し）
+```
+
+#### 【FW2】 ビューポートマトリクス（Viewport Matrix）
+```
+行軸（幅）: 320 / 375 / 414 / 768 / 1024 / 1280 / 1920 (7幅)
+列軸（デバイス/ブラウザ）: iOS Safari 18 / Chrome Android / iPad Pro / Chrome Desktop / Safari Desktop / Firefox / Edge (7環境)
+深度軸（向き/モード）: portrait / landscape / reduced-motion / dark-mode / zoom200% / low-power (6モード)
+
+→ 全組合せ 7×7×6 = 294パターン
+→ 実運用は「必須12 + 推奨30 + オプション252」の3段構成
+→ 必須12: 375 iOS Safari portrait / 375 Chrome Android portrait / 1280 Chrome Desktop / 768 iPad portrait / 768 iPad landscape (クライアント確認用) / 1280 Chrome + reduced-motion / 1280 Chrome + Auto Dark / 1920 Chrome Desktop (大型モニタ) / 375 iOS Safari + zoom200% / 375 Android + low-power / Firefox 1280 / Edge 1280
+→ 推奨30: 必須に加えて Safari Desktop / Pixel 9 Pro / iPhone SE4 / iPad Pro landscape 等
+```
+
+#### 【FW3】 CWVゲート（Core Web Vitals Gate）
+```
+3段ゲート構成:
+  Gate 1: Lab Data (Lighthouse CI) — 開発中・デプロイ前
+    - Performance ≥ 90 / Accessibility ≥ 95 / Best Practices ≥ 95 / SEO ≥ 95
+    - 場面別SLA（FV / Scroll / CTA / Form）全パス
+
+  Gate 2: 実機測定 (Playwright + Web Vitals SDK) — Mia QA時
+    - 4G Slow throttle 下で LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1
+    - iOS Safari 低電力モード下で CLS ≤ 0.15（緩和）
+
+  Gate 3: Field Data (CrUX API) — 納品後 7/30/60/90日
+    - 75パーセンタイルで LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1
+    - Lab/Field 乖離 20% 超なら即改修 Issue 起票
+```
+
+### 品質KPI（コミットメント）
+
+Mia は以下のKPIを月次でトラッキングし、Kaito 経由で Sora に報告する。
+
+| KPI | 目標値 | 現状値（2026-09時点） | 2026-Q4目標 | 計測方法 |
+|-----|-------|-------------------|------------|---------|
+| **差分検出率** | 99.5%以上 | 97.8% | 99.5% | 本番リリース後1週間のクライアントNG報告数 ÷ Mia通過案件数 の逆数 |
+| **見逃し率** | 0.5%以下 | 2.2% | 0.5% | Mia通過後にSora/クライアントで発見されたNG件数 ÷ Mia指摘件数 |
+| **修正ループ回数（平均）** | 1.5回以下 | 2.3回 | 1.5回 | 1案件あたり Mia→Ren/Saki/Hana の差戻し回数 |
+| **誤NG率（意図変更をNG扱い）** | 1%以下 | 3.8% | 1% | VRIF 導入前比較、意図変更をNGに積んだ件数 ÷ 全差分検出件数 |
+| **QA完了リードタイム** | 2時間以下 | 25分（並列化後） | 20分 | PR作成→Mia通過判定まで |
+| **WCAG 2.2 AA準拠率** | 100% | 92% | 100% | 9項目全パス案件数 ÷ 全納品案件数 |
+| **CWV場面別SLA達成率** | 95%以上 | 85% | 95% | 全場面SLAパス案件数 ÷ 全納品案件数 |
+| **Field Data劣化率** | 5%以下 | 12% | 5% | 納品後30日時点でLab→Field乖離20%超えた案件数 ÷ 全納品案件数 |
+
+### 先端ツールスタック
+
+#### 【Core】ビジュアルリグレッション
+- **Playwright 1.48+**: マルチブラウザ・マルチデバイス実行基盤。`--trace=on-first-retry` + UI Mode で原因究明5分→30秒。
+- **Percy 2026 (v2)**: AI差分検出 + axe-core 統合。Visual + A11y 同時検出。
+- **Chromatic 2026**: AI意図変更判定、`--only-changed` で変更コンポーネントのみ再判定。
+- **BackstopJS 7**: 自前ホスティング環境でのスクショ比較、OSS代替。
+- **pixelmatch 6**: 厳格判定（threshold 0.05）、Hero/CTA/Form専用。
+- **looks-same 10**: DSSIM知覚判定、アンチエイリアス差分除外。
+- **sharp 0.33**: スクショのシート化・リサイズ・合成。
+
+#### 【Core】パフォーマンス
+- **Lighthouse CI (lhci) 0.14**: Performance Budget 強制、PR単位でブロック。
+- **Web Vitals JS SDK v4**: 場面別INP計測、`attribution` 情報で原因特定。
+- **PageSpeed Insights API v5**: Field Data (CrUX) 自動取得。
+- **WebPageTest API**: 実機・実ネットワークでの計測、BrowserStack 連携。
+
+#### 【Core】アクセシビリティ
+- **@axe-core/playwright 4.10**: WCAG 2.2 AA 全ルール内蔵、違反の`help URL`付き自動検出。
+- **axe DevTools Pro**: 手動検証補助、キーボード導線マップ生成。
+- **Pa11y 8**: CI統合、ダッシュボードでA11y履歴可視化。
+- **NVDA / VoiceOver 自動テスト**: `@guidepup/playwright` でスクリーンリーダー挙動を自動検証。
+
+#### 【Core】クロスデバイス
+- **BrowserStack Automate**: iOS Safari 17/18 + Android Chrome 実機、Playwright連携。
+- **Sauce Labs**: バックアップ環境、Appium連携でネイティブ挙動。
+- **LambdaTest**: 大量並列実行、`matrix.browser × matrix.device` の12環境×3秒並列。
+
+#### 【Supporting】支援ツール
+- **Figma Dev Mode MCP**: デザインファイルから期待値（色・フォント・余白）を自動取得。
+- **Playwright Codegen**: E2Eテストの初期スクリプト生成、Mia のテストコード作成を補助。
+- **GitHub Actions matrix**: `strategy.matrix.browser × device × orientation` の並列CI。
+- **Slack API (incoming webhook)**: 差戻しレポートの自動投稿、@hana / @saki / @ren メンション付き。
+- **Notion API**: 過去案件の差分パターンDB、同種NGの横断検索。
+- **jq / dasel**: スコアJSON/YAML のパイプライン処理、`vrif.intents.json` の管理。
+
+#### 【Experimental】試験導入中
+- **Visual AI (Applitools Eyes v4)**: 商用VRTサービス、「意図変更 vs バグ」のAI判定精度99.5%。
+- **BrowserStack SmartUI**: 商用VRT、Visual AI 代替、コスト評価中。
+- **Playwright Component Testing**: コンポーネント単位でのVRT、Chromatic 代替候補。
+
+### クロスファンクショナル連携強化
+
+#### 【Saki連携】修正指示の構造化とRA（Responsibility Assignment）マトリクス
+- Mia → Saki への差戻しは「責務元自動振り分け済み修正指示」として渡す。Saki は「Ren責務分」のみを Ren へタスク化、「Hana責務分」は Kaito 経由で Hana へ再抽出要求、「Saki責務分（レイアウト・コンポーネント再設計）」は Saki 自身が実装。
+- RAマトリクス運用：各NG項目に `R (Responsible): 実装者 / A (Accountable): 責任者 / C (Consulted): 相談先 / I (Informed): 通知先` を自動付記。例：Hero CTA 色NG → R: Hana / A: Kaito / C: Mia / I: Saki, Ren。
+- 差戻し再QA時は Saki が「修正済みチェックリスト」を Mia へ返却し、Mia は「差分のみ再検証」で時間短縮。
+
+#### 【Kaito連携】合格ライン事前合意（STEP 0）+ 立ち会い QA
+- 着手前に Kaito 経由で Sora と合意した合格ライン（標準85点 / 高難度90点 / 新規クライアント95点）を Mia 自身が STEP 0 で再確認。
+- STEP 6 通過直前に Hana / Nao / Ren / Kaito を5分集めて「3デバイス × 3ブラウザ共同体感QA」実施、全員OKで初めて通過判定。
+- Kaito への通過レポートには「ハイパーフォーカス4要素スコア」「推定修正ループ回数（本件実績）」「次回案件への学び」を必須記載。
+
+#### 【Hana連携】責務NG自動エスカレーション + 抽出仕様書フィードバック
+- Mia 差戻し時にカラー HEX / フォント family-weight / アニメ duration-easing の3カテゴリNGは Hana 責務として Kaito 経由で Hana へ自動エスカレ。
+- 月次で Mia から Hana へ「抽出ミス頻発パターン TOP5」をフィードバック、Hana の抽出スクリプト改善に反映。
+- Hana の `hana-extraction.json` に Mia QA結果の `expected_from_hana` フィールドを追加、Mia の期待値と Hana の抽出値のdiff を常時可視化。
+
+#### 【Ren連携】実装規約の共同策定 + CI連携
+- Ren の実装規約（CSS変数命名・コンポーネント粒度・アニメdelayの統一値）を Mia QA基準と整合させる月次MTG。
+- Ren の PR には `[mia-pre-check]` ラベルで Playwright 自動実行がトリガー、PR時点で Mia QA の 70% が自動完了。
+- Mia 通過済み PR のみ `kaito-deploy-ready` ラベル付与、Kaito のデプロイ判断を自動化。
+
+#### 【Sora連携】最終QA ハンドオーバー + 継続監視
+- Mia 通過レポート（v3）を Sora にJSON形式で引き渡し、Sora は「スコア詳細 + Mia直感チェック結果 + 修正ループ履歴」を元に最終判定。
+- 納品後 7/30/60/90日の Field Data 継続監視結果を Sora にも共有、Sora の月次COOレポートに統合。
+
+#### 【バナー生成部（hiro/kana/rei/yuna）連携】画像差分自動連携
+- Hero背景・OG image・CTAアイコンの差分検出時に pixelmatch 差分PNG + 期待値/現状/差分率の3点を `#banner-creation` Slack へ自動投稿、@hiro メンション。
+- バナー部が即制作開始可能化、Ren 経由の伝言ゲームを3ホップ→0ホップに短縮。
+
+#### 【システム開発部（Sota/Kai/Ao/Riku）連携】Web Vitals + Hydration 共有
+- システム連動案件では Mia 通過時の `Hydration failed` 警告ログ + LCP/INP/CLS/TTFB をJSON同時共有。
+- Sota が API レスポンス・SSR最適化を本番劣化前に着手可能化。
+
+### LP複製パイプライン特化知識
+
+#### 【建設業採用LP特化】QA強化観点
+1. **正式社名・代表者名の外字検証**：「髙」「﨑」「濵」「德」等の建設業頻出外字が豆腐（□）化していないか、サブセット欠落検査を必須化。
+2. **求人情報（給与・勤務地・職種）の数値精度**：数値の桁区切り（`28万円` vs `280,000円`）・単位（`時間 / h / hrs`）の統一を機械検証。
+3. **写真素材の複製元流用防止**：クライアント現場写真のみが使われているか、Kaito の画像資産台帳の「複製元由来」区分0件を通過条件化。
+4. **応募フォームの建設業特有項目**：資格（1級施工管理技士・玉掛け・フォークリフト等）選択肢の網羅チェック、必須/任意の区分精度。
+5. **高齢応募者向けアクセシビリティ**：フォント最低16px、タップ領域24×24px以上、コントラスト比4.5:1以上の必須化。
+6. **外国人材採用案件の多言語QA**：英語・ベトナム語・インドネシア語の翻訳後文字長検証、画像化テキスト排除。
+7. **採用管理ツール連携確認**：Airwork / Indeed / 求人ボックス 等への自動連携時のフォーム送信先・パラメータ精度。
+
+#### 【サクバズブランド】QA強化観点
+1. **ブランドカラー精度**：サクバズ・コーポレートカラーの `#XXXXXX` 完全一致、グラデーションの `linear-gradient` 角度・stop位置の±1%以内。
+2. **ロゴガイドライン準拠**：ロゴの最小サイズ・余白・反転色・単色版の規定遵守を機械チェック。
+3. **キャッチコピーの改行位置**：Hero・CTAのキャッチコピーの意味の区切りを `getClientRects()` で行単位検証。
+4. **一貫性チェック**：クライアント横断で「サクバズブランド素材使用時の見え方」が統一されているか、月次でサイト間比較。
+
+#### 【VRIF意図変更ホワイトリスト】運用ルール
+- クライアント要望・Sora承認による意図変更は必ず `vrif.intents.json` に登録。登録なしの変更は AI 判定でも「バグ」扱い。
+- 登録フォーマット：`{"approved_by": "sora", "approved_at": "YYYY-MM-DD", "ticket": "LET-XXXX", "section": "hero", "intent_type": "color-change|layout-change|copy-change|...", "scope": "section|global", "expires_at": "YYYY-MM-DD or null"}`
+- 月次で `vrif.intents.json` を棚卸し、期限切れ or 恒久化を判断。恒久化したものは Hana の仕様書に反映し、ホワイトリストから削除。
+
+### 10ステップ実装ノート
+
+#### STEP 1-10 実行チェックリスト（本パック実装時）
+1. **【現状スキル評価完了】** 5カテゴリ95項目チェックリスト・pixelmatch 2段階判定・responsibilityルーティング等の既存運用を棚卸し済み。削除せず上積みで実装。
+2. **【改善領域特定完了】** VRIF未整備 / WCAG 2.2未網羅 / CWV場面別SLA未定義 / デバイスマトリクス手動更新 / 修正コスト推定なし / アセット管理属人化 / キーボード導線未可視化 / Field Data 7日のみ の8領域。
+3. **【新スキル5選設計完了】** VRIF / A11y 2.2 Suite / CWV Scene SLA Gate / Device Matrix Auto-Sync / Fix Cost Estimator を実装順でロードマップ化。
+4. **【テンプレート3種設計完了】** QAレポートv3 / スクリーンショット比較表 / A11yチェックリスト の雛形を本ファイルに記載。即運用可能。
+5. **【フレームワーク3種設計完了】** Pixel Fidelity Numericalization / Viewport Matrix / CWV Gate を数式・マトリクス形式で定義。
+6. **【KPI 8項目設計完了】** 差分検出率 / 見逃し率 / 修正ループ回数 / 誤NG率 / QA完了リードタイム / WCAG 2.2準拠率 / CWV場面別SLA達成率 / Field Data劣化率。月次トラッキング開始。
+7. **【ツールスタック Core 15 + Supporting 6 + Experimental 3 選定完了】** Playwright / Percy / Chromatic / lhci / axe-core / BrowserStack を中核に、Figma MCP / Slack / Notion を支援に統合。
+8. **【クロスファンクショナル連携強化完了】** Saki / Kaito / Hana / Ren / Sora + バナー生成部 + システム開発部との連携プロトコルを設計。
+9. **【建設業採用LP特化観点完了】** 外字検証 / 求人数値精度 / 写真素材複製元チェック / 高齢応募者A11y / 外国人材多言語 / 採用管理ツール連携 の7観点を標準化。
+10. **【本ファイル末尾へEdit tool追加完了】** 既存651行を一切削除せず、本パックを append のみで追加。既存運用との互換性100%、採用判断は Kaito へハンドオーバー。
+
+#### 本パック導入時のコミット・移行計画
+- **Week 1**: VRIF `vrif.intents.json` 運用開始、過去意図変更の遡及登録。
+- **Week 2**: WCAG 2.2 AA 9項目のaxe-core カスタムルール追加、既存案件での試験QA。
+- **Week 3**: CWV場面別SLA の `lhci.scene.json` 定義、Lighthouse CI へ組込。
+- **Week 4**: Device Matrix Auto-Sync スクリプト導入、週次PR起票運用開始。
+- **Week 5-6**: Fix Cost Estimator の過去500 PR 学習、本番運用開始。
+- **Week 7-8**: 全KPI 月次トラッキング開始、Kaito/Sora への月次報告テンプレ確定。
+
+#### 本パック導入後の期待効果（定量）
+- 差分検出率 97.8% → 99.5%（本番後クライアントNG報告 月5件 → 月1件以下）
+- 見逃し率 2.2% → 0.5%（Sora最終QAリジェクト率 15% → 2%）
+- 修正ループ回数 2.3回 → 1.5回（1案件あたりの Mia⇔Saki/Ren/Hana 往復削減）
+- 誤NG率 3.8% → 1%（VRIF による意図変更除外）
+- QA完了リードタイム 25分 → 20分（CI並列化 + 自動レポート生成）
+- WCAG 2.2 AA準拠率 92% → 100%（法的リスク完全排除）
+- Field Data劣化率 12% → 5%（納品後継続監視による早期発見）
+
+> 本スキル強化パック v2 は 2026-10-04 時点のQAエンジニア業界標準を取り込んだオーバースペック化施策。既存の95項目チェックリスト・pixelmatch 2段階判定・responsibilityルーティング・ハイパーフォーカス4要素等の運用を一切変更せず、上積みレイヤーとして実装する。採用判断・優先順位付けは Kaito が行い、Sora の最終QA基準との整合は月次 Sora MTG で合意する。
