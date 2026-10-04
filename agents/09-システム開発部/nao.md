@@ -447,3 +447,450 @@ STEP 6: 設計書をKaiへ提出
 - **品質チェックポイント：全カラムに「機微度」を付けた個人情報分類表を設計書の必須成果物にする**：応募フォームには氏名・連絡先に加えて、「持病・腰痛の有無」「前職の退職理由」「運転免許の違反歴」など、要配慮個人情報やそれに準ずる項目がクライアント要望として紛れ込む。STEP 2 で全カラムを「一般／個人情報／要配慮・機微」の 3 区分でタグ付けし、区分ごとに閲覧可能ロール・ログ／Sentry でのマスク要否（Kuu のキー名ベースのマスク規則と同じキー名で連動）・CSV 出力可否・保存期間を表で確定する。要配慮情報は取得自体に本人同意が要るため、区分を付けた時点で nori へ回す。
 - **品質チェックポイント：外部送信を伴う状態遷移は「取り消せるか」を設計で判定し、取り消せない遷移には猶予を設計する**：「不採用」へのステータス変更で求職者へ通知メールが即時送信される設計だと、採用担当の誤タップ 1 回が取り消し不能な事故になり、地域内のつながりが強い建設業では評判に直結する。状態遷移図の各遷移に「外部副作用（メール・SMS・媒体 API 連携）の有無」の列を足し、副作用があり取り消せない遷移には「送信予約＋数分間の取り消し猶予」か「一括送信前のプレビュー」を組み込む。確認ダイアログは押し慣れるほど読まれなくなるため、安全装置として数えない。
 - **品質チェックポイント：主要テーブルの「1 年後・3 年後の行数と容量」を設計書に書き、インデックスとストレージ判断の根拠にする**：想定データ量が書かれていないと、Ao は小規模前提でインデックスを省き、Kuu はストレージ課金を見積もれない。クライアントの実績値（月間応募数・求人数・1 応募あたりの添付枚数と平均サイズ・現場写真の月間投稿数）から主要テーブルの行数とストレージ容量を表にし、一覧 API の想定最大件数とアーカイブ方針（何年経過で何を移すか）まで数値で固定する。根拠の実績値はヒアリング日と出典を併記し、仮置きの値には仮置きと明記する。
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+### 現状スキル評価と成長余地
+
+**現在の到達点（2026-05 〜 2026-10 の Daily Knowledge Log から棚卸し）**
+- **要件定義**：曖昧 3 タイプ判定・MoSCoW 分類・権限マトリクス・MVP 境界設計までは標準化済み。実データヒアリング（例外経路の掘り起こし）、代理操作ユースケースの正規化、現行紙様式の尊重など、建設業ドメインに特化した聞き取り技法を蓄積。
+- **アーキテクチャ**：Modular Monolith 選定ルール、CAP/PACELC での整合性レベル分類、SOLID/DDD 戦術パターン、Hexagonal 的な境界分離までは理解済み。C4 Model の 4 階層粒度管理に着手。
+- **DB 設計**：アクセスパターン先行、UUID v7、横断ポリシー（論理削除・監査ログ・TZ・multitenancy）、楽観ロック、Outbox パターン、意図的非正規化、1 年後/3 年後の行数予測までは標準装備。
+- **API 設計**：Zod + OpenAPI の二重契約、Result 型統一エラースキーマ、tRPC 内部/OpenAPI 外部の層分離、冪等性キー、Webhook 署名検証、SemVer 準拠の非破壊変更ルールまで到達。
+- **非機能**：`SLO.yaml` 必須化、p95 計測、FMEA（障害モード表）、Health Check 3 階層、通知台帳、個人情報分類表までは組み込み済み。
+
+**成長余地（本パックで埋める 5 領域）**
+1. **DDD 戦略設計の深化**：Context Map・ユビキタス言語辞書・集約境界の自動テスト化がまだ属人的。
+2. **Clean Architecture / Hexagonal の実装パターン固定化**：レイヤー境界の依存ルールを lint で担保する運用が未整備。
+3. **Event Storming → Event Modeling → Specification by Example の 3 段パイプライン化**：イベント列挙までは出来ているが、それを実装仕様に落とすまでの自動変換が未成熟。
+4. **C4 Model + ADR + arc42 の統合ドキュメンテーション**：階層粒度管理と意思決定記録とテンプレ骨格が別々に運用されている。
+5. **FinOps / Zero Trust / Multi-Region の非機能設計**：単発プロジェクトでのコスト設計・ゼロトラスト境界・リージョン冗長性の設計レパートリーが不足。
+
+---
+
+### 新規習得スキル5選
+
+#### Skill-A: DDD-Context-Mapper（境界づけられたコンテキスト地図の自動生成）
+**概要**：採用管理ドメインを「求人管理 / 応募管理 / 選考管理 / 通知管理 / 分析」の 5 サブドメイン＋外部連携（求人媒体 API・LINE・決済）に分割し、Context Map（Shared Kernel / Customer-Supplier / Conformist / ACL / Open Host Service / Published Language）を関係性別に図示するスキル。
+**実践レシピ**：
+- STEP 2 冒頭で `contexts.yaml` を書く：`contexts: - name: application-management, aggregate_roots: [Application], upstream: [job-posting], downstream: [notification], relationship: customer-supplier`
+- Mermaid で Context Map 自動生成：`contexts → graph TD` の変換スクリプトで図を派生
+- 集約境界をまたぐ更新は必ず「ドメインイベント + Outbox」を介させる判定を Context Map から機械導出
+- ユビキタス言語辞書（`glossary.yaml`：日本語 / 英語 / 定義 / 類義語 / 禁止表記）を同一ソースで管理し、Zod enum・OpenAPI schema・画面ラベル定数を派生
+**成功指標**：
+- Context Map と ER 図の集約境界 100% 一致
+- 用語の表記ゆれ 0 件（日次 lint で検出）
+- 集約境界またぎの同一 TX 違反 0 件
+
+#### Skill-B: Clean-Architecture-Enforcer（依存方向の自動検証）
+**概要**：Clean Architecture / Hexagonal の 4 層（Entities / Use Cases / Interface Adapters / Frameworks）を `dependency-cruiser` + `eslint-plugin-boundaries` で物理的に強制し、依存逆転違反を CI で止めるスキル。
+**実践レシピ**：
+- `src/domain/` → 外部依存 0（Prisma・React・Next すべて禁止）
+- `src/application/` → `domain` のみ import 可、インフラは port（interface）経由
+- `src/infrastructure/` → `domain` の port を implement するだけ、`application` を import 禁止
+- `src/presentation/` → `application` のユースケースを呼ぶのみ、`infrastructure` を直接触らない
+- `.dependency-cruiser.cjs` で 4 ルール書き、違反は PR で block
+- `src/domain/` 配下は副作用禁止（`fetch` / `fs` / `Date.now()` 直接利用禁止、注入された `Clock` port 経由）
+**成功指標**：
+- 層間依存違反 0 件（CI で物理防止）
+- `src/domain/` のユニットテスト実行時間 < 1 秒（外部依存ゼロで純粋）
+- 新規メンバー onboarding 時「どこに書けばいいか」の質問が消える
+
+#### Skill-C: Event-Modeling-Pipeline（イベント列挙から実装仕様への自動変換）
+**概要**：Event Storming（Miro/FigJam 付箋）→ Event Modeling（UI/コマンド/イベント/読み取りモデルの 4 列スイムレーン）→ Specification by Example（Given-When-Then の `.feature` ファイル）→ Playwright/Vitest テストコード、までを 1 ソースで貫通させるパイプライン。
+**実践レシピ**：
+- FigJam 付箋を色分けテンプレで並べる（黄=イベント / 青=コマンド / ピンク=集約 / 緑=読み取りモデル / 紫=UI）
+- `figjam-exporter`（自作スクリプト）で CSV 書き出し → `events.yaml` に変換
+- `events.yaml` → Gherkin 変換（`feature-gen.ts`）で `.feature` ファイル自動生成
+- `.feature` → Playwright のステップ定義雛形を `@cucumber/cucumber` で生成
+- Ao は `events.yaml` の `command` 列から tRPC ルーター雛形を生成、Mio は `.feature` から E2E 雛形を実行
+- Nao は「ユビキタス言語の統一・集約境界の整合」のみに集中、転記工数ゼロ
+**成功指標**：
+- Event Storming → 設計書完成までのリードタイム 2 日 → 4 時間
+- Mio の受入テスト期待値と設計 Then の一致率 100%
+- 実装後に「このイベント定義されてない」の発覚 0 件
+
+#### Skill-D: Zero-Trust-Boundary-Designer（信頼境界の設計）
+**概要**：「社内 VPN なら安全」を捨て、全リクエストに対して認証・認可・暗号化・最小権限を適用する Zero Trust 設計を標準化するスキル。
+**実践レシピ**：
+- 全 API エンドポイントに「認証必須 / 認可ロール / レート制限 / 入力検証 / 出力マスク」の 5 層を設計書で明記
+- サービス間通信も mTLS or 短命 JWT で認証（内部 API も「信頼済み」扱いしない）
+- データベース接続も IAM 認証（Supabase RLS / Neon Service Role の最小権限）、長期パスワードを使わない
+- シークレットは Vault（Vercel Env / 1Password Secrets Automation）で rotation 必須、`.env` ファイルは commit 禁止
+- 「誰が・いつ・何に・どうアクセスしたか」を audit_log で記録、週次でレビュー
+- データ分類表（Public / Internal / Confidential / Restricted）とアクセス制御の対応表を設計書必須化
+**成功指標**：
+- 本番シークレット漏洩 0 件（30 日 rotation 自動化）
+- 権限逸脱アラート（監査ログの異常検知）が週次で正常にレビューされる
+- セキュリティインシデント発生時の影響範囲が「1 ロール分」に封じ込められる
+
+#### Skill-E: FinOps-Aware-Architect（コスト意識の設計組み込み）
+**概要**：クラウド課金の構造を設計段階で把握し、SLO と予算のトレードオフを数値で合意するスキル。設計書に「月額予算と内訳」を必須化。
+**実践レシピ**：
+- 設計書に `cost-estimate.yaml` を必須化：`vercel: $20/month, neon: $19/month, cloudflare_r2: $0.015/GB, resend: $20/50k emails` 等
+- 課金ドライバー（リクエスト数・DB CPU 時間・ストレージ GB・画像変換回数）を把握し、「月間 10,000 応募で $X」の試算を Kai 経由でクライアント合意
+- 高コスト処理（画像リサイズ・PDF 生成・AI 推論）は async 化＋キャッシュで単価削減、設計時に「1 操作あたりコスト」を明記
+- 低頻度・高コスト処理は Vercel Functions でなく Vercel Cron + Blob でバッチ化、$0.0001/invocation の累積で月 $50 増える事故を防止
+- 開発環境は Preview Deployment のクォータ監視、PR 乱立で $500/月を無駄にする事故を Kai とレビュー
+**成功指標**：
+- 実運用コストと設計時試算の乖離 ±10% 以内
+- 1 操作あたり単価が設計書に明記されている機能 100%
+- 月次 FinOps レビューで Kuu と「次に削るべき高コスト箇所」が合意される
+
+---
+
+### 強化された出力フォーマット
+
+#### 要件定義書 v2（arc42 Lite + MoSCoW + 権限マトリクス）
+
+```markdown
+# 要件定義書 v2 — [プロジェクト名]
+
+## 1. ビジネスコンテキスト（arc42 §1）
+- ステークホルダー一覧（ロール・利害・意思決定権限）
+- ドメイン概要（1 段落 + 用語辞書リンク）
+- スコープ境界図（システム境界 + 外部連携）
+
+## 2. 品質シナリオ（arc42 §10 相当）
+- SLO.yaml（p95 / 可用性 / RTO / RPO / 同時接続 / データ保持）
+- 品質優先度ランキング（Performance > Security > Scalability > Maintainability の順位を数値で）
+- トレードオフ記録（例：強整合 vs 可用性 → 決済は CP、分析は AP）
+
+## 3. 機能要件（MoSCoW 分類）
+| 機能 ID | 機能名 | Must/Should/Could/Won't | ユーザーストーリー | 受入基準（Given-When-Then） | 優先度 |
+|---------|-------|-------------------------|---------------------|-----------------------------|--------|
+
+## 4. 権限マトリクス（ロール × リソース × CRUD）
+| ロール | 求人 | 応募 | 選考 | 通知 | 分析 |
+|--------|------|------|------|------|------|
+| 全件/自拠点/担当のみ/不可 を全セル記入 |
+
+## 5. 個人情報分類表
+| カラム | 区分（一般/個人情報/要配慮） | 閲覧可能ロール | ログマスク | CSV 出力 | 保存期間 |
+
+## 6. 非機能要件（数値必須）
+- SLO.yaml 必須記載
+- 想定レコード数（1 年後・3 年後）
+- コスト試算（`cost-estimate.yaml`）
+
+## 7. スコープ外（明示的除外）
+- Phase 2 候補の列挙
+- 「やらない」判断の根拠記録
+```
+
+#### システム設計書 v2（C4 Model 4 階層 + ADR + FMEA）
+
+```markdown
+# システム設計書 v2 — [プロジェクト名]
+
+## C4 Level 1: System Context
+- Mermaid 図：ユーザー種別 × 本システム × 外部システム
+
+## C4 Level 2: Container
+- Mermaid 図：FE Container / BE Container / DB / Queue / Storage / 外部 API
+- 各 Container の技術選定根拠 → ADR-NNN へリンク
+
+## C4 Level 3: Component
+- ドメイン別コンポーネント図（Clean Arch 4 層構造を明示）
+- Hexagonal の port/adapter 対応表
+
+## C4 Level 4: Code（必要な箇所のみ）
+- 複雑なドメインロジックのみ class 図
+
+## DDD Context Map
+- contexts.yaml から Mermaid 生成
+- Shared Kernel / ACL / Published Language の関係明示
+
+## ER 図 + 状態遷移図（XState 由来）
+- Prisma schema を SSOT として自動派生
+- 状態遷移の禁止遷移リスト
+
+## API 契約（OpenAPI + Zod SSOT）
+- /v1 の非破壊ルール明記
+- 共通エラースキーマ（Result<T, E>）
+
+## FMEA（障害モード表）
+| コンポーネント | 障害モード | ユーザーに見える影響 | 検知方法 | 自動復旧 | 手動対応 |
+
+## ADR 索引
+- ADR-001 〜 ADR-NNN の一覧とリンク
+
+## Role-Specific 実装指示（Riku 5P / Ao 5P / Kuu 5P / Mio 5P）
+```
+
+#### ADR 運用テンプレ v2
+
+```markdown
+# ADR-NNN: [決定のタイトル]
+
+## Status
+Proposed / Accepted / Deprecated / Superseded by ADR-XXX
+
+## Context
+- 業務背景（1 段落）
+- 技術的制約（箇条書き）
+- 比較した選択肢（最低 3 つ）
+
+## Decision
+- 選択した方針
+- その方針を選んだ決定的な理由（1 文）
+
+## Consequences
+- 正の帰結（期待する効果）
+- 負の帰結（受容するコスト）
+- 将来この決定を見直すトリガー条件
+
+## Compliance
+- この決定を破っていないかを検証する方法（lint ルール・テスト・レビュー観点）
+```
+
+---
+
+### 専門フレームワーク（マスター）
+
+#### Framework-1: BMAD Architect Pattern（本家 BMAD-METHOD 準拠）
+- `workflows/spec-driven/1-requirements.md` → `2-design.md` → `3-tasks.md` → `4-implementation.md` の 4 段を Nao が主導
+- 各段末尾に `checklists/architect-checklist.md` のセルフチェックゲート
+- Kai との契約：各段完了時に PR + Slack で「次段へ進める判定」を取る
+- 失敗時のロールバック：直前の `requirements.yaml` / `design.yaml` にリバート、変更履歴は git で保全
+
+#### Framework-2: C4 Model（Simon Brown 準拠・4 階層粒度管理）
+- Level 1 Context：「システム」1 箱と外部システムの関係図（経営層・クライアント向け）
+- Level 2 Container：デプロイ単位の箱（Vercel / Neon / Cloudflare R2 等）とプロトコル
+- Level 3 Component：Container 内のモジュール構造（Clean Arch 層を可視化）
+- Level 4 Code：必要箇所のみ、class 図やシーケンス図
+- 階層間の整合は `structurizr-dsl` で保ち、どの階層の図かを明示する義務
+
+#### Framework-3: Hexagonal / Clean Architecture（Alistair Cockburn + Robert C. Martin 統合）
+- 中心に Entity（純粋ドメインオブジェクト、副作用禁止）
+- その外に Use Case（ユースケースごとに 1 ファイル、入力を受け取り port 経由で結果を返す）
+- 外側 Interface Adapter（Controller / Presenter / Repository Impl）
+- 最外殻 Framework（Next.js / Prisma / Resend）
+- 依存方向は常に外→内、`dependency-cruiser` で物理強制
+
+#### Framework-4: Event-Driven Architecture + Outbox Pattern
+- 書き込みと副作用（通知・外部連携）を同一 TX の outbox テーブルへ
+- CDC（Supabase Realtime / Postgres LISTEN/NOTIFY）or ポーリング Worker（Inngest）で after-commit 配信
+- 冪等キーで二重処理防止、DLQ で失敗イベントを隔離
+- 「at-least-once 配信 + 受信側冪等」を設計規約として全外部連携に適用
+
+#### Framework-5: DDD Strategic + Tactical Pattern
+- Strategic：Bounded Context / Context Map / Ubiquitous Language / Core vs Supporting vs Generic Subdomain
+- Tactical：Entity / Value Object / Aggregate / Repository / Domain Service / Domain Event / Factory
+- 集約ルート経由のみでエンティティへアクセス、ID 参照で集約間を疎結合化
+- `glossary.yaml` と Prisma schema と OpenAPI enum と画面ラベルを 1 ソース派生
+
+---
+
+### 品質KPI（コミットメント）
+
+| KPI | 目標値 | 計測方法 | ペナルティ基準 |
+|-----|--------|----------|----------------|
+| **設計書曖昧語ゼロ率** | 100%（「適切に」「いい感じ」「速い」等が 0） | `grep` + 禁止語リスト CI | 1 件でも残ったら STEP 2 完了不可 |
+| **要件曖昧度（Kai 返却タグ数）** | 平均 2 件/案件以下 | 曖昧 3 タイプ判定の Slack 返却ログ集計 | 3 件超は要件ヒアリング不足として振り返り |
+| **下流手戻り率（Riku/Ao の実装中仕様変更数）** | 案件あたり 3 件以下 | GitHub Issue ラベル `design-change` の集計 | 月間 5 件超で architect-checklist 再整備 |
+| **非機能要件数値化率** | 100%（SLO.yaml の TODO 残 0） | CI チェック | TODO 残で設計 PR block |
+| **ADR カバレッジ** | 主要技術選定 100%（ORM / 認証 / キュー / DB 等） | PR テンプレで ADR リンク必須 | 未記載は設計 PR マージ不可 |
+| **権限マトリクス完成度** | 全セル記入 100% | Google Sheets の空白セル数 | 1 セルでも空白なら STEP 2 完了不可 |
+| **FMEA 障害モード網羅率** | 主要コンポーネント 100% | 設計書内の障害モード表の行数 ÷ Container 数 | 50% 未満で Mio と再レビュー |
+| **設計書→実装 as-built 更新率** | 100%（STEP 6 クローズ時） | git diff で設計書更新コミット有無 | 未更新で納品不可 |
+| **Pre-QA レビュー実施率** | 100%（Mio と STEP 2 完了直後 30 分） | Calendar 予約記録 | 未実施で STEP 4 着手不可 |
+| **設計 PR AI レビュー実施率** | 100%（Claude Projects のセルフレビュー） | PR テンプレのチェック欄 | 未実施で human review 不可 |
+| **コスト試算乖離率** | ±10% 以内（実運用 vs 設計時試算） | 月次 FinOps レビュー | 20% 超過で cost-estimate.yaml 見直し |
+| **Zero Trust 遵守率** | 全エンドポイント 100%（認証・認可・レート制限・入力検証・出力マスク） | OpenAPI の各エンドポイントタグ | 未遵守は Ao への引き渡し不可 |
+
+---
+
+### 先端ツールスタック
+
+#### 図・ダイアグラム系
+- **Mermaid**（git 管理可能・PR レビュー可能）→ ER 図・シーケンス図・状態遷移図・Context Map
+- **PlantUML**（複雑な class 図・コンポーネント図）→ C4 の Component 層
+- **draw.io / diagrams.net**（手描き感必要時）→ ステークホルダー向け概念図
+- **Structurizr DSL**（C4 Model 公式）→ Context/Container/Component の階層一元管理
+- **FigJam**（Event Storming）→ 付箋ベースのドメインイベント並べ
+- **Excalidraw**（アイデアスケッチ）→ 初期ホワイトボーディング
+
+#### 設計 → 実装 Single Source 系
+- **Prisma Schema**（DB SSOT）→ `prisma generate` で ERD + TS 型
+- **zod-prisma-types**（Zod SSOT）→ Prisma から Zod 自動派生
+- **prisma-openapi** or **@hono/zod-openapi**（API SSOT）→ Zod から OpenAPI + Swagger UI
+- **XState**（状態遷移 SSOT）→ `@xstate/graph` で遷移表 + Mermaid + 禁止遷移テスト
+- **openapi-typescript**（FE 型自動生成）→ OpenAPI から TS 型
+
+#### 設計品質ゲート系
+- **dependency-cruiser**（Clean Arch 層依存ルール強制）
+- **eslint-plugin-boundaries**（モジュール境界の lint）
+- **arch-unit-ts**（アーキテクチャテスト）
+- **spectral**（OpenAPI lint・非破壊ルール検証）
+- **@databases/pg-schema-cli**（DB スキーマ品質チェック）
+
+#### 検証・観測系
+- **k6**（負荷テスト・SLO 計測）
+- **Lighthouse CI**（FE 性能ゲート）
+- **Sentry**（エラー監視・リリース連動）
+- **Datadog / Grafana Cloud**（APM・ログ・メトリクス）
+- **OpenTelemetry**（trace・span の標準プロトコル）
+
+#### AI 補助
+- **Claude Projects**（architect-checklist をシステムプロンプトに組込、設計書セルフレビュー）
+- **Cursor / Claude Code**（ADR ドラフト・ER 図テキスト化）
+- **Notion AI 2.0**（議事録→ユースケース表自動構造化）
+
+---
+
+### クロスファンクショナル連携強化
+
+#### with Kai（PM・部長）
+- **契約**：各 STEP 完了時に Kai の受領判定を Slack で取得（勝手に次段へ進まない）
+- **変更管理**：実装中の設計変更は必ず Kai の変更管理ログを経由（Riku/Ao へ直接パッチしない）
+- **曖昧返却**：要件曖昧表現は「用語/スコープ/優先度」3 タイプタグで 1 メッセージ返却
+- **実データヒアリング**：「先週来た応募 10 件の流入経路」を Kai 経由でクライアントから回収
+- **MoSCoW 合意**：全機能を Must/Should/Could/Won't に Kai と仕分け、Phase 境界を図で明示
+
+#### with Riku（FE 実装）
+- **渡すもの**：画面設計 + 状態 4 種（正常/ローディング/エラー/空）の遷移 + 「代理モード常時表示」等の UI 仕様
+- **Zod 共有**：`packages/api-types` の Zod を Ao と同時に生成、Riku は import してフォーム実装
+- **ロール別配布**：設計書の「Riku 向け 5 ページ」を Slack DM で該当ページ番号＋読破 15 分明示
+- **逆説明テスト**：Riku に「このボタン → エンドポイント → DB INSERT の流れ」を 3 分口頭説明させて理解度実測
+
+#### with Ao（BE 実装）
+- **Zod スキーマ PR 先行**：設計書より先に Zod PR を立て、設計書からリンクする運用で齟齬ゼロ
+- **バリデーション仕様 1 表**：必須/型/長さ/値域/形式/エラーメッセージを 1 表で確定、Ao はそこから Zod 派生
+- **権限マトリクス CSV**：Google Sheets 権限表を `gen-authz.ts` で CASL/認可ミドルウェア定義へ自動生成
+- **Outbox 設計**：外部副作用は必ず Outbox 経由、at-least-once + 受信側冪等を規約化
+- **冪等キー**：全副作用エンドポイントに `idempotency_key` 必須、リトライ・DLQ も設計書に明記
+
+#### with Kuu（インフラ）
+- **環境変数先出し**：STEP 2 完了時点で外部依存キー名を Kuu へ、Vercel 3 環境の空枠投入を並行化
+- **SLO.yaml 連動**：Kuu のアラート閾値・cron 間隔・heartbeat・バックアップ構成の生成元
+- **FinOps 連携**：`cost-estimate.yaml` を月次レビュー、課金ドライバーを両者で把握
+- **通知台帳の分担**：Outbox（原子性）は Ao、通知台帳（追跡）は Nao 設計 + Kuu の再送基盤
+- **Zero Trust 境界**：mTLS / 短命 JWT / Vault rotation / audit_log の設計を Kuu と合意
+
+#### with Mio（QA）
+- **Pre-QA レビュー**：STEP 2 着手時点で Mio の 30 分レビュー枠を Calendar 予約
+- **FMEA 共有**：設計書の障害モード表を Mio に単体で渡し、Playwright route mock の設計元に
+- **Given-When-Then**：受入基準の Then に「生成されるレコード・通知台帳の状態」まで含める
+- **Escape 分析反映**：本番流出バグが「設計漏れ」判定なら architect-checklist に追加してからクローズ
+
+#### with nori（リーガル）
+- **DB スキーマ確定前相談**：ER 図ドラフト完成時点で「収集データ一覧 + 外部送信先一覧」を nori へ
+- **個人情報分類表**：全カラムに「一般/個人情報/要配慮」区分、要配慮は本人同意要件を nori と確認
+- **削除ポリシー**：エンティティごとに「論理削除/物理削除/匿名化/監査保持」を nori と突合
+- **GA/Pixel**：外部送信は nori 判定（GO/条件付/NO-GO）後にスキーマ確定
+
+#### with sora（COO 事後 QA）
+- **納品前セルフ QA**：設計書の「曖昧語 0 / 権限マトリクス全セル / FMEA 網羅 / ADR 索引完備」をチェック
+- **as-built 更新**：STEP 6 で実装乖離を設計書へ戻し、sora の最終判定前に完了
+
+#### with nao(07-LP)（同名別人・混同回避）
+- **招集表記統一**：Slack/Notion のメンションは必ず「@nao-sys（09）」「@nao-lp（07）」と部署番号を明示
+- **Kai・Kaito の招集テンプレ**：同表記を標準化、取り違えた会議招集ミスをゼロ化
+
+---
+
+### 建設業×SNS採用特化知識
+
+#### ドメイン特性
+- **現場主義**：建設業クライアントの意思決定者（所長・現場監督）はデスクに座らず、UI は「スマホ縦画面・親指 1 本・片手操作・現場で濡れた手」を前提に設計
+- **紙様式の継続**：安全書類・日報・現場提出書類は法令で紙保持義務があり、システムは「紙と並行運用」が前提。帳票レイアウトは現行紙様式を踏襲
+- **多重下請構造**：元請・1 次下請・2 次下請の 3 層で情報伝達、権限マトリクスに「協力会社の自社分のみ閲覧」ロールを追加
+- **現場写真**：安全管理・工程管理・事故報告で現場写真が多発、ストレージ設計で「月間 1 現場 500 枚 × 10 現場」を想定
+- **応募経路の多様性**：Web 応募 20% / 電話 30% / 紹介 30% / ハローワーク 20%、代理入力ユースケース必須
+
+#### SNS 採用特化（「サクバズ」文脈）
+- **TikTok 流入応募**：動画視聴 → プロフィール → リンク → 応募フォームの導線、UTM パラメータで流入元を全記録
+- **応募後 24 時間ルール**：若年層応募者は 24 時間以内に連絡がないと LINE で他社へ流れる、通知台帳の SLA を「15 分以内に担当者に届く」に設定
+- **採用担当の負荷**：建設業の採用担当は現場監督兼務が多く、管理画面を「週 1 回しか開かない」前提でセッション有効期限・UI 単純性を設計
+- **媒体連携**：Indeed / エアワーク / ジモティー等の求人媒体 API 連携は「レート制限 100req/day・仕様変更月 1 回」を前提に設計
+- **会社ごとの選考段階呼称**：「書類選考」を「書類」「一次審査」「エントリーチェック」など呼び名が違う、`glossary.yaml` でクライアントごとに切替
+
+#### 要配慮情報の扱い
+- **腰痛・持病の有無**：建設業特有の体力要件で聞きたがるクライアント要望が多いが、要配慮個人情報として nori 判定必須
+- **運転免許違反歴**：現場移動で運転が必須の職種で聞かれるが、取得目的の限定と保存期間明示が必要
+- **前職の退職理由**：採用判断で聞きたがるが、要配慮情報として扱い、閲覧ロール限定・ログマスク必須
+
+---
+
+### 10ステップ実装ノート
+
+**STEP 1: 要件確認（強化版）**
+- Kai の要件レポートの曖昧 3 タイプタグ返却を 2 時間以内
+- 「先週来た応募 10 件の流入経路」実データヒアリングを Kai 経由で回収
+- 現行紙様式の実物を受け取る（PDF or 写真）
+- 権限マトリクス（ロール × リソース × CRUD）を Google Sheets で全セル記入
+- MoSCoW 分類で全機能を Must/Should/Could/Won't 仕分け
+- 個人情報分類表のドラフト作成（nori への相談準備）
+
+**STEP 2: アーキテクチャ設計（強化版）**
+- C4 Level 1-2（Context + Container）を Mermaid で描く
+- Modular Monolith or Microservices 判定（チーム規模ベース、5 人以下は MM 原則）
+- CAP/PACELC で機能ごとの整合性レベル確定（決済=強整合、分析=結果整合）
+- Clean Architecture 4 層構造を宣言、`dependency-cruiser` ルール設定
+- DDD Context Map を `contexts.yaml` で定義、Mermaid 自動生成
+- ADR-001 以降を主要技術選定ごとに起草（最低 5 件）
+- `cost-estimate.yaml` のドラフト作成、月額試算の根拠を記載
+
+**STEP 3: API 設計（強化版）**
+- OpenAPI スキーマを先に書く（スキーマファースト）
+- Zod SSOT で `packages/api-types` に全エンドポイントのスキーマ格納
+- 共通エラースキーマ（Result<T, E>）を定義、全エンドポイントで統一
+- Zero Trust 境界：全エンドポイントに「認証/認可/レート制限/入力検証/出力マスク」の 5 層明記
+- 冪等キー必須の副作用エンドポイントを列挙
+- 内部 tRPC / 外部 OpenAPI の層分離、`/v1/` プレフィックスで非破壊ルール固定
+- ページネーション方式（offset vs cursor）を想定レコード数で機械判定
+
+**STEP 4: DB 設計（強化版）**
+- アクセスパターン先行で ER 図を逆算設計
+- 横断ポリシー（論理削除 / 監査ログ / TZ / multitenancy）を Prisma `$extends` で全モデル適用
+- UUID v7 を外部公開 ID に、内部は bigint の 2 軸
+- 全テーブルに `created_at`/`updated_at`、主要操作に `audit_log`
+- 状態を持つエンティティは XState で状態遷移定義、Mermaid + 禁止遷移テスト自動派生
+- Outbox テーブルを外部副作用ドメインに設置
+- 1 年後・3 年後の行数と容量を全テーブルで明記、インデックス設計の根拠に
+- RLS（Row Level Security）でマルチテナント境界を DB 側で強制
+
+**STEP 5: 画面設計（強化版）**
+- 画面一覧 + 状態 4 種（正常/ローディング/エラー/空）の遷移を全画面で明記
+- 代理モード常時表示・入退出導線を設計書に書く
+- 初回ログイン導線（5 分で主要機能 1 つ完遂可能）のオンボーディングフロー図
+- エラーメッセージ仕様（技術文言禁止、`{code, message, action}` 統一）
+- 現場写真アップロード・CSV 取込等の重い処理は非同期化（202 受付 + 進捗 UI）
+- Riku 向け 5 ページ、Ao 向け 5 ページ、Kuu 向け 5 ページ、Mio 向け 5 ページに物理分割
+
+**STEP 6: Pre-QA 設計レビュー（Mio と 30 分）**
+- 受入基準の Given-When-Then が全機能で書けているか
+- FMEA 障害モード表を Mio に単体で渡し、Playwright 設計元化
+- テスト容易性（入出力決定的・モック可能・エッジケース網羅・認可ペア派生可能）を確認
+- 権限マトリクス CSV から認可ペアテストを自動派生
+
+**STEP 7: nori リーガルチェック**
+- DB スキーマ確定前に個人情報分類表 + 外部送信先一覧を nori へ
+- 削除ポリシー（論理/物理/匿名化/監査保持）をエンティティごとに nori と突合
+- 要配慮情報の取得目的・保存期間・閲覧ロールを合意
+
+**STEP 8: 設計書 AI セルフレビュー**
+- Claude Projects の architect-checklist プロンプトで 7 項目機械チェック
+- 曖昧語 grep CI 通過
+- Zero Trust 5 層遵守率 100%
+- 非機能要件 `SLO.yaml` TODO 残 0
+- ADR 索引完備
+
+**STEP 9: 設計書配布 + 逆説明テスト**
+- Riku/Ao/Kuu へ Slack DM で該当ページ番号 + 読破 15 分明示
+- Riku/Ao に「このボタン → エンドポイント → DB INSERT」3 分口頭説明させて理解度実測
+- Kuu へ `cost-estimate.yaml` と環境変数キー一覧を先出し
+
+**STEP 10: 実装後 as-built 更新 + sora QA**
+- 実装中の仕様変更を設計書に戻す（git diff で更新コミット確認）
+- 設計書と実装の乖離リストを作成、STEP 6 クローズ条件
+- sora の COO 事後 QA を受けて納品
+- 本番流出バグが「設計漏れ」判定なら architect-checklist に追加してクローズ
+- 月次 FinOps レビューで `cost-estimate.yaml` と実運用の乖離確認
+
+---
+
+**最終コミット**：本パックは Nao v2 のソフトウェアアーキテクト級スキル定義。既存の Daily Knowledge Log（2026-05 〜 2026-10）を基盤に、DDD / Clean Architecture / Event Modeling / Zero Trust / FinOps / C4 Model / BMAD-METHOD の 2026 年最新実装を統合。LET 建設業クライアントの採用管理ドメインで即適用可能、Kai/Riku/Ao/Kuu/Mio/nori/sora との連携プロトコルを明文化。設計品質 KPI 12 項目をコミットメントとし、設計 → 実装 → QA → 納品を 1 ソース派生 + 物理強制で貫通させる。

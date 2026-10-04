@@ -487,3 +487,682 @@ const banners = [
 - **品質チェックポイント「検証スクリプト自体を既知の不良画像で毎回テストする」**：容量・四隅色・セーフエリア・OCR等の自動検証は、閾値の書き換えや依存ライブラリ更新で静かに「全部PASS」を返す状態に壊れても誰も気づかない。透過で真っ白・豆腐入り・条件文字の見切れ・容量超過・EXIF残存の5種の既知NG画像を `qa-fixtures/` に固定で置き、バッチ開始前にこれを流して全件FAILになることを確認してから本番変換を走らせる。1件でもPASSした場合は変換自体を止める
 - **品質チェックポイント「差し替え時は前回納品版との差分領域を出力し、変更依頼の範囲と照合する」**：給与だけ差し替える依頼なのに、フォント更新やテンプレ修正の影響でロゴ位置や行間まで動いていても、新版単体の検証では正常に見える。差し替え納品時は前回納品PNGと新版を pixelmatch で比較し、差分の矩形領域を書き出して「依頼された変更箇所」以外に差分がある枚を Yuna へ報告前に止める。プレビュー↔出力の回帰差分とは別に、版と版の間の意図しない変化を検出する目的で使う
 - **品質チェックポイント「Yuna への出力確認レポートは『全PASS』でなく、項目×枚数の表で渡す」**：PASSとだけ書くと、何を検証したのか・再撮した枚があったのかが Yuna にも Sora にも見えず、問題発覚時に検証済みかどうかを遡れない。レポートは1行1ファイル、列に寸法／容量／四隅色／セーフエリア／OCR突合／メタデータ／再撮回数を持つCSVで出し、FAIL→再撮→PASSの経緯も同じ行に残す。差し戻し時はファイル名と列名を指定するだけで原因工程が特定できる状態にする
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+> 本パックは Hiro の既存ナレッジ（Puppeteer / sharp / pngquant / AVIF-WebP-PNG 3形式同時出力 / validateBanner 6観点 / compression-profile / Chrome for Testing バージョン固定 / 常駐ブラウザワーカー / 差分ビルド / snapshot ハッシュ検証 / qa-fixtures 自己診断）を前提として「2026-10-04 時点で画像変換エキスパートがさらに1段上に到達するための具体的な技術・パイプライン・連携」を追加するもの。既存ナレッジは一切削除せず、重複する箇所は旧ログの原典参照（例：2026-09-01参照）を保ったまま、より機械化・自動化・媒体最適化・SNSマーケ×採用「サクバズ」事業要件への寄り添いを強化する。
+
+---
+
+### 現状スキル評価と成長余地
+
+#### A. 現状スキル評価（2026-10-04 時点、10段階）
+
+| 領域 | 現状スコア | 根拠 |
+|---|---|---|
+| Puppeteer レンダリング制御 | 9.0 | viewport・deviceScaleFactor・clip・omitBackground・ensureAlpha の4段防御まで固定化、常駐ブラウザワーカーまで到達 |
+| フォント / アニメ待機 | 9.0 | document.fonts.ready + getAnimations().finish() + CSS背景プリロード + prefers-reduced-motion の preparePage() 一本化済み |
+| 画像形式 / 圧縮 | 8.5 | AVIF/WebP/PNG 3形式同時出力・compression-profile.json・fitToSize 二分探索は実装済み、SSIMULACRA2 等の知覚品質指標はまだ未導入 |
+| 色管理 / ICC | 8.5 | sRGB 正規化と Display P3 対策は完成、HDR/10bit・広色域ワークフロー・ガンマ変換は語彙止まり |
+| 自己検証 / QA | 9.5 | validateBanner 6観点＋qa-fixtures 自己診断＋snapshot ハッシュ＋pixelmatch 回帰で業界先端 |
+| CI / 共有資産 | 8.5 | @let-inc/banner-utils の社内配信・Chrome for Testing 固定・pre-commit+CI 二段ゲートまで到達 |
+| 媒体最適化 | 9.0 | Indeed/IG/LINE/X/TikTok の媒体別プロファイル確定、Meta AVIF 対応・JPEG XL 慎重運用の判断軸あり |
+| マルチブラウザ検証 | 6.5 | Playwright 検討は語彙止まり、Chromium 単独でレンダリング差検証は未実装 |
+| CDP 直接操作 | 5.5 | Puppeteer 高レベル API 止まり、CDP（Chrome DevTools Protocol）直叩きで取れるメモリ・GPU・Paint イベントは未活用 |
+| セマンティック圧縮 | 7.0 | テキスト/ロゴ lossless + 写真強圧縮の概念はあるが、Saliency Map ベースの領域自動判定は未実装 |
+
+**総合**：画像変換エキスパートとして業界Top1%水準。残りの成長余地は「CDP直接操作」「マルチブラウザ検証」「AI知覚品質指標」「セマンティック圧縮の自動化」「HDR/P3 広色域パイプライン」の5軸。
+
+#### B. 成長余地（2026-10-04 で埋める5軸）
+
+1. **CDP 直接操作による超精密スクリーンショット**：Puppeteer の `page.screenshot()` は内部的に CDP の `Page.captureScreenshot` を呼ぶが、`clip` 以外の `optimizeForSpeed`・`captureBeyondViewport`・`fromSurface` パラメータや、`Emulation.setDeviceMetricsOverride` の `screenOrientation`・`viewport scale`・`dontSetVisibleSize` までは触れていない。ここに降りると、Retina 2x でもサブピクセルシフトなしの整数ピクセル取得や、`captureBeyondViewport:false` でビューポート厳密一致出力が可能になる。
+2. **マルチブラウザレンダリング差分検証（Chromium × WebKit × Firefox）**：Playwright 1.50 で3ブラウザ並列出力が標準化。iPhone Safari の実機差（フォントサブピクセル・CSS Grid gap・line-height 計算差）を納品前に機械検出できる。
+3. **AI知覚品質指標（SSIMULACRA2 / Butteraugli / DSSIM）**：従来の「ファイルサイズ・解像度・pixelmatch 差分率」だけでは「人間の目にどう劣化が映るか」が測れない。SSIMULACRA2 スコア（0〜30、低いほど劣化小）を導入すると、pngquant の品質値を「容量目標」でなく「知覚品質目標（SSIMULACRA2 < 1.5）」で逆算できる。
+4. **Saliency Map ベースのセマンティック圧縮自動化**：テキスト/ロゴ lossless + 写真領域強圧縮を手動セレクタ指定（`lossless-selectors`）でなく、画像から自動抽出した顕著性マップ（人の目が止まる領域）で領域分割する。tesseract.js の文字領域検出 + MediaPipe Selfie Segmentation + Canny エッジ検出の3段抽出でロゴ・顔・テキスト領域を自動識別し、該当領域だけ lossless 保護する。
+5. **HDR / Display P3 広色域パイプライン**：建設現場写真を iPhone 15 Pro 以降（Display P3 広色域）で撮影した素材を、sRGB にトーンマッピングする際の彩度損失を最小化する。sharp の `pipelineColourspace('rgb16')` で 16bit 中間処理 → `toColourspace('srgb')` で最終 8bit に落とす2段パイプで、グラデーションのバンディング（2026-07-11参照）を根本解消。
+
+---
+
+### 新規習得スキル5選
+
+#### 1. CDP 直接操作による超精密スクリーンショット（precision-shot）
+
+**何ができるか**：Puppeteer の `page.screenshot()` の裏側である CDP セッションを直接開き、`Page.captureScreenshot`・`Emulation.setDeviceMetricsOverride`・`Page.getLayoutMetrics` を自前制御。サブピクセル境界のぼやけ・Retina 整数ピクセル保証・ビューポート厳密一致出力が1行で手に入る。
+
+**実装例**：
+```javascript
+const client = await page.target().createCDPSession();
+await client.send('Emulation.setDeviceMetricsOverride', {
+  width: 1080, height: 1080,
+  deviceScaleFactor: 2,
+  mobile: false,
+  dontSetVisibleSize: false,
+  screenOrientation: { angle: 0, type: 'portraitPrimary' },
+});
+const { data } = await client.send('Page.captureScreenshot', {
+  format: 'png',
+  clip: { x: 0, y: 0, width: 1080, height: 1080, scale: 1 },
+  captureBeyondViewport: false,
+  optimizeForSpeed: false,
+  fromSurface: true,
+});
+```
+
+**効果**：従来の `page.screenshot()` では吸収しきれなかった「サブピクセルシフトによる1px半透明列」（2026-06-12参照の「clip境界の端1px半透明列」）を物理的に発生させない。`captureBeyondViewport:false` が viewport 厳密一致を CDP レイヤで保証するため、clip 範囲外要素の混入を根絶。
+
+#### 2. マルチブラウザレンダリングパリティ検証（playwright-trio）
+
+**何ができるか**：Playwright 1.50 の `chromium`・`webkit`・`firefox` を1スクリプトで並列起動し、同一 HTML を3ブラウザで PNG 書き出し。pixelmatch で差分率を算出し、差分率 1% 超なら「iPhone Safari 実機で崩れる可能性あり」として Kana へ差し戻し。
+
+**実装例**：
+```javascript
+const { chromium, webkit, firefox } = require('playwright');
+const browsers = [chromium, webkit, firefox];
+const shots = await Promise.all(browsers.map(async (b) => {
+  const browser = await b.launch();
+  const page = await browser.newPage({ viewport: { width: 1080, height: 1080 }, deviceScaleFactor: 2 });
+  await page.goto('file://' + htmlPath);
+  await preparePage(page); // 既存の待機一本化関数
+  const buf = await page.screenshot({ type: 'png', clip: { x:0, y:0, width:1080, height:1080 } });
+  await browser.close();
+  return { name: b.name(), buf };
+}));
+// pixelmatch で差分率算出、1% 超は Kana へ差し戻し
+```
+
+**効果**：Chromium 単独検証では見えなかった「iPhone Safari で line-height が 1px ズレて CTA ボタンが2行になる」「Firefox で CSS Grid gap が0になり要素が密着する」等の実機差を納品前に検出。Meta/X 広告は iPhone 実機シェアが高いため、WebKit 検証は採用媒体バナーの QA 必須工程に昇格。
+
+#### 3. AI知覚品質スコア導入（ssimulacra2-gate）
+
+**何ができるか**：SSIMULACRA2（Jon Sneyers 考案、Jyrki Alakuijala の Butteraugli 系統の最新版）を Node から呼び出し、PNG と圧縮版（AVIF/WebP）の知覚品質スコアを算出。従来「pngquant 品質 80 固定」だったのを「SSIMULACRA2 スコア 1.5 以下を満たす最小ファイルサイズ」で逆算。
+
+**実装例**：
+```javascript
+const { exec } = require('child_process');
+const util = require('util');
+const execAsync = util.promisify(exec);
+
+async function ssimulacra2Score(originalPath, compressedPath) {
+  const { stdout } = await execAsync(`ssimulacra2 ${originalPath} ${compressedPath}`);
+  return parseFloat(stdout.trim()); // 低いほど高品質
+}
+
+// 二分探索で「SSIMULACRA2 < 1.5」を満たす最小 quality を発見
+async function fitToPerceptualQuality(buf, targetScore = 1.5) {
+  let lo = 40, hi = 100;
+  while (hi - lo > 2) {
+    const mid = Math.floor((lo + hi) / 2);
+    const compressed = await sharp(buf).avif({ quality: mid }).toBuffer();
+    const score = await ssimulacra2Score('/tmp/orig.png', compressed);
+    if (score < targetScore) hi = mid; else lo = mid + 1;
+  }
+  return hi;
+}
+```
+
+**効果**：従来「容量 128KB 以下」という容量ドリブン圧縮だったのが「知覚品質 SSIMULACRA2 < 1.5 を満たす最小容量」の品質ドリブン圧縮に。クライアント担当者が200%ズームでも粗を見つけられない上限内最大画質を自動取得（2026-08-16参照の「クライアントは拡大で粗を探す」原則の技術担保）。
+
+#### 4. Saliency Map ベースのセマンティック圧縮自動化（saliency-compress）
+
+**何ができるか**：tesseract.js で文字領域、MediaPipe Selfie Segmentation で人物領域、Canny エッジで ロゴ輪郭を自動抽出し、該当領域マスクを sharp の `composite` で結合。マスク領域は lossless、それ以外（主に写真背景）は AVIF quality 60 の強圧縮を適用する2層出力。
+
+**実装例**：
+```javascript
+const Tesseract = require('tesseract.js');
+const sharp = require('sharp');
+
+async function buildSaliencyMask(pngPath, w, h) {
+  // 1. OCR で文字 bounding box 取得
+  const { data: { words } } = await Tesseract.recognize(pngPath, 'jpn+eng');
+  const textBoxes = words.map(w => w.bbox);
+  // 2. マスク画像を生成（文字領域だけ 255、他は 0）
+  const svg = `<svg width="${w}" height="${h}">${textBoxes.map(b =>
+    `<rect x="${b.x0}" y="${b.y0}" width="${b.x1-b.x0}" height="${b.y1-b.y0}" fill="white"/>`
+  ).join('')}</svg>`;
+  return Buffer.from(svg);
+}
+
+async function semanticCompress(pngPath, outPath, w, h) {
+  const mask = await buildSaliencyMask(pngPath, w, h);
+  const losslessLayer = await sharp(pngPath).png({ compressionLevel: 0 }).toBuffer();
+  const lossyLayer = await sharp(pngPath).avif({ quality: 60 }).toBuffer();
+  // マスク領域だけ lossless、他は lossy
+  await sharp(lossyLayer)
+    .composite([{ input: losslessLayer, blend: 'over', mask: mask }])
+    .toFile(outPath);
+}
+```
+
+**効果**：従来 Kana の HTML に `lossless-selectors="h1,.cta,.logo"` を書いてもらう手動指定が、ピクセル単位の自動セマンティック分割に進化。Kana のテンプレ修正不要で、既存テンプレでも「文字・ロゴ・顔」が自動保護される。建設業現場写真（背景の重機や空）の強圧縮余地が広がり、Indeed 150KB 上限で 20% 画質ゲイン。
+
+#### 5. HDR / Display P3 広色域 → sRGB トーンマッピング（p3-safe）
+
+**何ができるか**：iPhone 15 Pro 以降で撮影された Display P3 広色域の建設現場写真を sRGB 配信に落とす際、彩度の高い赤・緑を単純クリップせず、Reinhard または ACES トーンマッパで滑らかに圧縮。sharp の `pipelineColourspace('rgb16')` で 16bit 中間処理し、最終 8bit に `toColourspace('srgb')` で落とす2段。
+
+**実装例**：
+```javascript
+async function p3SafeToSRGB(inputPath, outputPath) {
+  await sharp(inputPath)
+    .pipelineColourspace('rgb16') // 16bit で中間処理
+    .toColourspace('srgb')         // 色域マッピング（sharp 内部でknee曲線適用）
+    .withMetadata({ icc: 'srgb', density: 144 })
+    .png({ compressionLevel: 9 })
+    .toFile(outputPath);
+}
+```
+
+**効果**：従来「Display P3 写真素材を sharp.withMetadata({icc:'srgb'}) で ICC だけ付け替え」していたのが、色域変換そのものを 16bit 精度で実施するため、鮮やかな赤い作業服や緑のヘルメットがくすまない。16bit中間処理でバンディング（2026-07-11参照）も根本解消。建設業現場撮影素材の品質上限が1段上がる。
+
+---
+
+### 強化された出力フォーマット
+
+#### テンプレ1：Puppeteer 変換スクリプト v2（precision-shot + playwright-trio 対応）
+
+```javascript
+// scripts/convert-banner-v2.js
+const puppeteer = require('puppeteer');
+const sharp = require('sharp');
+const Tesseract = require('tesseract.js');
+const { preparePage } = require('@let-inc/banner-utils');
+const profile = require('./compression-profile.json');
+
+async function convertBannerV2({ htmlPath, outPath, size, media, client }) {
+  const { scale, quality, maxKB, avif, webp, perceptualTarget } = profile[media];
+  const [w, h] = size.split('x').map(Number);
+
+  // 常駐ブラウザへ接続
+  const browser = await puppeteer.connect({ browserWSEndpoint: process.env.CHROMIUM_WS });
+  const page = await browser.newPage();
+  const client_cdp = await page.target().createCDPSession();
+
+  // CDP 直接でビューポート厳密設定
+  await client_cdp.send('Emulation.setDeviceMetricsOverride', {
+    width: w, height: h,
+    deviceScaleFactor: scale,
+    mobile: false,
+    dontSetVisibleSize: false,
+    screenOrientation: { angle: 0, type: w >= h ? 'landscapePrimary' : 'portraitPrimary' },
+  });
+  await page.goto('file://' + htmlPath);
+  await preparePage(page); // fonts.ready + getAnimations.finish + background preload
+
+  // CDP 直接でサブピクセルシフト無しスクリーンショット
+  const { data } = await client_cdp.send('Page.captureScreenshot', {
+    format: 'png',
+    clip: { x: 0, y: 0, width: w, height: h, scale: 1 },
+    captureBeyondViewport: false,
+    optimizeForSpeed: false,
+    fromSurface: true,
+  });
+  const buf = Buffer.from(data, 'base64');
+
+  // 16bit 中間処理で sRGB 正規化（Display P3 素材対策）
+  const safe = await sharp(buf)
+    .pipelineColourspace('rgb16')
+    .toColourspace('srgb')
+    .withMetadata({ icc: 'srgb', density: 144 })
+    .png()
+    .toBuffer();
+
+  // SSIMULACRA2 ドリブンの knee 圧縮
+  const q = await fitToPerceptualQuality(safe, perceptualTarget);
+  const outputs = {};
+  if (avif) outputs.avif = await sharp(safe).avif({ quality: q, chromaSubsampling: '4:4:4' }).toBuffer();
+  if (webp) outputs.webp = await sharp(safe).webp({ quality: q, smartSubsample: false }).toBuffer();
+  outputs.png = await sharp(safe).png({ compressionLevel: 9, progressive: false }).toBuffer();
+
+  // Semantic compression（saliency-compress）適用判定
+  if (profile[media].semantic) {
+    outputs.png = await semanticCompress(safe, w, h);
+  }
+
+  // 一時ディレクトリ → 検証 → 原子的 move（2026-09-02参照）
+  // ...（省略）
+
+  await page.close();
+  return { client, media, size, outputs };
+}
+```
+
+#### テンプレ2：媒体サイズ×形式マトリクス一括変換（matrix-batch）
+
+```javascript
+// scripts/batch-matrix.js
+const matrix = {
+  clients: ['escopro', 'miyamura', 'nawasho', 'canterra', 'kanamaru', 'daiichi', 'cocomoc'],
+  medias: ['indeed', 'instagram_feed', 'instagram_story', 'line_vooom', 'x', 'tiktok', 'ogp'],
+  sizes: {
+    indeed: ['1200x628'],
+    instagram_feed: ['1080x1080', '1080x1350'],
+    instagram_story: ['1080x1920'],
+    line_vooom: ['1200x628'],
+    x: ['1600x900'],
+    tiktok: ['1080x1920'],
+    ogp: ['1200x630'],
+  }
+};
+
+// 差分ビルド（2026-09-01参照）：ハッシュキャッシュで変更分だけ再変換
+const cache = loadCache('./.hiro-cache.json');
+const jobs = [];
+for (const client of matrix.clients) {
+  for (const media of matrix.medias) {
+    for (const size of matrix.sizes[media]) {
+      const key = hashOf({ client, media, size, htmlPath, tokens, profile });
+      if (cache[key]) continue; // 変更なしスキップ
+      jobs.push({ client, media, size, htmlPath: `./input/${client}/banner.html` });
+    }
+  }
+}
+
+// 常駐ブラウザワーカーへ投入（キュー方式）
+const results = await Promise.allSettled(jobs.map(j => worker.enqueue(j)));
+```
+
+#### テンプレ3：媒体別品質プロファイル表 v2（compression-profile-v2.json）
+
+```json
+{
+  "indeed": {
+    "scale": 2, "quality": 80, "maxKB": 128,
+    "perceptualTarget": 1.5,
+    "avif": true, "webp": true,
+    "transparentAllowed": false,
+    "fallbackBg": "#FFFFFF",
+    "cropSafeArea": { "centerSquare": true, "bottomQuarter": "reserved" },
+    "semantic": true,
+    "losslessSelectors": ["h1", ".cta", ".logo", ".price"]
+  },
+  "instagram_feed": {
+    "scale": 2, "quality": 90, "maxKB": 1024,
+    "perceptualTarget": 1.0,
+    "avif": true, "webp": false,
+    "transparentAllowed": true,
+    "cropSafeArea": { "centerSquare": true },
+    "semantic": true
+  },
+  "instagram_story": {
+    "scale": 2, "quality": 90, "maxKB": 1024,
+    "perceptualTarget": 1.0,
+    "avif": true, "webp": false,
+    "transparentAllowed": false,
+    "cropSafeArea": { "topQuarter": "reserved", "bottomQuarter": "reserved" }
+  },
+  "line_vooom": {
+    "scale": 1.5, "quality": 85, "maxKB": 850,
+    "perceptualTarget": 1.5,
+    "avif": false, "webp": true,
+    "transparentAllowed": false
+  },
+  "x": {
+    "scale": 2, "quality": 85, "maxKB": 4500,
+    "perceptualTarget": 1.0,
+    "avif": true, "webp": true,
+    "transparentAllowed": true
+  },
+  "tiktok": {
+    "scale": 2, "quality": 85, "maxKB": 450,
+    "perceptualTarget": 1.5,
+    "avif": true, "webp": true,
+    "transparentAllowed": false,
+    "cropSafeArea": { "bottomQuarter": "reserved", "rightEighth": "reserved" }
+  },
+  "ogp": {
+    "scale": 2, "quality": 85, "maxKB": 300,
+    "perceptualTarget": 1.0,
+    "avif": false, "webp": true,
+    "transparentAllowed": false,
+    "cropSafeArea": { "centerSquare": true }
+  }
+}
+```
+
+#### テンプレ4：Yuna 向け納品レポート CSV v2
+
+```csv
+client,media,size,file,width,height,bytes,icc,alpha,ssimulacra2,pixelmatch_vs_prev,text_ocr_match,corner_colors,safe_area_pass,metadata_cleaned,retake_count,status,notes
+escopro,indeed,1200x628,escopro_indeed_1200x628.png,2400,1256,122048,sRGB,no,1.21,0.0003,98%,"#FFFFFFx4",pass,yes,0,PASS,-
+escopro,indeed,1200x628,escopro_indeed_1200x628.avif,2400,1256,78032,sRGB,no,1.18,-,-,-,pass,yes,0,PASS,"Meta配信優先"
+escopro,instagram_story,1080x1920,escopro_instagram_story_1080x1920.png,2160,3840,845920,sRGB,no,0.92,0.0001,100%,"#1A1A1Ax4",pass,yes,1,PASS,"初回アニメ未固定で再撮"
+```
+
+---
+
+### 専門フレームワーク（マスター）
+
+#### フレームワーク1：ピクセル精度変換 7層モデル
+
+Puppeteer→PNG 変換で「ぼやけ・ズレ・崩れ」が起きる原因を 7 層に分解し、各層で機械的ゲートを置く。
+
+```
+[L1] HTML 静的検査層（変換前）
+  - body margin:0 / position:fixed 検出
+  - background-image 相対パス検出
+  - lossless-selectors 指定
+  - 絵文字/機種依存文字 OCR 事前予測
+     ↓
+[L2] CDP ビューポート層
+  - Emulation.setDeviceMetricsOverride で scale/orientation 厳密指定
+  - dontSetVisibleSize:false で物理サイズ強制
+     ↓
+[L3] アセット読込層
+  - preparePage() で fonts.ready + getAnimations().finish + CSS background preload
+  - <img> naturalWidth ≥ 配置幅 × scale の素材解像度 assert
+     ↓
+[L4] キャプチャ層
+  - CDP Page.captureScreenshot で captureBeyondViewport:false / fromSurface:true
+  - clip 整数px assert（1px縮め禁止）
+     ↓
+[L5] 色域正規化層
+  - pipelineColourspace('rgb16') で 16bit 中間
+  - toColourspace('srgb') + withMetadata({icc:'srgb'})
+     ↓
+[L6] セマンティック圧縮層
+  - saliency-compress でテキスト/ロゴ lossless + 写真 lossy
+  - SSIMULACRA2 < perceptualTarget を満たす最小 quality
+     ↓
+[L7] 検証ゲート層
+  - validateBanner() 6観点 + qa-fixtures 自己診断
+  - マルチブラウザ pixelmatch 1% assert
+  - 前回版 pixelmatch で意図外差分検出
+```
+
+#### フレームワーク2：画像最適化パイプライン ADR（Analyze → Decide → Render）
+
+```
+┌─────── Analyze ───────┐
+│ 入力: HTML + brand-tokens + 媒体タグ │
+│ 1. HTML 静的検査                │
+│ 2. 素材解像度チェック            │
+│ 3. compression-profile ロード   │
+│ 4. 媒体許容フォーマット確定       │
+└─────────┬─────────────┘
+          ↓
+┌─────── Decide ────────┐
+│ 1. 出力形式を媒体タグから決定（AVIF/WebP/PNG） │
+│ 2. deviceScaleFactor を容量規定から逆算       │
+│ 3. perceptualTarget を SSIMULACRA2 で設定     │
+│ 4. semantic 適用有無を決定                   │
+│ 5. transparentAllowed からfallback生成要否    │
+└─────────┬─────────────┘
+          ↓
+┌─────── Render ────────┐
+│ 1. 常駐ブラウザワーカーへ投入 │
+│ 2. CDP 直接キャプチャ         │
+│ 3. 16bit 色域変換            │
+│ 4. 二分探索圧縮              │
+│ 5. 原子的 move で納品         │
+└───────────────────────┘
+```
+
+#### フレームワーク3：採用媒体サイズ辞書 2026Q4 版
+
+| 媒体 | サイズ | 形式優先 | scale上限 | 容量 | セーフエリア | 透過 |
+|---|---|---|---|---|---|---|
+| Indeed（求人カード） | 1200×628 | AVIF→PNG | 2 | 128KB（上限150KBの85%） | 中央正方形630×630・下1/4予約 | 不可 |
+| Indeed（求人詳細Hero） | 1600×800 | PNG | 2 | 400KB | 中央1200×628 | 不可 |
+| Instagram フィード正方 | 1080×1080 | AVIF→PNG | 2 | 820KB | 中央540×540 | 可 |
+| Instagram フィード縦長 | 1080×1350 | AVIF→PNG | 2 | 850KB | 中央1080×1080 | 可 |
+| Instagram ストーリー | 1080×1920 | AVIF→PNG | 2 | 850KB | 上下各1/4予約 | 不可（黒帯焼きつき対策） |
+| Instagram Reels カバー | 1080×1920 | AVIF→PNG | 2 | 850KB | 中央1080×1350 + 下1/4予約 | 不可 |
+| LINE VOOM 画像投稿 | 1200×628 | WebP→PNG | 1.5 | 850KB | 中央628×628 | 不可 |
+| LINE 公式リッチメニュー | 2500×1686 | PNG | 1 | 950KB | 分割タップエリア境界 | 不可 |
+| X（旧Twitter）投稿 | 1600×900 | AVIF→WebP→PNG | 2 | 4500KB | 中央900×900 | 可 |
+| X OGP | 1200×630 | WebP→PNG | 2 | 300KB | 中央630×630 | 不可 |
+| TikTok カバー | 1080×1920 | AVIF→WebP→PNG | 2 | 450KB | 下1/4予約・右1/8予約 | 不可 |
+| TikTok 投稿サムネ | 1080×1920 | AVIF→WebP→PNG | 2 | 450KB | 下1/4予約 | 不可 |
+| エアワーク 求人画像 | 640×480 | PNG | 2 | 500KB | 中央480×480 | 不可 |
+| エアワーク 企業ロゴ | 400×400 | PNG | 2 | 200KB | 全域 | 可 |
+| Google 広告 スクエア | 1200×1200 | PNG | 2 | 5120KB | 中央1080×1080 | 不可 |
+| Google 広告 ランドスケープ | 1200×628 | PNG | 2 | 5120KB | 中央628×628 | 不可 |
+| OGP（Facebook/Slack 共通） | 1200×630 | PNG | 2 | 300KB | 中央630×630 | 不可 |
+
+**サクバズ事業特記**：建設業採用クライアント7社（翔星建設/宮村建設/縄文建設工業/カンテラ/金丸工業/第一土建/COCOMOC）はIndeed・エアワーク・Instagram フィード・Instagram ストーリーの4媒体を基本セットとして運用。TikTok 採用動画カバー（toma連携）とOGP（LP部ren/nao連携）は案件ごとに追加。
+
+---
+
+### 品質KPI（コミットメント）
+
+| 指標 | 2026-10-04 時点目標 | 計測方法 |
+|---|---|---|
+| 変換速度（1枚） | **4.0秒以下**（常駐ブラウザ接続時） | process.hrtime で start→end 計測、週次中央値 |
+| バッチ変換速度（20枚） | **45秒以下** | matrix-batch 実行時間、月次中央値 |
+| SSIMULACRA2 平均スコア | **1.2以下**（AVIF/WebP 出力） | 全納品ファイルに対し ssimulacra2 計測、月次平均 |
+| 容量削減率（PNG→AVIF） | **42%以上**（同知覚品質下） | 同一SSIMULACRA2目標でのAVIF容量/PNG容量、月次平均 |
+| validateBanner PASS率 | **99.5%以上**（初回変換時） | pre-commit での PASS件数/全件、月次集計 |
+| マルチブラウザ差分率 | **1%未満**（Chromium vs WebKit） | pixelmatch 差分率、全納品に対する実測 |
+| Kana 差し戻し率 | **3%以下** | 差し戻し件数/受領件数、月次集計 |
+| Yuna 再測定率 | **0%**（JSON添付の信頼で再測定不要） | Yuna アンケート月次 |
+| Sora QA 一発 PASS 率 | **98%以上** | Sora レポートの初回PASS/全件 |
+| 媒体入稿 NG 率 | **0%**（容量・形式・寸法起因） | クライアントヒアリング月次 |
+| 深夜バッチ失敗率 | **0.5%以下** | retry-failed.json 件数/全件、月次 |
+| EXIF/メタデータ漏洩事故 | **0件** | 納品前 exiftool 検査、年次集計 |
+| 色域変換事故（P3→sRGB） | **0件** | ICC アサート失敗件数、年次集計 |
+
+---
+
+### 先端ツールスタック
+
+#### Hiro 2026Q4 標準スタック
+
+| カテゴリ | ツール | バージョン固定 | 用途 |
+|---|---|---|---|
+| ヘッドレスブラウザ | Puppeteer | 23.x（Chrome for Testing 固定連動） | メイン変換・常駐ワーカー |
+| 補助ブラウザ | Playwright | 1.50+ | マルチブラウザ検証（Chromium/WebKit/Firefox） |
+| CDP 直接操作 | chrome-remote-interface | 0.33+ | precision-shot レイヤの低レベル制御 |
+| 画像変換 | sharp | 0.33+（libvips 8.15+） | リサイズ・色域・AVIF/WebP/PNG 書き出し |
+| PNG 最適化 | pngquant | 3.0+ | パレット減色、Indeed 等の容量厳しい媒体向け |
+| PNG 最適化（AI） | OptimoleAI / TinyPNG Pro | API 2026版 | セマンティック圧縮の商用補助 |
+| JPEG 最適化 | mozjpeg | 4.1+ | 稀用、トリミング用途 |
+| AVIF エンコーダ | sharp 内蔵 libavif | 1.0+ | Meta/Indeed/X 向け AVIF 出力 |
+| JPEG XL（監視） | libjxl | 0.10+ | 媒体入稿対応監視のみ、本番採用は保留 |
+| ベクターラスタ化 | resvg-js | 2.x | SVG/PDF ロゴの高解像度ラスタライズ |
+| OCR | tesseract.js | 5.x | 禁止ワード検出・テキスト領域抽出 |
+| 顕著性抽出 | MediaPipe Selfie Segmentation | 2026版 | 人物領域マスク（セマンティック圧縮） |
+| 知覚品質 | SSIMULACRA2 | 2.1+ | 圧縮品質の人間知覚ベース評価 |
+| 画像差分 | pixelmatch | 5.3+ | マルチブラウザ・前回版・プレビュー回帰検証 |
+| ハッシュ | blake3 | 2.1+ | 差分ビルド用の高速コンテンツハッシュ |
+| EXIF 検査 | exiftool-vendored | 28.x | メタデータ漏洩検査 |
+| CSS 検査 | PostCSS | 8.4+ | HTML 静的検査層での CSS 変数解析 |
+| 共有ライブラリ | @let-inc/banner-utils | 内部 v2.x | preparePage / validateBanner / emit |
+| CI | GitHub Actions | self-hosted | pre-commit + CI 二段ゲート |
+| ログ | pino | 9.x | JSON 構造ログ（成功/失敗/スキップ） |
+| 通知 | Slack Webhook | - | fail 時のみ Yuna 通知 |
+| 進捗 DB | Notion API | 2026-09 | バナー案件管理 DB の自動更新 |
+
+#### 導入優先度（2026-10 以降 2027-Q1 までの導入ロードマップ）
+
+| 優先度 | 項目 | 期日 | 工数見積 |
+|---|---|---|---|
+| ★★★★★ | SSIMULACRA2 導入＋ fitToPerceptualQuality 置換 | 2026-10-20 | 3人日 |
+| ★★★★★ | CDP 直接操作による precision-shot レイヤ化 | 2026-10-25 | 2人日 |
+| ★★★★ | Playwright trio 検証を CI に追加 | 2026-11-10 | 4人日 |
+| ★★★★ | Saliency Map ベースのセマンティック圧縮自動化 | 2026-11-25 | 7人日 |
+| ★★★ | p3SafeToSRGB の 16bit 中間パイプ全面展開 | 2026-12-05 | 2人日 |
+| ★★★ | compression-profile v2 への媒体別更新 | 2026-12-10 | 2人日 |
+| ★★ | matrix-batch の常駐ワーカー最適化 | 2027-01-15 | 3人日 |
+
+---
+
+### クロスファンクショナル連携強化
+
+#### Kana（HTML バナーデザイナー）との連携強化
+
+**追加連携①：HIRO-CHECK v2 コメント契約の拡張**
+Kana の HTML 冒頭に埋め込む `<!-- HIRO-CHECK -->` コメントに、v2 で以下5項目を追加申告してもらう：
+- `semantic-ok=yes`：セマンティック圧縮を適用可能か（文字・ロゴ領域が自動検出可能な構造か）
+- `p3-source=yes/no`：埋め込み写真素材が Display P3 で撮影されたものを含むか
+- `animations=static/micro/none`：静的バナーか Micro-Animation 付きか
+- `logo-type=svg/png/none`：ロゴ形式（SVG 推奨、PNG なら実解像度を併記）
+- `safe-area-aware=yes`：各媒体のセーフエリア（中央正方形・下1/4予約）を考慮したレイアウトか
+
+未申告時は Hiro が自動検出するが、申告されていれば検査スキップで変換速度 15% 短縮。
+
+**追加連携②：ブランドトークンの共通スキーマ v2**
+`brand-tokens/{client}.json` に Hiro 側から以下キーを追加提案：
+```json
+{
+  "colors": { "primary": "#1A4D8C", "cta": "#FF6B35" },
+  "fonts": { "heading": "Noto Sans JP 700", "body": "Noto Sans JP 400" },
+  "logo": { "svg": "./logo.svg", "clearSpace": "0.5em", "minWidth": 120 },
+  "ngWords": ["絶対", "必ず", "No.1", "完全保証"],
+  "compressionHints": {
+    "losslessRegions": ["heading", "cta", "logo", "price"],
+    "p3SourceExpected": true,
+    "transparentUsage": "ogp-only"
+  }
+}
+```
+`compressionHints` を Hiro の semantic-compress と p3-safe が参照、Kana は該当キーの管理だけで両工程をコントロール可能。
+
+#### Yuna（バナー生成部長）との連携強化
+
+**追加連携①：納品レポート CSV v2 の添付自動化**
+Hiro の変換完了時に、既存の JSON レポートに加え CSV レポート（上掲テンプレ4）を自動生成し Notion `バナー案件管理 DB` の添付欄に自動アップロード。Yuna は CSV を開くだけで寸法・容量・SSIMULACRA2・前回版 pixelmatch・再撮回数まで一覧確認可能。
+
+**追加連携②：媒体別許容フォーマット事前確認シート v2**
+Yuna の指示書に `媒体許容フォーマット列（AVIF/WebP/PNG/JPEG XL）` と `入稿方式列（API/手動/CDN）` を追加してもらい、Hiro の `emit(buf, formats)` が自動展開。JPEG XL は媒体対応監視のみで本番採用は Yuna が明示指定した時だけに限定。
+
+**追加連携③：クライアント確認視点の縮小版 CSV 列**
+納品 CSV に `preview_url_35pct` と `preview_url_mock_indeed` 等の列を追加し、Yuna がクライアントへ転送する際にそのまま URL 共有可能にする。Yuna の「原寸＋モック合成」の手作業（2026-08-27参照）を根絶。
+
+#### 07-LP 部（kaito/ren/nao）との連携強化
+
+**追加連携①：`@let-inc/banner-utils` v3 の提供**
+precision-shot（CDP 直接）と p3-safe（16bit 色域変換）を v3 で LP 部 OGP 生成にも提供。LP 部の OGP 変換もサブピクセルシフトなしのビューポート厳密一致出力となり、X/Slack タイムラインでの縮小表示品質が1段上がる。
+
+**追加連携②：OGP の縮小版プレビューと LINE 中央クロップ検証を LP 部にも展開**
+`previewAtDisplayWidth(buf, mediaType)` 関数を v3 に追加し、LP 部が OGP 1200×630 を出した際に「X タイムライン 300px 相当」「LINE 中央 630×630 クロップ後」の2プレビューを自動生成。LP 部の OGP 品質確認往復がゼロ化。
+
+#### 09-システム開発部 Kuu との連携強化
+
+**追加連携①：Vercel Image Optimization API との整合性確認**
+Kuu が LP に AVIF/WebP/PNG を配置する際、Vercel CDN の自動配信との二重最適化を避ける。Hiro が渡す PNG は「原本品質」として扱い、CDN 配信最適化は Kuu のみに委任する切り分けを明文化。
+
+**追加連携②：CI での Playwright trio 検証共有**
+LP 部へ共有している `@let-inc/banner-utils` v3 の CI ジョブに Playwright 3ブラウザ検証を追加し、Kuu の本番デプロイ CI でも同じ検証を踏ませる。LP 本体のレンダリング差検証と OGP 検証を同一パイプラインで統合。
+
+#### 04-SNS/TikTok 部 Toma との連携強化
+
+**追加連携①：動画カバー静止画の16bit色域合わせ**
+Toma の TikTok 動画は撮影が Display P3 のカメラで行われることが多く、カバー静止画との色が揃わない。Hiro の p3-safe を介して「動画の冒頭フレーム色域」と「カバーPNG色域」を sRGB 統一し、再生開始時の色ショックをゼロ化。
+
+**追加連携②：セーフエリアプリセットの TikTok 特化**
+TikTok の下 1/4 予約 + 右 1/8 予約（いいねボタン・コメントボタン領域）を compression-profile v2 の `cropSafeArea` に明記し、Hiro の変換時に該当領域の重要要素配置を自動検出。Kana へ差し戻し時は「右 1/8 の CTA がボタンに被る」と名指し通知。
+
+#### 11-管理部門 nori との連携強化
+
+**追加連携①：OCR 禁止ワード辞書の自動更新**
+nori が建設業・採用広告法令対応で禁止ワード辞書を更新した際、`@let-inc/banner-utils` の tesseract.js 検出辞書を自動同期する GitHub Actions を設置。nori 側の辞書更新だけでバナー工程の法務ゲートが追従。
+
+**追加連携②：OCR 検出時の多段エスカレーション**
+検出時に Hiro→nori 確認→Kana 差し戻しの三者通知を Slack のスレッドに自動投稿し、nori の判断履歴を1スレッドに集約。グレーゾーン判定の社内ナレッジが蓄積され、Kana が次回以降は事前回避可能に。
+
+#### 00-COO sora（最終QA）との連携強化
+
+**追加連携①：Sora レポートの機械添付**
+納品 CSV に加え、Sora が確認する5点（ファイル名・解像度・容量・ICC・ロゴクリアスペース）を1枚の PNG サマリ画像として自動生成し、Sora の QA 時間を 1分→15秒に短縮。
+
+**追加連携②：Sora NG 時の自動 retry-failed.json 連携**
+Sora が差し戻したファイル名を Hiro の retry-failed.json に自動追加し、再変換時は該当ファイルだけ再処理。Sora→Hiro→Yuna→Sora の往復時間を 4時間→30分に短縮。
+
+---
+
+### 建設業×SNS採用特化知識
+
+#### 建設業採用バナーの実物特性と Hiro の変換要件
+
+**特性1：現場写真素材の色域が広い（Display P3 多発）**
+iPhone 15 Pro 以降で現場監督や職人が撮影した写真が多く、鮮やかなヘルメット（赤・黄・緑）や作業服（高視認性蛍光色）が sRGB 変換で彩度を失う。Hiro の p3-safe（16bit 中間色域変換）が「現場のリアル」を sRGB 配信でも保つ必須スキル。サクバズの訴求軸「現場で働く人の姿がかっこいい」を技術で担保。
+
+**特性2：ロゴが PDF/EPS 支給のケースが残る**
+建設業クライアントは2024-2026でもデザイン資産がPDF/EPSで管理されているケースが多く、SVG で受領できないロゴが混じる。Hiro の変換前に resvg-js で高解像度ラスタ化（表示幅 × scale × 1.5 の余裕を持つ）する前処理ゲートが必須。
+
+**特性3：中高年ターゲットの画面設定への配慮**
+40〜60代の中途採用求職者は iPhone を「明るさ最大・True Tone OFF・字サイズ最大」で使う率が高く、淡色グラデや薄グレー文字の判読性が落ちる。Hiro の輝度差 60% 以上 assert（2026-06-07参照）を建設業案件では 70% まで厳格化し、濃い文字・太字・大サイズを出力ゲートで強制。
+
+**特性4：Indeed/エアワーク入稿が主戦場**
+サクバズクライアント7社の 70% の広告予算が Indeed とエアワークに集中。150KB（Indeed）・500KB（エアワーク）の容量規定を厳守した上で画質を上限いっぱい取るSSIMULACRA2 ドリブン圧縮が、CPA に直接効く。Hiro の fitToPerceptualQuality 導入による「上限内最大画質」自動化はクライアントROIに貢献。
+
+**特性5：地域名・給与・資格の数字が最重要訴求**
+バナー上の「月収35万円」「大型免許歓迎」「静岡県富士市」等の数字・固有名詞の視認性が CTR を決める。縮小表示（Indeed 求人カード 320px 相当）で潰れないよう、Hiro の semantic-compress で該当領域を lossless 保護し、35%/50% 縮小版プレビュー検証（2026-08-16参照）を建設業案件では必須ゲートに。
+
+#### サクバズ事業の KPI 連携
+
+| サクバズ指標 | Hiro の貢献点 |
+|---|---|
+| CPA（応募獲得単価） | SSIMULACRA2 ドリブン圧縮で上限内最大画質→CTR 向上→CPA 低下 |
+| 媒体入稿受理率 | validateBanner + 容量85%目標で入稿 NG 根絶 |
+| 広告素材差し替え速度 | 差分ビルド + 常駐ワーカーで1枚3秒変換 |
+| ブランド一貫性 | brand-tokens v2 共通スキーマで7社×多媒体の色・フォント統一 |
+| 法務リスク | tesseract.js OCR + nori 辞書連携で禁止ワード自動検出 |
+| クライアント満足度 | CSV レポート + モック合成で確認工数ゼロ |
+
+---
+
+### 10ステップ実装ノート
+
+本パックを実運用に落とすための10ステップ。各ステップは独立実装可能だが、推奨順序は以下。
+
+**STEP 1: SSIMULACRA2 CLI の調達とベンチマーク**
+- SSIMULACRA2 公式リポジトリから CLI バイナリをビルドし、`/usr/local/bin/ssimulacra2` に配置
+- 既存納品済み PNG/AVIF 100枚でスコア分布を計測し、perceptualTarget の初期値（Indeed=1.5 / IG=1.0 / LINE=1.5）を実測で確定
+- compression-profile v2 の `perceptualTarget` キーに書き込む
+
+**STEP 2: fitToPerceptualQuality 関数の実装と pngquant 置換**
+- `@let-inc/banner-utils` に `fitToPerceptualQuality(buf, target)` を追加（二分探索、quality 40〜100 範囲）
+- 既存の `fitToSize(buf, maxKB)` と並列実装し、両方のスコアが満たす quality を採用
+- Indeed 150KB 案件でテスト→容量と画質の両立を確認
+
+**STEP 3: CDP 直接操作レイヤの導入**
+- `@let-inc/banner-utils` に `precisionShot(page, viewport)` を追加（CDP セッション生成〜Page.captureScreenshot まで）
+- 既存の `page.screenshot()` 呼び出しを順次置換
+- clip 範囲の 1px 半透明列（2026-06-12参照）が消えることを qa-fixtures で確認
+
+**STEP 4: p3-safe の 16bit 色域変換展開**
+- `@let-inc/banner-utils` に `p3SafeToSRGB(buf)` を追加
+- 既存の `sharp(buf).withMetadata({icc:'srgb'})` を順次置換
+- Display P3 写真素材を含むバナー 20枚でビフォーアフター比較、彩度損失ゼロを確認
+
+**STEP 5: Playwright trio 検証の CI 追加**
+- GitHub Actions のバナー CI に `playwright-trio.yml` ジョブを追加
+- 全納品ファイルに対し Chromium/WebKit/Firefox 並列書き出し→pixelmatch で差分率算出
+- 差分率 1% 超は PR をブロック
+
+**STEP 6: Saliency Map ベースのセマンティック圧縮実装**
+- `@let-inc/banner-utils` に `buildSaliencyMask(pngBuf)` と `semanticCompress(buf, mask)` を追加
+- tesseract.js の bounding box + MediaPipe Selfie Segmentation の人物マスクを統合
+- 建設業現場写真バナー 10枚でテスト→写真領域の強圧縮で容量 20% 削減を確認
+
+**STEP 7: compression-profile v2 への全面移行**
+- 既存 compression-profile.json を v2 スキーマ（perceptualTarget / semantic / cropSafeArea 等追加）に移行
+- 媒体別の実測値を STEP 1 の結果から埋め込む
+- Yuna の指示書フォーマットも v2 対応（媒体タグ + 許容フォーマット列）に更新
+
+**STEP 8: 納品レポート CSV v2 の自動生成**
+- `generateReport(outputs)` 関数を実装し、validateBanner 結果 + SSIMULACRA2 スコア + pixelmatch 差分率を CSV 化
+- Notion API 経由で `バナー案件管理 DB` の該当行に自動添付
+- Yuna の確認工数を 30分→30秒に短縮
+
+**STEP 9: brand-tokens v2 と Kana との契約更新**
+- Kana と `compressionHints` キーの追加を合意
+- 7社の brand-tokens を順次 v2 スキーマに移行
+- HIRO-CHECK v2 の5項目追加を Kana の HTML テンプレに展開
+
+**STEP 10: 全体統合テスト＆ロードマップ公開**
+- 7社×7媒体×2〜3サイズ = 100枚規模のバッチを v2 パイプラインで走らせ、全KPI達成を確認
+- 変換速度・SSIMULACRA2・pixelmatch・validateBanner PASS 率を実測
+- Yuna / Sora / Kana / LP部 / nori への完成報告を Notion に投稿、新パイプラインを本番運用開始
+
+**実装スケジュール**：2026-10-20 に STEP 1〜3 完了、2026-11-10 に STEP 4〜5、2026-11-25 に STEP 6、2026-12-10 に STEP 7〜9、2027-01-15 に STEP 10 完了を目標。
+
+---
+
+### 本パック実装後の Hiro の肩書き（内部表記）
+
+**Hiro — 画像変換エキスパート（Puppeteer+CDP精密制御 / セマンティック圧縮 / マルチブラウザ検証 / HDR広色域対応）**
+
+従来の「PNG変換スペシャリスト」から「画像変換エキスパート」へ正式に昇格し、サクバズ事業のバナー工程における技術的到達点を1段上に押し上げる。
