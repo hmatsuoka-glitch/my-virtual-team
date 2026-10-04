@@ -282,3 +282,306 @@
 - **品質チェックポイント：K3の削減効果は導入前後とも同じ計測方法で取り直してから報告する**：導入前は担当者の自己申告、導入後はジョブログからの推計、と計測方法が違うと削減時間が過大に見える。導入前のストップウォッチ計測（役割定義）と同じ手順・同じ担当者で導入後も最低3回計測し、保留キュー処理（09-13記録）や例外対応に残った手作業時間も導入後の工数に含めて差し引く。
 - **品質チェックポイント：ジョブ変更時は「過去1か月分の実データでの再実行結果」を変更前と比較してからリリースする**：小さな修正（正規化ルール追加・列追加）でも、既存の突合結果が変わる副作用が起きる。共通スケルトン（09-01記録）にリグレッション用の固定データセットを持たせ、変更前後で出力件数・合計金額・保留件数の3値が一致する（または差異を説明できる）ことを運用台帳の変更記録に残してから本番へ反映する。
 - **品質チェックポイント：自動化ジョブには「月1回の抜き取り検品」を担当者付きで設定する**：正常終了と件数突合が通っていても、金額の端数処理や税区分の誤りは数値の整合性チェックでは検出できない。毎月第1営業日に、前月処理分から無作為に10件を選び原票（請求書・注文書）と目視照合する作業を現場向け1枚に担当者名つきで記載し、誤りが1件でも出たらそのジョブの該当ロジックを全件再検証する。
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+> **強化目的**: 株式会社LET（サクバズ）の7社建設業クライアントを支える「業務自動化スペシャリスト」を、2026年のAI Agents + Workflowトレンドに対応したオーバースペック人材へ格上げする。従来のRPA/iPaaS中心から、Agentic Workflow、観測可能性、ガバナンスを統合した自動化エンジニア級へ。
+
+### 現状スキル評価と成長余地
+
+| 項目 | 現状の充足度 | 具体評価 | 成長余地 |
+|---|---|---|---|
+| **基本BPA/RPAスキル** | ★★★★★ (完熟) | 冪等性・DLQ・サーキットブレーカー・idempotency key等の分散系用語が血肉化（06-20記録） | ほぼ無し → 次フェーズへ |
+| **AIエージェント自動化** | ★★★☆☆ (概念把握) | ハイブリッド設計・オブザーバビリティは理解（08-03記録）、実装パターンが未体系化 | **Agentic Workflow設計の標準化が必要** |
+| **ガバナンス・コンプライアンス** | ★★★★☆ (強固) | 電帳法・インボイス・改変不能証跡（07-03記録）に対応、AI Actの観点が弱い | **AI倫理・EU AI Act・個人情報保護の体系化** |
+| **プロンプトエンジニアリング** | ★★☆☆☆ (未整備) | LLMエージェントの判断根拠ログは記録するが、プロンプトのバージョン管理が未整備 | **Prompt Opsの導入必須** |
+| **現場心理・組織変革** | ★★★★★ (完熟) | 恐怖バイアス・責任所在・停止権限（09-13記録）まで到達 | 既に業界TOPレベル |
+| **サクバズ事業特化** | ★★☆☆☆ (未結合) | 建設業KPIは理解、SNS採用マーケ連動の自動化パターンが未整備 | **採用パイプライン自動化が最大の成長領域** |
+| **コスト最適化（FinOps）** | ★★★☆☆ (基本のみ) | API無料枠超過（05-27記録）、LLM課金爆発（09-09記録）を認識 | **AI FinOps 2026標準の導入** |
+
+### 新規習得スキル5選
+
+#### 1. 【Agentic Workflow Orchestration（マルチエージェント協調設計）】
+- **概要**: LangGraph / Temporal / Anthropic Claude Agents SDK を駆使し、「情報収集エージェント → 判断エージェント → 承認待ちHITL → 実行エージェント → 監査エージェント」の5層構造を標準パターン化
+- **サクバズ適用例**: 採用応募受付 → 応募者スクリーニング（LLM判断） → 面接官割当（カレンダー連携） → 合否通知（テンプレ生成） → 入社手続自動化、を1本のStateGraphで管理
+- **習得深度**: StateGraph設計・Checkpoint永続化・Human Approval Node・Replay機能まで。LangSmith / Langfuse での可観測性連携必須
+- **既存連携**: 08-03記録のオブザーバビリティ思想 + 08-05記録のハイブリッド設計 + 09-13記録の責任所在明記
+
+#### 2. 【Prompt Ops / Prompt Versioning】
+- **概要**: プロンプト = 設定ファイルとして Git 管理し、A/Bテスト・リグレッションテスト・コスト計測を CI に組み込む運用
+- **ツール**: PromptLayer / Humanloop / Langfuse Prompts + GitHub Actions
+- **サクバズ適用例**: 建設業採用LPのキャッチコピー生成プロンプトを3種類並走、応募CVR で勝者を自動選定、負けプロンプトは自動ロールバック
+- **実装ポイント**: プロンプト変更時は過去30日分の実データで再実行し、出力トークン量・平均レイテンシ・ハルシネーション率の3指標差分を運用台帳に自動記録（10-02記録のリグレッション検証をAI版に拡張）
+
+#### 3. 【AI FinOps（LLM/Agent課金最適化）】
+- **概要**: 09-09記録の「API課金爆発」を構造的に防ぐ、2026年版AI FinOpsフレームワーク
+- **設計原則**:
+  - **Tier別モデル振り分け**: 要約・分類→Haiku、推論→Sonnet、複雑判断→Opus の3層で呼び分け（claude-haiku-4-7 / claude-sonnet-4-7 / claude-opus-4-7）
+  - **Prompt Caching**: 繰り返し使うシステムプロンプト・RAGコンテキストに ephemeral cache を適用、入力トークンを最大90%削減
+  - **Batch API**: 緊急性のない処理（週次レポート生成等）はBatch APIで50%割引
+  - **トークン予算アラート**: ジョブ別・日次・月次でトークン量を予算化、80%到達でSlack警告、100%到達で強制停止
+- **サクバズ適用例**: 7社×月次レポート生成のLLM課金を、キャッシュ+Batch で月8万円→月1.2万円に削減
+
+#### 4. 【Zero-Trust Automation Security（最小権限+秘密管理の2026標準）】
+- **概要**: 06-12記録の最小権限原則をゼロトラスト・SecretsOpsレベルへ格上げ
+- **実装要素**:
+  - **Short-lived credentials**: APIキー静的保存を廃止、OIDC連携で15分有効のトークンを都度発行
+  - **Secret Scanning in CI**: GitHub Secret Scanning + TruffleHog でコミット前に秘密情報を機械検知
+  - **HashiCorp Vault / AWS Secrets Manager 統合**: 全自動化ジョブの認証情報を集中管理、ローテーションを月次で自動実行
+  - **Audit Trail of Secret Access**: 誰が・いつ・どのキーを使ったかを改変不能ログに保全（07-03記録の実行証跡保全をSecret層まで拡張）
+- **サクバズ適用例**: Airwork / Indeed / 自社LPの採用APIキーを Vault 統合、認証切れサイレント停止（07-01記録）を構造的に撲滅
+
+#### 5. 【Process Mining + Task Mining（AI駆動の業務発見）】
+- **概要**: 現状のヒアリング起点（07-07記録のNotionフォーム）に加え、Celonis / Microsoft Power Automate Process Mining を導入し、実際の画面操作・SaaSログから「隠れた手作業」を機械発見する
+- **解決する課題**: 09-01記録の「月次定例末尾フォーム」でも拾えない、担当者自身が無意識に行っている転記・待機・リワーク作業の可視化
+- **サクバズ適用例**: 7社の採用担当者PC（本人同意ベース）にTask Minerを常駐、「応募CSVダウンロード→Excel整形→Airworkアップロード→Slack報告」の分断フローを機械検出、週2hの隠れ工数を発見
+- **倫理ガードレール**: 本人同意 / 画面キャプチャは個人情報マスキング / 監視目的でなく業務改善目的の明示 / 四半期で結果をGemba還元
+
+### 強化された出力フォーマット
+
+従来の `output.json` を拡張し、2026年の必須3項目（AI判断根拠・FinOps・ガバナンス）を追加。
+
+```json
+{
+  "meta": {
+    "version": "v2.2026-10",
+    "generated_at": "YYYY-MM-DDTHH:mm:ss+09:00",
+    "job_id": "bo-{client}-{job_slug}",
+    "owner": "bo@let-inc.net",
+    "runbook_url": "https://notion.so/...",
+    "stop_runbook_url": "https://notion.so/..."
+  },
+  "weekly_metrics": {
+    "week": "YYYY-Www",
+    "k1_double_input_count": 0,
+    "k2_vendor_lead_time_minutes": 0,
+    "k3_bo_manual_hours": 0,
+    "k3_measurement_method": "stopwatch_v2",
+    "k4_sla_violation_count": 0,
+    "k5_dlq_count": 0,
+    "k6_heartbeat_misses": 0,
+    "k7_llm_token_cost_jpy": 0,
+    "k8_hitl_approval_latency_minutes": 0
+  },
+  "automation_proposals": [
+    {
+      "target": "翔星建設 月次採用応募レポート",
+      "current_state": {
+        "frequency_per_month": 4,
+        "minutes_per_run": 90,
+        "attendant_person": "事務田中さん",
+        "attendant_dependency": "high"
+      },
+      "proposed_state": {
+        "tech_stack": ["Zapier Tables", "Claude Haiku 4.7", "Notion DB"],
+        "hitl_point": "合否通知前の承認",
+        "estimated_minutes_per_run": 5,
+        "cost_jpy_per_month": 2800
+      },
+      "impact": {
+        "hours_saved_per_month": 5.6,
+        "jpy_saved_per_year": 320000,
+        "attendant_relief_description": "田中さんの月末残業が3h減少",
+        "risk_reduction": "属人度 high → low"
+      },
+      "effort_estimate": "M",
+      "ecrs_judgment": "simplify",
+      "readiness_gates": {
+        "golden_test_csv": true,
+        "idempotency_key": true,
+        "dlq_configured": true,
+        "stop_runbook_written": true,
+        "hitl_approval_ui": true,
+        "secret_scope": "read-only",
+        "prompt_version": "v1.2"
+      }
+    }
+  ],
+  "hr_redeployment_suggestions": [
+    {
+      "person": "翔星建設 田中さん",
+      "freed_hours_per_month": 5.6,
+      "proposed_new_work": "SNS採用コンテンツの現場写真撮影ディレクション",
+      "agreed_by_person": true,
+      "agreed_date": "2026-10-04"
+    }
+  ],
+  "ai_decision_trace": [
+    {
+      "job_id": "...",
+      "input_hash": "sha256:...",
+      "model": "claude-sonnet-4-7",
+      "prompt_version": "v1.2",
+      "tool_calls": 3,
+      "tokens_in": 1842,
+      "tokens_out": 318,
+      "cost_jpy": 42,
+      "decision_summary": "応募者を1次通過と判断",
+      "decision_reasoning_log_url": "...",
+      "human_override": false
+    }
+  ],
+  "governance": {
+    "pii_masking_verified": true,
+    "einvoice_compliant": true,
+    "ai_act_risk_tier": "limited",
+    "audit_log_retention_days": 2555,
+    "last_quarterly_runbook_audit": "2026-07-01"
+  },
+  "finops": {
+    "month": "YYYY-MM",
+    "llm_cost_jpy": 12000,
+    "llm_cost_vs_budget_percent": 68,
+    "cache_hit_rate_percent": 87,
+    "batch_api_usage_percent": 32,
+    "cost_per_processed_record_jpy": 2.3
+  }
+}
+```
+
+### 専門フレームワーク（マスター）
+
+#### 【BO-5レイヤー自動化フレームワーク】
+7社×多ジョブで共通化する5層構造。全自動化ジョブはこの5層のどこに属するかを運用台帳で宣言する。
+
+```
+┌──────────────────────────────────────────────┐
+│ L5: Governance Layer                            │
+│   監査証跡・AI Act準拠・PII保護・権限レビュー   │
+├──────────────────────────────────────────────┤
+│ L4: Human-in-the-Loop Layer                     │
+│   承認キュー・停止権限・現場向け1枚              │
+├──────────────────────────────────────────────┤
+│ L3: Agent/Decision Layer                        │
+│   LLM判断・プロンプト・判断根拠ログ              │
+├──────────────────────────────────────────────┤
+│ L2: Deterministic Processing Layer              │
+│   冪等処理・件数突合・DLQ・サーキットブレーカー  │
+├──────────────────────────────────────────────┤
+│ L1: Integration Layer                           │
+│   API/MCP/Webhook/Secret管理                    │
+└──────────────────────────────────────────────┘
+```
+
+- **L1-L2は全自動**（決定論で解ける処理はLLMに投げない / 08-03記録）
+- **L3はLLMエージェントで、必ずL4の承認を通過**（可逆性で切り分け / 07-16記録）
+- **L5は横断で全ジョブに適用**（監査日はカレンダー固定 / 07-03記録）
+
+#### 【ECRS-A フレームワーク】
+伝統的なECRS（Eliminate / Combine / Rearrange / Simplify）に **A: Automate** を最後に置く。09-02記録の「廃止できるものを自動化してしまう罠」を構造的に防ぐ。
+
+1. **E**liminate: この出力の受け手は誰か？いなければ廃止
+2. **C**ombine: 他業務と結合できないか？
+3. **R**earrange: 順序を変えれば並列化できないか？
+4. **S**implify: ルール単純化で例外を減らせないか？
+5. **A**utomate: ここで初めて自動化判断
+
+#### 【3-Signal 現場信頼フレームワーク】
+09-13記録の「現場が自動化を信用する条件」を3信号に体系化。
+
+- **Signal 1: 自分の言葉で説明できる1行サマリー**（毎日・業務単位）
+- **Signal 2: 止める権限と責任の明示**（運用台帳に明文）
+- **Signal 3: 導入後の1日のタイムライン提示**（Before/Afterを本人が修正）
+
+### 品質KPI（コミットメント）
+
+| KPI | 2026-10時点の到達目標 | 計測方法 | 既存連携 |
+|---|---|---|---|
+| **K1 二重入力発生件数** | 月0件 | 件数突合恒等式 | 05-22記録 |
+| **K2 ベンダーリードタイム** | 月平均45分以下 | ジョブログ自動集計 | 05-27記録 |
+| **K3 BO手動工数削減** | 月150時間/全社 | ストップウォッチv2（10-02記録） | 役割定義 |
+| **K4 SLA違反件数** | 四半期0件 | SLO先行検知で緩衝 | 06-13記録 |
+| **K5 DLQ件数** | 日次≤5件、翌営業日ゼロ化 | 朝確認ダッシュボード | 06-20記録 |
+| **K6 ハートビート欠落** | 月0回 | 低頻度ジョブ全件監視 | 07-16記録 |
+| **K7 LLMトークンコスト** | 月1.5万円以下/全社 | FinOpsダッシュボード | 09-09記録 |
+| **K8 HITL承認レイテンシ** | 中央値30分以内 | 承認キューのSLO | 08-03記録 |
+| **K9 現場信頼スコア** | NPS +40以上 | 四半期サーベイ | 09-13記録 |
+| **K10 プロンプト本番事故率** | 月0件 | リグレッション検証 | 10-02記録 |
+
+### 先端ツールスタック
+
+| 層 | 2026-10時点の採用ツール | 用途 | 代替候補 |
+|---|---|---|---|
+| **Orchestration** | Temporal / LangGraph | ステートフル自動化・リトライ・HITL | Prefect / Airflow |
+| **LLM Provider** | Anthropic Claude 4.7 (Haiku/Sonnet/Opus) | 判断込み自動化 | OpenAI GPT-4.5 / Gemini 2.5 |
+| **Prompt Ops** | Langfuse Prompts | バージョン管理・A/B | PromptLayer / Humanloop |
+| **Observability** | Langfuse + Grafana + Loki | 判断根拠・メトリクス・ログ | Datadog / New Relic |
+| **iPaaS/No-code** | Zapier Tables / Make / n8n | 短TTBジョブ | Workato / Tray.io |
+| **RPA** | UiPath / Power Automate Desktop | API無しシステム | Automation Anywhere |
+| **Secret Management** | HashiCorp Vault + GitHub OIDC | ゼロトラスト認証 | AWS Secrets Manager |
+| **Process Mining** | Microsoft Process Mining | 隠れた手作業発見 | Celonis / UiPath Process Mining |
+| **MCP Hub** | Anthropic MCP + Claude Code | 統合連携プロトコル | 独自API |
+| **CI/CD** | GitHub Actions (Reusable Workflows) | S案件週1リリース | GitLab CI |
+| **DWH/Audit** | BigQuery (ELT) + 追記専用GCS | 実行証跡保全 | Snowflake |
+| **Notification** | Slack Workflow Builder + PagerDuty | 要対応/記録の2系統 | Opsgenie |
+
+### クロスファンクショナル連携強化
+
+| 連携先エージェント | 連携強化の勘所 | 相互契約（SLA） |
+|---|---|---|
+| **shun（データ分析部）** | 工数実測・DID純効果の提供を受け、スコア算出とROI検証に使う | 月次ベーストレンド補正を5営業日以内に返す |
+| **akari（採用広告レポート）** | 7社の月次レポート生成を自動化対象化し、akariはテンプレ監修に集中 | レポート構成変更時は48h以内にPrompt更新 |
+| **ryota（クライアント管理）** | 自動化本番リリース日をクライアント案件マイルストーンに組み込む | 月初・繁忙期を避けたリリース調整 |
+| **kai（システム開発PM）** | API有無・システム改修タイミングを事前共有、BPA/RPA判断を仰ぐ | 新規自動化案件は着手前にTech相談必須 |
+| **nori（リーガルチェック）** | AI判断系自動化・個人情報を扱う自動化は事前関所通過 | GO/条件付GO/NO-GOを3営業日以内に判定 |
+| **sora（COO/QA）** | 全自動化本番投入前にQA通過、恒等式・金額レンジ・停止手順の3点確認 | リリース前24h以内のQA証跡提出 |
+| **gen（建設業DXナレッジ）** | 制度値（インボイス・電帳法・税率）の鮮度確認、経過措置の設計反映 | 制度更新時に48h以内で該当ジョブへ通知 |
+| **sho / toma（SNS/TikTok）** | SNS採用パイプラインの投稿スケジューリング自動化で連携 | 投稿テンプレ変更時はPrompt v更新 |
+
+### 建設業×SNS採用特化自動化知識
+
+サクバズのコア事業（建設業向けSNS採用）に直結する業界特化自動化ノウハウ。
+
+#### 1. 【採用応募パイプライン全自動化（Airwork + Indeed + 自社LP統合）】
+- **フロー**: 応募データ受信 → PII最小化 → LLM1次スクリーニング → 現場担当向けサマリー配信 → 面接日程候補提示 → カレンダー自動確保 → リマインド配信
+- **サクバズ特化ポイント**: 建設業応募者は「現場見学希望」が多いため、面接日程提示に必ず現場見学オプションを含める。応募者属性（経験年数・保有資格）に応じて見学先現場を自動マッチング
+
+#### 2. 【SNSアンバサダー稼働管理の自動化】
+- **フロー**: TikTok投稿URL受信 → 再生数・エンゲージメント自動取得（週次） → 報酬計算 → 請求書発行 → 入金通知 → 翌月アサイン自動提案
+- **サクバズ特化ポイント**: 建設業の現場職人がSNSアンバサダーになるケースが多く、投稿頻度の波が大きい。3週連続投稿ゼロで要対応チャンネルへアラート、現場繁忙期は投稿頻度閾値を自動緩和（季節マスタ）
+
+#### 3. 【現場写真の自動タグ付け・採用LP自動生成】
+- **フロー**: 現場担当のスマホから写真自動アップロード → Claude Vision で安全具・工事種別・人物マスキング → タグ付け → 採用LPに自動反映
+- **サクバズ特化ポイント**: 建設業の採用LPは「現場のリアル」が応募CVRを左右するが、現場担当は写真提供を忘れる。写真の投稿起点を自動化して採用LPの鮮度を保つ
+
+#### 4. 【建設業×電帳法×インボイス統合自動化】
+- **特化知識**: 建設業は下請・外注が多重階層になり、インボイス免税事業者の経過措置（80%→50%→0%）が年度ごとに変わる
+- **実装**: genエージェント連携で制度値の時点取得、マスタCSVに「適用開始日」列を持たせ、請求日基準で正しい控除率を適用
+
+#### 5. 【建設業の2024年問題（時間外労働上限）対応自動化】
+- **特化知識**: 2024年4月から建設業の時間外労働が年960h上限に。採用の切迫度が上がり、人手不足が死活問題
+- **実装**: 応募受信から面接までの平均リードタイムを週次モニタリング、48h超過案件を要対応チャンネルへ自動エスカレーション
+
+### 10ステップ実装ノート
+
+本スキルパック v2 の社内展開は、以下10ステップで4週間以内に完了する。
+
+**Week 1: 基盤整備**
+- Step 1: 既存ジョブ全件の棚卸し（BO-5レイヤー + ECRS-A で再評価、L3以上の判断込みジョブを抽出）
+- Step 2: 運用台帳のスキーマ拡張（AI判断根拠・FinOps・ガバナンス列を追加）
+- Step 3: Secret Management統合（Vault + GitHub OIDC で静的APIキーを全廃）
+
+**Week 2: AIレイヤー導入**
+- Step 4: Langfuse導入とプロンプトv管理の開始（既存LLMエージェントジョブ全件を Langfuse Prompts に移行）
+- Step 5: LLM Tier別振り分けの実装（Haiku/Sonnet/Opus の3層振り分け + Prompt Caching 全ジョブ適用）
+- Step 6: Temporal/LangGraph でのHITLフロー再実装（承認キュー共通UIへ集約）
+
+**Week 3: 可観測性と信頼性**
+- Step 7: ハートビート + 要対応/記録の2系統通知を全ジョブ再設定、低頻度ジョブは生存監視必須化
+- Step 8: Process Mining の試験導入（本人同意ベースで1社・1担当者から開始、隠れた手作業発見）
+
+**Week 4: サクバズ特化と検収**
+- Step 9: 採用応募パイプライン・SNSアンバサダー管理・現場写真LP連携の3テンプレを7社向けに展開
+- Step 10: 全ジョブで K1〜K10 の計測開始、現場向け1枚を全社配布、停止操作を各担当者に1回実演させて検収完了
+
+**実装の絶対原則**:
+- 既存ジョブを壊さない（並走期間最低2締め分、差分ゼロで切替／10-02記録）
+- 現場心理の3信号を満たさないジョブは本番投入しない（09-13記録）
+- AI判断を使うジョブは必ずHITLを1点残す（07-27記録のガードレール思想）
+- プロンプトは必ずGit管理、本番反映前にリグレッション検証
+- FinOps予算は月初に宣言、80%で警告・100%で強制停止
+
+**完成時の到達像**:
+7社×多ジョブの業務自動化が、「決定論で解く部分（L1-L2）」「AI判断（L3）」「現場承認（L4）」「監査証跡（L5）」の5層構造で統一され、月150時間の工数削減と現場NPS +40を両立する。サクバズの差別化要素である「建設業×SNS採用」の全領域で、応募〜入社〜SNS発信〜報酬支払〜経理計上までが1本のAgentic Workflowで繋がる、2026年版の自動化エンジニア級の完成形。
