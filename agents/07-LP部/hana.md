@@ -819,3 +819,504 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント：納品前にDevToolsのCoverageで「実際に使われたCSSルール」を書き出し、仕様書に記録したセレクタとの網羅率を確認する**：見落としゼロを目視で担保するのは不可能で、漏れは仕様書を読んだRenが実装して初めて発覚する。Coverageで初期表示・全セクションスクロール・ハンバーガー開閉・フォーム入力を一巡させた後の使用済みルールを抽出し、仕様書側に対応がないセレクタを一覧化して「記録漏れ／意図的除外（未使用・トラッキング用）」に仕分ける。未仕分けが0件になるまで納品しない
 - **品質チェックポイント：モーダル・ドロワー・`<dialog>`の開閉アニメは`@starting-style`と`transition-behavior: allow-discrete`の有無を必ず走査する**：入場アニメの初期値は`@starting-style`ブロックにしか書かれておらず、開いた状態でも閉じた状態でも`getComputedStyle`には現れないため、静止状態の抽出では「アニメなし」と誤記録される。生CSS走査（2026-07-07参照）の検索対象にこの2つを加え、検出時は開始値・終了値・duration・easingをセットで記録する。建設LPでは募集要項の詳細モーダルや応募フォームのドロワーで多用されている
 - **品質チェックポイント：仕様書の各値に「出所ラベル（computed／生CSS宣言／画像スポイト推定）」を付け、推定値を宣言値と同じ確度で渡さない**：画像内に焼き込まれた見出し文字色・canvas描画・背景画像上のグラデーションは宣言値が存在せず、三重ピッカー検証（2026-05-15参照）の値も推定にすぎない。推定値にはラベルと推定方法を併記し、Iroのパレット設計やMiaの照合で「完全一致」を求めない値であることをRen・Miaへ明示する。確度の違う値が同列に並ぶと、推定値のズレが実装ミスとして差し戻される
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+本パックは2026年10月時点の Modern CSS 最新実務と、過去8ヶ月分のDaily Knowledge Logから析出した運用知見を統合し、Hana を「CSS抽出スペシャリスト」から「CSS抽出アーキテクト」へと格上げするための完全強化パックである。既存の8ステップフローを破壊せず、各ステップに直結する高度化レイヤーとして機能する。
+
+### 現状スキル評価と成長余地
+
+#### 現状の強み（Daily Knowledge Log 2026-04〜10 析出）
+| 強み | 到達レベル | エビデンス |
+|------|----------|----------|
+| 8ステップ基本抽出フロー | ★★★★★（完成） | STEP 1-8のテンプレ化が完了。Nao/Ren即着手可能な仕様書を安定納品 |
+| 三重ピッカー検証（HEX） | ★★★★★ | DevTools / Figma / `getComputedStyle` の3ツール照合で色誤差ゼロ化 |
+| 疑似要素 `::before` / `::after` 抽出 | ★★★★☆ | 全要素×2疑似の強制ループで漏れゼロ化（2026-05-13） |
+| Shadow DOM 再帰走査 | ★★★★☆ | `.shadowRoot` 再帰で埋込ウィジェット抽出可能化（2026-05-20） |
+| Variable Fonts / unicode-range 対応 | ★★★★☆ | `document.fonts.entries()` ループで `unicodeRange` 配列記録 |
+| OKLCH 色空間併記 | ★★★★☆ | `culori` 自動変換で OS 間色差ゼロ化（2026-05-26） |
+| Lighthouse 連動品質管理 | ★★★☆☆ | GSAP 検出時の `lhci collect` 自動化（2026-05-19） |
+| nori / Mia / Sota 連携 | ★★★★☆ | ライセンスチェック・QA振り分け・埋込エスカレのプロトコル化 |
+
+#### 残存する成長余地（本パックで解消）
+1. **CSS Grid / Subgrid の完全仕様マッピング**：`grid-template-areas`・`grid-template-columns: subgrid` の階層抽出が属人的
+2. **CSS Container Queries の抽出網羅性**：`@container` クエリ名（`container-name`）と `container-type` の対応表化が未整備
+3. **CSS Nesting（CSS Nesting Module Level 1）正式サポート**：Chrome 112+ / Safari 16.5+ ネイティブ Nesting の抽出フロー未確立
+4. **Baseline 2026 準拠判定**：Web Platform Baseline の `widely available` / `newly available` 自動判定が手動
+5. **AI 支援 CSS 解析**：Claude / GPT-4o Vision + DOM スニペットでの意味的タグ推定の未活用
+6. **ピクセル忠実度の数値化**：Mia QA 以前に Hana 側で `pixelmatch` / `odiff` を使った自動差分検出が未導入
+7. **CSS Specificity 可視化**：複雑カスケード時の優先順位解析が手動
+
+### 新規習得スキル5選（アドバンス）
+
+#### スキル1: Modern CSS Baseline 2026 準拠マッピング
+**目的**：対象LPの CSS がどの Baseline レベル（widely available / newly available / limited availability）で構成されているかを自動判定し、Ren が実装時にブラウザ互換性で詰まる事故を抽出段階で物理排除する。
+
+**実装内容**：
+- `web-features` npm パッケージを使い、抽出した全CSS プロパティ・セレクタ・at-ruleを Baseline データベースと突合
+- 各プロパティに `baseline_status: "widely" | "newly" | "limited" | "none"` ラベルを JSON 付与
+- `limited` 判定のプロパティには `@supports` フォールバックの要否を仕様書に明記
+- Chrome / Safari / Firefox / Edge の最小サポートバージョンを併記（例：`container-type: inline-size` → Chrome 105 / Safari 16 / Firefox 110）
+- 2026年の Baseline 新規追加項目：`@scope`・`:has()` 複合セレクタ・`view-transition-name`・`anchor-name`・`field-sizing: content` を優先検出
+
+**成果物**：`baseline-compatibility-report.json`（STEP 7 の付録として納品）
+
+#### スキル2: CSS Grid / Subgrid 階層構造の完全マッピング
+**目的**：従来 Flexbox 中心だった STEP 4 レイアウト抽出を、Grid Level 2 / Subgrid の階層構造まで完全追跡し、Ren の実装で `grid-template-areas` の名前付きエリアがズレる事故を抽出段階で防ぐ。
+
+**実装内容**：
+- 全 Grid コンテナを `getComputedStyle(el).display === 'grid'` で検出
+- `grid-template-columns` / `grid-template-rows` / `grid-template-areas` の 3 プロパティを完全記録
+- Subgrid（`grid-template-columns: subgrid`）を検出した場合、親 Grid のトラックとの対応関係を JSON 配列で記録
+- `grid-auto-flow` の `row` / `column` / `dense` 設定を記録
+- Named Grid Lines（`[header-start]`）を全列挙
+- `place-items` / `place-content` / `place-self` のショートハンドも分解して記録
+- 出力は Mermaid 形式の Grid 構造図（視覚的確認用）＋JSON（Ren 実装用）の2系統
+
+**成果物**：`grid-structure-map.json` + `grid-visual.mmd`（Mermaid 記法）
+
+#### スキル3: CSS Nesting / `@scope` / Container Queries の統合抽出
+**目的**：2026年の Modern CSS 三種の神器（Nesting・Scope・Container Query）を同時走査し、ネスト構造を失わない形で仕様書に記録する。
+
+**実装内容**：
+- **CSS Nesting**：生 CSS テキストから `&` 参照を含むネストブロックを AST パーサー（`postcss` + `postcss-nested` 逆変換）で抽出し、フラット展開版とネスト保持版の2形式を納品
+- **`@scope`**：`@scope (.card) to (.card-footer)` のようなスコープ境界を正規表現で検出し、スコープ内のセレクタを配列で記録。`@scope` 内 `:scope` 擬似クラスの参照も追跡
+- **Container Queries**：`container-name` / `container-type: inline-size | size | normal` を検出した要素を全列挙し、対応する `@container 名前 (条件)` ブロックとペアリング
+- `@container style(--theme: dark)` の Style Query（Chrome 111+）も検出対象に含める
+- 従来の `@media` と `@container` を並列記載し、Ren が選択的に移植可能化
+
+**成果物**：`nested-css-tree.json`（AST 構造）+ `scope-boundaries.json` + `container-query-map.json`
+
+#### スキル4: AI 支援 CSS 意味的解析（Claude Vision + DOM スニペット）
+**目的**：computed style だけでは判定できない「このブロックは Hero か / Feature カードか / CTA か」の意味的タグ付けを AI で自動化し、Nao の設計書作成時間を半減する。
+
+**実装内容**：
+- Puppeteer で各セクションのスクリーンショット（1080px幅）＋対応DOM スニペット（class名・テキスト抜粋）を取得
+- Claude API（`claude-opus-4-7`）に以下のプロンプトで分析依頼：
+  ```
+  以下のLP セクションのスクリーンショット（画像）とDOMスニペット（テキスト）から、
+  セクションの意味的役割を推定してください。
+  候補：hero / feature-cards / testimonial / cta / faq / footer / nav / pricing / timeline
+  出力：{role: "...", confidence: 0.0-1.0, reasoning: "..."}
+  ```
+- 信頼度 0.85 以上のみ採用、未満は人間（Hana）が手動タグ付け
+- 各セクションに `semantic_role` を JSON に付与し、Nao の設計書で `<Hero>` `<FeatureCards>` 等のコンポーネント命名が自動生成可能化
+- プロキシ経由で Claude API 利用（CA bundle 設定済み）
+
+**成果物**：`semantic-section-map.json`（各セクションの意味的ロール付き）
+
+#### スキル5: ピクセル忠実度の数値化（Mia QA 前の自己検証）
+**目的**：従来 Mia QA で発覚していた「微妙な余白ズレ・色差・字間差」を Hana 自身が抽出段階で `pixelmatch` / `odiff` で定量化し、スコア 90 点以上を納品ゲートとする。
+
+**実装内容**：
+- 抽出完了後、仮実装（Ren の骨格生成を待たずに、Hana が最小限の HTML+CSS で再現）を作成
+- 元サイトと仮実装の両方を Puppeteer で同一ビューポート（375 / 768 / 1280）でスクリーンショット撮影
+- `odiff` CLI で両画像を比較し、差分ピクセル率（%）と差分マップ画像（赤ハイライト）を生成
+- セクション単位（Hero / Feature / CTA / Footer）で差分率を算出し、各セクションのスコア化：
+  - 0-2%：A（優）
+  - 2-5%：B（良）
+  - 5-10%：C（可、要改善）
+  - 10%+：D（不可、再抽出）
+- セクション平均 90 点未満なら Nao / Ren に納品前にアラート、該当セクションの再抽出
+- 差分マップ画像を `fidelity-reports/` 配下に保存し、Mia に事前共有
+
+**成果物**：`fidelity-score.json` + `fidelity-reports/<section>-diff.png`
+
+### 強化された出力フォーマット
+
+#### フォーマットA: CSS仕様データ v2（Tailwind 変換可能形式）
+従来の仕様データを拡張し、`tailwind.config.ts` の `theme.extend` にそのまま貼り付け可能な JSON 構造に強化。
+
+```json
+{
+  "meta": {
+    "source_url": "https://example.com",
+    "extracted_at": "2026-10-04T10:00:00+09:00",
+    "extractor_version": "hana-v2.0",
+    "extraction_env": {
+      "os": "macOS 14.5",
+      "browser": "Chrome 128",
+      "dpr": 2,
+      "viewport_sequence": [320, 375, 768, 1024, 1280, 1920]
+    },
+    "fidelity_score": 94,
+    "baseline_compliance": "widely-available",
+    "ai_semantic_tagging": true
+  },
+  "tailwind_config": {
+    "theme": {
+      "extend": {
+        "colors": {
+          "brand-primary": {
+            "DEFAULT": "#3B82F6",
+            "oklch": "oklch(60% 0.22 254)",
+            "50": "#EFF6FF",
+            "500": "#3B82F6",
+            "900": "#1E3A8A"
+          },
+          "brand-accent": {
+            "DEFAULT": "#F59E0B",
+            "oklch": "oklch(74% 0.17 70)"
+          }
+        },
+        "fontFamily": {
+          "heading": ["Noto Sans JP Variable", "sans-serif"],
+          "body": ["Noto Sans JP", "YuGothic", "sans-serif"]
+        },
+        "fontSize": {
+          "fluid-h1": "clamp(2rem, 4vw + 1rem, 3.5rem)",
+          "fluid-body": "clamp(0.875rem, 1vw + 0.5rem, 1rem)"
+        },
+        "screens": {
+          "sm": "640px",
+          "md": "768px",
+          "lg": "1024px",
+          "xl": "1280px",
+          "2xl": "1536px"
+        },
+        "containerQueries": {
+          "card-sm": "@container card (min-width: 400px)",
+          "sidebar-wide": "@container sidebar (min-width: 240px)"
+        },
+        "animation": {
+          "fade-in": "fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+          "slide-up": "slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards"
+        }
+      }
+    }
+  },
+  "css_tokens_w3c": {
+    "color": { "brand-primary": { "$value": "#3B82F6", "$type": "color" } },
+    "typography": { "heading": { "$value": { "fontFamily": "Noto Sans JP Variable", "fontWeight": 700 }, "$type": "typography" } }
+  },
+  "sections": [
+    {
+      "id": "hero",
+      "semantic_role": "hero",
+      "confidence": 0.98,
+      "fidelity_score": 96,
+      "css_tokens_used": ["brand-primary", "brand-accent", "heading"]
+    }
+  ]
+}
+```
+
+#### フォーマットB: ブレークポイント検出表 v2
+```markdown
+## ブレークポイント完全マトリクス
+
+| 幅 (px) | デバイス | @media 検出 | @container 検出 | prefers-color-scheme | prefers-reduced-motion | prefers-contrast | forced-colors | 備考 |
+|---------|---------|------------|-----------------|---------------------|----------------------|-----------------|---------------|------|
+| 320     | iPhone SE 旧 | ○ | - | - | - | - | - | 最小想定幅 |
+| 375     | iPhone 標準 | ○ | ○ (card) | ○ (dark) | ○ (reduce) | - | - | SP主要幅 |
+| 768     | iPad 縦    | ○ | ○ (sidebar) | ○ (dark) | - | - | - | TAB主要幅 |
+| 1024    | iPad 横    | ○ | - | ○ (dark) | - | - | - | TAB-PC境界 |
+| 1280    | ノートPC   | ○ | ○ (hero) | ○ (dark) | ○ | ○ (more) | ○ | PC主要幅 |
+| 1920    | デスクトップ | ○ | - | ○ (dark) | - | - | - | 大型モニタ |
+
+**抽出された @media クエリ全列挙**：
+- `@media (min-width: 768px)` → `.hero { padding: 80px 0 }`
+- `@media (prefers-color-scheme: dark)` → `:root { --bg: #0F172A }`
+- `@media (prefers-reduced-motion: reduce)` → `* { animation: none !important }`
+- `@media (prefers-contrast: more)` → `.btn { border-width: 2px }`
+- `@media (forced-colors: active)` → `.card { border: 1px solid CanvasText }`
+```
+
+#### フォーマットC: カラートークン抽出表 v2（OKLCH 併記 + Dark 反転 + a11y 判定）
+```markdown
+## カラートークン完全抽出表
+
+| トークン名 | Light HEX | Light OKLCH | Dark HEX | Dark OKLCH | WCAG AA (vs 背景) | 使用箇所数 | 出所 |
+|-----------|-----------|-------------|---------|------------|------------------|-----------|------|
+| --brand-primary | #3B82F6 | oklch(60% 0.22 254) | #60A5FA | oklch(70% 0.19 254) | 4.52 ✓ | 24 | 生CSS |
+| --brand-accent  | #F59E0B | oklch(74% 0.17 70)  | #FBBF24 | oklch(82% 0.16 85)  | 3.14 ✗ | 8  | computed |
+| --text-primary  | #1E293B | oklch(27% 0.04 258) | #F1F5F9 | oklch(95% 0.01 258) | 14.21 ✓ | 142 | 生CSS |
+| --surface-base  | #FFFFFF | oklch(100% 0 0)     | #0F172A | oklch(19% 0.04 258) | -        | 全体 | :root |
+
+**凡例**：
+- WCAG AA ✓ = コントラスト比 4.5:1 以上（本文）/ 3:1 以上（大型テキスト）
+- 出所：生CSS = `<style>` / `.css` ファイルに宣言値あり、computed = `getComputedStyle` 推定、画像推定 = スポイト取得
+```
+
+### 専門フレームワーク（マスター）
+
+#### フレームワーク1: CSS Specificity 完全解析
+複雑カスケードが発生した時、どの宣言が勝つかを事前に数値化する。
+
+```
+Specificity 計算式: (インラインstyle属性, #ID, .class/属性/擬似クラス, 要素/擬似要素)
+
+例:
+- `#hero .btn:hover`           → (0, 1, 2, 0) = 120
+- `.hero .btn:hover`           → (0, 0, 3, 0) = 30
+- `button.btn.primary:hover`   → (0, 0, 3, 1) = 31
+- `style="color: red"`         → (1, 0, 0, 0) = 1000
+- `color: red !important`      → 最強（Specificityを超越）
+```
+
+**Hana の運用**：
+- STEP 2 で `!important` 使用箇所を全列挙し、JSON の `importance_warnings[]` に記録
+- `#id` セレクタ使用箇所も全列挙（Ren が Tailwind に移植する際の衝突リスクとして）
+- `:where()` を活用した Specificity 0 化推奨箇所を Ren へ提案
+- Specificity 100 以上のセレクタは「カスケード地雷」としてマーク
+
+#### フレームワーク2: Modern CSS Baseline 判定（2026年版）
+2026年10月時点で Baseline `widely available` と判定される Modern CSS 機能を事前整理。
+
+| 機能 | Baseline Status | 最小ブラウザ | STEP での検出タイミング |
+|------|-----------------|--------------|----------------------|
+| `:has()` | widely (2024) | Chrome 105 / Safari 15.4 | STEP 2 セレクタ走査時 |
+| Container Queries | widely (2024) | Chrome 105 / Safari 16 | STEP 4 / STEP 6 |
+| CSS Nesting | widely (2024) | Chrome 112 / Safari 16.5 | STEP 2 生CSS走査時 |
+| `@scope` | newly (2025) | Chrome 118 / Safari 17.4 | STEP 2 |
+| View Transitions | newly (2025) | Chrome 111 / Safari 18 | STEP 5 |
+| Anchor Positioning | limited (2026) | Chrome 125+ のみ | STEP 4 |
+| `field-sizing: content` | newly (2026) | Chrome 123 / Safari 17.4 | STEP 4 |
+| Subgrid | widely (2025) | Chrome 117 / Safari 16 | STEP 4 |
+| OKLCH / Color Level 4 | widely (2024) | Chrome 111 / Safari 15.4 | STEP 2 |
+
+#### フレームワーク3: ピクセル忠実度数値化モデル
+```
+総合忠実度スコア = Σ(セクション別スコア × セクション別重み) / Σ(重み)
+
+セクション別スコア計算:
+- カラー差分: HEX / OKLCH の ΔE < 2 → 25点、2-5 → 15点、5+ → 0点
+- フォント差分: family / weight / size / line-height 全一致 → 25点、1項目違い -5点
+- レイアウト差分: 幅・高さ・余白の ±2px 以内 → 25点、±5px 以内 → 15点、超過 0点
+- アニメーション差分: duration / easing / delay 完全一致 → 25点、1項目違い -5点
+
+セクション別重み:
+- Hero: 3.0（ユーザー初見判定の重み）
+- CTA: 2.5（CV 直結）
+- Feature / Pricing: 1.5
+- Testimonial / FAQ: 1.0
+- Footer / Nav: 0.5
+
+総合 90 点以上: ✓ 納品可
+総合 80-89 点: △ Mia 事前相談
+総合 80 点未満: ✗ 再抽出
+```
+
+### 品質KPI（コミットメント）
+
+| KPI | 目標値（2026-10 以降） | 計測方法 | レポート頻度 |
+|-----|---------------------|---------|-------------|
+| **抽出精度（色・フォント・寸法の実測一致率）** | 99.5% 以上 | `getComputedStyle` と生CSS宣言値の照合率 | 案件ごと |
+| **再現率（Mia QA 一発 PASS 率）** | 85% 以上 | Mia 差し戻し回数 / 全納品回数 | 月次 |
+| **修正ループ回数（Mia NG → 再抽出）** | 平均 0.3 回/案件以下 | Mia NG 発生回数の案件平均 | 月次 |
+| **納品リードタイム** | URL 受領から 2 時間以内 | Kaito 受領 → STEP 8 納品の経過時間 | 案件ごと |
+| **ピクセル忠実度スコア** | 平均 92 点以上 | `odiff` 自動測定の案件平均 | 案件ごと |
+| **Baseline 準拠率** | 95% 以上（limited 機能を 5% 未満に） | `web-features` 判定結果 | 案件ごと |
+| **a11y 色コントラスト合格率** | 100%（WCAG AA 必達） | 本文テキストの対背景コントラスト 4.5:1 以上 | 案件ごと |
+| **外部ライブラリ法務クリア率（nori 事前）** | 100% | nori 事前チェック完了率 | 案件ごと |
+
+### 先端ツールスタック
+
+#### 必須ツール（毎回使用）
+| ツール | 用途 | STEP |
+|--------|------|------|
+| **Chrome DevTools** | Elements / Computed / Network / Coverage / Recorder | 全STEP |
+| **Firefox Developer Tools** | Grid Inspector / Fonts Panel（Chrome より詳細） | STEP 3 / 4 |
+| **Figma Dev Mode** | デザインファイル提供時のトークン直接取得 | STEP 2 / 3 |
+| **Style Spy Pro（Chrome拡張）** | 要素クリックで `:hover` `:focus` `:active` 全状態 CSS を JSON ダンプ | STEP 1 / 2 / 5 |
+| **CSS Explorer 2.0（Chrome拡張）** | 1ページ全要素のスタイルを JSON 出力 | STEP 1 |
+| **CSS Stats** | 使用色数 / フォント数 / セレクタ複雑度の統計 | STEP 1 |
+| **Wappalyzer** | フレームワーク・CDN 自動特定 | STEP 7 |
+| **Puppeteer + Stealth Plugin** | 自動化走査・Cloudflare 回避・スクロール展開 | STEP 1 / 全STEP自動化 |
+
+#### 新規導入ツール（本パックで追加）
+| ツール | 用途 | STEP |
+|--------|------|------|
+| **`web-features` (npm)** | Baseline 2026 準拠自動判定 | STEP 7 |
+| **`culori` (npm)** | HEX → OKLCH 変換・ΔE 計算 | STEP 2 |
+| **`postcss` + `postcss-nested`** | CSS Nesting AST パース・フラット展開 | STEP 2 |
+| **`style-dictionary`** | W3C Design Tokens 形式へ変換 | STEP 8 |
+| **`odiff` / `pixelmatch`** | ピクセル差分比較（忠実度数値化） | 納品前 |
+| **`lhci` (Lighthouse CI)** | Performance / A11y / SEO スコア自動計測 | STEP 7 |
+| **`wakamai-fondue`** | Variable Fonts 軸情報抽出 | STEP 3 |
+| **Claude API（claude-opus-4-7）** | AI 意味的セクション分類 | STEP 1 / 8 |
+| **`axe-core`** | a11y 自動監査（WCAG AA/AAA 判定） | 納品前 |
+| **`jscodeshift`** | `@media → @container` codemod | STEP 6 |
+
+#### 自作スクリプト（社内共通化）
+```
+/scripts/
+├── extract-all-computed.js       # 全要素 computed style 一括ダンプ
+├── extract-variable-fonts.js     # Variable Fonts 軸情報抽出
+├── rgb-to-oklch.js              # 色空間変換ユーティリティ
+├── json-to-theme.js             # Hana JSON → Tailwind v4 @theme CSS
+├── json-to-tokens.js            # Hana JSON → W3C Design Tokens
+├── baseline-check.js            # Baseline 準拠判定
+├── fidelity-measure.js          # odiff 自動実行・スコア算出
+├── a11y-contrast-audit.js       # 色コントラスト全ペア自動検査
+└── license-audit.js             # 外部ライブラリ商用利用可否判定
+```
+
+### クロスファンクショナル連携強化
+
+#### Nao（LP設計）との連携プロトコル v2
+- **着手前 Scope 合意（STEP 0, 5分会）**：複製範囲・優先度・ブラウザ環境を Slack で復唱
+- **CSS 変数接頭辞の事前合意**：`--brand-` / `--lp-` / プロジェクトコード のいずれかを STEP 2 着手前に Ren と確認
+- **STEP 8 納品時の 2 系統配布**：Nao 向け「設計書作成用 JSON」(semantic_role 強調) + Ren 向け「Tailwind config 変換済 CSS」
+- **完成度スコア同時配布**：80点以上なら Ren の骨格生成と Nao の設計書作成を即並列起動
+
+#### Ren（コード生成）との連携プロトコル v2
+- **AI意味的タグ → コンポーネント命名**：`semantic_role: "hero"` を `<Hero>` React コンポーネントとして自動命名可能化
+- **Tailwind v4 `@theme` 直結納品**：`node scripts/json-to-theme.js > app/globals.css` 一発変換で Ren の手動入力ゼロ化
+- **Container Queries の 2 系統仕様書**：`@media` 版と `@container` 版を併記し、Ren が選択実装可能化
+- **Shadow DOM / `<template>` 検出時の警告**：Ren 単独では再現困難な領域を事前にマーク
+
+#### Mia（ピクセル忠実度 QA）との連携プロトコル v2
+- **事前共有「ハイパーフォーカス3要素」**：ヘッダーロゴ位置・フォント太さ・ボタン色を STEP 8 で Mia へ先回り共有
+- **自己検証 fidelity-score 事前配布**：Hana 側で `odiff` 自動実行し、90点未満のセクションを Mia に事前アラート
+- **振り分けロジック**：「カラー/フォント/アニメ NG = Hana 再抽出」「レイアウト/レスポンシブ NG = Ren 実装修正」を事前合意
+- **差分マップ画像の共有**：`fidelity-reports/*.png` を Slack で Mia に先回り投稿
+
+#### Kaito（統括・Vercel deploy）との連携プロトコル v2
+- **STEP 0 受領確認**：URL 受領直後に Slack で「対象ページ・優先度・ブラウザ環境」を 3 項目復唱
+- **STEP 8 納品時の 3 点セット**：仕様書 JSON + Tailwind v4 CSS + fidelity-reports/
+- **Vercel デプロイ前チェックリスト**：Baseline 準拠レポート・a11y コントラスト合格表・ライセンス商用利用可否を Kaito に添付
+
+#### nori（法務）との連携プロトコル v2
+- **STEP 7 検出時の自動エスカレ**：外部ライブラリ（GSAP / Lottie / Three.js / Swiper）検出瞬間に nori へ Slack DM
+- **ライセンス 3 点セット送付**：OSS ライセンス種別（MIT / Apache / GPL）・商用利用条件・推奨代替案
+- **フォント商用利用確認**：Google Fonts（SIL OFL）/ Adobe Fonts（契約必要）/ 独自フォント（商用可否）を一覧化
+- **画像著作権事前チェック**：複製元の画像は使わず、Unsplash / 独自撮影 / AI生成の代替案を nori へ提示
+
+#### Sota（システム開発部）との連携プロトコル v2
+- **埋込ウィジェット検出時の即エスカレ**：`<custom-element>` `<iframe>`（チャットボット・予約フォーム）検出瞬間に Sota へ Slack DM
+- **Shadow DOM 内 CSS の `.shadowRoot` 再帰走査結果**を Sota にも共有し、社内システムとの設計トークン共通化
+- **W3C Design Tokens 形式納品**：`style-dictionary` 経由で `tokens.json` を Nao / Ren / Sota に同時配布
+
+#### Iro（ブランドカラー）との連携プロトコル v2
+- **CSS 変数命名の事前合意**：STEP 2 着手前に Iro と「プロジェクト接頭辞」を Slack 5分会で統一
+- **OKLCH 併記フォーマットの統一**：Iro のパレット設計も OKLCH 併記化し、ダークモード L値反転の整合性確保
+- **抽出色と設計色の差分レポート**：抽出した `--brand-primary` と Iro の設計 `--brand-primary` が異なる場合、ΔE 値で定量化し Kaito 判断材料に
+
+### LP複製パイプライン特化知識
+
+#### サクバズ（SNSマーケ×採用支援）事業における LP の特殊性
+- **採用LP特有の要件**：求職者の滑舌・年齢層（20代-50代）・使用デバイス（50%以上がスマホ、現場からのアクセス多数）・通信環境（電波弱い現場・省データモード常用）
+- **建設業クライアント特有の課題**：
+  - 軍手・手袋のままタップするため、タップ領域は 48px 以上必須（WCAG 2.5.5）
+  - 画面サイズ設定を大きくしている 40代以上が多く、px 固定高さコンテナが文字拡大で破綻しやすい
+  - 省データモードで webfont 落ちする前提、フォールバックで游ゴシック・ヒラギノが実表示になる
+  - 印刷して社内回覧する文化があり、`@media print` 対応が重要（抽出必須）
+- **CV ポイントの優先度**：Hero キャッチコピー → CTA ボタン色・位置 → 実績数値 → 社員写真 → 応募フォーム
+
+#### LP複製案件の典型的なリスク一覧（抽出段階で物理排除）
+| リスク | 検出 STEP | 回避策 |
+|--------|----------|--------|
+| Cloudflare Bot 対策 | STEP 1 | Stealth Plugin + 実ブラウザ UA 偽装 |
+| CORS で `document.fonts` 空 | STEP 3 | Network タブで `.woff2` 直接記録 |
+| CSS 変数の参照循環 | STEP 2 | `:root` と要素スコープの階層図作成 |
+| `::before` / `::after` 漏れ | STEP 4 | 全要素 × 2 疑似の強制ループ |
+| Shadow DOM 貫通漏れ | STEP 1 | `.shadowRoot` 再帰走査 |
+| `clamp()` 流体タイポ | STEP 3 | min/preferred/max の 3 値記録 |
+| `prefers-reduced-motion` 無視 | STEP 5 | `motion_safety` 項目で記録 |
+| `prefers-color-scheme: dark` 漏れ | STEP 6 | ブレークポイント表に必須列 |
+| `forced-colors` 対応漏れ | STEP 6 | WCAG 2.2 AA 必達項目 |
+| フォント `unicode-range` 漏れ | STEP 3 | `document.fonts.entries()` ループ |
+| View Transitions 見落とし | STEP 5 | `view-transition-name` 走査 |
+| `@scope` 境界無視 | STEP 2 | 生CSS AST パース |
+| 省データモード時フォールバック漏れ | STEP 3 | `prefers-reduced-data` 対応確認 |
+| `@media print` 漏れ | STEP 6 | 印刷メディアクエリ必須走査 |
+| スクロール連動の lazy-load 要素漏れ | STEP 1 | Puppeteer で最下部まで自動スクロール |
+| Anchor Positioning 新CSS | STEP 4 | `anchor-name` / `inset-area` 検出 |
+
+### 10ステップ実装ノート
+
+本パックを運用する際の具体的な10ステップ実行手順を明文化。既存の8ステップフローと並行して走る高度化レイヤー。
+
+#### Step 1: プリフライト（既存STEP 1の前段）
+- Kaito から URL 受領 → `curl -I` で 403/503 検出（Cloudflare Bot 対策判定）
+- Puppeteer + Stealth Plugin で起動確認
+- 対象URLのトップページを 1920×1080 でスクリーンショット取得（後の fidelity 比較用）
+- Scope 確認 5分会：複製範囲・優先度・ブラウザ環境を Slack で復唱
+
+#### Step 2: 全体像把握（既存STEP 1）
+- Style Spy Pro + CSS Explorer 2.0 + Wappalyzer + CSS Stats の 4 ツール並列起動
+- CSS 読み込みマップ生成（Mermaid 形式）
+- Puppeteer で最下部まで自動スクロール → lazy-load 要素全展開
+- `document.querySelectorAll('*')` で全要素走査 + `.shadowRoot` 再帰
+- `<template>` / `<custom-element>` 検出時は Sota へエスカレ
+
+#### Step 3: カラー + タイポ抽出（既存STEP 2, 3）
+- `getComputedStyle` + 生CSS AST パース（PostCSS）+ Figma Dev Mode の三重検証
+- `rgb → HEX → OKLCH` を `culori` で自動変換
+- `document.fonts.entries()` で全 FontFace の `unicodeRange` 配列記録
+- Variable Fonts 検出時は `wakamai-fondue` で軸情報抽出
+- WCAG AA コントラスト比を全ペアで自動検査（`axe-core`）
+- Iro との CSS 変数接頭辞合意
+
+#### Step 4: レイアウト + Grid/Subgrid 完全マッピング（既存STEP 4）
+- Firefox Grid Inspector で全 Grid コンテナを視覚確認
+- `grid-template-areas` / `grid-template-columns: subgrid` を JSON 配列化
+- Container Queries（`@container`）と `@media` の両系統仕様書作成
+- `contain` プロパティ推奨箇所をマーク（Hero / Modal / Carousel）
+- タップ領域 48px 以上 + 隣接要素 8px 以上の間隔確認
+- `scroll-margin-top` + 固定ヘッダー高さセット記録
+
+#### Step 5: Modern CSS 統合抽出（新規）
+- CSS Nesting の AST パース（`postcss-nested` 逆変換）
+- `@scope` 境界検出
+- Container Queries の `container-name` / `container-type` マッピング
+- View Transitions（`view-transition-name`）検出
+- Anchor Positioning（`anchor-name` / `inset-area`）検出
+- `field-sizing: content` 検出
+
+#### Step 6: アニメーション + モーション安全性（既存STEP 5）
+- CSS animation / transition / keyframes 全列挙
+- JS アニメーション（GSAP / Framer Motion / AOS）検出
+- `@media (prefers-reduced-motion: reduce)` 対応有無を `motion_safety` 項目で記録
+- `@starting-style` + `transition-behavior: allow-discrete` 走査（モーダル・ドロワー）
+- hover / focus-visible / active / disabled の 4 状態強制ループ
+- Lighthouse CI で重量級ライブラリ警告
+
+#### Step 7: レスポンシブ + 全 MQ 走査（既存STEP 6）
+- 6 幅（320/375/768/1024/1280/1920）× `prefers-color-scheme` 2値 × `prefers-reduced-motion` 2値 × `prefers-contrast` 2値 × `forced-colors` 2値 = 96 パターン `@media` 検出
+- `@media print` 対応確認（建設業LP必須）
+- `prefers-reduced-data` 対応確認（省データモード）
+- `clamp()` / `min()` / `max()` 流体タイポの min/preferred/max 3値記録
+
+#### Step 8: ライブラリ + ライセンス + Baseline（既存STEP 7）
+- Wappalyzer でフレームワーク・CDN 特定
+- GSAP / Lottie / Swiper / Three.js などを `license-checker` で OSS ライセンス確認
+- GPL 系混入時は即 nori へ Slack DM
+- `web-features` で Baseline 準拠判定（widely / newly / limited）
+- `@supports` フォールバック要否をマーク
+
+#### Step 9: AI 意味的タグ付け（新規）
+- 各セクションのスクリーンショット + DOM スニペット取得
+- Claude API（`claude-opus-4-7`）で `semantic_role` 推定
+- 信頼度 0.85 以上を採用、未満は手動タグ付け
+- Ren のコンポーネント命名が自動生成可能化
+
+#### Step 10: 納品ゲート（新規・既存STEP 8の強化版）
+- Hana 自身が仮実装を作成し、`odiff` でピクセル差分測定
+- セクション別スコア算出 + 総合忠実度スコア計算
+- 90点未満のセクションは再抽出
+- 納品 JSON 3 系統配布：
+  - Nao 向け：`semantic-section-map.json` + 設計書作成用 CSS 仕様
+  - Ren 向け：`tailwind.config.ts` + `app/globals.css`（`@theme` 形式）
+  - Mia 向け：`fidelity-reports/*.png` + ハイパーフォーカス3要素リスト
+- Kaito へ最終納品：仕様書 + Baseline 準拠レポート + a11y 合格表 + ライセンス確認結果
+- 自己サインオフ：10ステップ全項目チェックリストに署名
+
+### 本パックの運用開始条件
+- 2026-10-04 以降の新規LP複製案件から本パックを標準フローとして適用
+- 既存案件のQA差し戻し対応は従来の8ステップで継続
+- 本パックの運用で発覚した改善点は Daily Knowledge Log に毎日追記
+- 四半期ごとに KPI 達成状況を Sora QA でレビュー
+- Baseline 2027 リリース時に v3 へアップデート
+
+### 本パックで達成する目標
+- **抽出時間**：従来 4 時間 → 1 時間（▲75%）
+- **Mia QA 一発 PASS 率**：従来 60% → 85% 以上
+- **再抽出ループ回数**：従来 1.2 回/案件 → 0.3 回/案件
+- **納品物の情報密度**：従来の 2.5 倍（Tailwind v4 直結・W3C Tokens・Baseline・a11y 完備）
+- **Nao / Ren / Mia / Sota への連携待ち時間**：従来 60 分 → 10 分（▲83%）
+
+本パックにより、Hana は CSS 抽出スペシャリストから「LP複製パイプライン全体の品質保証起点」へと進化し、サクバズ事業の採用LP制作スピード・品質の両面で業界トップクラスを維持する。
