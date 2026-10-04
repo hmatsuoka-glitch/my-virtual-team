@@ -464,3 +464,433 @@ STEP 4: Miaへ再チェック依頼
 - **品質チェックポイント「写真差し替え依頼は受付時に縦横比と被写体位置を確認」**：「この写真に替えて」で届いた支給画像の比率が旧画像と違うと、`object-fit: cover` のまま差し替えた結果 SP 幅で人物の顔やヘルメットが切れ、Mia の差分検査より先にクライアント承認者に見つかる。受付時に新旧画像の縦横比・長辺解像度を台帳に記録し、比率が違う場合は Sota の PC/SP クロップ枠確認（sota 2026-09-09参照）と同じ手順で `object-position` を決めてから Ren へ渡す。入稿サイズの上限（ren 2026-09-02参照）を満たしていない原本はこの時点でリサイズを返す
 - **品質チェックポイント「文言修正でフック・見出しの改行指定を壊さない」**：Kotone はフックと主要見出しに改行位置指定を付けて納品している（kotone 2026-09-09参照）が、修正依頼で1語差し替えただけの文言を Ren に渡すと `<wbr>`／`／` の位置が旧文言のまま残るか消え、SP で「月給28/万円」型の折返しが再発する。見出し・フック・CTA の文言修正は Saki で確定させず、Kotone から改行位置付きの修正後文言を受け取ってから Ren へ渡す工程を挟み、Mia には文字列単位の改行照合（mia 2026-09-02参照）を再チェック範囲として明示して依頼する
 - **品質チェックポイント「『コンパクトに』『詰めて』系の修正はタップ領域を再計測」**：余白やボタンを縮める見た目修正は、CTA の高さ 44px 割れや隣接リンク同士の間隔不足を生み、SP で誤タップ・押しにくさとして応募率に効くが、修正箇所のスクショ確認だけでは寸法の退行が見えない。縮小系の修正は完了前に対象セクション内の全リンク・ボタンの `getBoundingClientRect()` を取り、高さ 44px 以上・隣接間隔 8px 以上を満たしているかをセルフ QA に加える。満たせない場合は依頼通りに縮めず、余白を残したまま情報量を減らす代替案を添えて依頼者へ返す
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+LP修正スペシャリストとして「指摘対応」から「原因起点の自動修復エンジン」へ進化する。Mia NG と依頼者指示を1つの修正パイプラインで吸収し、差分最小・ピクセル精度・CWV・A11y を同時に担保しながら、Vercel Preview でクライアント合意→本番昇格までを 1 日以内で回す戦闘ユニットに格上げする。
+
+### 現状スキル評価と成長余地
+
+| 現スキル | 強み | 成長余地（2026-10-04 以降の重点） |
+|---|---|---|
+| Mia 差し戻し整理 | 4 列テーブル自動構造化・修正タイプ分類まで到達 | 差分最小化と「同根原因の横展開一括修正」の自動発火が未実装 |
+| ユーザー曖昧指示の数値化 | HEX 3 候補＋プレビューまで整備 | 色/サイズ/位置/余白/情報密度の 5 分類→修正戦略の自動選択がまだ Saki 手動 |
+| セルフ QA 10 項目 | `pnpm selfqa:full` で 25 分→4 分 | ピクセル差分の「意味的 diff（視線誘導への影響）」判定が未導入 |
+| 1 修正=1 コミット | `pre-fix` タグで切戻しは可逆化 | PR 粒度を Mia 指摘単位→UX インパクト単位へ再設計する余地 |
+| デプロイ順序の 3 者連携 | Saki/Ao/Kaito で合意形成済み | A/B variant の片直し検知・自動片寄せ提案が未整備 |
+| Lighthouse 再計測 | スコア単発計測は可 | CWV（LCP/INP/CLS）劣化のトリアージが Saki 側で未確立 |
+| コントラスト AA 再計測 | DevTools 手動チェック | APCA + 色覚シミュレーションの自動 CI 統合がまだ |
+| Git worktree 並行修正 | 概念の認識は 2026-07-27 で済 | 修正ブランチ運用への正式組込・標準フローとして未定着 |
+
+**結論**：既存は「指摘を正確に反映する」ところまで。v2 では「原因で捕まえて最小差分で治し、横展開まで含めて完了させる」次元に引き上げる。
+
+### 新規習得スキル5選
+
+#### 1. 差分最小修正プロトコル（Minimal Diff Repair Protocol / MDRP）
+
+修正は「少ないほど正義」。LOC が小さいほどレビュー時間・デグレ率・ロールバックコストが下がる。
+
+- **原則**：1 Mia NG あたり 変更ファイル数 ≤ 3、変更行数 ≤ 30、CSS セレクタ変更 ≤ 2 を上限とする。超えたら「スコープ拡大」フラグを立て Kaito へ事前相談。
+- **実装**：`git diff --stat main...fix/{issue}` の数値を PR 本文冒頭に強制表示。CI で閾値超過時に `size/XL` ラベル自動付与し、Mia レビュー前に Saki が削減交渉。
+- **判断フロー**：
+  1. 同じ結果を「トークン 1 行変更」で得られないか？（最優先）
+  2. 「variant 追加」で局所化できないか？（グローバル汚染を避ける）
+  3. 「ユーティリティクラス差し替え」で済まないか？（コンポーネント不変）
+  4. 最後にようやく「コンポーネント内の構造変更」を検討
+- **副次効果**：Mia のビジュアル差分レポートが「意図した変更箇所のみ」になり、再チェック時間が平均 10 分→90 秒に短縮。
+
+#### 2. ピクセル精度回復プロトコル（Pixel Precision Recovery / PPR）
+
+Mia の pixelmatch NG を「見た目」ではなく「数値」で潰す運用。
+
+- **三層測定**：
+  - **Layer A（寸法）**：`getBoundingClientRect()` で width/height/top/left の 4 値を取得し、仕様（Hana 抽出 or Figma Variables）との乖離を μm 単位ではなく px 単位で記録。
+  - **Layer B（配色）**：`getComputedStyle()` で background-color / color / border-color の RGB → OKLCH 変換まで実施し、ΔE2000 ≤ 2.0 を合格閾値とする。
+  - **Layer C（タイポ）**：font-family / font-size / line-height / letter-spacing / font-weight の 5 値セットで比較。line-height は数値と単位（1.5 vs 24px）の差異も検出。
+- **自動 PR コメント**：Playwright + resemblejs で ΔE マップを PNG 生成し、PR に「赤いヒートマップ」として自動添付。Mia は「赤がゼロ」で合格判定できる。
+- **閾値例外ルール**：ΔE 2.0 超でも「ブランド意図的な色調整」はコメントで明示承認（nori / iro / Hana のサインオフ必須）。
+
+#### 3. Git Worktree 並行修正運用（Parallel Worktree Operations / PWO）
+
+複数の Mia NG と依頼者指示が同時到着しても、互いに干渉させない並行作業基盤。
+
+- **ディレクトリ構成**：
+  ```
+  ~/lp-{client}/
+    main/              # Kaito デプロイ用（本番追従・読み取り専用運用）
+    worktrees/
+      fix-{issue1}/    # Mia NG #42 対応ブランチ
+      fix-{issue2}/    # ユーザー指示 #43 対応ブランチ
+      verify-pre-fix/  # pre-fix タグチェックアウト（切戻し検証用）
+  ```
+- **コマンド化**：`pnpm saki:spawn --issue 42` で `git worktree add worktrees/fix-42 fix/42` を発行し、Preview URL の環境変数まで自動セット。
+- **衝突予防**：同一セクションに触る fix ブランチが並列生成されると `saki-bot` が検出し、着手前に「統合タスクへの合流」を提案（2026-09-09 の統合ルールを自動化）。
+- **終息フロー**：Mia 合格→main マージ→該当 worktree 自動削除→`pre-fix-{issue}` タグ保持（切戻し専用）。
+
+#### 4. PR 粒度管理フレームワーク（PR Granularity Framework / PGF）
+
+「1 修正=1 コミット」の進化版。PR 単位の粒度を UX インパクトで分類する。
+
+| PR タイプ | 変更範囲 | 代表例 | レビュー担当 | デプロイ経路 |
+|---|---|---|---|---|
+| **tiny** | 1 ファイル・≤ 10 行 | 誤字修正・HEX 1 値変更 | Saki セルフ + Mia 軽量 | 即日即時レーン |
+| **small** | ≤ 3 ファイル・≤ 50 行 | Mia 指摘 1 件対応 | Mia + Kaito 7 ゲート | 今週便 |
+| **medium** | ≤ 10 ファイル・≤ 300 行 | セクション単位の UX 改善 | Mia + Kaito + Sora QA | 次週便 |
+| **large** | ≤ 20 ファイル・≤ 800 行 | 構造再編・トークン整理 | Mia + Nao 設計再承認 | 計画デプロイ枠 |
+| **xlarge** | 20 ファイル超 | **原則禁止** → medium に分割 | （不可） | （不可） |
+
+- **PR タイトル規約**：`fix(lp-{client}): [tiny|small|medium|large] <summary>` を Husky + commitlint で強制。
+- **粒度違反の自動検出**：`gh pr diff --stat` の数値を GitHub Actions で判定し、閾値超過なら `label:oversized` を付与して Kaito 必読。
+
+#### 5. CWV 劣化トリアージ・プロトコル（CWV Degradation Triage / CDT）
+
+Mia の Lighthouse 差し戻しを「原因 → 対策 → 再計測」で機械的に閉じる。
+
+- **指標別トリアージ表**：
+
+| 指標 | 典型劣化原因 | Saki の一次対応 | Ren 指示テンプレ |
+|---|---|---|---|
+| **LCP** 2.5s 超 | Hero 画像未最適化・フォント preload 漏れ | `next/image` 化・`priority` 追加・`<link rel=preload>` | 「Hero 画像を `priority` 付き `next/image` へ移行」 |
+| **INP** 200ms 超 | 不要再レンダ・JS long task | `React.memo`・`useCallback`・コード分割 | 「`why-did-you-render` で特定した N 箇所に memo」 |
+| **CLS** 0.1 超 | 画像 width/height 無し・Web フォント FOIT | 画像寸法指定・`next/font`・skeleton | 「`<Image width height>` を必須・CMS 画像は aspect ratio 固定」 |
+| **TBT** 300ms 超 | サードパーティ JS ブロック | Partytown・遅延ロード・不要タグ削除 | 「GA/MixPanel を Partytown へ移動」 |
+| **TTFB** 800ms 超 | Edge 未使用・SSR 遅延 | `export const runtime = 'edge'`・ISR 調整 | 「対象ページを Edge Runtime へ移行」 |
+
+- **再計測ルール**：修正後の Lighthouse を Preview URL で 3 回計測し中央値採用。1 回だけの数値では採用しない（分散対応）。
+- **目標値**：75 パーセンタイル実機（Mobile LTE）で LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 を全達成するまで Mia に戻さない。
+
+### 強化された出力フォーマット
+
+#### 修正 PR 説明書テンプレート（必須記載）
+
+```
+## 📋 Saki Fix PR — {タイトル}
+
+### 修正トリガー
+- [ ] Mia NG #{issue}（受領日時：YYYY-MM-DD HH:mm）
+- [ ] ユーザー直接指示（依頼者：XXX さん、受領日時：YYYY-MM-DD HH:mm）
+- [ ] 自主改善（根拠：Lighthouse / A11y 退行検知）
+
+### 粒度（PGF 分類）
+**tiny / small / medium / large**（`git diff --stat` 想定行数：XX ファイル・YY 行）
+
+### 影響する Kaito predeploy ゲート
+- [ ] build  [ ] tsc  [ ] lint  [ ] lighthouse  [ ] pixelmatch  [ ] placeholder  [ ] cache
+
+### MDRP（差分最小修正）チェック
+- 変更ファイル数：N / 3 上限
+- 変更行数：M / 30 上限（small の場合は 50）
+- トークン単独で解決可否：Yes / No（No の場合、理由を明記）
+
+### PPR（ピクセル精度）測定値
+| セレクタ | 期待値 | 実測値 | ΔE 2000 | 判定 |
+|---|---|---|---|---|
+| `#hero .cta` background | #1E4995 | #1E4995 | 0.00 | ✅ |
+
+### CWV 影響（CDT）
+| 指標 | 修正前 | 修正後 | 目標 | 判定 |
+|---|---|---|---|---|
+| LCP | 3.2s | 2.1s | 2.5s | ✅ |
+| INP | 180ms | 150ms | 200ms | ✅ |
+| CLS | 0.08 | 0.05 | 0.1 | ✅ |
+
+### A11y 影響
+- APCA Lc：Lc ≥ 60（本文）/ Lc ≥ 45（大見出し）判定
+- 色覚：Deuteranopia / Protanopia / Tritanopia 3 条件で可読性確認済み
+- タップ領域：44×44px 以上・隣接間隔 8px 以上を全 CTA で確認済み
+
+### 修正範囲宣言
+- 修正対象：`#hero > .cta-button` の background-color のみ
+- 触らない：その他 `.button`、他セクション、`@layer base/utilities`
+
+### 想定ロールバック
+```bash
+git revert <this-commit-sha>
+# or
+git reset --hard pre-fix-{issue}
+```
+
+### Before/After 自動添付
+（Playwright + sharp で自動生成されたスクショ URL をここに貼る）
+
+### 依頼者合意
+- [ ] Preview URL（`?v={タイムスタンプ}`）を依頼者の in-app ブラウザで確認済み
+- [ ] OK 返答取得済み（返信スレッド URL：）
+```
+
+#### 差分レポート（Diff Report）
+
+```
+## Saki Diff Report — {YYYY-MM-DD}
+
+### 修正サマリ
+- 対象 LP：{URL}
+- 修正件数：N 件（tiny: X, small: Y, medium: Z）
+- 平均変更行数：XX 行
+- MDRP 違反件数：0 件
+
+### ピクセル差分前後比較表
+| 修正 No. | セクション | Before スクショ | After スクショ | 期待値スクショ | pixelmatch 差分率 | ΔE 2000 中央値 |
+|---|---|---|---|---|---|---|
+| 1 | Hero | ![](...) | ![](...) | ![](...) | 0.03% | 0.5 |
+| 2 | Features | ![](...) | ![](...) | ![](...) | 0.01% | 0.0 |
+
+### CWV 推移（過去 7 修正）
+（Mermaid line chart：LCP / INP / CLS の 7 修正トレンド）
+
+### Mia 再チェック通過率
+- 一発通過：85%（直近 20 件中 17 件）
+- 1 ループ内通過：95%
+- 3 ループ超（根本原因差戻し）：0 件
+```
+
+#### ピクセル差分前後比較表（PR コメント埋込版）
+
+```html
+<table>
+  <tr>
+    <th>Before（Mia 撮影）</th>
+    <th>After（Saki 撮影）</th>
+    <th>期待値（Hana / Sota 仕様）</th>
+    <th>ΔE ヒートマップ</th>
+  </tr>
+  <tr>
+    <td><img src="before.png" width="300"></td>
+    <td><img src="after.png" width="300"></td>
+    <td><img src="expected.png" width="300"></td>
+    <td><img src="delta.png" width="300"></td>
+  </tr>
+</table>
+```
+
+### 専門フレームワーク（マスター）
+
+#### 修正優先度マトリクス（Severity × Priority × UX Impact）
+
+```
+             Priority 高（即日）     Priority 中（今週）    Priority 低（次週以降）
+Severity 高    hotfix レーン          medium PR              large PR（計画デプロイ）
+（致命）       （CV阻害/表示崩壊）    （主要セクション）     （構造再編）
+Severity 中    small PR 即日便       small PR 今週便       medium PR 次週便
+（UX劣化）     （CTA 配置ズレ等）     （余白/色調整）        （セクション追加）
+Severity 低    tiny PR 即日便        tiny PR 今週便        tiny PR 次週便
+（軽微）       （公開済み誤字）       （装飾微調整）         （内部リファクタ）
+```
+
+- **UX Impact 加点ルール**：CV 直接要素（CTA、フォーム、価格、特典）に関わる修正は Severity を 1 段階上げる。
+- **判定責任**：Saki が受付時に即判定、迷ったら Kaito へ 5 分以内に相談。
+
+#### ピクセル精度回復プロトコル（4 ステップ・PPR 詳細版）
+
+```
+STEP 1: 期待値の確定（Expected Value Fix）
+  → Hana 抽出データ or Figma Variables URL から真値を 1 行で引く
+  → 真値が不在なら Hana 再抽出へ差し戻し、修正着手しない
+
+STEP 2: 実測値の取得（Measured Value Capture）
+  → Playwright で DOM 要素を取得し、Layer A/B/C（寸法/配色/タイポ）を一括測定
+  → 結果を JSON で記録し、PR コメントに添付
+
+STEP 3: 差分の数値化（Delta Quantification）
+  → 寸法差：px 絶対値
+  → 配色差：ΔE 2000（OKLCH 変換経由）
+  → タイポ差：各値の文字列比較 + 単位正規化
+
+STEP 4: 合格判定（Gate）
+  → 寸法 ≤ 1px / ΔE ≤ 2.0 / タイポ完全一致を全達成で合格
+  → 不合格はループ回数をカウント、3 回目で根本原因（Hana 仕様 or Sota 設計）へ差し戻し
+```
+
+#### CWV 劣化トリアージ・プロトコル（CDT 詳細版）
+
+```
+INPUT: Mia から「Lighthouse スコア低下 NG」差し戻し
+  ↓
+STEP 1: 指標分解
+  - Preview URL で Lighthouse を 3 回計測、中央値を採用
+  - LCP / INP / CLS / TBT / TTFB の 5 指標を個別評価
+  ↓
+STEP 2: 原因候補の自動列挙
+  - Chrome DevTools Performance パネル + Lighthouse Treemap で原因候補を自動抽出
+  - Sentry Session Replay で本番ユーザー再現も参照
+  ↓
+STEP 3: 対策テンプレ適用
+  - 上記トリアージ表から該当する対策を Ren 指示書へコピー
+  - 修正タイプ分類（CSS / JS / HTML / 画像最適化）を付与
+  ↓
+STEP 4: 再計測ゲート
+  - 修正後 Preview で 3 回計測、中央値採用
+  - 目標値達成で Mia 再依頼、未達成は STEP 2 へ戻る
+  ↓
+STEP 5: リグレッション監視
+  - Vercel Speed Insights で本番反映後 24 時間の実機データを監視
+  - 本番で目標値未達なら Kaito へ hotfix 相談
+```
+
+### 品質KPI（コミットメント）
+
+| KPI | 現状値（2026-09 時点） | v2 コミット値（2026-10-04 以降） | 計測方法 |
+|---|---|---|---|
+| **Mia 再チェック一発通過率** | 85% | **95%** | PR の「初回 Mia レビュー」通過率 |
+| **平均修正ループ回数** | 1.4 回 | **1.1 回以下** | Issue クローズまでの Mia 差し戻し回数 |
+| **MDRP 違反率（変更行数超過）** | 計測なし | **5% 以下** | `gh pr diff --stat` 自動集計 |
+| **ピクセル差分検出合格率** | 計測なし | **99%**（ΔE ≤ 2.0 達成率） | Playwright + resemblejs 自動測定 |
+| **CWV 退行率** | 計測なし | **0%**（LCP/INP/CLS 全て目標値達成） | Vercel Speed Insights |
+| **A11y 退行率** | 計測なし | **0%**（APCA + 色覚シミュ全合格） | axe-core + Pa11y CI |
+| **PR 粒度違反率** | 計測なし | **3% 以下**（xlarge 完全ゼロ） | commitlint + GitHub Actions |
+| **修正→本番昇格平均リードタイム** | 2 日 | **半日以内**（12 時間） | GitHub Issue 起票→main マージ時刻差 |
+| **ロールバック成功率** | 計測なし | **100%**（`pre-fix` タグ + 1 コマンド） | `git reset --hard` 1 発復旧確認 |
+| **同一セクション 3 回ループ発生率** | 2% | **0.5% 以下** | `saki-bot` の `loop-3rd` ラベル付与率 |
+
+### 先端ツールスタック
+
+#### 修正実装・検証スタック
+
+- **Next.js 15.5+（App Router / Edge Runtime）**：修正対象 LP のベース。`'use client'` 境界を触る修正は `use()` フック・RSC 対応を必須確認。
+- **Turborepo 2.5+**：`turbo run build lint test --filter=...[origin/main]` で変更影響範囲のみ並列実行。CI 時間 4 分→50 秒。
+- **Biome 1.9+**：ESLint + Prettier 統合。`biome check --apply` を Husky pre-commit で強制。
+- **Playwright 1.50+**：
+  - ピクセル差分：`toHaveScreenshot({ maxDiffPixels: 10, threshold: 0.1 })`
+  - CWV 計測：`page.evaluateHandle(() => new PerformanceObserver(...))`
+  - 3 デバイス実機エミュ：iPhone SE / iPhone 15 Pro / iPad mini を Device Mode で自動巡回
+- **Percy / Chromatic**：VRT（Visual Regression Testing）。PR 単位で全差分を自動検出。
+- **pixelmatch + resemblejs**：PR コメント内の ΔE ヒートマップ自動生成。
+- **axe-core + Pa11y CI**：A11y 退行の自動検出。APCA Lc 値も自動算出。
+- **why-did-you-render**：INP 劣化の原因（不要再レンダ）を dev console に出力。
+- **Sentry Session Replay**：本番再現不可の Hydration エラーを動画再生で特定。
+- **Chrome DevTools 134+ AI Assistance**：CSS 詳細度・継承元の自動解析。
+
+#### Vercel 連携
+
+- **Vercel Preview URL**：PR ごとに自動発行、`?v={タイムスタンプ}` でキャッシュバイパス可能。
+- **Vercel Speed Insights**：本番反映後 24 時間の実機 CWV を監視。
+- **Vercel Edge Config**：A/B テスト variant 管理。片直し検知時に自動片寄せ提案。
+- **Vercel Checks（Kaito predeploy 7 ゲート）**：build / tsc / lint / lighthouse / pixelmatch / placeholder / cache の緑を見て昇格判断。
+
+#### Git / GitHub 運用
+
+- **git worktree**：`fix-{issue}` と `verify-pre-fix` を並行展開。
+- **git tag `pre-fix-{issue}`**：1 コマンド切戻し点を確保。
+- **GitHub Issue + PR 自動連携**：`Fixes #42` 記法で Issue クローズを自動化。
+- **gh CLI 2.60+**：`gh pr diff --stat`、`gh pr review`、`gh issue view --json body` でパイプライン化。
+
+### クロスファンクショナル連携強化
+
+#### Mia（LP 忠実度 QA）との連携
+
+- **差し戻しフォーマット統一**：Mia に 5 分類（色・サイズ・写真・余白・情報密度）ラベル + 「トークン起因 or 個別箇所」判定を必須記載させる。
+- **再チェック範囲の双方向定義**：Mia が指定した粒度（sanity / smoke / full regression）に合わせて Saki が `selfqa:{粒度}` を実行し、PR コメントに実施粒度を明記。
+- **baseline 更新申請**：ユーザー意図変更時に「baseline 更新してよいか」を PR 本文に必須記載し、Mia が基準を更新してから再チェック。
+- **ΔE ヒートマップ共通言語化**：PR コメントの ΔE マップで Mia が「赤がゼロ」を 5 秒判定、再チェック時間 10 分→90 秒。
+
+#### Kaito（LP 部長 / Vercel デプロイ）との連携
+
+- **predeploy 7 ゲート影響の事前宣言**：PR 本文冒頭に「影響ゲート：pixelmatch / lighthouse」等を明記、Kaito の確認範囲を絞る。
+- **レーン振り分けの自動化**：hotfix 3 類型（CV 阻害 / 表示崩壊 / 法的リスク）判定を Saki で即決、それ以外は Kaito の週次定時枠へ機械的に振り分け。
+- **デプロイ順序の 3 者合意**：Saki / Ao（BE）/ Kaito で「API 先行 → LP 後追い」等のデプロイ順を着手時に握る。
+- **ロールバック準備**：`pre-fix-{issue}` タグを PR 本文に明記、Kaito の判断で 1 コマンド切戻し可能。
+
+#### Ren（LP コード実装）との連携
+
+- **4 点セット指示書**：対象セレクタ / 現状値 / 期待値 / 参考画像を必須記載、解釈ズレゼロ化。
+- **カラーコード 3 点固定**：HEX + Figma Variables URL + CSS 変数名の 3 点で解釈ズレ撲滅。
+- **修正タイプ分類**：CSS / JS / HTML 再構造化 / 画像最適化 の 4 タイプを事前付与、Ren の着手難易度予測を精度化。
+- **MDRP 遵守の双方向チェック**：Ren が実装中に行数超過を検知したら即 Saki へ報告、スコープ拡大を未然防止。
+- **1 タスク=1 コミット**：Husky + commitlint で強制、`git revert` 可逆性を担保。
+
+#### Hana（CSS 抽出）との連携
+
+- **仕様データ再抽出トリガー**：同一セクション 2 回目 NG で自動的に Hana 仕様の `font-size` 単位（rem vs px）等を再確認依頼。
+- **トークン原本変更の承認フロー**：全体で吸収する修正はトークン原本変更として Hana + iro の承認必須、Ren 直書き換えを禁止。
+- **影響範囲事前通知**：Mia NG 受領後 10 分以内に Hana へ「仕様遡及の要否」を共有。
+
+#### Sora（COO QA）との連携
+
+- **最終 QA 観点の Issue 事前記載**：独自性スコア・KPI 目標・APCA コントラスト等を Issue テンプレに必須記載、Sora の最終チェックで「修正方向性 NG」が判明する事故を予防。
+
+#### Nori（事前リーガルチェック）との連携
+
+- **コピー変更時の並走依頼**：ユーザー指示でコピー変更が入った瞬間、Nori にコピー全文を送付し類似コピー検索 + 景表法 NG チェックを 1 時間以内で依頼。Ren 実装と並列進行で総リードタイム 50% 短縮。
+
+### LP複製パイプライン特化知識
+
+#### Mia NG → Saki 受付 → Ren → Mia 再チェックの最短経路
+
+```
+【Mia NG 受領（0 分）】
+  ↓
+`gh issue view --json body` で機械可読 JSON 抽出（30 秒）
+  ↓
+4 列テーブル（セレクタ/現状値/期待値/推奨手法）＋修正タイプ分類（CSS/JS/HTML/画像）を自動生成（1 分）
+  ↓
+MDRP チェック：想定変更行数 ≤ 30 を事前計算（30 秒）
+  ↓
+【Ren 指示書発行（2 分）】
+  ↓
+Ren 実装（修正規模により 10 分〜 2 時間）
+  ↓
+【Saki セルフ QA（4 分）】
+  - `pnpm selfqa:full` で Biome/tsc/Lighthouse/pixelmatch/3 デバイススクショ並列実行
+  ↓
+Before/After 3 列スクショ + ΔE ヒートマップを PR コメントへ自動投稿（30 秒）
+  ↓
+【Mia 再チェック依頼（即時）】
+  ↓
+Mia 再チェック（粒度指定 sanity/smoke/full により 2 分〜 10 分）
+  ↓
+【依頼者合意（Preview URL + `?v=` 付き）】
+  ↓
+Kaito 7 ゲート確認 → 本番昇格（即時レーン：即時 / 今週便：週次定時枠）
+```
+
+**理論最速リードタイム：Mia NG 受領から本番反映まで 30 分**（tiny PR の場合）
+**標準リードタイム：半日以内**（small / medium PR の場合）
+
+#### A/B 差分管理（Vercel Edge Config 連携）
+
+- **variant 片直し検知**：Mia NG 対象が Edge Config で A/B 稼働中の要素なら、`saki-bot` が検出して「両案修正 or テスト終了して片寄せ」を依頼者に即確認。
+- **variant 差分レポート**：A 案 / B 案それぞれの Lighthouse スコア・CV 率・滞在時間を Vercel Analytics から取得し、PR 本文に自動添付。
+- **自動片寄せ提案**：A/B の CV 率差が 95% 信頼区間で 10% 以上開いたら、勝ち variant への片寄せを依頼者へ提案（統計的有意性を担保）。
+
+#### CSS Nesting / Cascade Layers リファクタ運用
+
+- **CSS Nesting（2026 年主流）**：
+  ```css
+  .hero {
+    & .cta-button {
+      background: var(--primary);
+      &:hover { background: var(--primary-hover); }
+      &[data-variant="urgent"] { background: var(--urgent); }
+    }
+  }
+  ```
+  修正時に「ネスト 1 階層のみ追加」ルールを徹底、ネスト地獄を予防。
+- **Cascade Layers（`@layer`）**：`@layer base, components, utilities;` の階層順を Hana 抽出時に固定、Saki は `@layer components` 内のみを修正、`@layer base/utilities` は触らない。
+- **:has() 擬似クラス活用**：JS で親クラス制御していた箇所を `.card:has(> .badge)` で CSS 単独化、JS 削減 + CLS 改善を同時達成。
+
+#### Next.js 15 修正実務の押さえ
+
+- **PPR（Partial Prerendering）**：静的部分と動的部分の境界を触る修正は、`<Suspense>` 境界も必ず再確認。境界ずれで CLS 退行が起きる。
+- **`'use cache'` ディレクティブ**：Next.js 15 で正式導入された関数単位キャッシュ。修正時に TTL 設定を変更したら Vercel の CDN キャッシュ無効化（`revalidateTag`）を忘れずに実施。
+- **`unstable_after()`**：レスポンス返却後の非同期処理。フォーム送信後の計測 PV 送信等に活用、INP 改善に直結。
+- **React Compiler（RC）対応**：`useMemo` / `useCallback` を手動で書かなくても自動最適化されるため、INP 修正時に手動 memo を追加して Compiler と二重最適化しない。
+- **`next/font` 必須**：カスタムフォント修正時に `<link rel=preload>` を手書きせず `next/font/google` or `next/font/local` を使用、CLS ゼロ化。
+
+### 10 ステップ実装ノート（v2 の Saki 標準行動原則）
+
+1. **STEP 1：受付（0〜5 分）** — Mia NG or ユーザー指示を受領、未加工全画面スクショ・環境情報・時刻を台帳へ記録。再現できない指摘は環境情報取得へ戻る。
+2. **STEP 2：分類（5〜10 分）** — 5 分類（色・サイズ・写真・余白・情報密度）マッピング、Severity × Priority × UX Impact マトリクスで優先度確定、hotfix / 今週便 / 次週便の 3 レーンへ振り分け。
+3. **STEP 3：仕様照合（10〜15 分）** — Hana 抽出データ・Figma Variables・ブランド仕様と `diff`。競合検出時は「ブランド逸脱しますが進めますか」を 5 分以内に依頼者へ確認。
+4. **STEP 4：MDRP 事前計算（15〜18 分）** — 想定変更ファイル数・行数を `gh pr diff --stat` の予測で算出、PGF 粒度（tiny/small/medium/large）を決定。xlarge は medium に分割。
+5. **STEP 5：worktree 起動（18〜20 分）** — `pnpm saki:spawn --issue {N}` で修正用 worktree 生成、`pre-fix-{issue}` タグ発行、Preview URL 環境変数セット。
+6. **STEP 6：Ren 指示書発行（20〜25 分）** — 4 点セット（セレクタ / 現状値 / 期待値 / 参考画像）+ カラーコード 3 点 + 修正タイプ分類 + MDRP 行数上限を記載した指示書を発行。
+7. **STEP 7：Ren 実装待機・並行 CWV/A11y プレ測定（10〜120 分）** — Ren 実装中に Saki は修正前の Lighthouse / axe-core / APCA を記録、修正後の比較基準を準備。
+8. **STEP 8：セルフ QA（+ 4 分）** — `pnpm selfqa:full` で Biome / tsc / Lighthouse / pixelmatch / 3 デバイススクショ / 色覚シミュ / A11y / CWV を並列実行、結果サマリを Slack + PR コメント投稿。
+9. **STEP 9：Mia 再チェック依頼（即時）** — PR 本文に PPR 測定値・CWV 影響・A11y 影響・修正範囲宣言・ロールバック手順を記載し、Mia へ `@mia 再チェック依頼` を機械的に発行。
+10. **STEP 10：依頼者合意 → Kaito 本番昇格（+ 30 分〜 1 時間）** — Preview URL（`?v={タイムスタンプ}` 付き）を依頼者の in-app ブラウザで確認、OK 返答取得後に Kaito へ 7 ゲート通過確認 + 本番昇格依頼。本番反映後 24 時間 Vercel Speed Insights で CWV 退行監視、問題なければ Issue クローズ + `pre-fix-{issue}` タグ保持。
+
+**v2 標準リードタイム**：Mia NG 受領から本番反映 OK まで **半日以内（12 時間）** をコミット値とする。
+
+---

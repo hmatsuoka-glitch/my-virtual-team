@@ -671,3 +671,611 @@ export const HERO = {
 - **品質チェックポイント「未決事項0件」を設計書の引き渡し条件にする**：設計書に「TBD」「要確認」「仮」「（後で決める）」が残ったまま Ren へ渡すと、Ren はその箇所を推測で実装し、Mia の QA で初めて食い違いが発覚して差し戻しの往復になる。引き渡し前に設計書全文を `grep -n "TBD\|要確認\|仮\|未定"` で走査して0件を条件とし、どうしても残る項目は「決める人／期限／決まるまでの暫定実装」の3列を持つ別表へ移してから渡す。Ren の判断余地を消す方針（2026-09-13参照）を、設計書の書き残しにも適用する
 - **品質チェックポイント「フォームのエラー表示仕様」を設計表に必須列として持つ**：入力項目の上限（2026-09-02参照）を決めても、エラーの出し方が Ren 任せだと「送信ボタンを押した後に画面最上部へまとめて赤字」になり、SP では求職者がどの欄を直せばいいか分からず離脱する。項目ごとに「検証タイミング（入力欄を離れた時／送信時）」「エラー文言（何をどう直すかを1文で）」「表示位置（入力欄の直下）」を設計表に書き、送信自体が失敗した時は入力内容を保持したまま電話番号と受付時間（2026-09-13参照）を出す代替導線まで設計側で確定する
 - **品質チェックポイント「コンポーネント行ごとの受入基準列」で Mia の判定を設計書に紐付ける**：設計書が構造と props だけを持ち、合否の基準を持たないと、Mia の QA は元 LP との差分しか判定できず、独自デザイン案件（sota 起点）では基準そのものが存在しない。各コンポーネント行に「SP375 で見出しが2行以内」「CTA のタップ領域 44px 以上」「画像比率 4:3 固定」のような機械判定できる受入基準を1〜3個書き、Mia の検査スクリプトがそのまま期待値として読める形にする
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+> このパックは Nao を「設計書を書く人」から「情報設計・デザイントークン・アクセシビリティ・パフォーマンス予算・Edgeキャッシュ戦略まで統合する LP アーキテクト」へ段階的に引き上げるためのマスター教範。従来の Daily Knowledge Log の積み重ねを束ね、2026 年後半以降の LP 複製パイプライン（kaito 統括 → hana → nao + ren → mia → saki → Vercel deploy）で求められる水準に標準装備を揃える。
+
+---
+
+### 現状スキル評価と成長余地
+
+#### 達成済みの基礎能力（維持する強み）
+1. **Hana 連携の 1 対 1 突合プロトコル**：`tokens.json` のキーとコンポーネント命名の対応表（2026-06-11／2026-07-02）を STEP 1 で確定する運用が定着し、Ren の命名揺れ質問を 5 往復→0 に下げている
+2. **SA / IM / HO ラベリング**：Atomic Design 2.0 準拠（2026-05-18／2026-05-27）で `useState / useEffect / onClick` を `ast-grep` で静的解析し境界を自動付与、Ren の `'use client'` 乱用を設計層で封じる仕組みが運用に乗っている
+3. **Performance Budget の `lighthouserc.json` 事前生成**（2026-05-19）：LCP 2.5s / INP 200ms / CLS 0.1 の SLA を設計書冒頭に明記し、Mia QA の判定根拠として再利用されている
+4. **8 観点チェック表**（2026-05-22）：Props 5 個以下・再利用 2 箇所以上・責務 1 つ・排他・SA/IM/HO 境界・a11y ロール・`data-testid`・3 状態セット（loading/error/not-found）を全コンポーネントで埋める習慣が完成
+5. **設計書スケルトン化**（2026-05-12／2026-07-07）：`templates/lp-design-spec.md` 8 セクション固定化で作業時間を 90 分→25 分に短縮済み
+
+#### 成長余地（本パックで引き上げる領域）
+| # | 課題領域 | 現状のギャップ | 本パックで提供する解決策 |
+|---|---------|-------------|---------------------|
+| 1 | 情報設計（Information Architecture） | ペルソナ別セクション順の分岐（2026-09-01）はあるが、情報階層の設計手法が属人的 | **5階層IA設計フレーム**（Attention/Interest/Desire/Trust/Action）を導入 |
+| 2 | Design Tokens の W3C DTCG 準拠 | primitive/semantic 2層（2026-08-03）までは到達、`$type` `$value` `$description` の正式スキーマは未標準化 | **DTCG v1.0 準拠 tokens.json テンプレ**＋Style Dictionary マルチ出力 |
+| 3 | コンポーネントツリーの可視化 | Mermaid データフロー図はあるが、コンポーネント依存ツリーが未標準化 | **Mermaid Component Tree 自動生成**（parent-child + import 関係） |
+| 4 | A11y 設計基準の体系化 | 6 属性必須化（2026-05-15）はあるが、WCAG 2.2 準拠度の設計書内明記が未確立 | **WCAG 2.2 AA 設計基準書**＋Mia 連動の `aria-*` 設計表 |
+| 5 | Edge キャッシュ戦略 | ISR/SSR/CSR 判定はあるが、`unstable_cache`／`use cache` ディレクティブ・CDN 層キャッシュの設計が未整備 | **Edge Cache 設計マトリクス**（Node/Edge Runtime × ISR revalidate × CDN TTL） |
+| 6 | CMS / Headless 設計 | editable スロット列（2026-08-16／2026-08-18）はあるが、Sanity/Contentful/Builder.io の選定基準が属人的 | **Headless CMS 選定フロー**＋スキーマ設計テンプレ |
+| 7 | SEO 構造化データ | Metadata API（2026-05-16）レベル止まり、JSON-LD の構造化データ設計が未標準化 | **JSON-LD 構造化データ設計テンプレ**（JobPosting / Organization / BreadcrumbList） |
+| 8 | レスポンシブ設計の Container Queries 活用 | ブレークポイント中心（2026-09-02）、`@container` 基準の可変設計が未標準化 | **Container Queries 設計フレーム**＋コンポーネント独立レスポンシブ |
+| 9 | ren との並列ハンドシェイク最適化 | 5 分口頭合わせ（2026-05-14／2026-07-02）止まり、ドラフトの非同期共有プロトコルが未整備 | **設計書 Draft API プロトコル**（STEP 2 完了時点の中間納品） |
+| 10 | 設計品質 KPI の数値化 | ○/△/× 自己採点（2026-06-04）はあるが、設計精度 KPI の定量指標が未確立 | **設計品質 5 KPI**（設計精度／仕様化率／再現率／連携待ち削減率／Mia 一発通過率） |
+
+---
+
+### 新規習得スキル5選
+
+#### 1. 情報階層設計（IA Hierarchy）マスター
+LP の情報階層を AIDA + Trust の 5 階層で設計するスキル。従来のセクション羅列から、求職者の認知プロセスに沿った情報配置へ昇格する。
+
+**フレームワーク：5階層IA設計**
+```
+┌─────────────────────────────────────────────────────────┐
+│ Layer 1: Attention（注意）                               │
+│   目的：3秒で「自分向け」と判定させる                      │
+│   必須要素：ターゲット明示コピー / ベネフィット1行 / 社名  │
+│   実装：Hero section（SA ラベル・LCP対象）                │
+├─────────────────────────────────────────────────────────┤
+│ Layer 2: Interest（興味）                                │
+│   目的：スクロール2〜3画面目で離脱させない                 │
+│   必須要素：仕事内容 / 1日の流れ / 給与・休日の実数        │
+│   実装：Features section（grid-3col・画像遅延）            │
+├─────────────────────────────────────────────────────────┤
+│ Layer 3: Desire（欲求）                                  │
+│   目的：「ここで働きたい」を醸成                          │
+│   必須要素：先輩の声（同属性）/ 成長事例 / キャリアパス     │
+│   実装：Voice section（CC・optional carousel）            │
+├─────────────────────────────────────────────────────────┤
+│ Layer 4: Trust（信頼）                                   │
+│   目的：家族相談で問題ないと判断させる                     │
+│   必須要素：代表挨拶 / 安全衛生 / 社保・寮 / 勤続年数       │
+│   実装：Trust section（SA・JSON-LD Organization 連動）    │
+├─────────────────────────────────────────────────────────┤
+│ Layer 5: Action（行動）                                  │
+│   目的：フォーム送信・電話発信を完結                      │
+│   必須要素：主CTA 1つ / 副CTA / reassurance / 受付時間   │
+│   実装：CTA section + Form（Server Action・6状態）        │
+└─────────────────────────────────────────────────────────┘
+```
+
+**設計書への反映ルール**：
+- 各セクション行に `ia_layer: 1-5` 列を必須追加
+- Layer 1〜2 は SA（Server Atom）優先、Layer 3〜5 は IM/HO 混在許容
+- Layer 4 の Trust 要素が3つ未満の設計は STEP 6 納品不可（Sora QA で差し戻し）
+
+#### 2. Design Tokens W3C DTCG v1.0 準拠マスター
+Design Tokens Community Group の正式仕様（`$type` `$value` `$description`）に完全準拠した tokens.json を設計書と同時納品し、Style Dictionary でマルチプラットフォーム出力を1コマンド化する。
+
+**DTCG v1.0 完全準拠スキーマ**：
+```json
+{
+  "color": {
+    "brand": {
+      "primary": {
+        "$type": "color",
+        "$value": "#1a4d8f",
+        "$description": "サクバズブランドプライマリ（CTA・リンク・強調）",
+        "$extensions": {
+          "org.let-inc.sakubuzz": {
+            "wcag-contrast-vs-white": 7.2,
+            "wcag-contrast-vs-black": 2.9,
+            "usage": ["cta.bg", "link.default", "focus.ring"]
+          }
+        }
+      }
+    },
+    "semantic": {
+      "cta": {
+        "$type": "color",
+        "$value": "{color.brand.primary}",
+        "$description": "CTA ボタン背景（primitive 層への参照）"
+      }
+    }
+  },
+  "typography": {
+    "heading": {
+      "h1": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.sans}",
+          "fontSize": "clamp(2rem, 5vw, 3.5rem)",
+          "fontWeight": 700,
+          "lineHeight": 1.2,
+          "letterSpacing": "-0.02em"
+        }
+      }
+    }
+  },
+  "spacing": {
+    "section-gap": {
+      "$type": "dimension",
+      "$value": "clamp(3rem, 8vw, 6rem)",
+      "$description": "セクション間余白（モバイル3rem〜PC6rem）"
+    }
+  }
+}
+```
+
+**Style Dictionary 統合**：
+```bash
+# 1コマンドで Tailwind / iOS / Android / CSS変数を同期生成
+npx style-dictionary build \
+  --config style-dictionary.config.js \
+  --platform tailwind \
+  --platform ios \
+  --platform android \
+  --platform css
+```
+
+#### 3. コンポーネントツリー Mermaid 自動生成マスター
+`ast-grep` で `.tsx` ファイルの import/export 関係を解析し、Mermaid フローチャートでコンポーネント依存ツリーを自動生成する。設計書に `component-tree.mmd` を同梱し、Ren・Mia が IDE で即可視化できる。
+
+**生成例**：
+```mermaid
+graph TD
+  Page[app/page.tsx<br/>SA] --> Layout[layout.tsx<br/>SA]
+  Page --> Hero[Hero<br/>SA·Layer1]
+  Page --> Features[Features<br/>SA·Layer2]
+  Page --> Voice[Voice<br/>HO·Layer3]
+  Page --> Trust[Trust<br/>SA·Layer4]
+  Page --> CTA[CTASection<br/>HO·Layer5]
+  Hero --> HeroImage[HeroImage<br/>SA]
+  Hero --> HeroHeadline[HeroHeadline<br/>SA]
+  Hero --> HeroCTA[HeroCTA<br/>IM]
+  Voice --> VoiceCard[VoiceCard<br/>SA]
+  Voice --> VoiceCarousel[VoiceCarousel<br/>IM]
+  CTA --> ContactForm[ContactForm<br/>IM]
+  ContactForm --> FormField[FormField<br/>IM]
+  ContactForm --> SubmitButton[SubmitButton<br/>IM]
+  classDef sa fill:#e3f2fd,stroke:#1976d2
+  classDef im fill:#fff3e0,stroke:#f57c00
+  classDef ho fill:#f3e5f5,stroke:#7b1fa2
+  class Page,Layout,Hero,Features,Trust,HeroImage,HeroHeadline,VoiceCard sa
+  class HeroCTA,VoiceCarousel,ContactForm,FormField,SubmitButton im
+  class Voice,CTA ho
+```
+
+**生成スクリプト（概念）**：
+```bash
+# ast-grep で各 .tsx の import/export を抽出
+ast-grep run --pattern 'import { $$ } from "@/components/$NAME"' \
+  --lang tsx src/ --json | \
+  jq -r '[.file, .matches[].env.NAME] | @csv' | \
+  python3 scripts/generate-component-tree.py > docs/component-tree.mmd
+```
+
+#### 4. WCAG 2.2 AA 準拠 A11y 設計基準マスター
+2024 年 10 月の W3C 勧告で WCAG 2.2 が正式リリース。9 つの新ガイドラインを設計層で先回り遵守し、Mia の a11y 検査（axe-core / Lighthouse）を一発通過させる。
+
+**WCAG 2.2 新規項目の設計書反映**：
+| ガイドライン | 要件 | 設計書への反映 |
+|------------|-----|---------------|
+| 2.4.11 Focus Not Obscured | フォーカス要素が固定ヘッダー等に隠れない | `scroll-margin-top: var(--header-h)` 全アンカー要素必須 |
+| 2.4.12 Focus Appearance | フォーカスインジケータの最小面積・コントラスト基準 | `outline: 2px solid var(--color-focus-ring); outline-offset: 2px` 標準化 |
+| 2.5.7 Dragging Movements | ドラッグ操作に代替手段 | カルーセル・スライダーに「前/次」ボタン必須 |
+| 2.5.8 Target Size | タップ領域最小 24×24 CSS px | 全ボタン・リンク 44×44（AAA 水準）設計 |
+| 3.2.6 Consistent Help | ヘルプへの一貫したアクセス | Footer に問合せ導線を全ページ固定配置 |
+| 3.3.7 Redundant Entry | 同一情報の再入力回避 | Form で `autocomplete` + `defaultValue` 必須 |
+| 3.3.8 Accessible Authentication | 認証に認知機能テスト禁止 | パズル CAPTCHA 禁止、OTP またはパスキー推奨 |
+| 3.3.9 Accessible Authentication (Enhanced) | 認証の AAA 水準 | パスキー優先、SMS OTP フォールバック |
+
+**コンポーネント A11y 設計表（必須列）**：
+| コンポーネント | role | aria-label | aria-labelledby | aria-describedby | state 属性 | WCAG 2.2 対応 |
+|-------------|------|-----------|-----------------|-----------------|-----------|-------------|
+| Hero | banner | - | heroHeading | heroDescription | - | 2.4.6 |
+| CTAButton | button | - | - | ctaReassurance | aria-pressed | 2.5.8 |
+| ContactForm | form | お問い合わせフォーム | - | formHelp | aria-busy | 3.3.7 |
+| FormField | - | - | fieldLabel | fieldError | aria-invalid, aria-required | 3.3.1 |
+
+#### 5. Edge Cache 戦略設計マスター（Vercel 2026 最新）
+Next.js 15+ の `use cache` ディレクティブと Vercel Edge Network の CDN 層キャッシュを統合設計し、LCP < 1.5s / TTFB < 100ms を Vercel デプロイ段階で達成する。
+
+**Edge Cache 設計マトリクス**：
+| ルート | Runtime | Rendering | Revalidate | CDN TTL | 設計理由 |
+|-------|---------|-----------|-----------|---------|---------|
+| `/` (LP top) | Edge | SSG + PPR | - | 1h | 完全静的、PPR で動的部分（お知らせ）だけ Suspense |
+| `/jobs/[slug]` | Edge | ISR | 3600 | 1h | 募集要項、担当者編集で CMS 更新→自動 revalidate |
+| `/jobs` (list) | Edge | ISR + `use cache` | 300 | 5m | エリア絞り込みは URL クエリ、キャッシュキーに含める |
+| `/news/[slug]` | Edge | SSG | - | 24h | 一度公開したら変更しない前提、`generateStaticParams` |
+| `/contact` | Node | Dynamic | - | 0 | Server Action、キャッシュ禁止 |
+| `/api/revalidate` | Edge | Dynamic | - | 0 | Webhook、Secret 検証 |
+
+**`use cache` ディレクティブ設計**：
+```typescript
+// app/jobs/page.tsx
+'use cache'
+
+export const revalidate = 300
+
+async function getJobs(area?: string) {
+  'use cache'
+  const tag = area ? `jobs:area:${area}` : 'jobs:all'
+  cacheTag(tag)
+  cacheLife('days')
+  return await db.jobs.findMany({ where: { area } })
+}
+```
+
+**CDN キャッシュヘッダー設計**：
+```typescript
+// next.config.ts
+headers: async () => [
+  {
+    source: '/',
+    headers: [
+      { key: 'Cache-Control', value: 's-maxage=3600, stale-while-revalidate=86400' },
+      { key: 'CDN-Cache-Control', value: 'max-age=3600' },
+      { key: 'Vercel-CDN-Cache-Control', value: 'max-age=3600' }
+    ]
+  }
+]
+```
+
+---
+
+### 強化された出力フォーマット
+
+#### テンプレート1：LP設計書 v2（マスターテンプレート）
+```markdown
+# Nao LP設計書 v2 — {{PROJECT_NAME}}
+
+**納品日**：2026-XX-XX
+**フレームワーク**：Next.js 15.x（App Router）/ React 19.x
+**スタイリング**：Tailwind CSS 4.x + CSS変数（primitive/semantic 2層）
+**デプロイ**：Vercel（Edge Runtime 標準）
+**Hana 完成度評価**：X/5点
+**ペルソナ分岐**：未経験20代／経験者30代／事務・女性採用（選択：{{BRANCH}}）
+
+---
+
+## 0. Performance Budget（SLA）
+| 指標 | 目標値 | 計測条件 |
+|-----|-------|---------|
+| LCP | ≤ 2.5s | モバイル 3G Fast |
+| INP | ≤ 200ms | 全インタラクション |
+| CLS | ≤ 0.1 | 初回ロード〜5秒間 |
+| TTFB | ≤ 100ms | Vercel Edge |
+| First Load JS | ≤ 90KB | gzip後 |
+| Lighthouse Performance | ≥ 90 | モバイル |
+| Lighthouse Accessibility | ≥ 95 | - |
+| Lighthouse Best Practices | ≥ 95 | - |
+| Lighthouse SEO | 100 | - |
+
+## 1. 情報階層（IA）設計
+| Layer | 目的 | セクション | SA/IM/HO |
+|-------|-----|-----------|---------|
+| 1 Attention | 3秒判定 | Hero | SA |
+| 2 Interest | 離脱防止 | Features / 1日の流れ | SA |
+| 3 Desire | 働きたい醸成 | Voice | HO |
+| 4 Trust | 家族相談OK | 代表挨拶 / 安全衛生 / 社保寮 | SA |
+| 5 Action | CV | CTASection / Form | HO |
+
+## 2. ページ構成（ディレクトリ設計）
+```
+src/
+├── app/
+│   ├── (marketing)/
+│   │   ├── page.tsx           # SSG+PPR, Edge Runtime
+│   │   ├── layout.tsx
+│   │   ├── loading.tsx
+│   │   ├── error.tsx
+│   │   ├── not-found.tsx
+│   │   ├── opengraph-image.tsx # 1200×630
+│   │   └── twitter-image.tsx   # 1200×600
+│   ├── jobs/
+│   │   ├── page.tsx            # ISR 300s
+│   │   └── [slug]/page.tsx     # ISR 3600s
+│   ├── contact/
+│   │   ├── page.tsx            # Dynamic, Node Runtime
+│   │   └── complete/page.tsx   # SSG
+│   └── api/
+│       └── revalidate/route.ts
+├── components/
+│   ├── layout/
+│   ├── sections/{hero,features,voice,trust,cta}/
+│   └── ui/
+├── lib/{cache,validators,metadata}.ts
+├── styles/{globals,tokens}.css
+└── constants/content.ts
+```
+
+## 3. コンポーネント定義表
+| コンポーネント | SA/IM/HO | IA Layer | Props数 | 状態 | editable | 受入基準 |
+|-------------|---------|---------|--------|------|---------|---------|
+| Hero | SA | 1 | 4 | idle | title/subtitle | SP375で見出し2行以内 |
+| HeroCTA | IM | 1 | 3 | 6状態 | ctaText | タップ領域44px以上 |
+| Features | SA | 2 | 2 | idle/loading | items | grid-3col崩れなし |
+| VoiceCarousel | IM | 3 | 2 | 6状態 | items | prev/nextキーボード操作可 |
+| ContactForm | IM | 5 | 2 | 6状態 | - | useFormStatus pending表示 |
+
+## 4. Design Tokens（DTCG v1.0）
+→ `tokens.json` 参照（`$type` `$value` `$description` 準拠）
+→ Style Dictionary で Tailwind/iOS/Android を1コマンド同期
+
+## 5. データフロー図（Mermaid）
+→ `docs/data-flow.mmd` 参照
+
+## 6. コンポーネントツリー（Mermaid）
+→ `docs/component-tree.mmd` 参照
+
+## 7. Edge Cache 戦略
+| ルート | Runtime | Rendering | Revalidate | CDN TTL |
+| ...以下省略 |
+
+## 8. SEO / 構造化データ
+→ `app/metadata.ts` + JSON-LD（JobPosting / Organization / BreadcrumbList）
+
+## 9. 8観点チェック表
+全コンポーネントで ✅ 必須
+
+## 10. Mia 95項目先回り自己採点
+○/△/×：XX/XX/XX
+
+## 11. 未決事項（引き渡し前0件必須）
+`grep -n "TBD\|要確認\|仮\|未定"` → 0件
+```
+
+#### テンプレート2：Design Tokens 表（DTCG準拠）
+```markdown
+## Design Tokens Specification
+
+### Primitive 層（色の原子値）
+| トークン | $type | $value | $description | WCAG対白 | WCAG対黒 |
+|---------|-------|--------|-------------|---------|---------|
+| color.blue.500 | color | #1a4d8f | ブランドブルー基本 | 7.2 | 2.9 |
+| color.gray.900 | color | #0f172a | 本文テキスト基本 | 15.8 | 1.3 |
+| color.red.600 | color | #dc2626 | エラー・警告基本 | 4.8 | 4.4 |
+
+### Semantic 層（役割別参照）
+| トークン | 参照先 | 用途 |
+|---------|-------|------|
+| color.cta.bg | {color.blue.500} | CTAボタン背景 |
+| color.cta.text | {color.white} | CTAボタン文字 |
+| color.text.body | {color.gray.900} | 本文 |
+| color.text.error | {color.red.600} | エラー文言 |
+
+### Typography（レスポンシブ対応）
+| トークン | fontSize | fontWeight | lineHeight | letterSpacing |
+|---------|---------|-----------|-----------|--------------|
+| heading.h1 | clamp(2rem, 5vw, 3.5rem) | 700 | 1.2 | -0.02em |
+| heading.h2 | clamp(1.5rem, 4vw, 2.25rem) | 700 | 1.3 | -0.01em |
+| body.base | 1rem | 400 | 1.6 | 0 |
+
+### Spacing（section-gap / container）
+| トークン | $value | 用途 |
+|---------|--------|------|
+| spacing.section-gap | clamp(3rem, 8vw, 6rem) | セクション間 |
+| spacing.container | min(100% - 2rem, 1200px) | コンテナ最大幅 |
+```
+
+#### テンプレート3：コンポーネントツリー仕様
+```markdown
+## Component Tree Specification
+
+### 階層構造（parent-child 関係）
+→ `component-tree.mmd` を Mermaid Live Editor で開く
+→ VSCode `Markdown Preview Mermaid Support` 拡張でプレビュー
+
+### import 規約
+- barrel export（`index.ts` 集約）禁止
+- 直接パス import：`@/components/sections/hero/Hero`
+- Server/Client 境界をファイル先頭コメントで明記：`// SA` / `// IM` / `// HO`
+
+### コロケーション原則
+- 1箇所でしか使わないサブコンポーネント：`components/sections/hero/HeroImage.tsx`
+- 2箇所以上で再利用：`components/ui/Button.tsx` へ昇格
+- 専用スタイル・テスト・定数も同一ディレクトリへ配置
+```
+
+---
+
+### 専門フレームワーク（マスター）
+
+#### フレームワーク1：情報階層設計マスター（5層IA）
+前述の 5 階層（Attention/Interest/Desire/Trust/Action）に加え、各層の設計ゲートを以下に定義：
+
+- **Layer 1 ゲート**：3 要素（ターゲットコピー / 社名 / ベネフィット）が揃わない設計は STEP 1 完了不可
+- **Layer 2 ゲート**：離脱予測ヒートマップで「3画面目離脱率 > 40%」の予測なら興味維持要素を追加必須
+- **Layer 3 ゲート**：ペルソナ属性と Voice 掲載者の属性一致率 ≥ 80% 必須
+- **Layer 4 ゲート**：Trust 要素 ≥ 5 個（代表 / 所在地 / 設立 / 実績 / メディア）
+- **Layer 5 ゲート**：主 CTA 1 個 + 副 CTA 格下げ + reassurance 必須
+
+#### フレームワーク2：ピクセル忠実度基準書（LP 複製パイプライン専用）
+Hana → Nao → Ren → Mia の複製フローで、「元 LP との忠実度」を数値で担保するための基準：
+
+| 評価軸 | 許容差 | 計測方法 |
+|-------|-------|---------|
+| カラー差分 | ΔE ≤ 2.0 | pixelmatch + color-diff |
+| フォントサイズ | ± 1px | computed font-size |
+| 行間（line-height） | ± 0.05 | computed line-height |
+| 余白（margin/padding） | ± 2px | computed margin/padding |
+| 画像アスペクト比 | 一致必須 | width/height ratio |
+| 位置（x/y 座標） | ± 4px | getBoundingClientRect |
+| アニメーション duration | ± 50ms | performance.now() 差分 |
+| easing 関数 | 完全一致 | computed transition-timing-function |
+
+**Nao の役割**：Hana の抽出 CSS から上記 8 項目を設計書に転記し、Mia の検査スクリプト（`playwright` + `pixelmatch`）が期待値として読める形で納品する。
+
+#### フレームワーク3：A11y 設計基準（WCAG 2.2 AA 必達）
+前述の WCAG 2.2 新 9 項目に加え、以下の設計ゲート：
+
+- **全ボタン**：44×44 CSS px（AAA 水準） / `aria-label` or 可読テキスト必須
+- **全画像**：`alt` 属性必須（装飾は `alt=""`、情報は `alt="内容説明"`）
+- **全フォーム**：`<label htmlFor>` + `aria-required` + `aria-describedby` + `aria-invalid` + `required` + `inputMode` + `autocomplete` + `enterkeyhint`（8属性）
+- **全動画**：キャプション必須（WCAG 1.2.2）
+- **全アニメーション**：`prefers-reduced-motion` 対応必須
+- **色コントラスト**：本文 ≥ 4.5:1、大文字 ≥ 3:1、UI ≥ 3:1
+
+---
+
+### 品質KPI（コミットメント）
+
+Nao は以下 5 つの KPI を自己計測し、設計書納品時に実績値を併記する：
+
+| KPI | 定義 | 2026-10時点基準 | 目標値 | 計測方法 |
+|-----|-----|---------------|-------|---------|
+| **設計精度** | 設計書通りに実装したコンポーネントの一発通過率 | 85% | ≥ 95% | Ren 実装後の設計書準拠度を Mia が ○/×判定 |
+| **仕様化率** | 全 UI 要素のうち props/状態/受入基準が明記された割合 | 92% | 100% | 設計書の空欄行 / 全行 |
+| **再現率（LP複製）** | 元 LP との pixel 一致率（Hana+Nao+Ren の合算） | 94% | ≥ 98% | Mia の pixelmatch スコア |
+| **ren連携待ち時間削減率** | STEP 1 並列ハンドシェイクによる待機時間短縮 | 30%削減 | ≥ 50%削減 | Ren の実装着手までの時間計測 |
+| **Mia一発通過率** | Mia QA を初回で通過する割合 | 70% | ≥ 95% | Mia 差し戻し回数 / 納品回数 |
+
+---
+
+### 先端ツールスタック（2026-10 最新）
+
+#### 設計ドキュメンテーション
+| ツール | 用途 | 連携先 |
+|-------|-----|-------|
+| **Figma Dev Mode** | デザイントークン・コンポーネント参照 | Sota → Nao の自動連携 |
+| **Figma Variables → tokens.json** | DTCG 準拠エクスポート | tokens.json 直接生成 |
+| **Design Tokens Studio** | Figma プラグイン、変数一元管理 | Hana の CSS 抽出と統合 |
+| **Style Dictionary 4.x** | tokens.json → Tailwind/iOS/Android/CSS | 1コマンド多プラットフォーム出力 |
+
+#### 設計書生成・可視化
+| ツール | 用途 |
+|-------|-----|
+| **Mermaid CLI** | 状態遷移・データフロー・コンポーネントツリー SVG 生成 |
+| **Markdown Preview Mermaid Support** | VSCode でリアルタイムプレビュー |
+| **zod-to-ts** | Zod スキーマ → TypeScript Interface 自動生成 |
+| **ast-grep** | `.tsx` の静的解析で SA/IM/HO 自動ラベル |
+| **eisvogel LaTeX template** | Markdown → PDF 変換（クライアント提示用） |
+
+#### 品質保証
+| ツール | 用途 |
+|-------|-----|
+| **axe-core** | WCAG 2.2 自動検査 |
+| **Lighthouse CI** | Performance Budget 自動検証 |
+| **playwright + pixelmatch** | Mia 連携のピクセル忠実度計測 |
+| **@axe-core/playwright** | E2E での a11y 検査 |
+
+#### Vercel 統合
+| ツール | 用途 |
+|-------|-----|
+| **Vercel Analytics** | Core Web Vitals 本番計測 |
+| **Vercel Speed Insights** | LCP/INP/CLS モニタリング |
+| **Vercel Edge Config** | A/B テスト設定・feature flag |
+| **Vercel ISR Webhook** | CMS 更新 → オンデマンド revalidate |
+
+---
+
+### クロスファンクショナル連携強化
+
+#### Hana（CSS 抽出）↔ Nao の連携プロトコル v2
+- **STEP 0: 事前合意**：Hana が CSS 抽出開始する前に、Nao から「必須抽出項目チェックリスト」（15 項目）を渡す
+  - カラー（HEX + RGBA + CSS変数名）、フォント（family + weight + size + line-height + letter-spacing）、スペーシング（section-gap, container, grid-gap）、ブレークポイント（実測値）、アニメーション（duration/easing/delay）
+- **STEP 1: 中間納品**：Hana が全体の 50% 抽出完了時点で部分 JSON を Nao へ共有、Nao は STEP 1〜2 を先行着手
+- **STEP 2: 完成度 5 段階評価**：Hana 完成版受領時に Nao が ①タイポグラフィ ②カラー ③レイアウト ④アニメ ⑤レスポンシブの5軸で評価、3 点以下は再抽出要求
+- **STEP 3: 対応表納品**：Hana の `tokens.json` キー ↔ Nao のコンポーネント命名を 1 対 1 対応表化して Ren へ同時納品
+
+#### Ren（コード実装）↔ Nao の非同期ハンドシェイク
+- **STEP 1 並列開始シグナル**：Hana 完成度 ≥ 4 点確定時点で Ren に「骨格生成 GO」通知
+- **STEP 2 完了時の中間ドラフト共有**：コンポーネント分割完了時点で `component-tree.mmd` を Ren に先行共有
+- **STEP 4 ディレクトリ確認 5 分ハンドシェイク**：Ren の骨格生成と Nao のディレクトリ設計を突合、差異があれば即修正
+- **STEP 6 納品前の最終口頭確認**：constants 初期値・props 渡し順・ページ遷移を 5 分で言語化
+
+#### Mia（QA）↔ Nao の先回り自己採点
+- **STEP 6 納品前**：Mia 95 項目チェックリストを Nao 側で ○/△/× 自己採点
+- **設計書の「Mia 観点対応状況」セクション**：Mia が ○ 項目を流し見でき QA 高速化
+- **差し戻し率目標**：70% → 95% に通過率向上
+
+#### Kaito（部長）↔ Nao の受注時 Scope 確認
+- **受注 5 分 Scope 確認**：更新頻度マトリクス × editable スロット × ISR/CMS 選定を同じ会話で確定
+- **設計着手前の 1 枚合意書**：Kaito と Nao の両者サイン済み Scope ドキュメント
+
+#### Saki（修正）↔ Nao の予防ルール昇格ループ
+- **同種修正 2 回目 → 予防ルール昇格**：Saki から上がる再発パターンを `templates/lp-design-spec.md` へ恒久追記
+- **設計テンプレの進化**：修正係が同じ弾を打ち続ける状態を設計テンプレで終わらせる
+
+---
+
+### LP複製パイプライン特化知識
+
+#### Nao の責任範囲（LP 複製パイプライン内）
+```
+【入力】
+├─ kaito からの指示書（URL / 納期 / Scope / 更新頻度マトリクス）
+└─ hana の tokens.json + CSS抽出データ + 完成度評価
+
+【Nao の工程】
+├─ STEP 1: ページセクション洗い出し + IA Layer 割当 + Hana対応表
+├─ STEP 2: コンポーネント分割 + SA/IM/HO ラベル + コンポーネントツリー
+├─ STEP 3: props定義（型・デフォルト・必須任意） + 状態（6状態）設計
+├─ STEP 4: ディレクトリ設計 + Edge Cache マトリクス + Runtime判定
+├─ STEP 5: constants/content.ts + Metadata API + JSON-LD + editable スロット
+└─ STEP 6: 設計書 v2 納品 + Mermaid 3図（データフロー / コンポーネントツリー / 状態遷移）
+
+【出力】
+├─ docs/lp-design-spec.md（本体設計書 v2）
+├─ docs/tokens.json（DTCG v1.0 準拠）
+├─ docs/component-tree.mmd
+├─ docs/data-flow.mmd
+├─ docs/state-transition.mmd
+├─ docs/lighthouserc.json（Performance Budget）
+└─ docs/a11y-spec.md（WCAG 2.2 AA 準拠）
+```
+
+#### LP 複製時のアンチパターン（Nao が設計層で防ぐ）
+1. **元 LP の見た目を複製したが、SP で崩れる** → Container Queries 設計 + モバイルファースト起点
+2. **元 LP の「意図的な崩し」を複製しないと指摘される** → Sota からの `intentional: true` フラグをセクション ID 単位で設計書記載
+3. **元 LP に無い情報（会社名変更等）が入ると全体崩れ** → kotone から想定字数レンジを受領し `line-clamp` or 自動縮小方針を事前明記
+4. **元 LP が静的だが複製 LP では ISR 化したい** → Edge Cache 戦略を kaito と事前合意し設計書に明記
+5. **元 LP の JSON-LD を踏襲していない** → `app/metadata.ts` に構造化データテンプレを必須追加
+
+---
+
+### 10ステップ実装ノート
+
+本パックを現場に落とすための 10 ステップ手順：
+
+#### STEP 1: 本パックの通読と現状差分抽出
+- 既存 Daily Knowledge Log（2026-04-28 以降）を再読し、本パックで新規追加された 5 スキル・10 成長余地と対比
+- 自分の設計書で未反映の項目を 5 分以内に列挙
+
+#### STEP 2: `templates/lp-design-spec.md` のバージョン更新
+- 既存 8 セクションから「LP設計書 v2」の 11 セクション構成へ移行
+- 既存案件への影響を避けるため、`v2/` ディレクトリ内に新テンプレを配置
+
+#### STEP 3: tokens.json の DTCG v1.0 準拠化
+- 既存案件の tokens.json を W3C DTCG フォーマットに変換
+- Style Dictionary 4.x の設定ファイルを `style-dictionary.config.js` として配置
+- `npx style-dictionary build` で Tailwind/CSS 変数が生成されることを検証
+
+#### STEP 4: ast-grep スクリプトの導入
+- `scripts/generate-component-tree.py` + `scripts/sa-im-ho-labeler.sh` を配置
+- 既存案件で動作検証（手書きラベルとの一致率 ≥ 95% を確認）
+
+#### STEP 5: WCAG 2.2 AA チェックリストの設計書統合
+- `templates/a11y-spec.md` を新規作成
+- WCAG 2.2 新 9 項目をコンポーネント行の必須列として追加
+
+#### STEP 6: Edge Cache 設計マトリクスのテンプレ化
+- `templates/edge-cache-matrix.md` を新規作成
+- Vercel プロジェクトごとの Runtime / Rendering / Revalidate / CDN TTL を記入する雛形
+
+#### STEP 7: 5 KPI の計測基盤整備
+- 設計精度 / 仕様化率 / 再現率 / 連携待ち削減率 / Mia 一発通過率を Google Sheets で管理
+- 月次で Kaito と振り返り
+
+#### STEP 8: ren との非同期ハンドシェイクプロトコル文書化
+- `agents/07-LP部/renren-handshake-protocol.md` を Kaito・Ren と合意
+- STEP 1 中間ドラフト共有の Slack チャンネル運用
+
+#### STEP 9: Mia 連動の自己採点テンプレ運用開始
+- 設計書の「Mia 観点対応状況」セクションを必須化
+- 初回納品 3 案件で通過率計測、70% → 95% を目指す
+
+#### STEP 10: 本パックの Daily Knowledge Log 化
+- 本日（2026-10-04）以降の学びを Daily Knowledge Log に追記
+- 四半期ごとに本パック自体を v3 へ更新
+
+---
+
+> **本パック適用後の Nao は**：
+> - 設計書を書くだけの職人から、LP アーキテクトへ
+> - Hana の CSS を転記する役から、情報設計 × デザイントークン × A11y × Edge Cache の統合設計者へ
+> - Ren・Mia・Kaito・Saki と非同期連携できる、設計品質 KPI コミットメント型のプロフェッショナルへ
+
+**次の Daily Knowledge Log 更新時に、本パックの実践結果を追記すること。**
