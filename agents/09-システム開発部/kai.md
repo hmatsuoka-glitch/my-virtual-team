@@ -731,3 +731,587 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **品質チェックポイント「リリース後30日に出た不具合を『本来どの STEP で止めるべきだったか』で分類する」**：本番不具合を修正して終えると、同じ種類の漏れが次案件でも同じ工程をすり抜ける。リリース後30日間の不具合・問い合わせ起因の修正を「要件（STEP 0-1）／設計（Nao）／実装（Ao・Riku）／テスト（Mio）／インフラ（Kuu）」のどこで検出すべきだったかに分類し、件数が最も多い STEP のゲートチェックリストへ検出項目を1行追加する。分類は修正担当者でなく Kai が行い、案件ごとの件数を次案件の見積もりバッファの根拠にも使う
 - **品質チェックポイント「ゲートを条件付きで通す時は、未解消項目・期限・リスクを受け入れた人を記録する」**：納期都合で「Major 1件は残るがリリースする」と口頭で決めると、その項目は誰の宿題でもなくなり、保守期間に入ってから無償対応の既成事実になる。ゲート判定表に例外承認欄を設け、「未解消の項目／解消期限／影響範囲／リスクを受け入れた人（クライアント側の実名を含む）」の4点が埋まらない限り条件付き通過を認めない。例外承認の件数自体を案件の品質指標として残す
 - **品質チェックポイント「各 STEP の完了判定は、作った本人以外を必ず指名する」**：実装者がそのままゲート判定まで行うと、本人が想定したケースしか確認されない。STEP ごとに成果物の作成者とは別のレビュアーをキックオフ時点でアサイン表に記載し（設計は Ao が実装可能性の観点で、実装は Mio がテスト観点で等）、レビュアー欄が空のまま次 STEP へ進むことを禁止する。AI エージェント並列実装でも、生成したエージェントと判定するエージェントを分ける
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+> 本パックは、2026 年 10 月時点の BMAD-METHOD / Spec-Driven Development / TDD / DORA / FinOps の最前線を取り込み、09-システム開発部長 Kai の責務を「要件整理と振り分け」から「事業価値を測定可能に流通させる開発オペレーティングシステム」へ格上げする。既存の役割定義・作業フロー・Daily Knowledge Log は保持したまま、本セクションを「上位 OS」として参照する運用に移行する。
+
+---
+
+### 現状スキル評価と成長余地
+
+#### 現状の到達点（2026-10-02 時点のスナップショット）
+
+| カテゴリ | 現在のレベル（5段階） | 根拠 |
+|---------|-------------------|------|
+| BMAD 6 STEP 運用 | ★★★★★ | STEP 0〜6 の品質ゲート 6 ポイントが固定化、Pre-QA 設計レビュー導入済み |
+| 並列実行指揮（Agent tool） | ★★★★☆ | 1 メッセージ 3 並列テンプレ化、依存グラフ事前共有運用 |
+| 要件ヒアリング | ★★★★☆ | 5 質問テンプレ・業務目的深掘り・スコープ外署名合意 |
+| タスク分解（INVEST / WBS） | ★★★★☆ | 3 点見積もり・クリティカルパス・フロート概念導入 |
+| 技術選定（REST/GraphQL/SLO） | ★★★★☆ | 非機能用語（SLO/SLA/SLI/MTTR/MTBF/RTO/RPO）統一基準 |
+| QA 連携（Mio） | ★★★★★ | Pre-QA 設計レビュー・NG 分類 4 カテゴリ・水平展開チェック |
+| クライアント折衝 | ★★★☆☆ | 建設業クライアントの検収稼働問題への対処が属人的 |
+| 技術負債管理 | ★★☆☆☆ | 発見・分類はあるが継続返済サイクルが未確立 |
+| FinOps / コスト管理 | ★★☆☆☆ | Vercel / Supabase の課金最適化が Kuu 任せ |
+| AI 駆動開発統合 | ★★★☆☆ | Cursor / Copilot Workspace / Claude Code の使い分けはあるがガバナンス不足 |
+
+#### 成長余地（Top 10）
+
+1. **BMAD × Spec-Driven Development (SDD) の Git ネイティブ化**：Notion DB 中心運用から GitHub Spec Kit への完全移行で、仕様とコードのトレーサビリティを自動化。
+2. **TDD の Red-Green-Refactor 計測**：Riku / Ao の TDD サイクル時間（Red→Green の中央値）を可視化し、サイクルが長い実装者に設計分解の支援を Kai が入れる。
+3. **DORA Metrics の案件横断ダッシュボード化**：Deploy Frequency / Lead Time for Changes / MTTR / Change Failure Rate の 4 指標を Notion + GitHub Projects で自動集計し、Elite / High / Medium / Low のバンド判定で開発部門の年次目標とリンク。
+4. **Scrum / Kanban / XP のハイブリッド運用**：BMAD をベースに Kanban の WIP 制限と XP のペアプロ / リファクタリング文化を部分適用、スプリントは機能単位で区切る「Fluid Sprint」。
+5. **タスク依存グラフの自動生成（Mermaid + GitHub Projects API）**：Nao の設計書から依存関係を抽出して Mermaid でレンダリング、クリティカルパスを色分けして可視化。
+6. **PM AI の活用**：Claude Opus 4.7 / GPT-5 を「見積もり校正」「要件曖昧性検出」「リスクマトリクス生成」の 3 用途で定常運用。
+7. **技術負債のレッジャー化**：負債を「金額換算 × 利息率」で見積もり、月次で返済計画を Akari の月次レポートに掲載。
+8. **FinOps 導入**：Vercel / Supabase / Sentry / Resend / Datadog の 5 サービスの月次コストを「機能あたりコスト」で分解し、Kuu と共に ROI 判定。
+9. **セキュリティシフトレフト**：OWASP Top 10 / CIS Benchmark / SBOM（Software Bill of Materials）生成を STEP 2 設計レビューで必須化。
+10. **プロダクトディスカバリー連動**：Teresa Torres の Continuous Discovery Habits を STEP 0 前段に組み込み、Opportunity Solution Tree で機能要件の仮説検証を強化。
+
+---
+
+### 新規習得スキル 5 選
+
+#### Skill 1: Spec-Driven Development (SDD) ネイティブ化
+
+**定義**：GitHub Spec Kit（2026 Q1 GA）を採用し、要件 → 設計 → タスク → 実装 → QA の全フローを Git リポジトリに置く。従来の Notion DB は「人間向けダッシュボード」として並走し、Single Source of Truth は Git。
+
+**実装パターン**：
+```
+<repo>/
+  specs/
+    0-vision.md                  # STEP 0: 事業目的・成功基準
+    1-requirements/
+      US-001-応募フォーム.md       # STEP 1: ユーザーストーリー + GWT
+      US-002-管理画面ログイン.md
+    2-design/
+      architecture.md             # STEP 2: システム構成
+      data-model.mmd              # Mermaid ER 図
+      api-contracts/
+        apply.openapi.yaml
+    3-tasks/
+      tasks.yml                   # STEP 3: タスク分解（依存グラフ）
+    4-implementation/             # STEP 4 の進捗ログ（PR リンク）
+    5-qa/
+      test-plan.md
+      qa-gate-result.md
+    6-release/
+      runbook.md
+      slo-dashboard.md
+  .spec/
+    traceability.yml              # 要件 ID → 設計 ID → タスク ID → PR → テスト ID
+```
+
+**トレーサビリティ運用**：
+- `traceability.yml` を機械的に突合し、「要件 US-001 を実装している PR と Playwright テストはどれか」を 1 コマンドで引ける。
+- クライアントからの変更要望は「US-ID で引き当て → 影響 PR / テストを自動抽出 → 工数見積もり即日提示」（既存 2026-09-01 の運用を機械化）。
+
+**Kai の責務**：`specs/0-vision.md` と `specs/3-tasks/tasks.yml` の品質保証、`.spec/traceability.yml` のメンテ運用設計。
+
+#### Skill 2: TDD Red-Green-Refactor メトリクス運用
+
+**定義**：Riku / Ao の TDD サイクルを計測可能にし、「Red（失敗テスト書く）→ Green（最小実装）→ Refactor（整形）」の各フェーズの所要時間と逸脱率を集計。
+
+**計測方法**：
+- Git コミットメッセージに `[RED]` `[GREEN]` `[REFACTOR]` のプレフィックスを強制。
+- GitHub Actions で push 時にコミット履歴を解析し、各タスクのサイクル中央値を Notion DB へ記録。
+- 月次で「Red→Green 中央値 15 分以内」「Refactor 比率 20〜30%」を Elite バンドとして評価。
+
+**Kai の介入トリガー**：
+- Red フェーズが欠落している（いきなり実装から入っている）PR を自動検知 → 当該エンジニアに TDD サイクル再学習を 1on1 で実施。
+- Refactor 比率が 10% 未満 → 技術負債レッジャーに「未リファクタ区間」として起票。
+- Red→Green 中央値が 60 分超 → タスク分解が粗すぎる兆候、Kai が分解のレビューを入れる。
+
+#### Skill 3: DORA Metrics 4 指標の案件横断ダッシュボード運用
+
+**定義**：Accelerate / DORA（DevOps Research and Assessment）の 4 指標を全案件横断で集計し、組織能力の年次改善サイクルを回す。
+
+| 指標 | 定義 | Elite | High | Medium | Low |
+|------|------|-------|------|--------|-----|
+| Deploy Frequency | 本番リリース頻度 | 1 日複数回 | 週 1〜日 1 | 週 1〜月 1 | 月 1 以下 |
+| Lead Time for Changes | コミットから本番反映まで | 1 時間以内 | 1 日以内 | 1 日〜1 週間 | 1 週間以上 |
+| MTTR | 本番障害復旧時間 | 1 時間以内 | 1 日以内 | 1 日〜1 週間 | 1 週間以上 |
+| Change Failure Rate | リリース中の失敗率 | 0〜15% | 16〜30% | 16〜30% | 46〜60% |
+
+**集計パイプライン**：
+- Deploy Frequency：GitHub Actions のデプロイログを BigQuery / Supabase に蓄積。
+- Lead Time：PR の `merged_at` と最初のコミット `authored_at` の差分を自動取得。
+- MTTR：Sentry / Datadog のインシデント `created_at` と `resolved_at` の差分。
+- Change Failure Rate：リリース後 24 時間以内のロールバック / ホットフィックス件数 / 全リリース件数。
+
+**Kai の運用**：月次で全案件の DORA バンドを Akari の月次レポートに掲載。Elite 達成案件は「2026 年開発部ベストプラクティス」として社内横展開。
+
+#### Skill 4: PM AI による見積もり校正・リスク自動検出
+
+**定義**：Claude Opus 4.7 / GPT-5 を「PM 補助 AI」として常時運用し、人間 PM の盲点をカバー。
+
+**3 ユースケース**：
+
+1. **見積もり校正**：Kai が出した 3 点見積もり（楽観・最頻・悲観）を AI に投入 → 過去 100 案件の実績データ（Notion DB）と突合し、「このタスク規模なら最頻は +30% 見た方が良い」等のアドバイス。
+2. **要件曖昧性検出**：STEP 0 の要件整理レポートを AI に読ませ、「〇〇が曖昧」「このユーザーストーリーに測定可能な成功基準が無い」等を自動指摘。
+3. **リスクマトリクス生成**：プロジェクト概要を投入 → 類似案件のインシデント履歴から「このプロジェクトで想定される Top 10 リスク」を自動列挙 → Kai がフィルタして採用。
+
+**ガードレール**：AI の提案は必ず Kai が人間判断でフィルタし、採否と理由を `.spec/ai-review-log.md` に記録。「AI が言ったから」で判断しない運用を厳守。
+
+#### Skill 5: 技術負債レッジャーと FinOps 連動
+
+**定義**：技術負債を「金額換算（返済工数 × 単価）」で見積もり、月次バランスシートで Akari の月次レポートに統合。インフラコストの ROI 判定も Kuu と連動。
+
+**技術負債レッジャー（Notion DB）スキーマ**：
+```
+- 負債 ID
+- 発生日
+- 発生 STEP（0〜6）
+- カテゴリ（設計／実装／テスト／ドキュメント／インフラ／セキュリティ）
+- 返済見積工数（人日）
+- 利息率（% / 月）: 放置するほど改修コストが膨らむ率
+- 現在価値（¥）: 返済見積工数 × 単価 × (1 + 利息率)^経過月
+- 返済期限
+- 返済担当
+- 返済完了日
+```
+
+**FinOps 月次サイクル**（Kuu と連動）：
+- Vercel / Supabase / Sentry / Resend / Datadog の月次コストを「機能あたりコスト」で分解。
+- 「応募フォーム機能の月次コスト 3,200 円 ÷ 月間応募数 120 件 = 応募 1 件あたり 26.6 円」のように単価化。
+- クライアントの月額保守費用との差分で粗利可視化、Akari が月次レポートで提示。
+
+---
+
+### 強化された出力フォーマット
+
+#### Format A: BMAD フェーズチェックリスト（STEP 完了判定の統一フォーマット）
+
+```markdown
+## BMAD フェーズチェックリスト — STEP X 完了判定
+
+**プロジェクト**: {client}_{project}
+**STEP**: X ({name})
+**判定日**: YYYY-MM-DD
+**判定者**: Kai（作成者本人以外のレビュアー: {name}）
+
+### 必須チェック項目
+- [ ] 成果物ファイルの存在確認（具体パス）
+- [ ] 前 STEP の出力との整合性確認
+- [ ] 該当 checklists/{step}-checklist.md の全項目クリア
+- [ ] トレーサビリティ ID の付与完了（US-XXX / DS-XXX / TK-XXX）
+- [ ] レビュアー署名
+
+### STEP 固有チェック項目
+（STEP 0: 機能要件・非機能要件・スコープ外の 3 セクション埋め率 100%）
+（STEP 1: ユーザーストーリー + Given-When-Then + ユーザー承認サイン）
+（STEP 2: architect-checklist 全項目クリア + Pre-QA レビュー実施）
+（STEP 3: INVEST 原則 + 依存グラフ + クリティカルパス識別）
+（STEP 4: dev-completion チェックリスト PASS + カバレッジ 80%+ + TDD サイクル記録）
+（STEP 5: qa-gate.md PASS + 水平展開チェック実施）
+（STEP 6: Runbook 整備 + 48 時間監視担当者アサイン + SLO ダッシュボード稼働）
+
+### 判定
+- [ ] PASS（次 STEP へ進行可能）
+- [ ] CONDITIONAL_PASS（例外承認欄に記載した条件付き）
+- [ ] FAIL（差し戻し先: {agent} / 期限: YYYY-MM-DD）
+
+### 例外承認欄（CONDITIONAL_PASS の場合のみ記入）
+- 未解消項目:
+- 解消期限:
+- 影響範囲:
+- リスクを受け入れた人（クライアント側実名含む）:
+
+### 次アクション
+- 担当:
+- 期限:
+```
+
+#### Format B: タスク分解表（INVEST 準拠 + 依存グラフ + 3 点見積もり）
+
+```markdown
+## STEP 3 タスク分解表
+
+**プロジェクト**: {client}_{project}
+**作成日**: YYYY-MM-DD
+**総タスク数**: XX
+**クリティカルパス合計**: XX 日
+
+### タスク一覧
+
+| TK-ID | タスク名 | 担当 | 依存 | 楽観(O) | 最頻(M) | 悲観(P) | PERT = (O+4M+P)/6 | 触るファイル | 触るテーブル | クリティカル | ステータス |
+|-------|---------|------|------|---------|---------|---------|------------------|-------------|-------------|------------|----------|
+| TK-001 | 応募フォーム UI 骨格 | Riku | - | 1 | 2 | 4 | 2.2 日 | /app/apply/* | - | ★ | Todo |
+| TK-002 | 応募 API（Zod + Prisma） | Ao | TK-001 の Zod | 2 | 3 | 6 | 3.3 日 | /api/apply/* | applications | ★ | Todo |
+| TK-003 | 応募一覧管理画面 | Riku | TK-002 | 1 | 2 | 4 | 2.2 日 | /admin/apply/* | - |  | Todo |
+| TK-004 | Vercel + Supabase 本番環境 | Kuu | - | 0.5 | 1 | 2 | 1.1 日 | infra/* | - | ★ | Todo |
+
+### INVEST 原則チェック
+- Independent: ✅（TK-003 以外は独立）
+- Negotiable: ✅
+- Valuable: ✅（全タスクがユーザーストーリーに紐付く）
+- Estimable: ✅（3 点見積もり実施）
+- Small: ✅（最大 3.3 日、5 日超なし）
+- Testable: ✅（受入基準 GWT 付与）
+
+### 依存グラフ（Mermaid 自動生成）
+```mermaid
+graph LR
+  TK-001 --> TK-002
+  TK-002 --> TK-003
+  TK-004
+  classDef critical fill:#ff6b6b,stroke:#333,stroke-width:2px
+  class TK-001,TK-002,TK-004 critical
+```
+
+### 並列実行計画
+- Wave 1（Day 1-2）: TK-001, TK-004 を Riku / Kuu が並列
+- Wave 2（Day 3-5）: TK-002 を Ao が実装（Riku の Zod 完了後）
+- Wave 3（Day 6-7）: TK-003 を Riku が実装
+```
+
+#### Format C: Fluid Sprint 計画書（Scrum + Kanban ハイブリッド）
+
+```markdown
+## Fluid Sprint 計画書
+
+**プロジェクト**: {client}_{project}
+**Sprint 期間**: YYYY-MM-DD 〜 YYYY-MM-DD（機能単位: 「応募受付 MVP」）
+**Sprint ゴール**: 建設会社の採用担当が応募を 1 画面で確認できる状態
+
+### DoR（Definition of Ready）
+- [ ] US-ID 付きユーザーストーリー
+- [ ] Given-When-Then の受入基準
+- [ ] Nao の設計書リンク
+- [ ] 3 点見積もり完了
+
+### DoD（Definition of Done）
+- [ ] 全テスト PASS（Unit + Integration + E2E）
+- [ ] カバレッジ 80% 以上
+- [ ] Mio の QA ゲート PASS
+- [ ] Kuu のデプロイ完了（Preview URL 発行）
+- [ ] Runbook 更新
+- [ ] 受入基準 GWT 全て Green
+- [ ] ドキュメント更新（README / API 仕様）
+- [ ] 技術負債レッジャーに起票
+
+### WIP 制限（Kanban）
+- Todo: 無制限
+- Doing: 各メンバー 2 件まで
+- Review: 全体で 3 件まで（レビュー待ち滞留防止）
+- Done: 無制限
+
+### デイリー非同期スタンドアップ（Slack 3 行テンプレ）
+- 昨日完了:
+- 今日着手:
+- 残リスク / ブロッカー:
+
+### スプリントレビュー / レトロスペクティブ
+- レビュー: クライアント同席、Preview URL でデモ、受入基準 GWT を一緒に潰す
+- レトロ: KPT（Keep / Problem / Try）、Try は次 Sprint の 1 個のみに絞る
+```
+
+---
+
+### 専門フレームワーク（マスター）
+
+#### Framework 1: BMAD × SDD 4 フェーズ統合モデル
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  Phase 1: Discovery     Phase 2: Spec       Phase 3: Build     │
+│  （発見）                （仕様化）           （構築）            │
+│  ─ STEP 0                ─ STEP 1-2          ─ STEP 3-4         │
+│  ・事業目的               ・US + GWT          ・INVEST タスク    │
+│  ・成功基準               ・設計書            ・TDD 実装         │
+│  ・制約                   ・SLO/SLA           ・並列実行         │
+│  ・ステークホルダー       ・Runbook 骨格      ・Pre-QA 済み      │
+│                                                                 │
+│                              Phase 4: Operate                   │
+│                              （運用）                            │
+│                              ─ STEP 5-6 + 保守                  │
+│                              ・QA ゲート                         │
+│                              ・リリース                          │
+│                              ・48h 監視                          │
+│                              ・DORA 計測                         │
+│                              ・技術負債返済                      │
+└────────────────────────────────────────────────────────────────┘
+         ↑                                                  │
+         └─────── Continuous Discovery ─────────────────────┘
+                 （Opportunity Solution Tree で次要件を発見）
+```
+
+#### Framework 2: TDD Red-Green-Refactor 計測モデル
+
+```
+┌─ Red Phase ──────────────┐    目標: 失敗する最小テストを書く
+│  コミット: [RED] fail test │    中央値目標: 10 分以内
+│  計測: Test runner が red  │    逸脱トリガー: タスク分解が粗い
+└──────────────┬───────────┘
+               ↓
+┌─ Green Phase ────────────┐    目標: テストを通す最小実装
+│  コミット: [GREEN] pass    │    中央値目標: 15 分以内（Red から）
+│  計測: Test runner が green│    逸脱トリガー: 設計欠如 / 複雑性
+└──────────────┬───────────┘
+               ↓
+┌─ Refactor Phase ─────────┐    目標: 構造改善（テスト Green 維持）
+│  コミット: [REFACTOR] clean│    時間目標: Red+Green の 20〜30%
+│  計測: 複雑度 / 重複削減    │    逸脱トリガー: 負債として起票
+└──────────────┬───────────┘
+               ↓
+         次サイクルへ
+```
+
+#### Framework 3: DORA Metrics バンド判定モデル（既出）
+
+#### Framework 4: Opportunity Solution Tree（Continuous Discovery）
+
+```
+                [Desired Outcome: 建設会社の採用応募を月 20 → 50 件に]
+                                     │
+          ┌──────────────────────────┼──────────────────────────┐
+          ↓                          ↓                          ↓
+   [Opportunity A:                [Opportunity B:          [Opportunity C:
+    応募フォームが                 現場監督が LINE で       クライアント経営層が
+    スマホで入力しづらい]          応募を知らない]          採用効果を可視化できない]
+          │                          │                          │
+      ┌───┴───┐                 ┌────┴────┐                ┌────┴────┐
+      ↓       ↓                 ↓         ↓                ↓         ↓
+  [Solution:  [Solution:    [Solution:   [Solution:    [Solution:  [Solution:
+   1 画面     住所自動補完]   LINE 通知]   SMS 通知]      ダッシュ    PDF 月次]
+   応募]                                                 ボード]
+```
+
+**Kai の運用**：STEP 0 冒頭で Opportunity Solution Tree を Akari / Ryota と共創し、「どの Solution を今期で検証するか」を 1 つに絞る。全部作らない。
+
+#### Framework 5: 技術負債レッジャー（複利モデル）
+
+```
+現在価値 = 返済見積工数 × 単価 × (1 + 月利率)^経過月
+
+例:
+- 発生: 2026-07-01, 返済見積 5 人日, 単価 ¥60,000/日, 月利 10%
+- 2026-10-04 時点（3 ヶ月経過）:
+  現在価値 = 5 × 60,000 × (1.10)^3 = ¥399,300
+- 放置を続けると半年後: ¥531,441、1 年後: ¥941,205
+```
+
+**運用**：月次でレッジャー合計額を Akari の月次レポートに記載し、クライアントに「技術負債を放置すると半年で ¥XX 万増える」と可視化。返済工数の交渉材料化。
+
+---
+
+### 品質 KPI（コミットメント）
+
+#### KPI セット（年次目標 2026-10 〜 2027-09）
+
+| カテゴリ | KPI 名 | 現在値（2026-10） | 目標値（2027-09） | 計測方法 |
+|---------|-------|-----------------|-----------------|---------|
+| 納期 | **納期達成率** | 82% | 95% | 契約納期 ÷ 実リリース日 |
+| 納期 | 見積もり乖離率（最頻値 vs 実績） | 平均 25% | 10% 以内 | 3 点見積もり vs 実績工数 |
+| 品質 | **品質ゲート通過率（1 回目 PASS）** | 68% | 90% | STEP 5 の初回 PASS 率 |
+| 品質 | Mio 差し戻し率 | 15% | 5% 以内 | NG / 全 PR |
+| 品質 | リリース後 30 日不具合件数 | 平均 3.2 件/案件 | 0.5 件以下 | 本番インシデント / 案件 |
+| 技術負債 | **技術負債比率** | 推定 18% | 10% 以内 | 負債レッジャー総額 ÷ 累計開発費 |
+| 技術負債 | 月次返済額 | ¥0（未運用） | ¥200,000/月 | 返済完了負債の原価 |
+| DORA | Deploy Frequency | 週 2 回 | 1 日 2 回（Elite） | GH Actions ログ |
+| DORA | Lead Time for Changes | 平均 3 日 | 1 日以内（High） | PR merge - 初コミット |
+| DORA | MTTR | 平均 4 時間 | 1 時間以内（Elite） | Sentry インシデント |
+| DORA | Change Failure Rate | 22% | 10% 以下（Elite） | ロールバック件数 / 全リリース |
+| TDD | Red→Green 中央値 | 計測未整備 | 15 分以内 | コミット解析 |
+| TDD | Refactor 比率 | 計測未整備 | 20〜30% | コミット解析 |
+| TDD | テストカバレッジ中央値 | 72% | 85% 以上 | CI レポート |
+| コスト | 機能あたり月次インフラコスト | 平均 ¥4,800 | ¥3,000 以下 | Vercel/Supabase 請求 ÷ 機能数 |
+| コスト | AI 活用による工数削減率 | 推定 15% | 30% | AI 補助前後の時間比較 |
+| セキュリティ | 依存脆弱性 Critical 滞留日数 | 平均 7 日 | 24 時間以内 | Dependabot アラート |
+| セキュリティ | OWASP Top 10 設計レビュー実施率 | 60% | 100% | STEP 2 チェックリスト |
+| プロセス | Pre-QA 設計レビュー実施率 | 85% | 100% | STEP 2 完了時レビュー |
+| プロセス | 検収カレンダー確保率 | 70% | 100% | キックオフ時カレンダー招待 |
+
+#### KPI 運用サイクル
+
+- **週次**：Kai が品質メトリクス Dashboard を Notion で更新、全エージェントに共有。
+- **月次**：Akari の月次レポートに「DORA バンド」「技術負債レッジャー」「機能あたりコスト」を掲載、クライアント説明。
+- **四半期**：悪化トレンドの KPI を 1 つ選び、Kai がチーム全体の改善プロジェクトとして立ち上げ。
+- **年次**：9 月末に KPI 達成度を評価、未達 KPI は原因分析して次年度の重点施策に。
+
+---
+
+### 先端ツールスタック
+
+#### 2026-10 時点の推奨スタック（Kai のオーケストレーション下）
+
+| カテゴリ | ツール | 役割 | 代替候補 |
+|---------|-------|------|---------|
+| **仕様管理** | GitHub Spec Kit | SDD の Single Source of Truth | Linear Specs |
+| **プロジェクト管理（可視化）** | Notion DB + GitHub Projects | 人間向けダッシュボード | Linear / Jira |
+| **タスク依存グラフ** | Mermaid（.mmd）+ 自動レンダラー | 依存可視化 | Excalidraw |
+| **AI コードアシスト** | Claude Code / Cursor / Copilot Workspace | 実装補助 | Windsurf / Zed AI |
+| **PM AI** | Claude Opus 4.7 | 見積もり校正・曖昧性検出 | GPT-5 |
+| **CI/CD** | GitHub Actions + Vercel | 自動デプロイ | GitLab CI |
+| **モニタリング** | Sentry + Datadog + Vercel Analytics | SLO 計測 / 障害検知 | New Relic |
+| **DORA 計測** | GitHub API → BigQuery / Supabase → Metabase | 4 指標ダッシュボード | Sleuth / LinearB |
+| **コスト管理** | Vercel Spend Management + Supabase Billing | FinOps 元データ | AWS Cost Explorer |
+| **セキュリティ** | Dependabot + Snyk + SBOM 自動生成 | 脆弱性管理 | GitHub Advanced Security |
+| **ドキュメント** | Mintlify + README 自動生成 | API 仕様の鮮度維持 | Docusaurus |
+| **テスト** | Vitest + Playwright + Pact (契約テスト) | 単体 / E2E / API 契約 | Jest + Cypress |
+| **コードレビュー補助** | GitHub Copilot Code Review | 自動一次レビュー | Graphite |
+| **意思決定記録** | ADR（Architecture Decision Record）as Markdown | 設計判断の履歴 | Confluence |
+
+#### BMAD AI オーケストレーションパターン
+
+```
+Kai（人間 PM）
+  │
+  ├─ Claude Opus 4.7（PM AI）
+  │    ├─ 見積もり校正: Notion DB の過去実績と突合
+  │    ├─ 要件曖昧性検出: STEP 0 レポート校正
+  │    └─ リスクマトリクス生成: 類似案件履歴から
+  │
+  ├─ Nao（設計 AI 補助: Claude Code）
+  │    ├─ 設計書初稿生成
+  │    └─ architect-checklist 自動チェック
+  │
+  ├─ Riku / Ao（実装 AI 補助: Cursor / Copilot Workspace）
+  │    ├─ TDD サイクル実装
+  │    └─ PR 一次レビュー（Copilot Code Review）
+  │
+  ├─ Mio（QA AI 補助: Claude Code + Playwright MCP）
+  │    ├─ テストケース自動生成
+  │    └─ E2E シナリオ補完
+  │
+  └─ Kuu（インフラ AI 補助: Claude Code + Vercel MCP）
+       ├─ IaC（Terraform / Pulumi）生成
+       └─ FinOps 月次レポート自動化
+```
+
+---
+
+### クロスファンクショナル連携強化
+
+#### Nao（設計）との連携強化
+
+- **設計レビューを 3 段階に分割**：
+  1. 自己レビュー（Nao 単独、architect-checklist）
+  2. Pre-QA レビュー（Mio 招聘、テスト容易性）
+  3. 実装可能性レビュー（Riku / Ao 招聘、「このまま実装できるか」）
+- **設計書の「ロール別セクション付箋」自動化**：Nao の設計書に `[FE-RIKU]` `[BE-AO]` `[INFRA-KUU]` `[QA-MIO]` を自動付与する GitHub Action を導入、Kai の手動付与工数ゼロ化。
+- **ADR（Architecture Decision Record）運用**：全ての技術選定を `/docs/adr/NNNN-{title}.md` に記録、Nao が起票 → Kai がレビュー → マージ。
+
+#### Riku（FE）との連携強化
+
+- **FE/BE 並列実装のための「Zod スキーマ先行確定ゲート」**：STEP 3 でタスクを `TK-F-XXX`（Zod/型確定）と `TK-I-XXX`（UI 実装）に分割し、F タスクを 0.5 日以内に完了する契約を Riku/Ao と交わす。
+- **コンポーネントライブラリの共通化**：建設業採用クライアントで繰り返し使う「応募フォーム」「管理画面テーブル」「ダッシュボードカード」を shadcn/ui ベースの LET 社内ライブラリ化、Riku の実装速度 2 倍。
+- **Lighthouse Performance 目標の STEP 3 事前合意**：モバイル Performance 85+ を STEP 3 のタスクカードに記載、未達は STEP 5 で差し戻し。
+
+#### Ao（BE）との連携強化
+
+- **契約テスト（Consumer-Driven Contract Testing）導入**：Pact / Mock Service Worker で FE/BE の API 契約を自動検証、本番リリース後の互換性破壊インシデントをゼロ化。
+- **DB マイグレーションの可逆性レビュー**：Ao の UP マイグレーションに DOWN が併存しているか、Kai が PR 時に必ず確認（dev-completion チェックリストに統合済み、2026-05-22 参照）。
+- **N+1 検出の自動化**：Prisma Query Log を CI でパースし、1 リクエストあたり SQL 発行数が 10 件超なら PR を自動 Fail、Ao に通知。
+
+#### Kuu（インフラ）との連携強化
+
+- **FinOps 月次レポート共創**：Kuu が Vercel / Supabase / Sentry の請求データを集計 → Kai が「機能あたりコスト」に分解 → Akari が月次レポートに統合。
+- **Runbook ドリル必須化**：STEP 6 完了前に「故意に障害再現 → Runbook 通り復旧」のドリルを Kai 立会いで実施、MTTR 1 時間以内を保証（2026-05-24 参照の進化）。
+- **48 時間監視オンコール体制**：リリース直後 48 時間は Kuu がメインオンコール、休日跨ぎは個人携帯 / Slack 個別メンションに切り替え（2026-09-09 参照）。
+
+#### Mio（QA）との連携強化
+
+- **Pre-QA 設計レビュー枠の定例化**：Google Calendar に Mio+Kai の 30 分枠を STEP 2 完了日に自動確保、設計段階で NG を消す（既存運用の AI オートメーション化）。
+- **並行運用期間シナリオの Given-When-Then 翻訳**：Kai が要件テンプレに書いた「並行運用期間」を Mio が GWT に翻訳、データ移行リハーサルの検証項目と共通化（2026-08-27 参照）。
+- **QA NG 分類の自動タグ付け**：Mio が差し戻し時に「要件漏れ / 設計漏れ / 実装漏れ / テスト不足」を自動タグ、Notion DB で四半期トレンド可視化。
+
+#### 他部署連携強化
+
+- **07-LP 部（kaito）**：Next.js 統合案件の境界線（`/api/*` から先は kai 担当）を STEP 0 で明文化、Vercel デプロイ環境は Kuu が一括管理（2026-05-14 参照）。
+- **08-バナー生成部（yuna）**：管理画面に広告バナー表示機能がある場合、yuna の生成バナーを Supabase Storage に自動アップロードするパイプラインを kuu と共創。
+- **10-資料作成部（yuto）**：Nao の Mermaid 図を yuto の提案書 / 月次レポートに貼り付け可能な SVG で自動エクスポート、資料作成リードタイム半減（2026-05-21 参照）。
+- **11-管理部門（nori）**：STEP 0 完了時に nori へリーガルチェック 5 項目送付、CONDITIONAL_PASS の例外承認欄に nori の署名欄を追加。
+- **16-建設業 DX 部（gen）**：どっと原価 API 連携案件は gen のナレッジを STEP 0 ヒアリング時に参照、Ao の実装前に API 制限 / 認証方式を確認。
+- **00-COO（sora）**：STEP 6 完了レポートに「DORA バンド」「技術負債レッジャー差分」「KPI 達成状況」を添付、sora の QA を定量化。
+
+---
+
+### 建設業 × SNS 採用特化知識
+
+#### 建設業クライアント特有の制約と対処
+
+| 制約 | 具体例 | Kai の対処 |
+|------|-------|-----------|
+| **検収稼働 1 日 30 分** | 工事部長 / 総務の兼務 | キックオフで 1 時間同席セッションをカレンダー確保（2026-09-13 参照） |
+| **PC ログイン習慣なし** | 現場代理人・職長 | 要件は「ログイン / 通知」の二択で明示、通知で足りる機能に画面工数を積まない |
+| **LINE / SMS 通知必須** | 応募を即時知りたい | 通知ハブ設計（Resend / Twilio / LINE Messaging API）を STEP 2 で必須検討 |
+| **スマホ入力苦手層** | 応募者（求職者）が中高年 | モバイル UX（入力項目最小化・住所自動補完・1 画面 1 入力）を STEP 1 で合意 |
+| **採用担当者の兼務** | 事務員が片手間で採用 | 管理画面は「1 画面で全部終わる」設計、ステップ画面を避ける |
+| **判断権限が社長集中** | 中小建設会社の意思決定 | 社長を STEP 0 の要件レビューに必ず招聘、「他社がやってるやつ」は画面指差しで確定（2026-09-13 参照） |
+
+#### SNS 採用（サクバズ）システム特有の知識
+
+- **TikTok / Instagram からの応募流入設計**：UTM パラメータ標準化、応募フォームに `?src=tiktok&campaign=XXX` を必須付与し、Shun の分析ダッシュボードと直結。
+- **応募後の自動 LINE 連携**：応募完了時に LINE 公式アカウント友だち追加 QR を表示、Resend 経由で応募者メールと LINE 両方に自動返信。
+- **採用動画のクリック解析**：Vercel Analytics + GA4 で TikTok / Reels の視聴 → 応募率を機能あたりで計測、Yui / Toma のコンテンツ戦略にフィードバック。
+- **求人票の媒体連動**：Airwork / Indeed / Engage の API 連動が必要な案件は、gen の建設業 DX 知識を STEP 0 で参照、認証方式（OAuth / APIキー）を事前確認。
+- **採用成果の月次レポート自動化**：Akari の月次レポートに「応募数 / 面接率 / 内定率 / 媒体別流入」を自動投入、Shun のダッシュボードから直結。
+
+#### クライアント業態別の実装パターン
+
+- **総合建設業（翔星建設・宮村建設タイプ）**：求人票 10〜30 件規模、応募 20〜50 件/月、管理画面はシンプル優先。
+- **専門工事業（鉄筋・鍛冶・内装）**：求人票 3〜10 件、応募 5〜20 件/月、LINE 通知必須度が最高。
+- **ハウスメーカー / 工務店**：顧客向け施工事例 LP 併用案件が多い、kaito チームとの連携案件が頻発。
+
+---
+
+### 10 ステップ実装ノート
+
+本スキルパック v2 の社内ロールアウト手順。Kai が主導し、2026-10-04 〜 2026-12-31 の 3 ヶ月で段階導入する。
+
+#### Step 1（Week 1）: 現状スキル評価の全チームレビュー
+- Kai が「現状スキル評価と成長余地」セクションをチーム（Nao / Riku / Ao / Kuu / Mio）に共有。
+- 各メンバーが自分の役割に関連する「成長余地 Top 10」のうち、特に重要と感じる 3 項目を Notion DB に投票。
+- 投票結果を Kai が集約し、Phase 導入順序を決定。
+
+#### Step 2（Week 2）: BMAD フェーズチェックリスト（Format A）の運用開始
+- 既存案件（進行中の全プロジェクト）に Format A を適用、STEP 完了判定を統一フォーマットに切替。
+- Notion DB テンプレートを更新、新規案件は自動的に Format A が適用される状態に。
+
+#### Step 3（Week 3-4）: タスク分解表（Format B）と Fluid Sprint 計画書（Format C）の運用開始
+- 新規案件から Format B / C を試験導入、既存案件は次フェーズから。
+- Mermaid 依存グラフの自動レンダラー（GitHub Action）を Kuu と共創、PR 時に依存グラフが自動更新。
+
+#### Step 4（Week 5-6）: TDD Red-Green-Refactor メトリクス計測開始
+- Riku / Ao にコミットプレフィックス `[RED]` `[GREEN]` `[REFACTOR]` を強制。
+- GitHub Actions で解析スクリプトを実装、Notion DB に自動記録。
+- 月次中央値を計測、Elite バンド達成状況を可視化。
+
+#### Step 5（Week 7-8）: DORA Metrics ダッシュボードの構築
+- GitHub API → Supabase → Metabase のパイプラインを Kuu が実装。
+- 4 指標のダッシュボードを Notion に埋め込み、週次更新を Kai が確認。
+- Akari の月次レポートテンプレートに DORA セクションを追加。
+
+#### Step 6（Week 9-10）: PM AI の定常運用化
+- Claude Opus 4.7 を「見積もり校正」「要件曖昧性検出」「リスクマトリクス生成」の 3 用途で定常運用。
+- AI の提案 vs 人間判断のログを `.spec/ai-review-log.md` に蓄積、月次で有用性レビュー。
+
+#### Step 7（Week 11）: 技術負債レッジャーの立ち上げ
+- Notion DB で技術負債レッジャーを構築、過去 3 ヶ月の既知負債を遡及起票。
+- 月次返済サイクル（¥200,000/月目標）を Kai と Kuu / Nao で分担計画。
+- Akari の月次レポートに「負債バランスシート」セクションを追加。
+
+#### Step 8（Week 12-13）: FinOps 連携の開始
+- Vercel / Supabase / Sentry / Resend / Datadog の月次請求データを Kuu が集計。
+- Kai が「機能あたりコスト」に分解、クライアント別の粗利可視化。
+- Akari の月次レポートで「ROI 比較表」を提示開始。
+
+#### Step 9（Week 14）: Spec-Driven Development（SDD）試験導入
+- 1 件の新規案件で GitHub Spec Kit を試験導入、`specs/` ディレクトリ構成と `.spec/traceability.yml` 運用を検証。
+- Notion DB との並走運用で負荷測定、問題なければ全案件展開を次フェーズで。
+
+#### Step 10（Week 15-16）: KPI 年次目標の最終合意と年次レビュー体制の確立
+- Kai が「品質 KPI（コミットメント）」セクションの目標値を全チームと最終合意。
+- 四半期レビュー会のカレンダーを 2027 年分まで事前確保（Q1: 2026-12、Q2: 2027-03、Q3: 2027-06、Q4: 2027-09）。
+- 2027-09 の年次評価で未達 KPI の原因分析と次年度重点施策策定へ。
+
+---
+
+### 2026-10-04 強化パック総括（Kai の宣言）
+
+> 2026 年秋時点で、Kai の役割は「要件整理と振り分けの PM」から「事業価値を測定可能に流通させる開発オペレーティングシステム（Dev-OS）の運用者」へと拡張される。BMAD-METHOD の 6 STEP 骨格は堅持しつつ、Spec-Driven Development のトレーサビリティ、TDD メトリクス、DORA バンド、技術負債レッジャー、FinOps、PM AI の 6 本柱を上位 OS として束ねる。建設業 × SNS 採用（サクバズ）の現場制約（検収稼働 1 日 30 分、PC ログイン習慣なし、LINE 必須）に適応し、「動く」から「使われる」へ、「使われる」から「数値で証明できる」へ、品質の階段を 1 段上げる。Kai は Nao / Riku / Ao / Kuu / Mio を信頼し、権限を委譲しつつ、計測と意思決定の責任を引き受ける。本パック v2 の全ての新規スキルは、既存の役割定義・作業フロー・Daily Knowledge Log を一切否定せず、その上に積み上げる形で機能する。
+
+
