@@ -642,3 +642,791 @@
 - **品質チェックポイント：GA4の探索レポートで少数行が消えていないか、「データしきい値適用」アイコンの有無を毎回確認する**：Googleシグナル有効のプロパティでは、ユーザー数の少ない行（市町村別・年齢別・特定LPの流入元など）がプライバシー保護のしきい値で非表示になり、合計が標準レポートより小さく出る。応募数が月数件規模の建設業クライアントほど対象行が丸ごと消えやすい。しきい値が出ている場合はレポートIDを「デバイスベース」に切り替えるか、BigQuery Export（Deng管轄）側の値を正として、レポートに「しきい値適用・過少計上の可能性」を1行注記する
 - **品質チェックポイント：ファネル表を出す前に「後段が前段を上回っていないか」を機械判定し、逆転があれば定義ズレとして送付を止める**：閲覧数＜応募数、応募数＜面接数のような逆転は、期間の切り方（応募月と面接月の不一致）・重複カウント・別ソース混在のどれかで必ず起きている。各段の比が1を超えた行を自動で赤字化し、原因（期間軸・分母定義・ソース）を特定するまでAkariへ渡さない。応募月コホート（2026-09-02参照）で揃えれば大半は解消する
 - **品質チェックポイント：LP経由の応募数はGA4のフォーム送信イベント数とAirwork側の応募数を突合し、乖離率±15%超なら原因を書いてから報告する**：GA4側は同意拒否・広告ブロック・二重送信で上下し、Airwork側は媒体直接応募が混ざるため一致はしないが、乖離率が急変した月は計測タグの破損かフォーム改修の副作用であることが多い。乖離率を月次の固定監視項目にし、急変月は数値を出す前にDeng・Renへ計測側の変更有無を照会する。片方のソースだけで「応募が増えた／減った」と書かない
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+### 現状スキル評価と成長余地
+
+**現状スキル評価（2026年10月時点）**
+
+| 領域 | 現在レベル | 到達レベル目標 | 根拠 |
+|------|-----------|---------------|------|
+| 記述統計・可視化 | ★★★★★ Expert | ★★★★★ 維持 | Looker Studio月次運用・前月比・サンプル検定の自動化運用が確立 |
+| 探索的データ分析（EDA） | ★★★★☆ Advanced | ★★★★★ Expert | Pythonクレンジング5段階自動化・BigQuery最適化運用あり |
+| GA4・Airwork分析 | ★★★★★ Expert | ★★★★★ 維持 | BigQuery Export・Predictive Audiences・3層ファネル自動化運用済み |
+| SQL（BigQuery） | ★★★★☆ Advanced | ★★★★★ Expert | スケジュールクエリ・パーティション・クラスタリング実装済み。Window関数・PIVOT・QUALIFYはこれから |
+| 因果推論（Causal Inference） | ★★★☆☆ Intermediate | ★★★★★ Expert | DiDは言及あるがIV・PSM・CausalImpact未習得。急務 |
+| LTV/コホート分析 | ★★★☆☆ Intermediate | ★★★★★ Expert | コホート定義明確化済み。BG/NBD・Pareto/NBDの応用はこれから |
+| 統計検定・AB設計 | ★★★★☆ Advanced | ★★★★★ Expert | カイ二乗・t検定・SRM検査済み。Sequential testing・CUPED未習得 |
+| MMM（Marketing Mix Modeling） | ★★☆☆☆ Beginner | ★★★★☆ Advanced | 建設業採用MMMの実装がまだ。Robyn/LightweightMMM導入必要 |
+| Attribution Modeling | ★★★☆☆ Intermediate | ★★★★★ Expert | GA4のData-driven Attribution任せになっているので自前Markov Chainが課題 |
+| Looker LookML | ★★☆☆☆ Beginner | ★★★★☆ Advanced | Looker Studio止まり。Enterprise Lookerに未習熟 |
+| ETL/dbt | ★★★☆☆ Intermediate | ★★★★★ Expert | Cloud Functions運用あり。dbt core＋dbt metricsが未導入 |
+| 機械学習（予測・分類） | ★★☆☆☆ Beginner | ★★★★☆ Advanced | GA4のPredictive Audiences任せ。XGBoost/LightGBMの自前実装が急務 |
+| Python/R 分析 | ★★★☆☆ Intermediate | ★★★★★ Expert | Pandas基本運用。statsmodels/pymc/pyro/scikit-learnの深堀りが課題 |
+| データサイエンス・MLOps | ★★☆☆☆ Beginner | ★★★★☆ Advanced | Vertex AI・Weights & Biases・MLflow未導入 |
+
+**成長余地（Top-10）**
+
+1. **BigQuery SQL上級最適化**: Window関数・QUALIFY句・ARRAY/STRUCT活用・BI Engine対応で分析パイプラインを秒単位化
+2. **Causal Inference実装**: PSM/IV/DiD/Synthetic Control/CausalImpact（Google提供）で「真の施策効果」を導出
+3. **LTV・コホート高度化**: BG/NBD・Pareto/NBDモデル・Survival Analysisで採用候補者の長期価値予測
+4. **CPA最適化（Marginal CPA）**: 増分CPA（marginal CPA）× 感度分析で広告予算配分の数理最適化
+5. **MMM建設業採用版**: Robyn（Meta OSS）・LightweightMMM（Google）で7社×3媒体のメディアミックス最適化
+6. **Attribution Modeling（Markov Chain）**: GA4のData-driven Attribution以上の精度で媒体貢献度を独自モデル化
+7. **Looker LookML完全移行**: Enterprise Looker + LookMLでガバナンス付きデータ基盤へ進化
+8. **dbt核運用**: dbt core + dbt metrics + Elementaryでデータリネージ・DQテスト・ドキュメントを自動化
+9. **機械学習予測モデル**: XGBoost/LightGBMで応募・CVR・離職予測を自前実装、SHAPで解釈性担保
+10. **因果×予測の統合**: DoWhy/EconMLで「予測＋因果」のハイブリッド分析でクライアントへの提案厚みを強化
+
+---
+
+### 新規習得スキル5選
+
+#### Skill 1: BigQuery SQL 上級最適化（Window関数・ARRAY/STRUCT・QUALIFY句）
+
+**背景**: 2026-05-12・2026-05-19でパーティション＋クラスタリング最適化は既習だが、Window関数・QUALIFY句未習熟のまま。7社×3媒体×12ヶ月の月次集計で、ネストしたサブクエリの可読性低下＆実行時間が5-10秒かかる現状。
+
+**習得内容**:
+
+1. **Window関数の階層的活用**
+```sql
+-- 応募者ごとの初回応募日・継続応募回数・直近応募差分日数を1クエリで
+SELECT
+  user_id,
+  client_id,
+  applied_at,
+  ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY applied_at) AS application_seq,
+  FIRST_VALUE(applied_at) OVER (PARTITION BY user_id ORDER BY applied_at) AS first_applied_at,
+  DATE_DIFF(applied_at, LAG(applied_at) OVER (PARTITION BY user_id ORDER BY applied_at), DAY) AS days_since_prev,
+  PERCENT_RANK() OVER (PARTITION BY client_id ORDER BY engagement_score) AS engagement_percentile
+FROM `let-prod.applications.events_*`
+WHERE _TABLE_SUFFIX BETWEEN '20260901' AND '20260930'
+QUALIFY application_seq = 1  -- 初回応募のみ抽出（WHEREよりQUALIFYが高速）
+```
+
+2. **ARRAY/STRUCTで応募者ジャーニー1行化**
+```sql
+-- GA4イベントをユーザー単位で1レコードに集約（コホート分析用）
+SELECT
+  user_pseudo_id,
+  ARRAY_AGG(STRUCT(event_name, event_timestamp, page_location) ORDER BY event_timestamp) AS journey,
+  ARRAY_LENGTH(ARRAY_AGG(event_name)) AS total_events,
+  COUNTIF(event_name = 'form_submit') AS submit_count
+FROM `let-prod.ga4_export.events_*`
+WHERE _TABLE_SUFFIX BETWEEN '20260901' AND '20260930'
+GROUP BY user_pseudo_id
+HAVING submit_count > 0
+```
+
+3. **BI Engine対応設計**: Looker Studioから参照されるテーブルはBI Engine予約容量（4GB）内に収まる設計。日付パーティション単位で30日以内のホットデータに限定。
+
+**到達指標**: 月次集計クエリの実行時間が5-10秒 → 1-2秒（▲80%）、BigQueryスキャンコスト月額▲60%、Looker Studioダッシュボードの初期ロード時間が8秒 → 2秒。
+
+#### Skill 2: Causal Inference実装（PSM・DiD・Synthetic Control・CausalImpact）
+
+**背景**: 2026-06-03でDiD（差の差）の必要性は認識済だが実装までは至らず、相関と因果の混同事故（2026-05-13、2026-05-27）が月1件発生。「本当にその施策が効いたのか」を証明する手法が不足。
+
+**習得内容**:
+
+1. **PSM（傾向スコアマッチング）**: Pythonの`causalinference`パッケージで、LP改修群vs非改修群を広告キャンペーン・流入経路・曜日・デバイスで共変量マッチングし、ATTを算出。
+```python
+from causalinference import CausalModel
+cm = CausalModel(Y=cvr, D=treatment, X=covariates)
+cm.est_via_matching()
+print(cm.estimates['matching']['ate'])  # 平均処置効果
+```
+
+2. **DiD（差の差）**: 施策投入群と対照群の「施策前後の差」の差を取り、季節性・時間トレンドを除外した純粋施策効果を算出。Rの`fixest`パッケージまたはPythonの`linearmodels`で実装。
+
+3. **Synthetic Control**: 対照群が1社しかない場合（例：翔星建設のみに新LP投入）、他6社の加重合成で「仮想対照」を作成。Pythonの`SyntheticControlMethods`で実装。
+
+4. **CausalImpact（Google提供）**: Bayesian Structural Time Seriesで「施策投入後の反実仮想」を推定し、95%信用区間付きで施策効果を可視化。Rの`CausalImpact`パッケージが標準。
+
+**到達指標**: 月次レポートの主要施策評価に「相関値のみ」ではなく「DiD/PSM/CausalImpact のいずれか1手法での因果推定値＋95%信用区間」を併記。Ryota提案の的中率85% → 95%へ、相関と因果の混同事故を月1件 → 0件へ。
+
+#### Skill 3: LTV・Cohort高度化（BG/NBD・Pareto/NBD・Survival Analysis）
+
+**背景**: 2026-05-16でLTVの単純積算vsDCFの使い分けは認識済だが、採用候補者の継続率・離職予測への機械学習・確率モデル適用がまだ。「3ヶ月後の在籍率」程度の予測で止まっている。
+
+**習得内容**:
+
+1. **BG/NBD（Beta Geometric/Negative Binomial Distribution）**: 元々ECの反復購買予測モデルだが、採用候補者の「複数求人応募回数」予測に応用。`lifetimes`パッケージで実装。
+
+2. **Pareto/NBD**: BG/NBDの前身モデル。「どの応募者がアクティブで、どの応募者が既に離脱したか」を確率的に判定。
+
+3. **Survival Analysis（生存分析）**: Kaplan-Meier推定・Cox比例ハザードモデルで「採用候補者の在籍期間」を予測。Pythonの`lifelines`で実装。
+```python
+from lifelines import CoxPHFitter
+cph = CoxPHFitter()
+cph.fit(df, duration_col='tenure_months', event_col='left_company')
+cph.print_summary()  # 離職ハザード比の算出
+```
+
+4. **コホート継続率の建設業特化指標**:
+   - 「職種別×商圏別×応募経路別」の3次元コホート
+   - 定着率90日・180日・365日の3時点追跡
+   - 内定承諾率と初出勤率の2段階集計
+
+**到達指標**: 月次レポートに「採用候補者別LTV予測」「職種×商圏別の離職ハザード」セクション追加、クライアントの「どの候補者に投資すべきか」判断支援を強化。
+
+#### Skill 4: MMM建設業採用版（Robyn・LightweightMMM・Attribution Modeling）
+
+**背景**: 7社×Airwork/Indeed/SNS×広告予算の最適配分が、現状「経験則」で決まっている。マーケティングミックスモデリング（MMM）で数理最適化できていない。GA4のData-driven Attribution任せで、独自モデルがない。
+
+**習得内容**:
+
+1. **Robyn（Meta提供OSS）** / **LightweightMMM（Google提供）**: Bayesian MMMでAirwork/Indeed/X/Instagramの各媒体の採用貢献度を分離・Adstock（広告効果残存）・Saturation（飽和曲線）を加味した予算最適化を実装。
+
+```python
+# LightweightMMM例
+from lightweight_mmm import lightweight_mmm, preprocessing, optimize_media
+mmm = lightweight_mmm.LightweightMMM(model_name="hill_adstock")
+mmm.fit(media_data=media_scaled, extra_features=extra_scaled,
+        target=target_scaled, number_warmup=1000, number_samples=1000)
+# 媒体別貢献度分解
+media_contribution = mmm.get_posterior_metrics()
+# 予算最適化
+solution = optimize_media.find_optimal_budgets(mmm, extra_scaled, budget=1_000_000)
+```
+
+2. **Markov Chain Attribution**: 媒体接触履歴の遷移確率行列を推定し、各媒体の「除去効果（Removal Effect）」でアトリビューション貢献度を算出。
+```python
+# ChannelAttributionパッケージ（R）または自前実装（Python）
+# 媒体除去シミュレーションで各媒体の限界貢献を可視化
+```
+
+3. **建設業採用MMM特化変数**:
+   - 季節性（年度末3月・連休5月・年末12月の採用需要変動）
+   - 競合企業の広告投下量（Rui連携）
+   - 商圏の求人倍率（厚労省データ連携）
+   - 給与改定・ボーナス支給タイミング
+
+**到達指標**: 7社×3-5媒体のMMMを四半期ごとに更新、Ryota提案時に「次四半期の最適予算配分（Airwork: X万円、Indeed: Y万円、SNS: Z万円）」を数理的根拠で提示、提案単価を1.5-2倍に向上。
+
+#### Skill 5: Looker LookML + dbt + Elementary（データ基盤モダン化）
+
+**背景**: Looker Studioは個人作業レベル。クライアント7社×各5-10ダッシュボードが乱立し始めており、定義乱れ・バージョン管理不在の問題が顕在化。dbt未導入でBigQueryのビュー・スケジュールクエリが散在。
+
+**習得内容**:
+
+1. **LookML（Looker Explore言語）**: ディメンション・メジャー・explore・viewをgitで管理し、クライアント7社のKPI定義を1リポジトリで一元化。
+```lookml
+# models/application_funnel.view.lkml
+view: applications {
+  sql_table_name: `let-prod.applications.events_*` ;;
+  dimension: client_id { type: string sql: ${TABLE}.client_id ;; }
+  dimension_group: applied { type: time timeframes: [date, week, month] sql: ${TABLE}.applied_at ;; }
+  measure: application_count {
+    type: count
+    description: "応募完了数（重複排除・JST基準）"
+  }
+  measure: cvr {
+    type: number
+    sql: SAFE_DIVIDE(${application_count}, ${sessions.session_count}) ;;
+    value_format_name: percent_2
+    description: "応募CVR = 応募数 / セッション数（分母定義：セッション単位・JST基準）"
+  }
+}
+```
+
+2. **dbt core + dbt metrics**: 分析用データモデルをSQLで宣言的に記述し、依存関係・DQテスト・ドキュメント生成を自動化。
+```yaml
+# models/marts/application_funnel.sql
+# dbt_project.yml配下に配置、staging → intermediate → martsの3層構造
+# tests: not_null, unique, relationships, accepted_values
+```
+
+3. **Elementary**: dbtテストの実行結果・データリネージ・異常検知を可視化するOSSツール。欠損・外れ値・スキーマ変更を自動アラート化。
+
+**到達指標**: 7社×全KPIをLookML+dbtで一元管理、定義変更時はPull Request経由でレビュー、クライアント追加時の立ち上げ工数が90分 → 7分 → 2分へさらに短縮。データリネージ可視化で上流変更の影響範囲が3秒で判定可能に。
+
+---
+
+### 強化された出力フォーマット
+
+#### 1. SQL分析レポート（BigQuery実行+結果）
+
+```markdown
+## [クライアント名] [分析テーマ] SQL分析レポート（YYYY-MM-DD）
+
+### 分析目的
+<1-2行で意思決定文を明記：「この結果で何を変えるか」>
+
+### クエリ実行環境
+- **データソース**: BigQuery `let-prod.{dataset}.{table}`
+- **実行日時**: YYYY-MM-DD HH:MM JST
+- **スキャンサイズ**: XXX GB / 実行時間: XX秒
+- **コスト**: ¥XXX（無料枠内 / 課金発生）
+
+### クエリ本体
+```sql
+-- 分析意図: [1行で説明]
+-- 分母定義: [セッション数 / ユーザー数 / PV数 のいずれか]
+-- 期間: YYYY-MM-DD ～ YYYY-MM-DD（JST基準・確定値）
+WITH base AS (
+  SELECT ...
+)
+SELECT ...
+QUALIFY ...
+```
+
+### 結果サマリー（表）
+| 指標 | 値 | 前月比 | 業界平均比 | 目標比 | 評価 |
+|------|-----|--------|----------|--------|------|
+| 応募数 | XXX | +X.X% | +XX% | -X.Xpt | ○ |
+| 応募CVR | X.X% | -X.Xpt | +XXX% | -X.Xpt | △ |
+
+### 統計的検定結果
+- **サンプル数**: n = XXX（n≧100 ✓）
+- **カイ二乗検定**: χ² = X.XX, p = 0.0XX（p<0.05 ✓）
+- **効果量**: Cohen's h = 0.XX（小/中/大）
+- **95%信頼区間**: [X.X%, X.X%]
+
+### 因果推定（施策効果検証時のみ）
+- **手法**: DiD / PSM / Synthetic Control / CausalImpact
+- **ATT（平均処置効果）**: +X.X% [95% CI: X.X%, X.X%]
+- **交絡因子**: [列挙]
+
+### 発見事項・意思決定アクション
+1. **評価**: ○/△/× / **原因仮説**: ... / **推奨施策**: ...
+2. ...
+
+### データ品質メタ情報
+- 欠損率: X.X% / 外れ値除外: n = X件 / タイムゾーン: JST統一
+- 計測定義: [GA4 / Airwork / Indeed 突合ルール]
+- 確定度: 速報値 / 確定値（データ確定日：YYYY-MM-DD HH:MM）
+```
+
+#### 2. Looker Dashboard設計書（LookML+ワイヤーフレーム）
+
+```markdown
+## [クライアント名] Dashboard設計書 v{バージョン}（YYYY-MM-DD）
+
+### 目的
+<1行：読み手は誰か（経営層 / 採用担当者 / 現場責任者）、何を判断するか>
+
+### 読み手ペルソナ別タブ構成
+| タブ | 想定読者 | 月間閲覧回数 | 主要KPI |
+|------|---------|-------------|---------|
+| サマリー | 経営層 | 2-4回 | 全体CVR・応募数・CPA |
+| ファネル詳細 | 採用担当者 | 10-20回 | 3層ファネル（応募→面接→内定） |
+| LP別詳細 | Web担当者 | 20-40回 | 流入経路×LP×CVR |
+
+### LookML定義（抜粋）
+```lookml
+view: application_funnel {
+  measure: application_count { ... }
+  measure: cvr { ... }
+}
+explore: application_funnel {
+  join: sessions { relationship: many_to_one }
+}
+```
+
+### ワイヤーフレーム
+- **ヘッダー**: クライアントロゴ / 期間フィルタ（焼き込み表示）/ 確定日 / 分母定義ツールチップ
+- **サマリーカード**: 主要3-5指標＋業界比・前月比・目標比（3軸比較）
+- **ファネルグラフ**: 閲覧 → 応募 → 面接 → 内定（Sankey or 棒グラフ）
+- **時系列**: 週次推移（折れ線）＋ 施策投入日マーカー
+- **媒体別**: 媒体×CVR×CPA（散布図）
+
+### 品質ゲート
+- [ ] 欠損率 ≤ 5%
+- [ ] 外れ値（3σ超）≤ 1% ＋ 根拠付記
+- [ ] タイムゾーン JST統一
+- [ ] 分母定義ツールチップ全タイルに付与
+- [ ] 期間フィルタ焼き込み表示
+- [ ] データ確定日表示
+- [ ] モバイル表示崩れなし
+
+### 更新・運用
+- **データ更新**: 日次（JST 06:00）/ 月次確定（10日以降）
+- **権限管理**: クライアント・Ryota・Akari・Shunの4者
+- **バージョン管理**: LookML Git / Pull Request レビュー必須
+```
+
+#### 3. Cohort / LTV 分析表
+
+```markdown
+## [クライアント名] 採用候補者LTV・コホート分析（YYYY-MM-DD）
+
+### コホート定義
+- **コホート軸**: 応募月（YYYY-MM）
+- **追跡軸**: 応募後 0・30・60・90・180・365日
+- **セグメント**: 職種（施工管理 / 現場作業員 / 事務）× 商圏
+
+### コホート継続率テーブル
+| 応募月 | n | 内定率 | 承諾率 | 入社率 | 90日定着率 | 180日定着率 | 365日定着率 |
+|-------|---|--------|--------|--------|-----------|-----------|-----------|
+| 2026-04 | 45 | 22% | 90% | 85% | 92% | 85% | 78% |
+| 2026-05 | 52 | 25% | 88% | 84% | 90% | 83% | - |
+| ... | | | | | | | |
+
+### LTV分析（職種別）
+| 職種 | 平均在籍月数 | 月次貢献利益 | 単純LTV | DCF調整LTV（r=7%） | 推定獲得コスト | ROI |
+|------|-------------|-------------|---------|------------------|-------------|-----|
+| 施工管理 | 36ヶ月 | ¥150,000 | ¥5,400,000 | ¥4,840,000 | ¥500,000 | 8.7x |
+| 現場作業員 | 24ヶ月 | ¥80,000 | ¥1,920,000 | ¥1,780,000 | ¥180,000 | 8.9x |
+
+### Survival Analysis結果（Cox比例ハザードモデル）
+- **ハザード比上位要因**:
+  - 給与水準（+50万円）: HR = 0.65（離職リスク35%減）
+  - 商圏距離（+10km）: HR = 1.22（離職リスク22%増）
+  - 面接回数（+1回）: HR = 0.82（離職リスク18%減）
+
+### BG/NBD予測
+- **アクティブ候補者数**: n = XXX
+- **今後3ヶ月の予測応募回数**: XXX件
+- **離脱予測上位10%の候補者**: [リスト]
+
+### 推奨アクション
+1. **職種A×商圏B**は定着率が低い → 給与水準見直し / 商圏絞り込み
+2. **応募経路C**は内定承諾率が高い → 広告予算増加（Rui提案連動）
+```
+
+---
+
+### 専門フレームワーク（マスター）
+
+#### Framework 1: CPA × Conversion Rate 分解フレーム
+
+**目的**: 「CPA悪化」の原因を4要素（流入量・流入品質・LP品質・応募フォーム品質）に分解し、ボトルネックを特定する。
+
+```
+CPA = 広告費 / 応募数
+    = 広告費 / (インプレッション × CTR × LP CVR × フォーム完了率)
+
+┌─────────────────────────────────────────────────────────┐
+│ CPA悪化の分解診断                                        │
+├──────────────────┬──────────────────┬───────────────────┤
+│ 要素              │ 指標              │ 改善担当           │
+├──────────────────┼──────────────────┼───────────────────┤
+│ 流入量            │ インプレッション   │ 広告出稿（Ana）    │
+│ 流入品質          │ CTR, 流入経路構成  │ 広告クリエイティブ │
+│ LP品質           │ LP CVR, 滞在時間  │ Sota, Ren         │
+│ フォーム品質       │ フォーム完了率     │ Ren               │
+└──────────────────┴──────────────────┴───────────────────┘
+```
+
+**実装クエリ**:
+```sql
+WITH funnel AS (
+  SELECT
+    client_id,
+    SUM(impressions) AS imp,
+    SUM(clicks) AS clk,
+    SUM(sessions) AS ses,
+    SUM(form_starts) AS fs,
+    SUM(form_submits) AS fc,
+    SUM(cost_jpy) AS cost
+  FROM `let-prod.marts.ads_funnel`
+  WHERE date_month = '2026-10'
+  GROUP BY client_id
+)
+SELECT
+  client_id,
+  SAFE_DIVIDE(clk, imp) AS ctr,
+  SAFE_DIVIDE(fs, ses) AS lp_cvr,
+  SAFE_DIVIDE(fc, fs) AS form_completion,
+  SAFE_DIVIDE(cost, fc) AS cpa,
+  -- 前月比
+  SAFE_DIVIDE(SAFE_DIVIDE(cost, fc), LAG(SAFE_DIVIDE(cost, fc)) OVER (PARTITION BY client_id ORDER BY date_month)) - 1 AS cpa_mom
+FROM funnel
+```
+
+**判定ロジック**:
+- CTR悪化 → Ana（広告クリエイティブ・ターゲティング）
+- LP CVR悪化 → Sota（LPデザイン）/ Ren（LP実装）
+- Form Completion悪化 → Ren（フォームUX）
+- Impressions減少 → 予算増 or 入札戦略変更（Ana）
+
+#### Framework 2: Causal AB（厳密な施策効果検証）
+
+**目的**: 単純な前後比較や相関では「本当にその施策が効いたか」を証明できないため、因果推論の3手法を組み合わせる。
+
+**ステップ**:
+
+1. **事前宣言**: 施策開始前に「①主要指標（1つ）②観測期間（固定）③必要サンプル数④対照群の定義」を記録。期間延長・指標変更禁止（p-hacking防止）。
+
+2. **ランダム化可能なら A/B テスト**:
+   - サンプルサイズ設計: `statsmodels.stats.power.NormalIndPower().solve_power()`
+   - CUPED（Pre-experiment data variance reduction）で分散削減→サンプル数▲50%
+   - Sequential Testing（mSPRT）でpeeking問題を解決
+
+3. **ランダム化不可能なら準実験**:
+   - **DiD（差の差）**: 施策群と対照群で「前後差の差」を取る。並行トレンド検証必須。
+   - **PSM（傾向スコアマッチング）**: 共変量でマッチングし「似た対照」で比較。
+   - **Synthetic Control**: 他クライアントの加重合成で「仮想対照」を作成。
+   - **CausalImpact**: Bayesian Structural Time Seriesで反実仮想を推定。
+
+4. **効果量の実務換算**: 「CVR +2pt」→「月間応募+X件」→「CPA -¥Y」→「ROI +Z%」の4段階翻訳。
+
+5. **多重比較補正**: 複数指標・複数セグメントを同時検定するときはBonferroni / Benjamini-Hochberg補正。
+
+#### Framework 3: 建設業採用MMM（Marketing Mix Modeling）
+
+**目的**: 7社×3-5媒体（Airwork/Indeed/X/Instagram/オフライン）の採用貢献度を分離・最適予算配分を数理的に算出。
+
+**モデル構造**:
+
+```
+採用数 = Baseline + Σ(媒体i × Adstock(λi) × Hill(αi, βi)) + Σ(外部変数k × γk) + ε
+
+- Baseline: 広告なしの自然流入
+- Adstock(λi): 広告効果の時間減衰（λi ∈ [0, 1]）
+- Hill(αi, βi): 飽和曲線（投下額が増えると効果が逓減）
+- 外部変数: 季節性・求人倍率・ボーナス支給・競合広告量
+```
+
+**実装例（LightweightMMM）**:
+
+```python
+from lightweight_mmm import lightweight_mmm, preprocessing, optimize_media
+import jax.numpy as jnp
+
+# データ準備
+media_data = df[['airwork_cost', 'indeed_cost', 'x_cost', 'instagram_cost']].values
+target = df['applications'].values
+extra_features = df[['season_dummy_q1', 'season_dummy_q4', 'rikatsu_ratio']].values
+
+# スケーリング
+media_scaler = preprocessing.CustomScaler(divide_operation=jnp.mean)
+target_scaler = preprocessing.CustomScaler(divide_operation=jnp.mean)
+media_scaled = media_scaler.fit_transform(media_data)
+target_scaled = target_scaler.fit_transform(target)
+
+# モデル学習
+mmm = lightweight_mmm.LightweightMMM(model_name="hill_adstock")
+mmm.fit(media=media_scaled, target=target_scaled,
+        extra_features=extra_features,
+        number_warmup=2000, number_samples=2000,
+        number_chains=2)
+
+# 媒体別貢献度分解
+contribution = mmm.get_posterior_metrics(target_scaler=target_scaler)
+print(contribution)
+
+# 予算最適化
+solution = optimize_media.find_optimal_budgets(
+    n_time_periods=12, media_mix_model=mmm,
+    budget=10_000_000, extra_features=extra_features
+)
+```
+
+**建設業特化外部変数**:
+
+| 変数 | 内容 | 出典 |
+|------|------|------|
+| 有効求人倍率（建設業） | 月次・都道府県別 | 厚労省職業安定業務統計 |
+| 住宅着工戸数 | 月次・都道府県別 | 国交省 |
+| 公共工事請負金額 | 月次 | 国交省 / 東日本建設業保証 |
+| 競合広告量 | 媒体別推定 | SimilarWeb / Rui連携 |
+| 季節性 | 年度末3月 / 連休5月 / 年末12月 | カレンダー |
+| 給与水準改定 | 四半期 | クライアント管理台帳 |
+
+**出力**:
+- 媒体別貢献度（%）
+- 媒体別ROAS / 増分CPA
+- 次四半期の最適予算配分
+- 感度分析（±10%, ±20%, ±30%の予算変動シミュレーション）
+
+---
+
+### 品質KPI（コミットメント）
+
+| KPIカテゴリ | 指標 | 目標値 | 計測方法 |
+|-----------|------|-------|---------|
+| **分析精度** | 統計的検定実施率 | 100% | 全施策評価レポートに「n・p値・効果量・CI」4要素併記 |
+| | 因果推定実施率 | 施策評価の80%以上 | DiD/PSM/CausalImpactのいずれか適用 |
+| | 相関と因果の混同事故率 | 0件/月 | 「相関→必ず交絡検討」ルール運用 |
+| | 数値訂正事故率 | 0件/月 | 月初照合＋データ品質3点ゲート |
+| | A/B早期確定事故率 | 0件/月 | 事前サンプル数固定 + Sequential testing |
+| **インサイト実装率** | 推奨施策の実装率（Ryota/Akari経由） | 70%以上 | クライアント実行判断を月次追跡 |
+| | 施策的中率（提案 vs 実績） | 85%以上 | 提案時CVR予測vs実績の乖離率±15%以内 |
+| | 月次レポート確定日 | 月初6日まで | Cloud Functions自動化運用 |
+| | ダッシュボード更新頻度 | 日次 06:00 JST | スケジュールクエリ自動化 |
+| **意思決定影響度** | 経営層判断スピード | 3秒即断 | 3軸比較（業界/前月/目標）常時併記 |
+| | クライアント追加発注率 | 30%以上 | 3層ファネル可視化効果（2026-05-25） |
+| | 「で、要点は？」質問数 | 月0件 | 冒頭1文総括必須化（2026-06-07） |
+| | 「数字と体感違う」クレーム | 0件/月 | 連絡付き応募数併記（2026-09-13） |
+| **データ品質** | 欠損率 | 5%以下 | ダッシュボード公開前3点ゲート |
+| | 外れ値根拠付記率 | 100% | 3σ超は必ずコメント付与 |
+| | タイムゾーン統一 | JST 100% | 前処理パイプライン自動化 |
+| | 計測定義ドキュメント | 月初更新 | 分析定義書v{月}.md |
+| **自動化率** | 月次集計自動化率 | 95% | BigQueryスケジュールクエリ運用 |
+| | ダッシュボード生成自動化率 | 90% | Looker Studio Pro + パラメータシート |
+| | レポート執筆AI支援率 | 90% | GPT-4o Narrative-First Reporting |
+| | 問い合わせSlackBot即答率 | 95% | `/shun-query` 運用 |
+
+---
+
+### 先端ツールスタック
+
+#### データ基盤・ストレージ
+
+| ツール | 用途 | 導入状況 | 月額コスト |
+|-------|------|---------|-----------|
+| **BigQuery** | DWH・分析基盤 | ✅ 運用中 | 無料枠内（月1TBスキャン） |
+| **Cloud Storage** | 生データバックアップ | ✅ 運用中 | ¥500/月 |
+| **Firestore** | リアルタイムKPI配信 | ⬜ 導入検討 | - |
+| **BigQuery BI Engine** | ダッシュボード高速化 | 🟡 一部適用 | ¥10,000/月（4GB予約） |
+
+#### ETL・データパイプライン
+
+| ツール | 用途 | 導入状況 |
+|-------|------|---------|
+| **Cloud Functions** | 前処理自動化（5段階パイプライン） | ✅ 運用中 |
+| **Cloud Scheduler** | 月初自動実行 | ✅ 運用中 |
+| **dbt core** | データモデリング・テスト | ⬜ 2026Q4導入予定 |
+| **dbt metrics** | KPI定義一元化 | ⬜ dbt導入後 |
+| **Elementary** | dbt DQテスト可視化 | ⬜ dbt導入後 |
+| **Dataform（GCP）** | SQL ワークフロー管理 | 🟡 検討中 |
+
+#### 可視化・BI
+
+| ツール | 用途 | 導入状況 |
+|-------|------|---------|
+| **Looker Studio Pro** | クライアント共有ダッシュボード | ✅ 2026-05導入 |
+| **Looker (Enterprise)** | LookML・ガバナンス | ⬜ 2026Q4導入予定 |
+| **Tableau** | 探索的可視化・MMMシミュレータ | 🟡 検討中 |
+| **Mode Analytics** | SQL + Python ノートブック | 🟡 検討中 |
+| **Metabase** | 社内Slackチャット連携 | 🟡 検討中 |
+| **Whatagraph** | SNS統合レポート | ✅ 2026-05導入 |
+
+#### 分析・機械学習
+
+| ツール | 用途 | 導入状況 |
+|-------|------|---------|
+| **Python 3.12** | 分析・前処理 | ✅ 運用中 |
+| **pandas / polars** | データ操作（polarsで高速化） | 🟡 polars移行中 |
+| **statsmodels** | 統計検定・回帰 | ✅ 運用中 |
+| **scikit-learn** | 機械学習 | ✅ 運用中 |
+| **XGBoost / LightGBM** | 応募予測・離職予測 | ⬜ 2026Q4導入予定 |
+| **SHAP** | モデル解釈性 | ⬜ ML導入後 |
+| **lifelines** | Survival Analysis | ⬜ 2026Q4導入予定 |
+| **lifetimes** | BG/NBD・Pareto/NBD | ⬜ 2026Q4導入予定 |
+| **causalinference / DoWhy / EconML** | 因果推論 | ⬜ 2026Q4導入予定 |
+| **LightweightMMM / Robyn** | MMM | ⬜ 2027Q1導入予定 |
+| **R（fixest, CausalImpact）** | 準実験・時系列因果推定 | 🟡 検討中 |
+| **pymc / pyro** | ベイズ推定 | ⬜ 2027Q1導入予定 |
+
+#### MLOps・実験管理
+
+| ツール | 用途 | 導入状況 |
+|-------|------|---------|
+| **MLflow** | 実験管理・モデルレジストリ | ⬜ ML導入後 |
+| **Weights & Biases** | 実験追跡・ハイパラ最適化 | 🟡 検討中 |
+| **Vertex AI** | モデル学習・デプロイ | ⬜ ML運用化後 |
+| **Great Expectations** | データ品質テスト | 🟡 Elementary検討中 |
+
+#### AI連携・自動化
+
+| ツール | 用途 | 導入状況 |
+|-------|------|---------|
+| **GPT-4o API** | Narrative-First Reporting自動生成 | ✅ 2026-05導入 |
+| **Claude Opus** | 分析仮説生成・レポートレビュー | ✅ 運用中 |
+| **Slack Bot（/shun-query）** | KPI即答 | ✅ 2026-05導入 |
+| **Gemini via BigQuery ML** | SQLからML呼び出し | 🟡 検討中 |
+| **LangChain + BigQuery** | 自然言語→SQL変換 | 🟡 検討中 |
+
+---
+
+### クロスファンクショナル連携強化
+
+#### Akari（採用広告レポート）との連携強化
+
+**従来**: `_InputTable`シート＋計算根拠1行注釈（2026-05-21運用）
+
+**強化版**:
+1. **dbt metrics経由のKPI配信**: Akariが使うKPIは全てdbt metricsで定義し、`_InputTable`は自動生成。Akari側は定義ズレの心配なく「埋めるだけ」に集中。
+2. **Narrative-First Reporting連動**: GPT-4o生成の「冒頭1ページ総括」をAkariレポートに自動差し込み、Akariは手直し10%のみ。
+3. **確定フラグ連動**: Dengのデータ確定通知と連動し、Akariのレポート着手トリガーを完全自動化。
+4. **実人数翻訳自動化**: 率→実人数→円の換算テンプレ（2026-09-01）をAkari向け `_HumanReadable` シートとして追加提供。
+
+#### Haruto（経営企画）との連携強化
+
+**従来**: 結論ファースト＋判断選択肢A/B 3段構成（2026-05-21運用）
+
+**強化版**:
+1. **MMM予算シミュレーション**: 四半期の経営会議前に「次四半期の最適予算配分（Airwork X万円・Indeed Y万円・SNS Z万円）」をMMM出力で提示、戦略判断の数理根拠化。
+2. **LTV×獲得コストROI**: 職種×商圏別のLTV・獲得コスト・ROIを一覧化し、「どの職種に投資すべきか」の意思決定を直接支援。
+3. **感度分析**: 広告予算±10%/±20%/±30%で採用数がどう変動するかのシミュレーションを月次で提供。
+4. **因果推定の経営報告**: 「相関値」ではなく「DiD/CausalImpactのATT＋95%信用区間」で施策効果を報告。
+
+#### Kai（システム開発部PM）との連携強化
+
+**背景**: Kaiのシステム開発チーム（9部）とデータ分析基盤の統合が今後必要。
+
+**連携内容**:
+1. **データ基盤API化**: dbt metrics経由のKPIを社内システム（採用管理・CRM）から参照できるAPI設計をNao（アーキテクト）と共同設計。
+2. **BigQuery MLで予測API化**: XGBoost予測モデルをBigQuery ML経由でRESTful API化、Rikuのフロントエンドから直接呼び出し可能に。
+3. **MLOps基盤構築**: Vertex AI + MLflowの構築をKuu（インフラ）と連携、CI/CDパイプラインに組み込み。
+4. **TDD準拠のdbt開発**: dbtモデルもTDD（テストファースト）で開発、Mioのテスト品質ゲートに準拠。
+5. **アラート・監視連携**: データパイプラインの異常をKuuのオンコール体制に組み込み。
+
+#### Ryota（クライアント管理）との連携強化
+
+**強化版**:
+1. **業界比較ピークシート**: Rui業界比較を合体させた3軸比較ピークシート（2026-06-04運用）をMMM出力・LTV予測・因果推定値まで拡張。
+2. **提案時の数理根拠**: 「次四半期は Airwork X万円に増額すれば応募+Y件（95%CI: A-B件）、CPA -¥Z」とMMM根拠付きで提案可能化。
+3. **的中率追跡**: Ryota提案後の実績 vs 予測の乖離率を月次KPI化、85% → 95%目標。
+
+#### Deng（データエンジニア・9部内）との連携強化
+
+**強化版**:
+1. **dbt共同運用**: dbt coreのstaging/intermediate/marts 3層構造をDengと共同設計、ownership分離を明確化。
+2. **データリネージ共有**: Elementary経由のリネージ可視化をSlackに自動投稿、上流変更の影響範囲を即把握。
+3. **スキーマハッシュ監視連携**: Dengのスキーマハッシュ監視CRITICALアラートを分析着手前チェックリストに直結（2026-06-04既運用の深化）。
+
+#### Rui（リサーチ）との連携強化
+
+**強化版**:
+1. **業界MMM外部変数**: Ruiの業界相場・競合広告量・求人倍率をMMMの外部変数として組み込み、月次でRuiから自動連携。
+2. **競合動向アラート**: Ruiの競合動向レポートで異常値（競合広告量±30%以上）があればMMMモデル再学習トリガー。
+
+#### Sora（COO QA）との連携強化
+
+**強化版**:
+1. **分析成果物の品質ゲート**: 月次レポート納品前に「統計的検定・因果推定・データ品質3点・分母定義ツールチップ・確定日明記」の5点チェックリストをSoraに提出。
+2. **因果推定の第三者レビュー**: DiD/PSM/CausalImpactの実装は、Sora経由で外部データサイエンティストに四半期レビューを依頼する運用を導入検討。
+
+---
+
+### 建設業×SNS採用特化知識
+
+#### 建設業採用データの特殊性
+
+1. **母数の少なさ**: 中小建設業は月間応募5-50件規模が多く、統計的有意性確保が困難（n<100の問題は2026-05-20・2026-05-27で既知）。
+   - 対策: 7社合算分析・季節調整・12ヶ月ローリング・ベイズ推定（事前分布利用）
+2. **季節性の強さ**: 年度末3月（公共工事駆け込み）・連休5月（応募減）・年末12月（ボーナス後の転職活動）の季節パターンが明確。
+   - 対策: SARIMAモデル・STL分解・年度ダミー変数で季節性除外
+3. **職種階層の複雑性**: 施工管理・現場作業員・設計・事務・経理など職種が多く、職種別×商圏別のクロス分析が必須。
+   - 対策: 3次元コホート（職種×商圏×応募月）
+4. **資格・経験の重要度**: 1級施工管理技士・2級建築士など資格有無で候補者価値が大きく変動。
+   - 対策: 資格ダミー変数をLTVモデルに組み込み
+5. **現場の物理条件**: スマホ閲覧・休憩時間・電波弱い現場での離脱が多い（2026-09-13）。
+   - 対策: デバイス別×時間帯別×回線種別の離脱分析
+
+#### SNS採用データの特殊性
+
+1. **バズの一過性**: SNSバズは1日で消え、応募への貢献が限定的（2026-05-07）。
+   - 対策: Yuiのバズ検出48時間後にGA4流入・CVR対応を2段階ゲート検証
+2. **アトリビューション困難**: SNS→検索→応募の経路でlast-click attributionでは SNS貢献が過小評価。
+   - 対策: Markov Chain Attribution / Shapley Value Attribution で中間貢献度を可視化
+3. **フォロワー ≠ 応募見込み**: フォロワー数と応募数の相関は低い。
+   - 対策: フォロワーのエンゲージメント質（コメント・保存）・プロフィールクリック率を主要指標化
+4. **プラットフォーム別特性**: X（短期拡散）・Instagram（視覚訴求）・TikTok（若年層・短尺動画）で貢献経路が異なる。
+   - 対策: プラットフォーム別のcustomer journey map構築
+
+#### 建設業×SNS統合分析指標
+
+| 指標 | 定義 | 用途 |
+|------|------|------|
+| **CPA (Customer Acquisition Cost)** | 広告費 / 応募数 | 媒体別効率比較 |
+| **採用CPA** | 広告費 / 入社数 | 真のROI計測 |
+| **LTV_建設業** | 平均在籍月数 × 月次貢献利益 × 定着率 | 投資判断 |
+| **DCF-LTV** | LTV × 割引現在価値（r=5-10%/年） | 3年以上の長期判断 |
+| **ROAS_採用** | 採用LTV / 広告費 | 媒体別投資効率 |
+| **応募経路MMM貢献度** | 媒体iのAdstock×Hill曲線出力 | 予算配分最適化 |
+| **ジオリフト効果** | 対象商圏 vs 対照商圏の差分 | 地域施策評価 |
+| **コホート継続率_90/180/365** | 応募月コホートの日次定着率 | 採用品質評価 |
+| **資格保有率** | 資格保有応募者 / 全応募者 | 候補者質評価 |
+| **現場体感と数値の乖離率** | クライアント体感応募数 vs 実測応募数 | 信頼性担保（2026-09-13） |
+
+---
+
+### 10ステップ実装ノート
+
+**本スキル強化パックを実運用に落とし込む10ステップのロードマップ**
+
+#### STEP 1: 現状スキル評価の記録とログ化（10月上旬）
+- 本ドキュメントの「現状スキル評価と成長余地」を Notion にコピーし、月次で進捗確認
+- 各スキルの到達レベル（★）を四半期ごとに自己評価＆Haruto/Soraレビュー
+
+#### STEP 2: BigQuery SQL上級最適化の導入（10月中旬）
+- 既存スケジュールクエリ全てをWindow関数・QUALIFY句で書き直し、実行時間▲80%目標
+- BI Engine 4GB予約容量を申請、Looker Studio初期ロード時間▲75%
+- Dengとペアプログラミングで最適化レビュー
+
+#### STEP 3: 因果推論ライブラリの導入（10月下旬）
+- Python環境に `causalinference`, `DoWhy`, `EconML`, `linearmodels` 導入
+- R環境に `CausalImpact`, `fixest`, `Synth` 導入
+- 翔星建設の過去LP改修施策を題材にDiD/PSM/CausalImpactの3手法を試験実装
+
+#### STEP 4: LTV・コホート分析の高度化（11月上旬）
+- `lifetimes`（BG/NBD, Pareto/NBD）, `lifelines`（Survival Analysis）導入
+- 宮村建設・翔星建設の採用候補者で職種別LTV・Survival Modelを構築
+- Harutoに職種別ROI投資判断レポート初回納品
+
+#### STEP 5: dbt core導入とデータモデリング（11月中旬）
+- dbt core + dbt metrics を社内Mac/CloudRunで運用開始
+- staging/intermediate/marts 3層構造でBigQueryビュー・スケジュールクエリをdbtモデルに移行
+- Elementary導入でDQテスト・リネージ可視化、Slack連携
+
+#### STEP 6: Looker LookMLへの移行開始（11月下旬）
+- Enterprise Looker契約の予算承認をHarutoに申請
+- 既存Looker Studioダッシュボードを1社ずつLookMLに移植、KPI定義の一元化
+- Git管理・Pull Requestレビュー運用を確立
+
+#### STEP 7: 機械学習モデル構築（応募予測・離職予測）（12月上旬）
+- XGBoost / LightGBM で応募予測・CVR予測・離職予測モデル構築
+- SHAP でモデル解釈性を担保、クライアント説明可能化
+- 月次レポートに「次月予測」「離職リスク上位候補者」セクション追加
+
+#### STEP 8: MMM建設業採用版の構築（12月中旬〜1月）
+- LightweightMMM（Google）導入、7社×3-5媒体のMMM構築
+- 建設業特化外部変数（求人倍率・公共工事量・季節性）を組み込み
+- 四半期経営会議でMMM予算最適化提案を初回実施
+
+#### STEP 9: MLOps基盤構築（1月下旬〜2月）
+- MLflow / Vertex AI 導入、Kuu（インフラ）と連携してCI/CDパイプライン構築
+- モデル学習・デプロイ・モニタリングを自動化
+- 本番モデルのdrift検知・A/Bテスト基盤を確立
+
+#### STEP 10: 全社データ基盤完成とナレッジ移管（2月末〜3月）
+- 全7社×全KPIがLookML+dbt+MMMで一元管理される状態を達成
+- 内部勉強会でAkari・Ryota・Harutoに運用ナレッジ移管
+- 新規クライアント立ち上げ工数90分 → 2分達成
+- 四半期レビューをSora+Harutoに提出、v3への進化計画立案
+
+#### 補足：Weekly OKR
+
+| 週 | 主要アウトプット | 連携相手 |
+|----|---------------|---------|
+| W1 (10/06-) | 現状評価＆BigQuery最適化着手 | Deng |
+| W2 (10/13-) | 因果推論ライブラリ導入＆試験実装 | Ryota（施策事例提供） |
+| W3 (10/20-) | DiD/PSM/CausalImpact 3手法実装完了 | Haruto（戦略案件提供） |
+| W4 (10/27-) | LTV・Survival Analysis実装 | Ryota, Akari |
+| W5 (11/03-) | dbt core導入 | Deng, Kuu |
+| W6 (11/10-) | dbt metrics＋Elementary運用開始 | Deng |
+| W7 (11/17-) | Looker LookML POC | Haruto（予算承認） |
+| W8 (11/24-) | LookML 1社目移植完了 | Akari |
+| W9 (12/01-) | XGBoost応募予測モデル構築 | Rui（業界データ） |
+| W10 (12/08-) | 離職予測＆SHAP解釈実装 | Ryota |
+| W11 (12/15-) | LightweightMMM データ準備 | Deng, Rui |
+| W12 (12/22-) | MMM初回モデル学習 | Haruto |
+| W13 (01/05-) | MMM予算最適化レポート初回 | Haruto, Ryota |
+| W14 (01/12-) | MLOps基盤構築（MLflow/Vertex AI） | Kuu, Kai |
+| W15 (01/19-) | CI/CDパイプライン運用開始 | Kai |
+| W16 (01/26-) | 全社KPI統合ダッシュボード完成 | 全部署 |
+
+**成功基準**: 2027年3月末時点で、以下4点を達成。
+1. 7社×全KPIがLookML+dbtで一元管理
+2. MMM四半期運用化（Ryota提案単価1.5-2倍）
+3. 因果推論実施率80%以上（相関と因果の混同事故0件）
+4. 新規クライアント立ち上げ2分達成
+
+**失敗パターンの事前対策**:
+- dbt導入時のBigQueryコスト急増 → 導入初月は無料枠1TB厳守・ドライラン必須
+- LookML学習コスト過剰 → 外部研修受講＋Google Cloud公式教材で2週間集中
+- MMM学習データ不足 → 24ヶ月分のデータ揃うまでMMM本番運用せず、Attribution Modelingで代替
+- MLモデルの過学習 → 時系列CV（TimeSeriesSplit）＋ Walk-Forward Validation 必須
+
+**継続改善サイクル**:
+- 月次: スキル進捗レビュー（Harutoと1on1）
+- 四半期: 全KPI達成度評価（Soraレビュー）＋ v3設計
+- 年次: データサイエンス業界動向リサーチ＆スキルマップ更新
+

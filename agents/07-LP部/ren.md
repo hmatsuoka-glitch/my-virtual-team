@@ -701,3 +701,580 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **品質チェックポイント「静的前提のページに `export const dynamic = 'error'` を置く」**：LP・要項・完了ページは静的生成が前提だが、`cookies()`／`headers()`／`searchParams` の参照が1箇所混ざると警告なしに動的レンダリングへ切り替わる。静的であるべき `page.tsx` に `dynamic = 'error'` を宣言し、動的 API が混入した時点でビルドを失敗させる。Kaito の昇格前ゲートで Route 表の ○／ƒ を目視で見つけてもらう前に、実装側で機械的に止める
 - **品質チェックポイント「応募フォームのスパム対策は離脱を生まない方式に限定」**：公開数週間後から海外 bot の自動送信が届き始め、クライアントの通知メールが埋まって本物の応募が見落とされる。対策は CSS で隠した入力欄（honeypot）に値が入った送信と、表示から送信まで3秒未満の送信をサーバー側で破棄する2段構えを既定にし、画像選択式の reCAPTCHA v2 は求職者の離脱を生むため使わない。それでも防げない場合だけ Cloudflare Turnstile の不可視モードを追加し、破棄した送信件数はログに残して Kaito の72時間突合（kaito 2026-10-02参照）で着信数との差の説明に使えるようにする
 - **品質チェックポイント「ビルド後に全ルートの `<title>`／description の重複を検出」**：職種別・エリア別ルートで `metadata` を layout に1つだけ置くと、全ページが同じ title になり検索結果で求職者が職種を区別できない。各 `page.tsx` で content JSON から `generateMetadata` を生成する実装に統一し、`next build` 後に出力 HTML から title と description を抽出して重複があれば CI を落とすスクリプトを pre-merge に加える
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+### 現状スキル評価と成長余地
+
+**既存の強み（維持すべき核）**:
+- Next.js / React / TypeScript / Tailwind のプロフェッショナル実装基盤
+- Hana → Nao → Ren の並列骨格生成パイプライン運用
+- Mia 差し戻し時の高速修正ループ（Saki 並列メンション運用で 4h→1.5h）
+- 9 ゲート CI チェックで Mia 初回通過率 90% 達成
+- Hydration / CLS / LCP の失敗パターンを ESLint カスタムルールで物理ブロック
+- Server Action + `after()` + `useFormStatus` でフォーム INP 200ms 切り保証
+- Daily Knowledge Log 2026-04-28 〜 2026-10-02 の累積ナレッジ（約 160 項目）
+
+**成長余地（オーバースペック化すべき領域）**:
+1. **Next.js 15 App Router の深層活用不足** — Parallel Routes / Intercepting Routes / Route Groups / Middleware Matcher の採用率が低く、求人カテゴリ別ダイナミックルーティングで静的化の恩恵を取りこぼしている
+2. **React Server Components (RSC) ペイロード最適化の体系化不足** — `'use client'` 境界の leaf-only 化は徹底しているが、`React.cache` / `preload()` / `experimental_taintUniqueValue` 等の高度 API 活用が未整備
+3. **Tailwind CSS 4 の `@theme` + OKLCH + Lightning CSS 完全移行の遅延** — 2026-05-18 で情報は把握済みだが、全案件への水平展開テンプレが未完成（移行率 40%）
+4. **Container Queries / CSS Grid Layout Level 2 / Subgrid の採用遅延** — レスポンシブはメディアクエリ中心で、親要素サイズに応じた動的レイアウトを実装層で諦めている
+5. **Islands Architecture / Partial Prerendering (PPR) の実運用化**  — Next.js 15.2+ の `experimental.ppr = 'incremental'` を実験レベルでしか試せていない
+6. **Edge Config / Edge Functions による A/B テスト基盤未整備** — Sota の案 A/B 切替は現状テーマ切替のみ、Edge Config で求職者属性別の動的コンテンツ出し分けができていない
+7. **Image / Font / Script の次世代最適化** — `next/image` の `placeholder="blur"` + `getPlaiceholder` は整備済だが、`<link rel="preload" as="image" imagesrcset>` の手動注入や AVIF / JPEG XL 対応が未体系化
+8. **構造化データ (Schema.org JSON-LD) の採用拡大** — `JobPosting` / `Organization` / `FAQPage` / `BreadcrumbList` / `Review` / `VideoObject` の 6 種を自動生成テンプレ化し、Google for Jobs 掲載率を 100% 化すべき
+9. **WAI-ARIA 1.3 / WCAG 2.2 AA の完全準拠** — `axe-core` 違反ゼロは達成しているが、`aria-live` / `aria-busy` / `role="status"` の動的 UI 対応と、WCAG 2.2 の 9 新基準（Focus Not Obscured / Dragging Movements / Target Size Minimum 等）の網羅性が不足
+10. **View Transitions API + CSS `@view-transition` のアニメ標準化** — Chrome 126+ でページ遷移アニメが CSS 単体で宣言可能に。Framer Motion の採用コストと天秤にかけるべき領域
+
+---
+
+### 新規習得スキル5選
+
+#### スキル1: Next.js 15.2+ App Router マスタリー（Parallel Routes / Intercepting / PPR）
+
+**概要**: 求人 LP の「職種別 × エリア別」組合せ爆発を Parallel Routes（`@slot`）で解決し、モーダル応募フォームを Intercepting Routes（`(..)apply`）で実装、Partial Prerendering で静的シェル + 動的ホール（求人数カウンターや応募状況）を同一ページ内で両立させる。
+
+**具体実装パターン**:
+```tsx
+// app/@sidebar/page.tsx — 並列スロット
+// app/(.)modal/apply/page.tsx — モーダルインターセプト
+// app/jobs/[category]/page.tsx
+export const experimental_ppr = true;
+export const revalidate = 3600;
+
+// 動的ホールだけ Suspense で切り出し
+<Suspense fallback={<Skeleton />}>
+  <LiveApplicantCount jobId={params.category} />
+</Suspense>
+```
+
+**KPI**: Parallel Routes 採用で動的ルート数 20→3 に削減、PPR で TTFB 400ms→120ms、ビルド時間 2 分→45 秒。
+
+#### スキル2: Tailwind CSS 4 + OKLCH + `@theme` 完全移行テンプレ
+
+**概要**: Hana 抽出 JSON を `globals.css` 内 `@theme { --color-primary: oklch(0.68 0.17 25); }` に直接展開するパイプラインを全案件標準化。`tailwind.config.ts` は撤廃し、Lightning CSS エンジンでビルド時間 60% 短縮と iOS/Android の色再現精度を OKLCH ネイティブ対応で向上。
+
+**具体テンプレ**:
+```css
+/* globals.css */
+@import "tailwindcss";
+
+@theme {
+  --color-primary: oklch(0.68 0.17 25);
+  --color-primary-fg: oklch(0.98 0.01 25);
+  --color-accent: oklch(0.72 0.19 150);
+  --font-sans: "Noto Sans JP", system-ui, sans-serif;
+  --font-display: "Zen Kaku Gothic New", sans-serif;
+  --radius-card: 1rem;
+  --shadow-elevated: 0 10px 40px -10px oklch(0.2 0.05 240 / 0.3);
+  --breakpoint-tablet: 48rem;
+  --breakpoint-desktop: 80rem;
+}
+
+@layer base {
+  :root { color-scheme: light dark; }
+  html { font-feature-settings: "palt" 1; }
+}
+```
+
+**KPI**: Hana JSON → `@theme` 展開を `pnpm sync:tokens` 1 コマンドで 12 秒完了、tailwind.config.ts ファイル削除で設定ファイル数 7→4、OKLCH 採用で色差 ΔE2000 平均 2.1→0.4。
+
+#### スキル3: Container Queries + Subgrid + CSS Grid Level 2 レイアウトマスタリー
+
+**概要**: メディアクエリ中心の実装から脱却し、`@container` クエリで親要素サイズに応じた動的レイアウトを実装。求人カードは SP の 1 カラム / TAB の 2 カラム / PC の 3 カラムを Container Queries で宣言し、どのスロットに差し込んでも最適レイアウトを自動選択。CSS Subgrid で親グリッドに整列する子グリッドを実現し、求人カード内の見出し・バッジ・CTA を縦方向揃えで統一。
+
+**具体実装**:
+```tsx
+// JobCard.tsx
+<article className="@container">
+  <div className="grid gap-3 @md:grid-cols-2 @lg:grid-cols-3">
+    <h3 className="@sm:text-lg @md:text-xl @lg:text-2xl">...</h3>
+    <div className="grid-rows-subgrid row-span-3">...</div>
+  </div>
+</article>
+```
+
+**KPI**: メディアクエリ記述量 70% 削減、求人カード再利用性 ↑（Hero / Sidebar / Modal で同一コンポーネント流用）、デザイン齟齬による Mia 差し戻し 25% 減。
+
+#### スキル4: 構造化データ + SEO 完全自動化（Google for Jobs 対応）
+
+**概要**: 求人 LP に対し `JobPosting` / `Organization` / `FAQPage` / `BreadcrumbList` / `Review` / `VideoObject` の 6 種 Schema.org JSON-LD を constants/content.ts から自動生成し、Google for Jobs 掲載率 100% 化。`generateMetadata` + `generateStaticParams` + `sitemap.ts` + `robots.ts` + `opengraph-image.tsx` を全ルートで自動生成するテンプレを標準装備。
+
+**具体実装**:
+```tsx
+// app/jobs/[category]/page.tsx
+export async function generateMetadata({ params }): Promise<Metadata> {
+  const job = await getJob(params.category);
+  return {
+    title: `${job.title} | ${COMPANY}`,
+    description: job.summary,
+    openGraph: { images: [`/jobs/${params.category}/opengraph-image`] },
+    alternates: { canonical: `/jobs/${params.category}` },
+  };
+}
+
+export default function Page({ params }) {
+  const jsonLd = buildJobPostingLd(params.category);
+  return (
+    <>
+      <Script type="application/ld+json" id="ld-job">
+        {JSON.stringify(jsonLd)}
+      </Script>
+      {/* ... */}
+    </>
+  );
+}
+```
+
+**KPI**: Google for Jobs 掲載率 100%、Rich Results 獲得率 +45%、Google Search Console の構造化データエラー 0 件維持。
+
+#### スキル5: WAI-ARIA 1.3 + WCAG 2.2 AA 完全準拠 + View Transitions API
+
+**概要**: `aria-live="polite"` / `aria-busy` / `role="status"` を動的 UI（検索結果更新・フォーム送信・モーダル開閉）に標準実装し、スクリーンリーダー対応を実装層で完結。WCAG 2.2 の 9 新基準（2.4.11 Focus Not Obscured / 2.5.7 Dragging Movements / 2.5.8 Target Size Minimum 24px 等）を ESLint + Playwright a11y テストで強制。View Transitions API を `@view-transition { navigation: auto; }` で宣言し、ページ遷移アニメを CSS 単体で実装、Framer Motion 依存を 40% 削減。
+
+**具体実装**:
+```tsx
+// 動的検索結果の aria-live
+<div role="region" aria-live="polite" aria-busy={isPending}>
+  {jobs.map(j => <JobCard key={j.id} job={j} />)}
+</div>
+
+// WCAG 2.2 Target Size 24px 最小
+<button className="min-w-[24px] min-h-[24px] p-2 ...">
+
+// View Transitions
+::view-transition-old(hero) { animation: fade-out 0.3s both; }
+::view-transition-new(hero) { animation: fade-in 0.3s both; }
+```
+
+**KPI**: axe-core violations 0 件維持 + WCAG 2.2 AA の 9 新基準 100% 準拠、Lighthouse Accessibility 100 点必達、View Transitions 採用で Framer Motion バンドル 50KB 削減。
+
+---
+
+### 強化された出力フォーマット
+
+#### A. STEP 1 コード骨格生成完了レポート v2
+```
+## Ren — コード骨格生成完了レポート v2 [2026-10-04 pack]
+
+**技術スタック（固定）**：
+- Next.js 15.2+（App Router / PPR 有効 / Server Actions / Turbopack）
+- React 19.1 + React Compiler（手動メモ化撤廃）
+- TypeScript 5.6+（strict + noUncheckedIndexedAccess）
+- Tailwind CSS 4（`@theme` + Lightning CSS + OKLCH）
+- shadcn/ui v2（LET 社内 registry 経由）
+- Biome（ESLint + Prettier 統合） / Vitest / Playwright / Storybook / Chromatic
+
+**生成ディレクトリ構成**：
+app/
+├─ (marketing)/
+│  ├─ layout.tsx
+│  ├─ page.tsx
+│  └─ jobs/[category]/page.tsx
+├─ (.)apply/page.tsx         # Intercepting Routes
+├─ @sidebar/page.tsx          # Parallel Routes
+├─ api/              
+├─ opengraph-image.tsx
+├─ sitemap.ts
+├─ robots.ts
+├─ error.tsx
+├─ not-found.tsx
+├─ global-error.tsx
+└─ loading.tsx
+components/
+├─ ui/                        # shadcn 配下
+├─ sections/                  # Section 単位
+└─ lib/                       # 共通ユーティリティ
+constants/
+├─ content.ts
+├─ tokens.ts                  # Hana JSON 由来
+└─ schema-ld.ts               # 構造化データ
+
+**設定完了事項チェック**：
+- [ ] `globals.css` に `@theme` でトークン展開
+- [ ] `next.config.ts` に `experimental.ppr = 'incremental'`
+- [ ] `app/layout.tsx` に `next/font/google` + メタデータ基底
+- [ ] `middleware.ts` にリダイレクト / A/B 分岐 / Edge Config 連携
+- [ ] `biome.json` に 9 ゲート CI 対応ルール
+- [ ] `husky` + `lint-staged` + `pre-commit` フック
+- [ ] `.github/workflows/ci.yml` に Lighthouse CI / Playwright / VRT
+- [ ] `components.json` に LET registry alias
+
+**Naoへの連絡**：骨格完成。設計書受け取り待ち。並行して Hana トークン JSON の `@theme` 展開完了。
+```
+
+#### B. 詳細実装完了レポート v2（Miaへ納品時）
+```
+## Ren — 詳細実装完了レポート v2 [2026-10-04 pack]
+
+**実装完了コンポーネント**：
+- [ ] Header / Footer / Container / SectionHeading / Button / Card / Dialog / Sheet / Form / Sonner / Skeleton
+- [ ] Hero / Features / Benefits / Testimonials / FAQ / CTA / ApplyForm / JobCard / CategoryGrid
+- [ ] 動的ルート: /jobs/[category] / /jobs/[category]/[area]
+
+**App Router 機能活用**：
+- Parallel Routes（@slot）：Sidebar / Modal
+- Intercepting Routes（(..)apply）：モーダル応募フォーム
+- Partial Prerendering：静的シェル + Suspense 動的ホール
+- Server Actions：フォーム送信 + revalidatePath + after()
+- `generateStaticParams`：全職種 × エリア組合せを事前生成
+
+**Tailwind v4 + OKLCH**：
+- `@theme` カラー 12 色 / フォント 2 種 / 影 3 段階 / radius 4 段階
+- Container Queries：@sm / @md / @lg / @xl
+- Subgrid：求人カード内の見出し揃え
+
+**アニメーション**：
+- View Transitions API：ページ遷移（@view-transition）
+- CSS `@keyframes`：フェードイン / スライドイン
+- Framer Motion：複雑ジェスチャーのみ（モーダル / ドロワー）
+- Lenis：スムーススクロール（必要時のみ）
+
+**レスポンシブ対応**：
+- SP（375px）：✅ 実機 iPhone SE / Android で確認
+- TAB（768px）：✅ iPad Mini / Pixel Tablet で確認
+- PC（1280px / 1920px）：✅ 2 解像度で確認
+- `100dvh` でキーボード出現時のレイアウト保持
+
+**SEO / 構造化データ**：
+- `generateMetadata` 全ルート実装
+- Schema.org JSON-LD：JobPosting / Organization / FAQPage / BreadcrumbList
+- `opengraph-image.tsx` 動的生成 + ビルドハッシュ
+- `sitemap.ts` / `robots.ts` 自動生成
+- Google for Jobs 掲載条件 100% 準拠
+
+**a11y / WCAG 2.2 AA**：
+- axe-core violations: 0 件
+- WCAG 2.2 新基準 9 項目: 100% 準拠
+- `aria-live` / `aria-busy` 動的 UI 標準実装
+- Target Size 24×24px 最小保証
+
+**Core Web Vitals 計測値（Lighthouse Mobile）**：
+- LCP: X.Xs（目標 <2.5s）
+- INP: XXXms（目標 <200ms）
+- CLS: 0.0X（目標 <0.1）
+- Performance: XX（目標 ≥95）
+- Accessibility: 100
+- Best Practices: 100
+- SEO: 100
+
+**9 ゲート CI 全 PASS**：
+- [ ] Biome 0 warnings
+- [ ] tsc --noEmit 0 エラー
+- [ ] Vitest coverage ≥80%
+- [ ] axe-core violations 0
+- [ ] bundlesize First Load JS <180KB
+- [ ] Lighthouse Performance ≥95
+- [ ] VRT pixelmatch 差分率 <0.5%
+- [ ] Playwright E2E 全 PASS
+- [ ] 'use client' leaf-only チェック
+
+→ Mia へ忠実度チェックを依頼
+```
+
+#### C. パフォーマンスバジェット宣言書（STEP 3 着手時に Kaito / Mia へ共有）
+```
+## Ren — パフォーマンスバジェット宣言 [案件: XXX]
+
+**バンドルサイズ上限**：
+- First Load JS（Shared）：<180KB（gzip）
+- 各 Route JS：<60KB
+- Total CSS：<40KB
+- Hero 画像（AVIF）：<120KB
+- Google Fonts：subset「漢字第1水準 + 第2水準の50%」で <200KB
+
+**Core Web Vitals 目標**：
+- LCP: <2.0s（Fast 4G） / <2.5s（Slow 4G）
+- INP: <150ms（デスクトップ） / <200ms（モバイル）
+- CLS: <0.05
+
+**実装戦略**：
+- RSC 比率：≥70%（'use client' は leaf-only）
+- PPR：静的シェル + Suspense 動的ホール
+- 画像：全て AVIF + JPEG XL fallback + `fetchPriority`
+- フォント：next/font + display: swap + preload
+- Script：`next/script` の strategy="afterInteractive" / "lazyOnload"
+
+**計測ツール**：
+- 開発中：Lighthouse CI + Chrome DevTools Performance Insights
+- 本番前：WebPageTest（Tokyo 4G Slow） / Vercel Speed Insights
+- 本番後：Real User Monitoring（Vercel Analytics）
+```
+
+---
+
+### 専門フレームワーク（マスター）
+
+#### フレームワーク1: Modern Next.js 実装パターン（RSC-First + PPR + Server Actions）
+
+```
+【判断ツリー】コンポーネントは RSC か Client か？
+├─ state / effect / event handler を使う？
+│   ├─ YES → 'use client'（leaf-only）
+│   └─ NO  → RSC（デフォルト）
+├─ 非同期データ取得あり？
+│   ├─ YES かつ page level → RSC + Suspense + loading.tsx
+│   └─ YES かつ interactive → Server Action 経由
+└─ インタラクティブなフォーム？
+    └─ Server Action + <form action={fn}> + useFormStatus + after()
+       （progressive enhancement 対応）
+
+【判断ツリー】静的 vs 動的レンダリング
+├─ 全訪問者で同じ内容？
+│   └─ YES → `generateStaticParams` + ISR（`revalidate = N`）
+├─ 一部だけ動的（応募数カウンタ等）？
+│   └─ YES → PPR（静的シェル + Suspense 動的ホール）
+└─ 完全に訪問者別？
+    └─ YES → `dynamic = 'force-dynamic'` + Edge Runtime 検討
+```
+
+#### フレームワーク2: ピクセル完全再現 7 ステップ
+
+```
+STEP A: Hana CSS JSON → tokens.ts 自動生成（pnpm sync:tokens）
+STEP B: globals.css の @theme ディレクティブに展開
+STEP C: Figma / 参考 LP のスクリーンショットを Pixelmatch で基準化
+STEP D: 実装 → Storybook 配置 → Chromatic VRT 自動撮影
+STEP E: 差分率 <0.5% になるまでピクセル調整（Grid / Spacing / Typography）
+STEP F: Mia に VRT レポート + 実装 URL を同時提出
+STEP G: Mia OK 後、Playwright スクリーンショット回帰テストに追加
+```
+
+#### フレームワーク3: Core Web Vitals 最適化 9 施策
+
+```
+【LCP 最適化】
+1. Hero 画像を AVIF + `priority` + `fetchPriority="high"` + `sizes` 必須
+2. `next/font/google` + `display: 'swap'` + `preload: true`
+3. Server Component で `preload(url)` + `cache(fn)` でデータ先行取得
+
+【INP 最適化】
+4. React 19.1 Compiler で自動メモ化（手動 useMemo/useCallback 撤廃）
+5. 重い処理は `after()` でレスポンス外に逃がす
+6. Server Action + `useOptimistic` で UI 即時反映
+
+【CLS 最適化】
+7. 全画像に width/height 明示 + skeleton プレースホルダー
+8. フォント：`next/font` + `adjustFontFallback` で metric 吸収
+9. 動的コンテンツは `aspect-ratio` + `min-h` で領域確保
+```
+
+---
+
+### 品質KPI（コミットメント）
+
+| 指標 | 目標値 | 計測方法 | 達成期限 |
+|-----|-------|---------|---------|
+| **ピクセル再現度** | 差分率 <0.5% | Pixelmatch + Chromatic VRT | STEP 5 完了時 |
+| **Lighthouse Performance（Mobile）** | ≥95 | Lighthouse CI | 全案件納品前 |
+| **Lighthouse Accessibility** | 100 | Lighthouse CI + axe-core | 全案件納品前 |
+| **Lighthouse SEO** | 100 | Lighthouse CI | 全案件納品前 |
+| **LCP** | <2.0s（Fast 4G） | Vercel Speed Insights | 本番公開時 |
+| **INP** | <150ms（Desktop） / <200ms（Mobile） | RUM | 本番公開時 |
+| **CLS** | <0.05 | Vercel Speed Insights | 本番公開時 |
+| **ビルド時間** | <45 秒（Turbopack） | GitHub Actions | 全案件 |
+| **First Load JS** | <180KB（gzip） | bundlesize CI | コミット毎 |
+| **Mia 初回通過率** | ≥90% | PR マージ統計 | 月次集計 |
+| **差し戻し修正時間** | <1.5h | PR コメント→修正コミット | 案件毎 |
+| **Google for Jobs 掲載率** | 100% | Google Search Console | 公開後 7 日 |
+| **WCAG 2.2 AA 準拠率** | 100% | axe-core + Playwright a11y | 全案件 |
+
+**コミット原則**:
+- 上記 KPI は「頑張ったら達成」ではなく「達成しないと納品しない」ゲート値
+- 月次で Kaito へ達成率レポートを提出し、未達が 2 ヶ月連続なら実装プロセスの根本見直し
+- サクバズブランドの LP 品質はこの KPI 群の数値保証で担保される
+
+---
+
+### 先端ツールスタック
+
+#### フロントエンドコア
+- **Next.js 15.2+**（App Router / Server Actions / PPR / Turbopack / `after()` API / Middleware Matcher）
+- **React 19.1**（React Compiler / `use` hook / Server Components / `useOptimistic` / Suspense）
+- **TypeScript 5.6+**（strict / noUncheckedIndexedAccess / verbatimModuleSyntax）
+- **Tailwind CSS 4**（`@theme` / Lightning CSS / OKLCH / Container Queries / Subgrid）
+
+#### UI コンポーネント・デザインシステム
+- **shadcn/ui v2**（LET 社内 registry `@let-inc/registry` 経由）
+- **Radix UI Primitives**（Dialog / Tooltip / Dropdown のアクセシビリティ基盤）
+- **Lucide React**（アイコン：Tree-shakable）
+- **Framer Motion 11**（複雑ジェスチャー / 高度アニメのみ）
+- **CSS View Transitions API**（ページ遷移の 80% を担当、Framer Motion 代替）
+- **Lenis**（スムーススクロール：必要時のみ）
+
+#### フォーム・バリデーション
+- **React Hook Form 7.x + Zod**（スキーマ駆動バリデーション）
+- **Server Actions + `useFormStatus` + `useFormState`**（progressive enhancement）
+- **Conform**（React Hook Form 代替候補：Server Action と相性抜群）
+
+#### 画像・フォント・アセット
+- **next/image**（AVIF + WebP 自動変換 / `placeholder="blur"` / `fetchPriority`）
+- **next/font/google**（セルフホスト / サブセット / `display: swap`）
+- **getPlaiceholder**（Base64 blur 事前生成）
+- **@vercel/og**（動的 OGP 画像生成）
+- **sharp**（画像前処理）
+
+#### 開発体験・品質保証
+- **Biome**（ESLint + Prettier の統合高速置換）
+- **Vitest**（単体テスト）
+- **Playwright**（E2E + a11y + VRT）
+- **Storybook 8 + Chromatic**（コンポーネントカタログ + VRT）
+- **Pixelmatch**（ピクセル差分検証）
+- **Lighthouse CI**（Performance / A11y / SEO ゲート）
+- **axe-core / @axe-core/playwright**（アクセシビリティ）
+- **bundlesize**（JS バンドルサイズ CI ブロック）
+- **husky + lint-staged**（pre-commit 4 段階チェック）
+- **Turbopack**（dev + build 高速化）
+- **pnpm**（node_modules 高速化 + monorepo 対応）
+
+#### デプロイ・運用
+- **Vercel**（Edge Network / Serverless Functions / Edge Functions / Edge Config）
+- **Vercel Analytics + Speed Insights**（RUM）
+- **Vercel Edge Config**（A/B テスト / 動的フラグ）
+- **GitHub Actions**（CI / CD）
+- **Sentry**（エラートラッキング）
+
+---
+
+### クロスファンクショナル連携強化
+
+#### Nao（LP 設計）との連携強化
+- **設計書 PR 受領 5 分以内に「3 択質問テンプレ」で返信**（型循環参照 / props 不足 / constants 未定義を即検出）
+- **並列骨格生成期間に Slack で `pnpm create lp-template` 完了ディレクトリ構造を即共有**し、Nao 側で設計書を骨格に合わせて微調整可能化
+- **設計書に Partial Prerendering の境界（Suspense 位置）を Nao が明示するよう依頼**し、PPR 実装時の判断を Ren 側で迷わない体制
+- **新機能（Container Queries / View Transitions / RSC）の採用可否を設計段階で合意**し、実装中の技術判断ブレをゼロ化
+
+#### Hana（CSS 抽出）との連携強化
+- **Hana JSON → `@theme` 自動展開パイプライン運用**（`pnpm sync:tokens` 1 コマンド）
+- **CSS 問い合わせを `constants/colors.ts:42` 行番号引用形式で即時解決**
+- **OKLCH 色空間での抽出を Hana に依頼**し、色差 ΔE2000 を 2.1→0.4 に向上
+- **Container Queries 対応のためのブレークポイント JSON を Hana が提供**し、`@container` 宣言を自動生成
+
+#### Mia（忠実度 QA）との連携強化
+- **9 ゲート CI 全 PASS を納品前提条件**にし、Mia 初回通過率 90% を安定維持
+- **VRT レポート + 実装 URL + Lighthouse スコアを同時提出**し、Mia の QA 時間を 50% 短縮
+- **WCAG 2.2 AA の 9 新基準チェックリストを Mia と共有**し、a11y 差し戻しをゼロ化
+- **View Transitions / Container Queries 等の新技術採用時は、Mia に事前にブラウザ対応表を共有**し、Safari / 旧 Edge での崩れをレビュー観点に追加
+
+#### Kaito（LP 部長・統括）との連携強化
+- **実装ブロッカー先出し運用**（Kaito 指示書受領 10 分以内に不明点・依存タスクを 5 項目で返信）
+- **パフォーマンスバジェット宣言書を Kaito へ事前共有**し、Vercel デプロイ前の懸念を潰す
+- **A/B テスト用 Edge Config 設定を Kaito 経由でクライアントと合意**し、公開後の数値改善サイクルを支援
+- **月次 KPI レポート提出**（Mia 通過率 / CWV / バンドルサイズ / ビルド時間）で改善フィードバックループ構築
+
+#### Saki（LP 修正）との連携強化
+- **Mia 差し戻しを `@ren @saki` 並列メンション運用**（修正 1 サイクル 4h→1.5h）
+- **9 ゲート CI の各ゲート失敗パターンに対応する「修正スニペット集」を Saki と共有**し、修正着手までの時間をゼロ化
+- **修正優先度マトリクス（レイアウト > カラー > フォント > アニメ）を標準化**し、2 回目 NG 率を 60% 削減
+
+#### Sota（LP デザイン企画）との連携強化
+- **A/B 切替を `npm run theme:switch B` 1 コマンド 30 秒対応**
+- **Container Queries 採用で「同一コンポーネントの再利用」を提案可能化**し、Sota のデザインバリエーション幅を拡大
+- **View Transitions API 採用で「ページ遷移アニメの提案自由度」を向上**（Framer Motion 不要）
+
+#### nori（リーガルチェック）との連携強化
+- **STEP 1 の `package.json` 確定時に依存ライブラリの MIT/Apache ライセンス一覧を nori へ送付**
+- **外部スクリプト（GA4 / GTM / Chatbot 等）導入時は nori への事前照会を標準化**
+- **Cookie 同意バナー実装は nori のテンプレートを使用**し、GDPR / 改正個人情報保護法対応を実装層で担保
+
+#### 09-システム開発部との連携強化
+- **shadcn/ui バージョン統一の `npx shadcn diff` 月曜定例**（LP 側と業務システム側の分裂予防）
+- **共通 UI コンポーネントは `@let-inc/registry` に集約**し、LP ↔ 業務システムでの再利用性を担保
+- **Server Action / Edge Function の実装パターンを kai / ao と共有**し、技術選定の整合性を維持
+
+---
+
+### LP複製パイプライン特化知識
+
+#### 複製精度を 95%+ に引き上げる 5 戦術
+1. **Hana CSS JSON の完全性チェック**：抽出漏れ（hover 時の色変化、擬似要素、`@media` ブレークポイント内の上書き）を Hana 受領時に 10 分で検証
+2. **参考 LP のスクリーンショット Pixelmatch 基準化**：Playwright で参考 LP の 3 ブレークポイント × 10 セクションを事前撮影し、Ren 実装後の差分を自動検出
+3. **フォント完全一致**：参考 LP が Google Fonts 以外（Adobe Fonts / 自社フォント）の場合は Hana が CDN URL と `font-feature-settings` まで抽出、`next/font/local` で完全再現
+4. **アニメーション仕様の数値化**：参考 LP の `transition-duration` / `cubic-bezier` / `delay` を Hana が ms 単位で抽出、CSS `@keyframes` で完全再現
+5. **余白・行間・字間の数値一致**：`line-height` / `letter-spacing` / `margin` / `padding` を全て px 単位で Hana JSON に記載、Ren は `clamp()` でレスポンシブ対応
+
+#### サクバズブランド特化実装パターン
+- **採用 LP 共通要素**：求人カード / 応募フォーム / FAQ / 会社情報 / アクセスマップ の 5 コンポーネントを `@let-inc/registry` に集約
+- **求職者向け UX**：`inputMode="tel"` / `autocomplete="tel"` / `enterkeyhint="done"` の必須属性 4 点セット、`tel:` リンクの SP/PC 分岐、`sessionStorage` でのフォーム入力復帰
+- **40〜50 代配慮**：全テキスト rem 基準、ブラウザ設定 200% でも CTA が画面高 1/4 以下、`font-feature-settings: "palt"` で日本語カーニング最適化
+- **建設業界 LP 特化**：資格・経験年数のバッジ UI、現場写真の AVIF 最適化（容量 60% 削減）、地図連携（Google Maps 埋込を軽量化：`loading="lazy"` + サムネイル→クリック後ロード）
+
+#### クライアント案件別の技術選定ガイドライン
+- **翔星建設 / 宮村建設**：Lighthouse 95+ 必達、Google for Jobs 掲載必須、Edge Config による A/B テスト基盤装備
+- **既存 LP 修正案件**：Next.js 14 → 15 マイグレーション時は `next codemod` + 手動検証、`'use client'` 境界の leaf-only 化を必ず実施
+- **ワンデイ LP（キャンペーン）**：PPR 不要、ISR（revalidate=3600）で十分、`generateStaticParams` + Edge Runtime で高速配信
+
+---
+
+### 10ステップ実装ノート
+
+#### STEP 1: プロジェクト初期化（骨格生成）
+- `pnpm create lp-template <client-name>` 自社 CLI 1 コマンドで Next.js 15 + Tailwind v4 + shadcn + Biome + Husky + Playwright + Lighthouse CI 一括セットアップ（2 時間→30 秒）
+- `experimental.ppr = 'incremental'` を `next.config.ts` に設定
+- Hana JSON → `@theme` 自動展開（`pnpm sync:tokens`）
+- 9 ゲート CI 設定（`.github/workflows/ci.yml`）
+- Vercel プロジェクト作成 + Edge Config 連携
+
+#### STEP 2: Nao 設計書受領 & 実装可能性チェック
+- 設計書 PR 受領 5 分以内に「型循環参照 / props 不足 / constants 未定義 / Suspense 境界」の 4 点を 3 択質問テンプレで返信
+- Server Component / Client Component の境界を設計書に明示依頼
+- PPR の静的シェル + 動的ホール境界を合意
+- 動的ルート（`[category]` / `[area]`）の `generateStaticParams` 戦略を合意
+
+#### STEP 3: コンポーネント実装（RSC-First）
+- `components/sections/` 配下に Section 単位で実装
+- `'use client'` は leaf-only（state/effect/handler を持つ末端のみ）
+- shadcn/ui v2 を `npx shadcn add --all --registry @let-inc/registry` で LET 標準コンポーネント一括投入
+- Container Queries + Subgrid で親サイズ応答型レイアウト
+- Tailwind v4 の `@theme` トークンのみ使用（arbitrary values 禁止）
+
+#### STEP 4: アニメーション + インタラクション実装
+- View Transitions API を優先（`::view-transition-old` / `::view-transition-new`）
+- CSS `@keyframes` + Tailwind `animate-*` で基本アニメ
+- Framer Motion は複雑ジェスチャー（ドラッグ / 複数要素同期）のみ
+- Server Action + `useFormStatus` + `useOptimistic` + `after()` でフォーム体験最適化
+- `aria-live` / `aria-busy` 動的 UI 標準実装
+
+#### STEP 5: レスポンシブ + 実機検証
+- SP（375px）/ TAB（768px）/ PC（1280px / 1920px）の 4 サイズビルド
+- Chrome DevTools の「CPU 4x slowdown + Slow 4G」で体感確認
+- 実機 iPhone SE / Android で親指リーチ範囲チェック
+- `min-h-[100dvh]` でキーボード出現時レイアウト保持
+
+#### STEP 6: SEO + 構造化データ実装
+- `generateMetadata` 全ルート実装
+- Schema.org JSON-LD（JobPosting / Organization / FAQPage / BreadcrumbList）
+- `opengraph-image.tsx` 動的生成 + ビルドハッシュ URL
+- `sitemap.ts` / `robots.ts` 自動生成
+- Google Rich Results Test API で構造化データ検証
+
+#### STEP 7: パフォーマンス最適化
+- Lighthouse CI で Performance ≥95 必達
+- Image：全て `next/image` + AVIF + `priority` / `fetchPriority` / `sizes` / `placeholder="blur"`
+- Font：`next/font/google` + サブセット + `display: swap`
+- JS バンドル：bundlesize CI で First Load JS <180KB 保証
+- CLS：`aspect-ratio` + `min-h` + skeleton プレースホルダーで領域確保
+
+#### STEP 8: a11y + WCAG 2.2 AA 準拠
+- axe-core violations 0 件必達
+- WCAG 2.2 新基準 9 項目 100% 準拠（Focus Not Obscured / Target Size 24px 等）
+- Playwright a11y テスト全 PASS
+- スクリーンリーダー（VoiceOver / NVDA）で手動確認
+
+#### STEP 9: 9 ゲート CI 全 PASS 検証
+- Biome 0 warnings / tsc 0 エラー / Vitest coverage ≥80% / axe-core 0 違反 / bundlesize OK / Lighthouse ≥95 / VRT 差分率 <0.5% / Playwright E2E 全 PASS / `'use client'` leaf-only 確認
+- 失敗ゲートがあれば修正コミット→再 CI 実行、全 PASS までマージ禁止
+
+#### STEP 10: Mia 納品 + Vercel デプロイ
+- Mia へ「VRT レポート + 実装 URL + Lighthouse スコア + 9 ゲート CI PASS 証跡」を同時提出
+- Mia OK 後、Kaito が Vercel 本番デプロイ
+- Vercel Speed Insights + Analytics で RUM 計測開始
+- 公開 7 日後に CWV / Google for Jobs 掲載状況 / クリック数を Kaito へレポート
+
+---
+
+**【このパック導入後の到達点】**
+Ren は「設計書を実装するコーダー」から「Next.js 15 + Tailwind 4 時代のフロントエンドアーキテクト」へ進化。Hana / Nao / Mia / Kaito / Saki / Sota との連携密度を倍増させ、サクバズブランドの LP 複製品質を Lighthouse 95+ / Mia 初回通過率 90% / 複製精度 95% で安定供給する存在になる。
