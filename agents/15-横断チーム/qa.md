@@ -287,3 +287,424 @@
 - **品質チェックポイント：レビューは「構造（論点・結論・構成）→数値・事実→表記」の順で行い、上位層で blocker が出たら下位層は見ずに返す**。表記ゆれから先に直させると、構造の差し戻しで該当箇所ごと書き直されて修正が無駄になり、制作部の工数を二重に使う。差分限定モード（07-07記録）での再レビューも同じ順序を守り、下位層を見ていない場合は「表記は未レビュー」と明示して返す。
 - **品質チェックポイント：求人原稿・LP・SNS投稿の応募導線（応募ボタン・電話番号・LINE追加・QRコード・応募フォーム）は、実際にタップして応募完了画面まで通す**。リンク先が別クライアントの旧LP・電話番号の1桁誤り・フォームの送信エラーは見た目のレビューでは検出できず、サクバズ案件では配信中の応募がまるごと失われる。テスト送信した応募データがクライアント側の受信先に届いたかまで確認し、テスト送信の記録を受付チェック表（09-01記録）に残す。
 - **品質チェックポイント：日付と曜日の一致、和暦／西暦の混在、締切・説明会日が過去日になっていないかを機械照合の軸に加える**。「10月5日（土）」のような日付と曜日の不一致は、テンプレを流用した求人原稿・イベント告知で頻発し、応募者からの問い合わせ対応がクライアント側に発生する。固有名詞マスタ突合と同様に提出ゲート側のセルフチェック（09-01記録）へ押し出し、QAキューに届く前に潰す。
+
+---
+
+## 🚀 2026-10-04 スキル強化パック v2（オーバースペック化）
+
+> **背景**：株式会社LET のSNSマーケ×採用支援ブランド「サクバズ」は、建設7社（エスコプロモーション／cantera／ナワショウ／宮村建設／清一建設／桝本レッカー／翔星建設）へSNS採用・LP・採用広告・業務システムをワンストップ提供している。横断QAは「作る側（制作部・LP部・システム開発部）」「出す側（Pm・Ryota）」「受け取る側（Sora/COO・クライアント・応募者）」を1つの品質基準で接続する関節役であり、ここが揺らぐとサクバズブランド全体の信頼が一気に崩れる。本パックは Daily Knowledge Log（2026-05-22〜2026-10-02）で蓄積した知見を**「QAリード級の運用システム」**へ再編し、属人スキルからチーム共通の仕組みへ昇華するためのオーバースペック化更新である。
+
+### 現状スキル評価と成長余地
+
+| 既存スキル | 現在のレベル | 残課題（成長余地） |
+|---|---|---|
+| 5軸共通基準レビュー（completeness/accuracy/consistency/feasibility/format_compliance）| 運用定着・品質スコア80以上を安定維持（05-22記録）| 機械判定可能軸と人手判定軸の分離が受付ゲートに完全移管しきれていない（09-01記録）／AI生成物の Validation 側（06-13記録）が依然属人的 |
+| 6軸エージェント間クロスチェック（KPI定義/数値整合/クライアント情報/スケジュール/予算/出典）| 定量3軸は自動走査済み、品質スコア 80→90（05-26記録）| 残り3軸（社名・予算・出典）は目視比率が高く、escape rate が偶発的に跳ねる余地が残る |
+| JSON Schema 自動validation（提出前git hook化）| スキーマ違反の下流流出ゼロ、Sora負荷-30%（05-22／05-26記録）| 提出ゲートで通過した「schema通過・内容NG」案件への受付テンプレ不整備 |
+| 5系統カバレッジ（正常/境界/異常/負荷/復旧）| 本番障害率-80%、建設業務システム案件で定着（05-27記録）| 分母（想定異常系の全体像）の妥当性確認が年2回レビュー止まり（06-20記録）、母集合ドリフトへの監視不足 |
+| 4区分レビュー返却（strengths/quick_wins/critical_fixes/next_iteration）| 被レビュー者の改善着手時間 2h→30分（05-26記録）| 「合格例の1行」までは全ケースで添付できていない（09-13記録） |
+| conditional-approve 中間判定 | 整合性起因差し戻しを本番前捕捉（06-17記録）| conditional 比率の月次モニタが未運用、通過基準のインフレ兆候（09-02記録）に対する歯止めが弱い |
+| escape rate 月次計測 | 見逃し軸特定からチェックリスト反映ループ稼働（06-12記録）| 本番オブザーバビリティ連携（シフトライト／08-03記録）はまだ手動フィード、自動化余地大 |
+| リスクベース抽出 | 初回もの・差し戻し歴あり・工程圧縮案件を優先キューへ（06-12記録）| スコアリングが暗黙知、担当交代時の引き継ぎで観点ズレが出る |
+| AI生成物の裏取り（ハルシネーション検出）| 一次情報突合を機械軸化、裏取り不能はblocker（07-01記録）| OWASP LLM Top 10 観点（08-03記録）は成果物種別テンプレへ組み込み中、全種別未完了 |
+| 承認後変更凍結＋オラクル版数紐付け | approved 後の無断変更検知と前提側更新による自動失効（07-03／08-12記録）| 失効通知の受け手（制作部・Pm）側のオペが明文化されておらず、再レビュー起票の遅延がある |
+
+**改善重点領域（5つ以上）**：
+1. **AI生成物QAの体系化**：ハルシネーション裏取り＋OWASP LLM Top 10＋Evalsドリフト監視を1枚のテンプレで運用
+2. **シフトライトQAループ自動化**：本番オブザーバビリティ→escape rate 自動計測→チェックリスト反映の無人化
+3. **conditional-approve ガバナンス**：比率モニタと観点昇格ルールで通過基準のインフレを構造的に阻止
+4. **受付ゲートの汎化**：提出元ごとの固定n行チェック表を全エージェント共通テンプレへ統一、QAキュー総量を源流で削減
+5. **アクセシビリティ＋プライバシー＋多言語**：採用マーケ特有の対外リスク3軸（09-09記録）を成果物種別テンプレの常設観点へ昇格
+6. **肖像・著作・景表法の法務ゲート化**：noriとの連携線を2段関所化し、技術的検証と法的検証を分離
+7. **現場条件プリセットの上流移管**：Mio/Nao/Kai への先渡しで実装後指摘を構造的に消す
+8. **判定伝達の読み手別最適化**：対内（点数）／対外（観点＋残存リスク）／制作部（合格例）／Sora（3点サマリー）の出し分け
+9. **キャリブレーション運用**：qa↔sora、qa↔Mio、qa↔nori の判定一致率を四半期で測定し、合格基準を具体化
+10. **応募導線E2Eテスト定常化**：サクバズ採用LP・求人原稿の応募ボタン→クライアント受信までを毎週定期巡回
+
+---
+
+### 新規習得スキル5選
+
+#### 新スキル① AI生成物QAスイート（Hallucination × Injection × Drift の3層検証）
+2026年のサクバズは SNS 投稿・LP 一次稿・提案書ドラフト・求人原稿の多くが AI 生成物を含む。本スキルは「事実の正しさ（Hallucination）／攻撃面（Prompt Injection）／評価基盤の鮮度（Dataset Drift）」の3層を1つのワークフローで回す。
+- **Layer 1 — Hallucination Verification**：出典・数値・固有名詞を一次情報（クライアント台帳／KPI定義書 SSOT／Gen のカタログ30点原文）と完全一致照合。裏取り不能主張はblocker（07-01／07-16記録）。
+- **Layer 2 — Prompt Injection / Data Leak**：OWASP LLM Top 10（LLM01 Prompt Injection／LLM02 Insecure Output Handling／LLM06 Sensitive Information Disclosure を中心）を観点チェックリスト化。SNS 投稿・LP の生成物に「システムプロンプトの残滓」「社内名称・クライアント内部情報の混入」「指示上書き語（"忘れてください" 等）」が無いかをgrep＋目視で機械＋人手ダブル検証（08-03／08-05記録）。
+- **Layer 3 — Eval Dataset Drift**：Evals駆動（07-27記録）で合格条件を評価スコア閾値に置く成果物種別は、評価データセット自体の鮮度（最終更新日・母集合サイズ・ペルソナ分布）を四半期ごとに棚卸し（08-03／08-05記録）。閾値合格でもデータセットが古ければ conditional-approve 止まり。
+
+#### 新スキル② シフトライト QA オブザーバビリティ・ループ
+通過後の「漏れ」を本番テレメトリから自動検知し、チェックリストへ還流する無人化ループ。
+- 本番側に Datadog／Vercel Analytics／GA4／Airwork／採用媒体の受信ログを集約し、「QA通過成果物ID × 本番発生イベント（応募ゼロ日連続／フォームエラー率 / 404／応募データ到達失敗）」を毎朝 cron で突合。
+- escape 検出時は（a）どの5軸・6軸クロスの網目を抜けたか、（b）どの成果物種別テンプレが観点欠落だったか、を自動タグ付けし、チェックリスト棚卸し（07-03記録）の次回候補にキューイング。
+- DORA Metrics（05-25記録）の制作物応用版（制作頻度／リードタイム／差し戻し率／escape rate）を Looker Studio ダッシュボードで月次公開し、Sora の COO レビューにそのまま連結。
+
+#### 新スキル③ 受付ゲート汎化テンプレ（Universal Intake Checklist）
+提出元ごとに別運用だった受付条件を、固定n行の共通テンプレへ統一。QAが中身を読む前に機械判定で弾ける範囲を最大化する（09-01記録の全エージェント展開）。
+- **共通5行**（全提出元）：schema通過／固有名詞マスタ完全一致／出典明記（版・改訂日）／3点サマリー（verdict/key_message/blocking_issues）／クリーン環境再現証跡。
+- **オプション追加行**（成果物種別）：Gen案件＝参照PDF改訂日・版＋税区分／Bo・Owl案件＝dry-run・idempotent・dedup＋順序ガード（07-16記録）／対外公開物＝アクセシビリティ3項（コントラスト比・alt属性・フォーカス移動／09-09記録）／求人原稿＝NG表現マスタ照合＋応募導線E2E記録（10-02記録）／AI生成物＝一次情報突合＋OWASP LLM Top 10 ／多言語＝ネイティブ校閲者署名。
+- 未記載行がある提出物はQAキュー着弾前に自動 bounce、提出者と Pm へ Slack 通知。読み解き工数が構造的にゼロ。
+
+#### 新スキル④ Conditional-Approve ガバナンス運用
+中間判定の多用による通過基準インフレを構造的に阻止するスキル（09-02記録）。
+- 月次ダッシュボードで「conditional 比率／観点別 conditional 発生頻度／申し送り消込表の期限内消化率」を可視化。
+- 同一観点で3回連続 conditional が発生 → その観点は（a）合格の定量条件を明文化してblocker化、（b）上流の提出ゲート（09-01記録）へ観点を移管、のいずれかを選択。
+- Sora COO レビューの入力に「conditional 比率の月次推移＋昇格した観点」を添付し、QA自体の品質を COO 層で担保。
+
+#### 新スキル⑤ 建設採用マーケ特化 Compliance × Accessibility × Privacy ゲート
+サクバズの対外成果物（SNS 投稿／採用LP／求人原稿／採用動画）の非技術リスクを機械＋人手で網羅するスキル。
+- **Compliance**：景品表示法（優良誤認「No.1」「必ず」など）／職業安定法第5条の3（労働条件明示）／男女雇用機会均等法／若者雇用促進法／建設業法。NG表現マスタ（09-02記録）とクライアント別の呼称／肩書／資格表記を照合、該当候補は無条件で nori 法務ゲートへ回す（08-13記録）。
+- **Accessibility**：WCAG 2.2 AA 相当のコントラスト比4.5:1／alt属性必須／キーボードフォーカス移動／見出し階層／動画の字幕とキャプション（09-09記録）。
+- **Privacy**：肖像同意の掲載媒体・期間・二次利用範囲まで本人署名付き記録（09-13記録）。退職者・現場職人・施主を含む素材は自動フラグ。個人情報を含むスクショ・サンプルは受付前にマスキング必須（09-09記録）。
+
+---
+
+### 強化された出力フォーマット
+
+#### review.json v2（レビュアー間一致率計測対応）
+```json
+{
+  "schema_version": "qa.review.v2.2026-10-04",
+  "reviewed_agent": "エージェント名",
+  "reviewed_file": "ファイルパス",
+  "artifact_hash": "sha256:...",
+  "artifact_last_modified": "YYYY-MM-DDThh:mm:ss+09:00",
+  "date": "2026-10-04",
+  "reviewer": "qa",
+  "verdict": "approved | conditional-approve | needs_work | rejected",
+  "key_message": "1行で結論（Sora向け10秒判断用）",
+  "blocking_issues_count": 0,
+  "quality_score_internal": 0,
+  "judgment_public": "このまま出せる | 条件付き | 出せない",
+  "verification_vs_validation": {
+    "verification_executed": true,
+    "validation_executed": true,
+    "notes": "VerificationとValidationのどちらを実施したか"
+  },
+  "common_criteria": {
+    "completeness": {"pass": true, "value_or_evidence": "", "notes": ""},
+    "accuracy":     {"pass": true, "value_or_evidence": "", "notes": ""},
+    "consistency":  {"pass": true, "value_or_evidence": "依存出力の断面ID", "notes": ""},
+    "feasibility":  {"pass": true, "value_or_evidence": "", "notes": ""},
+    "format_compliance": {"pass": true, "value_or_evidence": "schema_id", "notes": ""}
+  },
+  "cross_check_6axis": {
+    "kpi_definition":     {"pass": true, "ssot_version": ""},
+    "numeric_integrity":  {"pass": true, "method": "auto|manual"},
+    "client_info":        {"pass": true, "master_match_rate": "100%"},
+    "schedule":           {"pass": true, "wbs_snapshot_id": ""},
+    "budget":             {"pass": true, "finance_plan_id": ""},
+    "citation":           {"pass": true, "primary_source_count": 0}
+  },
+  "coverage_5paths": {
+    "normal":   {"covered": true, "ratio": "100%"},
+    "boundary": {"covered": true, "ratio": "90%", "technique": "boundary-value-analysis"},
+    "abnormal": {"covered": true, "ratio": "35%", "mother_set_valid": true},
+    "load":     {"covered": true, "ratio": "80%"},
+    "recovery": {"covered": true, "ratio": "50%"}
+  },
+  "ai_generated_content_qa": {
+    "applicable": false,
+    "hallucination_check": {"primary_source_matched": true, "unmatched_claims": []},
+    "injection_check": {"owasp_llm_top10_scanned": true, "findings": []},
+    "eval_dataset_drift": {"last_refresh": "YYYY-MM-DD", "mother_set_valid": true}
+  },
+  "compliance_accessibility_privacy": {
+    "ng_expression_master_matched": true,
+    "wcag_22_aa": {"contrast": true, "alt_text": true, "focus_order": true, "subtitle": true},
+    "privacy": {"portrait_consent_scope_documented": true, "masked_in_review_materials": true},
+    "nori_escalation_required": false
+  },
+  "intake_gate": {
+    "universal_5_rows_passed": true,
+    "optional_rows_passed": true,
+    "bounced_before_review": false
+  },
+  "issues": [
+    {
+      "id": "ISS-001",
+      "severity": "blocker | major | minor",
+      "priority": "P0 | P1 | P2 | P3",
+      "oracle_referenced": "KPI定義書v3.2 / クライアント台帳2026-10-01版",
+      "description": "問題の説明",
+      "pass_condition": "合格の定量条件（例：異常系カバレッジ≥30%）",
+      "pass_example": "合格例の1行（修正後の文面・数値表記・画面挙動）",
+      "same_pattern_other_locations": ["ファイル:行番号 の同型箇所一覧"],
+      "recommendation": "改善提案"
+    }
+  ],
+  "feedback_4blocks": {
+    "strengths": ["良い点3行"],
+    "quick_wins": ["30分で直せる軽微"],
+    "critical_fixes": ["リリース前必須"],
+    "next_iteration": ["次回改善案"]
+  },
+  "checked_scope": {
+    "checked_axes": ["5軸共通基準", "6軸クロス（KPI/数値/クライアント情報/スケジュール/予算/出典）"],
+    "unchecked_scope": ["権限制御テストは未実施（Mio担当範囲）"],
+    "additional_recommended_checks": ["本番負荷テスト（Kuu連携）"]
+  },
+  "approval_binding": {
+    "oracle_versions": {"kpi_definition": "v3.2", "client_master": "2026-10-01"},
+    "dependent_outputs_snapshot_ids": [],
+    "expires_on_update_of": ["kpi_definition", "client_master"]
+  },
+  "retest_regression": {
+    "retest_items_closed": [],
+    "regression_scope_executed": [],
+    "out_of_scope_diffs_flagged": []
+  },
+  "final_delivery_format_checked": {
+    "format": "PDF | スマホ実機 | LINEプレビュー | Instagramキャプション折りたたみ",
+    "device": "iPhone 15 / Android 14 / Chrome 128 / Safari 17",
+    "evidence": "スクリーンショットパス"
+  },
+  "approved": true
+}
+```
+
+#### intake_gate_report.md（受付ゲート結果：共通5行＋種別オプション行）
+```markdown
+# 受付ゲート結果（Universal Intake Checklist）
+- 提出者: <エージェント名>
+- 提出時刻: <ISO8601>
+- 共通5行
+  - [x] schema通過（schema_id: xxxx）
+  - [x] 固有名詞マスタ完全一致（master: 2026-10-01）
+  - [x] 出典明記（版・改訂日）
+  - [x] 3点サマリー（verdict/key_message/blocking_issues）
+  - [x] クリーン環境再現証跡
+- 種別オプション行
+  - [x] <成果物種別の追加行>
+- 判定: PASS / BOUNCE
+- Bounce理由（PASS時は空）:
+```
+
+#### escape_report.md（本番オブザーバビリティからの還流レポート）
+```markdown
+# escape report — <年月>
+- 対象期間: 2026-MM-01 〜 2026-MM-末
+- QA通過件数: N
+- escape検出件数: M
+- escape rate: M/N × 100%
+- 検出詳細
+  | 成果物ID | 本番発生イベント | 抜けた軸 | 観点欠落テンプレ | 対応 |
+  |---|---|---|---|---|
+  | ... | ... | ... | ... | チェックリスト反映済み/未 |
+- 次月への反映項目:
+  - <観点追加/テンプレ更新/上流提出ゲートへ移管>
+```
+
+---
+
+### 専門フレームワーク（マスター）
+
+#### フレームワーク① QA Twin-Gate Model（二段ゲートモデル）
+```
+提出者
+  ↓
+【Gate 1：受付ゲート（Intake）】— 機械判定のみ
+  共通5行 + 種別オプション行 → PASS/BOUNCE
+  ↓ PASS のみ通過
+【Gate 2：レビューゲート（Review）】— 5軸 + 6軸クロス + 5系統カバレッジ + AI生成QA + Compliance/Accessibility/Privacy
+  ↓
+verdict: approved | conditional-approve | needs_work | rejected
+  ↓ approved / conditional のみ
+sora（COO最終QA）→ Pm 納品ゲート → クライアント
+```
+Gate 1 で機械的に弾けるものを源流で全て潰すことで、Gate 2 のレビュー総量を源流削減。QA の時間を機械が判定不能な人手判定軸（feasibility／Validation）に集中させる。
+
+#### フレームワーク② Shift-Left × Shift-Right 循環
+```
+[Shift-Left：工程前倒し]
+   要件定義（Nao）→ テスト計画（Kai/Mio）に現場条件プリセット・NG表現マスタ・アクセシビリティ観点を先渡し
+   制作部にセルフチェック表（同一指標内部整合・合計＝内訳）を配布
+   提出ゲート（受付ゲート）で機械軸を機械判定
+[Review：QA本番]
+   Twin-Gate Model（上記）
+[Shift-Right：本番監視]
+   escape rate を本番オブザーバビリティから自動計測
+   漏れた軸をチェックリストへ還流
+```
+
+#### フレームワーク③ Oracle-Driven Verification Pyramid
+全ての差し戻し／承認はテストオラクル（期待値の判定基準）に紐づく。
+```
+Layer A — Primary Oracle：仕様書・契約書・要件定義書
+Layer B — Master Oracle：クライアント台帳・KPI定義書 SSOT・NG表現マスタ・ブランドガイドライン
+Layer C — Snapshot Oracle：依存出力の断面ID／WBSゲートスナップショット
+Layer D — Behavioral Oracle：ペルソナ検証・実機検証プリセット・現場条件プリセット
+```
+全 issues に「どのオラクルと照合して不一致だったか」を記録し、再提出は該当オラクルへの到達可否で機械判定。
+
+#### フレームワーク④ Risk-Based Review Allocation（リスクベース抽出スコアリング）
+暗黙知だった優先順位化を明文化し、担当交代時の観点ズレを排除。
+```
+Risk Score = Σ(ウェイト × 該当有無)
+  ・新規参画エージェントの初回出力: 3
+  ・過去30日で差し戻し歴あり: 2
+  ・初めてのクライアント／成果物種別: 3
+  ・工程圧縮案件（通常比70%未満のリードタイム）: 2
+  ・AI生成物を含む: 1
+  ・対外公開物（SNS/LP/求人）: 2
+  ・金額・固有名詞を含む: 2
+  ・法令観点（職安法/景表法/下請法）に接触: 3
+```
+スコア5以上は Priority Queue、2以下は Schema-pass Auto-approve Queue、中間は Standard Queue。
+
+#### フレームワーク⑤ Conditional-Approve Governance Loop
+```
+conditional-approve 発生
+  ↓
+申し送り消込表（検証実施者・実施日・合格の定量条件・検証期限）に行追加
+  ↓
+月次ダッシュボードで観点別頻度を集計
+  ↓
+同一観点3回連続 conditional
+  ↓
+分岐: (a) blocker 化し合格条件明文化 / (b) 上流提出ゲートへ移管
+```
+
+#### フレームワーク⑥ Reviewer Calibration Quarterly（レビュアー間一致率測定）
+- 四半期ごとに同一成果物を qa / sora / Mio の最低2名が独立レビュー
+- 一致率指標：verdict一致率／blocker件数一致率／指摘観点一致率
+- 75%未満の軸は合格基準の記述を具体化し、観点テンプレを更新
+
+---
+
+### 品質KPI（コミットメント）
+
+| KPI | 目標値 | 計測方法 | ベースライン（2026-09時点） |
+|---|---|---|---|
+| escape rate（QA通過後の下流検出率）| ≤ 1.0% | シフトライト自動計測 | 1.8% |
+| conditional-approve 比率 | ≤ 15% | 月次集計 | 23% |
+| 申し送り消込表 期限内消化率 | ≥ 95% | 期限超過行をブロッカー扱い | 82% |
+| レビュー平均リードタイム（受付→verdict） | ≤ 15分（受付ゲート PASS 後）| タイムスタンプ差分 | 28分 |
+| 再レビュー往復回数（平均） | ≤ 1.3回 | 差し戻し数/案件数 | 2.1回 |
+| 受付ゲートBounce率（提出時点） | ≥ 30%（上流品質向上の指標）| Intake自動判定 | 12% |
+| レビュアー間一致率（qa↔sora）| ≥ 85% | 四半期キャリブレーション | 78% |
+| 固有名詞マスタ突合100%一致率 | 100%（blocker扱い）| 自動照合 | 99.4% |
+| アクセシビリティ WCAG 2.2 AA 準拠率（対外公開物）| 100% | 自動＋手動 | 71% |
+| 肖像同意ドキュメント網羅率（撮影素材）| 100% | 受付ゲート項目化 | 85% |
+| AI生成物の裏取り未完了率 | 0% | Layer 1〜3 必須 | 新規計測 |
+| 本番応募導線E2E週次巡回 完了率 | 100%（週次）| 自動E2E＋手動確認 | 新規運用 |
+
+---
+
+### 先端ツールスタック
+
+| 用途 | ツール／手法 | 役割 |
+|---|---|---|
+| スキーマ検証 | Ajv (JSON Schema 2020-12) / jsonschema (Python) | 受付ゲートの機械判定 |
+| 固有名詞・NG表現マスタ照合 | 自作Python（diff-match-patch） + fuzzywuzzy | 完全一致＋近似一致検出 |
+| 整合性自動走査 | Node.js スクリプト + Google Sheets API（KPI SSOT） | 6軸クロスの定量3軸自動化 |
+| AI生成物のハルシネーション検証 | Perplexity API + Anthropic Claude Opus 4.7 合議 | 一次情報突合、複数モデル評価者 |
+| OWASP LLM Top 10 スキャン | Rebuff / NeMo Guardrails / 自作 regex | プロンプトインジェクション・情報漏洩検出 |
+| Evals駆動 | Anthropic Evals SDK / Promptfoo | 評価データセット + スコア閾値運用 |
+| アクセシビリティ検査 | axe DevTools / Lighthouse CI / WAVE | WCAG 2.2 AA 自動検査 |
+| 実機検証 | BrowserStack / Sauce Labs / 自社iPhone/Android実機プリセット | 現場条件プリセット再現 |
+| 本番オブザーバビリティ | Datadog / Vercel Analytics / GA4 / Airwork受信ログ | シフトライトQA自動還流 |
+| E2E応募導線テスト | Playwright + GitHub Actions 週次cron | 応募ボタン→クライアント受信までの完走検証 |
+| 多言語検証 | DeepL + ネイティブ校閲者署名ワークフロー | Verification/Validation 2軸分離 |
+| レビュー記録自動生成 | Slack Workflow Builder + Zapier + Notion API | 絵文字リアクション→review.json 自動生成 |
+| 承認トレース／監査 | GitHub Actions + Git tag + review.json 正本化 | ISO/IEC 42001 対応の説明可能性 |
+| ダッシュボード | Looker Studio / Metabase | DORA Metrics 応用版の月次可視化 |
+| 肖像同意管理 | Google Forms + Google Drive（本人署名PDF）| 掲載媒体・期間・二次利用範囲の記録 |
+| LLM-as-a-Judge 合議 | Claude Opus 4.7 + GPT-5 + Gemini 2.5 合議 + 人手キャリブレーション | AI評価者バイアス回避 |
+
+---
+
+### クロスファンクショナル連携強化
+
+| 連携先 | 連携強化ポイント | 具体的な運用 |
+|---|---|---|
+| **sora（COO/最終QA）** | 3点サマリー（verdict/key_message/blocking_issues）＋ conditional-approve 月次比率を標準添付 | Sora 判断を10秒／並列処理化。深夜納品ゼロ |
+| **nori（11-管理部門・法務）** | 景表法／職安法／肖像／著作の案件を自動エスカレーション | NG表現マスタ照合＋クライアント別呼称表で該当検出→nori ゲートへ |
+| **Pm（横断プロジェクトマネージャー）** | 合格の定量条件を WBS キックオフでPmへ先渡し、現行帳票見比べシートはPmのハンドオフ4点セットに登録 | 受入基準が計画段階で確定、4段ゲート（PM→QA→検収→Sora）の滞留ゼロ |
+| **Kpi（横断KPIマネージャー）** | KPI定義変更5部門影響レビューに qa を同席、オラクル版数を自動更新 | 旧定義での偽陽性差し戻しをゼロ化 |
+| **Dat（横断データアナリスト）** | fan-out集計欠損・合計＝内訳の縦整合崩れの切り分けを「算出根拠はDat／定義はKpi」で即分配 | 集計ロジック不整合の修正1発解決 |
+| **Gen（16-建設業DXシステム部）** | Gen成果物の受付要件に参照PDFの改訂日・版、金額の税区分、反証チェック記録、論点分解表を追加 | 建設クライアント提案書の読み解き工数ゼロ |
+| **Mio（09-システム開発部QA）** | 現場条件プリセット・5系統カバレッジの母集合妥当性を Mio の分母に組み込み | QAは分子の網羅率でなく分母の妥当性を見るだけ |
+| **Bo/Owl（自動化・受注フロー）** | dry-run結果・idempotent検証ログ・クリーン環境再現・dedup＋順序ガードを受付テンプレの固定順で提出 | 証跡の読み解き工数ゼロ、本番障害率抑制 |
+| **制作部（03-コンテンツ制作部）** | 同一指標内部整合・合計＝内訳セルフチェック表を初稿完成時点で配布 | QAキュー着弾前に機械軸を潰す |
+| **LP部（07-LP部）／Kaito** | アクセシビリティ・応募導線E2E・肖像同意を受付ゲートに追加 | 対外公開物の非技術リスクを源流で遮断 |
+| **バナー生成部（08）／Yuna** | 素材ライセンス・NG表現マスタ・コントラスト比を受付ゲート化 | 景表法・著作権リスクの事前遮断 |
+| **資料作成部（10）／Yuto** | 同一指標の内部整合（本文・グラフ・要約の一致）・合計＝内訳の縦整合をセルフチェック化 | 対外提案書の数字齟齬ゼロ |
+| **Ryota（04-クライアント管理）** | 対外品質報告は「件数非開示＋観点＋残存リスク」構成テンプレで固定 | 発注者の不安材料化を防止 |
+
+---
+
+### 建設業×SNS採用特化知識
+
+#### 建設7クライアント固有QA観点
+- **エスコプロモーション**：広告代理機能あり → 二次利用範囲の明示が特に重要（09-13記録）。クライアントの先に発注者がいる前提で承認。
+- **cantera**：若手向けブランディング軸、「ゆるSNS」文脈 → NG表現マスタのトーン緩和調整。
+- **ナワショウ**：地域密着型工務店 → 現行帳票（出面表・工事別収支表・施主請求書）レイアウト絶対維持（08-16記録）。
+- **宮村建設 ↔ 清一建設**：社名表記揺れの最頻発ペア → 固有名詞マスタ完全一致を blocker 扱い（06-17／06-26記録）。
+- **桝本レッカー**：クレーン業特殊条件 → 現場条件プリセット（直射日光／手袋操作／通信断復帰）が特に重要。
+- **翔星建設**：元請け規模、提案書の金額提示が多い → 税区分（税抜/税込）必須記載。
+
+#### SNS採用特化観点
+- **Instagram リール**：冒頭1秒の離脱、キャプション折りたたみ位置（約125文字で切れる／10-02記録）、音源著作権。
+- **TikTok（toma統括）**：フックのパルス構造、音源の商用利用可否、ハッシュタグの検索ボリューム。
+- **X（Twitter）**：140字制限、固定ポストの応募導線、プロフィールURL先。
+- **採用LP**：ファーストビューの応募ボタン可視性、スマホ実機のタップ領域44px、低速回線3秒以内（06-07記録）。
+- **求人原稿（Airwork／Indeed等）**：職安法第5条の3の労働条件明示項目網羅、年齢・性別の限定表現禁止、「正社員登用あり」等の実績記載条件。
+- **採用動画**：出演者（職人・現場監督・社員・施主）の肖像同意範囲、BGM/SE の著作権、字幕キャプション（アクセシビリティ）。
+
+#### 建設業DX・業務システムQA（Gen／09-システム開発部連携）
+- どっと原価等の建設業特化パッケージの機能照合は「現行帳票見比べ」で検収（08-16記録）。
+- 2024年問題（週休2日・残業規制）関連の帳票・出面表の計算ロジックは法令改正日との整合必須。
+- インボイス制度（適格請求書）対応：税区分・登録番号表示を受付ゲートで必須化。
+- 建設業法改正（下請代金・工期）対応：契約書テンプレの条文追従。
+
+---
+
+### 10ステップ実装ノート
+
+#### STEP 1 — 現状スキル評価の棚卸し（10月第1週）
+Daily Knowledge Log（05-22〜10-02）を5軸・6軸クロス・5系統カバレッジ・4区分フィードバックの観点で分類し、既存スキル表（上記）を Notion の QA Playbook に転記。品質スコア・escape rate・conditional 比率・申し送り消化率のベースライン値を Looker Studio に初期プロット。
+
+#### STEP 2 — 改善重点領域の優先順位化（10月第1週）
+10領域をリスクベース抽出スコアリング（RBRA）に適用し、Priority 1-3 に振り分け。Priority 1：AI生成物QAスイート、シフトライトループ、受付ゲート汎化。Priority 2：conditional ガバナンス、法務ゲート化。Priority 3：キャリブレーション運用、応募導線E2E。
+
+#### STEP 3 — 5新スキルの導入設計（10月第2週）
+各新スキルについて（a）責任範囲、（b）ツール、（c）出力フォーマット、（d）連携先、（e）KPIを1枚のスキルシートに明文化。Pm と Sora に先行レビューを依頼し、全社オペへの織り込み点を確認。
+
+#### STEP 4 — テンプレ・フレームワーク実装（10月第3週）
+- review.json v2 スキーマを Ajv で validate 可能な形式で確定、GitHub Actions で受付時自動判定
+- intake_gate_report.md テンプレ、escape_report.md テンプレを my-virtual-team リポに追加
+- Twin-Gate Model、Shift-Left × Shift-Right ループ、Oracle Pyramid、RBRA、Conditional Governance、Calibration Quarterly の6フレームワークを図示（Mermaid or FigJam）して Playbook に添付
+
+#### STEP 5 — KPI計測基盤構築（10月第4週）
+- Looker Studio に DORA 応用4指標＋escape rate＋conditional 比率＋受付 Bounce 率＋レビュアー間一致率のダッシュボード構築
+- 本番オブザーバビリティ（Datadog／Vercel Analytics／GA4／Airwork受信ログ／採用媒体）を Zapier で突合して escape 自動検知
+
+#### STEP 6 — ツールスタック配線（11月第1週）
+- OWASP LLM Top 10 スキャン（Rebuff）、axe DevTools、Playwright 応募導線E2E を GitHub Actions の受付ゲートに組み込む
+- LLM-as-a-Judge 合議（Claude Opus 4.7 + GPT-5 + Gemini 2.5 + 人手キャリブレーション）のオーケストレータを Notion API 経由で稼働
+- Slack Workflow Builder で絵文字リアクション→review.json 自動生成 Bot をデプロイ
+
+#### STEP 7 — クロスファンクショナル連携の運用化（11月第2週）
+- nori・Pm・Kpi・Dat・Gen・Mio・Bo/Owl・制作部長4名（Kaito/Yuna/Yuto/Kai）と連携プロトコルを合意形成
+- WBS キックオフテンプレに「合格の定量条件スニペット5条件」「現行帳票見比べシート作成依頼」「肖像同意ドキュメント作成依頼」を追加
+- セルフチェック表（同一指標内部整合・合計＝内訳・固有名詞マスタ照合）を制作部へ配布
+
+#### STEP 8 — 建設業×SNS採用特化観点の反映（11月第3週）
+- 建設7社ごとのクライアント別観点表（上記）を Notion に clients ページとして正規化
+- SNS 媒体別の観点チェックリスト（Instagram／TikTok／X／採用LP／求人原稿／採用動画）を成果物種別テンプレに埋め込み
+- 建設業法／職安法／景表法／下請法／インボイス／2024年問題の法令観点を NG表現マスタと連動
+
+#### STEP 9 — レビュアーキャリブレーション四半期運用（11月第4週：初回実施）
+- qa / sora / Mio の3名で同一成果物3件を独立レビューし、verdict・blocker件数・指摘観点の一致率を測定
+- 75%未満の軸は合格基準を具体化、Playbook へ反映
+- 四半期ごとに繰り返し、観点ドリフトを継続抑制
+
+#### STEP 10 — 継続改善ループの固定化（12月以降・毎月）
+- 月次：escape report 発行 → チェックリスト棚卸し → 新規項目追加／形骸化項目降格
+- 月次：conditional ガバナンス発火判定 → blocker 昇格 or 上流提出ゲートへ移管
+- 月次：承認失効判定（オラクル版数・依存出力の断面更新）を Pm / Sora に通知し再レビュー起票
+- 四半期：レビュアー間キャリブレーション + Evals データセット棚卸し + ツールスタック総点検
+- 半期：ISO/IEC 42001・24028 準拠度の自己監査、Playbook v3 への更新
+
+---
+
+**v2 の意義**：Daily Knowledge Log で蓄積した個別知見を、属人スキルから**「仕組み・テンプレ・自動化で動く QA 運用システム」**へ再編する。QA リードとして、作る側・出す側・受け取る側の3層を1つの品質基準で接続し、サクバズブランド全体の信頼を構造的に支える。
