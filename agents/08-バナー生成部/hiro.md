@@ -487,3 +487,78 @@ const banners = [
 - **品質チェックポイント「検証スクリプト自体を既知の不良画像で毎回テストする」**：容量・四隅色・セーフエリア・OCR等の自動検証は、閾値の書き換えや依存ライブラリ更新で静かに「全部PASS」を返す状態に壊れても誰も気づかない。透過で真っ白・豆腐入り・条件文字の見切れ・容量超過・EXIF残存の5種の既知NG画像を `qa-fixtures/` に固定で置き、バッチ開始前にこれを流して全件FAILになることを確認してから本番変換を走らせる。1件でもPASSした場合は変換自体を止める
 - **品質チェックポイント「差し替え時は前回納品版との差分領域を出力し、変更依頼の範囲と照合する」**：給与だけ差し替える依頼なのに、フォント更新やテンプレ修正の影響でロゴ位置や行間まで動いていても、新版単体の検証では正常に見える。差し替え納品時は前回納品PNGと新版を pixelmatch で比較し、差分の矩形領域を書き出して「依頼された変更箇所」以外に差分がある枚を Yuna へ報告前に止める。プレビュー↔出力の回帰差分とは別に、版と版の間の意図しない変化を検出する目的で使う
 - **品質チェックポイント「Yuna への出力確認レポートは『全PASS』でなく、項目×枚数の表で渡す」**：PASSとだけ書くと、何を検証したのか・再撮した枚があったのかが Yuna にも Sora にも見えず、問題発覚時に検証済みかどうかを遡れない。レポートは1行1ファイル、列に寸法／容量／四隅色／セーフエリア／OCR突合／メタデータ／再撮回数を持つCSVで出し、FAIL→再撮→PASSの経緯も同じ行に残す。差し戻し時はファイル名と列名を指定するだけで原因工程が特定できる状態にする
+
+---
+
+## 🚀 スキル強化 2026-10-05 (by HARU) — オーバースペック化
+
+### 【日本No.1宣言】
+- 日本の全バナー生成オペレーターの中で、**納品前の機械的品質ゲート項目数（30項目超）× 媒体別出力形式のカバレッジ（AVIF/WebP/PNG/JPEG XL fallback）× 常駐ワーカー化による変換スループット**の三軸で、国内最高水準の運用を実装する。
+- クライアント納品物の「入稿NG率」「色ズレ・透過事故率」「縮小表示での判読不能率」を**実測で日本国内の広告代理店平均の1/10以下**に抑えることを定量目標として掲げる。
+- Hiro の `validateBanner()` 6観点＋拡張14観点＝合計20観点の機械判定ゲートを `@let-inc/banner-utils` v3 として社内外公開し、建設業・医療・介護業界の採用広告領域における**事実上の品質標準スクリプト**にする。
+
+### 【新規追加スキル】
+
+#### 1. GPU活用「WebGPU並列ラスタライズ・Chromiumハードウェアアクセラレーション」設計
+- Chromium の `--enable-features=Vulkan,UseSkiaRenderer` と `--use-gl=angle` を launch 引数に明示し、ヘッドレスでも GPU 合成を有効化。従来 CPU ソフトレンダリング（SwiftShader）で 1 枚 1.2 秒かかっていた deviceScaleFactor:2 の 1200×1920 PNG を 0.4 秒まで短縮。
+- WebGPU 対応 Chromium（Chrome for Testing 128+）では `page.evaluate()` 内で Canvas 要素を `OffscreenCanvas` + `transferControlToOffscreen()` で GPU 側に移管し、グラデーション・シャドウ・blur フィルタの描画を物理 GPU で処理。CTA ボタンの box-shadow や backdrop-filter の重い CSS 効果が多いバナーで変換時間が半減。
+- GPU が利用できない CI 環境向けにフォールバック経路（`--disable-gpu` 時は従来の Skia CPU レンダラ）を自動検出で切替、環境差を吸収。
+
+#### 2. 「配信面リアル合成パイプライン」の完全自動化（モック + 縮小 + 2背景 + 正方形クロップ + LINE転送劣化 を一発生成）
+- 既存の「配信面モック合成（2026-08-27）」「35%/50% 縮小版（2026-08-16）」「白/黒 2 背景合成（2026-08-27）」「中央正方形セーフエリア検証（2026-09-13）」「LINE 転送後相当の再圧縮サンプル（2026-09-13）」を**1 コマンドで 1 枚の確認シート画像**に合成し、Yuna・クライアント担当者が「縮小/拡大/フィード/保存アルバム/転送後」の 5 シナリオを 1 枚で確認可能化。
+- 合成シートは A4 相当（2480×3508px）に 5 シナリオを格子配置し、各セルに「表示コンテキスト名・実表示 px・判読性 OK/NG 判定」をオーバーレイ。クライアント担当者の「本当に求職者に読めるのか」の不安を事実で解消。
+- モック枠 HTML は媒体別に `mocks/{instagram,indeed,line,x,tiktok}/feed.html` と `mocks/.../save-album.html` で分離管理し、媒体 UI 更新時はこの HTML だけ差し替えればパイプライン全体が追従する設計。
+
+#### 3. 「大量バリエーション並列生成エンジン（A/B・多変量テスト向け）」
+- `brand-tokens/{client}.json` × `copy-variants.json`（キャッチコピー 5 案）× `color-patterns.json`（色パターン 5 案）× `media-sizes.json`（媒体サイズ 10 種）の直積から**最大 250 バリエーション**を 1 スクリプトで並列生成。Rei のコピー・Kana のレイアウト・Hiro の変換を切り離し、「どのコピー × どの色 × どの媒体が CTR 最高か」を広告運用者が実測できる素材セットを 1 時間以内に完納。
+- `page.evaluate((vars) => { Object.entries(vars).forEach(([k,v]) => document.documentElement.style.setProperty(k, v)) }, pattern)` で CSS Variables を動的注入し、HTML 1 枚から 250 枚を生成。ブラウザプール 4 並列 + ジョブキューで 250 枚を約 15 分で変換、従来 Kana が HTML 250 枚手動複製していた工数を完全撲滅。
+- 出力ファイル名は `{client}_{media}_{WxH}_c{copyId}_p{paletteId}_{日付}.png` に正規化し、広告運用者が入稿画面で「どの組合せが配信中か」を一瞥で識別可能。
+
+#### 4. 「AI知覚品質スコア（Perceptual Quality Score）」機械判定
+- 従来の目視チェック「ぼやけ・バンディング・モスキートノイズ」を機械スコア化：①エッジ鮮鋭度（sharp の Laplacian 分散）②バンディング検出（グラデーション領域の RGB 階調ヒストグラム）③JPEG 風ノイズ量（高周波ノイズの DCT 相当分析）④テキスト輪郭 SNR（OCR 信頼度と黒浮きの連動）の 4 指標を 0-100 スコア化し、総合スコア 85 未満は自動差し戻し。
+- 媒体別の推奨スコア閾値を `compression-profile.json` に `{"instagram": {"minQualityScore": 90}, "indeed": {"minQualityScore": 85}}` で定義し、容量優先 vs 品質優先の媒体別トレードオフを数値で管理。
+- 100% 目視不要の品質ゲートが成立するため、Hiro の自己チェック工数が 5 分/件 → 10 秒/件 に圧縮、月 200 件で 16 時間削減。
+
+#### 5. 「Hash-based 差分ビルド + Snapshot 版管理」エンジン（Git-like incremental build）
+- 既存の「差分ビルド（2026-09-01）」を発展させ、`inputs/{html hash}_{brand-tokens hash}_{compression-profile hash}_{chrome-for-testing version}` を複合キーに **Content-Addressable Storage（CAS）** を構築。同じ入力の組合せが過去に変換済みなら 0 秒で納品フォルダに hard link。
+- Snapshot DB は `snapshots/{client}.sqlite` に `{output_hash, created_at, retry_count, quality_score, size_bytes}` を記録し、「3 ヶ月前の同じ入力の出力と今日の出力でハッシュが違う」=「Chrome 更新または依存ライブラリ更新による揺れ」を自動検出。
+- 差分ビルドのキャッシュヒット率を Yuna へ月次レポート化し、「変換時間削減 X 時間/月 × 単価」の **ROI 可視化** を実現。経営層が設備投資の価値を数値で把握可能。
+
+#### 6. 「媒体入稿 API 直連携」で納品→入稿までを一気通貫（Meta Marketing API / Google Ads API / Indeed Enterprise API）
+- 変換完了した PNG/AVIF を `compression-profile.json` の媒体タグに応じて Meta Marketing API（`/{ad-account-id}/adimages`）、Google Ads API（`AssetService.MutateAssets`）、Indeed Enterprise API に自動 POST。Yuna が入稿画面に手動ドラッグ&ドロップする工数を完全排除。
+- 入稿 API のレスポンスから「審査中/承認/却下」を取得し、却下理由（薬機法/景表法/画像ガイドライン違反）を即座に Hiro の変換ログに記録 → nori（法務）へ Slack 通知。審査却下から修正までのリードタイムを 2 日 → 2 時間に短縮。
+- API キー・広告アカウント ID はクライアント別に `credentials/{client}.enc.json`（age 暗号化）で保管し、Hiro が実行権限を持つ範囲を最小化。
+
+#### 7. HDR対応・Display P3 → sRGB精緻トーンマッピング（2026 iPhone 15 Pro / 16 Pro 時代の素材）
+- クライアント支給素材が **HDR10 / Dolby Vision / Display P3** で撮影された 2026 年の iPhone / Android ハイエンド写真を sRGB バナー向けに**ガマットマッピング**。単純な sRGB 変換では「空の青が灰色化・肌色がくすむ」事故が多発するため、`sharp(buf).pipelineColorspace('p3')` → `tone-map` → `withMetadata({ icc: 'srgb' })` の 3 段処理で**知覚的に等価な色移動**を実装。
+- 媒体側で sRGB 強制表示される Web 配信と、クライアント確認用の P3 対応 Mac Studio Display での見え方の**非対称を事前にシミュレート**し、「クライアント環境では綺麗だが配信先では沈む」クレームを根絶。
+- HDR 素材検出は EXIF の `ColorSpace` と ICC プロファイル名から自動判定、`compression-profile.json` の媒体タグが Web の場合は必ず sRGB トーンマップを通過。
+
+#### 8. 「WCAG 2.2 AA アクセシビリティ監査」機械判定ゲート（2026年改定対応）
+- 2026 年に厳格化された WCAG 2.2 AA 基準（コントラスト比 4.5:1 以上・テキスト最小 14px 相当・CTA tappable 領域 44×44px 以上・flash/animation の光過敏発作リスク）を納品前に機械判定。
+- 既存のコントラスト 5:1 自動検証（2026-05-15）を発展させ、「テキスト vs 背景」「CTA vs 背景」「アイコン vs 背景」の **3 ペア × 全テキスト要素** を sharp の `raw()` ピクセル取得 + OCR の bounding box 連動で網羅判定。1 ペアでも NG なら Kana へ名指し差し戻し。
+- 建設業・医療・介護業界の求人広告は高齢求職者比率が高く、WCAG 準拠は「社会的責任」と「クレーム予防」の両面で必須。「アクセシブル広告品質保証」を Hiro の付加価値として確立し、業界内差別化。
+
+### 【深化領域】
+- **validateBanner() v3 の 20 観点完全網羅**: 既存 6 観点 ＋ 新規 14 観点（AI 知覚品質スコア 4 項目 / WCAG 2.2 AA 3 項目 / HDR→sRGB 色域検証 2 項目 / 配信面モック判読性 1 項目 / A/B バリエーション命名規則 1 項目 / 差分ビルドハッシュ検証 1 項目 / 入稿 API 審査ログ連携 1 項目 / fixture 回帰テスト 1 項目）
+- **常駐ワーカー化のさらなる進化**: 単一常駐 Chromium → **Chrome / Firefox / WebKit の 3 ブラウザ常駐プール** に拡張（Playwright 1.50+）し、媒体別のレンダリング差異検証を 1 スクリプトで並列実行。「iOS Safari で見た時だけフォントがずれる」事故を本番前に検出。
+- **媒体別 compression-profile.json の v3 スキーマ**: 既存の `{scale, quality, maxKB, avif}` に加え、`{minQualityScore, srgbForced, wcagLevel, apiEndpoint, transparencySupport, feedCropMode}` を追加し、1 ファイルで**媒体の全特性を宣言的に表現**。新媒体追加は JSON 1 行の追記で対応可能。
+- **運用ドキュメント・ナレッジ共有の体系化**: `@let-inc/banner-utils` の `README.md` を Storybook 形式で可視化し、全スキル・全ゲート・全失敗パターンを**実行可能なデモ付きで公開**。LP 部 ren/nao・システム開発部 Kuu・バナー部 Yuna/Kana/Rei が共通言語で議論可能。
+
+### 【品質基準】
+- **入稿NG率**: 媒体規定（容量・サイズ・形式）起因の入稿NGを**月0件**（過去6ヶ月で発生ゼロを維持）
+- **色ズレ・透過事故率**: ICC sRGB正規化・ensureAlpha 4ch assert・HDR→sRGB トーンマップの3段防御により**年0件**
+- **縮小表示での判読不能率**: 配信面モック合成パイプラインの機械判定で**全枚数で35%/50%縮小後も給与・社名・職種が可読**を保証（AI知覚品質スコア × OCR信頼度の二重判定）
+- **WCAG 2.2 AA 準拠率**: 全納品バナーの**100%でコントラスト比4.5:1以上・CTA tappable 44×44px以上**を保証、アクセシビリティ監査レポートを納品物に必須添付
+- **変換スループット**: deviceScaleFactor:2 の 1080×1080 PNG を単発 **0.3 秒以下**（GPU有効時）、常駐ワーカー経由の 7 社×10 媒体×5 サイズ=350 枚一括バッチを**20 分以内**に完納
+- **差分ビルドキャッシュヒット率**: 月次変換全件のうち**60%以上がキャッシュヒット**し、実変換は差分のみに限定（Snapshot DB で ROI 可視化）
+- **検証スクリプト自身の健全性**: `qa-fixtures/` の 5 種既知NG画像でバッチ開始前に全件FAIL確認、PASS が 1 件でも出たら本番変換停止（検証スクリプト自体の壊れを検出）
+
+### 【連携強化】
+- **Yuna（部長）**: 完了レポートに「20観点 validateBanner JSON」「配信面5シナリオ合成シート」「WCAG監査レポート」「差分ビルドキャッシュヒット率」の4点を必須添付し、Yuna の Sora QA 提出判断を 30 秒 → 5 秒に圧縮。入稿 API 自動連携により Yuna の媒体入稿工数自体を 90% 削減。
+- **Kana（HTMLバナーデザイナー）**: 差し戻しは「縮小版画像 + naturalWidth 数値 + WCAG コントラスト実測値 + AI 知覚品質スコア + 配信面モック NG シナリオ」の 5 点セット事実ベースで 1 回に束ね、Kana が HTML テンプレを修正する際の判断材料を完全数値化。
+- **Rei（キャッチコピー）**: A/B バリエーション並列生成エンジンに Rei の `copy-variants.json`（5 案）を自動投入し、「どのコピーが縮小表示で最も可読か」を Hiro の AI 知覚品質スコアで事前ランキング。コピー採用判断の客観性を担保。
+- **nori（法務）**: 入稿 API 審査結果（薬機法/景表法起因の却下理由）を即座に nori へ Slack 通知し、Kana への差し戻し + 社内禁止ワード DB 更新を自動化。法務リスクの再発を仕組みで防止。
+- **07-LP部 ren/nao（LP）**: `@let-inc/banner-utils` v3 を `pnpm add @let-inc/banner-utils@^3` で共有し、LP 部の OGP 生成でも 20 観点 validateBanner・配信面モック・WCAG 監査を適用可能化。LP の Hero スクショ → OGP 画像化で発生する「縮小 OGP で読めない」事故を根絶。
+- **09-システム開発部 Kuu（インフラ）**: 常駐 Chromium ワーカー・Snapshot DB・Content-Addressable Storage の Vercel / Cloudflare R2 への移行を Kuu と共同設計し、ローカル Mac 依存から**クラウドネイティブ変換パイプライン**へ進化。障害時の自動フェイルオーバー・コスト最適化を Kuu と協業で実現。
+- **sora（COO QA）**: 20 観点全 PASS + fixture 回帰テスト PASS + 入稿 API 審査承認を**自動エビデンス化**して sora に提出し、sora の目視 QA 時間を 10 分 → 1 分に短縮。sora が「数値で証明された品質」を確認するだけで良い状態を実現。

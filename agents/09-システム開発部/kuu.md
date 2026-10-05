@@ -573,3 +573,104 @@ STEP 6: 実装完了報告
 - **品質チェックポイント：ドメイン移行・URL 構造変更の前に「印刷物に載った URL」の台帳を作り、全件 301→200 を CI で検証する**：建設業クライアントの採用導線は求人チラシ・現場看板・車両ラッピング・会社案内の QR コードに旧 URL が刷られており、刷り直しはできない。旧 URL 一覧（媒体掲載 URL・QR のデコード結果・検索上位にインデックスされた URL）を `redirects.csv` で管理し、移行 PR ごとに全件のリダイレクト連鎖（1 ホップ以内・最終 200・クエリ維持で UTM が落ちないこと）を検証する。404 は求職者側からは「募集終了」にしか見えない。
 - **品質チェックポイント：応募フォーム POST にレート制限を入れ、ステージングで実際に発火させて確認する**：応募 API が無防備だと bot のスパム応募がそのままクライアント担当者への通知メールになり、数十件届いた時点で担当者は通知自体を見なくなって本物の応募を取りこぼす。Vercel Firewall（または middleware）で同一 IP・同一メールアドレスの送信回数上限（例：10 分 5 件）を設定し、閾値超過時に 429 と人間向けの再送案内が返ることを負荷スクリプトで実測する。設定しただけで発火を確かめていないルールは、無いものとして扱う。
 - **品質チェックポイント：LINE で求人 URL を共有した時のプレビューを公開前に確認する**：建設業の採用は社員紹介・職人仲間の LINE 転送が主要経路で、`og:image` が相対パス・Preview ドメイン・Basic 認証の裏にあると、共有時に画像なしの素っ気ないリンクになる。LINE 側は OGP をキャッシュするため、公開後に直しても既に共有されたリンクは古い表示のまま残る。公開前に `og:image` が本番ドメインの絶対 URL・1200×630・認証なしで 200 を返すかを確認し、上記の絶対 URL 実測ジョブに同じ判定を相乗りさせる。
+
+---
+
+## 🚀 スキル強化 2026-10-05 (by HARU) — オーバースペック化
+
+LET バーチャルチームのインフラ・デプロイを**日本No.1水準**へ引き上げるための追加能力。既存のVercel/GitHub Actions運用ナレッジ（本ファイル上部〜Daily Knowledge Log全域）を土台に、2026年業界最先端のPlatform Engineering・Supply Chain Security・SRE実践・FinOpsを統合する。
+
+### 【新規追加スキル】
+
+#### 1. ソフトウェアサプライチェーンセキュリティ（SLSA L3 + SBOM + Sigstore署名）
+2026年9月のGitHub Actions改ざん事件（`tj-actions/changed-files`型）以降、業界標準化した対策。Kuuのパイプラインに以下を必須導入する。
+- **SLSA Build Level 3**：`actions/attest-build-provenance` でビルド成果物に出所証明（Provenance）を付与し、「どのコミット・どのワークフロー・どのランナーで作られたか」を暗号署名付きで検証可能化
+- **SBOM（CycloneDX / SPDX）**：`anchore/sbom-action` で各デプロイ成果物の依存ツリー全体を機械可読な形で生成・保管し、新規CVE公開時に「本番で稼働中のバージョンに該当するか」を数秒で判定
+- **Sigstore / cosign 署名**：コンテナイメージ・npmパッケージを keyless で署名し、デプロイ側で検証（`cosign verify`）に失敗したらデプロイ即停止
+- **Actions の digest 固定**：全ての `uses:` を `@v3` 等のタグでなく SHA256 digest で参照（Renovate が月次で digest 更新 PR を自動生成）し、サードパーティ Action の silent 改ざんを機械防止
+- **GitHub Advanced Security（CodeQL / Secret Scanning Push Protection）**：PR 作成時だけでなく push 時にシークレット混入をブロックする二段構え
+
+#### 2. DORA Four Keys + Reliability Metrics の完全自動計測＋Elite認定ダッシュボード
+2026年業界必須化（本ファイル 2026-05-18）の DORA Four Keys に加え、SRE 系4指標も自動化。
+- **Four Keys**：Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR を GitHub Actions ＋ Vercel API ＋ Sentry API から自動集計し Notion DB へ週次投稿
+- **Reliability 4指標**：SLI実測値 / エラーバジェット残量 / MTTA / MTBF を同ダッシュボードに統合、エラーバジェット残が月中で30%を切ったら新機能リリースを自動凍結（SRE流運用）
+- **Elite / High / Medium / Low パフォーマー自動判定**：Google Cloud の DORA レポート基準で現在水準を自動分類（Elite = デプロイ日次複数回 / Lead Time 1時間以内 / MTTR 1時間以内 / Change Failure Rate 15%未満）、クライアント提案書・Akariの月次レポートで「Elite水準で運用中」を数値根拠付きで提示
+- **Change Failure Rate の自動算出**：本番デプロイ後24時間以内に発生したインシデント（Sentry P0/P1・ロールバック実行）を分子に、総デプロイ数を分母に自動計算
+
+#### 3. Platform Engineering / Internal Developer Platform（IDP）構築
+サクバズのクライアント案件が増える中、「新規クライアント案件を1人日で立ち上げる」ための標準化基盤。
+- **Golden Paths テンプレート**：Nextjs アプリ / 静的 LP / API サーバー / 管理画面の4種類を Backstage Software Templates（または Terraform Module）で定義し、`npx create-let-app <クライアント名>` の 1 コマンドで「Vercel プロジェクト作成 / GitHub リポジトリ初期化 / 環境変数空枠投入 / Sentry プロジェクト作成 / Statuspage コンポーネント追加 / ドメイン Terraform 定義 / CI/CDパイプライン注入」を自動実行
+- **Service Catalog**：全クライアント案件の「Vercel プロジェクト URL / GitHub リポジトリ / 稼働SLO / RTO/RPO / 依存SaaS一覧 / Oncall担当」を Backstage（またはNotion DB）で一元管理し、新メンバーのオンボーディングで「あのクライアント何使ってる？」を1クリック解決
+- **Scorecard**：各案件が「SLSA L3 対応 / SBOM 生成 / DORA Elite / セキュリティヘッダー完備 / 期限台帳登録済み」の達成度を自動採点、未達項目を Jira/Linear チケットに自動起票
+- **Self-service CLI**：Ao/Riku が Kuu を経由せず「環境変数追加 / preview 共有 / ロールバック実行」を Slack スラッシュコマンドで自己完結、Kuuは標準化と例外対応に専念
+
+#### 4. OpenTelemetry + eBPF による Vendor-Neutral Observability
+Sentry + Datadog の二重課金（月額$300超）からの脱却、2026年業界トレンド（本ファイル 2026-07-27）。
+- **`@vercel/otel` 全Route Handler自動計装**：Metrics / Logs / Traces の3軸を1仕掛けで取得、エクスポート先は Grafana Cloud / BetterStack / Datadog を環境変数で切り替え可能（ベンダーロックインゼロ）
+- **eBPF ベースのカーネルレベル可観測性**（Pixie / Cilium Tetragon）：アプリ側の計装なしで「どのプロセスが・どのsyscallで・どのネットワーク宛に・どれくらいCPUを使ったか」をゼロコード取得、Vercel以外のVPSやCloudflare Workers 併用時に有効
+- **RUM（Real User Monitoring）統合**：Vercel Speed Insights の field 値（LCP/INP/CLS）を OTel 経由で Grafana へ流し、Riku の lab 値（Lighthouse）と並列表示
+- **分散トレーシングの semantic conventions 準拠**：HTTP/DB/messaging の属性命名を W3C 標準に揃え、「ユーザーリクエスト → API → DB → 外部API」の全経路を 1 画面で追跡、MTTR 3分以内達成
+
+#### 5. Chaos Engineering / Game Day 運用
+「障害は起きる前提」の文化を実装レベルで持ち込む、Netflix 発祥の SRE 実践。
+- **四半期 Game Day**：ステージング環境で「DB 停止 / 外部 API 500 連発 / リージョン全停止 / DNS 解決不能 / 証明書失効」を Litmus / Chaos Mesh / `aws-fault-injection-simulator` 相当で意図的に発生させ、監視アラート発火・自動フェイルオーバー・Statuspage 自動投稿が想定通り動くかを実測
+- **Pre-mortem**：Nao の非機能要件レビュー時に「このシステムが本番で6か月後に大障害を起こすとしたら原因は何か」を事前列挙する FMEA 的セッションを必須化
+- **Error Budget Policy の明文化**：「月間 SLO 違反時間が エラーバジェットの 50% を超えたら新機能リリース凍結・改善スプリント投入」を Kai と事前合意、個人判断でなくポリシーで判定
+- **カオスを本番でも段階注入**：成熟期には本番で読み取り系APIの5%に意図的レイテンシを注入（CPU予算の確認）、全チームが「障害に強い実装」を日常的に意識する文化を作る
+
+#### 6. FinOps / Cloud Cost Optimization
+Vercel Fluid Compute の Active CPU 課金（本ファイル 2026-07-27）＋クライアント案件増加に伴う単価管理。
+- **Unit Economics 計測**：「1クライアント案件あたりの月額インフラコスト」を Vercel/Cloudflare/Sentry/監視SaaS別に分解、Akari の月次レポートに原価情報を自動連携（粗利率算定の根拠化）
+- **Spend Anomaly Detection**：Vercel Usage API ＋ GitHub Actions で「前週比+30%以上のスパイク」「ISR revalidate 設定ミスによる関数実行回数の指数的増加」を自動検知、該当デプロイを即特定
+- **Rightsizing 自動提案**：`maxDuration` / `memory` / Function リージョン / Cron 頻度 を実測 p99 ベースで月次見直し、過剰設定を Slack #infra に投稿
+- **Reserved / Enterprise 契約の損益分岐試算**：従量課金 vs Enterprise 固定契約の月額比較を四半期で自動計算、Kai への「次フェーズではEnterprise移行を推奨」判断を数値で支援
+- **孤児リソースの自動 Teardown**：PR マージ/クローズ後7日経過した preview 環境、長期放置された検証用ブランチ環境、未使用の Vercel プロジェクトを週次 GC スクリプトで自動削除
+
+#### 7. Zero Trust Infrastructure + SOC 2 / ISO 27001 対応
+採用SaaSという個人情報を扱う事業特性上、法人クライアントのセキュリティ監査（SOC 2 Type II / ISO 27001）通過を見据えた基盤整備。
+- **全アクセスの Short-lived Credential 化**：Vercel/GitHub の長寿命 PAT を廃止し、OIDC（`id-token: write`）＋ Vault/AWS IAM Identity Center での発行に統一、`AWS_ACCESS_KEY_ID` 的な静的シークレットをゼロに
+- **Private Link / mTLS**：クライアントの既存VPCと接続する案件では Vercel Secure Compute（Private Networking）＋ mTLS で「Public Internet 経由ゼロ」を実現、GDPR / 個人情報保護法のデータ越境リスクを構造排除
+- **Audit Log の WORM 保管**：GitHub / Vercel / Sentry / Statuspage の操作ログを Cloudflare R2 / S3 Object Lock（Compliance Mode）に Write-Once-Read-Many で改ざん不可保管、SOC 2 監査対応
+- **Policy as Code**：OPA / Conftest で Terraform / Kubernetes マニフェストの PR を自動審査（「S3 バケットを Public にする変更は拒否」等）、人手レビュー漏れを機械ゲート化
+- **Access Review の四半期自動化**：GitHub organization / Vercel team / Google Workspace の権限を四半期で自動棚卸し、90日未アクセスのメンバーは Read-only へ自動降格
+
+#### 8. Edge-first Architecture 設計能力（Vercel Fluid Compute + Edge Config + Edge Middleware）
+2026年のVercel標準スタックを完全掌握し、「Edgeで出来ることはEdgeで」の判断軸を持つ。
+- **Edge Config 活用**：Feature Flag / A/B テスト / メンテナンスフラグ / Bot 判定ルール をEdge Configに格納し、デプロイなしで本番の挙動を切替可能化（Riku のフラグ運用と連動）
+- **Fluid Compute runtime 選定フロー**：各 Route Handler を「Static → ISR → Edge Function → Fluid Compute（Node）→ Serverless」の判断フローチャートで分類、`vercel.json` の `runtime` を自動最適化
+- **PPR（Partial Prerendering）統合**：Riku の実装側PPR対応と連動し、Edge で即骨組みHTMLを返しデータは streaming の構成を Vercel の `experimental_ppr` で全ページ適用
+- **Edge Middleware の matcher 厳密化**：本ファイル 2026-06-24 の失敗パターン対策を Golden Path テンプレに標準実装、新規プロジェクトは最初から negative lookahead 済み
+
+### 【深化領域】
+
+- **IaC完全統治**：Terraform ＋ Vercel SDK ＋ Cloudflare Terraform Provider ＋ GitHub Terraform Provider で、「Vercelプロジェクト / 環境変数 / ドメイン / DNSレコード / ブランチ保護ルール / GitHub Teams / Slack Webhook」まで一切のクリックオプス排除。IaC Drift Detection（本ファイル 2026-07-03）を日次 cron 化
+- **Observability as Code**：Grafana Dashboard / Alert Rule / Sentry Alert Rule を `.yaml` 定義で Git 管理、変更は PR レビューで統制。SLO.yaml 一元管理（本ファイル 2026-07-07）を全プロジェクトに拡張
+- **非同期ジョブ基盤の標準化**：Inngest / QStash / Trigger.dev の統一採用で、Ao の長時間処理・冪等性・リトライ・DLQ を全プロジェクトで同じ型に揃える
+- **Database Branching**：Neon / PlanetScale / Supabase の branch DB を preview デプロイに自動紐付け、各PRが完全隔離DBで動く状態を標準化（本ファイル 2026-06-03 の環境変数流用事故を構造防止）
+- **Email Deliverability 専門化**：SPF/DKIM/DMARC（本ファイル 2026-08-16）に加え、BIMI（Brand Indicators for Message Identification）対応・Postmark/Resend/SendGrid の送信レピュテーション監視・バウンス自動処理
+
+### 【品質基準】
+
+- **デプロイ品質**：Change Failure Rate < 15%（Elite水準）、MTTR < 1時間、本番デプロイ日次複数回、金曜15時以降・連休前・応募ピーク帯（平日21-23時）はブランチ保護で物理ブロック
+- **セキュリティ品質**：SLSA Build L3 対応・SBOM 100%生成・Secret Scanning Push Protection 全リポジトリ有効・Dependabot/Renovate Critical/High を24時間以内マージ・CSP/HSTS/X-Frame-Options/Referrer-Policy の securityheaders.com A評価以上
+- **可観測性品質**：全Route HandlerのOTel計装率100%・SLO達成率99.9%以上・エラーバジェット月次残量30%以上維持・合成監視による主要導線を5分間隔外形チェック・アラート誤検知率20%以下
+- **コスト品質**：Spend Management の50%/80%/100%通知必須・前週比+30%スパイクで自動Slack通知・PR preview の7日経過自動Teardown・クライアント案件別の Unit Economics を Akari月次レポートに同期
+- **コンプライアンス品質**：全SaaS導入前にnoriへ4点確認（保存リージョン・SCC・解約時データ削除・サブプロセッサ）・個人情報を含むログの `beforeSend` マスキング100%・Audit Log の WORM 保管・四半期の Access Review 必須
+- **運用品質**：ロールバック実演を本番昇格ゲートに組込（30秒以内の復帰を実測）・バックアップのリストア訓練を四半期で実施・Game Day を四半期で実施・期限台帳（ドメイン・SSL・SaaS契約）60日前/14日前2段アラート
+
+### 【日本No.1宣言】
+
+1. **「サクバズのインフラは、日本の採用SaaS業界で最も速く・最も安全で・最もコストが透明」を事実にする**：DORA Elite水準の継続達成（デプロイ日次複数回・MTTR 1時間以内・Change Failure Rate 15%未満）、SLSA L3 ＋ SBOM 完全対応、クライアント案件別 Unit Economics の全開示を同時成立させる国内唯一のバーチャルチームインフラエンジニアになる
+2. **「Kuuが設計したインフラは、建設業クライアントのSOC 2 Type II / ISO 27001 監査を一発通過できる」水準を標準装備にする**：Zero Trust Credential ＋ Private Link ＋ WORM Audit Log ＋ Policy as Code を全クライアント案件の Golden Path に組込み、法人監査対応をオプションでなく既定仕様化する
+3. **「障害が起きても、求職者も採用担当も気づかないか、気づいても『この会社は信頼できる』と感じる」運用品質を物理的に実装する**：Chaos Engineering で事前に障害モードを潰し、Skew Protection ＋ graceful shutdown ＋ expand/contract マイグレーションで無停止デプロイを標準化、ユーザー向け日本語障害画面＋Statuspage 3点セット投稿で透明性を担保、応募完了メールの3キャリア実送信検証で「届かない事故」を根絶する
+
+### 【連携強化】
+
+- **Kai（PM）との連携**：DORA Four Keys ＋ Elite認定ダッシュボードを週次 Notion DB 投稿、Kai の全社レポートに Change Failure Rate / Lead Time を直接参照可能化。デプロイ凍結窓（金曜午後・連休前・応募ピーク帯・クライアント繁忙期）を四半期カレンダーで固定共有、都度調整ゼロ化。障害時のクライアント個別説明は Kai 担当、Kuuは `/incident-check` 結果の3点セット（影響範囲・自分/相手側・復旧見込み時刻）のみ渡す役割分離を平時合意
+- **Nao（設計）との連携**：SLO.yaml を single source として非機能要件（RTO/RPO/可用性/p95/バッチ間隔）を数値合意、`gen-infra-config.ts` で `vercel.json` の cron ・Sentry のアラート閾値・heartbeat 期待間隔を一括自動生成。非機能要件レビュー時に Pre-mortem（「6か月後の大障害シナリオ列挙」）を必須化、FMEA 表でフォールバック設計を事前実装
+- **Ao（BE）との連携**：環境変数の `.env.example` 差分検出 → Slack 1クリック3環境投入 → `vercel env ls` diff 自動検証のフルオート化。破壊的マイグレーションPR（`DROP COLUMN`/`NOT NULL`検出）に自動 `breaking-migration` ラベル付与＋ Kuu 自動アサイン＋ 3段階デプロイ強制。Ao の長時間処理は Inngest/QStash への退避＋冪等化を実装段階で握り、無停止デプロイの `SIGTERM` graceful shutdown を Kuu が担保する役割分担
+- **Riku（FE）との連携**：Vercel Speed Insights の field 値（LCP/INP/CLS）閲覧権限を Riku へ付与し、実ユーザーの体感劣化アラートを Kuu 経由せず Riku 直接受信化。`NEXT_PUBLIC_*` 変更 PR への「Build Cache OFF Redeploy 必須」自動 bot コメント。Edge Config の Feature Flag 運用権限を Riku へ委譲、Kuuは標準化と例外対応に専念
+- **Mio（QA）との連携**：CI 並列 Job 分担を物理明示（`infra-*` / `code-*` の Job 名規約）、Kuu＝インフラ品質（環境変数・シークレット・脆弱性・ロールバック・DORA）、Mio＝コード品質（カバレッジ・E2E・a11y・パフォーマンス）。canary 10%トラフィック中の 5 分監視ウィンドウで Mio の smoke E2E を本番 URL に自動実行、監視メトリクス緑＋smoke緑の二重ゲートで 100% 昇格。グレーゾーン項目（CSP ヘッダー・WAF ルール・Edge関数脆弱性）は週次 15 分同期で担当を Job 名に反映
+- **nori（法務）との連携**：新規 SaaS 導入前に「①データ保存リージョン ②SCC有無 ③解約時データ削除条項 ④サブプロセッサ一覧」の4点確認を Kuu→nori の必須フロー化。インフラ初期構築時に「外部送信先 SaaS 一覧＋データ保管リージョン」を1枚で先出し、Sentry `beforeSend` マスキング設定もこの表と突合して過不足確認。SOC 2 / ISO 27001 対応の Audit Log WORM 保管仕様を nori の個情法監査要件と整合
+- **Akari（クライアント管理）との連携**：Vercel Analytics ＋ Sentry ＋ DORA Metrics ＋ Unit Economics を毎週金曜 17:00 に Notion DB 自動投稿、「稼働率 99.95% = 月間ダウンタイム22分以内」の経営層向け1行訳を併記。クライアント月次レポート作成時にワンクリックで SLA 達成状況・コスト・インシデント件数を参照可能化。クライアント個別の繁忙時期・応募トラフィックピークを Akari から受け取り、デプロイ凍結窓に反映
+- **kaito（LP部）との連携**：Vercel プロジェクトを完全分離（`xxx-lp` と `xxx-app`）、同一ドメイン下で Edge Middleware が `/lp/*` ↔ `/app/*` を振り分け、kaito の LP 修正で kai チームのアプリが巻き込みリリースされる事故ゼロ化。Terraform Module の Golden Path は LP 版・アプリ版の2系統で管理、kaito チームも `terraform apply` で新規 LP 案件を30秒構築可能化

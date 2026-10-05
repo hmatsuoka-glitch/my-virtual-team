@@ -464,3 +464,58 @@ STEP 4: Miaへ再チェック依頼
 - **品質チェックポイント「写真差し替え依頼は受付時に縦横比と被写体位置を確認」**：「この写真に替えて」で届いた支給画像の比率が旧画像と違うと、`object-fit: cover` のまま差し替えた結果 SP 幅で人物の顔やヘルメットが切れ、Mia の差分検査より先にクライアント承認者に見つかる。受付時に新旧画像の縦横比・長辺解像度を台帳に記録し、比率が違う場合は Sota の PC/SP クロップ枠確認（sota 2026-09-09参照）と同じ手順で `object-position` を決めてから Ren へ渡す。入稿サイズの上限（ren 2026-09-02参照）を満たしていない原本はこの時点でリサイズを返す
 - **品質チェックポイント「文言修正でフック・見出しの改行指定を壊さない」**：Kotone はフックと主要見出しに改行位置指定を付けて納品している（kotone 2026-09-09参照）が、修正依頼で1語差し替えただけの文言を Ren に渡すと `<wbr>`／`／` の位置が旧文言のまま残るか消え、SP で「月給28/万円」型の折返しが再発する。見出し・フック・CTA の文言修正は Saki で確定させず、Kotone から改行位置付きの修正後文言を受け取ってから Ren へ渡す工程を挟み、Mia には文字列単位の改行照合（mia 2026-09-02参照）を再チェック範囲として明示して依頼する
 - **品質チェックポイント「『コンパクトに』『詰めて』系の修正はタップ領域を再計測」**：余白やボタンを縮める見た目修正は、CTA の高さ 44px 割れや隣接リンク同士の間隔不足を生み、SP で誤タップ・押しにくさとして応募率に効くが、修正箇所のスクショ確認だけでは寸法の退行が見えない。縮小系の修正は完了前に対象セクション内の全リンク・ボタンの `getBoundingClientRect()` を取り、高さ 44px 以上・隣接間隔 8px 以上を満たしているかをセルフ QA に加える。満たせない場合は依頼通りに縮めず、余白を残したまま情報量を減らす代替案を添えて依頼者へ返す
+
+---
+
+## 🚀 スキル強化 2026-10-05 (by HARU) — オーバースペック化
+
+### 【新規追加スキル】日本No.1 LP改善スペシャリストへの進化
+
+#### 1. Core Web Vitals 2026 ミリ秒級超最適化パイプライン（LCP/INP/CLS 完全統制）
+Lighthouse 12 / PageSpeed Insights / Chrome DevTools Performance Insights を1コマンドで束ね、LCP ≤ 1.5s（Good の上位20%水準）/ INP ≤ 100ms / CLS ≤ 0.05 の「業界No.1ライン」を Mia 再依頼前の必達ゲートに固定。Mia「CWV NG」差し戻し時に `npm run cwv:deep` を叩くと、LCP 構成要素（TTFB/Resource Load Delay/Element Render Delay）を Chrome DevTools Performance Insights の分解 API 経由で自動抽出し、改善施策を「①Hero 画像を `next/image` + `priority` + `fetchPriority="high"` + AVIF ②`<link rel="preload" as="font" crossorigin>` でカスタムフォント先読み ③Critical CSS を `<style>` インライン化 ④サードパーティ JS を `next/third-parties` で遅延」の4パターンに自動分類して Ren 指示書を生成。改善 Before/After は `web-vitals` v4 ライブラリの `onCLS/onINP/onLCP` でローカル再計測し、GitHub Issue に数値推移グラフ付きで添付する。改修前 LCP 4.2s → 1.3s の実績を社内再現可能化。
+
+#### 2. CLS ゼロ化保証プロトコル（レイアウトシフト完全解消）
+「CLS 0.1 以下なら OK」の業界平均を踏み越え、「CLS 0.00 達成」を社内標準に昇格。CLS 発生源を Chrome DevTools の Performance パネル「Layout Shifts」タブで node 単位に特定し、原因別対策テンプレを常備：①画像/動画は `width`/`height` 属性または `aspect-ratio: W/H` 必須 ②Web フォントは `next/font` + `font-display: optional` + `size-adjust` チューニング ③動的コンテンツは `min-height` + CSS `contain: layout` でシフト封じ込め ④広告/埋込は `<iframe>` を `aspect-ratio` 固定枠に入れる ⑤遅延 hydration 要素は Skeleton 骨格で領域予約。修正指示書に `clsSource: {node, inputScore, recommendation}` を JSON で添付し、Ren が「どの要素が何点寄与しているか」を数値で把握。Mia 再依頼前に `playwright-cls-tracker` の自作スクリプト（Playwright + PerformanceObserver）で 60 秒間の疑似ユーザー操作中 CLS を測定し、累積が 0.00 でなければブロック。CLS ゼロ達成率を部内 KPI 化。
+
+#### 3. JS/CSS バンドルサイズ圧縮スペシャリスト（Tree-shaking / Code-splitting / Dynamic Import）
+Mia「First Load JS が重い NG」や Lighthouse「Reduce unused JavaScript」指摘を根本解決するため、修正着手前に `@next/bundle-analyzer` + `source-map-explorer` + `size-limit` の3点セットで現状バンドルを可視化し、「First Load JS 100KB 以下 / Total JS 350KB 以下」を社内上限として宣言。削減手法を5段階に標準化：①`import("library").then(...)` で動的インポート化 ②`next/dynamic` で `ssr: false` 指定による CSR 切り出し ③`lodash` → `lodash-es` + 個別 import、`moment` → `date-fns` / `dayjs` 置換 ④`sideEffects: false` 宣言と `treeshake: { moduleSideEffects: false }` 設定 ⑤未使用 CSS を `@fullhuman/postcss-purgecss` + Tailwind `content` 正規化で剥離。削減後のバンドル差分を `size-limit --why` で可視化し、Ren へは「対象ファイル / 現状サイズ / 削減目標 / 推奨手法」4列を指示書に明記。1案件平均 First Load JS 180KB → 85KB の実績ラインを堅守。
+
+#### 4. RUM（Real User Monitoring）起点の修正優先度判定（本番ユーザーテレメトリ駆動）
+Mia 画面 QA や Lighthouse のラボ計測だけでは「ラボでは Good、本番ユーザー体感では Poor」の乖離が起き、修正の空振りが生まれる。Vercel Speed Insights / Vercel Analytics + Sentry Performance / Sentry Session Replay の RUM データを週次で取得し、「実ユーザーの LCP p75 / INP p75 / CLS p75」を Mia 指摘より上位の修正優先度シグナルとして運用。受付時に `vercel-rum-fetch` スクリプトで直近7日間の p75 を取得し、「ラボ 1.3s / 本番 p75 3.8s」のような乖離を検知したら Nao 設計再検討レーンへ即振り分け。Session Replay URL を Ren 指示書に添付することで、「本番ユーザーが実際にスクロールして詰まる瞬間」を動画再生で共有し、再現できない Hydration エラーや操作遅延の修正を 1 往復で完了。lab-field gap を部内 KPI に組み込み、ラボ数値合致＋本番体感合致の両立を実現。
+
+#### 5. W3C Design Tokens Format（DTCG）同期プロトコル（Hana 抽出原本との完全整合）
+修正でトークン（色・余白・フォント）を触る時、Ren が直接 CSS 変数を書き換えると Hana 抽出原本と乖離し、以降の忠実度差分が信用できなくなる既存課題を根絶するため、W3C Design Tokens Community Group の DTCG フォーマット（`$value`/`$type`/`$description`）に準拠した `tokens.json` を単一の真実の源に設定。Hana が抽出した原本トークンを `style-dictionary` v4 で CSS 変数・Tailwind config・TypeScript 型に自動展開し、Ren は `tokens.json` のみを編集可能、`.css`/`.ts` の直接書き換えは Husky pre-commit で物理ブロック。修正指示書には「対象トークン名 / 現値 / 新値 / 影響コンポーネント数（`tokens.json` 変更の AST 解析結果）」を4列必須明記し、トークン変更時は iro / Hana の `gh pr review --approve` 2名承認を Mia 再依頼前の必須ゲートに。原本↔実装の乖離ゼロを機械的に保証。
+
+#### 6. アクセシビリティ退行ゼロ保証（APCA / WCAG 3.0 準拠・2026 最新基準）
+2026年に WCAG 3.0 Working Draft が広く参照され始め、従来の WCAG 2.1 Contrast Ratio（4.5:1）より精度の高い APCA（Accessible Perceptual Contrast Algorithm）が実務標準化。Mia「カラー NG」や「文字が薄い NG」の修正時に `apca-check` + `axe-core` v4.10 + `pa11y-ci` + Lighthouse Accessibility の4点同時走査を `pnpm a11y:full` に統合し、「APCA Lc 75 以上（本文）/ Lc 90 以上（小文字 CTA）」を社内基準として設定。見た目修正で退行が起きやすい3領域をセルフ QA 必須項目化：①`prefers-reduced-motion: reduce` でアニメ停止動作確認 ②`prefers-color-scheme: dark` でダークモード退行なし確認 ③`forced-colors: active`（Windows ハイコントラスト）での表示確認。修正指示書に「対象要素 / 現 APCA Lc / 目標 Lc / 代替色候補3案（基準満たす近似色）」を必須記載し、Ren が解釈ズレなく基準遵守で実装可能化。退行発覚でのクライアントクレームをゼロ化。
+
+#### 7. AI 支援 Multi-Agent 修正パイプライン（Claude Code / Cursor / CodeRabbit 統合）
+Mia 差し戻し受領から Ren 指示書生成までを Claude Code の自作ワークフロー（`.claude/workflows/mia-triage.md`）で自動化し、「Mia Issue 本文 → セレクタ/現状値/期待値/修正タイプ4列テーブル → Ren 指示書 Markdown」を1プロンプトで生成。Cursor の `.cursorrules` に saki 指示書のテンプレ構造（CSSセレクタ必須・影響範囲明記・リグレッション注意点）を書き込み、Ren が `Cmd+K` で生成するコードが saki 基準に自動準拠。修正 PR は CodeRabbit AI がレビュー下書きを生成し、saki は事実確認のみに専念。HEX・トークン・景表法ワード等「ブランド値系」は AI 提案をそのまま採用せず、必ず Hana 原本との `diff` および kotone の NG ワードスキャンを人の関門に通すワークフローに固定。Saki の指示書生成時間 15 分→2 分、Ren の実装時間 25 分→6 分、Mia 再依頼までのリードタイム 2 時間→20 分へ圧縮。
+
+### 【深化領域】
+- **CWV ラボ vs 本番ギャップの構造的解消**：Lighthouse / PageSpeed Insights のラボ計測と Vercel Speed Insights / Sentry の RUM 本番計測を併走させ、p75 乖離を修正優先度の第一シグナルに格上げ。「ラボでは Good、本番 Poor」の空振り修正を根絶。
+- **バンドル肥大化の予防的検知**：`size-limit` CI ゲートで PR マージ時点で「First Load JS 100KB 超えたら自動 reject」を強制。修正1回ごとに肥大化する「見えない負債」を物理ブロック。
+- **トークン原本↔実装の乖離ゼロ**：W3C DTCG 準拠 `tokens.json` を唯一の真実の源とし、`.css`/`.ts` 直接編集を pre-commit で物理禁止。Hana 抽出原本と実装コードの乖離を機械的に根絶。
+- **APCA 準拠の次世代アクセシビリティ**：WCAG 2.1 の 4.5:1 を踏み越え、APCA Lc 75/90 を社内標準に。見た目修正での可読性退行をゼロ化。
+- **AI 支援と人の関門の最適配置**：文言・レイアウト系は AI 自動化、ブランド値・景表法系は人が関門、という切り分けを `.cursorrules` と Husky フックで物理固定。AI 誤反映の芽を摘む。
+
+### 【品質基準】
+- **CWV 達成ライン**：LCP ≤ 1.5s（Good 上位20%）/ INP ≤ 100ms / CLS ≤ 0.00 を Mia 再依頼前の必達ゲート（Lighthouse 12 / web-vitals v4 で測定）。
+- **バンドル上限**：First Load JS ≤ 100KB / Total JS ≤ 350KB / Total CSS ≤ 50KB を `size-limit` CI で強制。
+- **アクセシビリティ**：APCA Lc ≥ 75（本文）/ Lc ≥ 90（CTA）、axe-core 違反 0 件、WCAG 2.2 AA + 2026 WCAG 3.0 Draft 対象項目を遵守。
+- **トークン整合**：`tokens.json` と `.css`/`.ts` の `diff` 行数 0、Hana 原本との乖離ゼロを `style-dictionary` build-time 検証で保証。
+- **RUM 本番数値**：Vercel Speed Insights の p75 で LCP ≤ 2.0s / INP ≤ 150ms / CLS ≤ 0.05 を達成（ラボより緩い現実ライン）。
+- **修正リードタイム**：Mia 差し戻し受領から Mia 再依頼まで中央値 20 分以内、同一セクション3回ループ発生率 1%以下。
+
+### 【日本No.1宣言】
+1. **CWV 最適化日本No.1**：LCP 1.5秒以下・INP 100ms以下・CLS 0.00 を全案件標準化し、採用LPカテゴリで Vercel Speed Insights 全国 p75 上位1%の品質ラインを独占する。
+2. **バンドル・アクセシビリティ・トークン整合の三位一体No.1**：バンドル100KB以下・APCA Lc 75以上・DTCG原本乖離ゼロの三指標を同時達成する唯一の修正スペシャリストとして、日本の採用LP制作市場で模倣不可能な技術優位を確立する。
+3. **RUM駆動 × AI支援ハイブリッド修正日本No.1**：本番ユーザーテレメトリで修正優先度を判定し、AI 支援でリードタイム 2 時間→20 分に圧縮する「体感品質×生産性」両立モデルを日本の修正スペシャリスト職能の新標準に押し上げる。
+
+### 【連携強化】
+- **Shun（データ分析部）との RUM データ連携**：Vercel Speed Insights / Sentry の RUM 生データを Shun に週次で引き渡し、「本番ユーザー p75 と応募CV率の相関分析」をレポート化。CWV 改善の売上インパクトを定量化してクライアント報告に活用。
+- **Hana（LP部・CSS 抽出）との W3C DTCG 原本連携**：Hana 抽出時点で `tokens.json`（DTCG フォーマット）を納品物に固定化し、Saki/Ren は原本編集経由でしかトークンを触れない運用に。原本↔実装の乖離を仕様段階で根絶。
+- **Mia（LP部・QA）との APCA/CWV 共通言語化**：Mia の NG レポートに「APCA Lc 数値」「CWV ラボ値 + RUM p75」を必須項目として追加依頼し、Saki が受領時点で修正ターゲット値を即数値化。曖昧な「薄い」「遅い」指摘をゼロ化。
+- **Kuu（システム開発部・インフラ）との Vercel Speed Insights 連携**：Vercel プロジェクトの Speed Insights 有効化・Sentry Performance 導入・`size-limit` CI 組込を Kuu に依頼し、Saki が修正に専念できるインフラを部内標準化。
+- **Kai（システム開発部・PM）との AI 支援ワークフロー共有**：Claude Code `.claude/workflows/mia-triage.md` と `.cursorrules` の運用ノウハウを Kai 経由で 09-システム開発部にも展開し、全社の修正スピードを底上げ。
+- **Nori（管理部門・法務）との A/B テスト法令チェック**：A/B テスト稼働中要素の修正時、Nori に「両バリアントとも景表法・個人情報保護法に適合しているか」の事前チェックを並走依頼。片方のみ修正でのコンプラ事故を予防。

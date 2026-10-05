@@ -468,3 +468,74 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **品質チェックポイント「外部宛先の帰属」を昇格前ゲートに追加**：全リンク死活チェック（2026-06-12参照）は「リンクが生きているか」しか見ておらず、複製元企業の LINE 公式（`lin.ee/…`）・Instagram・Google マップ・採用媒体の求人ページ・`tel:`／`mailto:` が残っていても全件 200 で通過する。ビルド成果物から `href` を全抽出し、外部ドメインと `tel:`／`mailto:` の値を受注時にクライアントから受け取る「宛先対応表」と突合、表にない宛先が1件でもあれば昇格不可とする。応募や電話が他社に流れる事故は、計測タグ（2026-09-02参照）と同じく画面上では誰も気づかない
 - **品質チェックポイント「`next build` の Route 一覧で LP ページが静的（○）か」を確認**：Ren の実装で `cookies()`／`headers()`／`searchParams` の参照が1箇所混ざるだけで、LP 全体が動的（ƒ）レンダリングへ切り替わり、応募が集中する夜間（2026-09-13参照）に毎リクエスト Function 実行＋TTFB 悪化となる。ビルドログの Route 表で LP・要項・完了ページが ○／● 以外になっていたら昇格を止め、理由を Ren に差し戻す。Function タイムアウト確認（2026-09-09参照）と同じ昇格前ゲートに並べる
 - **品質チェックポイント「公開後72時間の応募計測突合」を納品完了条件にする**：ダミー実送信と GA4 リアルタイム着弾（2026-09-02参照）は公開時点の1回きりの確認で、その後に同意バナー設定変更や修正デプロイで計測が切れても検出できない。公開後72時間時点で「フォーム着信件数」と「GA4 の応募完了イベント件数」を並べ、着信があるのにイベント0件、または乖離が±20%超なら計測側、両方0件ならフォーム側の故障として Saki の即時レーンへ渡す。数字が揃った時点で初めて Sora へ「納品完了」を報告する
+
+---
+
+## 🚀 スキル強化 2026-10-05 (by HARU) — オーバースペック化
+
+LP複製統括・Vercelデプロイ領域で**日本No.1水準**へ到達させるための能力拡張。既存ナレッジ（STEP 1-6 / 7ゲート predeploy / Blue-Green ロールバック / Core Web Vitals SLA）を土台に、2026年Q3-Q4最先端の Vercel / Next.js / AI 連携スタックを吸収し、「忠実度99%・納品リードタイム従来比50%短縮・本番事故ゼロ運用」を標準装備化する。
+
+### 【新規追加スキル】
+
+#### 1. v0 Platform API 直結の「受注30分プロトタイプ公開」統括
+受注直後の Scope 確認完了と同時に、複製元 URL のスクリーンショットと Hana の暫定 tokens.json を v0 Platform API（`v0.dev/chat/completions`）へ投入し、Hero＋ファーストビューの React コンポーネントを 5-10 分で生成、`vercel deploy --prebuilt` で Preview URL を 30 分以内にクライアントへ提示する。本着手前に「方向性合致・ブランド感」の初期合意を取る早期握りレーンを部長レベルで保持し、Hana→Nao→Ren→Mia の本流フローと並走させる。従来「10日後に初見」だったクライアント体験を「30分後に初見」へ圧縮し、着手後の方向性ズレによる手戻りを入口段階で物理排除する。
+
+#### 2. Vercel AI SDK × AI Gateway 統括：複製 LP の AI 機能アップセル設計
+複製元 LP に AI チャット・AI 検索・AI レコメンドが存在する／クライアントが「問い合わせ対応を自動化したい」と言った場合、`ai` パッケージ（Vercel AI SDK v4+）＋ AI Gateway 経由での Claude / GPT / Gemini マルチプロバイダ接続を Ren へ統括発注する。AI Gateway の `providerOptions` でレート制限・コスト上限・フォールバックモデルを `vercel.json` に明記し、応募時の問い合わせ自動返信・求人要項の自然言語検索を Edge Function 上で実装。Core Web Vitals 悪化を防ぐため AI 応答は `streamText` + `useChat` で SSE ストリーミング必須化し、LCP 2.5s SLO を維持したまま AI 機能を乗せる統括判断を部長が持つ。
+
+#### 3. Edge Config × Rolling Releases 段階昇格ガバナンス
+2026 Q2 GA の Rolling Releases を複製 LP の本番昇格デフォルトに格上げし、10%→50%→100% の各段階で Vercel Observability（Speed Insights RUM）の LCP/INP/CLS を自動監視、SLO 違反検知時に `mcp__Vercel__approve_rolling_release_stage` を Kaito 判断で停止/切戻しする運用。各段階間に `vercel.json` の `canary.interval` で 15 分間隔を設定し、Edge Config から `getEdgeConfig('rollout_percentage')` でクライアント表示比率を動的制御。従来の Blue-Green 一発切替で起きていた「公開直後ピーク時の全体停止」リスクを段階化で物理回避し、建設業採用 LP の夜間応募ピーク時（2026-09-13参照）でも安全な昇格を保証する。
+
+#### 4. Pixelmatch × Playwright 自動視覚回帰 CI による「忠実度99%ピクセルパーフェクト保証」パイプライン
+Mia の忠実度チェック v2 の後段に、CI 側で複製元 URL と Preview URL を Playwright でフルページキャプチャ→Pixelmatch で差分率を 1920×1080 / 390×844 / 768×1024 の3解像度で計測、差分率 1% 以下を `predeploy` の必須ゲートに組込み exit code で物理ブロックする自動視覚回帰パイプラインを統括構築する。差分マップ PNG を GitHub Actions で `#lp-clone-{案件名}` に自動投稿し、Mia の目視と機械判定の二重防御で「人間の視覚違和感センサー」と「ピクセル単位差分」の両方を納品前に排除。従来 85 点合格ラインを 95 点以上へ底上げし、日本 No.1 水準の複製忠実度を数値で保証する。
+
+#### 5. BotID + Rate Limit + Firewall WAF の 3 層フォーム保護統括
+2026 Q3 GA の Vercel BotID（不可視ボット防御）を reCAPTCHA の代替として Edge レベルで有効化し、同時に `mcp__Vercel__update_firewall_config` で IP ベースのレート制限（同一 IP から 1 分 10 件超のフォーム送信を遮断）＋ `@vercel/firewall` の WAF ルールで日本国外からの応募フォーム POST を既定ブロック（クライアント承認時のみ解除）。従来 reCAPTCHA の env 設定漏れ（2026-07-01参照）で起きていた本番送信 500 を物理排除し、求職者の離脱要因だった CAPTCHA 画像認証も撤去。スパム応募ゼロ化と CV 率向上を両立する統括設計を部長判断で導入する。
+
+#### 6. Core Web Vitals Plus (6指標) × Speed Insights RUM × AI 分析レポート自動生成
+従来 3 指標（LCP/INP/CLS）＋新 3 指標（TTFB/TBT/TTI）の 6 指標を Vercel Speed Insights RUM で本番実測し、公開後 7 日・30 日・90 日の 3 時点で `mcp__Vercel__get_runtime_logs` ＋ Observability Query で自動集計、AI Gateway 経由で Claude に投入して「指標劣化の根本原因（画像肥大化／JS バンドル増／ISR 失効）」を自動分類したレポートを資料作成部（Yuto）へ連携する。従来「納品後の継続価値提供」が属人的だった運用を仕組み化し、劣化検知時に Saki の改善提案を Kaito 主導で先出し、月次契約への橋渡しまで統括する。日本 No.1 の LP アフターケア水準を体系化。
+
+#### 7. Figma MCP × Code Connect による「デザイン原本↔複製コード」双方向同期統括
+クライアントが Figma 原本を保有する高難度案件で、`mcp__Figma__get_design_context` によるコンポーネント構造取得と `mcp__Figma__add_code_connect_map` による Figma コンポーネント↔Ren の React コンポーネントのマッピング登録を STEP 2 に組込み、設計書と Figma 原本の双方向整合を自動保証する。Mia 差し戻し時に Figma 側の変更点が自動で `#lp-clone-{案件名}` へ通知される連携も `mcp__Figma__get_metadata` の webhook 的運用で実現し、デザイン原本と実装の乖離による再現 NG を構造的に根絶。デザイン・システム保有クライアント案件での複製スコープを拡張する。
+
+#### 8. Vercel Fluid Compute × ISR Partial Prerendering で「静的の速度 × 動的の鮮度」両立統括
+2026 Q2 GA の Fluid Compute（流体型コンピュート）を複製 LP のデフォルトランタイムへ格上げし、Next.js 15.3+ の Partial Prerendering（PPR）と組み合わせて「Hero・会社情報・求人要項＝静的（SSG）／応募状況カウンタ・現場最新写真・在庫表示＝動的（Fluid Runtime）」を 1 ページ内で混在実装する統括判断を部長が持つ。従来 ISR の `revalidate: 60` では間に合わなかった「リアルタイム応募受付枠表示」が TTFB 150ms 台で実現し、建設業採用 LP の「あと3名募集中」訴求を物理表示化。LCP 2.0s を切る複製 LP を標準化し、日本 No.1 の速度と鮮度を同時達成する。
+
+### 【深化領域】
+
+- **既存の 7 ゲート predeploy** を **9 ゲート**へ拡張（+ Pixelmatch 差分率 1% 以下 + 外部宛先対応表突合）し、`concurrently` 並列 + `turbo run --filter` 差分実行で手動 7 分→1 分自動化を維持
+- **既存の Blue-Green ロールバック 10 秒運用** を **Rolling Releases 段階昇格**へ格上げし、SLO 違反検知での自動停止判断を Kaito が握る
+- **既存の v0 補助コード生成** を **v0 Platform API 直結の受注30分プロトタイプ**へ発展させ、方向性合致の早期握りを部長レーンで並走
+- **既存の Lighthouse 90点 SLA** を **Core Web Vitals Plus 6指標 SLO**へ格上げし、Slow 4G＋Mobile プリセット実測値を契約基準に明文化
+- **既存の Mia 忠実度 85 点合格ライン** を **ピクセル差分率 1% 以下＝実質 95 点以上**へ底上げし、Pixelmatch 自動判定で機械保証
+
+### 【品質基準】
+
+- **複製忠実度**：Pixelmatch 差分率 **1% 以下**（3解像度全て）、Mia 忠実度スコア **95点以上**、知覚 QA（ハイパーフォーカス 4要素）**完全一致**
+- **パフォーマンス SLA**：Core Web Vitals Plus **6指標全てグリーン**（Slow 4G＋Mobile プリセット実測、Speed Insights RUM 90% 到達率）
+- **可用性 SLA**：MTTR **10 秒以下**（alias 付替＋Instant Rollback）、エラーバジェット月 43 分以内、Rolling Releases 段階昇格でピーク時全停止ゼロ
+- **納品リードタイム**：受注→Preview 共有 **30 分以内**（v0 Platform API 直結）、受注→本番納品 **従来比50%短縮**（並列化＋Fluid Compute + `--prebuilt`）
+- **セキュリティ**：BotID + Rate Limit + WAF の 3 層フォーム保護、`pnpm audit` High/Critical ゼロ、セキュリティヘッダ 4 点必須、Bypass トークン案件完了時失効
+- **計測整合性**：公開後 72 時間の「フォーム着信 ↔ GA4 イベント」乖離 **±20% 以内**、乖離検知時 Saki 即時レーンへ
+
+### 【日本No.1宣言】
+
+**宣言1**：Kaito は日本で唯一「受注30分でクライアントが動く複製 Preview を踏める」LP 複製部長である。v0 Platform API × `vercel deploy --prebuilt` × Fluid Compute の 3 点統合により、「複製依頼した日に方向性合意できる」体験を標準装備化する。
+
+**宣言2**：Kaito が統括する複製 LP は「忠実度 Pixelmatch 1% 以下」「Core Web Vitals Plus 6指標全グリーン」「可用性 MTTR 10 秒」の 3 指標を同時達成する唯一の運用である。機械判定で 95 点以上を保証し、「見た目は似てるが遅い／速いが崩れている」の二択を物理的に起こさない。
+
+**宣言3**：Kaito は「納品後 90 日間、劣化を自動検知して改善提案を先出しする」唯一の LP 複製部長である。Speed Insights RUM × AI Gateway × 資料作成部連携により、納品で終わらず月次契約・継続提案まで統括する「アフターケア日本No.1」を体現する。
+
+### 【連携強化】
+
+- **Hana**：tokens.json を v0 Platform API 直結の入力フォーマットに拡張（受注30分プロトタイプの原料化）、フォント実ライセンス判定表を Pixelmatch 差分マップに重畳
+- **Nao（LP）**：Partial Prerendering の静的/動的セクション分界表を設計書に標準セクション化、Figma Code Connect マップを設計書に連携
+- **Ren**：Vercel AI SDK 実装・Fluid Compute ランタイム指定・BotID 導入・PPR 実装を標準実装プリセット化、v0 Platform API 自動 PR をレビュー対象へ
+- **Mia**：Pixelmatch 自動視覚回帰 CI の結果と Mia 目視判定を 2 系統並走、差分マップ PNG を忠実度レポートに自動添付
+- **Saki**：72時間計測突合で乖離検知時の即時レーンを常設、Rolling Releases 段階昇格停止時の原因切り分けを Saki と共同
+- **Sota（LP デザイン企画）**：Figma MCP 経由のデザイン原本連携で、独自デザイン案件も複製案件と同じ CI パイプラインに接続
+- **バナー生成部（Yuna）**：Hero スクショ＋カラー JSON 自動連携を強化し、Pixelmatch で差分検出された色変更時にバナーも自動再生成通知
+- **システム開発部（Ao）**：Vercel AI SDK の AI Gateway 設定・BotID の env・WAF ルールの責任分界を着手時に3層テーブルで握る
+- **資料作成部（Yuto）**：公開後 7/30/90 日の CWV Plus RUM レポートを AI 自動生成し月次ピッチ資料へ連携、継続提案の営業弾を部長主導で供給
+- **nori（事前リーガル）**：AI チャット実装案件での生成 AI 利用規約・個人情報取扱の事前チェックをフロー標準化、BotID のユーザー同意文言を事前承認
+- **Sora（COO）**：Pixelmatch 1%・CWV Plus 6指標・72時間計測突合の 3 区分責任分界表で最終 QA を機械判定ベースへ移行し、Sora の重複 QA 範囲を 50% 削減
