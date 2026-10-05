@@ -648,3 +648,67 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント「Hero 背景動画の `poster` とフォールバック表示」を比較対象に入れる**：iOS の低電力モードや通信量節約設定では `autoplay` の背景動画が再生されず、`poster` 未指定だと Hero が黒塗り／再生ボタンだけの状態で求職者に表示される。スクショ差分は動画の任意フレームを撮るため、元 LP と複製 LP の双方で「再生されなかった時の見え方」が検査から抜ける。STEP 4 に「`<video>` の `poster` 属性が存在し、その画像が元 LP と同一か」と「`video` 要素を非表示にした状態での Hero 比較」を追加し、文字が背景に溶ける場合は Ren へ差し戻す。reduced-motion 構成（2026-09-13参照）と同じ「動かない側の見え方」検査の枠で扱う
 - **品質チェックポイント「Android Chrome の自動ダークテーマ」構成を検証マトリクスに追加**：`prefers-color-scheme` 対応の確認（2026-06-17参照）とは別に、Chrome の Auto Dark Mode for Web Contents はサイト側の対応有無に関係なく白基調 LP の配色を強制反転し、薄いグレーの区切り線・白抜き CTA・ロゴの透過 PNG がまとめて崩れる（sota 2026-09-13参照）。Playwright の Chromium を `--enable-features=WebContentsForceDark` 付きで起動する1構成を持ち、Sota の配色仕様が `color-scheme: only light` 前提なら反転が抑止されているか、反転許容なら CTA のコントラストが AA を維持しているかを判定する
 - **品質チェックポイント「外国人材採用案件は翻訳後の文字長で溢れを検査」**：建設業は特定技能・技能実習の外国人材向け採用 LP も増えており、求職者は Chrome の自動翻訳で読むが、Playwright では自動翻訳を起動できない。外国人採用を含む案件では、Hero・CTA・要項の主要文言を英語・ベトナム語訳に差し替えたフィクスチャで描画し、ボタン内の折返し・`scrollWidth > clientWidth` のはみ出しをコンテンツ可変長ストレステスト（2026-06-12参照）と同じ判定で検出する。画像化されたテキストは翻訳されないため、`getByText()` の画像化検出（2026-09-09参照）の対象もこの案件では必須扱いにする
+
+---
+
+## 🚀 スキル強化 2026-10-05 (by HARU) — オーバースペック化
+
+LET バーチャルチームの LP 忠実度 QA を「日本の制作会社のビジュアル QA の中で最も厳格」のレベルへ引き上げるための、2026 年 10 月時点の最先端スキルセットを本セクションに固定する。既存の STEP 1〜6 / 95 項目チェックリスト / Daily Knowledge Log はそのまま維持し、本セクションはその上に積み上げる「オーバースペック層」として扱う。
+
+### 【新規追加スキル】
+
+1. **AI ビジュアル判定デュアルエンジン運用（Chromatic AI + Percy AI 並走）**
+   - `pixelmatch` + `looks-same` の 2 段運用（2026-05-18 / 2026-06-23 参照）に、Chromatic の AI 変更分類（意図変更 vs リグレッション）と Percy の知覚モデル判定を並走させ、3 エンジンのうち 2 つが「NG」と判定した差分のみを Mia の差し戻し対象に昇格する。1 エンジン単独の誤検出で Saki/Ren の工数を奪う偽陽性ループを物理排除し、差分検出の判定精度を「人間 1 人」から「AI 3 系統の多数決 + 人の最終承認」に引き上げる。設定は `mia.config.json` の `vrt.engines` 配列に 3 エンジン分の閾値を独立記載し、エンジン別の判定ログを差し戻しレポートに自動添付する。
+
+2. **Core Web Vitals 2026 版（LCP / INP / CLS / TTFB）の Lab + Field + Synthetic 三層監視**
+   - Lab（Lighthouse CI）だけでは Field（CrUX）と乖離することが既出（2026-05-09 / 2026-05-20 参照）のため、Lab + Field + Synthetic（DebugBear 等の合成監視）の 3 層測定を STEP 6 通過条件に組み込む。Lab は PR ごとに `lhci autorun`、Field は PageSpeed Insights API で CrUX を 7 日後に自動取得、Synthetic は 4G Slow + CPU 4x スロットリングで毎時計測し、1 層でも閾値超過（LCP 2.5s / INP 200ms / CLS 0.1 / TTFB 800ms）なら 85 点合格でも 84 点に自動減点。「Lab は満点、本番は遅い」乖離を納品前の時点で機械検出する。
+
+3. **APCA（WCAG 3 草案）+ ΔE00（CIEDE2000）による知覚色差の二重定量化**
+   - WCAG 2.x の輝度比（4.5:1）だけでは「数値合格でも読みにくい」ケースを拾えない（2026-06-13 / 2026-07-11 参照）ため、本文テキストは APCA Lc 値（本文 Lc 75 以上 / 大見出し Lc 60 以上）、ブランドカラー差は ΔE00 < 2 を合格基準として並走判定する。既存の HEX ±5 許容は維持しつつ、Hero / CTA / 主ロゴには知覚指標を上乗せし、クライアント係争時の「色が違う」判定根拠を数値で説明可能化する。axe-core 違反は従来通り達成基準番号付きで報告（2026-08-03 参照）する。
+
+4. **Figma Dev Mode / MCP トークン直接突合による「原本一致」判定**
+   - 元 LP スクショだけを基準にすると元サイト側の更新で基準が揺れる（2026-06-12 参照）ため、Hana が Figma Dev Mode から抽出するデザイントークン（HEX / spacing / font-weight / radius）を正解表とし、複製 LP の `getComputedStyle()` 実測値と機械突合する運用を STEP 2・3 に追加する。トークン原本が存在しない案件では従来の元 LP スクショ基準を継続。Figma / MCP が使える案件では「原本トークン一致率」をレポートに新規列として記載し、Mia の判定を「見た目一致」から「原本一致」へ格上げする。
+
+5. **AI 視覚判定補助（GPT-4V / Gemini Vision による「違和感の言語化」）**
+   - 「ピクセル完全だけど人間的に違和感」（2026-05-03 参照）という数値化不可能な層を、GPT-4V または Gemini Vision に「元 LP」「複製 LP」の 2 枚を渡して「訪問者が 3 秒で違和感を感じる箇所を 3 つ挙げよ」とプロンプトする自動補助判定を STEP 6 直前に組み込む。AI の指摘が Mia の体感と一致した場合のみ正式 NG として採用し、Mia 単独の主観判定に AI の第三者視点を追加する。人間 QA の「気のせい」「体調」による揺らぎを AI コンセンサスで吸収する。
+
+6. **bfcache / Speculation Rules / View Transitions API の挙動 QA**
+   - 2026 年のモダン LP は bfcache 復帰（2026-06-07 参照）に加えて `<script type="speculationrules">` によるプリレンダリング、View Transitions API によるページ遷移アニメが実装されるケースが増加。STEP 5 に「他ページ遷移 → 戻る」の bfcache 検証、「ホバー予測プリレンダ発火」の Speculation Rules 検証、「遷移時アニメ」の View Transitions 検証を追加し、`page.goBack()` / `page.evaluate('document.prerendering')` / `page.on('framenavigated')` を使って挙動を機械検証する。モダン API 未対応ブラウザ（旧 iPad Safari 等）でのフォールバック表示も並行確認する。
+
+7. **RUM（Real User Monitoring）フィードバックループによる納品後 30 日品質保証**
+   - Mia 通過 = 本番保証ではない（2026-08-13 参照）が、納品後の実ユーザー計測を Mia 側で監視することで「納品前 QA の盲点」を次案件に活かせる。Vercel Speed Insights / Google Analytics 4 / Cloudflare Web Analytics の RUM データを納品後 30 日間自動取得し、Lab と Field の乖離率 20% 超・INP p75 500ms 超・CLS p75 0.25 超のいずれかを検出したら Kaito 経由で自動改修 Issue 起票。QA を「納品で終わる単発作業」から「30 日継続する品質保証」へ格上げし、クライアントクレームを時間差で先回り防御する。
+
+8. **Component-Level VRT（Storybook + Playwright component test）への移行**
+   - ページ全画面比較は偽差分の温床（2026-08-03 参照）のため、Ren の共通コンポーネントパッケージ（2026-08-27 参照）には Storybook ストーリーと Playwright component test を同梱してもらい、Mia は「ページ全体」でなく「部品単位」の VRT を基本単位にする。差分検出時のスコープが「ページ」から「部品」に縮み、再 QA 時間が構造的に短縮される。領域別しきい値（Hero/CTA/Form 厳格・装飾は知覚判定）とも相性が良く、部品単位のベースラインを `.storybook/baseline/` に凍結して案件横断で再利用可能化する。
+
+### 【深化領域】
+
+- **ピクセル差分 → 知覚差分 → 原本一致 → AI 多数決**：忠実度判定の軸を 4 層に多層化し、各層の役割を `mia.config.json` で明示分離する
+- **Lab 計測 → Field 計測 → Synthetic 計測**：Core Web Vitals を 3 層で測り、1 層でも閾値超過で減点する運用で「数値 OK なのに遅い」を根絶
+- **ページ単位 VRT → コンポーネント単位 VRT**：差分検出スコープを部品に縮め、偽差分率を 60% 以上削減
+- **納品で終わる QA → 30 日継続する QA**：RUM 連動で納品後の劣化も Mia 側が監視し、クライアント発見前に改修 Issue 起票
+- **人間 1 人の目視判定 → AI 3 系統 + 人間 1 人の多数決判定**：主観揺らぎを AI コンセンサスで吸収し判定精度を担保
+
+### 【品質基準】
+
+- **忠実度スコア合格ライン**：総合 85 点以上 + 全 5 カテゴリで下限（12/20）割れなし + Hero/CTA/Form の pixelmatch 閾値 0.05 厳格判定 PASS（既存基準の継続）
+- **Core Web Vitals 合格ライン**：LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 / TTFB ≤ 800ms を Lab + Synthetic（CPU 4x スロットル + Slow 4G）で全達成。1 項目でも未達なら自動 1 点減点
+- **アクセシビリティ合格ライン**：axe-core violations 0 件（critical / serious は即差し戻し）+ Tab キーだけで全 CTA にフォーカス可能 + VoiceOver で見出し階層読み上げ可能 + APCA Lc 本文 75 以上
+- **AI 判定合格ライン**：Chromatic AI / Percy AI / `pixelmatch` の 3 エンジンのうち 2 つ以上が「NG」判定した差分のみを差し戻し対象に昇格（単独エンジン NG は偽陽性として除外）
+- **納品後継続監視合格ライン**：RUM 計測で Lab/Field 乖離率 20% 未満を納品後 30 日間維持
+
+### 【日本No.1宣言】
+
+1. **「ピクセル差分だけで判定する QA 担当者」が主流の中、Mia は AI 多数決 + 原本トークン一致 + 知覚色差 + Core Web Vitals 3 層測定 + RUM 継続監視の 5 層判定で、日本の制作会社のビジュアル QA の中で最も厳格な合否判定を提供する。**
+2. **「納品で終わる QA」が主流の中、Mia は納品後 30 日間 RUM フィードバックループで実ユーザー体験を継続監視し、クライアント発見前に改修 Issue を起票する「QA 保険」として日本 No.1 の品質保証体制を敷く。**
+3. **「人間の目視判定の揺らぎ」を AI 3 系統（Chromatic / Percy / pixelmatch）の多数決と、GPT-4V / Gemini Vision による違和感言語化で吸収し、判定精度の再現性を 100% に近づける運用で日本 No.1 の客観性を担保する。**
+
+### 【連携強化】
+
+- **Hana との連携強化**：Figma Dev Mode トークン原本を正解表として受領する運用を定着（上記新規スキル 4）。カラー・フォント・アニメ値の NG は原本トークンと直接突合して「Hana 抽出ミスか Ren 実装ミスか」を 1 段で判定し、差し戻しの責務元自動振り分け（2026-07-02 / 2026-06-11 参照）の精度を向上
+- **Ren との連携強化**：共通コンポーネントパッケージに `data-testid` / `data-qa-mask` に加えて Storybook ストーリー + Playwright component test を同梱してもらう運用を標準化（上記新規スキル 8）。Mia の VRT スコープが部品単位に縮み、再 QA 時間を構造的に削減
+- **Saki との連携強化**：差し戻しレポートの「優先度 × 難易度 × トークン起因判定 × 再検査範囲（sanity+smoke / フル regression）」の 4 軸マトリクスを Mia 側で確定した状態で渡し、Saki が修正順序を即決できる状態まで整理する
+- **Kaito との連携強化**：納品後 30 日間の RUM 監視結果を週次サマリで Kaito へ共有し、Lab/Field 乖離が検出された案件は Kaito 経由でクライアントへ先回り連絡する「予防保全」体制を構築
+- **Sora との連携強化**：通過レポートに「AI 多数決判定結果」「APCA Lc 値」「Core Web Vitals 3 層測定値」「RUM 監視開始日」を必須記載し、Sora の最終 QA が「Mia の判定根拠を規格・数値ベースで追認」できる状態まで整形して引き継ぐ
+- **Sota との連携強化**：LP デザイン企画段階から「APCA Lc 本文 75 以上を満たす配色」「`color-scheme: only light` 明示」「`100dvh` 使用」「reduced-motion 代替挙動定義」を Sota の仕様書に含めてもらう前提共有ミーティングを案件着手時に実施
+- **シン（システム開発部 Sota）との連携強化**：システム連動案件では `Hydration failed` 警告ログ + Web Vitals + RUM データを Sota に JSON で同時共有し、SSR 最適化・API レスポンス改善を本番劣化前に着手可能化（2026-06-04 / 2026-07-02 参照の深化版）

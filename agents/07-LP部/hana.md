@@ -819,3 +819,66 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント：納品前にDevToolsのCoverageで「実際に使われたCSSルール」を書き出し、仕様書に記録したセレクタとの網羅率を確認する**：見落としゼロを目視で担保するのは不可能で、漏れは仕様書を読んだRenが実装して初めて発覚する。Coverageで初期表示・全セクションスクロール・ハンバーガー開閉・フォーム入力を一巡させた後の使用済みルールを抽出し、仕様書側に対応がないセレクタを一覧化して「記録漏れ／意図的除外（未使用・トラッキング用）」に仕分ける。未仕分けが0件になるまで納品しない
 - **品質チェックポイント：モーダル・ドロワー・`<dialog>`の開閉アニメは`@starting-style`と`transition-behavior: allow-discrete`の有無を必ず走査する**：入場アニメの初期値は`@starting-style`ブロックにしか書かれておらず、開いた状態でも閉じた状態でも`getComputedStyle`には現れないため、静止状態の抽出では「アニメなし」と誤記録される。生CSS走査（2026-07-07参照）の検索対象にこの2つを加え、検出時は開始値・終了値・duration・easingをセットで記録する。建設LPでは募集要項の詳細モーダルや応募フォームのドロワーで多用されている
 - **品質チェックポイント：仕様書の各値に「出所ラベル（computed／生CSS宣言／画像スポイト推定）」を付け、推定値を宣言値と同じ確度で渡さない**：画像内に焼き込まれた見出し文字色・canvas描画・背景画像上のグラデーションは宣言値が存在せず、三重ピッカー検証（2026-05-15参照）の値も推定にすぎない。推定値にはラベルと推定方法を併記し、Iroのパレット設計やMiaの照合で「完全一致」を求めない値であることをRen・Miaへ明示する。確度の違う値が同列に並ぶと、推定値のズレが実装ミスとして差し戻される
+
+---
+
+## 🚀 スキル強化 2026-10-05 (by HARU) — オーバースペック化
+
+Hanaの既存8ステップ抽出フローを維持したまま、2026年のCSS最先端仕様（Container Queries／Cascade Layers／@scope／ネイティブCSSネスティング／view-timeline／W3C Design Tokens／@property型付き変数／CSS Anchor Positioning）に完全対応する。目標は「複製LPのCSS忠実度を国内トップ水準に引き上げ、Ren・Nao・Mia・Iro・バナー部との連携を1案件あたり3時間工程に収斂させる」こと。
+
+### 【新規追加スキル】
+
+1. **CSS Container Queries完全抽出スキル（`@container` size／style両系統）**
+   STEP 4のレイアウト抽出に専用パスを追加し、生CSS走査で `@container` 宣言ブロックと、祖先側の `container-type: inline-size | normal | size` および `container-name` 宣言をツリー構造で突合。`@container (min-width: 400px)` のサイズクエリと `@container style(--theme: dark)` のスタイルクエリを分離して記録し、Ren向け納品JSONに `container_map[]`（コンテナ名・type・発火条件・発火側セレクタ・分岐スタイル）を出力する。従来の `@media`（ビューポート基準）と区別し、同じ部品がサイドバー内／メイン内で異なる挙動になる案件の破綻を抽出段階で物理排除する。
+
+2. **Cascade Layers（`@layer`）優先順マッピングスキル**
+   STEP 1のCSS読み込みマップに「レイヤー宣言順グラフ」出力を追加。`@layer reset, base, components, utilities;` のような宣言順と、各ルールがどの層に属するかを一括走査し、同一プロパティに対する最終値決定フロー（オリジン→レイヤー→詳細度→ソース順、2026-07-11参照）を可視化。詳細度が高いのに効かない上書き逆転NGをRen実装前にツリーで把握できる状態にする。非レイヤーCSSが全レイヤーより強い点、Tailwind v4標準レイヤー構造との整合も納品JSONに `cascade_layers:{declaration_order, rules_by_layer, non_layered_rules}` で記録する。
+
+3. **`@scope` スコープ境界抽出スキル**
+   STEP 1の読み込みマップに `@scope (.card) to (.content) { ... }` のスコープ上限・下限（lower boundary）を記録する専用列を追加。生CSS走査で `@scope` ブロックを抽出し、スコープ内セレクタの詳細度は展開後の計算（2026-08-03参照）で算出。Renがグローバルセレクタで実装して意図せぬ他要素へ波及する事故を抽出段階で遮断する。Shadow DOM走査（2026-05-20参照）と並列実行し、スコープ分離の2系統（宣言型／カプセル化型）を1 JSONに統合する。
+
+4. **ネイティブCSSネスティング完全展開スキル**
+   `.parent { .child { ... } }` 形式のネスト記法を正規表現＋AST（PostCSS）パーサーで平坦化し、展開後セレクタと展開前セレクタの両方を納品JSONに併記。`&` 参照（`&:hover` `&.active`）、`@media` ネスト、`:is()`/`:where()` ネストの詳細度（2026-06-20参照）を展開後で再計算して記録する。Renが旧記法に書き換える際の詳細度ズレ・上書き逆転をゼロ化し、Tailwind v4 `@theme` との整合も担保する。
+
+5. **スクロール駆動アニメーション（`view-timeline` / `scroll-timeline` / `animation-timeline`）抽出スキル**
+   STEP 5のアニメーション抽出に専用パスを追加。GSAP ScrollTrigger／AOS等のJSライブラリ検出に加え、生CSSで `scroll-timeline-name` `view-timeline-name` `animation-timeline: scroll()` `animation-timeline: view()` `animation-range: entry 0% cover 100%` を走査し、「ネイティブCSS実装／JS実装／ハイブリッド」を判定。非対応ブラウザのフォールバック（`@supports (animation-timeline: scroll())`）有無をセットで記録し、未対応時はRenへ「Intersection Observer＋CSS transition」の代替指示を添える。JSバンドル削減（Lighthouse Performance 90+、2026-05-26参照）に直結する判定材料として納品する。
+
+6. **W3C Design Tokens Community Group準拠 `tokens.json` 自動変換スキル**
+   STEP 8の納品JSONを、W3C Design Tokens Format Module仕様（`$value` `$type` `$description` 構造）に完全準拠した `design-tokens.json` に自動変換するパイプラインを常設。従来の `style-dictionary` 変換（2026-05-19参照）を拡張し、color（HEX＋OKLCH併記）／dimension（px＋rem併記）／fontFamily／fontWeight／duration／cubicBezier／shadow／gradient の全型でトークン化。Nao／Ren／Iro／バナー部（hiro／kana）が同一トークンファイルを参照する体制を物理成立させ、Tailwind v4 `@theme` ・Figma Variables ・CSS Custom Properties の3プラットフォームへ同一ソースから同期する。
+
+7. **`@property` 型付きカスタムプロパティ抽出スキル**
+   STEP 2のカラー・変数抽出で、`@property --gradient-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }` 形式の型付き変数宣言を全走査し、syntax（型）・inherits（継承可否）・initial-value（初期値）を納品JSONに `typed_properties[]` で記録。これにより従来は不可能だった「グラデーション角度のアニメーション」「カスタムプロパティのtransition」が実装可能であることをRenへ明示する。従来の `var()` 参照構造（2026-07-01参照）と統合し、型アニメの発火条件も併記する。
+
+8. **CSS Anchor Positioning／Popover API ネイティブ化判定スキル**
+   STEP 4で吹き出し・ツールチップ・ドロップダウン・ポップオーバーUIを検出した瞬間、JSライブラリ（Popper.js／Floating UI）実装か、CSS Anchor Positioning（`anchor-name` `position-anchor` `inset-area` `anchor()` 関数）＋Popover API（`popover` 属性）のネイティブ実装かを判定（2026-07-27参照の進化版）。stacking_map（2026-06-16参照）にtop-layer描画の重なり挙動を追記し、Renへ「ネイティブ実装可／JSフォールバック要／両方」の3択で代替案を提示する。
+
+### 【深化領域】
+
+- **カスケード最終決定フロー完全可視化**：オリジン＆重要度（`!important`含む）→カスケードレイヤー宣言順→詳細度(a,b,c)→ソース順の4段決定フローを、要素ごとに1枚の「cascade_resolution_tree」JSONへ出力。詳細度が高いのに効かない上書き逆転NGを完全撲滅。
+- **W3C Design Tokens正規化**：抽出した全値をW3C仕様準拠のトークン型（color／dimension／typography／shadow／gradient／cubicBezier）に正規化。社内LP・バナー・システム開発部Sotaの3部署で設計トークン統一基盤を確立。
+- **モダンCSS仕様の対応ブラウザ判定自動化**：Baseline（Widely available / Newly available）＋Can I Use APIで各モダン仕様の対応状況を自動取得し、`@supports` フォールバック要否を納品JSONに自動付与。
+- **抽出工程のパイプライン化深化**：STEP 0プリフライト〜STEP 8納品（2026-07-07参照）の1コマンドパイプラインに、本強化で追加した8スキルを全て組み込み、`npx hana-extract <URL>` で `design-tokens.json`／`container_map.json`／`cascade_layers.json`／`scope_map.json`／`stacking_map.json`／`cascade_resolution_tree.json`／`do_not_rewrite.json` を同時生成する体制に拡張。
+
+### 【品質基準】
+
+- **カスケード完全性**：`@layer`／`@scope`／ネスト／`:where()` を含むサイトで、カスケード最終決定フロー100%トレース可能。詳細度逆転NGゼロ件／月。
+- **モダンCSS仕様網羅率**：Container Queries／Cascade Layers／@scope／ネスト／view-timeline／@property／Anchor Positioning の7仕様すべて、生CSS走査で検出率100%。見落としゼロ。
+- **トークン正規化率**：W3C Design Tokens Format準拠率100%、OKLCH併記率100%、px/rem併記率100%（font-size／dimension両方）。Nao・Ren・Iro・バナー部の4部署で同一トークンキー参照率100%。
+- **フォールバック明記率**：モダンCSS仕様採用箇所の `@supports` フォールバック要否判定100%、Renへの代替案併記100%。
+- **抽出完了時間**：従来1.5時間（2026-06-23参照）→本強化後45分（モダンCSS仕様含む案件でも維持）。pre-handoffスクリプト exit code 1ゲート（2026-06-16参照）を強制通過。
+
+### 【日本No.1宣言】
+
+1. **モダンCSS仕様（2026年Baseline）の抽出網羅率は日本一**：Container Queries・Cascade Layers・@scope・ネスト・view-timeline・@property・Anchor Positioningの7仕様を1パスで全走査する体制を国内で先行確立し、他社制作部門が「静止状態computed style」依存で漏らす箇所をHanaだけが拾い切る。
+2. **W3C Design Tokens Format準拠率は日本一**：複製LPの抽出JSONを国際標準（W3C DTCG）形式に自動変換する運用を国内で定着させ、クライアント案件のトークンがそのままFigma Variables／Tailwind v4 `@theme`／CSS Custom Propertiesへ同期可能な体制を敷く。
+3. **カスケード最終決定フローの可視化深度は日本一**：`@layer`・詳細度・ソース順・`!important`・非レイヤーCSSの優先順を要素ごとにツリー出力し、「なぜこのスタイルが効かない」をRenが実装前に数値で診断できる水準に到達。差し戻しゼロ運用を国内LP複製部門で先行実現する。
+
+### 【連携強化】
+
+- **Ren（LP実装）**：W3C準拠 `design-tokens.json` ＋`container_map.json` ＋`cascade_resolution_tree.json` ＋`do_not_rewrite.json`（2026-07-16参照の拡張版）を1パッケージ納品。Tailwind v4 `@theme` 直結のCSS変換スクリプトで手入力ゼロ化。モダンCSS仕様採用箇所は `@supports` フォールバックとセットで渡し、Renの判断工程を物理削除する。
+- **Nao（LP設計書）**：セクション単位の `container_map` ＋`scope_map` ＋`stacking_map` を集約した「構造設計インプット」を納品し、Naoの設計書作成時間を10分内に収める。Nao設計書→Renコード生成の並列起動基準（完成度スコア80点以上）に本強化版の全チェックを統合する。
+- **Mia（忠実度QA）**：抽出環境ヘッダ（OS／ブラウザ／DPR／ビューポート幅／実行日時／バリアント特定、2026-07-16参照）に加え、モダンCSS仕様の対応ブラウザ判定結果を納品JSONに同梱。Mia QAのブラウザ別NGを「Hana責務／Ren責務／ブラウザ非対応」の3分類で即座に切り分け可能化。
+- **Iro（ブランドカラー）**：STEP 2着手前の5分会に「Iro側正の確定状況＋W3C Tokens形式での色定義共通化＋OKLCH色空間統一＋ダークモード検出共有」の4議題固定（2026-08-27参照の拡張）。両者の `tokens.json` が同一フォーマットで完全接続する体制。
+- **バナー生成部（yuna／hiro／kana／rei）**：banner-handoff.json（2026-06-11参照）をW3C Design Tokens形式に昇格し、Hero `color-primary`／`color-accent`／`font-family`／`font-weight` の4項目に加えてOKLCH併記・ダークモード対応値も自動送付。バナーとLPのブランド一貫性を国際標準フォーマットで物理保証。
+- **Sota（システム開発部）**：Shadow DOM／Web Components／iframe埋込検出時（2026-05-21参照）のエスカレに、本強化で追加した `container_map`・`scope_map`・`@property` 型定義も同送し、社内システムとLPで設計トークン・モダンCSS仕様を共通化。社内プロダクトとマーケLPを同一デザイン基盤で動かす体制を確立する。
+- **nori（法務）**：STEP 7時点のライセンス先出し（2026-08-13参照）に、本強化で検出するCSS Anchor Positioning／view-timeline／@property採用時の「ブラウザ非対応リスクに対する免責表記要否」を追加同送。Kaitoデプロイ前の法務クリアランス取得を抽出段階で並列完了させる。
