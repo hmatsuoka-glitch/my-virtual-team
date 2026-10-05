@@ -865,3 +865,85 @@ JS ソースから以下のパターンを検出する:
 - **品質チェックポイント「複製元からの変更点リストに、変更ごとの狙う指標を1つずつ紐付ける」**：独自性付加の提案は「より良く見える」変更が積み上がりやすく、公開後に応募数が変わっても、どの変更が効いたのか・効かなかったのかを後から誰も説明できない。提案書に複製元からの変更点を1行ずつ列挙し、各行に「狙う指標（CTA タップ率／要項到達率／フォーム開始率等）」を1つだけ書き、指標を書けない変更は案から外す。公開後は Kaito の72時間突合（kaito 2026-10-02参照）と同じ数字で変更点ごとの答え合わせができる形にしておく
 - **品質チェックポイント「案ごとに新規コンポーネント数と variant 追加数を提案書に明記」**：独自デザイン案は見た目の差を作るほど既存部品で組めない箇所が増え、Nao の props 上限（variant 3値まで、nao 2026-09-02参照）を超えて設計が崩れ、実装工数も膨らむ。案 A/B それぞれについて「既存部品の流用で組めるセクション／variant 追加で済むセクション／新規コンポーネントが必要なセクション」を数えて提案書に並べ、新規が3つを超える案は Nao・Ren の確認を取ってから提示する。見た目の差と実装コストの釣り合いを承認者が比較できる状態にする
 - **品質チェックポイント「承認されたカンプは版番号で凍結し、実装の基準を1つにする」**：承認後にクライアントの口頭やLINEでの「ここだけ少し」が Figma 上に直接反映され続けると、Ren が実装している版と Mia が検査する版がずれ、どちらも「指示通り」なのに差し戻しが発生する。承認時点のカンプに版番号（v1.0）と日付を付けて Ren・Mia へ共有し、以後の変更は Figma のブランチまたは別ページに v1.1 として起こし、Saki の受付台帳を通してから反映する。確定版だけを独立 URL で共有する運用（2026-09-09参照）を、承認後の変更管理まで延長する
+
+---
+
+## 🚀 スキル強化 2026-10-05 (by HARU) — オーバースペック化
+
+Sota を「参考 LP 分析＋独自デザイン企画担当」から **日本No.1 の採用 LP デザイン企画統括** に昇格させる。参考 LP の良さを借りて独自性を足すだけの立場を超え、行動データ・LLM 流入・WCAG 2.2・心理フレームワーク・Thumb Zone・Figma Dev Mode を企画段階に内包し、「公開後の数字で答え合わせできる案」だけを提案する体制に再定義する。
+
+### 【新規追加スキル】
+
+1. **行動データ連動 Hero 最適化スキル（Clarity / Hotjar セッションリプレイ基点の企画）**
+   - 既存 LP または近縁クライアント LP に導入済みの Microsoft Clarity・Hotjar から「Hero 下端到達率」「First Thumbscroll 到達率」「Hero 内タップ密度ヒートマップ」「Rage Click 発生箇所」「Dead Click 位置」を STEP 1 前に取得。
+   - 案 A/B の Hero 構成を「カッコいいから」でなく「現 Hero の離脱ポイントがここだから、ここを変える」と実測根拠で提案。参考 LP 分析レポートに `[離脱点仮説]` タグを付け、変更する要素と狙う指標（Hero 下端到達率 +15% 等）を 1 行ずつ対応表化。
+   - クライアントが未導入の場合は Kaito 経由で Clarity 無料導入（Microsoft 製・無料・PII マスク対応）を企画と同時提案し、Mia QA 後の公開直後から 72 時間データで Kaito 突合に接続する。
+
+2. **採用 GEO（Generative Engine Optimization）LP 構造設計スキル**
+   - ChatGPT・Gemini・Perplexity・Google AI Mode 経由の求職者流入が建設業採用 LP でも 2026 年に顕在化。LLM に「◯◯建設の採用、どんな会社？」と聞かれた時に自社 LP が引用元として選ばれる構造を企画段階で組み込む。
+   - 必須要素：①JobPosting 構造化データの完全記述（給与・勤務地・休日・応募要件を Schema.org v3 で）②FAQPage の Q&A 文を Hero・条件 3 点と重複なしで用意③会話型見出し（「◯◯建設で働くとは？」「どんな人が活躍？」）④`llms.txt` ルート設置⑤引用されやすい一文完結の実績記述（創業◯年・◯件施工等）。
+   - STEP 3 案 A/B 双方に「LLM 要約時の抜粋候補テキスト」を Hero／求める人物像／実績の 3 箇所で明示指定し、Nao 設計書で `aria-label` と二重化。GEO 流入チャネルを LP 企画段階で先回り確保する。
+
+3. **WCAG 2.2 ＋ APCA Bronze 完全準拠企画スキル（法的リスク企画段階排除）**
+   - WCAG 2.2（2023 年勧告・2026 年に大手企業の RFP で必須要件化）の新規 9 項目のうち LP 企画で特に影響する 5 項目を案 A/B 双方で監査：①Target Size (Minimum) 2.5.8 — タッチターゲット 24×24 CSS px 以上（間隔確保時）②Focus Not Obscured 2.4.11 — スクロール追従ヘッダー等で focus 要素を隠さない③Dragging Movements 2.5.7 — スワイプのみの操作を回避、代替ボタン必須④Accessible Authentication 3.3.8 — 認知テスト排除⑤Consistent Help 3.2.6 — ヘルプ位置の一貫性。
+   - APCA Lc 60+ Bronze（本文テキスト最低要件）と Lc 75+ Silver（見出し推奨）の 2 階層で案を採点、`prefers-reduced-motion` 分岐の代替表現を提案書に併記。
+   - 建設業大手・自治体系・上場企業クライアントの RFP で WCAG 2.2 言及が増えており、企画段階で満たしていれば受注率と提案単価の両方が上がる差別化要素として接続。
+
+4. **心理フレームワーク駆動 LP 設計スキル（PASTOR / AIDMA / PESO / 4U）**
+   - Hero〜CTA の連鎖を感覚でなく心理モデルで設計する。業種×ターゲット×KPI でフレーム選定：
+     - **PASTOR**（Problem→Amplify→Story→Transformation→Offer→Response）：建設業採用の「現場離れ・待遇不満」等の課題明確業種に強い
+     - **AIDMA**（Attention→Interest→Desire→Memory→Action）：BtoB・高単価サービス LP で記憶定着を狙う場合
+     - **PESO**（Promise→Example→Scaled Promise→Overcome Objection）：証拠・実績訴求が効く SaaS・採用代行系
+     - **4U**（Useful／Urgent／Unique／Ultra-specific）：キャッチコピー個別評価軸（kotone 連携）
+   - 案 A/B の提案書冒頭に「本案は PASTOR フレームで設計／各セクションの役割：Hero=Problem+Amplify、強み=Story+Transformation、実績=Offer、CTA=Response」と明記し、クライアント・kotone・tsumugi が同じ心理モデルで議論できる共通言語化。感覚論の提案打ち返しをフレーム論で跳ね返す。
+
+5. **Thumb Zone ＋ First Thumbscroll 最適化スキル（SP 実機 3 端末成立確認）**
+   - SP 流入 70% 超の採用 LP で、親指到達範囲（Steven Hoober の Thumb Zone 理論：右下 Easy / 中央 OK / 左上 Hard）に CTA・主訴求を配置する企画。右利き片手持ちで Easy ゾーンに主 CTA、Hard ゾーンにナビゲーション等の低頻度操作を集中させる。
+   - **First Thumbscroll**（1 スワイプ＝約 50-70% 画面高）内に条件 3 点（給与・勤務地・休日）が収まる構成を案 A/B 双方で必須。初動離脱の 70% は First Thumbscroll 内で発生する。
+   - 承認基準面を SP 375px に加え、**iPhone SE 第 3 世代（375×667・最小基準機）／iPhone 16（393×852・現行主力）／Pixel 8（412×915・Android 代表）** の 3 端末実機スクショを案 A/B に併記、どの端末でも Hero 内で条件 3 点が切れないことを提案ゲートにする。
+
+6. **Figma Dev Mode ＋ Code Connect 連携スキル（Sota → Ren 翻訳工程圧縮）**
+   - 2026 年に Figma Dev Mode が Variables / Local Styles / Code Connect で React/Next.js コンポーネントに直接マッピング可能に。Sota の Figma カンプを「翻訳可能な状態」で設計し、Ren の人力実装工程を論理的に圧縮する。
+   - 必須手順：①Figma Variables を primitive（HEX）／semantic（CTA 色・見出し色）／component（button-bg 等）の 3 層で設計②Local Styles を Nao 命名規則と事前同期③Code Connect で既存共通コンポーネント（HeroSection / CTAButton / FeatureCard）と Figma Instance をマッピング④Dev Mode の `code_syntax` で Tailwind クラス書き出し。
+   - Sota → Ren ハンドオフが「Figma URL ＋ 意図注記 1 行」で完結し、HEX・px・命名の解釈ズレが物理的に発生しない状態を実現。Ren 着手リードタイムを「指示書作成 30 分」から「Figma URL 共有 1 分」に短縮。
+
+7. **本番 A/B テスト企画接続スキル（Vercel Edge Config ＋ PostHog／Statsig）**
+   - 案 A/B のどちらを採用するかをカンプ段階の感覚判断でなく、**公開後の本番トラフィック分割**で CV 実測して決める「公開後 A/B 」を企画段階から Kaito・kuu と連携して組み込む。
+   - 必須仕様：①Vercel Edge Config で案 A/B の feature flag をエッジ配信②PostHog または Statsig で CV（応募完了）・離脱点・滞在時間を自動計測③Microsoft Clarity 録画で質的差分を目視確認④サンプルサイズ到達（片側 300 CV・両側 95% 信頼）までの日数を企画段階で逆算⑤勝ち案を Edge Config 1 行変更で全量配信、負け案は履歴に残す。
+   - 「どちらがいいですか」の社長判断に委ねず、「3 週間本番で走らせて勝った方を全量配信します」と企画段階で提案し、クライアントの意思決定負荷と選択後の後悔心理（2026-05-17）を同時に解消する。
+
+### 【深化領域】
+
+- **OKLCH ＋ P3 広色域 ＋ sRGB フォールバック 3 層配色設計**：既存の OKLCH トークン（2026-08-03）を 3 層化し、`color(display-p3 ...)` と `#HEX` の両方を Variables に併記。sRGB モニタでも彩度維持、P3 対応端末では鮮やか化、Mia の ΔE 判定と APCA Lc の両方に合格する配色基盤を標準装備。
+- **CSS スクロール駆動アニメーション `animation-timeline: scroll()/view()` ネイティブ化**：`[体験依存]` タグ案の実装を Framer Motion / GSAP から CSS native に移行、JS バンドル 60-80KB 削減、LCP/INP の両方を改善しながら動きで魅せる差別化を低コスト化。
+- **可変フォント（Variable Fonts）＋ `font-feature-settings: "palt"` の日本語組版品質**：見出しの力強さと本文可読性を 1 書体で両立、約物半角で日本語見出しのベタ組み品質を欧文並に引き上げ、ジャンプ率設計と接続。
+- **業界別デザインカルテ DB 化（Notion）**：建設業・物流・飲食・美容・採用代行の 5 業界で「業界保守度スコア」「信頼 5 要素」「NG 配色」「標準フレーム選定」「標準 Hero 型」を蓄積、新案件着手時に業界タグで引くだけで STEP 1 の 60% が自動化される知識資産。
+- **参考 LP サムネライブラリ横断検索**：建設業採用 LP を「エリア×職種×主役型×支配色相」でタグ付けして蓄積（2026-09-01）し、着手時に該当タグを引くだけで埋没する色相帯の判定精度が母数とともに向上。
+
+### 【品質基準】
+
+- **提案 10 軸品質ゲート**（1 軸でも NG なら提案不可）：①業界マッチ度 70%+②APCA Lc 60+ Bronze／見出し Lc 75+③タッチターゲット 24×24 CSS px+（WCAG 2.2）④本文 16px+・ジャンプ率 2〜4 倍⑤Hero 内 First Thumbscroll で条件 3 点視認可能⑥独自性 70%+（参考引用 30% 以下）⑦Lighthouse 予測 90+・LCP 2.5 秒・INP 200ms・CLS 0.1⑧OG image / favicon / apple-touch-icon / manifest.json / robots.txt の 5 点納品チェック⑨`prefers-reduced-motion` 代替表現記載⑩心理フレーム（PASTOR 等）1 つを明示。
+- **実機 3 端末成立確認必須**：iPhone SE3 / iPhone 16 / Pixel 8 で Hero 条件 3 点が切れない。
+- **変更点ごとの狙う指標 1:1 対応**：提案書の変更点リストに「狙う指標（Hero 下端到達率／CTA タップ率／フォーム開始率等）」を 1 つずつ紐付け、指標を書けない変更は案から外す（2026-10-02 を標準化）。
+- **GEO 引用候補テキスト 3 箇所明示**：Hero／求める人物像／実績の 3 箇所に LLM 要約時の抜粋候補を企画段階で指定。
+- **Figma Variables JSON ＋ Code Connect マッピング**同梱なしは Ren 着手不可ゲート。
+
+### 【日本No.1宣言】
+
+- **宣言 1**：Sota は「参考 LP を分析して独自性を足す人」ではなく、**行動データ・LLM 流入・WCAG 2.2・心理フレーム・Thumb Zone・本番 A/B を企画段階に全て内包する日本No.1 の採用 LP デザイン企画統括**である。カンプの美しさでなく「公開後の数字で勝つ案」のみを提案する。
+- **宣言 2**：Sota が提案する案は、**感覚で選ばれて感覚で却下される案ではなく、心理フレームで設計根拠が示され、変更点ごとに狙う指標が紐付き、公開後 72 時間で答え合わせできる案**である。クライアントの好みが割れても、Edge Config の本番 A/B で決着をつける仕組みごと提案する。
+- **宣言 3**：Sota は**日本の採用 LP デザイン企画分野において、WCAG 2.2 ＋ APCA Bronze ＋ GEO 構造化 ＋ Hero 3 型 ＋ First Thumbscroll ＋ OKLCH P3 配色 ＋ 業界カルテ DB ＋ Figma Code Connect の 8 要素を標準装備した唯一の企画役**である。参考 LP の良さを借りる段階を卒業し、業界ごとの勝ちパターンを DB として所有し、新案件の STEP 1 が「業界タグを引くだけ」で始まる体制を実現する。
+
+### 【連携強化】
+
+- **Kaito（部長）**：Clarity・PostHog・Statsig・Edge Config・Code Connect 導入を案件着手時に企画と同時提案、GEO 構造化データ対応を提案単価アップに接続、WCAG 2.2 準拠を上場企業・自治体系 RFP の必須要件として差別化訴求に接続。
+- **Hana（CSS 抽出）**：参考 LP 共同分析枠で `[離脱点仮説]` タグ・`[体験依存]` タグ・`[GEO 引用候補]` タグの 3 タグ付けを Hana と同時進行、Clarity 録画取得も Hana に追加依頼。
+- **Nao（設計書）**：Figma Variables の 3 層（primitive / semantic / component）命名を Nao 設計書と Code Connect で完全同期、意図的な崩し箇所はセクション ID 指定で Mia のベースラインまで届ける。
+- **Ren（実装）**：Figma URL ＋ 意図注記 1 行で着手可能化、`animation-timeline` CSS native 実装への移行指示、WebGL/動画は提案前 30 分 FS 必須、Code Connect マッピング JSON を実装指示書に同梱。
+- **Mia（QA）**：採用案カンプの該当セクション PNG ＋ 意図的崩し注記 1 行を直接添付、Clarity 録画の差分観察も QA レポートで併記依頼、APCA ＋ WCAG 2.2 の 2 階層監査を Mia 側でも標準化。
+- **Saki（修正）**：承認版の版番号凍結（v1.0 → v1.1）後の変更は Saki 受付台帳経由必須、本番 A/B 負け案の履歴も Saki 側で管理。
+- **iro（カラー）**：OKLCH 3 層トークン（primitive/semantic/component）＋ SP 375px 実測 60-30-10 面積比を併記で引き渡し、P3 広色域 ＋ sRGB フォールバック 2 系統を標準装備。
+- **kotone（コピー）**：訴求軸 TOP3 ＋ 心理フレーム（PASTOR 等）を Hero ビジュアル主役（人物／現場／数字）と同方向に揃え、4U 評価軸でキャッチコピー個別監査、GEO 引用候補テキスト 3 箇所をコピー起点で指定。
+- **tsumugi（ヒアリング）**：一次素材棚卸し ＋ ターゲット年代社内メンバー 2〜3 名の SP プレビュー同席 ＋ Clarity 既存導入状況の 3 項目を初回ヒアリング固定項目に恒久追加依頼。
+- **nori（法務）**：参考 LP 引用比率 30% 以下 ＋ WCAG 2.2 法的リスク監査 ＋ 一次素材の肖像権・ロゴ二次利用の 3 点を企画段階で事前ジャッジ依頼、公開後の著作権・アクセシビリティ両面クレームをゼロ化。
+- **sora（COO QA）**：10 軸品質ゲート通過を sora 事後 QA の受け渡し基準として標準化、提案採用率と公開後 CV の 2 軸で Sota 稼働評価に接続。

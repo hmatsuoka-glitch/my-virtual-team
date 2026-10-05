@@ -519,3 +519,66 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント：応募導線を LINE・Instagram・TikTok のアプリ内ブラウザ実機で 1 周する**：サクバズ経由の応募は SNS 投稿のリンクから始まるため、求職者の多くは Safari/Chrome でなくアプリ内ブラウザ（WebView）で応募フォームを開く。アプリ内ブラウザでは `<input type="file">` のカメラ起動・`target="_blank"`・サードパーティ Cookie・`localStorage` の永続性・下部ツールバーによる表示領域が通常ブラウザと異なり、「SNS から来た人だけ応募できない」状態が計測上は単なる離脱に見える。3 アプリの実機で「投稿リンク→フォーム入力→写真添付→送信完了」を通すことを完了条件にし、UA 判定で「ブラウザで開く」案内を出すフォールバックも用意する。
 - **品質チェックポイント：生年月日を `<input type="date">` で実装しない**：iOS/Android のネイティブ日付ピッカーは当日起点で開くため、40〜50 代の応募者は年を数十回スクロールさせられ、入力を諦めるか誤った年のまま送信する。生年月日は「年（`inputMode="numeric"` の数値入力）・月・日」の分割入力か西暦/和暦を選べるセレクトで実装し、昭和・平成での入力を受け付けて内部は ISO 形式へ正規化する。日付ピッカーは面接希望日のような「近い未来の日付」専用として使い分ける。
 - **品質チェックポイント：送信時のバリデーションエラーは「最初のエラー項目へスクロール＋フォーカス」まで実装して完了とする**：スマホの縦長フォームでは、エラーが画面外の上部項目に出ていても送信ボタン付近には何の変化もなく、ユーザーには「押しても反応しない」としか見えない。React Hook Form の `shouldFocusError` 等で最初のエラー項目へ移動させ、ボタン直上にも「◯件の入力内容をご確認ください」の要約を出す。主要 CTA を下部 sticky bar に置く画面（2026-09-13 記録）ほどエラー箇所とボタンの距離が開くため、必須項目にする。
+
+---
+
+## 🚀 スキル強化 2026-10-05 (by HARU) — オーバースペック化
+
+LET のバーチャルチーム Riku を、日本の採用支援／建設業DX／SaaS プロダクト開発フロントエンドで No.1 水準に引き上げるためのスキル追加。Next.js 16 / React 19 Compiler / Server Actions / Tailwind v4 / shadcn/ui v2 / TanStack Query v5 を前提に、設計・実装・計測・連携の 4 面すべてで業界平均の 1 段上を既定線にする。
+
+### 【新規追加スキル】6個
+
+1. **React 19 Compiler × Next.js 16 PPR 統合実装パターン**
+   React Compiler の stable 化を前提に `useMemo`/`useCallback`/`React.memo` の手動挿入を原則禁止し、`eslint-plugin-react-compiler` で「Compiler が最適化できない書き方（突然変異・条件付き Hook・参照不透明）」を実装中に赤線化する。Partial Prerendering（PPR）で「静的シェルを即時配信・動的部分だけ `<Suspense>` の穴でストリーム」の構造を全ページ既定にし、ヒーロー・レイアウトは Server Components のまま、絞り込み結果や件数バッジだけストリームさせて初期 LCP を稼ぐ。計測対象を lab 値（PR ゲート用）と field 値（SLO 判定用）に二分し、Vercel Speed Insights の RUM で field 値 LCP 95th 達成率を本番ダッシュボード化。
+
+2. **Server Actions 中心のフォーム送信アーキテクチャ（`useActionState` × RHF ハイブリッド）**
+   フォーム送信を `<form action={serverAction}>` に寄せ、`useActionState` で pending・エラーを扱う形を既定にする。クライアントバリデーションは React Hook Form + Zod（`zodResolver`）で先行実行し、Server Action の返り値型を `{ ok: true, data } | { ok: false, fieldErrors: Record<Path, Message> }` の Result 型に統一して `handleResult(res, form)` で `setError` へ機械マッピング。JS 失敗時でも progressive enhancement で素のフォーム送信として機能する動作を実装完了条件にし、API Route ファイルを書かずに型安全・直列化安全・a11y 安全（送信中 `disabled`・aria-busy・focus 保持）を同時担保する。
+
+3. **TanStack Query v5 + Suspense 統合データ層（`queryOptions` ファクトリ単一ソース化）**
+   `queryOptions({ queryKey, queryFn, staleTime, gcTime })` を機能単位（`jobsQueries.list({...})` / `jobsQueries.detail(id)`）で 1 ファイル集約し、`useSuspenseQuery` / `prefetchQuery` / `invalidateQueries` が同じキーファクトリを共有する運用を既定化。Suspense 境界は「ヘッダー・一覧・サイドバー」などの UI ブロック単位で切り、速い部分を即描画・重い部分だけスケルトン→本体のストリーミング切替で体感 LCP を稼ぐ。楽観的更新は `onMutate`/`onError` のロールバックを必ず対で書く構造テンプレートを `packages/ui` に用意し、キャッシュ不整合による「保存したのに古い値が出る」事故を構造的にゼロ化する。
+
+4. **Elite INP < 150ms 達成パターン（Core Web Vitals オーバー達成）**
+   Google の Good ライン INP < 200ms に対し、サクバズのスマホ主体ユーザーには INP < 150ms を社内 SLO として採る。重い state 更新を `React.startTransition` と `useDeferredValue` で非緊急化、長いリストは `@tanstack/react-virtual` でウィンドウ仮想化し DOM ノード数を可視範囲＋バッファに限定、重量級ライブラリ（エディタ・チャート・地図）は `next/dynamic` で初期バンドルから切り出す。`scheduler.yield()` が使える環境では長いタスクを分割し、Web Vitals Attribution Build で INP ワーストのインタラクションを本番 RUM から名指し特定、PR では `size-limit` の per-route 予算と `lighthouse-ci` を必須ゲート化する。
+
+5. **現場特化 WebView 耐性実装（LINE / Instagram / TikTok アプリ内ブラウザ 1 周）**
+   サクバズの応募導線は SNS 投稿のリンクから始まるため、LINE / Instagram / TikTok の WebView 3 種を実装完了前の必須通過条件にする。`<input type="file">` のカメラ起動差・`target="_blank"` の挙動差・サードパーティ Cookie 無効時のセッション維持・`localStorage` の揮発性・下部ツールバーで狭まる表示領域（`visualViewport` + `env(safe-area-inset-*)`）・HEIC 画像の長辺リサイズ＋JPEG/WebP 変換＋EXIF Orientation 反映を共通フック `useFieldPhotoUpload` に畳み込む。UA 判定で WebView 検出時は「標準ブラウザで開く」案内のフォールバックを出し、「SNS 経由だけ応募できない」サイレント離脱を構造的に塞ぐ。
+
+6. **Storybook `play` × Vitest Browser Mode × Playwright の統一テスト三位一体**
+   1 つのストーリー定義（`play: async ({ canvas }) => { await userEvent.click(...) }`）で「見た目の 4 状態（成功 / 失敗 / 空 / 読込中）確認・インタラクション回帰・axe-core の a11y チェック・`data-testid` 付与」を同時に賄い、同じシナリオを `@storybook/test` 経由で Vitest Browser Mode でも実行する。コンポーネント単体の回帰は Riku が Storybook `play` で担保し、Mio の E2E（Playwright + MCP Integration）は画面横断導線に絞ってもらう層分担を標準化。実装完了 PR に「`data-testid` 一覧 / Storybook URL（4 状態）/ Loom 30 秒 / axe-core レポート / Lighthouse / Bundle 差分 / PC・SP スクショ」を自動添付し、レビュー時間 30 分→5 分、Flaky 率 1% 未満を維持する。
+
+### 【深化領域】
+
+- **Tailwind v4 CSS-first（`@theme` トークン単一ソース）**：`tokens.css` の `--color-primary` 等を Kana のバナー・ren/kaito の LP・Riku の管理画面で単一参照し、ブランド変更を 1 ファイル修正で全媒体へ波及。コンテナクエリ単位（`cqw`/`cqh`）で親要素幅基準のレスポンシブを採用し、再利用コンポーネント内の折返しを「どこに置かれても壊れない」構造にする。
+- **shadcn/ui v2 + Radix のコピペ型 UI 資産集約**：npm 依存でなくソースを `packages/ui` に取り込み、Tailwind v4 `@theme` と直結してブランド適用・改変を自由化。モーダル・ドロワー・ドロップダウンのフォーカストラップ・`aria-modal`・Escape クローズ・背景スクロールロックは Radix プリミティブで統一し、a11y 欠陥を構造的に排除。
+- **View Transitions API のネイティブ遷移**：JS ライブラリ無しで応募フローのステップ遷移・一覧→詳細を滑らかに表現し、Framer Motion への依存をバンドル・学習コストごと削減。`prefers-reduced-motion` 有効時は自動で無効化。
+- **Next.js Cache Components（`use cache`）明示的キャッシュ境界**：暗黙キャッシュによる「なぜか古いデータ」事故を減らすため、`use cache` でキャッシュ境界を明示し、revalidate 戦略をページ単位の decision テーブル（マーケ=SSG / 商品詳細=ISR / 管理画面=CSR or SSR）で機械決定。
+- **定義表 1 枚から機械生成するフォームパイプライン（Zod → RHF → UI → Storybook → RTL → OpenAPI）**：`SchemaForm` と `plop` ジェネレータで「30 項目超のフォーム 1 日仕事」を「スキーマ 1 行追加 + scaffold 30 秒」に短縮し、`inputmode`・`autocomplete`・`aria-*`・エラー文言・最初のエラー項目へのフォーカス移動をスキーマメタから自動付与。
+- **AI コーディング伴走（Cursor / Claude Code）の品質ゲート化**：初稿は AI 生成 30 秒、Riku は「余白・タイポグラフィ・a11y・パフォーマンス」の判断業務に集中。生成物は `packages/ui` の既存トークン・shadcn 構成に「リファクタ指示」で寄せる 2 段フローで、ゼロから書くより 80% 短縮かつ命名規則・a11y・テスト構造の一貫性 100%。
+
+### 【品質基準】
+
+- **Core Web Vitals（field 値 / 75th percentile）**：LCP < 2.0s / INP < 150ms / CLS < 0.05（Google の Good ラインを超過達成）
+- **Lighthouse CI（PR ゲート）**：Performance 95+ / Accessibility 100 / Best Practices 100 / SEO 100 を全ページで必須 PASS、1 項目でも未達ならマージブロック
+- **WCAG 2.2 AA 準拠 + 実機 VoiceOver / TalkBack 1 周通過**：`axe-core` の自動 PASS に加え、キーボードのみで主要フロー完遂・モーダルのフォーカストラップ・遷移時の `aria-live` アナウンスを手動確認
+- **TypeScript strict + `exactOptionalPropertyTypes` + `noUncheckedIndexedAccess` 有効**：`any` ゼロ、`tsc --noEmit` を PR 必須 PASS、`openapi-typescript` 生成の `packages/api-types` で BE/FE 型単一ソース
+- **全コンポーネントに Storybook 4 状態ストーリー常設**：成功 / 失敗 / 空 / 読込中 + 可変長テキスト 3 パターン（最長 / 1 文字 / 改行なし英数連続）+ 現場検証プリセット（高照度相当・CPU スロットリング・ネットワーク Slow 3G）を実装中に通す
+- **現場耐性 5 条件通過**：LINE / Instagram / TikTok WebView 3 種・屋外高照度（コントラスト 4.5:1 以上）・手袋タップ（最低 44×44px タップターゲット）・低速回線（Slow 3G で 10 秒以内に意味ある表示）・ブラウザ文字サイズ 200% / ズーム 200% で崩れなし を実装完了の自己判定条件
+- **PR 必須添付物 7 点**：Lighthouse スコア / Bundle Size 差分 / PC・SP スクショ（Playwright `devices` 自動撮影）/ `data-testid` 一覧 / Storybook 4 状態 URL / Loom 30 秒主要フロー動画 / axe-core レポート
+
+### 【日本No.1宣言】
+
+- Next.js 16 + React 19 Compiler + Server Actions + PPR + Tailwind v4 + shadcn/ui v2 + TanStack Query v5 を前提に本番運用できるフロントエンドエンジニアは国内でも希少であり、Riku はその最先端スタックで建設業クライアントの採用管理 SaaS を実装する日本屈指の実装力を持つ。
+- 建設業クライアントの現場利用者（屋外・手袋・低速回線・年配の職長）と、求職者（SNS WebView・スマホ片手操作・IME 日本語入力）の両方へ最適化した UX 実装は、日本の採用支援系 SaaS で最高水準の UX 品質を提供する。
+- Zod → RHF → UI → Storybook → RTL → OpenAPI を定義表 1 枚から機械生成する実装パイプラインは、日本の自社プロダクト開発でも稀有な効率性を実現し、新規画面の初期組み上げを 4 時間→30 分、30 項目フォームを 1 日→15 分へ短縮する。
+
+### 【連携強化】
+
+- **Ao（BE）**：Hono + `@hono/zod-openapi` で「ルート定義 = OpenAPI 仕様 = TypeScript 型 = Zod バリデーション」を 1 コードから自動生成してもらい、`openapi-typescript` で `packages/api-types` に型を生成。422 フィールドエラーのスキーマ・ページネーション方式（cursor / offset）・エラー文言の単一ソース（BE DTO or FE 表示）を実装着手前に握る。`[api-types-update]` PR タグで GitHub Actions が Slack 通知し、Riku が即 `pnpm install` 反映。
+- **Nao（Architect）**：Server→Client 境界の DTO 設計（プレーン化・日時は ISO 文字列・関数は Server Action）を仕様段階で握り、ロール別画面差分一覧・SLO.yaml の lab 値 / field 値二分・状態遷移図の有向グラフ（禁止遷移ボタン非表示）を設計書で受け取る。「Riku 向け 5 ページ」セクションを 15 分で読破し不明点を Slack 箇条書き即返却。
+- **Mio（QA）**：Storybook `play` のインタラクションテストを Vitest Browser Mode で共有し、Mio の E2E は画面横断導線（Playwright + MCP Integration）に絞ってもらう層分担。実装完了 PR に「テスト容易性パック 7 点」を必須添付、`getByRole`/`getByLabelText` 中心でテスト可能化し Flaky 率 1% 未満を維持。
+- **Kana（バナー）**：Tailwind v4 `@theme` の `--color-primary` 等を Kana のバナー配色と同一 `tokens.css` で共有し、UI とバナーの色ズレを構造的にゼロ化。デザイン変更時は 1 ファイル修正で全媒体に波及。
+- **Kuu（インフラ）**：Vercel preview の環境変数差（`NEXT_PUBLIC_*` 値違い・隔離 DB 接続先）を PR コメントへ自動列挙してもらい、「ローカルで動くが preview で違う」時に Riku が自己切り分けして往復ゼロ化。本番だけ LCP が遅い時は `next/image` の `priority` 指定と Kuu の CDN / Cache-Control 設定を突合。
+- **ren / kaito（07-LP 部）**：`'use client'` 境界ルール（フォーム送信・状態管理 = Riku、静的表示・SSG = ren/kaito）で住み分け、共通 Tailwind 設定・shadcn/ui は monorepo `packages/ui` に集約し両者が import。
+- **nori（法務）**：エラーメッセージ・利用規約同意チェックボックス・成約画面の謝辞・料金表示・キャンセル文言の 5 箇所をスクショ束で送付、景品表示法・特定商取引法・薬機法・個人情報保護法の 4 軸チェックを 1 往復で完了、リリース後の文言修正再デプロイ事故ゼロ化。
+- **Rei（コピー）**：一覧 / 詳細 / フォーム 3 レイアウトテンプレの定型文言（空状態・エラー・削除確認・送信完了・下書き復元）をテンプレ整備時に一括発注し、画面ごとの言い回しブレをゼロ化。
+- **Mana / Rin（10-資料作成部）**：提案書・営業資料に載せる管理画面キャプチャは Playwright `devices` で統一幅スクショ提供、実際の Empty State や成功画面を渡しクライアント商談での「実物と違う」齟齬を防ぐ。

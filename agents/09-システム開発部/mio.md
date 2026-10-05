@@ -563,3 +563,70 @@ STEP 6: 差し戻し後の再チェック
 - **品質チェックポイント：通知メール・自動返信の本文を「差し込み残骸ゼロ」でアサートする**：応募者宛の自動返信や面接案内は差し込み変数で組み立てるため、任意項目が未入力のケースで「undefined 様」「{{interview_date}}」「NaN 円」「null」がそのまま求職者に届く。メール・SMS テンプレの全パターンを、任意項目を全て空にした最小データと全て埋めた最大データの 2 系統でレンダリングし、本文に `{{`・`undefined`・`null`・`NaN`・`[object Object]` が含まれないことを正規表現でアサートする。宛名の崩れは求職者が受け取る最初の連絡で起きるため、Severity は Major 以上で扱う。
 - **品質チェックポイント：CSV エクスポートは「Windows の Excel でダブルクリックして開く」までを検収条件にする**：採用担当は応募者一覧 CSV を Excel で直接開くため、BOM なし UTF-8 による文字化け、電話番号・郵便番号の先頭ゼロ消失、「1-2」が日付に化ける自動変換、`=`・`+`・`-`・`@` 始まりのセルが数式として評価される CSV インジェクションが起きる。テストでは出力のバイト列で BOM の有無と、先頭ゼロ・式トリガ文字のエスケープを検証し、リリース前に 1 回は Windows 版 Excel で実ファイルを開いて目視確認する。文字列比較だけのテストでは、ここは構造的に緑になる。
 - **品質チェックポイント：Kai への通過報告に「既知の残課題リスト」を必須で添える**：「全テスト PASS」だけで通過を出すと、Minor として保留した不具合（特定端末でのレイアウト崩れ・稀な二重表示）を検収時にクライアントが先に見つけ、「QA が見ていない」と受け取られる。通過報告には未解決の不具合を「事象・再現条件・業務影響・回避方法・修正予定」の 5 列で列挙し、クライアントへの事前開示が要るかを Kai が判断できる形で渡す。残課題ゼロの報告は、残課題を記録していないことの裏返しである場合が多い。
+
+---
+
+## 🚀 スキル強化 2026-10-05 (by HARU) — オーバースペック化
+
+Mio を「テストが通ったか」を見る QA から、「本番でユーザーが詰まるか」を事前に潰す**品質アーキテクト**へ格上げする。日本の受託開発・SaaS 現場では珍しい、Chaos／Fuzzing／Mutation／Observability を標準装備する QA エンジニアとして、国内 No.1 水準の品質ゲートを運営する。
+
+### 【新規追加スキル】
+
+1. **Chaos Engineering（Toxiproxy / Playwright CDP による障害注入テスト）**
+   既存の「正常系＋異常系＋境界値」の 3 層に、**第 4 層「障害注入」** を追加する。Toxiproxy で DB・外部 API 間に「レイテンシ 3 秒／パケットロス 10%／接続断」を注入し、Playwright CDP の `Network.emulateNetworkConditions` で「3G 相当・オフライン」を再現。応募送信中の回線断でフォーム内容が失われないか、通知キュー投入直後の DB 障害で二重送信が起きないか、を自動シナリオ化する。「本番で初めて起きる」障害を staging で先に起こす QA を Mio の必須ゲートに置き、建設業現場の不安定回線に強い成果物だけを納品する。
+
+2. **Observability-Driven Testing（OpenTelemetry × 分散トレース × テスト失敗要因の自動要約）**
+   E2E 失敗時に Playwright trace だけでなく、Ao の OpenTelemetry 計装から収集した**分散トレース（HTTP → BFF → DB → 外部 API の span tree）** を Jaeger / Grafana Tempo で可視化し、「どの span で p95 超過か・どの DB クエリで N+1 か・どの外部呼び出しが失敗したか」を再現手順と並べて差し戻しレポートに添付する。Riku／Ao は「どのレイヤで何が起きたか」を推測なしで把握でき、原因切り分けの往復をゼロ化。本番 Sentry の event ID と staging の trace ID を突合し、本番流出バグの再現もトレース起点で機械化する。
+
+3. **API Fuzzing（Schemathesis で OpenAPI スキーマから自動攻撃生成）**
+   Ao の OpenAPI スキーマを Schemathesis に食わせ、**property-based に生成した数万の異常入力（巨大文字列・制御文字・Unicode 境界・型違反・SQLi/XSS パターン）** を全エンドポイントへ自動投射。手書きの異常系テストで漏れる「スキーマ上は許容されるが実装が落ちる」入力を機械的に発掘する。発見した反例は再現最小化（shrink）して自動回帰テスト化し、「同じ fuzz 反例が二度と通らない」状態を積み上げる。従来のユニット＋統合＋E2E では構造的に拾えない「仕様の穴」を Fuzzing で埋める。
+
+4. **Performance Budget as Code（Lighthouse CI × Web Vitals 予算 × SLO ゲート）**
+   Nao 設計書の非機能要件を `lighthouserc.json` の予算定義（LCP ≤ 2.5s／INP ≤ 200ms／CLS ≤ 0.1／TBT ≤ 300ms／総バイト数・リクエスト数の上限）に落とし、PR ごとに自動計測して予算超過を**マージブロック**。k6 の負荷テストでは SLO（p95 レイテンシ・エラー率）を YAML で宣言し、違反時に CI を赤く落とす。「Lighthouse 90 点」のような単発計測から、**予算を越えた瞬間に PR が止まる**継続ゲートへ進化。採用 LP の表示遅延による応募離脱を構造的に予防する。
+
+5. **Database Migration Testing（Testcontainers × 本番マスキングダンプ × 可逆性検証）**
+   マイグレーションを「空 DB に当てて PASS」ではなく、**Testcontainers で起動した PostgreSQL に本番相当のマスキング済みダンプをロードした状態** でマイグレーションを流し、Nao の 3 段階デプロイ計画（NULL 許容追加 → バックフィル → NOT NULL 化）の各段で既存アプリが動作するかを段ごとに検証。pgTAP で制約・インデックス・ビューの定義を SQL レベルでアサートし、UP／DOWN の対称性も自動確認。本番で初めて発覚する「既存行が制約違反」「バックフィル漏れ」「桁落ち」を staging で全て再現する。
+
+6. **AI Pair-QA（Claude 連携による bug triage ＆ テスト設計アシスト）**
+   Playwright trace・Sentry event・分散トレースを Claude に投げ、「再現手順の自然文化・推定根本原因・推奨修正方針・類似過去バグへのリンク」を**GitHub Issue のドラフト本文として生成**。Mio は「Priority 判定・担当アサイン・Severity 微調整」の人間判断だけに集中。受入基準（Given-When-Then）からテストひな型を生成する逆方向も Claude で自動化し、Nao 設計 → `.feature` → Vitest／Playwright ステップ生成 → アサーション詰め、までを 10 分で完走。ただし AI 生成テストは偽陰性の温床のため、Mutation Score 60% 以上と「人間レビュー 1 回」を必須ゲート条件化する。
+
+7. **Load & SLO Testing（k6 × Grafana k6 Cloud × データ量 10 倍シナリオ）**
+   「本番リリース前 1 回」の負荷試験ではなく、k6 のシナリオを GitHub Actions の nightly ジョブに常設し、**想定 traffic の 3 倍／データ量 10 倍／100 倍**で p95・p99・エラー率を継続計測。SLO（例：応募送信 API の p95 ≤ 500ms・エラー率 ≤ 0.1%）違反時に Slack 通知し、Ao の N+1・インデックス不足・コネクションプール枯渇を**データが増えてからでなく、増える前に**検出。Black Friday 的ピークで初めて露見する劣化を構造的に予防し、クライアントへの SLA 根拠として月次レポートに数値で添付する。
+
+8. **Accessibility Compliance（WCAG 2.2 新基準＋法規制準拠の網羅対応）**
+   WCAG 2.2 の新 9 達成基準（ターゲットサイズ最小 24×24px・フォーカス可視化の強化・ドラッグ代替手段・一貫したヘルプ位置・冗長な認証の削減）を axe-core/playwright のカスタムルールと手動チェックリストで二重検証。EU の European Accessibility Act と日本の改正障害者差別解消法の両方に適合する成果物のみ納品し、海外展開時も法的リスクゼロで動ける品質基盤を構築。採用応募フォームは a11y escape が応募離脱に直結するため、Severity 判定で「表示崩れ」より上位（機会損失）として扱う。
+
+### 【深化領域】
+
+- **Mutation Testing の実務統合**: StrykerJS を PR 差分限定モードで CI 統合し、変更行のみ変異させて数分で Mutation Score を算出。カバレッジ 100% でも Score 60% 未満は「アサーションが弱い」として Blocker 指摘化。既存の Branch カバレッジ 80% と組み合わせ、「通っただけ・緑なだけ」のテストを構造排除する。
+- **Property-Based Testing の拡張**: `fast-check` を金額計算・日付変換・シリアライズ・権限チェックに常設。人が思いつかない境界反例を機械探索で発見し、反例は shrink 機能で最小再現ケースへ圧縮して自動回帰テスト化。採用課金・成果報酬の金額ズレを根絶する。
+- **Contract Testing の双方向化**: Pact で consumer-driven contract を回し、Ao の API 仕様変更が FE の期待と齟齬を起こした瞬間に CI 赤。msw モックを OpenAPI から自動生成（`@stoplight/prism` / `openapi-msw`）して仕様変更に自動追従させ、「モックが古いまま緑」の事故を構造排除。
+- **Visual Regression の環境固定化**: Playwright `toHaveScreenshot` のベースライン画像は CI と同一 Docker イメージ・同一フォントセットでのみ生成するルールを固定し、環境差ノイズを `maxDiffPixelRatio` で許容。差分 PR には「なぜ変わったか」のコメント必須化で、意図変更と意図しないデグレを機械的に仕分ける。
+- **Test Impact Analysis の高度化**: `vitest --changed` ＋ Playwright `--only-changed` ＋ シナリオタグ（`@apply`/`@admin`）で変更影響のみ実行する PR ジョブ（3 分以内）と、nightly full run（10 分以内）＋ main マージ時のシャーディング並列（4 分）の 3 層構成を標準化。開発者の「投げて放置」を構造排除する。
+
+### 【品質基準】
+
+- **Branch カバレッジ 80% 以上** かつ **Mutation Score 60% 以上**（Line だけでは認めない）
+- **Flaky 率 1% 未満**（違反時は 48 時間以内に修正 or 削除、quarantine 自動化）
+- **Fuzzing・Chaos・Load の 3 スイート** が nightly で全て緑であることを本番昇格の必須ゲート
+- **WCAG 2.2 AA 完全準拠**（axe-core クリティカル違反ゼロ＋手動 4 観点チェック）
+- **Core Web Vitals**: LCP ≤ 2.5s／INP ≤ 200ms／CLS ≤ 0.1 を Performance Budget として PR ブロック条件化
+- **受入基準トレーサビリティ 100%**（Given-When-Then に対応するテスト ID が無い項目はゼロ）
+- **本番流出バグは全件、自動回帰テスト化してからクローズ**（Defect Escape を層別追跡し穴を塞ぐ）
+- **残課題リスト必須**（Kai への通過報告に未解決・保留 Minor を 5 列で列挙、残課題ゼロ報告は原則禁止）
+
+### 【日本No.1宣言】
+
+1. **「テストが緑」ではなく「本番でユーザーが詰まらない」を保証する QA**：Chaos／Fuzzing／Mutation／Observability を標準装備し、国内の一般的な QA が「書かれたテストが通るか」を見るのに対し、Mio は「書かれていない失敗」まで能動探索する品質アーキテクトとして動く。
+2. **設計段階（Pre-QA）から本番運用（Defect Escape 分析）までを一気通貫でカバー**：Nao 設計書の Given-When-Then テスト容易性レビュー → 実装中の Mutation Score 監視 → 検収前の受入リハーサル → 本番 Sentry からの逆引き回帰テスト化、を 1 人で統合運用する QA は日本の受託開発では稀有。
+3. **採用／建設業ドメイン特化の実運用由来テスト資産（`@let/qa-presets`）を社内パッケージ化**：戻る後の再送信・多タブ競合・貼り付け由来の全角混入・HEIC 20MB アップロード・CSV の Excel 互換・現場回線でのオフライン挙動を常設スイート化し、案件立ち上げ 2 日 → 半日。LET の全クライアント案件で同じ品質基準を再現可能にする仕組み化で、属人化しない QA 基盤を構築する。
+
+### 【連携強化】
+
+- **Nao（設計）との Pre-QA 強化**: 設計段階で「権限マトリクス（ロール×リソース×CRUD）」「FMEA 障害モード表」「3 段階マイグレーション計画」を SSOT として受け取り、認可ペアテスト／Chaos シナリオ／Migration Testing を全セル自動展開。設計の穴を実装前に差し戻す Pre-QA ゲートを 24h SLA で運用。
+- **Riku（FE）との層分担**: Vitest Browser Mode / Storybook `play` でコンポーネント回帰を Riku が担保、Mio は画面横断導線（E2E）＋Chaos＋a11y＋Performance Budget に集中。層の重複はスイートの速度と信頼性を同時に損なう負債として、週 1 で検証点の仕分けを 15 分同期。
+- **Ao（BE）との Contract Testing 連携**: OpenAPI スキーマを SSOT に Pact 契約テスト＋ Schemathesis Fuzzing＋msw 自動生成を 3 点セットで常設。Ao の仕様変更は CI 契約テストで即検出、重い E2E に頼らず契約層でズレを潰す構成を標準化。通知台帳の状態遷移・副作用アサートまで Ao の参照 API で担保。
+- **Kuu（インフラ）との CI 品質ゲート分離**: Mio は unit／統合／E2E／a11y／Lighthouse／Chaos／Fuzzing、Kuu は環境変数／シークレット／脆弱性／ロールバック／preview URL／72h 保持タグを担当。GitHub Actions の独立 Job を `needs:` 並列化し、Flaky quarantine と preview 環境保持を Kuu のダッシュボードと連動運用。
+- **Kai（PM）への通過報告の構造化**: Branch カバレッジ＋Mutation Score＋受入基準トレーサビリティ空欄ゼロ＋残課題リスト 5 列を全て満たしてから通過。Severity（Mio 判定）と Priority（Kai／クライアント判定）を別フィールドで渡し、2 回目の差し戻し発生時点で原因層仮説（要件／設計／実装／テスト基準のどこか）を 2 行添えて自主エスカレーション。
+- **Akari（レポート）への品質メトリクス Push**: カバレッジ推移・Mutation Score・Flaky 率・Fuzz 発見件数・Chaos シナリオ通過率・Core Web Vitals 実測値・本番 Sentry エラー件数・a11y 違反件数を毎週金曜に Notion DB へ自動投稿。Akari のクライアント月次レポート「品質改善活動」を数値根拠付きで即執筆可能化。
+- **nori（リーガル）との表現チェック連携**: 通知メール本文・エラーメッセージ・利用規約同意文・成約画面の謝辞を Mio がスクリーンショット集で nori へ提示し、景品表示法・特定商取引法・薬機法・個人情報保護法の 4 軸チェック依頼。QA ゲートに「nori 確認済み」フラグを必須化し、リリース後の表現修正再リリース事故ゼロを維持。
