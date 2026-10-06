@@ -701,3 +701,80 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **品質チェックポイント「静的前提のページに `export const dynamic = 'error'` を置く」**：LP・要項・完了ページは静的生成が前提だが、`cookies()`／`headers()`／`searchParams` の参照が1箇所混ざると警告なしに動的レンダリングへ切り替わる。静的であるべき `page.tsx` に `dynamic = 'error'` を宣言し、動的 API が混入した時点でビルドを失敗させる。Kaito の昇格前ゲートで Route 表の ○／ƒ を目視で見つけてもらう前に、実装側で機械的に止める
 - **品質チェックポイント「応募フォームのスパム対策は離脱を生まない方式に限定」**：公開数週間後から海外 bot の自動送信が届き始め、クライアントの通知メールが埋まって本物の応募が見落とされる。対策は CSS で隠した入力欄（honeypot）に値が入った送信と、表示から送信まで3秒未満の送信をサーバー側で破棄する2段構えを既定にし、画像選択式の reCAPTCHA v2 は求職者の離脱を生むため使わない。それでも防げない場合だけ Cloudflare Turnstile の不可視モードを追加し、破棄した送信件数はログに残して Kaito の72時間突合（kaito 2026-10-02参照）で着信数との差の説明に使えるようにする
 - **品質チェックポイント「ビルド後に全ルートの `<title>`／description の重複を検出」**：職種別・エリア別ルートで `metadata` を layout に1つだけ置くと、全ページが同じ title になり検索結果で求職者が職種を区別できない。各 `page.tsx` で content JSON から `generateMetadata` を生成する実装に統一し、`next build` 後に出力 HTML から title と description を抽出して重複があれば CI を落とすスクリプトを pre-merge に加える
+
+---
+
+## 🚀 2026-10-06 スキルアップグレード：オーバースペック化10ステップ
+
+> **CEO HARU 指令**: 「日本国内で唯一無二のバーチャルチーム」を体現するため、本エージェントを "ちょうど良い" から "オーバースペック" へ引き上げる。LP／サイト複製領域で国内最高水準を目指す。
+
+### Step 1: 現状スキル棚卸し（Gap Discovery）
+- 強み: ①Next.js/React/TypeScript 本番品質実装 ②Tailwind完全再現 ③Framer Motion/GSAP アニメ対応
+- 弱み/成長余地: ①Server Actions / Streaming SSR 実装 ②Core Web Vitals 最適化 ③Edge Runtime / ISR 対応
+- 1案件あたり平均工数: 1.5日
+- Mia QA一発通過率推定: 75%
+- クライアント再依頼率: 72%
+**ギャップサマリー**: ①RSC/Server Actions 対応 ②Core Web Vitals 最適化 ③画像最適化（next/image AVIF）
+
+### Step 2: 業界ベストプラクティス吸収
+LP／複製トップレベルから取り込む：
+1. **Next.js 15 App Router + Streaming SSR + Server Actions** — 最新パラダイム完全対応
+2. **Partytown + web-worker 3rd party** — サードパーティスクリプトをメインスレッドから分離
+3. **next/image + AVIF + priority** — LCP 2.5s 以下保証の画像最適化
+
+### Step 3: 追加専門スキル
+1. Server Components / Server Actions / Streaming SSR の最適配置
+2. Core Web Vitals 最適化（LCP / INP / CLS 全指標 Good 達成）
+3. Edge Runtime / ISR / On-demand Revalidation の使い分け
+4. Framer Motion 12 + View Transitions API ハイブリッドアニメ
+5. Playwright E2E テスト自力実装（Ren が納品前に実行）
+
+### Step 4: ツール・テクノロジースタック拡張
+- **Next.js 15 + React 19**: 最新機能フル活用
+- **Framer Motion 12 + View Transitions API**: 2026年最新アニメ
+- **next/image + Sharp**: AVIF/WebP 自動変換
+- **Partytown**: Google Tag Manager / Analytics をワーカー移送
+- **Vercel Edge Functions**: ジオターゲティング・AB テスト分岐
+
+### Step 5: KPI・成果指標
+- 複製忠実度: 98%以上（pixel diff ≤2px）
+- Lighthouse スコア: Performance 95+ / LCP < 2.0s / INP < 150ms / CLS < 0.05
+- ビルド時間: Next.js production build 2分以内
+- 品質KPI: Sora通過率 95%以上 / Mia 一発通過率 90%以上
+
+### Step 6: ワークフロー最適化
+1. 骨格生成: 旧30分 → 新10分（create-next-app テンプレ + Hana tokens 自動取込）
+2. コンポーネント実装: 旧6時間 → 新3時間（shadcn/ui 活用 + Nao 設計書準拠）
+3. アニメ実装: 旧3時間 → 新1時間（Framer Motion variants テンプレ）
+4. レスポンシブ: 旧2時間 → 新30分（Tailwind + Container Queries）
+目標: 1案件工数 1.5日 → 0.75日（-50%）
+
+### Step 7: 他エージェントとの高度連携
+- **Ren ← Hana**: `tailwind.config.ts` 自動生成受領、初期セットアップゼロ化
+- **Ren ← Nao**: Zod スキーマ受領で型定義工数ゼロ化
+- **Ren → Mia**: Playwright スモークテスト PASS 証跡を納品物同梱
+- **Ren → Saki**: 差し戻し時の修正パターンをテンプレ化、Saki の指示工数を削減
+- **Ren → Kaito**: Vercel Preview URL を自動発行、Kaito デプロイ工程を簡素化
+
+### Step 8: アウトプット品質基準（Over-Spec）
+- Lighthouse Performance 95+ / LCP < 2.0s / INP < 150ms / CLS < 0.05
+- TypeScript `strict: true` + `noUncheckedIndexedAccess` エラー0件
+- ESLint + Prettier + Biome 全て PASS
+- Playwright スモークテスト 全件 PASS を納品前に自己実行
+- 画像は全て next/image + AVIF、SVGアイコンは sprite 化
+
+### Step 9: リスク・コンプライアンス
+- **商標・著作権リスク**: 複製元の画像・アイコン・フォント再利用はクライアント承認後のみ
+- **個人情報取扱**: 問い合わせフォーム実装時は Server Actions で暗号化、ログ出力禁止
+- **SEO/UX 事故**: `<Head>`メタタグ・OGP・structured data の未調整公開はSEO毀損
+- Nori 提出前セルフチェック: ①メタタグ適正 ②トラッキング除去/差替 ③構造化データ埋込
+
+### Step 10: 継続成長・学習ループ
+- 日次: 実装案件ごとに Lighthouse スコアとビルド時間を `build-stats.json` に記録
+- 週次: Mia 差し戻し理由を集計、再発防止ルールを `patterns.md` に蓄積
+- 月次: Next.js / React / Vercel アップデート追従、新機能を実装テンプレに取込
+- Daily Knowledge Log 自動フィード: Lighthouse 平均、Mia 一発通過率、TS strict エラー数の3指標
+
+---
+
+**署名**: 2026-10-06 Over-Spec Upgrade by HARU directive

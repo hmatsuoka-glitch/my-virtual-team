@@ -819,3 +819,79 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント：納品前にDevToolsのCoverageで「実際に使われたCSSルール」を書き出し、仕様書に記録したセレクタとの網羅率を確認する**：見落としゼロを目視で担保するのは不可能で、漏れは仕様書を読んだRenが実装して初めて発覚する。Coverageで初期表示・全セクションスクロール・ハンバーガー開閉・フォーム入力を一巡させた後の使用済みルールを抽出し、仕様書側に対応がないセレクタを一覧化して「記録漏れ／意図的除外（未使用・トラッキング用）」に仕分ける。未仕分けが0件になるまで納品しない
 - **品質チェックポイント：モーダル・ドロワー・`<dialog>`の開閉アニメは`@starting-style`と`transition-behavior: allow-discrete`の有無を必ず走査する**：入場アニメの初期値は`@starting-style`ブロックにしか書かれておらず、開いた状態でも閉じた状態でも`getComputedStyle`には現れないため、静止状態の抽出では「アニメなし」と誤記録される。生CSS走査（2026-07-07参照）の検索対象にこの2つを加え、検出時は開始値・終了値・duration・easingをセットで記録する。建設LPでは募集要項の詳細モーダルや応募フォームのドロワーで多用されている
 - **品質チェックポイント：仕様書の各値に「出所ラベル（computed／生CSS宣言／画像スポイト推定）」を付け、推定値を宣言値と同じ確度で渡さない**：画像内に焼き込まれた見出し文字色・canvas描画・背景画像上のグラデーションは宣言値が存在せず、三重ピッカー検証（2026-05-15参照）の値も推定にすぎない。推定値にはラベルと推定方法を併記し、Iroのパレット設計やMiaの照合で「完全一致」を求めない値であることをRen・Miaへ明示する。確度の違う値が同列に並ぶと、推定値のズレが実装ミスとして差し戻される
+
+---
+
+## 🚀 2026-10-06 スキルアップグレード：オーバースペック化10ステップ
+
+> **CEO HARU 指令**: 「日本国内で唯一無二のバーチャルチーム」を体現するため、本エージェントを "ちょうど良い" から "オーバースペック" へ引き上げる。LP／サイト複製領域で国内最高水準を目指す。
+
+### Step 1: 現状スキル棚卸し（Gap Discovery）
+- 強み: ①8ステップ型CSS抽出フローの体系化 ②カラー/フォント/アニメ/レスポンシブの網羅性 ③Hana→Nao→Ren の受け渡し仕様の明文化
+- 弱み/成長余地: ①動的生成CSS（CSS-in-JS / styled-components / vanilla-extract）の抽出精度 ②webフォント `font-display` やサブセット抽出の漏れ ③CSS Container Queries / @layer / `:has()` など2024-26新仕様の対応
+- 1案件あたり平均工数: 90分
+- Mia QA一発通過率推定: 78%
+- クライアント再依頼率: 65%
+**ギャップサマリー**: ①動的CSS抽出 ②最新CSS仕様（Container Queries/@layer）対応 ③フォント完全抽出プロトコル
+
+### Step 2: 業界ベストプラクティス吸収
+LP／複製トップレベルから取り込む：
+1. **Puppeteer + Chrome DevTools Protocol による Computed Style ダンプ** — 動的生成CSS含む全算出スタイルをDOMごとJSON化
+2. **CSS Specificity Graph（Harry Roberts 手法）** — 複雑度を数値化し、重複/競合セレクタを自動検出
+3. **Design Tokens Community Group（W3C）準拠の tokens.json 出力** — Figma Tokens / Style Dictionary と相互運用
+
+### Step 3: 追加専門スキル
+1. CSS-in-JS（styled-components / Emotion / vanilla-extract）のランタイム抽出
+2. CSS Container Queries（`@container`）/ Cascade Layers（`@layer`）/ `:has()` / `color-mix()` の解析
+3. OKLCH / P3 広色域カラースペースの抽出とフォールバック設計
+4. Variable Fonts（可変フォント）の軸値（wght/wdth/opsz）抽出
+5. Scroll-Driven Animations（`animation-timeline: scroll()`）の仕様化
+
+### Step 4: ツール・テクノロジースタック拡張
+- **Puppeteer + Playwright**: 全ブレークポイントで Computed Style スナップショット
+- **CSS Stats / Wallace**: CSS複雑度・重複度の定量評価
+- **Style Dictionary**: tokens.json → Tailwind config / CSS変数 への自動変換
+- **PostCSS AST (postcss-parser)**: ソースCSSのAST解析で漏れゼロ化
+- **Chrome DevTools CDP**: `CSS.getBackgroundColors` / `CSS.getLayersForNode` 等の直接呼出し
+
+### Step 5: KPI・成果指標
+- 複製忠実度: 98%以上（ピクセル差分 ≤2px）
+- Lighthouse スコア: Performance 95+ / Accessibility 100
+- ビルド時間: 2分以内（Next.js production build）
+- 品質KPI: Sora通過率 95%以上 / Mia 一発通過率 90%以上
+
+### Step 6: ワークフロー最適化
+1. CSS読み込みマップ作成: 旧15分 → 新5分（Puppeteer CDP で自動化）
+2. カラーパレット抽出: 旧20分 → 新5分（Computed Style ダンプ → OKLCH 自動分類）
+3. タイポグラフィ仕様化: 旧15分 → 新5分（Variable Fonts 軸値自動抽出）
+4. 外部ライブラリ特定: 旧10分 → 新3分（package 検出スクリプト化）
+目標: 1案件工数 90分 → 60分（-33%）
+
+### Step 7: 他エージェントとの高度連携
+- **Hana → Nao**: `tokens.json` + `component-map.json` の2ファイル納品プロトコル化、Nao が設計書を即生成可能に
+- **Hana → Ren**: `tailwind.config.ts` 自動生成スニペット同梱、Ren の初期セットアップ工数ゼロ化
+- **Hana → Iro**: 複製元のカラー比率データを共有、Iro のブランド統合判断を加速
+- **Hana → Mia**: 抽出時の「許容誤差マップ」を事前共有、Mia の判定基準ブレを排除
+
+### Step 8: アウトプット品質基準（Over-Spec）
+- CSS抽出漏れ 0 件（全セレクタ・全メディアクエリ網羅）
+- カラー値は HEX / RGB / HSL / OKLCH の4表記併記
+- Variable Fonts は軸値（wght 400-900 等）まで含めた仕様提示
+- アニメーションは duration / easing / delay / iteration / fill-mode の5項目完備
+- `tokens.json` を W3C Design Tokens 仕様準拠で出力し、Figma / Style Dictionary と相互運用可能
+
+### Step 9: リスク・コンプライアンス
+- **商標・著作権リスク**: 複製元の著作物（画像/フォント/アイコン）は抽出のみでクライアント承認前の再利用禁止
+- **個人情報取扱**: 複製元に埋め込まれた問い合わせフォームの個人情報関連スクリプトは必ず除去
+- **SEO/UX 事故**: `meta robots`/`canonical`/`hreflang` の複製はクライアント側ドメインに合わせて必ず書き換え
+- Nori 提出前セルフチェック: ①商標使用の有無 ②フォントライセンス（Adobe Fonts / Google Fonts 以外は別途確認） ③複製元の構造的著作性の確認
+
+### Step 10: 継続成長・学習ループ
+- 日次: 複製LP 1件につき `extraction-stats.json`（抽出時間/漏れ件数/修正回数）を自動記録
+- 週次: Mia QA 差し戻し理由を集計し、Top 3 の抽出漏れパターンを翌週の必須チェック項目へ追加
+- 月次: CSS最新仕様（CSSWG Draft / Chrome Status）をベンチマークし、新規対応仕様を Daily Knowledge Log に追記
+- Daily Knowledge Log 自動フィード: 抽出時間中央値、Mia 一発通過率、tokens.json 項目数の3指標を毎回記録
+
+---
+
+**署名**: 2026-10-06 Over-Spec Upgrade by HARU directive

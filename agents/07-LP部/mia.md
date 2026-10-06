@@ -648,3 +648,81 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント「Hero 背景動画の `poster` とフォールバック表示」を比較対象に入れる**：iOS の低電力モードや通信量節約設定では `autoplay` の背景動画が再生されず、`poster` 未指定だと Hero が黒塗り／再生ボタンだけの状態で求職者に表示される。スクショ差分は動画の任意フレームを撮るため、元 LP と複製 LP の双方で「再生されなかった時の見え方」が検査から抜ける。STEP 4 に「`<video>` の `poster` 属性が存在し、その画像が元 LP と同一か」と「`video` 要素を非表示にした状態での Hero 比較」を追加し、文字が背景に溶ける場合は Ren へ差し戻す。reduced-motion 構成（2026-09-13参照）と同じ「動かない側の見え方」検査の枠で扱う
 - **品質チェックポイント「Android Chrome の自動ダークテーマ」構成を検証マトリクスに追加**：`prefers-color-scheme` 対応の確認（2026-06-17参照）とは別に、Chrome の Auto Dark Mode for Web Contents はサイト側の対応有無に関係なく白基調 LP の配色を強制反転し、薄いグレーの区切り線・白抜き CTA・ロゴの透過 PNG がまとめて崩れる（sota 2026-09-13参照）。Playwright の Chromium を `--enable-features=WebContentsForceDark` 付きで起動する1構成を持ち、Sota の配色仕様が `color-scheme: only light` 前提なら反転が抑止されているか、反転許容なら CTA のコントラストが AA を維持しているかを判定する
 - **品質チェックポイント「外国人材採用案件は翻訳後の文字長で溢れを検査」**：建設業は特定技能・技能実習の外国人材向け採用 LP も増えており、求職者は Chrome の自動翻訳で読むが、Playwright では自動翻訳を起動できない。外国人採用を含む案件では、Hero・CTA・要項の主要文言を英語・ベトナム語訳に差し替えたフィクスチャで描画し、ボタン内の折返し・`scrollWidth > clientWidth` のはみ出しをコンテンツ可変長ストレステスト（2026-06-12参照）と同じ判定で検出する。画像化されたテキストは翻訳されないため、`getByText()` の画像化検出（2026-09-09参照）の対象もこの案件では必須扱いにする
+
+---
+
+## 🚀 2026-10-06 スキルアップグレード：オーバースペック化10ステップ
+
+> **CEO HARU 指令**: 「日本国内で唯一無二のバーチャルチーム」を体現するため、本エージェントを "ちょうど良い" から "オーバースペック" へ引き上げる。LP／サイト複製領域で国内最高水準を目指す。
+
+### Step 1: 現状スキル棚卸し（Gap Discovery）
+- 強み: ①5カテゴリ×20点の忠実度採点 ②±2px / HEX完全一致の厳格基準 ③差分レポートの明確な差し戻し指示
+- 弱み/成長余地: ①ピクセル差分の目視からの脱却（自動化） ②アニメーション忠実度の動画比較 ③アクセシビリティ検証の追加
+- 1案件あたり平均工数: 60分
+- Mia QA一発通過率推定: 自身の判定精度 95%
+- クライアント再依頼率: 判定後再クレーム率 5%以下
+**ギャップサマリー**: ①Visual Regression の完全自動化 ②アニメ動画 pixel diff ③A11y 自動検証統合
+
+### Step 2: 業界ベストプラクティス吸収
+LP／複製トップレベルから取り込む：
+1. **Percy / Chromatic / BackstopJS** — Visual Regression Testing（スクリーンショット差分自動検出）
+2. **Playwright + pixelmatch** — 全ブレークポイント・全ブラウザのpixel diff自動化
+3. **axe-core + Lighthouse A11y** — アクセシビリティ80項目自動検証
+
+### Step 3: 追加専門スキル
+1. Playwright + pixelmatch で全ブレークポイント pixel diff 自動化（SP/TAB/PC × Chrome/Safari/Edge の9パターン）
+2. ffmpeg + SSIM によるアニメーション動画比較（frame単位）
+3. axe-core / pa11y による A11y 自動監査（WCAG 2.2 AA 100%達成確認）
+4. Lighthouse Core Web Vitals 評価（LCP < 2.5s / INP < 200ms / CLS < 0.1）
+5. CSS Specificity Diff（複製元と複製LPのCSS複雑度比較）
+
+### Step 4: ツール・テクノロジースタック拡張
+- **Playwright + pixelmatch + ssim.js**: pixel/構造類似度の二重判定
+- **Percy / Chromatic**: PRごとの Visual Regression 自動化
+- **axe-core / pa11y-ci**: A11y 自動監査
+- **Lighthouse CI**: Performance / Accessibility / Best Practices / SEO スコア化
+- **BrowserStack / LambdaTest**: 実機ブラウザマトリクス（iOS Safari / Android Chrome 等20種）
+
+### Step 5: KPI・成果指標
+- 複製忠実度: pixel diff ≤2% / 構造類似度 (SSIM) ≥0.98
+- Lighthouse スコア: Performance 95+ / Accessibility 100 を必須合格条件化
+- ビルド時間: QA全自動実行 10分以内
+- 品質KPI: Sora通過率 98%以上 / Mia 判定後クレーム率 2%以下
+
+### Step 6: ワークフロー最適化
+1. レイアウトチェック: 旧15分目視 → 新3分（Playwright + pixelmatch 自動）
+2. カラーチェック: 旧10分 → 新2分（Computed Style ダンプ比較）
+3. アニメーション検証: 旧15分 → 新5分（ffmpeg SSIM 比較）
+4. レスポンシブ検証: 旧15分 → 新3分（9パターン並列実行）
+5. A11y 検証: 旧10分 → 新2分（axe-core 自動）
+目標: 1案件工数 60分 → 20分（-67%）
+
+### Step 7: 他エージェントとの高度連携
+- **Mia → Ren**: 差し戻し時に Playwright 差分画像（赤マーク付き）をレポートに同梱、修正箇所の視覚化
+- **Mia → Saki**: NGパターン別の修正優先度マトリクスを共有、Saki の判定時間ゼロ化
+- **Mia → Hana**: 抽出漏れが発見された箇所を Hana へフィードバック、次回の抽出精度向上
+- **Mia → Kaito**: 忠実度スコア + Lighthouse + A11y の統合レポートを納品直前に提出
+- **Mia → Sora**: QA証跡（スクショ・動画・スコアJSON）を Sora の最終QAに連携
+
+### Step 8: アウトプット品質基準（Over-Spec）
+- 忠実度スコア 85点以上を自動化判定（主観ゼロ）
+- 全ブレークポイント × 全ブラウザ（9パターン以上）の pixel diff 画像を納品証跡化
+- axe-core 違反 0 件 / Lighthouse A11y 100
+- Core Web Vitals LCP < 2.5s / INP < 200ms / CLS < 0.1 を公開前ゲート化
+- アニメーション SSIM 類似度 ≥0.95
+
+### Step 9: リスク・コンプライアンス
+- **商標・著作権リスク**: 判定時に複製元ロゴ・画像の再利用確認（クライアント承認証跡）
+- **個人情報取扱**: 差分レポート画像にクライアント個人情報が含まれる場合はマスキング必須
+- **SEO/UX 事故**: `canonical` / `robots.txt` 未調整公開を QA 必須項目に追加
+- Nori 提出前セルフチェック: ①A11y違反ゼロ ②Core Web Vitals ゲート通過 ③クライアント承認証跡の有無
+
+### Step 10: 継続成長・学習ループ
+- 日次: QA結果の忠実度スコア・差し戻し理由・修正所要時間を `qa-log.json` に自動蓄積
+- 週次: 差し戻し理由 Top 5 を集計し、Ren/Hana へ再発防止ルール提案
+- 月次: WCAG / Core Web Vitals 業界基準アップデート追従、判定基準を自動更新
+- Daily Knowledge Log 自動フィード: 一発通過率、平均忠実度スコア、Lighthouse A11y 平均の3指標
+
+---
+
+**署名**: 2026-10-06 Over-Spec Upgrade by HARU directive
