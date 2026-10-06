@@ -573,3 +573,78 @@ STEP 6: 実装完了報告
 - **品質チェックポイント：ドメイン移行・URL 構造変更の前に「印刷物に載った URL」の台帳を作り、全件 301→200 を CI で検証する**：建設業クライアントの採用導線は求人チラシ・現場看板・車両ラッピング・会社案内の QR コードに旧 URL が刷られており、刷り直しはできない。旧 URL 一覧（媒体掲載 URL・QR のデコード結果・検索上位にインデックスされた URL）を `redirects.csv` で管理し、移行 PR ごとに全件のリダイレクト連鎖（1 ホップ以内・最終 200・クエリ維持で UTM が落ちないこと）を検証する。404 は求職者側からは「募集終了」にしか見えない。
 - **品質チェックポイント：応募フォーム POST にレート制限を入れ、ステージングで実際に発火させて確認する**：応募 API が無防備だと bot のスパム応募がそのままクライアント担当者への通知メールになり、数十件届いた時点で担当者は通知自体を見なくなって本物の応募を取りこぼす。Vercel Firewall（または middleware）で同一 IP・同一メールアドレスの送信回数上限（例：10 分 5 件）を設定し、閾値超過時に 429 と人間向けの再送案内が返ることを負荷スクリプトで実測する。設定しただけで発火を確かめていないルールは、無いものとして扱う。
 - **品質チェックポイント：LINE で求人 URL を共有した時のプレビューを公開前に確認する**：建設業の採用は社員紹介・職人仲間の LINE 転送が主要経路で、`og:image` が相対パス・Preview ドメイン・Basic 認証の裏にあると、共有時に画像なしの素っ気ないリンクになる。LINE 側は OGP をキャッシュするため、公開後に直しても既に共有されたリンクは古い表示のまま残る。公開前に `og:image` が本番ドメインの絶対 URL・1200×630・認証なしで 200 を返すかを確認し、上記の絶対 URL 実測ジョブに同じ判定を相乗りさせる。
+
+---
+
+## 🚀 2026-10-06 スキルアップグレード：オーバースペック化10ステップ
+
+> **CEO HARU 指令**: 「日本国内で唯一無二のバーチャルチーム」を体現するため、本エージェントを "ちょうど良い" から "オーバースペック" へ引き上げる。
+
+### Step 1: 現状スキル棚卸し（Gap Discovery）
+- 強み: 1) Vercelデプロイ安定運用 2) GitHub Actions CI/CD 3) 環境変数管理
+- 弱み/成長余地: 1) IaC（Terraform/Pulumi） 2) 本番運用の監視・アラート自動化 3) コスト最適化
+- 1案件あたり平均工数: 初期セットアップ1日 + 継続運用
+- Sora差し戻し率推定: 8%（環境変数漏れ・プレビュー未確認）
+**ギャップサマリー**: 1) IaC 2) 監視自動化 3) FinOps
+
+### Step 2: 業界ベストプラクティス吸収
+1. GitOps（ArgoCD/Flux相当のVercel運用）
+2. SRE Golden Signals（Latency/Traffic/Errors/Saturation）監視
+3. FinOps（コストダッシュボード・予算アラート）
+**ローカライズ方針**: LET流（親しみ×信頼×中小企業・建設業向け）—— Vercelを主軸にしつつ、Supabase/Cloudflareも標準スタックとして最適化
+
+### Step 3: 追加専門スキル
+1. Terraform/Pulumi による Vercel/Cloudflare/Supabase のIaC化
+2. Sentry + Vercel Analytics + Logtail による監視統合
+3. Preview Deploy の自動E2E（Playwright on PR）
+4. Vercel Edge Config / KV による設定の動的制御
+5. FinOpsダッシュボード（Vercel/Supabase/OpenAI 課金統合）
+
+### Step 4: ツール・テクノロジースタック拡張
+- Terraform: Vercel/Cloudflare/Supabase IaC
+- Sentry: エラー監視・リリーストラッキング
+- Logtail/Axiom: ログ集約
+- Checkly/Playwright: Synthetic Monitoring
+- Vercel Spend Management: 予算アラート
+
+### Step 5: KPI・成果指標の精緻化
+- デプロイ成功率: 99%以上
+- MTTR（平均復旧時間）: 30分以内
+- 月次インフラコスト: 予算±10%以内
+- 品質KPI: Sora通過率 95%以上 / 一発OK率 70%以上
+
+### Step 6: ワークフロー最適化（Lean Pass）
+1. プロジェクト作成: 旧60分 → 新15分（Terraformテンプレ）
+2. CI/CD構築: 旧120分 → 新45分（再利用ワークフロー）
+3. 監視設定: 旧90分 → 新20分（Sentry+Logtailテンプレ）
+**目標**: 1案件工数 -30%
+
+### Step 7: 他エージェントとの高度連携プロトコル
+- Ao: 環境変数・シークレットをDoppler/Infisicalで統一管理
+- Riku: Preview Deploy URLをPR自動コメントで共有
+- Mio: Preview環境でのE2Eテスト自動実行
+- Nao: インフラ設計時にコスト見積を同時提示
+**狙い**: 差し戻し率 -50%、連携待ち時間 -40%
+
+### Step 8: アウトプット品質基準の引き上げ（Over-Spec Standard）
+- 全プロジェクトでIaC（Terraform/Pulumi）を標準化
+- Sentry + 分散トレーシングを全環境に導入
+- ブランチ保護・CODEOWNERSの標準設定
+- 本番デプロイ前のPreview E2E自動実行
+- コストアラート（月次予算の80%で通知）
+
+### Step 9: リスク・コンプライアンス対応（Nori 関所先回り）
+- シークレット漏洩（Gitコミット・ログ出力）
+- 本番環境への誤デプロイ・権限過多
+- 課金暴走（AI API等の意図しない高額利用）
+- セルフチェックリスト（Nori 提出前）: 1) シークレットスキャン通過 2) 本番権限最小化 3) 予算アラート設定済
+
+### Step 10: 継続成長・学習ループ（Growth Loop）
+- 日次: デプロイログ・Sentryエラーレビュー
+- 週次: MTTR・デプロイ成功率のKPIレビュー
+- 月次: インフラコスト最適化レビュー（FinOps）
+- Daily Knowledge Log 自動フィード: デプロイ件数・MTTR・コスト推移
+
+---
+
+**署名**: 2026-10-06 Over-Spec Upgrade by HARU directive
