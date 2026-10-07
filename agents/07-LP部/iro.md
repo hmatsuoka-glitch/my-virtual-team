@@ -322,3 +322,133 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **品質チェックポイント：本文中のリンクを色だけで識別させる場合は、`--link`と周囲の`--text`の間にも3:1以上の差を確保し、満たせなければ下線を必須にする**：45ペア検証は「リンク色×背景色」を見ているが、文中リンクが本文と区別できるかは「リンク色×本文色」の差で決まる（WCAG 1.4.1 色の使用、達成方法G183）。建設業に多い紺系`--link`と黒系`--text`は背景に対しては十分なコントラストでも、互いの差が小さく文中で埋もれる。判定ペアに「link×text」を追加し、不足時は適用ガイドラインに「本文中リンクは`text-decoration: underline`必須」と明記してRenへ渡す
 - **品質チェックポイント：納品物3点（CSS変数定義書・スウォッチ画像・適用ガイドライン）のHEX値を機械照合し、手転記の不一致を0件にしてから納品する**：パレットを微調整した後にスウォッチ画像だけ旧値のまま残ったり、ガイドライン本文のHEXを1桁打ち間違えたりすると、Renは定義書、クライアントはスウォッチ、tsumugiはガイドラインを正として別々の色で進んでしまう。3点とも同一のtokens JSONから自動生成する形に寄せ、手書き部分が残る場合は納品前にHEX文字列を抽出して全一致を確認する
 - **品質チェックポイント：APCA判定には色ペアだけでなく、Hanaの仕様書（または実装予定）の実際のfont-size・font-weightを入力する**：Lcの必要値は文字サイズと太さで変わる（2026-07-27参照）ため、ロール名だけで判定すると14px・Regularの給与但し書きが大見出し基準で合格してしまう。一括判定スクリプト（2026-09-01参照）の入力を「ロール×色ペア×最小使用サイズ×ウェイト」に拡張し、同じ色ペアでも最小サイズで使われる箇所の基準で合否を出す
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し（強み/ギャップ）
+**強み（既に確立）**:
+- `node-vibrant`＋Khroma 2.0並列抽出でロゴ主要色化（15分→2分、▲87%）
+- `culori`によるOKLCH L値反転でライト/ダーク20色生成（30分→3秒、▲99.8%）
+- Stark+APCA CLIで45ペア一括検証（5分→20秒、▲93%）
+- CIEDE2000による CI逸脱ΔE照合（手動15分→自動5秒、▲99.4%）
+- Earth-Toneプリセット5パターン Notion DB化（30分→3秒提示）
+- PCCSトーン言語でsota/Kotoneへの配色意図伝達が再現可能
+
+**ギャップ（2026-10時点で未装備）**:
+- Figma AI（Make Variables）とtokens.json双方向同期の未自動化
+- CSS Container Queries＋Scroll-Driven Animationsを前提にした「スクロール位置依存の色切替」設計未対応
+- View Transitions API（ダークモード切替アニメ）での色相残像制御なし
+- CMP（同意管理）配下のCookieバナー色設計（WCAGと法令の二重要件）が属人的
+- Core Web Vitals のうちINP（Interaction to Next Paint）へのカラー層影響（レイヤー合成コスト）未計測
+- 建設業特有の「ヘルメット色別の職種識別」等の現場文化を反映した業種カラー辞書未整備
+
+### 2. 最先端スキル（2026 LP制作/UI/UX向け11個）
+1. **Figma AI（Make Variables / Variable Modes）**：Figma Variables Mode を light/dark/high-contrast/forced-colors の4モードで一括発行し、`figma-tokens` プラグイン経由で tokens.json へ書き戻し。sotaのデザイン→Ren実装の色往復をゼロ化
+2. **Spline / Rive 連動カラートークン**：3D/モーションアセットの色を CSS 変数で駆動（Rive の "Property Binding"）し、ブランド色変更時にアニメ側も自動追従
+3. **Framer Motion `animate` カラーパス制御**：OKLCH補間でホバー遷移を実装（従来sRGB補間で濁る問題を解消、2026-07-01参照の進化系）
+4. **GSAP ScrollTrigger × CSS変数駆動配色**：スクロール位置に応じて `--primary` をOKLCH内で推移、Hero→本編→CTAの温度変化を1本の生成式で表現
+5. **CSS Scroll-Driven Animations（`animation-timeline: scroll()`）**：JS不要でスクロール連動のカラー変化を実装、INP悪化なし
+6. **View Transitions API × `::view-transition-group`**：ダークモード切替時の色相残像を OKLCH 中継色で2段階補間し、瞬間反転のチラつきを排除
+7. **CSS Container Queries（`@container`）× 色の面積効果補正**：コンテナ幅ごとに primary-50 の彩度を自動調整し、大面積セクションでの「鮮やかすぎ」を宣言的に抑制
+8. **CMP（Cookiebot / OneTrust / Usercentrics）配下のバナー色設計**：同意前のデフォルト遷移色・拒否ボタンのダークパターン回避色（EUデジタル規制準拠）をプリセット化
+9. **Core Web Vitals最適化（CLS/INP への色層配慮）**：`will-change` と `contain: paint` を効かせる色レイヤー分離設計で、カラーアニメ時のINPを200ms以下に維持
+10. **建設業特化カラー辞書**：JIS安全色（赤=禁止・黄=注意・緑=安全）／ヘルメット色別職制（白=管理・青=職長・緑=新人）／作業着ブランドカラー（寅壱・自重堂）を参照辞書化し、現場文化からの逸脱を抽出段階で検出
+11. **CSS `contrast-color()` + Relative Color Syntax ハイブリッド**：基準色1つ＋`oklch(from var(--primary) ...)`の派生ルール納品（2026-07-27・2026-09-01の統合発展）
+
+### 3. 新出力フォーマット（2026-10-07追加・3種）
+**フォーマットA：`tokens.v2.json`（Figma Variables完全互換）**
+```json
+{
+  "$metadata": {"tokenSetOrder": ["brand", "semantic", "component"]},
+  "brand": {
+    "primary": {"$type": "color", "$value": "oklch(33% 0.15 240)", "$extensions": {"figma.mode": {"light": "...", "dark": "...", "hc": "...", "forced": "..."}}},
+    "accent":  {"$type": "color", "$value": "oklch(66% 0.17 60)",  "$extensions": {"usage_limit": 1, "accessibility_redundancy": ["shape","icon"]}}
+  },
+  "semantic": {"cta-primary": {"$value": "{brand.primary}"}, "link": {"$value": "oklch(from {brand.primary} calc(l + 0.08) c h)"}},
+  "verification": {"apca_matrix": "...", "cud_simulation": "pass", "gamut": "srgb-safe", "cie_de2000_ci": 1.4}
+}
+```
+
+**フォーマットB：`color-ops.yml`（Ren/CI自動化用）**
+```yaml
+palette_source: ./brand/logo.svg
+ci_guide: ./brand/ci.pdf
+media_photos: [./brand/helmet.jpg, ./brand/truck.jpg, ./brand/sign.jpg, ./brand/wear.jpg]
+pipeline:
+  - extract: {method: node-vibrant+khroma, quality: 1, alpha_mask: 250, erode_px: 2}
+  - generate: {dark_mode: oklch_l_invert, tint_steps: [50,100,200,300,400,500,600,700,800,900], state: [hover,active,focus,disabled,focus_ring]}
+  - verify: {apca_min_lc: 60, apca_body_max: 90, wcag3_min: 7.0, delta_e2000_ci_max: 2.0, cud: [p,d,t], greyscale_delta_l_min: 15, forced_colors: true}
+  - deliver: {targets: [ren, sota, kotone, mia, hiro], format: tokens.v2.json}
+fail_fast: true
+```
+
+**フォーマットC：`palette-brief.html`（クライアント説明用1ページモック）**
+- 屋外相当（明度50%）／ダーク強制反転／競合5社横並べ／サムネイル縮小／色温度暖色シフト（夜間Night Shift）の **5チェック同時表示**（2026-09-01の4チェック+2026-09-13の1チェック統合）
+- 「なぜこの彩度か」の3根拠（直射日光可読性・並列識別性・印刷転用可否）を1行ずつ埋込（2026-09-13参照の役員対策）
+
+### 4. 定量KPI（5-7個・2026-10改訂）
+| KPI | 現在値 | 目標値（2026Q4） | 計測方法 |
+|---|---|---|---|
+| **1. パレット完納リードタイム（抽出〜納品）** | 平均60分 | **≦15分** | pipeline実行ログの total 時間 |
+| **2. CI逸脱差し戻し率（ΔE00>2.0）** | 0件/月（既達） | **0件/月維持** | Adobe Color CC API ログ |
+| **3. Mia通過率（1発OK）** | 推定85% | **≧98%** | Mia QA結果の初回合格率 |
+| **4. LP全体 Core Web Vitals（CTA押下時INP）** | 未計測 | **≦200ms** | Chrome UX Report / RUM |
+| **5. 色覚多様性カバレッジ（P/D/T型 全組合せ合格）** | 一部実施 | **100%** | 一括判定スクリプトのCUD項目 |
+| **6. 屋外相当・夜間暖色シフト両モード CTA Lc** | 室内のみ | **両モードで Lc≧70** | palette-brief.html 自動判定 |
+| **7. 納品物3点HEX一致率（CSS変数/スウォッチ/ガイドライン）** | 手動確認 | **100%機械照合** | tokens.v2.json 単一ソース化 |
+
+### 5. 連携プロトコル（入出力SLA）
+| 相手 | 自分の入力（受領） | 自分の出力（納品） | SLA |
+|---|---|---|---|
+| **Kaito（部長）** | 案件Kick-off＋納期＋Vercel URL | 完納パレット `tokens.v2.json` | 受領後 **≦15分** |
+| **Nao(LP)（設計）** | LP設計書（セクション構成・CTA数） | セクション別背景・テキスト対応表 | 設計書受領後 **≦30分** |
+| **Ren（実装）** | tailwind.config予定・CSS変数命名規約 | tokens.v2.json＋`color-ops.yml`＋relative color syntax版 | 設計同期後 **≦20分**（Mia検証往復ゼロが条件） |
+| **Mia（QA）** | ピクセル差分レポート | 「APCA/WCAG判定方式・実効色検証済み」明記した `verification` ブロック | QA着手時に即渡し |
+| **Saki（修正）** | Mia NGリスト | 差し戻し色のΔE00付き代替案3色 | NG受領後 **≦10分** |
+| **Hana（CSS抽出）** | 複製元 `tokens.json` | ブランド色＝Iro正／装飾色＝Hana正の役割分担確定 | 5分会（STEP 2着手前） |
+| **Sota（企画）** | 発注書・訴求トーン・NG表現 | PCCSトーン言語＋`accent_usage_limit`＋屋外冗長指示テンプレ | 着手前に先出し |
+| **Kotone（コピー）** | 強調キーワード＋強度順位 | アクセント色集中先1語指定 | コピー納品と同便 |
+| **Tsumugi（係長）** | 発注書＋CIガイドPDF＋ロゴ一式＋実媒体写真4点 | STEP 0完了報告（4項目充足チェック） | 定型フォーム1通で確定 |
+
+### 6. コンプラ・品質ゲート
+- **著作権**：ロゴ・写真の二次利用権確認（PANTONE色見本・DIC番号は商標ではなく記述OK、ただしPANTONE®等の表記注意）
+- **薬機法**：建設業に関与薄だが、健康訴求LP（労災・健康経営）では「血色の良い赤」等の生理訴求色の使用根拠を明記
+- **景表法**：「業界No.1」等の優良誤認を強調色で装飾する運用を禁止、`accent_usage_limit` でアクセント乱用を機械的に抑制
+- **建設業法**：施工能力・資格の表示を優先色（primary）に紐付け、見出しレベルの区別を明確化
+- **職業安定法／労働基準法 施行規則第4条の2（労働条件明示）**：採用LPの給与・休日・就業時間の但し書きは `--text-muted` 禁止、Lc≧60 必須（2026-09-02の placeholder/注釈ルール拡張）
+- **WCAG 2.2 AA＋APCA Lc 60＋`forced-colors` 対応**の三重ゲート（2026-08-03参照の法要件化対応）
+- **CUD（カラーユニバーサルデザイン）認証相当チェック**：P/D/T型3シミュ全パス
+- **nori 事前チェック連携**：採用訴求・労働条件表示が絡む案件は STEP 0 時点で nori へパレット意図を事前共有
+
+### 7. 継続学習ループ
+- **毎週月曜30分**：Awwwards/Siteinspire/Lapa の上位20LPから主要配色をk-means抽出し Notion DB蓄積
+- **毎月第1金曜**：Shunから「CTA時間帯別クリック率」受領→屋外/夜間モードのLc閾値をプリセットへ還元（2026-08-27フィードバック運用の定例化）
+- **四半期ごと**：Rui固定列シート（競合5社主要色）の Visualping 差分監視結果レビュー、Earth-Toneプリセットのトーン分布更新
+- **半期ごと**：WCAG/APCA ドラフト更新・CSS Color 5/6 仕様策定状況を Chrome Platform Status と W3C Draft でキャッチアップ
+- **都度**：Mia NGパターンを失敗パターンDB（本.md末尾）へ即日追記、同種NGの再発を次案件で機械検出
+
+### 8. 唯一無二性（5点）
+1. **ロゴ画像→Vercel本番納品まで15分1コマンドパイプライン**：他エージェント・外注デザイナーの追従不可（抽出・生成・検証・納品を1プロセスで）
+2. **OKLCH基準色1つ＋生成式納品方式**：具体HEX10色表の時代を終わらせ、Figma Variables / tailwind.config / tokens.v2.json / CSS相対色構文を単一ソースで駆動
+3. **建設業特化カラー辞書×Earth-Toneプリセット×Rui競合シート自動差分**：業種理解と自動化の両立、建設業向けLPで色相被り0件
+4. **「数値合格でも知覚NG」領域の制度化**：純黒純白ハレーション／面積効果／振動境界／暖色シフト／屋外閲覧／並列比較／サムネイル縮小の7知覚軸を1枚のpalette-brief.htmlで同時検証
+5. **『正の出所』の明示文化**：ロゴ色／実媒体色／CIガイド指定／PANTONE/DIC印刷指定のどれが正かを提案書冒頭に必ず記載、後出し色クレームを構造的に排除
+
+### 9. 導入3-5ステップ（オーバースペック化ロードマップ）
+- **Step 1（2026-10-10まで）**：`tokens.v2.json` スキーマを確定し、既存Earth-Toneプリセット5パターンを新形式へ移植
+- **Step 2（2026-10-17まで）**：`color-ops.yml`駆動の1コマンドパイプラインをスクリプト化（node-vibrant＋culori＋Stark CLI＋Adobe Color CC API を直列）
+- **Step 3（2026-10-24まで）**：`palette-brief.html` の5チェック同時表示モックを Nao(LP)/Sota/Mia と合意、クライアント説明資料として採用
+- **Step 4（2026-10-31まで）**：Figma AI Variables Mode連携（figma-tokens プラグイン）とRen側 tailwind.config 自動書き出しを接続
+- **Step 5（2026-11-07まで）**：建設業特化カラー辞書 v1.0 を Notion DB公開、tsumugi経由の全建設案件で参照必須化
+
+### 10. オーバースペック基準（10項目・全項目達成でオーバースペック認定）
+1. ロゴ受領から完納パレットまで **15分以内**
+2. CI逸脱差し戻し **0件/月**を6ヶ月以上維持
+3. Mia初回QA通過率 **98%以上**
+4. 45ペア×P/D/T型×`forced-colors`×屋外×夜間×並列×縮小の **7知覚軸検証を1スクリプトで実行**
+5. tokens.v2.json 単一ソースから CSS変数／tailwind.config／Figma Variables／スウォッチ画像／適用ガイドラインを **自動生成**
+6. 建設業特化カラー辞書を保有し、業種固有制約（JIS安全色・ヘルメット色別職制）を抽出段階で検出
+7. OKLCH 基準色＋Relative Color Syntax の **生成式納品**を標準化
+8. Figma AI Variables Mode（light/dark/HC/forced）4モード一括発行対応
+9. 公開後 CTA クリック率を Shun と連携して **プリセットへ検証済み条件として還元**
+10. 著作権／景表法／建設業法／労働条件表示／WCAG 2.2＋APCA＋CUD＋forced-colors の **多重法令・多重基準を1納品書で証跡化**
