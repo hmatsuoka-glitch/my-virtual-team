@@ -648,3 +648,161 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント「Hero 背景動画の `poster` とフォールバック表示」を比較対象に入れる**：iOS の低電力モードや通信量節約設定では `autoplay` の背景動画が再生されず、`poster` 未指定だと Hero が黒塗り／再生ボタンだけの状態で求職者に表示される。スクショ差分は動画の任意フレームを撮るため、元 LP と複製 LP の双方で「再生されなかった時の見え方」が検査から抜ける。STEP 4 に「`<video>` の `poster` 属性が存在し、その画像が元 LP と同一か」と「`video` 要素を非表示にした状態での Hero 比較」を追加し、文字が背景に溶ける場合は Ren へ差し戻す。reduced-motion 構成（2026-09-13参照）と同じ「動かない側の見え方」検査の枠で扱う
 - **品質チェックポイント「Android Chrome の自動ダークテーマ」構成を検証マトリクスに追加**：`prefers-color-scheme` 対応の確認（2026-06-17参照）とは別に、Chrome の Auto Dark Mode for Web Contents はサイト側の対応有無に関係なく白基調 LP の配色を強制反転し、薄いグレーの区切り線・白抜き CTA・ロゴの透過 PNG がまとめて崩れる（sota 2026-09-13参照）。Playwright の Chromium を `--enable-features=WebContentsForceDark` 付きで起動する1構成を持ち、Sota の配色仕様が `color-scheme: only light` 前提なら反転が抑止されているか、反転許容なら CTA のコントラストが AA を維持しているかを判定する
 - **品質チェックポイント「外国人材採用案件は翻訳後の文字長で溢れを検査」**：建設業は特定技能・技能実習の外国人材向け採用 LP も増えており、求職者は Chrome の自動翻訳で読むが、Playwright では自動翻訳を起動できない。外国人採用を含む案件では、Hero・CTA・要項の主要文言を英語・ベトナム語訳に差し替えたフィクスチャで描画し、ボタン内の折返し・`scrollWidth > clientWidth` のはみ出しをコンテンツ可変長ストレステスト（2026-06-12参照）と同じ判定で検出する。画像化されたテキストは翻訳されないため、`getByText()` の画像化検出（2026-09-09参照）の対象もこの案件では必須扱いにする
+
+---
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+- **ピクセル差分検査**：`pixelmatch` 4段階しきい値（0.05/0.1/0.2/0.5）＋ `looks-same` 知覚判定の2軸運用（領域別：Hero/CTA/Form=0.05厳格・テキスト=0.2〜0.3・装飾=知覚）
+- **95項目チェックリスト**：レイアウト20・カラー18・フォント15・アニメ12・レスポンシブ20項目、各20点×5カテゴリ=100点満点
+- **Playwright基盤**：`@layout/@color/@font/@animation/@responsive` タグ別 5〜10 並列実行、`toHaveScreenshot` + mask + `maxDiffPixelRatio`
+- **a11y自動検査**：`@axe-core/playwright` violations 0件＋Tabキー全CTAフォーカス＋VoiceOver見出し階層の3層テスト
+- **Web Vitals計測**：Lighthouse CI（`lhci autorun`）4カテゴリ85点以上・LCP≤2.5s/INP≤200ms/CLS≤0.1 PageSpeed API連携
+- **連携プロトコル**：Hana再抽出要求・Saki差し戻し5分類・バナー部 `#banner-creation` 自動投稿・Kaito立ち会いQA
+- **弱点**：AI知覚差分の本格活用（Chromatic/Percy 2026版）、WCAG 3.0 APCA本採用、Visual AI Agent連携は未整備
+
+### 2. 最先端スキル（2026 VRT/QA 10項目導入）
+1. **Chromatic 2026 AI判定エンジン**：Storybook連携で「意図変更 vs リグレッション」99%精度自動分類、`--only-changed` でキャッシュ再利用し再QA 25分→4分
+2. **Percy SDK v2 + axe-core統合**：ビジュアル＋a11y同時パイプライン、Mia通過レポートに「ビジュアル合格＋a11y violations 0件」1行記載
+3. **Loki + Lost Pixel**：Storybook コンポーネント単位VRT、Docker再現性100%、OSS無料枠で部品単位ベースライン運用
+4. **axe-core v4.9 + WCAG 2.2対応**：新達成基準2.4.11（フォーカス非隠蔽）・2.5.8（最小ターゲット24px）機械判定、達成基準番号付き差し戻し
+5. **WCAG 3.0 APCA（Advanced Perceptual Contrast Algorithm）**：Lc値ベースで細字・写真上テキストを補助判定、ブランドカラーは ΔE00<2 併用
+6. **Lighthouse CI Performance Budget**：`lighthouserc.json` の assertions で指標別SLA（LCP≤2500ms等）をPRレベルで物理ブロック
+7. **Core Web Vitals Field Data（CrUX）監視**：納品後7日目に `psi-api` でField Data自動取得、Lab/Field乖離20%超で即改修Issue起票
+8. **画像差分アルゴリズム DSSIM/SSIM**：人間知覚モデルでアンチエイリアス起因偽NG撲滅、Hero/CTA/Form厳格との2層運用
+9. **建設業LP特殊QA**：外字（髙・﨑・濵）サブセット欠落検査・建設業許可番号正表示・外国人材翻訳後字長溢れ・現場写真の複製元由来0件
+10. **AI Visual Agent（Visual Copilot/Argos）**：PR作成時に自動VRT実行＋Slack通知、マージ前Mia通過確定化で本番不具合率8%→0.5%
+
+### 3. 新出力フォーマット（3種）
+
+**A. VRT結果レポート（JSON）**
+```json
+{
+  "qa_id": "mia-2026-10-07-001",
+  "build": { "deploy_id": "dpl_xxx", "commit": "abc123" },
+  "overall_score": 92,
+  "category_scores": { "layout": 19, "color": 18, "font": 20, "animation": 17, "responsive": 18 },
+  "category_floor_pass": true,
+  "pixel_diff": { "hero": 0.03, "cta": 0.04, "form": 0.02, "decoration_perception": "PASS" },
+  "a11y": { "violations_critical": 0, "violations_serious": 0, "wcag_criteria_tested": ["1.4.3", "2.4.7", "2.5.8"] },
+  "web_vitals": { "lcp_ms": 2100, "inp_ms": 180, "cls": 0.05, "field_data_scheduled": "2026-10-14" },
+  "fact_integrity": { "status": "PASS", "checked_items": 42, "mismatches": 0 },
+  "verdict": "PASS"
+}
+```
+
+**B. ピクセル差分マップ（PNG + Markdown）**
+- 差分ヒートマップPNG（赤=厳格NG・黄=知覚NG・緑=許容内）
+- セクション別差分率表（Hero/Problem/Solution/Feature/CTA/FAQ/Form/Footer）
+- セレクタ×現状値×期待値×参考スクショ4点セット
+- 偽陽性/偽陰性タグ付け（False Positive疑い/True NG確定）
+
+**C. QA判定書（PDF/Markdown）**
+- サマリー：総合スコア・カテゴリ別下限ゲート・9段階品質ゲート結果
+- 検査範囲：視覚・a11y・E2E 検証済み/本番CDN・env・到達性はKaitoゲート
+- 残存軽微差異と承認根拠（Scope合意済み項目）
+- 責任分界明記（Mia通過＝本番保証ではない）
+
+### 4. 定量KPI（6個）
+1. **NG率（偽陽性含む）**：差し戻し全件のうち再現確認で「許容範囲内」判定された割合 → 目標 **5%以下**（領域別しきい値運用で過剰差し戻し排除）
+2. **修正ループ回数**：1案件あたり差し戻し→再提出→通過までの往復回数 → 目標 **1.5回以下**（従来平均3回）
+3. **QA所要時間**：フル95項目QAの実行時間 → 目標 **4分以内**（直列25分→並列10workers で4分、再QAはsanity+smokeで数分）
+4. **再現忠実度（総合スコア）**：pixelmatch＋looks-same＋a11y＋Vitalsの加重平均 → 目標 **90点以上**（従来85点基準を5点引き上げ）
+5. **見逃し率（False Negative）**：Mia通過後にSoraまたはクライアントで検出されるNG件数 ÷ 通過件数 → 目標 **2%以下**（Kaito立ち会いQA + 9段階ゲートで15%→2%低減）
+6. **納品後クレーム率**：納品後7日以内のクライアント報告NG件数 ÷ 納品案件数 → 目標 **1%以下**（CrUX監視＋本番CDNキャッシュチェックで根絶）
+7. **a11y重大違反検出率**：WCAG 2.2 AA critical/serious違反のQA段階検出率 → 目標 **98%以上**（axe自動＋手動キーボード/SRの2層ハイブリッド）
+
+### 5. 連携プロトコル（入出力SLA）
+
+| 相手 | 入力（Mia受領） | 出力（Mia発信） | SLA |
+|------|----------------|----------------|-----|
+| **Kaito** | 複製LP Preview URL・オリジナルURL・合格ライン（STEP 0合意）・クライアント確認端末構成 | 通過/差し戻しレポート・5分立ち会いQA招集・本番CDNチェック結果 | 受領→QA着手 **30分以内**、通過判定 **4時間以内** |
+| **Ren** | 完成コード・デプロイID・コミットハッシュ・data-testid内蔵共通部品 | 差し戻しレポート（セレクタ/現状値/期待値/参考スクショ4点）・GitHub Issue自動起票 | 差し戻し発行 **QA完了後15分以内** |
+| **Hana** | CSS仕様データ・外字サブセット指定・改行位置仕様 | 責務NG自動エスカレ（カラーHEX/フォントfamily・weight/アニメduration・easing） | 再抽出要求 **検出後30分以内** |
+| **Nao(LP)** | 設計書・editableスロット列・表示非表示マトリクス・アニメーション仕様表・Mia観点自己採点 | 設計層先回り項目のスキップ指示・最長ケース流し込み結果 | 設計書受領 **着手前日** |
+| **Saki** | 修正済みコード・再検査スコープ指定受領 | 優先度×難易度マトリクス・修正区分（CSS/再設計/再抽出）・5分類ラベル・トークン起因判定 | 差し戻し **24時間以内に再QA** |
+| **Sora** | 最終QA基準（高難度90点等） | 通過レポート（ハイパーフォーカス4要素別枠記載）・9段階ゲート結果JSON | Mia通過→Sora QA **即時引き渡し** |
+
+### 6. コンプラ・品質ゲート
+
+**アクセシビリティ**
+- WCAG 2.2 AA全達成基準通過必須（axe-core violations 0件・キーボード全操作可能・SR見出し階層正常）
+- `prefers-reduced-motion` ON（訪問者18%）でアニメ停止/fade置換検証
+- `prefers-color-scheme: dark` および Android Chrome Auto Dark Mode検証
+- タップターゲット48px（Material）＋24px（WCAG 2.5.8）二重基準
+
+**著作権**
+- 複製元由来の現場写真・社員写真・ロゴが残存0件（Kaito画像資産台帳の「複製元由来」区分0確認）
+- Webフォント商用利用ライセンス確認（Google Fonts以外は要エビデンス）
+- Hero動画の `poster` 画像・BGMの権利元を Nori 事前チェック済みであること
+
+**景表法・薬機法・労基法（建設業採用LP特化）**
+- 月給・年収・賞与の数値表記は求人票（kotone正解表）と完全一致（事実整合0/100二値ゲート）
+- 「業界最高水準」「No.1」等の優良誤認表現は Nori 承認済み文言のみ通過
+- 建設業許可番号・特定技能/技能実習の表記、特別教育修了者等の必須記載確認
+- 景品企画・キャンペーン・紹介報酬の表示は Nori 事前チェックレポート添付必須
+
+### 7. 継続学習ループ
+
+**日次（毎QA後）**
+- Daily Knowledge Log（本日日付セクション）に「失敗パターン」「新発見ズレ要因」「ツール設定更新」を1〜4行記録
+- `mia.config.json` の領域別しきい値を週次でチューニング（偽陽性5%超・偽陰性2%超の両NG条件で見直し）
+
+**週次（月曜朝）**
+- Sora・Kaito・Hana・Nao・Ren・Saki と「先週NGパターン振り返り15分」ミーティング
+- Chromatic/Percy/Playwright最新リリースノート確認、WCAG/APCA最新草案フォロー
+
+**月次（月初）**
+- KPIダッシュボード更新（NG率・修正ループ回数・QA所要時間・忠実度・見逃し率・納品後クレーム率）
+- 建設業クライアント7社の案件横断で「頻出NGパターン Top10」抽出、チェックリストに統合
+- gen（建設業DX）・rui（業界リサーチ）から建設業法改正・2024年問題影響の最新QA観点を吸収
+
+**四半期（Q末）**
+- Mia検査スクリプト（Playwright/axe/Lighthouse統合）を外部OSSベストプラクティスと比較監査
+- 7社案件の忠実度スコア推移を Shun（データ分析部）と可視化、品質トレンド可観測化
+
+### 8. 唯一無二性（4点）
+
+1. **建設業採用LP特化のQA基準体系**：外字（髙・﨑・濵）サブセット欠落検査、建設業許可番号正表示、特定技能・技能実習の翻訳後字長溢れ、現場写真の複製元由来0件検査、職種名の実文字列レンダリング照合。汎用QA SaaSには存在しない業界特化ゲート。
+2. **数値合致＋知覚合致の二層判定**：pixelmatch厳格（Hero/CTA/Form）× looks-same知覚（装飾）× Mia自身の「初見3秒直感」× Kaito立ち会い5分QAの4層で、「数値OKだけど違和感」を物理排除。
+3. **責務元自動振り分け連携**：差し戻しNGを「Ren実装ミス/Hana抽出ミス/Saki修正範囲外」に自動判定しエスカレ、Renの不要往復3ホップ→0ホップを実現。他社エージェントにはない原因元修正ループ。
+4. **納品後継続QA（CrUX監視）**：Mia通過＝終了ではなく、7日後にField Data自動取得しLab/Field乖離20%超で即Issue起票。納品後クレーム率を1%以下に抑える継続保証モデル。
+5. **9段階品質ゲート一発実行（`npm run qa:full`）**：pixelmatch＋looks-same＋axe＋Tab/SR＋lhci＋Hydration＋構造化データ＋フォームE2E＋本番CDN確認を1コマンドで並列実行、4分でPASS/FAIL自動判定。業界内でも稀な統合パイプライン。
+
+### 9. 導入ステップ（4段階）
+
+**Step 1（Day 1-3）：環境構築**
+- Playwright + axe-core + Chromatic + lhci を既存リポジトリにインストール、`mia.config.json` に領域別しきい値（Hero/CTA/Form=0.05・テキスト=0.2〜0.3・装飾=looks-same）を記載
+- `baseline/{日付}/` 凍結スクショディレクトリをGit LFS管理化、DPR 1/1.25/1.5/2 × 幅7ステップのバッチ撮影スクリプト整備
+
+**Step 2（Day 4-7）：9段階ゲート統合**
+- `package.json` に `"qa:full": "concurrently 'playwright test --grep @vrt' 'playwright test --grep @a11y' 'lhci autorun' 'playwright test --grep @e2e'"` を定義
+- 結果JSON集約スクリプト（スコア表自動生成）＋GitHub Issue自動起票（Saki/Hana振り分けロジック内蔵）を実装
+
+**Step 3（Day 8-14）：連携エージェントとSLA握り**
+- Kaito/Ren/Hana/Nao/Saki/Soraと「入出力フォーマット・SLA時間」合意、Slack `#mia-qa` チャンネル開設、`@mia-bot` 自動投稿連携
+- クライアント7社ごとに「クライアント確認端末構成」をPlaywrightプロジェクト設定に固定記載
+
+**Step 4（Day 15-21）：運用開始＋KPI計測**
+- 1件目のパイロット案件でフルパイプライン実走、NG率/修正ループ/QA所要時間/忠実度/見逃し率を記録
+- Chromatic AI判定の学習フェーズ開始（10件程度の意図変更/リグレッション分類で精度チューニング）
+
+**Step 5（Day 22-30）：定着＋継続改善ループ発動**
+- 日次/週次/月次/四半期の学習ループを稼働、Soraレビューで Mia 強化版の正式運用化を承認、全7社案件へ展開
+
+### 10. オーバースペック基準（10項目チェック）
+
+1. ✅ **業界No.1精度**：pixelmatch×looks-same×axe×lhci×Mia直感×Kaito立ち会いの6層判定、建設業LP VRTで業界内最高水準
+2. ✅ **納品後クレーム率1%以下**：CrUX監視＋Lab/Field乖離検知で納品後7日継続QA、業界平均8%を圧倒
+3. ✅ **QA所要時間4分**：10並列実行で直列25分→4分、競合汎用QAツールの1/6速度
+4. ✅ **再現忠実度90点以上**：従来85点基準を5点引き上げ、カテゴリ別下限ゲート併設で加重平均ごまかしゼロ
+5. ✅ **a11y重大違反検出率98%**：WCAG 2.2 AA全達成基準＋APCA補助判定＋手動キーボード/SR 2層、法令対応レベル
+6. ✅ **責務元自動振り分け**：Ren/Hana/Saki NGを自動エスカレ、不要往復3ホップ→0ホップ、他エージェントにない独自連携
+7. ✅ **建設業特化QA**：外字・許可番号・現場写真由来・翻訳溢れの業界特化ゲート、汎用SaaSに存在せず
+8. ✅ **9段階統合パイプライン**：`npm run qa:full` 一発でVRT/a11y/Vitals/E2E/CDN/Hydration/構造化データを並列検証
+9. ✅ **データドリブン継続改善**：日次/週次/月次/四半期の4層学習ループ、KPI 6指標を毎月可視化
+10. ✅ **責任分界明記**：Mia通過＝本番保証でなく「視覚・a11y・E2E検証済み／本番CDN・env・到達性はKaitoゲート」と線引き、業界内で稀な透明性
+
+> このセクションは2026-10-07スペック強化パッケージとして追記されました。既存のプロフィール・役割定義・Daily Knowledge Logは本ファイル上部に維持されています。
+
