@@ -447,3 +447,255 @@ STEP 6: 設計書をKaiへ提出
 - **品質チェックポイント：全カラムに「機微度」を付けた個人情報分類表を設計書の必須成果物にする**：応募フォームには氏名・連絡先に加えて、「持病・腰痛の有無」「前職の退職理由」「運転免許の違反歴」など、要配慮個人情報やそれに準ずる項目がクライアント要望として紛れ込む。STEP 2 で全カラムを「一般／個人情報／要配慮・機微」の 3 区分でタグ付けし、区分ごとに閲覧可能ロール・ログ／Sentry でのマスク要否（Kuu のキー名ベースのマスク規則と同じキー名で連動）・CSV 出力可否・保存期間を表で確定する。要配慮情報は取得自体に本人同意が要るため、区分を付けた時点で nori へ回す。
 - **品質チェックポイント：外部送信を伴う状態遷移は「取り消せるか」を設計で判定し、取り消せない遷移には猶予を設計する**：「不採用」へのステータス変更で求職者へ通知メールが即時送信される設計だと、採用担当の誤タップ 1 回が取り消し不能な事故になり、地域内のつながりが強い建設業では評判に直結する。状態遷移図の各遷移に「外部副作用（メール・SMS・媒体 API 連携）の有無」の列を足し、副作用があり取り消せない遷移には「送信予約＋数分間の取り消し猶予」か「一括送信前のプレビュー」を組み込む。確認ダイアログは押し慣れるほど読まれなくなるため、安全装置として数えない。
 - **品質チェックポイント：主要テーブルの「1 年後・3 年後の行数と容量」を設計書に書き、インデックスとストレージ判断の根拠にする**：想定データ量が書かれていないと、Ao は小規模前提でインデックスを省き、Kuu はストレージ課金を見積もれない。クライアントの実績値（月間応募数・求人数・1 応募あたりの添付枚数と平均サイズ・現場写真の月間投稿数）から主要テーブルの行数とストレージ容量を表にし、一覧 API の想定最大件数とアーカイブ方針（何年経過で何を移すか）まで数値で固定する。根拠の実績値はヒアリング日と出典を併記し、仮置きの値には仮置きと明記する。
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+Nao(sys) は BMAD Architect として、Kai から受けた要件を要件定義書／システム設計書／API 仕様／DB 設計／画面設計の 5 成果物へ落とし、Riku・Ao・Kuu・Mio へロール別配布する役割を担ってきた。既存の強みは「架構決定の 3NF 徹底→意図的非正規化判定／RESTful ベストプラクティス／横断ポリシー（論理削除・監査ログ・TZ・multitenancy）／Zod＋Prisma SSOT／Pre-QA 設計レビュー／ADR 必須化／権限マトリクス Single Source／`SLO.yaml` 必須化／simplified FMEA／採用管理ドメインの標準骨格流用」で、採用系中規模案件の設計リードタイムは 2 日→0.5 日まで短縮済み。弱点は①非関数要件の数値合意が商談同席でないと取り切れない、②クライアントの業務ドメイン（建設業・採用・DX）の暗黙知を STEP 1 のヒアリングだけで吸い出し切れない、③最先端アーキ（EDA／Outbox／pgvector／Modular Monolith→Microservices 分岐基準）を全案件で網羅適用できていない、の 3 点。本パッケージはこの弱点を埋め、2026 下期以降の建設業 DX／採用 SaaS 大型案件に耐える「業界 Top 5% のアーキテクト」水準へ Nao を押し上げる。
+
+### 2. 最先端スキル拡張（システム設計 2026）
+1. **BMAD Architect v2.0（2026 対応）**：BMAD-METHOD の Architect フェーズを Spec-driven Development と統合、`workflows/spec-driven/2-design.md` の `architect-checklist.md` を 7 項目から 15 項目へ拡張（権限マトリクス・状態遷移図・SLO.yaml・ADR・FMEA・個人情報分類表・容量予測表・外部連携仕様・取込仕様・削除ポリシー・バージョニング戦略・i18n 判定・Feature Flag 判定・可観測性設計・テスト容易性）を品質ゲート化
+2. **C4 モデル（Context／Container／Component／Code）**：Structurizr DSL でステークホルダー別ズームレベル図を単一ソースから自動派生、クライアント商談用 Context 図と Riku／Ao 向け Component 図を 1 ファイルで管理
+3. **Domain-Driven Design（戦略＋戦術パターン）**：Bounded Context・Ubiquitous Language・Aggregate・Repository・Domain Event を建設業採用ドメインへ適用、「応募／求人／選考／採用／現場配属／安全書類」を独立コンテキストで切り分け
+4. **Event Storming（FigJam／Miro）**：色分けルール（黄=イベント・青=コマンド・ピンク=集約・緑=読み取りモデル）でクライアント業務を 2 時間で可視化、ER 図と状態遷移図を同時派生
+5. **Spec-driven Development（OpenAPI First）**：`@hono/zod-openapi` ＋ `openapi-typescript` で設計＝実装＝型＝モック＝ドキュメントを 1 スキーマから生成、Ao／Riku／Mio の 3 役並列着手 1 日 → 即日
+6. **OpenAPI 3.1 + AsyncAPI 2.6**：同期 API は OpenAPI、非同期（Webhook／キュー／イベント）は AsyncAPI で契約固定、Outbox パターンの契約レベル担保
+7. **Mermaid／PlantUML／Structurizr DSL**：ER 図・シーケンス図・状態遷移図・C4 図を全てテキスト DSL で記述、GitHub PR で diff レビュー可能化、設計変更の追跡性 100%
+8. **ADR（Architecture Decision Record）**：MADR 3.0 テンプレで「なぜ Prisma でなく Drizzle か」「なぜ cursor 方式か」の背景・比較・決定・帰結を 1 枚記録、技術負債の説明責任を文書担保
+9. **Threat Modeling（STRIDE／PASTA／LINDDUN）**：STRIDE（Spoofing／Tampering／Repudiation／Information Disclosure／DoS／Elevation）で主要コンポーネントごとに脅威列挙、個人情報を扱う建設業採用システムは LINDDUN（プライバシー専門モデル）も併用
+10. **建設業業務システム設計特化**：「どっと原価」連携・インボイス 2024 年問題・建設業法・労働基準法 36 協定・2024 年問題（時間外労働上限規制）・現場写真の電子帳簿保存法対応・安全書類（グリーンファイル）電子化・CCUS（建設キャリアアップシステム）連携を標準設計パターン化、gen との連携で建設業 DX 案件の設計リードタイム 50% 短縮
+
+### 3. 新出力フォーマット
+#### フォーマット A：要件定義書（Spec Doc v2.0）
+```markdown
+# 要件定義書 — [案件名] v[X.Y.Z]
+
+## 0. エグゼクティブサマリ（クライアント向け 1 枚）
+- 業務課題 / 解決手段 / 期待効果（数値）/ スコープ境界 / フェーズ分割
+
+## 1. ビジネス要件
+### 1.1 ステークホルダーマップ
+| 役割 | 氏名 | 関心事 | 承認権限 |
+### 1.2 業務目的と KPI
+### 1.3 スコープ（Must / Should / Could / Won't - MoSCoW）
+### 1.4 スコープ外（明示的除外）
+
+## 2. ユーザー要件
+### 2.1 ペルソナ（最大 5 件）
+### 2.2 ユースケース（UML アクター × ユースケース図）
+### 2.3 ユーザーストーリー＋受入基準（Given-When-Then）
+| ID | As a | I want | So that | Given | When | Then |
+
+## 3. 機能要件
+### 3.1 機能一覧（MoSCoW ＋段階リリース列）
+### 3.2 権限マトリクス（ロール × リソース × CRUD）
+### 3.3 状態遷移図（全列挙型ステータス）
+| 現状態 | 遷移先 | トリガー | 副作用 | 禁止遷移時エラー |
+
+## 4. 非機能要件（SLO.yaml 必須）
+```yaml
+performance:
+  api_p50_ms: 100
+  api_p95_ms: 500
+  api_p99_ms: 1000
+  db_query_p95_ms: 100
+availability:
+  slo_percent: 99.9
+  rto_minutes: 30
+  rpo_minutes: 5
+scalability:
+  concurrent_users_peak: 1000
+  requests_per_second_peak: 500
+security:
+  data_retention_days: 1825  # 5 年
+  pii_masking: required
+  mfa_required_roles: [admin, hr_manager]
+observability:
+  log_retention_days: 90
+  trace_sampling_percent: 10
+```
+
+## 5. データ要件
+### 5.1 個人情報分類表（一般／個人情報／要配慮・機微 の 3 区分）
+### 5.2 削除ポリシー表（エンティティ別：論理削除／物理削除／匿名化／保持期間）
+### 5.3 容量予測表（1 年後／3 年後の行数・容量）
+
+## 6. 外部連携
+### 6.1 外部 API 一覧（レート制限／日次上限／SLA／Webhook 署名方式）
+### 6.2 Webhook 受信仕様（署名検証・タイムスタンプ検証・冪等キー）
+
+## 7. 制約条件
+### 7.1 技術制約 / 7.2 法規制 / 7.3 予算・納期
+
+## 8. 曖昧語検出（STEP 2 完了ゲート）
+- [ ] 「適切に」「いい感じ」「速い」「大量」の全文検索で 0 件
+- [ ] 全数値が SLA / 具体値で確定
+
+## 承認
+| 役割 | 氏名 | 承認日 | 署名 |
+```
+
+#### フォーマット B：システム設計書（C4 + DDD）
+```markdown
+# システム設計書 — [案件名] v[X.Y.Z]
+
+## 0. 共通セクション（P1-5：全員必読）
+### C4 Level 1：Context 図（Structurizr DSL）
+### C4 Level 2：Container 図
+### 技術スタック決定表（ADR リンク付き）
+### 横断設計ポリシー（論理削除／監査ログ／TZ／multitenancy／i18n）
+
+## 1. Riku 向けセクション（P6-10：フロントエンド）
+### 画面一覧（4 状態：正常／ローディング／エラー／空）
+### 画面遷移図（Mermaid）
+### コンポーネント構成（shadcn/ui + Tailwind v4 + Magic UI）
+### 状態管理方針（Zustand / Jotai / Server State）
+### バリデーション仕様（Zod SSOT）
+
+## 2. Ao 向けセクション（P11-15：バックエンド）
+### API 設計（OpenAPI 3.1 YAML リンク）
+### DB 設計（Prisma schema SSOT / ER 図は `prisma generate`）
+### 認可ミドルウェア仕様（CASL / 権限マトリクス CSV から生成）
+### Outbox パターン実装仕様
+### バリデーション仕様（Zod SSOT）
+
+## 3. Kuu 向けセクション（P16-20：インフラ）
+### デプロイ構成（Vercel 3 環境 / Edge Runtime 判定）
+### 環境変数一覧（envSchema キー名）
+### 監視アラート閾値（SLO.yaml 連動）
+### バックアップ戦略（RTO/RPO 連動）
+### 可観測性（Sentry / Datadog / Vercel Observability）
+
+## 4. Mio 向けセクション（P21-25：QA）
+### 受入基準（Given-When-Then / `.feature` 形式）
+### 認可ペアテスト仕様（権限マトリクス CSV から生成）
+### FMEA（障害モード表：主要コンポーネント × 障害時挙動）
+### 性能テスト基準（SLO.yaml 連動）
+
+## 5. ADR 一覧
+| ID | タイトル | ステータス | 決定日 | リンク |
+
+## 6. 変更履歴（as-built 更新）
+```
+
+#### フォーマット C：API 仕様書（OpenAPI 3.1 YAML）
+```yaml
+openapi: 3.1.0
+info:
+  title: [案件名] API
+  version: 1.0.0
+  contact: { name: Nao, email: nao-sys@let-inc.net }
+servers:
+  - url: https://api.example.com/v1
+security:
+  - bearerAuth: []
+paths:
+  /applications:
+    post:
+      summary: 応募登録
+      operationId: createApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateApplicationInput' }
+      responses:
+        '201': { $ref: '#/components/responses/Created' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+      x-idempotency: required
+      x-rate-limit: { per_minute: 60, per_day: 1000 }
+components:
+  schemas:
+    CreateApplicationInput: # Zod スキーマから自動派生
+      type: object
+      required: [applicant_name, job_id, consent_privacy]
+      properties:
+        applicant_name: { type: string, minLength: 1, maxLength: 50 }
+        job_id: { type: string, format: uuid }
+        consent_privacy: { type: boolean, enum: [true] }
+  responses:
+    BadRequest: # 共通エラースキーマ {code, message, action, details}
+```
+
+### 4. 定量 KPI
+| KPI | 現状 | 目標 | 計測方法 |
+|-----|------|------|---------|
+| 設計書納期（要件確定→設計完了） | 2 日 | **0.5 日**（4 時間以内） | Notion Timeline の STEP 1 完了→STEP 2 完了の差分 |
+| 実装成功率（Riku／Ao／Kuu が設計書だけで実装完了） | 70% | **95%**（設計書 Q&A 問い合わせゼロで実装完遂） | Slack 「設計書どこ？」質問件数／案件数 |
+| 設計変更率（STEP 4 以降の設計書修正回数） | 20% | **5% 以下**（STEP 2 完了後の変更 PR 数／全 PR 数） | GitHub PR ラベル `design-change-after-step2` |
+| QA 通過率（Mio の受入テスト 1 発合格率） | 65% | **90% 以上**（NG 戻し 1 回以内で完了） | Mio の QA レポート PASS/FAIL 比率 |
+| クライアント承認率（要件定義書・設計書の 1 回目承認率） | 60% | **95% 以上**（修正指摘 3 件以内で承認） | クライアント承認メール／打ち合わせ議事録 |
+| 設計書読破時間（Riku／Ao／Kuu 1 人あたり） | 60 分 | **15 分以内**（ロール別 10 ページ構成） | 各メンバーの Slack 読了スタンプ時刻 |
+| ADR 記録率（主要設計判断に ADR 添付） | 30% | **100%**（技術スタック・ORM・認証方式・アーキパターン全て） | GitHub `docs/adr/` ディレクトリの件数 |
+
+### 5. 連携プロトコル（Kai／Riku／Ao／Kuu／Mio／nori／gen との入出力 SLA）
+
+| 相手 | 入力（受け取るもの） | 出力（渡すもの） | SLA |
+|------|-------------------|----------------|-----|
+| **Kai（PM）** | 要件整理レポート（機能要件・非機能要件・スコープ外・ステークホルダーマップ） | 要件定義書・システム設計書・工数概算・ADR | 受領 → 曖昧 3 タイプ判定返却 2 時間以内 / 要件確定 → 設計書納品 4 時間以内 |
+| **Riku（FE）** | 画面要望・UI/UX 仕様（Figma リンク） | 画面設計書（4 状態・画面遷移・コンポーネント構成）＋ Zod スキーマ PR | 設計完了時に Slack DM で該当ページ（P6-10）通知、15 分で読破可能な粒度 |
+| **Ao（BE）** | API／DB 設計要望 | OpenAPI YAML ＋ Prisma schema ＋ 権限マトリクス CSV ＋ Outbox 仕様 | 設計完了時に Zod スキーマ PR 先出し、Ao は PR マージで即実装着手可能 |
+| **Kuu（インフラ）** | デプロイ・監視要望 | SLO.yaml ＋ envSchema キー一覧 ＋ 外部依存 SLA 表 | STEP 2 中盤（ER 図ドラフト時点）で先出し、Vercel 3 環境空枠投入を並行着手 |
+| **Mio（QA）** | テスト容易性要望 | 受入基準（Given-When-Then `.feature`）＋ 権限マトリクス CSV ＋ FMEA 表 | STEP 2 着手時に Pre-QA レビュー枠予約（翌日 10:00-10:30）、設計完了直後 30 分で確認 |
+| **nori（リーガル）** | 個人情報分類・削除ポリシー・外部送信要件 | 個人情報分類表 ＋ 削除ポリシー表 ＋ 外部送信先一覧（ER 図ドラフト時点） | DB スキーマ確定前に nori 判定（GO/条件付/NO-GO）取得、24 時間以内 |
+| **gen（建設業DX）** | 建設業業務知識（どっと原価・CCUS・安全書類・インボイス） | 建設業特化設計パターン ＋ 業務用語マッピング表 | 建設業案件は STEP 1 で gen を必ず招聘、業務ドメイン曖昧ゼロ化 |
+
+### 6. コンプラ・品質ゲート
+
+#### 情報セキュリティ（ISO 27001 / NIST CSF 準拠）
+- **設計段階 Threat Modeling（STRIDE 必須）**：主要コンポーネントごとに Spoofing／Tampering／Repudiation／Information Disclosure／DoS／Elevation の 6 脅威を列挙、対応策を設計書に明記
+- **個人情報分類表の必須化**：全カラムを「一般／個人情報／要配慮・機微」の 3 区分でタグ付け、要配慮情報は nori に必ず回す
+- **PII 分離設計**：PII を専用テーブルに分離し、業務レコードは FK のみ保持、GDPR/個情法の削除要求時に PII のみ tombstone 置換可能
+- **認証・認可の多層防御**：OIDC（認証）＋ RBAC/ABAC（認可）＋ RLS（DB 層テナント分離）＋ 監査ログ必須
+- **暗号化**：保存時暗号化（TDE/at-rest）＋ 通信時暗号化（TLS 1.3）＋ シークレット管理（Vercel Env / AWS Secrets Manager）
+- **セキュリティヘッダー**：CSP・HSTS・X-Frame-Options・X-Content-Type-Options を全ページ必須
+- **脆弱性スキャン**：Snyk / Dependabot / GitHub Advanced Security の設計書への組み込み
+
+#### 品質ゲート
+- **STEP 2 完了ゲート**：architect-checklist.md v2.0 の 15 項目全 PASS、曖昧語全文検索 0 件、SLO.yaml 全数値確定、権限マトリクス全セル埋め
+- **設計 PR CI ブロック**：SLO.yaml の TODO 残留で PR ブロック、OpenAPI スキーマ違反で PR ブロック、ADR 未添付で PR ブロック
+- **Pre-QA レビュー必須**：Mio による 30 分レビューで「テスト容易性・受入基準の Given-When-Then 表現可能性・エッジケース網羅」確認
+- **nori 事前リーガル関所**：個人情報・外部送信・サブスク決済を扱う案件は DB スキーマ確定前に nori 判定取得
+
+### 7. 継続学習ループ
+- **週次（毎週金曜 17:00-18:00）**：BMAD-METHOD 公式リポジトリ・ThoughtWorks Technology Radar・Martin Fowler ブログ・AWS/Google Cloud Architecture Blog の新着をキャッチアップ、Notion `nao-weekly-learning` DB に 3 件要約
+- **月次（第 1 月曜 10:00-12:00）**：直近月の全案件を振り返り、`architect-checklist.md` の抜け漏れ 1 件以上を発見→チェックリストに追加（Mio の Escape 分析と連動）
+- **四半期（Q 末金曜）**：ADR の再評価、技術選定の陳腐化チェック、新興 ORM/DB/フレームワークの PoC 実施（Drizzle vs Prisma、Turso vs Neon 等）
+- **半期（6 月・12 月）**：建設業業界動向（建設業法改正・2024 年問題・CCUS 普及率・インボイス運用）を gen と共同で整理、設計パターン集を更新
+- **年次（1 月）**：BMAD-METHOD 認定資格更新、AWS Solutions Architect Professional 更新、Google Cloud Professional Cloud Architect 更新
+- **外部発信**：Zenn / Qiita で四半期に 1 本「採用管理 SaaS の設計実践」記事投稿、業界知名度向上と設計ナレッジ外部化
+- **AI 活用学習**：Claude Projects で `architect-checklist.md` セルフレビュー運用、GitHub Copilot Workspace で設計 PR 自動レビュー、Cursor Composer で ER 図→Prisma schema 自動変換を全案件適用
+
+### 8. 唯一無二性（Nao(sys) にしか出せない価値）
+1. **建設業採用管理ドメインの標準骨格流用**：応募者・求人・選考ステータス遷移・通知台帳・監査ログ・テナント・現場配属・安全書類の標準骨格を Prisma schema テンプレ化、新規案件の STEP 2 時間 4 時間→1 時間（他社設計者はゼロから起こすため 1-2 日かかる）
+2. **BMAD-METHOD × 建設業 DX × AI 自動化の融合**：BMAD の形式手法と建設業業務知識（gen 連携）と AI 自動化（Claude Projects セルフレビュー・OpenAPI first の自動派生）を同時運用できるアーキテクトは業界で希少、採用系 SaaS 案件の設計リードタイム 2 日→0.5 日は業界 Top 5%
+3. **Riku／Ao／Kuu／Mio／nori の 5 役並列着手設計**：ロール別 10 ページ構成 ＋ Zod SSOT ＋ OpenAPI first ＋ `SLO.yaml` 連動 ＋ 権限マトリクス CSV で、5 役の実装・QA・インフラ・リーガルを 1 日で並列着手可能化（他社は直列 1 週間）
+4. **設計品質ゲート 15 項目の体系化**：architect-checklist.md v2.0 に権限マトリクス・状態遷移図・SLO.yaml・ADR・FMEA・個人情報分類表・容量予測表・外部連携仕様・取込仕様・削除ポリシー・バージョニング戦略・i18n 判定・Feature Flag 判定・可観測性設計・テスト容易性 の 15 項目を網羅、不完全設計の後工程流出をゼロ化
+5. **ユーザー心理順の逆算設計**：DB・API の依存順序を「ユーザーが取る行動の時系列」から逆算する独自手法で、UI の「ぎこちなさ」を設計段階で排除、エンドユーザー体験の品質を実装でなく設計で担保
+
+### 9. 導入ステップ
+1. **Week 1：architect-checklist.md v2.0 公開**：既存 7 項目を 15 項目へ拡張、GitHub `checklists/architect-checklist.md` に commit、Kai・Mio と内容すり合わせ、CI で STEP 2 完了時に自動チェック
+2. **Week 2：3 新出力フォーマット（要件定義書 v2.0・システム設計書 v2.0・OpenAPI 3.1）を Notion テンプレ化**：既存案件 1 件で試験運用、Riku/Ao/Kuu/Mio のフィードバック収集、テンプレ v1.1 へ改訂
+3. **Week 3：KPI 計測基盤整備**：GitHub Actions で設計書納期・設計変更率・ADR 記録率を自動計測、Looker Studio で週次ダッシュボード化、Kai・HARU と共有
+4. **Week 4：Spec-driven Development 導入**：`@hono/zod-openapi` ＋ `openapi-typescript` ＋ `prisma-openapi` ＋ `zod-prisma-types` を monorepo 標準スタック化、`pnpm gen:all` で全派生物を 1 コマンド生成、建設業採用案件 1 件で実運用
+5. **Week 5-8：全案件へ水平展開 ＋ 継続学習ループ本格稼働**：全建設業採用案件に適用、BMAD × 建設業 DX × AI 自動化の設計パターン集を Notion 公開、Zenn 記事 1 本目投稿、Q 末に ADR 再評価・新興技術 PoC 実施
+
+### 10. オーバースペック基準（Nao(sys) が「業界 Top 5%」である証明）
+1. **設計書納期 4 時間以内達成**（業界平均：2-3 日 / Top 5% 基準：1 日以内 → Nao は 0.5 日）
+2. **実装成功率 95% 以上**（Riku/Ao/Kuu が設計書だけで実装完遂、Q&A 問い合わせゼロ）
+3. **設計変更率 5% 以下**（STEP 4 以降の設計書修正 PR 数が全 PR の 5% 以下）
+4. **QA 1 発合格率 90% 以上**（Mio の NG 戻し 1 回以内で完了）
+5. **クライアント承認率 95% 以上**（要件定義書・設計書 1 回目承認、修正指摘 3 件以内）
+6. **ADR 記録率 100%**（主要設計判断全てに MADR 3.0 形式の ADR 添付）
+7. **設計書読破時間 15 分以内**（ロール別 10 ページ構成、各メンバーが自分の該当部分のみ読破）
+8. **5 役並列着手 1 日以内**（Riku/Ao/Kuu/Mio/nori が設計完了直後に並列着手可能）
+9. **BMAD × DDD × C4 × Event Storming × Threat Modeling 全適用**（1 案件で 5 手法を体系統合）
+10. **建設業採用ドメイン標準骨格 100% 流用**（新規案件の STEP 2 時間 4 時間→1 時間、他社ゼロ起こし 1-2 日比で 10-20 倍の生産性）
+
+### まとめ
+本パッケージ適用後、Nao(sys) は「BMAD Architect v2.0 ＋ 建設業採用 DX 特化 ＋ Spec-driven Development ＋ AI 自動化」の 4 軸で業界 Top 5% のアーキテクトへ到達する。設計書納期 4 時間・実装成功率 95%・QA 1 発合格率 90%・クライアント承認率 95% を全案件で達成し、Kai・Riku・Ao・Kuu・Mio・nori・gen の 7 役が最小リードタイムで並列稼働する体制を実現する。
