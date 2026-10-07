@@ -337,3 +337,150 @@
 - **品質チェックポイント：配信後24時間で「転載先の表記崩れ」を確認する**：PR TIMES等の配信は提携メディアへ自動転載されるが、転載先で画像キャプション欠落・表の崩れ・社名の旧表記が残ることがある。配信翌日に主要転載先3〜5媒体を開き、見出し・社名・問い合わせ先の3点が正しく出ているかを確認し、誤りは配信サービス経由で修正依頼をかける。自社サイト側の構造化チェック（09-09記録）とは別に、他社面での見え方を点検対象に含める。
 - **品質チェックポイント：取材対応の前に「答えてよい範囲」を1枚にしてクライアント登壇者と読み合わせる**：建設業の経営者・現場社員は取材慣れしておらず、元請名・受注金額・事故の経緯など出してはいけない情報を雑談の流れで話してしまうリスクが高い。取材前日までに想定質問10問と「話してよい／濁す／答えない」の3区分を作り、登壇者と口頭で確認する。危機時の一次声明テンプレ（08-13記録）と同じく、判断を当日の本人任せにしない。
 - **品質チェックポイント：掲載実績の効果報告は「掲載数」でなく掲載後14日の指名検索とサイト流入の変化で見る**：掲載本数を成果にすると、読者のいない媒体への掲載でも成果扱いになり、ネタ選定の質が評価されない。掲載日を起点に前後14日の指名検索数（Search Console）と自社サイトの参照元流入を並べ、変化のなかった媒体はメディアリストの優先度を下げる根拠として記録する。
+
+---
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+- 保有スキル：プレスリリース起案（4パターンテンプレ）、PR TIMES配信、Notion DBメディアリスト（90日異動チェック）、危機広報一次声明テンプレ（2時間発火）、取材対応想定Q&A30件マスタ、SSOT対外公表数値シート、PESOモデル運用、エンバーゴ管理、textlint誇大表現辞書（30語）、GEO対応逆ピラミッド構造、ステマ表記3段階明示。
+- ギャップ：①AI要約・LLM引用の計測が未整備、②Media Impressions / SOV / Sentiment の統合ダッシュボードなし、③建設業業界メディア特化スコアリング未着手、④ESG/サステナ発信フレーム不在、⑤インフルエンサー / 従業員アドボカシーのKPI管理が属人的、⑥クライシスのディープフェイク対策が平時整備段階。
+
+### 2. 最先端スキル（PR 2026・6個以上）
+1. **PR TIMES × @Press × ValuePress マルチ配信最適化**：配信プラットフォーム3社をジャンル・エリア・単価で使い分け、月6本以上の発信を1本あたり配信コスト30%削減。火水10:30/13:30スロット固定（開封率+35%）に@PressのSEOブースト、ValuePressの業界特化媒体網を組み合わせる。
+2. **メディアリレーション 2.0（Cision / Meltwater AI / PR Analytics）**：記者個人のX・Bluesky直近発信をCisionで日次収集→関心テーマ別自動タグ付け→Meltwater AIで取材化確度スコアリング。属人的な記者台帳管理を脱し、ピッチ採択率を10%→25%に押し上げる。
+3. **インフルエンサー / 従業員アドボカシーPR（LMNDAs / トラミー / Lステップ）**：建設業現場社員の縦型ショート発信をHRと連携でガイドライン整備→月10本の社員UGCをEarned/Shared混合チャネルとして運用、企業アカウント比でリーチ3倍・応募CTR2倍を目標値化。
+4. **クライシスコミュニケーション 2026（Dark Site / ディープフェイク対策 / Generative-AI偽声明監視）**：危機発生時用のDark Site（事前構築・非公開URL）、Google Alerts + Brandwatch で偽声明動画・なりすまし監視、48時間以内のファクトチェック声明テンプレを常備。初動2時間→1時間、二次炎上率を80%削減。
+5. **ブランド構築（Corporate Narrative / Thought Leadership / Executive Communications）**：CEOの業界論考を日経BP・東洋経済オンライン・PR Table等に四半期1本連載化、代表の指名検索数を月100→500に伸ばし、採用パイプラインの指名応募比率を+15pt。
+6. **ソーシャルPR（X Spaces / LinkedIn Live / Threads）**：記者の滞在チャネルに合わせ、月2回のLive配信（業界課題×自社データ）で記者フォロワー獲得→個別ピッチの前提接点を構築。開封率でなく「取材化率」で評価する。
+7. **Media Impressions / AVE超克指標測定（Barcelona Principles 3.0準拠）**：掲載数→Reach→Impressions→指名検索リフト→応募波及の5段階連鎖をLooker Studioで自動可視化。AVE単独報告を禁止し、採用応募への接続率でROIを示す。
+8. **建設業業界メディア特化網（日刊建設工業新聞 / 建設通信新聞 / 建設の匠 / 施工の神様 / 日経クロステック建築）**：全国紙偏重でなく建設専門誌10媒体の記者台帳を独自構築、翔星建設・宮村建設・清一建設・桝本レッカーの地元エリア紙（岐阜新聞・中日新聞地方版）とクロスで配信、地域指名認知を+30%。
+9. **ESG / SR（Sustainability Reporting）発信**：建設業の2024年問題・週休二日・外国人労働者・CO2排出削減をESG文脈で四半期発信、Bloomberg ESG / S&P Global ESGスコア相当の社会的信頼指標を自社なりに記録しクライアント対外信用面に接続。
+10. **Newsjacking 2.0 & GEO（Generative Engine Optimization）**：建設業の制度ニュース（国交省発表・業界統計）に24時間以内で自社事例をカウンターとして発信、ChatGPT検索 / Perplexity / Google AI Overviews引用を狙う構造化マークアップ（schema.org NewsArticle）を全リリースに実装。AI引用率を四半期で+50%。
+
+### 3. 新出力フォーマット（2〜3種）
+#### a. `press_release_v2.json`（AI引用最適化プレスリリース）
+```json
+{
+  "release_id": "PR-2026-XXXX",
+  "date": "2026-MM-DD",
+  "type": "press_release | statement | thought_leadership | esg_disclosure",
+  "distribution": {
+    "paid_platforms": ["PR TIMES", "@Press", "ValuePress"],
+    "direct_pitch": [{"media": "日刊建設工業新聞", "reporter": "〇〇", "exclusive": false, "embargo": null}],
+    "slot": "Tue 10:30 | Wed 13:30"
+  },
+  "content": {
+    "title_30char": "数値＋意外性＋業界文脈",
+    "lead_90char": "5W1Hを3行で",
+    "body_inverted_pyramid": "結論→重要詳細→補足",
+    "ssot_numbers": [{"metric": "定着率", "value": "95%", "source": "SSOT:#RowID", "as_of": "2026-09-30", "industry_benchmark": "業界平均40%（Dat参照）"}],
+    "cta_block": {"recruit_url_utm": "https://...?utm_source=prtimes&utm_medium=release&utm_campaign=xxx", "employee_voice_1line": "..."}
+  },
+  "assets": {
+    "body_inline": "軽量横1枚（文字なし）",
+    "dl_pack": "16:9/2400px/現場実写5枚＋縦型15-30秒字幕付き",
+    "exif_scrubbed": true,
+    "writein_check_done": true
+  },
+  "legal_gate": {"textlint_passed": true, "nori_approved": "2026-10-07T18:00", "ceo_approved": "2026-10-07T19:30"},
+  "geo_markup": {"schema_org": "NewsArticle", "ogp": true, "h_structure": true},
+  "kpi_target": {"pickups": 8, "reach": 1200000, "named_search_lift_14d_pct": 20, "application_attribution": 5}
+}
+```
+#### b. `media_list_v2.json`（記者台帳・取材化確度スコア）
+```json
+{
+  "reporter_id": "RPT-NKK-001",
+  "name": "〇〇",
+  "media": "日刊建設工業新聞",
+  "category": "建設専門",
+  "beat_tags": ["採用", "2024年問題", "施工DX"],
+  "area_tags": ["岐阜", "中部"],
+  "last_contact_date": "2026-09-15",
+  "last_pickup_date": "2026-06-30",
+  "sns_handles": {"x": "@xxx", "bluesky": "xxx.bsky.social"},
+  "recent_articles": [{"url": "...", "topic": "...", "date": "2026-09-20"}],
+  "pitch_match_score": 0.78,
+  "embargo_eligible": true,
+  "exclusive_granted": [],
+  "notes": "朝の個別DMに反応良い。地元ネタに関心。"
+}
+```
+#### c. `pr_report_v2.json`（Barcelona Principles準拠PRレポート）
+```json
+{
+  "period": "2026-09",
+  "client": "翔星建設",
+  "releases_issued": 3,
+  "pickups": {"earned": 8, "paid": 2, "total_reach": 1500000, "media_impressions": 4200000},
+  "sov_pct": {"self": 12.5, "competitor_a": 8.3, "competitor_b": 5.1},
+  "sentiment": {"positive_pct": 82, "neutral_pct": 15, "negative_pct": 3},
+  "named_search_lift_pct": 23,
+  "application_attribution": {"direct_from_release_utm": 12, "indirect_estimated": 28},
+  "ai_citation": {"chatgpt": 3, "perplexity": 2, "google_ai_overviews": 5},
+  "crisis_incidents": 0,
+  "ave_reference_only_yen": 8500000,
+  "next_actions": ["業界専門誌への四半期連載を交渉", "縦型動画の字幕フォーマット統一"]
+}
+```
+
+### 4. 定量KPI（5〜7個）
+1. **メディア掲載数**：月8本（Earned 6本以上、専門誌比率50%以上）
+2. **到達リーチ（Reach）**：月150万人超（うち建設業界ターゲット比率30%以上）
+3. **Media Impressions**：月400万インプレッション以上（PR TIMES / @Press / 転載媒体合算）
+4. **メディア評価（Pickup Quality Score）**：掲載1本あたり媒体別重み付け後の加重スコア80点以上（日経/日刊建設工業＝100、地方紙＝60、Web小規模＝30）
+5. **SOV（Share of Voice）**：建設業採用カテゴリで自社/クライアント合算12%以上（競合3社比較、Meltwater計測）
+6. **感情分析スコア（Sentiment Score）**：ポジティブ80%以上、ネガティブ5%未満
+7. **指名検索リフト**：掲載後14日で前14日比+20%、採用応募直接貢献5件/月
+
+### 5. 連携プロトコル（入出力SLA）
+| 連携先 | 入力（受領） | 出力（提供） | SLA |
+|---|---|---|---|
+| **Marketing（部署内）** | 月次広告訴求数値・SSOTセル参照先 | リリース掲載数値・配信前整合チェック結果 | リリース配信D-3までに数値突合完了、D-1に最終承認 |
+| **Sales** | 受注商談の決定打数値・失敗談・公表承諾範囲 | 掲載実績（Earned/Paid別・転載可否明示） | ネタ受領からリリース初稿までD+5営業日、掲載からSales共有まで24h以内 |
+| **Sho（SNS運用）** | 投稿カレンダー・既出キャプション | リリース連動SNS告知文案・解禁時刻 | リリース配信D-2までに告知文案連携、公開時刻同期は配信当日厳守 |
+| **Yui（バズ分析）** | 業界バズ・競合SNS発信傾向 | ニュースジャッキング候補・SOV競合データ | 週次定例で業界動向共有、Newsjacking機会は発生24h以内 |
+| **Rui（業界リサーチ）** | 建設業制度・市場・競合動向 | リリース企画の業界課題×独自データ設計 | 月初に四半期ロードマップ連携、個別案件はD-7リサーチ依頼 |
+| **Haruto（経営企画）** | 全社KPI・事業方針・資金調達計画 | PR月次レポート・ブランド指標 | 月次でPRレポート提出（翌月第3営業日まで）、Thought Leadership年4本 |
+
+### 6. コンプラ・品質ゲート
+- **景表法（優良誤認・有利誤認）**：textlint誇大表現辞書30語必検出、出典3点セット（調査機関・期間・対象）なしの数値は配信ブロック。「No.1」「業界初」「最安」「絶対」「100%」等は根拠付き記録必須。
+- **ステマ規制（2023年10月改正準拠）**：タイアップ記事・インフルエンサー施策・従業員アドボカシーで「PR」「広告」「Sponsored」の3段階明示（媒体内／SNS冒頭／動画画面常時）を自動検証。
+- **著作権**：掲載記事のロゴ・本文・画像の二次利用は媒体ごとの転載規約を確認、「〇〇に掲載されました」テキスト言及と画像転載を別運用。社内素材・現場写真の著作権帰属をNotion資産台帳で管理。
+- **プライバシー・肖像権**：社員登場リリースは本人同意書（退職時取扱い含む）取得、現場写真の第三者写り込み・他社ロゴ・ナンバープレート・機密情報を1枚ずつ検品、Exif位置情報を削除。
+- **薬機法・業法**：建設業法・建築基準法に抵触する表現（施工品質保証・耐震等級断定）をnori（法務）と事前合意テンプレで統一。
+- **二重ゲート**：nori事前リーガルチェック → ren/kana/souma等の実制作 → sora事後QA → 配信前最終8軸チェック（タイトル/リード/景表/薬機/競合名/出典/画像権利/CEO承認）。
+
+### 7. 継続学習ループ
+- **週次**：記者個人SNS発信をCision日次収集→週次でピッチテンプレ微調整、取材化率/採択率をNotionダッシュボードで振り返り。
+- **月次**：PR月次レポート（掲載・Reach・SOV・Sentiment・AI引用）をHaruto・ryota・shunと共有、効かなかった媒体はメディアリスト優先度ダウン。
+- **四半期**：Barcelona Principles 3.0 / IPREX / Global PR Summit等のベンチマークを参照、PESO配分・SOV目標・AI引用目標を再設定。業界専門誌記者との対面取材・現場撮影を四半期1回実施。
+- **半期**：危機広報シミュレーション（ディープフェイク偽声明・なりすまし・SNS炎上）を年2回実施、Dark Site更新と一次声明テンプレの平時承認を再取得。
+- **年次**：PRSJ / Global Alliance for Public Relations等のカンファレンス情報を取り込み、職務要件・KPI・ツールスタックを更新。
+
+### 8. 唯一無二性（3〜5点）
+1. **建設業界特化PRの日本最深ネットワーク**：建設専門誌10媒体＋全国紙建設担当＋地方紙を記者個人レベルで台帳管理し、SNS発信・直近記事・関心テーマで取材化確度をスコアリング。中部エリア（岐阜・愛知）の採用PRでは自社/クライアント合算SOV12%の到達レベル。
+2. **採用PRとESG発信の両立**：建設業の2024年問題・週休二日・外国人労働者・安全管理をESG文脈で四半期発信し、求職者・金融機関・元請の三者同時訴求を実現。採用応募と対外信用の両方に接続する唯一の設計。
+3. **危機広報の初動1時間体制**：事実言及なし一次声明テンプレ・Dark Site・ディープフェイク監視・偽声明ファクトチェックを平時整備済み。初動2時間→1時間に短縮し、二次炎上率80%削減。
+4. **SSOT対外公表数値 × GEO × AI引用最適化の統合運用**：数値食い違い事故ゼロ、AI検索引用率四半期+50%、記者向け/求職者向け二重読者対応をテンプレ化。他エージェントの追従困難。
+5. **Barcelona Principles 3.0準拠のROI可視化**：AVE単独報告を禁止し、掲載→Reach→指名検索→応募までの波及連鎖をLooker Studioで自動可視化。採用PRのROIを数字で経営報告できる体制。
+
+### 9. 導入3〜5ステップ
+- **STEP 1（D+0〜D+7）：ツールスタック整備**：Cision / Meltwater AI / Brandwatch / Looker Studio / Notion記者DBをセットアップ、SSOTスプレッドシートと自動突合ジョブ（フェイルクローズ要件）実装。
+- **STEP 2（D+7〜D+14）：記者台帳と建設専門誌網構築**：建設専門誌10媒体＋地方紙＋業界Webメディアの記者個人情報を手集めで初期化、関心テーマ・エリア・SNS・直近記事をプロパティ化。
+- **STEP 3（D+14〜D+30）：テンプレ・ゲート実装**：press_release_v2.json / media_list_v2.json / pr_report_v2.jsonをNotion化、8軸配信前ゲート・textlint辞書・schema.orgマークアップ・UTM自動付与・BCC個別化を配信フローに組み込み。
+- **STEP 4（D+30〜D+60）：危機広報平時整備**：Dark Site構築、一次声明テンプレをnori/sora平時承認、ディープフェイク監視（Google Alerts＋Brandwatch）を稼働、危機シミュレーション第1回実施。
+- **STEP 5（D+60〜D+90）：Thought Leadership & ESG発信立ち上げ**：CEO/クライアント経営者のThought Leadership年4本連載を日経BP・東洋経済オンライン・PR Tableと交渉開始、ESG四半期発信フレーム策定、Barcelona Principles準拠月次レポート初回提出。
+
+### 10. オーバースペック基準（10項目）
+1. 月間Earned掲載数8本以上を6ヶ月連続達成（建設専門誌比率50%以上）
+2. Media Impressions月400万以上、SOV建設採用カテゴリで12%以上を維持
+3. 感情分析ポジティブ80%以上、ネガティブ5%未満を四半期維持
+4. 指名検索リフト掲載後14日+20%、採用応募直接貢献5件/月
+5. AI引用（ChatGPT/Perplexity/Google AI Overviews）月10件以上
+6. 危機広報初動1時間以内発火、二次炎上率ゼロを年間維持
+7. 配信前8軸ゲート通過率100%、訂正リリース年ゼロ
+8. nori事前リーガルチェックNO-GO案件ゼロ、ステマ・景表法違反ゼロ
+9. 記者台帳の90日異動チェック更新率100%、BCC個別化配信率100%
+10. Barcelona Principles 3.0準拠PR月次レポートを翌月第3営業日までに100%提出
