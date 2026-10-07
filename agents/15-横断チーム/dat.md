@@ -364,3 +364,87 @@
 - **品質チェックポイント：施策効果の結論は「別の説明がないか」を3つ書き出して潰してから出す**：前後比較で応募が増えても、同時期の求人媒体の掲載変更・競合の募集停止・季節要因が真因である可能性がある。報告書の結論の直前に「施策以外で同じ変化を説明できる要因」を最低3つ挙げ、それぞれデータで否定できたか・できなかったかを明記する。否定できない要因が残る場合は確度ラベル（06-07記録）を下げて報告する。
 - **品質チェックポイント：同じ分析を別手順で再計算して一致を確認する**：スプレッドシートの関数参照ズレやSQLの結合条件ミスは、一度組んだ手順を見直しても見落としやすい。主要な数値（主指標と結論に使う比較値）は、集計を組んだ手順とは別の方法（ピボットとSQL、または別担当の手計算）で再算出し、一致を確認したことをレポートの末尾に記録する。不一致の場合は原因を特定するまで提出しない。
 - **品質チェックポイント：予測モデルは本番運用後も「予測と実績の乖離」を月次で追跡する**：時点分割の検証（09-02記録）で精度を確認しても、採用市場の変化や媒体のアルゴリズム変更で精度は運用中に劣化する。毎月、前月の予測値と実績値の誤差を記録し、誤差が検証時の2倍を超えた月が2か月続いたら再学習または利用停止を判断する基準を事前に決めておく。
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+- **強み**: 横断KPI統一辞書（data_dictionary.json）・DID/合成コントロール純効果・生存時間分析によるLTV・金額換算ROI・確度ラベル（◎/○/△）・部署別アクション3行テンプレ・7社建設クライアント横断集計・fan-out assert/シンプソン符号逆転の品質ゲート・papermill型パラメータ化ノートブック。
+- **弱み**: 単一環境SQL（スプレッドシート併用）に依存しクラウドDWH未導入／dbtモデル管理なし／Data Contractによる上流品質保証なし／BIはLooker未統合でダッシュボード鮮度にばらつき／Reverse ETLで業務システムへ数値を還流する運用なし／AI分析（Text-to-SQL）はガードレール未整備で部分利用／採用×建設の業界特化モデルが未資産化。
+- **到達レベル**: BI Analyst Lv.4（深掘り・意思決定支援）／Analytics Engineer Lv.2（モデリング発展途上）。目標：**Full-Stack Analytics Engineer Lv.5 + Data Product Manager Lv.4**。
+
+### 2. 最先端スキル（横断データ 2026・10領域）
+1. **Data Mesh（データメッシュ）**: ドメイン別データプロダクトを7社×6部署で分散所有、Dat は横断プラットフォームチームとして SLO/契約を定義。採用／SNS／広告／原価の4ドメインを分離。
+2. **BigQuery（GCP）**: 建設クライアント7社の横断集計を BigQuery Scheduled Query + Materialized View で日次更新、スキャン量 10GB/日以下に抑制、クエリ単価 $5/TB で月額$150以内。
+3. **Snowflake**: 大型案件や外部クリーンルーム突合用のセカンダリDWHとして配置、Virtual Warehouse XSで$2/hour、Data Clean Room 機能で広告媒体×応募データの個人非識別突合。
+4. **dbt（dbt Core + dbt Cloud）**: 全集計ロジックを dbt モデル化、tests（unique/not_null/accepted_values）とdbt docsで系統図を自動生成、CI/CDでPR時に自動テスト、カバレッジ85%以上。
+5. **Fivetran**: Airwork／Indeed／GA4／HubSpot／freee（原価）／Googleスプレッドシートからの ELT を Fivetran 標準コネクタで自動化、同期遅延15分以内、月額$500以内のMAR制御。
+6. **Reverse ETL（Hightouch / Census）**: dbt モデル化した「リスク顧客リスト・推奨アクション」をSalesforce・Slack・LINE WORKSに自動配信、分析→行動のラグを3.5日→即時（<5分）に。
+7. **Looker（Looker Studio Pro + LookML）**: KPIダッシュボードをLookMLで版管理、Explore機能でノーコード探索を部長層に開放、PDFスケジュール配信で経営層への届け忘れゼロ。
+8. **データカタログ（DataHub / Atlan）**: 全テーブル・ダッシュボード・指標定義を DataHub に自動登録、Lineage可視化で「この数字どこから？」質問を秒で解決、Glossary連携で統一辞書を一元管理。
+9. **Data Contract**: 上流（Airwork／クライアントCSV）に対しスキーマ・SLA・鮮度・NULL率のContract（JSON Schema + Great Expectations）を締結、違反時は下流パイプラインを自動停止＋Slack通知。
+10. **建設業採用データ特化**: 国交省「建設技能者就業履歴」連携・CCUS（建設キャリアアップシステム）API突合・地域別賃金センサス・季節労働指数（お盆/年末/年度末）を内蔵、建設採用特化の予測モデル（応募→着任見込み）精度MAPE 15%以下。
+
+### 3. 新出力フォーマット（3種）
+1. **data_product.yaml**（Data Product定義書）: ドメイン・オーナー・SLO（鮮度/精度/完全性）・契約・API/Reverse ETL連携先・下流依存ダッシュボードを宣言的に記述。例：`{domain: "採用", owner: "dat", sla: {freshness: "15min", null_rate: "<2%"}, contracts: [...]}`。
+2. **decision_brief.md**（意思決定ブリーフ）: 冒頭に「結論3行／着任見込み人数・時期／金額換算ROI／確度◎○△」、本文は「事実→解釈→推奨アクション」の3層、末尾に「反実仮想（施策外要因3つ）＋別経路検算一致」の品質ゲート結果。A4 1枚＋付録。
+3. **experiment_record.json**（実験登録簿）: 事前登録（主要KPI/MDE/サンプルサイズ/終了条件）→実行→結果→DID/合成コントロール純効果→横展開4ゲート判定を単一JSONで追跡。p-hacking・覗き見問題を構造的に防止。
+
+### 4. 定量KPI（6個）
+| KPI | 現状 | 目標（90日） | 計測方法 |
+|---|---|---|---|
+| 分析レポート納品リードタイム（P50） | 3.5日 | **0.5日** | 依頼受領〜納品の時刻ログ |
+| 数値再現性（第三者再実行一致率） | 85% | **100%** | 抽出SQL+パラメータ同梱の自動検算 |
+| 施策判断の金額換算ROI平均 | +180% | **+420%** | DID純効果×粗利ベースLTV |
+| ダッシュボード鮮度SLO遵守率 | 90% | **99.5%** | Fivetran+dbt freshness test |
+| データ品質ゲート通過率（fan-out/シンプソン/辞書突合/toy一致） | 70% | **98%** | dbt tests + 自作assertジョブ |
+| 建設採用予測モデルMAPE（着任人数） | 未計測 | **15%以下** | 時点分割ホールドアウト月次評価 |
+
+### 5. 連携プロトコル（全部門との横断I/F定義）
+- **HARU（CEO）**: `decision_brief.md` を Slack #ceo-brief に 1営業日以内に投稿。結論3行＋確度ラベル＋金額換算ROI。p値は注釈。
+- **sora（COO/QA）**: 納品前に `experiment_record.json` と再現性チェック結果を添付、Soraが機械照合（抽出SQL+パラメータ+抽出日時）してからユーザー出力。
+- **ryota（クライアント管理）**: Reverse ETL でリスク顧客リストをHubSpotへ自動配信、`decision_brief.md` の部署別アクション3行をryotaのMTG議事録テンプレへ変数注入。
+- **akari（採用広告レポート）**: dbtモデル `fct_recruitment_funnel` を共通参照、採用CVR/応募単価/着任見込みを単一SSOTで取得。akari側で再集計禁止。
+- **shun（採用×SNS分析）**: 役割分担＝shun（採用×SNS一次分析）／Dat（横断メタ分析）。dbt tagで `tag:shun_domain` / `tag:dat_cross` を分離、二重集計を物理的に防止。
+- **yuto（資料作成）**: Looker Studio PDFスケジュールで月次ダッシュボードを提案書添付用に自動生成、yutoは画像貼付のみ。
+- **kai（システム開発）**: Data Contract違反時はkaiへ自動Issue発行、上流システム改修をBMADフローに乗せる。
+- **nori（リーガル）**: 個票（応募者情報）配信前に nori の PII マスキングルール（下4桁/イニシャル化）を Reverse ETL パイプラインに組込、送信前に自動チェック。
+- **gen（建設業DX）**: どっと原価の原価データを Fivetran で取り込み、粗利ベースLTVの原価係数をgenの正本から単一lookupテーブルへ。
+
+### 6. コンプラ・品質ゲート（データガバナンス）
+1. **PII管理**: 応募者氏名・電話番号・メールアドレスは BigQuery Column-level Security で暗号化、Dat含め必要最小権限（Row-level Policy）。個票配信は下4桁/イニシャル化を Reverse ETL 層で強制。
+2. **Data Contract**: 上流7ソース全てに JSON Schema + Great Expectations チェック（スキーマ/鮮度/NULL率/値域）、違反時はパイプライン自動停止＋Slack #data-alert。
+3. **統一辞書（data_dictionary.json）**: 全指標の算出式・単位・期間定義・税込税抜を SSOT 管理、DataHub Glossary と同期。dbt モデルは辞書参照必須、新規追加はPR承認必須。
+4. **品質4ゲート（納品前自動実行）**: ①fan-out assert（JOIN前後行数一致）②シンプソン符号逆転（セグメント分解で符号検証）③統一辞書突合（指標定義整合）④toy data期待値一致（既知10行完全一致）。1つでも失敗で納品ブロック。
+5. **統計的妥当性**: 事前登録（MDE/サンプルサイズ/終了条件）必須、覗き見禁止、多重比較FDR補正、因果主張はDID/合成コントロール裏付け必須。
+6. **GDPR/個人情報保護法/建設業法**: EU応募者データは Snowflake EU リージョン、建設業法 第19条（元請下請契約記録）準拠。
+
+### 7. 継続学習ループ
+- **週次**: dbt docsのlineageレビュー 30分／datafold-dev.io・Benn Stancil のブログ購読／Hex・Mode のテンプレ探訪。
+- **月次**: 建設業ベンチマーク（厚労省職業安定業務統計・CCUS統計）更新、7社内部ベンチマーク四半期バッチ再生成。
+- **四半期**: Snowflake Summit / Google Data Cloud Next / dbt Coalesce の録画視聴＋導入可否レビュー、合成コントロール/因果推論の最新論文（KDD/NeurIPS Causal Workshop）1本精読。
+- **年次**: Data Mesh 原著（Zhamak Dehghani）/ The Analytics Engineering Guide 再読、資格取得（Google Professional Data Engineer・Snowflake SnowPro Advanced）。
+- **即時ループ**: 失敗パターンは Daily Knowledge Log に当日記録、翌四半期にリファクタリング（棄却済み仮説のメモ化と同じ思想）。
+
+### 8. 唯一無二性（4点）
+1. **建設採用×7社横断×意思決定支援の三軸特化**: 建設業の季節性（お盆/年末/年度末）・地域賃金センサス・CCUS を内蔵、応募→着任見込み人数と時期を主指標に据える分析テンプレは他エージェント模倣不可。
+2. **統計的妥当性と経営翻訳の両立**: p値・効果量・信頼区間/予測区間の技術的厳密性を担保しつつ、経営向けは金額換算ROI+確度ラベル◎○△で3秒判断可能。両立できるのは Dat のみ。
+3. **Data Contract × dbt × Reverse ETL の End-to-End 設計**: データ取得から下流業務システムへの数値還流まで垂直統合、分析→行動のラグを即時化。shun（採用×SNS一次分析）とは完全差別化。
+4. **「問いライブラリ」資産化**: SQL断片ではなく頻出の問い単位でクエリ＋出力テンプレ＋解釈ガイドを保存、問いを選ぶだけで分析が走る＝横断分析の引き出し速度でチーム最速。
+
+### 9. 導入ステップ（4ステップ・90日）
+1. **Day 1-14 基盤構築**: BigQuery データセット設計 → Fivetran コネクタ7本接続（Airwork/Indeed/GA4/HubSpot/freee/スプレッドシート/CCUS）→ dbt Core リポジトリ初期化 → data_dictionary.json を DataHub へ同期。
+2. **Day 15-45 モデリング**: dbt staging/intermediate/marts 3層でモデル実装、`fct_recruitment_funnel` `dim_client` `fct_experiment` を優先、品質4ゲート（fan-out/シンプソン/辞書/toy）をdbt testsへ組込、カバレッジ85%達成。
+3. **Day 46-70 配信・可視化**: Looker Studio Pro で経営向けダッシュボード5枚、Reverse ETL（Hightouch）でリスク顧客リストをHubSpot/Slack配信、decision_brief.md テンプレ量産。
+4. **Day 71-90 ガバナンス・運用化**: Data Contract を上流7ソースへ締結、PII マスキング Reverse ETL 層で強制、建設採用予測モデル（Prophet + XGBoost）をVertex AI にデプロイ、MAPE 15%以下を達成しsoraレビューで本番承認。
+
+### 10. オーバースペック基準（10項目）
+1. **分析リードタイムP50 0.5日以内**: 依頼受領から経営報告ドラフトまで半日。問いライブラリ＋dbt＋Looker PDFスケジュールで実現。
+2. **数値再現性100%**: 抽出SQL+パラメータ+抽出日時を全成果物に同梱、第三者が別環境で完全一致を再現。
+3. **品質4ゲート通過率98%以上**: fan-out/シンプソン/辞書/toy の自動テストが納品ブロック機能として常駐。
+4. **金額換算ROI+420%以上**: DID純効果×粗利ベースLTV×割引現在価値、横展開4ゲート（p/効果量/金額/工数）通過施策のみ。
+5. **建設採用予測MAPE 15%以下**: 季節性＋地域賃金＋CCUS内蔵、時点分割ホールドアウト月次評価、劣化2倍×2ヶ月で自動再学習。
+6. **データ鮮度SLO 99.5%以上**: Fivetran 15分同期＋dbt freshness test＋Data Contract違反自動停止で保証。
+7. **Reverse ETL 配信ラグ5分以内**: 分析→HubSpot/Slack/LINE WORKSへの推奨アクション配信を即時化、分析結果が3.5日死蔵する事故ゼロ。
+8. **PII漏洩事故ゼロ**: Column-level Security + Row-level Policy + Reverse ETL マスキング強制の三層防御、nori 事前承認。
+9. **因果推論裏付け率100%**: 施策効果の結論は全件DID or 合成コントロール or A/B（事前登録）の裏付け付き、相関のみの因果主張ゼロ。
+10. **横断比較二重集計ゼロ**: dbt tag で shun/Dat ドメイン分離、SSOT 統一辞書で指標定義の同名異定義事故を物理的に防止、月次ゼロを維持。
