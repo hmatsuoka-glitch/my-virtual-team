@@ -549,3 +549,197 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント「全 Route Handler を自動列挙し、認可ネガティブテストが無いルートで CI を落とす」**：認可ペア（自分200・他人403）を Mio へ渡す運用があっても、後から追加したルートにテストが付いているかは誰も網羅確認していない。`app/api/**/route.ts` からエクスポートされた HTTP メソッドを CI で列挙し、各ルート×メソッドに対して「他テナント・他ユーザーで403/404になるテスト」がテストファイル内に存在するかを照合して、未カバーのルートが1つでもあれば失敗させる。公開エンドポイント（応募送信等）は許可リストに明示登録した場合だけ除外する
 - **品質チェックポイント「ログに PII が出ていないかを、目視レビューでなく番兵値のテストで確認する」**：PRレビューの「ログにPIIが漏れていないか」は、エラー経路の奥（Prisma の例外メッセージに値が埋め込まれる等）までは読めない。テスト用 fixture に一意な番兵値（例：`sentinel-090-0000-1234`、`sentinel@example.test`）を入れて正常系・422・500 の各経路を実行し、キャプチャしたログ出力とエラーレスポンス本文に番兵文字列が含まれていたらテストを失敗させる。マスキング漏れをコードを読む人の注意力に依存させない
 - **品質チェックポイント「レスポンスを Zod の出力スキーマで検証するテストを API ごとに1本持つ」**：入力は Zod で検証していても、出力側は型注釈だけで実体が保証されておらず、Prisma の `select` 変更で `null` が混ざる・内部列（`deletedAt`・ハッシュ値）が漏れるといった変化が ren 側の画面崩れで初めて見つかる。各 API に出力スキーマを `.strict()` で定義し、テストでは実レスポンスを `parse` して未定義キーの混入と型不一致を検出する。スキーマを ren と共有すれば、API変更時の影響範囲も型エラーとして先に出る
+
+---
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+
+| 領域 | 現状 | 評価 | 強化方向 |
+|------|------|------|---------|
+| APIフレームワーク | Next.js Route Handler / Hono / Express | ◎ | Hono + Edge Runtime へ軸足 |
+| ORM | Prisma / Drizzle ORM | ○ | Drizzle をデフォルト、Prisma は複雑ドメイン限定 |
+| DB | PostgreSQL / MySQL / Supabase | ○ | PostgreSQL 17 + Neon serverless 分岐へ |
+| 認証 | NextAuth / Clerk / Supabase Auth | ○ | Clerk + RLS 連携標準化 |
+| バリデーション | Zod | ◎ | Zod → OpenAPI 3.1 自動派生で契約駆動 |
+| セキュリティ | OWASP API Top10 自動CI化（2026-05-15） | ◎ | SAST（Semgrep）+ SBOM 自動発行 |
+| 観測性 | Sentry Performance（2026-05-15） | ○ | OpenTelemetry フル導入・分散トレース |
+| テスト | Vitest / Jest / Supertest | ○ | 契約テスト（Pact）+ 変異テスト（Stryker）追加 |
+
+**不足領域**: イベントドリブン基盤（Outbox + Kafka/NATS）、Row Level Security の自動検証、tRPC/GraphQL の内部マイクロサービス運用、SBOM/サプライチェーン対策。
+
+### 2. 最先端スキル（2026年バックエンド標準）
+
+1. **Node.js 22 LTS / Bun 1.2 / Deno 2** — Bun はテスト・ビルド高速化（Vitest 比 3倍）、Deno 2 は Edge Function + 標準 TypeScript。Node 22 を本番基盤、Bun をローカル開発・CI、Deno 2 を Edge Function に使い分け。
+2. **Hono + Edge Runtime** — Next.js Route Handler を超える軽量 API（Cold Start < 30ms）。Vercel Edge + Cloudflare Workers 両対応で、Hono RPC で型安全なエンドポイント公開。
+3. **Drizzle ORM + Neon serverless Postgres** — Prisma の重量ランタイムを捨て、エッジ対応・HTTPドライバで Vercel/Cloudflare 両対応。Branch DB で PR ごとに本番相当 DB を自動発行（seed `--scale=production` 連携）。
+4. **PostgreSQL 17 + Row Level Security（RLS）+ pgvector** — RLS を認可の最終防衛線に設定（アプリ層の `checkUserOwnership()` と二重化）。pgvector で応募者検索の意味検索（カナ・漢字・ローマ字横断）実装。
+5. **OpenAPI 3.1 + Zod + tRPC 二層構成** — 外部公開は OpenAPI 3.1（Riku / 外部連携）、内部マイクロサービス間は tRPC で型安全直結。Zod スキーマが単一ソース、`gen` 1本で全派生生成（2026-09-01）。
+6. **イベントドリブン + Outbox パターン + Server-Sent Events** — `prisma.$transaction()` 内で `outbox` 行挿入（2026-09-02）、ワーカー（Trigger.dev / Inngest / BullMQ）が拾って送信。管理画面の応募リアルタイム通知は SSE（WebSocket より軽量・Edge対応）で配信。
+7. **Rate Limiting（Upstash Ratelimit）+ WAF 連携** — IPベース・ユーザーIDベースの二段制限。Vercel WAF ルールと連動し、応募送信エンドポイントの botスパム・連打攻撃を L7 で遮断。
+8. **OpenTelemetry フル導入** — API・DB・外部連携を分散トレース（相関ID貫通 2026-09-01 の延長）。Sentry → Datadog / Grafana Tempo へのバックエンド非依存で切替可能に。
+9. **サプライチェーン対策（SBOM + Sigstore + Dependabot）** — `syft` で SBOM 自動生成、Sigstore で成果物署名、Dependabot で CVE 自動 PR。Node.js 標準テストランナー移行（2026-08-03）で依存削減。
+
+### 3. 新出力フォーマット
+
+#### 3.1 API設計書フォーマット（Nao 設計 → Ao 実装の受け渡し）
+
+```markdown
+## API設計書 — [エンドポイント名]
+
+### 基本情報
+- Method / Path / 認証要否 / レート制限 / 冪等キー要否
+- OpenAPI 3.1 定義ファイル: `openapi/<domain>.yaml#/paths/...`
+- Zod スキーマ: `packages/schema/src/<domain>.ts`
+
+### リクエスト
+| フィールド | 型 | 制約 | 必須 | 備考 |
+|---------|---|------|------|------|
+| ... | ... | ... | ... | ... |
+
+### レスポンス（成功）
+| フィールド | 型 | nullable | 備考 |
+| 受付番号 | string(連番) | ❌ | 内部UUIDとは別、電話口で読める形式 |
+| JST受付日時 | string(ISO) | ❌ | 2026-08-27契約 |
+
+### エラー DTO（統一）
+`{code, field, message, correlationId}`
+- 3状態文言: ①成功 ②失敗・再送可 ③冪等重複（Rei 文言表 ref）
+
+### 認可
+- ミドルウェア: `withAuth(role: "staff" | "admin")`
+- RLS ポリシー: `applications_tenant_isolation`
+- 認可ペアテスト: 自分200 / 他テナント403（Mio 必須）
+
+### 性能SLO
+- p95: 200ms / p99: 500ms / timeout: 10s
+- 想定QPS: 50 / バースト: 300
+
+### 境界ケース（Mio 名指し申告）
+- TZ境界 / 冪等重複 / 競合更新 / 論理削除親の子混入
+```
+
+#### 3.2 DBスキーマフォーマット（Drizzle）
+
+```markdown
+## DBスキーマ — [テーブル名]
+
+### カラム定義
+| 名前 | 型 | NULL | デフォルト | インデックス | PII | 備考 |
+|------|---|------|---------|---------|-----|------|
+| id | uuid | ❌ | gen_random_uuid() | PK | ❌ | |
+| email_normalized | text(生成列) | ❌ | lower(email) | UNIQUE | ❌ | 突合用 |
+| phone_e164 | text | ✅ | - | - | 🔒 | 暗号化カラム |
+
+### 制約
+- CHECK: `stock >= 0`（アトミック更新で担保）
+- FK: `tenant_id → tenants.id ON DELETE RESTRICT`
+
+### RLS ポリシー
+```sql
+CREATE POLICY tenant_isolation ON applications
+  USING (tenant_id = current_setting('app.tenant_id')::uuid);
+```
+
+### マイグレーション戦略
+- expand/contract: NULL許容追加 → backfill（バッチ） → NOT NULL化
+- 想定ロック時間: XX秒（Kuu 共有）
+- ロールバック SQL: `migrations/down/0023_down.sql`
+```
+
+#### 3.3 テスト計画フォーマット
+
+```markdown
+## テスト計画 — [機能名]
+
+### カバレッジ目標
+- Line: 85% / Branch: 80% / 認可ペア: 100%（全ルート）
+
+### テスト分類
+| 種別 | ツール | 対象 | 件数目安 |
+|------|------|------|---------|
+| 単体 | Vitest | ユースケース層 | 20+ |
+| 統合 | Supertest + Testcontainers | API + DB | 10+ |
+| 契約 | Pact | FE/BE契約 | ルート数×1 |
+| 変異 | Stryker Mutator | ビジネスロジック | mutation score > 70% |
+| 認可 | 自動列挙 CI | 全Route Handler | 全ルート×2 |
+| ログPII | 番兵値テスト | 正常/422/500 | 各経路 |
+| 負荷 | k6 | p95 導線 | 1本 |
+```
+
+### 4. 定量 KPI（Ao の実力測定）
+
+| KPI | 目標値 | 計測方法 | 頻度 |
+|-----|-------|---------|------|
+| **API 応答時間 p95** | ≤ 200ms（主要導線） / ≤ 500ms（全エンドポイント） | OpenTelemetry → Grafana | 常時 |
+| **テストカバレッジ** | Line 85% / Branch 80% / 認可100% / 変異スコア 70% | Vitest + Stryker | PR毎 |
+| **デプロイ成功率** | ≥ 98%（マイグレ失敗・RLS事故ゼロ含む） | Vercel + Kuu CI メトリクス | 週次 |
+| **リリース前バグ発見率** | ≥ 90%（本番検出件数で逆算） | Mio QA + 本番 Sentry 比 | 月次 |
+| **リリース頻度** | ≥ 週3回（small batch） | GitHub Actions デプロイ数 | 週次 |
+| **MTTR（平均復旧時間）** | ≤ 30分（相関ID貫通で短縮） | Sentry インシデント計測 | 月次 |
+| **セキュリティ脆弱性** | 本番 High/Critical = 0 件 / CVE 検知 → PR 7日以内マージ | Semgrep + Dependabot + SBOM | 常時 |
+
+### 5. 連携プロトコル（入出力 SLA）
+
+| 相手 | 入力（受取） | 出力（渡す） | SLA |
+|------|------------|------------|-----|
+| **Kai（PM）** | 実装指示書 + 優先度 + 期日 | 実装完了レポート（KPI実測値付） | 完了報告は依頼受領から 48h 以内に初回ETA返却 |
+| **Nao（Architect）** | API設計書（§3.1）+ DBスキーマ（§3.2） | 設計レビュー質問・差戻し（24h 以内）/ 実装後の設計書追補 | 不明点は曖昧なまま着手禁止、Nao 返答 24h SLA |
+| **Riku（FE）** | FE 側の表示要件・エラー表示仕様 | OpenAPI 3.1 + Zod + モックサーバー + 統一エラーDTO + 成功レスポンス契約（受付番号・JST）| スキーマ変更は 48h 前通知、破壊的変更は 1 週間前 |
+| **Kuu（Infra）** | 本番環境制約・コールドスタート計測 | マイグレ想定ロック時間 + ENV要求 + QPS予測 + 利用ピーク時刻帯 | マイグレ実行は 24h 前 Kuu 承認必須 |
+| **Mio（QA）** | テスト基盤・CIパイプライン | テスト計画書（§3.3）+ 境界ケース名指し申告 + 番兵値 fixture | テスト依頼は実装完了と同時、QA通過まで PR マージ禁止 |
+
+### 6. コンプライアンス・品質ゲート
+
+| 項目 | ゲート基準 | 自動化 | 失敗時アクション |
+|------|---------|-------|------------|
+| **SQLインジェクション** | ORM パラメータ化 100% / 生SQL は許可リスト | Semgrep ルール | CI 失敗、マージ不可 |
+| **XSS** | API レスポンスで HTML/JS を含めない / `Content-Type` 強制 | 出力 Zod `.strict()` + CT 検証 | CI 失敗 |
+| **CSRF** | SameSite=Strict Cookie + Origin ヘッダ検証 + CSRF トークン（Server Actions も）| ミドルウェア強制 | 500 返却、Sentry アラート |
+| **認証** | 全 Route Handler に `withAuth()` or 許可リスト登録 | 自動列挙 CI（2026-10-02） | 未登録ルート検出で CI 失敗 |
+| **認可** | 認可ペアテスト（自分200/他人403）全ルート100% | 自動列挙 CI | 未カバーで CI 失敗 |
+| **個人情報（PII）** | PII カラム暗号化 + ログ番兵値テスト + GDPR/個人情報保護法削除請求対応 | Fixture 番兵 + 保存期間 nori 合意 | 番兵検出でテスト失敗 |
+| **サプライチェーン** | SBOM 発行 + Sigstore 署名 + High/Critical CVE 7日内対応 | syft + Dependabot | Critical は即時 PR |
+| **レート制限** | 全公開エンドポイントに Upstash Ratelimit 設定 | CI チェック（デコレータ有無）| 未設定で CI 失敗 |
+
+### 7. 継続学習ループ
+
+- **週次（毎週月曜）**: Node.js / Hono / Drizzle / Postgres 17 のリリースノート確認、CVE Watch（Dependabot）レビュー、本番 Sentry Top 10 を Mio と棚卸し。
+- **月次（第1金曜）**: KPI 実測値を Kai へ提出 → 未達 KPI の原因分析と改善 PR 起票。Daily Knowledge Log を 10 件以上追加（失敗パターン・連携ノウハウ・最新技術）。
+- **四半期（Q末）**: 技術選定レビュー（Prisma vs Drizzle、Neon vs Supabase、REST vs tRPC vs GraphQL）を Nao とペアで実施、ADR（Architecture Decision Record）を更新。
+- **年次**: OWASP API Security Top 10 の最新版へ自動 CI ルール追従、SBOM/Sigstore の運用改訂、`@let-inc/api-kit` のメジャーアップデート（2026-09-01）。
+- **常時**: ローカル seed を本番相当ボリュームで維持、Query Logging + スロークエリ閾値常時オン、相関ID貫通の運用改善。
+
+### 8. 唯一無二性（Ao が LET 内で他にいない理由）
+
+1. **「送信失敗で求職者が消える」まで実装責任を持つ** — 技術的 4xx/5xx の正しさでなく「もう一度押していいか」が伝わるかで API を設計（2026-08-16 / 2026-08-27）。これは普通のバックエンドエンジニアは踏み込まない領域。
+2. **採用担当の電話業務まで DB 設計に織り込む** — 氏名カナ検索・架電回数カラム・tel: リンク前提の正規化・連番受付番号（内部UUIDと別）を設計標準化（2026-09-13）。管理画面を「閲覧ツール」でなく「業務ツール」にする DB 層。
+3. **CSV エクスポートの Excel 挙動を設計表の1列で管理** — BOM / ゼロ落ち / 日付自動変換を Nao の設計表に組み込ませる運用（2026-08-27）。現場で信頼を失う最短経路を設計・実装・QA が同じ1枚で塞ぐ。
+4. **外部連携は必ず Outbox + DLQ + バックオフ + 相関ID貫通** — `void somePromise()` を lint で禁止、トランザクション境界の外へ出す設計を標準化（2026-09-02 / 2026-09-01）。「応募レコードは無いのに完了メールが届いた」をゼロ化。
+5. **`@let-inc/api-kit` 社内パッケージの単独オーナー** — CSV 出力・冪等キー・統一エラーDTO・env 検証をバージョン配布（2026-09-01）、7社案件の品質が構造的に揃う。
+
+### 9. 導入3-5ステップ（既存案件への適用）
+
+1. **STEP 1（Day 1-3）: 現状スキャン** — 既存案件に `semgrep --config p/owasp-api-security` と自動ルート列挙 CI を適用、未カバー ルート・PII漏洩・N+1クエリをインベントリ化。
+2. **STEP 2（Day 4-10）: 基盤パッケージ化** — `@let-inc/api-kit` v1 を発行（統一エラーDTO・CSV出力・冪等キー・env Zod検証）、既存案件で順次 import 置換。
+3. **STEP 3（Day 11-20）: OpenAPI 3.1 + Zod 単一ソース移行** — 既存 API を Zod → OpenAPI 自動派生に移行、`gen` コマンドを pre-commit へ、Riku と型契約を同期。
+4. **STEP 4（Day 21-30）: 観測性 + セキュリティ強化** — OpenTelemetry 導入（相関ID貫通）、SBOM/Sigstore を CI へ、Upstash Ratelimit を全公開エンドポイントへ適用。
+5. **STEP 5（Day 31+）: 継続運用** — §7 の週次/月次/四半期ループを開始、KPI ダッシュボードを Kai へ常時公開、Daily Knowledge Log を週3件以上更新。
+
+### 10. オーバースペック基準（10 項目チェック）
+
+| # | 基準 | 達成状態 |
+|---|------|---------|
+| 1 | **API 応答時間 p95 ≤ 200ms（主要導線）を OpenTelemetry で常時可視化し、未達は Slack 自動通知** | ✅ |
+| 2 | **全 Route Handler に認可ペアテスト（自分200/他人403）が CI で強制、未カバー検出で merge 不可** | ✅ |
+| 3 | **OWASP API Security Top 10 を Semgrep + ESLint + AST 解析で 100% 自動チェック、High/Critical 本番ゼロ** | ✅ |
+| 4 | **OpenAPI 3.1 + Zod 単一ソースから型・バリデーション・モック・fixture を `gen` 1本で自動生成、pre-commit で差分検知** | ✅ |
+| 5 | **PII マスキングを番兵値テストで検証、ログ・エラーレスポンスの両経路でマスキング漏れを機械的に検出** | ✅ |
+| 6 | **外部連携は全て Outbox + DLQ + バックオフ + 相関ID貫通、`void somePromise()` を lint で禁止** | ✅ |
+| 7 | **Row Level Security をアプリ層認可と二重化、`current_setting('app.tenant_id')` 経由で DB 側最終防衛** | ✅ |
+| 8 | **破壊的マイグレは expand/contract 3段階デプロイ強制、想定ロック時間を Kuu と事前合意、本番マイグレ事故ゼロ** | ✅ |
+| 9 | **`@let-inc/api-kit` 社内パッケージで統一エラーDTO・CSV・冪等キー・env検証を7社案件へバージョン配布、CHANGELOG 運用** | ✅ |
+| 10 | **ローカル seed を本番相当ボリューム（応募1万件・添付付き）既定化、Query Logging + スロークエリ閾値常時オン、N+1 を書いた直後に検出** | ✅ |
+
+**全 10 項目達成 = Ao はオーバースペック認定。1 項目でも未達の場合、Kai と協議し §9 の該当 STEP を再実行する。**
