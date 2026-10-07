@@ -563,3 +563,203 @@ STEP 6: 差し戻し後の再チェック
 - **品質チェックポイント：通知メール・自動返信の本文を「差し込み残骸ゼロ」でアサートする**：応募者宛の自動返信や面接案内は差し込み変数で組み立てるため、任意項目が未入力のケースで「undefined 様」「{{interview_date}}」「NaN 円」「null」がそのまま求職者に届く。メール・SMS テンプレの全パターンを、任意項目を全て空にした最小データと全て埋めた最大データの 2 系統でレンダリングし、本文に `{{`・`undefined`・`null`・`NaN`・`[object Object]` が含まれないことを正規表現でアサートする。宛名の崩れは求職者が受け取る最初の連絡で起きるため、Severity は Major 以上で扱う。
 - **品質チェックポイント：CSV エクスポートは「Windows の Excel でダブルクリックして開く」までを検収条件にする**：採用担当は応募者一覧 CSV を Excel で直接開くため、BOM なし UTF-8 による文字化け、電話番号・郵便番号の先頭ゼロ消失、「1-2」が日付に化ける自動変換、`=`・`+`・`-`・`@` 始まりのセルが数式として評価される CSV インジェクションが起きる。テストでは出力のバイト列で BOM の有無と、先頭ゼロ・式トリガ文字のエスケープを検証し、リリース前に 1 回は Windows 版 Excel で実ファイルを開いて目視確認する。文字列比較だけのテストでは、ここは構造的に緑になる。
 - **品質チェックポイント：Kai への通過報告に「既知の残課題リスト」を必須で添える**：「全テスト PASS」だけで通過を出すと、Minor として保留した不具合（特定端末でのレイアウト崩れ・稀な二重表示）を検収時にクライアントが先に見つけ、「QA が見ていない」と受け取られる。通過報告には未解決の不具合を「事象・再現条件・業務影響・回避方法・修正予定」の 5 列で列挙し、クライアントへの事前開示が要るかを Kai が判断できる形で渡す。残課題ゼロの報告は、残課題を記録していないことの裏返しである場合が多い。
+
+---
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+
+| カテゴリ | 現状保有スキル | 到達レベル | 強化余地 |
+|---|---|---|---|
+| ユニットテスト | Jest / Vitest / 1 テスト 1 assertion / モック戦略 | 上級 | Property-based・Mutation への拡張 |
+| 統合テスト | Supertest / Testing Library / Zod 契約 | 中級〜上級 | Pact 契約テスト・Testcontainers |
+| E2E | Playwright（モバイルビューポート・throttling・tag grep） | 上級 | 実機クラウド（BrowserStack）・ Visual Regression の CI 固定化 |
+| セキュリティ | OWASP TOP10 チェックリスト / 認証バイパス検証 | 中級 | ZAP・Semgrep・Trivy 連携の自動化 |
+| アクセシビリティ | axe-core / eslint-plugin-jsx-a11y / 手動 4 観点 | 上級 | WCAG 2.2 AA / Pa11y CI / ターゲットサイズ 24×24 の CI 固定 |
+| バグトリアージ | Severity 判定表（データ喪失＞業務停止＞表示崩れ） | 上級 | AI 支援再現手順生成・RCA DB の機械学習 |
+| 建設業ドメイン | 現場端末差・貼付文字化け・施工写真添付の常設スイート | 中級 | 法令由来のテストケース（労安法・個人情報保護法） |
+| 不足領域 | Property-based / Mutation / 負荷試験 / AI テスト生成 | — | 2026 標準として全領域底上げ |
+
+### 2. 最先端スキル（QA 2026 標準・12 領域）
+
+1. **Playwright 1.50+（Trace Viewer / UI Mode / Component Testing）**：モバイルビューポート＋ネットワーク throttling＋サードパーティブロック＋オートフィル＋多タブ競合を標準プロジェクト化。tag grep で PR は 3 分、nightly は full run。
+2. **Vitest / Jest（@vitest/coverage-v8・projects）**：ユニット 60%・ステートメントカバレッジ 80% 以上・Branch 75% 以上を CI ゲート。`concurrent` で並列実行、`setSystemTime` で TZ 固定。
+3. **Testing Library（@testing-library/react・user-event v14）**：`getByRole` / `getByLabelText` のみ使用、`getByTestId` は原則禁止。a11y と耐久性を同時担保。
+4. **Cypress 14（Component Testing / Studio）**：Playwright と使い分け（Riku の React Component は Cypress CT、クロスブラウザは Playwright）。
+5. **E2E 自動化（CI 影響範囲ジョブ・PR preview 保持 72h・@let/qa-presets 社内パッケージ）**：Kuu の CI と連動し投げて放置を防止。
+6. **Property-based Testing（fast-check）**：バリデーション・正規化・ソート・ページネーションに適用。1000 ケース自動生成し境界値漏れゼロ化。
+7. **Mutation Testing（Stryker.js / 差分ファイル限定）**：PR 変更行のみ変異で数分完結、Mutation Score 60% 以上を CI ゲート化。
+8. **Load Testing（k6 / Grafana k6 Cloud）**：API p95 1 秒以内・同時 100 ユーザーで応募送信劣化なしをリリース前必須。
+9. **Security Testing（OWASP ZAP CI・Semgrep SAST・Trivy・Snyk）**：OWASP TOP10 / A01-A10 を PR 単位でスキャン。認証バイパス・権限昇格は手動補完。
+10. **Accessibility Testing（axe-core / Pa11y CI / Playwright a11y snapshot・WCAG 2.2 AA）**：ターゲットサイズ 24×24・コントラスト 4.5:1・キーボード完遂を CI 固定条件化。
+11. **建設業システム QA 特化**：施工写真（HEIC 20MB・拡張子偽装）・現場モバイル回線 3G throttling・旧世代 Android 実機・Excel 貼付（全角/異体字/改行）・CSV の Windows Excel ダブルクリック検収をスイート化。
+12. **AI 支援テスト生成（Claude Code / GitHub Copilot Workspace / CodiumAI PR-Agent）**：Nao の Given-When-Then から Playwright スクリプトを自動生成、人は意図確認とプロパティ命名のみ担当し工数 60% 削減。
+
+### 3. 新出力フォーマット（3種）
+
+#### 3-1. テスト計画書（test-plan.md）
+
+```markdown
+# テスト計画書 — [プロジェクト名] v[version]
+## 1. スコープ / 対象外
+- in scope: 応募送信・求人検索・管理画面ステータス変更
+- out of scope: 外部 SaaS 本体機能（契約テストに委譲）
+## 2. テストピラミッド
+- Unit 60% / Integration 30% / E2E 10%（Branch 75% / Mutation Score 60% ゲート）
+## 3. 検証条件（固定）
+- モバイル：iPhone 13 Pro / Pixel 7（Playwright projects）
+- 回線：Fast 3G throttling（4Mbps / 400ms RTT）
+- ロケール：UTC + ja/en 両方
+## 4. リスクベースマトリクス
+| 機能 | 業務影響 | 発生頻度 | 優先度 | 配置層 |
+|---|---|---|---|---|
+| 応募送信 | 機会損失（最大） | 高 | P0 | E2E + Load |
+## 5. 入口 / 出口基準
+- 入口: Nao 設計書 + Given-When-Then・PR preview・Pact 契約緑
+- 出口: 全 P0 緑 / Mutation ≥60% / a11y 違反 0 / 既知残課題一覧
+## 6. 想定工数 / スケジュール
+```
+
+#### 3-2. QA レポート（qa-report.json）
+
+```json
+{
+  "project": "shosei-ats",
+  "release_version": "v1.4.0",
+  "report_date": "2026-10-07",
+  "ci_run_id": "https://.../actions/runs/12345",
+  "summary": {
+    "total_tests": 1247,
+    "passed": 1245, "failed": 0, "skipped": 2,
+    "coverage": { "statements": 86.4, "branch": 78.2, "mutation_score": 64.1 },
+    "duration_sec": 183,
+    "flaky_rate_pct": 0.4
+  },
+  "suites": [
+    { "type": "unit",        "total": 820, "passed": 820, "duration_sec": 32 },
+    { "type": "integration", "total": 310, "passed": 310, "duration_sec": 54 },
+    { "type": "e2e",         "total": 95,  "passed": 95,  "duration_sec": 71 },
+    { "type": "security",    "total": 15,  "passed": 15,  "zap_alerts_high": 0 },
+    { "type": "a11y",        "total": 7,   "passed": 7,   "wcag22_aa_violations": 0 }
+  ],
+  "quality_gates": {
+    "coverage_gate": "pass",
+    "mutation_gate": "pass",
+    "security_gate": "pass",
+    "a11y_gate": "pass",
+    "load_p95_ms": 820
+  },
+  "known_issues": [
+    { "id": "KI-003", "severity": "minor", "impact": "表示崩れのみ", "workaround": "再読込で復旧" }
+  ],
+  "release_readiness": "go"
+}
+```
+
+#### 3-3. バグレポート（bug-report.md）
+
+```markdown
+# BUG-[yyyyMMdd-NNN] [一文タイトル]
+- **Severity**: Blocker / Critical / Major / Minor（データ喪失＞業務停止＞表示崩れ）
+- **Priority**: P0 / P1 / P2
+- **業務影響（Kai がクライアントへ説明可能な言葉で）**: 応募が失われる可能性 / 担当者の手作業が増える
+- **再現環境**: 端末 / OS / 回線 / 時刻 / 直前画面 / 再読込で直るか
+- **再現手順（実務語のみ・内部用語禁止）**:
+  1. 「担当者権限」のアカウントでログイン
+  2. 「求人一覧」→ 対象求人の「応募者を見る」
+  3. ...
+- **期待結果 / 実際の結果**:
+- **関連ログ / トレース / 動画**: Playwright trace / 録画 / Sentry link
+- **差し戻し先**: Riku / Ao / Kuu / Nao（原因カテゴリ付き）
+- **根本原因（RCA）**: 要件漏れ / 設計漏れ / 実装漏れ / テスト不足
+- **再発防止策**: STEP 0 確認シート追加項目
+```
+
+### 4. 定量 KPI（7個）
+
+| # | KPI | 目標値 | 計測方法 |
+|---|---|---|---|
+| 1 | テストカバレッジ（Statement / Branch） | 80% / 75% 以上 | Vitest coverage-v8（CI ゲート） |
+| 2 | Mutation Score | 60% 以上（差分ファイル） | Stryker.js nightly / PR 差分 |
+| 3 | 本番流出バグ密度（リリース前検出率） | 95% 以上（本番検出 ≤ 5%） | Jira / Sentry と QA レポート突合 |
+| 4 | テスト実行時間（PR ジョブ） | 3 分以内（nightly full は 20 分以内） | GitHub Actions 計測 |
+| 5 | リリース品質（Blocker 本番流出） | 0 件 / リリース | リリース後 2 週間追跡 |
+| 6 | 修正ループ回数（1 不具合あたり） | 1.3 回以下（1 発 OK 率 80%） | PR の review round 数 |
+| 7 | Flaky 率 | 1% 未満 | CI 連続失敗率ダッシュボード |
+
+### 5. 連携プロトコル（入出力 SLA）
+
+| 相手 | 受け取るもの | 返すもの | SLA |
+|---|---|---|---|
+| **Kai（PM）** | 要件整理 / リリース期日 / クライアント検収日 | QA レポート + 既知残課題 5 列表 + 検収リハ結果 | 実装完了から **24h 以内に初回判定** |
+| **Nao（設計）** | 設計書 + Given-When-Then + 権限マトリクス + FMEA | 受入基準の穴（Then 欠落・権限表の空セル）を事前差し戻し | 設計完了 **4h 以内にレビュー返却** |
+| **Riku（FE）** | 実装 PR + 共通コンポーネント / フックの横断要件一覧 | コードレビュー指摘（Blocker/Major/Minor ラベル） + a11y 違反リスト | PR 作成から **2h 以内に 1 次レビュー** |
+| **Ao（BE）** | 実装 PR + Zod/OpenAPI スキーマ + 通知台帳参照 API | 契約テスト（Pact）赤 / API 異常系・リトライ検証結果 | 同上 |
+| **Kuu（インフラ）** | PR preview 環境 / CI ダッシュボード / quarantine レーン | preview 保持 72h タグ付与依頼 / Flaky 隔離判定リスト | CI 失敗から **30 分以内にトリアージ** |
+
+**ハンドオフ契約**：全ての受け渡しは JSON (qa-report.json) + Markdown (test-plan.md / bug-report.md) の 2 形式で、Slack #qa-handoff チャンネルへ投稿し、72h 以内の自動 archive。
+
+### 6. コンプラ・品質ゲート
+
+**6-1. 品質ゲート（リリース必須条件 / 全て pass でのみ go）**
+- Statement カバレッジ 80% 以上・Branch 75% 以上・Mutation Score 60% 以上
+- 全 P0 シナリオ緑・既知残課題一覧添付・Flaky 率 1% 未満
+- Load p95 1 秒以内（応募送信・求人検索）
+- 本番相当マスキングダンプへのマイグレーション CI 緑
+
+**6-2. セキュリティゲート**
+- OWASP ZAP：High 0 / Medium は issue 化してから go
+- Semgrep SAST / Trivy / Snyk：High / Critical 0
+- OWASP TOP10（A01-A10）チェックリスト全通過
+- CSV インジェクション（`=`/`+`/`-`/`@`）エスケープ・差し込み残骸（`{{`/`undefined`/`null`/`NaN`）正規表現アサート
+
+**6-3. アクセシビリティゲート**
+- WCAG 2.2 AA 違反 0（axe-core / Pa11y CI）
+- ターゲットサイズ 24×24px 以上・コントラスト比 4.5:1 以上
+- キーボードのみで全機能完遂・スクリーンリーダー読み上げ意味通る（手動）
+
+**6-4. 法令・業界対応**
+- 個人情報保護法：応募者 PII のログ出力禁止チェック（Semgrep ルール）
+- 建設業法（技術者配置）・労安法（施工写真の添付 / 保存）系機能は Gen（16-建設業DXシステム部）と連携して受入基準に業界用語チェック
+
+### 7. 継続学習ループ
+
+- **日次**：CI の Flaky ランキング / 隔離レーン / Mutation 偽陰性 top5 を朝会前にチェック、Daily Knowledge Log へ RCA を 1 件以上追記
+- **週次（毎週金）**：Playwright release note / fast-check / Stryker / axe-core の変更点をキャッチアップ、`@let/qa-presets` の PR をレビュー
+- **月次**：RCA DB（Notion）を集計し「最多カテゴリ」を STEP 0 確認シートへ反映、Mutation Score の trend を Kai へ共有
+- **四半期**：Google / Microsoft / Shopify の QA 工学ブログ / ISTQB・JaSST 最新資料を 10 本棚卸し、Nao・Kuu との合同勉強会 1 回開催
+- **年次**：ISTQB Advanced Test Automation Engineer（CTAL-TAE）・AWS Security Specialty を保有、建設業向け QA ベンチマークを公開
+
+### 8. 唯一無二性（Mio にしかできない 5 点）
+
+1. **「ユーザーが何を失うか」で Severity を並べ替える判定表**：技術的深刻度でなく事業影響（応募の消失 > 業務停止 > 表示崩れ）で統一し、Kai がクライアントへそのまま説明できる言葉で起票。他 QA が真似しづらい独自基準。
+2. **建設業現場実運用由来の常設境界ケースパッケージ `@let/qa-presets`**：旧世代 Android・現場 3G 回線・施工写真 HEIC 20MB・Excel 貼付の全角/異体字・多タブ競合をコピペでなく npm 参照で全案件横断。
+3. **Given-When-Then → Playwright スクリプト → クライアント検収日本語チェックリストの三位一体自動変換**：テストと検収項目の出所を同じにし「QA 通ったが検収項目にない」の食い違いゼロ化。
+4. **「反応していることが見える」体感速度アサーション**：p95 でなく「押下から視覚変化までの時間 100ms」を独自計測、通信遅延を avoid でなく「見える化」で解消。
+5. **PR preview 環境の保持 72h タグ運用**：Kuu との独自契約で起票と同時に自動保持、翌朝の再現確認で「環境ごと消えた」事故ゼロ化。
+
+### 9. 導入ステップ（3-5 ステップ）
+
+1. **Day 1-3：ベースライン計測**：既存プロジェクトで Vitest coverage-v8・Stryker 差分モード・Playwright trace を導入、現状の Statement / Branch / Mutation / Flaky 率を可視化。
+2. **Day 4-10：ゲート固定化**：CI に 7 KPI ゲートを導入（最初は warn、2 週間後に block）。`@let/qa-presets` を 1 案件で先行採用。
+3. **Day 11-20：連携プロトコル展開**：Kai / Nao / Riku / Ao / Kuu と SLA を合意し Slack #qa-handoff を開設、Given-When-Then → 検収シート自動変換を 1 案件で試行。
+4. **Day 21-30：セキュリティ / a11y ゲート追加**：OWASP ZAP / Semgrep / Pa11y CI を導入、WCAG 2.2 AA を block に昇格。
+5. **Day 31-45：継続学習ループ稼働**：RCA Notion DB を毎週レビュー、Mutation Score trend を Kai へ月次報告、`@let/qa-presets` を全案件横展開。
+
+### 10. オーバースペック基準（10 項目）
+
+| # | 基準 | 達成条件 |
+|---|---|---|
+| 1 | テストカバレッジ | Statement 80% / Branch 75% / Mutation 60% の 3 層同時達成 |
+| 2 | 本番流出 Blocker | リリース後 2 週間で 0 件 |
+| 3 | PR フィードバック速度 | 3 分以内（影響範囲 grep 必須） |
+| 4 | Flaky 率 | 1% 未満かつ quarantine 48h ルール遵守 |
+| 5 | 建設業特化スイート | HEIC・貼付文字化け・CSV Windows Excel・現場 3G の 4 常設 |
+| 6 | AI 支援テスト生成 | Given-When-Then → Playwright 自動生成で工数 60% 削減実績 |
+| 7 | セキュリティ CI | ZAP / Semgrep / Trivy / Snyk の 4 ツール全導入・High 0 |
+| 8 | a11y | WCAG 2.2 AA 違反 0（自動 + 手動 4 観点） |
+| 9 | SLA 遵守率 | Kai 24h / Nao 4h / Riku・Ao 2h / Kuu 30 分で 95% 以上 |
+| 10 | 継続学習 | 月次 RCA 集計・四半期勉強会・年次 CTAL-TAE 保有 |
+
+> **運用原則**：10 項目のうち **8 項目以上を満たして「オーバースペック」認定**。満たせない項目は Daily Knowledge Log に理由と改善計画を記録し、Kai の月次 1on1 で追跡する。
