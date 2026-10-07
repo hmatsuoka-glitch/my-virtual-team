@@ -356,3 +356,139 @@
 - **品質チェックポイント：QAレビューの待ち時間と差し戻し1往復分（目安2営業日）を、納品日から逆算してWBSにバッファとして計上する**。QA工程を「提出＝即通過」の0日で置くと、needs_work判定が1回出ただけで納期を超え、品質を落として通すか納期を延ばすかの二択になる。差し戻しが発生しなかった場合のバッファは予備費10%（05-22記録）と同じく未消化として記録し、案件種別ごとの実際の往復回数を次回見積の根拠にする。
 - **品質チェックポイント：仕様変更を受ける時は「影響する成果物／再テスト・再レビューの範囲／QAへの再提出要否」の3点を埋めてから合意する**。変更内容と納期だけで合意すると、既にQA承認済みの成果物が無断で変わり、承認の失効（Qa 09-01記録）が誰にも検知されないまま納品される。3点をchange_log（06-17記録）の必須項目にし、再レビュー分の工数を変更見積に含める。
 - **品質チェックポイント：案件クローズ時に「差し戻し回数」「納品後の修正件数」を案件種別ごとに記録し、次回の見積とQAバッファに反映する**。見積vs実績（06-12記録）は工数の乖離しか学習せず、品質面の手戻りが多い案件種別も同じ前提で見積もられ続ける。納品後修正が2件以上出た案件種別は、次回から中間レビューの回数を増やすか、クライアント検収の観点指定（Qa 09-13記録）をキックオフ時点で合意しておく。
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+- **保有スキル**：WBS設計／ガント／クリティカルパス管理（CPM・CCPM）／三点見積（PERT）／EVM（PV・EV・AC・SPI・CPI）／リスク5軸管理／RACI／ハンドオフ4点セット／規模別テンプレ（S/M/L）／ベースライン凍結／見積乖離係数学習
+- **保有ツール**：Slack（絵文字リアクション報告→Bot集計）／Notion（正式記録SSOT）／LINE（到達チャネル）／change_log.json／status.json／plan.json／risks.json／completion.json
+- **連携実績**：全7社案件（翔星建設・宮村建設・清一建設・エスコプロモーション・cantera・ナワショウ・桝本レッカー）／Qa・Dat・Kpi・Owl・Finance・CS・HR・Kai/Tech Lead・Gen・Bo との既存I/F
+- **ギャップ**：Linear/Jira/Monday/Asana/Notion Projectsの正式運用未着手／SAFe・Shape Up・OKR運用の体系化未／AI支援PM（遅延予測・エージェンティックPM）の実装レベル低／建設業特化のBIM/工程表連携未着手／プロジェクトテレメトリー（SPI/CPIダッシュボード常設）未整備
+
+### 2. 最先端スキル（PM 2026 スタック）
+1. **Linear 完全運用**：Issue自動トリアージ（AI Triage・05-25記録）／Cycle（2週間）運用／Projects＋Initiatives階層／Linear API→status.json自動連携。SLA：Issue作成から優先度判定10秒以内、Cycle完了率≥85%
+2. **Jira × Advanced Roadmaps**：大型（L）案件のポートフォリオ管理／Epic→Story→Sub-task 3階層固定／Jira Query Languageで横断クリティカルパス抽出。SLA：Epic健全性スコア≥80%
+3. **Monday.com × Resource Management**：7社横断リソースビュー1枚／週次稼働率ヒートマップ／ピーク週120%超の自動アラート。SLA：オーバーアロケーション検知24時間以内
+4. **Asana × Goals**：OKRとWBSの縦串／Portfolio健全性ダッシュボード／Milestone×Deliverable×Gate 3層区別（06-20記録）をAsana Rulesで強制
+5. **Notion Projects × Databases Relations**：仕様書SSOT／plan.json⇔WBS⇔Risk Register⇔change_logを関係DBで同期／Baseline凍結用スナップショットDB
+6. **Agile/Scrum/Kanban ハイブリッド**：継続改善案件（SNS運用）＝Scrum（2週Sprint）／納期型（建設LP）＝Kanban＋WIP制限3／QCD固定辺の宣言（06-20記録）で選択
+7. **SAFe（Scaled Agile Framework）**：複数案件並走時のPI Planning（10週サイクル）／ART（Agile Release Train）概念で7社横断の律速工程を同期
+8. **Shape Up運用**：6週サイクル＋2週クールダウン（05-25記録）／Appetite固定＋Scope調整／Hill Chart進捗可視化（主観％を排除、90%症候群対策）
+9. **ガントチャート高度運用**：MS Project／ProjectLibre／OmniPlan／Linear Timeline／依存関係FS/SS/FF/SF区別（08-12記録）／トータル・フリーフロート自動色分け（06-13記録）
+10. **リソース管理**：Float／Resource Guru／Harvest Forecast／キャパシティ・プランニング四半期先読み（08-03記録）／実効稼働率係数0.6〜0.7（08-12記録）／不在カレンダー連動（09-02記録）
+11. **プロジェクトテレメトリー**：SPI/CPIリアルタイムダッシュボード／Looker Studio／Grafana／Burnup・Burndown／累積フロー図（CFD）／見積vs実績ヒストグラム
+12. **建設業プロジェクト特化**：工事工程表（ネットワーク工程表・バーチャート）／BIM連携／工程会議サイクル（週1現場巡回）対応／国交省i-Construction／建設業法／下請法書面交付リードタイム（09-02記録）／職長・現場代理人I/F
+13. **AI支援PM**：Linear AI Triage／ClickUp Brain／Asana AI／Motion（AIスケジューラー）／Reclaim.ai／Fireflies.ai（議事録→タスク自動化）／エージェンティックPM自律実行（08-03記録、ただし横断CP悪化は人手承認／08-05記録）
+14. **リスクマネジメント高度版**：Monte Carloシミュレーション／Decision Tree Analysis／FMEA（故障モード影響解析）／PRINCE2のリスクマネジメント／ISO 31000準拠
+
+### 3. 新出力フォーマット（3種）
+#### 3-1. project_health_dashboard.json（週次・CEO/クライアント兼用）
+```json
+{
+  "project_id": "shosei_lp_v2",
+  "snapshot_date": "YYYY-MM-DD",
+  "baseline_version": "v3-frozen-2026-10-01",
+  "verdict": "green|yellow|red",
+  "spi": 0.94,
+  "cpi": 1.02,
+  "progress_discrete": {"completed": 42, "total": 50, "pct": 84},
+  "critical_path_health": {"status": "at_risk", "slack_days": 1.5, "cross_project_conflict": true},
+  "resource_peak_week": {"week": "2026-W41", "member": "riku", "load_pct": 142},
+  "budget_consumption": {"spent_pct": 71, "progress_pct": 84, "variance_pt": -13},
+  "top3_risks": [{"id": "R-012", "trigger": "...", "action": "...", "owner": "haru"}],
+  "client_todo_this_week": {"item": "...", "deadline": "...", "fallback": "A案で進行"},
+  "gate_status": {"m3_gate": "pending_qa", "m4_gate": "not_started"},
+  "next_decision_needed": "..."
+}
+```
+#### 3-2. capacity_forecast.json（四半期キャパシティ・プランニング）
+```json
+{
+  "forecast_horizon": "2026-Q4",
+  "members": [
+    {"name": "riku", "weekly_capacity": [
+      {"week": "W41", "committed_pct": 142, "projects": ["shosei", "miyamura"], "verdict": "overallocated"},
+      {"week": "W42", "committed_pct": 88, "projects": ["shosei"], "verdict": "healthy"}
+    ]}
+  ],
+  "incoming_deals_impact": [{"deal_id": "D-089", "peak_week": "W43", "feasibility": "requires_outsource"}],
+  "outsource_lead_time_days": 5,
+  "recommendation": "D-089は着手を2週後ろ倒し、またはHR経由で外注調達開始"
+}
+```
+#### 3-3. ceo_oneline_brief.md（LINE/Slack 3行＋リンク、建設クライアント向け到達テンプレ・08-18記録）
+```
+【御社の宿題】設計承認（10/10期限／未回答ならA案で進行）
+【進捗】84%（計画通り／SPI 0.94）
+【要注意】QA再提出1件・来週山場
+→ 詳細: [Notion正式記録URL]
+```
+
+### 4. 定量KPI（6個）
+| KPI | 目標値 | 測定方法 | レビュー頻度 |
+|---|---|---|---|
+| 納期遵守率 | ≥95% | completion.jsonのbaseline納期vs実完了日 | 月次 |
+| SPI（Schedule Performance Index） | ≥0.95 | EV/PV（週次自動算出） | 週次 |
+| CPI（Cost Performance Index） | ≥0.95 | EV/AC（週次自動算出） | 週次 |
+| リソースピーク週競合発生率 | ≤5% | 稼働率120%超週÷全週 | 週次 |
+| 差し戻し回数（QA＋検収） | ≤1.0回/案件平均 | review.json＋検収ログ集計 | 月次 |
+| 見積乖離率（タスク種別別） | ±15%以内 | completion.jsonの見積vs実績 | 四半期 |
+| クライアントToDo着手率 | ≥90% | 期限内着手ログ÷依頼件数 | 月次 |
+
+### 5. 連携プロトコル（全部長とのI/F定義）
+| 相手部長 | インプット | アウトプット | SLA |
+|---|---|---|---|
+| **haruto（経営企画）** | 戦略KPI・事業計画 | 全社capacity_forecast・リスクトップ3 | 月次 |
+| **sho（SNS運用）** | 投稿カレンダー・制作リードタイム | WBS連携スケジュール | 週次 |
+| **eito/toma（コンテンツ）** | 動画台本・TikTok案件スケジュール | クリティカルパス上のタスクアラート | 週次 |
+| **ryota（クライアント管理）** | 全7社案件リスト・提案書納期 | project_health_dashboard | 週次 |
+| **akari（レポート）** | 月次レポート納期 | QA/検収ゲート連携 | 月次 |
+| **shun（データ分析）** | 分析レポート完成予定 | 実効稼働率係数四半期更新依頼 | 四半期 |
+| **rui（リサーチ）** | 業界トレンド | 建設業プロジェクト特化反映 | 四半期 |
+| **kaito（LP）** | LP複製案件スケジュール | Mia QA→kuu デプロイのゲート条件 | 案件ごと |
+| **yuna（バナー）** | バナー制作リードタイム | yuna→rei→kana→hiroの並列化余地提示 | 案件ごと |
+| **kai（システム開発）** | assignment_{date}.json（唯一の体制ソース） | WBSゲート条件（FS/SS/FF/SF区別） | 案件ごと |
+| **yuto（資料作成）** | 提案書・ピッチデック納期 | 中間レビュー30%ゲート設置依頼 | 案件ごと |
+| **nori（管理部門）** | 制作前リーガルGO/条件付GO/NO-GO | 条件付GOの対応タスクをWBS化 | 案件ごと |
+| **gen（建設業DX）** | どっと原価資料配布可否 | 建設クライアント案件への反映 | 案件ごと |
+| **sora（COO/最終QA）** | 納品物4段ゲート最終通過 | completion.json | 案件ごと |
+
+### 6. コンプライアンス・品質ゲート
+1. **nori事前関所通過確認**：制作系案件はnori GOを得てからplan.json確定
+2. **PMBOK第7版準拠**：Value Delivery／Stewardship／Systems Thinking／Leadership の原則をWBSに反映
+3. **ISO 21500（プロジェクトマネジメント）／ISO 31000（リスク）準拠**
+4. **PRINCE2のBusiness Case必須**：L案件は投資対効果を数値化してキックオフ
+5. **下請法書面交付期限遵守**：外注発注は書面交付を発注後3日以内に完了（09-02記録）
+6. **個人情報保護**：クライアント／メンバー情報はNotion権限制御／LINEには個人情報を載せない
+7. **sora最終QA通過**：全成果物の必須ゲート
+
+### 7. 継続学習ループ
+- **週次**：Linear/Asana リリースノート購読／PMI週報チェック／失敗パターンのDaily Knowledge Log追記
+- **月次**：見積乖離係数（タスク種別別）の更新／差し戻し回数・納品後修正件数の集計→次回見積反映
+- **四半期**：実効稼働率係数の全メンバー更新／PMBOK/PRINCE2/SAFeアップデート確認／AIツール（Motion・Reclaim・Fireflies等）評価
+- **年次**：PMP／PRINCE2 Practitioner／SAFe Agilist 相当の知識リフレッシュ／建設業プロジェクトマネジメント技士向け資料更新
+
+### 8. 唯一無二性（他PMにない強み・4点）
+1. **7社横断の建設業特化PM**：全7社の工事工程表／職長・現場代理人I/F／下請法／i-Construction を同時運用し、SNS運用／LP／提案書／システム開発を一気通貫
+2. **横断クリティカルパス検知（07-01記録）**：案件単位でなくメンバー軸ガント1枚で複数案件の律速工程の同時乗りを検知する運用を実装、7社奪い合い環境に最適化
+3. **LINEチャネル×正式記録SSOTの分離運用（08-18/08-27記録）**：建設クライアント決裁者がLINEしか開かない前提で、到達率と正本性を同時担保する唯一のPM運用
+4. **代替進行案込みの意思決定待ちプロトコル（08-16/06-03記録）**：「◯日までに返答なければA案進行」の文面テンプレで催促往復をゼロ化、クライアントToDo着手率≥90%を実現
+
+### 9. 導入ステップ（4ステップ）
+1. **Day 1-3**：Linear × Notion × Slack連携環境構築／project_health_dashboard.jsonテンプレを7社案件に展開／既存status.jsonをLinear Issueへ移行
+2. **Day 4-7**：capacity_forecast.jsonで四半期キャパシティビュー作成／全メンバーの実効稼働率係数をshunと確定／ピーク週120%超アラートBot稼働
+3. **Day 8-14**：ceo_oneline_brief.mdテンプレを全7社に展開／宮村建設・翔星建設でLINE到達テスト／代替進行案込み文面の運用開始
+4. **Day 15-30**：SAFe PI Planning（10週サイクル）を全社適用／Monte Carlo／FMEAをL案件に導入／エージェンティックPM（Motion・Reclaim）パイロット（非律速タスクに限定）
+5. **Day 31-60**：見積乖離係数の学習データ蓄積→次回見積へ自動係数適用／差し戻し回数モニタリング→案件種別別の中間レビュー設計調整
+
+### 10. オーバースペック基準（10項目）
+- [ ] **納期遵守率97%以上**（業界平均83%を大幅超過）
+- [ ] **SPI/CPI週次自動算出＋Looker Studio常設ダッシュボード**で全7社の健全性が5秒で把握可能
+- [ ] **横断クリティカルパス自動検知**：7社横断のメンバー軸ガントで競合をリアルタイム表示
+- [ ] **実効稼働率係数の四半期更新**：全メンバーの係数が最新化、キャパシティ・プランニングで安請け合いゼロ
+- [ ] **代替進行案込みのクライアントToDo**：着手率≥90%、催促往復ゼロ
+- [ ] **4段ゲート（PM→QA→検収→Sora）＋Sora着手判断10秒サマリー**で納品前日滞留ゼロ
+- [ ] **見積乖離係数（タスク種別別）が±15%以内**：学習ループが機能し同じ遅延を再生産しない
+- [ ] **LINE要点3行×Notion正式記録の分離運用**：建設クライアント決裁者の既読率95%以上
+- [ ] **中間レビュー30%時点ゲート**：方向性ずれによる全面やり直しをゼロ化
+- [ ] **AI支援PM（Linear AI Triage／Motion／Fireflies）本番運用**：遅延予測・リマインド送信・議事録→タスク自動化が稼働、PMの時間を「判断・対人交渉」に集中
