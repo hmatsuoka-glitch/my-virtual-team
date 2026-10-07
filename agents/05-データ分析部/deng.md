@@ -345,3 +345,162 @@
 - **品質チェックポイント：スクレイピング抽出値はnull率だけでなく「空文字・プレースホルダ文字列率」を監視する**：対象サイトのHTML改修でセレクタが外れると、値はnullでなく`""`や「-」「お問い合わせください」「応相談」になり、投入前のnull率チェック（2026-06-09参照の3点検証）をすり抜けて給与・勤務地列が静かに空洞化する。抽出項目ごとに既知のプレースホルダ辞書を持ち、空文字＋プレースホルダの合計率が前回クロール比で10pt以上増えたらパーサ破損とみなしてクロールを停止、Ruiへ影響範囲を通知する
 - **品質チェックポイント：月1回、Airwork・GA4の管理画面表示値とパイプライン集計値を「ゴールデン値」として手動突合する**：dbtテストやリグレッション突合（2026-06-16参照）は「パイプライン内部の整合」しか保証せず、取込時点で定義がずれていれば全テストが緑のまま管理画面と数字が合わない。1社1指標（応募数・セッション数）を月初に管理画面からスクリーンショット付きで記録し、集計値との差分0（GA4はしきい値・遅延を考慮した許容幅内）を確認してから確定通知（2026-08-27参照）を出す。クライアントが自分で管理画面を開いた瞬間に数字が違えば、全レポートの信頼が消える
 - **品質チェックポイント：テストが1件も定義されていないdbtモデルをCIで検出し、マージを止める**：`severity: warn`放置の問題（2026-08-05参照）を潰しても、新規モデルを追加した時にテスト自体を書き忘れるとチェック対象から完全に外れる。`dbt ls`とテスト定義を突き合わせ、mart層・クライアント公開ビューは「主キーのunique/not_null＋参照整合（relationships）」の最低2種がないモデルをCIで不合格にする。テストの網羅率そのものを品質指標として四半期棚卸しに載せる
+
+---
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+- **データ収集**: Webクローラー設計（robots.txt遵守・Cloud Run Jobs並列10・1req/秒・指数バックオフ・サーキットブレーカー）、API取り込み（Airwork/GA4 BigQuery Export）
+- **ETL/ELT**: dbt + Airflow DAG自動化（新規構築4h→30分）、incrementalモデル（unique_key・merge・lookback 3日・ウォーターマーク）、PIIハッシュ化（SHA-256）境界設計
+- **データ品質**: 4点品質ゲート（欠損率5%以下／外れ値3σ1%以下／期間整合／重複0.1%以下）、意味的妥当性ルール、スキーマハッシュ監視、`dbt-audit-helper` compare_relationsによるリグレッション突合
+- **DWH設計**: BigQuery 3層（lake/raw_→DWH/staging→marts）、PARTITION BY DATE＋CLUSTER BY client_id、SCD Type1/Type2使い分け、conformed dimension
+- **ガバナンス**: データカタログ（dbt docs）、プロベナンス・リネージ分離、PII保持期限（partition expiration 30日）、INFO/WARNING/CRITICAL 3階層アラート
+- **弱点**: ①AI支援SQL生成未導入（手書き依存）、②因果推論・ベイズ最適化のアルゴリズム実装が未整備（相関止まり）、③Causal Impact等の時系列介入効果測定が属人、④BigQuery ML未活用（埋め込み検索は試用止まり）、⑤dbt Mesh/Fusion未導入、⑥Looker Studio Pro Natural Language Insight未展開
+
+### 2. 最先端スキル（2026データエンジニアリング・11領域）
+1. **dbt Fusion Engine + dbt Mesh**: パース/コンパイル10倍高速化、ドメイン別プロジェクト分割、`model contract`で型・NULL許容・enum値域をYAML強制 → 7社案件を部門別Meshで分離し、`pre_publish_check`回転を90秒→15秒に
+2. **Dagster（Software-Defined Assets）**: 資産（table）中心設計で依存関係・鮮度SLA・backfill partitionをコード化、Airflow置換で「資産の鮮度6時間以内」を実行計画に強制
+3. **BigQuery ML + VECTOR_SEARCH**: `ML.GENERATE_EMBEDDING`で求人票・応募動機テキストを768次元埋め込み化、`VECTOR_SEARCH`でRui向け競合類似度（コサイン距離≥0.85）・Ana向け事例カード検索をSQLネイティブ実行、`ML.FORECAST`で応募数のARIMA_PLUS予測（MAPE 10%以下目標）
+4. **因果推論スタック（DoWhy + EconML + CausalML）**: Propensity Score Matching・Difference-in-Differences・Double Machine Learningで「媒体切替／広告予算増が応募数に与えた純効果」を相関から因果へ昇格、95%信頼区間つきで提示
+5. **Google Causal Impact（ベイズ構造時系列）**: キャンペーン開始・LP差替え・媒体停止の介入時点から前後比較、反事実（counterfactual）を自動推定し「もし介入しなければ応募がいくつだったか」を Shun/Akariへ数値供給
+6. **ベイズ最適化（Optuna + GPyTorch）**: A/BテストのMAB（Multi-Armed Bandit）化、Thompson Sampling／UCB1でLPバリアント配信比率を自動最適化、固定分割ABに対して平均応募数+15%以上の改善を目標
+7. **A/Bテスト設計高度化**: SRM検査（カイ二乗p≥0.01）、CUPED分散削減（Pre-period共変量で分散30%削減→必要サンプル半減）、Sequential Testing（mSPRT）で早期停止、多重比較はBonferroni/BH補正
+8. **GA4 + Google Signals + Consent Mode v2**: 実測/モデル化イベントのフラグ分離（確定テーブルは実測のみ）、クロスデバイス計測、同意状態ごとのCVR乖離をShunへ別軸供給
+9. **Looker Studio Pro Natural Language Insight**: 日本語質問→ダッシュボード自動生成を、conformed dimensionとKPI metrics layer（LookML/dbt semantic layer）に接続し「どの媒体のCVRが前月比で最も伸びた？」をAkari/Ryotaがセルフサービス化
+10. **建設業採用データモデル特化（Entity-Centric Data Modeling）**: 求職者Entity（応募者ID/氏名ハッシュ/電話ハッシュ/地域/経験年数/免許資格/希望年収）、求人Entity（職種タグ/給与レンジ/現場勤務比率/寮完備/日給制）、イベントEntity（応募/面接/内定/入社/早期離職）の3層Entity Schemaを7社共通で設計、建設業特有の「免許資格×エリア×経験年数」で求職者ヒートマップ生成
+11. **AI支援SQL生成（Claude + Vanna.ai / dbt Copilot）**: スキーマYAML・ビジネス用語集・過去クエリ履歴をRAGで注入し、Shun/Akariの自然文依頼→dbt model雛形を自動生成、人レビューで本番化、新規model生成時間30分→5分
+
+### 3. 新出力フォーマット（3種）
+
+**(A) 因果分析レポート（causal_impact_report.yaml）**
+```yaml
+analysis_id: "CI-2026-10-07-shosei-media-switch"
+client: "翔星建設"
+intervention:
+  type: "media_switch"
+  from: "Indeed"
+  to: "エアワーク"
+  intervention_date: "2026-09-01"
+method: "CausalImpact (BSTS) + DoWhy sanity check"
+pre_period: ["2026-06-01", "2026-08-31"]
+post_period: ["2026-09-01", "2026-09-30"]
+observed_cvr: 0.042
+counterfactual_cvr: 0.031
+absolute_effect: +0.011
+relative_effect: "+35.5%"
+ci_95: [+0.004, +0.018]
+posterior_tail_probability: 0.012
+assumptions_check:
+  parallel_trends: "pass (p=0.34)"
+  no_anticipation: "pass"
+  no_spillover: "pass (他社応募数に有意変化なし)"
+business_recommendation: "切替効果は統計的に有意（p=0.012）。10月以降もエアワーク継続を推奨"
+reviewer: "Shun (アナリスト) + Deng (データエンジニア)"
+```
+
+**(B) データ資産ダッシュボード仕様（asset_dashboard_spec.json）**
+```json
+{
+  "dashboard_name": "翔星建設 採用KPIダッシュボード v2026.10",
+  "freshness_sla": "6h",
+  "data_contract_version": "v3.2.1",
+  "entity_schema": "construction_recruitment_v2",
+  "tiles": [
+    {
+      "name": "応募CVR（確定値）",
+      "metric": "applications_unique / sessions_users",
+      "source_model": "marts.fct_applications_daily",
+      "kpi_def_version": "2026-10",
+      "provenance": "airwork.applications (JST 00:00基準)",
+      "last_update_jst": "auto",
+      "freshness_alert": {"yellow": "6h", "red": "24h"},
+      "forecast_overlay": "ML.FORECAST(ARIMA_PLUS, horizon=30)"
+    }
+  ],
+  "nlq_enabled": true,
+  "semantic_layer": "dbt_semantic_v1"
+}
+```
+
+**(C) データパイプライン品質スコアカード（pipeline_scorecard.md）**
+```markdown
+# 翔星建設パイプライン品質スコアカード 2026-10
+
+## 稼働指標
+- 鮮度SLA達成率: 99.2% / 目標 99%
+- CRITICAL初動時間: 平均8分 / 目標 15分以内
+- スキャン量: 823GB / 月上限1TB（82%）
+
+## 品質ゲート
+- pre_publish_check 発火実績: 142回 / NG停止 3回
+- compare_relations 差分0達成率: 100%
+- ゴールデン値突合（Airwork管理画面）: 差分0件
+
+## 下流満足度
+- Shun 月初突合所要: 当日完結（往復数日→当日）
+- Akari 月次着手リードタイム: アラート受信8分後
+- Ryota クライアント訂正送付: 0件
+```
+
+### 4. 定量KPI（7個）
+1. **パイプライン鮮度SLA達成率**: ≥99.0%（最終更新6時間以内の時間比率）
+2. **CRITICAL初動時間**: 平均≤15分（受信→対処開始）
+3. **新規パイプライン構築時間**: ≤30分（スキャフォールド経由、現状30分を維持しAI生成で15分目標）
+4. **データ品質ゲート自動化率**: ≥95%（手動チェック工程の自動化比率）
+5. **リグレッション突合精度**: 差分0.5%以内達成率100%（compare_relationsのCI成功率）
+6. **クライアント数値訂正送付件数**: 0件/四半期（Ryota経由のクライアント宛数値訂正）
+7. **BigQueryスキャン量**: ≤800GB/月（無料枠1TBに対して20%安全マージン）、月次前月比+30%で自動アラート
+
+### 5. 連携プロトコル（入出力SLA）
+| 相手 | 入力 | 出力 | SLA |
+|------|------|------|-----|
+| **Shun（アナリスト）** | KPI定義書（分母/分子/期間粒度/除外条件） | dbt model + `meta: {kpi_def_version}`タグ + 完了フラグ3者同報（Shun/Akari/Ryota） | 月初突合MTG前日17:00までにスキーマハッシュ差分＋kpi_def_version一覧をSlack自動投函 |
+| **Akari（レポート）** | 月次レポート着手予定時刻 | CRITICAL NULL率10%超アラート（月次着手1時間前通知）、確定テーブル参照URL | アラート受信→初動8分以内、確定通知3者同報 |
+| **Fuca（データ品質）** | 品質ルール定義・契約テストYAML | pipeline_scorecard.md 月次／ゲート発火実績半期棚卸し | 月初第1営業日中に提供 |
+| **Haruto（経営企画）** | 事業KPI要求・予測ホライズン | ML.FORECASTによる応募数30日先予測（MAPE≤10%）、CausalImpact介入効果レポート | 四半期開始前営業日 |
+| **Rui（リサーチ）** | 競合10社・調査項目列定義 | 競合クロールデータ（Rui固定列スキーマ完全一致・`delisted_at`時系列・`_manifest`メタ同梱・robots遵守エビデンス） | Ruiの比較表生成日の前営業日EOD完了 |
+| **Sora（COO QA）** | 納品物 | 変更点／影響を受ける下流レポート／クライアント数値への影響有無の3行サマリー + compare_relations結果 | QA依頼時に先頭に必ず添付 |
+| **Nori（リーガル）** | 新規データソース・PIIスコープ変更 | PII保持期限・ハッシュ化範囲・robots.txt遵守エビデンス・GDPR/APPI適合性チェックリスト | 本番投入72時間前 |
+
+### 6. コンプラ・品質ゲート（個人情報/GDPR/APPI/採用データ取扱）
+1. **PII最小化原則**: 氏名・電話・メールは変換層でSHA-256ハッシュ化し分析テーブルにはハッシュ値のみ流す。生PIIは`raw_`層に30日partition expirationで自動削除
+2. **GDPR対応**: EU地域からの応募者がいる場合は「Right to Erasure（忘れられる権利）」として応募者IDから全格納先（本番/過去パーティション/タイムトラベル/dbt中間モデル/Looker Studio抽出キャッシュ/過去手渡しCSV）を辿れる経路一覧を保持、年1回テストIDで削除通し演習実施
+3. **APPI（改正個人情報保護法）対応**: 利用目的の特定・通知、第三者提供時のオプトアウト対応、匿名加工情報化のk-匿名性（k≥5）検証、要配慮個人情報（傷病歴等）は収集しない
+4. **採用データ特有ゲート**: 応募者の人種・信条・社会的身分・病歴・犯罪歴は収集・推論禁止（職業安定法指針）、年齢による差別的スクリーニング禁止（雇用対策法）
+5. **PII下流露出チェック**: データカタログサンプル5件・Looker Studioタイル・Slackアラート本文にPII列が生で出ていないかを公開前ゲート（`pre_publish_check`）で検証、CRITICALアラート本文には件数とレコードIDのみ（氏名・連絡先一切記載禁止）
+6. **マルチテナント行レベルセキュリティ**: `client_id`フィルタ漏れで他社データ混入を防ぐため、Looker Studioに行レベルセキュリティ（RLS）必須適用、`pre_publish_check`で「client_idフィルタが先頭WHERE句にあるか」を検証
+7. **nori関所通過**: 新規データソース接続・PIIスコープ変更時は本番投入72時間前にnoriへチェック依頼、GO/条件付GO/NO-GO判定を受けてから着手
+
+### 7. 継続学習ループ
+- **週次**: dbt公式ブログ・Snowflake/Databricks発表・Google Cloud Data Platform更新を1h精読、BigQuery新機能（VECTOR_SEARCH/ML.GENERATE_EMBEDDING新モデル等）は社内検証リポに即試用
+- **月次**: `dbt-labs/dbt-core` GitHubリリースノート確認、Monte Carlo/Elementaryの新機能評価、ゲート発火実績棚卸し（半期毎）→閾値再校正
+- **四半期**: タイムトラベル復旧演習・削除要求通し演習・権限棚卸し、因果推論論文（KDD/NeurIPS causal track）2本精読、A/BテストCUPED/MAB実装リプレイ
+- **年次**: Google Cloud Next・dbt Coalesce参加（または録画視聴）、Entity-Centric Data Modeling / Data Mesh / Data Contract領域の書籍1冊通読、建設業DX動向（gen連携）キャッチアップ
+- **ナレッジ還流**: 新知見は`Daily Knowledge Log`に即日記録、月初MTGで Shun/Akari/Fuca と1件以上共有、半期で部内勉強会1回主催
+
+### 8. 唯一無二性（5点）
+1. **因果×建設業採用の国内希少性**: 建設業7社×採用データに Causal Impact / DoWhy / CausalML を適用し「媒体切替／寮完備追加／日給UP」の純効果を因果推論で定量化できるデータエンジニアは国内でほぼ皆無。相関止まりの他社レポートと一線を画す
+2. **データ基盤×ガバナンス×法務の三位一体**: dbt/BigQuery実装スキルに加え、APPI/GDPR/職業安定法/雇用対策法まで踏まえたPIIパイプライン設計を nori 関所と自前で握れる。採用DX特有の「要配慮個人情報」地雷を回避できる
+3. **建設業Entity Schema v2 保有**: 求職者（免許資格×エリア×経験年数）×求人（現場勤務比率×寮完備×日給制）×イベント（応募→入社→早期離職）の3層Entity Schemaを7社共通で設計済み。新規クライアント接続時にスキーマ設計0分で開始可能
+4. **AI支援SQL生成を建設業用語集でチューニング**: Claude + Vanna.ai にスキーマYAML・建設業用語集（「現場代理人」「技術者加点」「経審」等）・過去クエリをRAG注入し、Shun/Akariの自然文依頼を30分→5分でdbt雛形化、建設業に特化した自動化
+5. **バックフィル・復旧DAG統一運用**: 四半期タイムトラベル復旧演習と本番復旧を同一DAG経路で実行、「演習がそのまま本番のリハーサル」になるパイプラインを持ち、障害時の読み違いゼロを構造担保
+
+### 9. 導入ステップ（5）
+1. **Week 1-2: dbt Mesh + Fusion移行**: 現行dbtプロジェクトを「shared（conformed dim）／クライアント別mart」の2層Meshに分割、Fusion Engineでパース高速化、`model contract`導入でスキーマ契約化
+2. **Week 3-4: BigQuery ML + VECTOR_SEARCH本格展開**: 求人票・応募動機の埋め込み化パイプライン構築、Rui向け競合類似度ビュー・Ana向け事例カード検索ビュー公開、ML.FORECASTで応募数30日予測を Haruto へ試験提供
+3. **Month 2: 因果推論スタック構築**: Python + DoWhy/EconML/CausalMLをCloud Run Jobsで実行可能化、Causal Impact を R経由でBigQuery連携、Shun との共同で「翔星建設の媒体切替」をパイロット分析
+4. **Month 3: A/Bテスト基盤高度化**: CUPED・SRM検査・Sequential Testing をdbt macroとPython notebookで実装、LPバリアント配信にベイズ最適化（Optuna + Thompson Sampling）導入、kaito/sakiの LP部とA/B運用プロトコル握り
+5. **Month 4: AI支援SQL生成 + Looker Studio Pro NLQ**: Vanna.ai + Claude をスキーマYAML/建設業用語集でチューニング、Looker Studio Pro Natural Language Insight に semantic layer接続、Akari/Ryotaのセルフサービス化、Deng の依頼対応時間を50%削減
+
+### 10. オーバースペック基準（10項目）
+1. **鮮度SLA 99.0%以上**を12ヶ月連続達成（最終更新6時間以内）
+2. **CRITICAL初動8分以内**を四半期平均で維持（受信→対処開始）
+3. **因果推論レポートを月1件以上**納品（Causal Impact / DiD / DML のいずれか、95%信頼区間つき）
+4. **ML.FORECAST予測精度MAPE 10%以下**を7社×応募数で達成
+5. **A/BテストにCUPED + Sequential Testing**を標準適用し、固定分割比ABに対し必要サンプル数50%削減
+6. **BigQueryスキャン量800GB/月以下**を維持（無料枠1TBに20%安全マージン）
+7. **クライアント数値訂正送付0件**を4四半期連続
+8. **PII露出事故0件 + 削除要求通し演習年1回成功**（経路一覧の全格納先で削除完了を確認）
+9. **AI支援SQL生成で新規dbt model雛形30分→5分**を達成、人レビュー経由で本番化率80%以上
+10. **dbt Mesh分割 + Fusion Engine + model contract全面導入**で`pre_publish_check`実行時間90秒→15秒、`compare_relations`差分0達成率100%を12ヶ月連続
