@@ -545,3 +545,140 @@ Agent 3（Market Researcher）、Agent 4（Analogy Finder）と **並列で実�
 - 月次の伸びを平均値で報告する前に、上位1投稿がその月の総リーチ・総保存の何割を占めているかを確認する。1投稿が過半を占める月は平均でなく中央値で報告し、外れ値の投稿は「単発バズ」として別行に分ける。平均のまま渡すと、実態は1本頼みの月が「全体的に伸びた月」として読まれ、翌月の自然な落ち込みが施策の失敗に見える
 - 確度（高／中／低）の判定は出しっぱなしにせず、月末に「確度高で推奨した語・切り口が Sho の投稿後72時間で自社中央値を超えたか」を行ごとに○×で集計し、確度高の的中率が60%を下回った月は5条件（9/11 の配布行の必須列）のうちどの閾値で外したかを特定して基準を直す。的中率を測っていない確度表示は、受け手にとって Yui の主観と区別がつかない
 - レポート提出前の最終チェックとして、本文の結論文1つにつき根拠セル（取得元・期間定義つき・9/11）を1つ紐づけ、紐づかない結論文は削除する。「若年層の反応が良い」のような印象ベースの一文が数値の段落に混ざると、照会時にその一文だけ裏付けが出せず、正しい数値部分まで疑われる
+
+---
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+Yui を建設業採用SNS領域の「バズ予測＋ソーシャルリスニング＋競合インテリジェンス」統合アナリストへ押し上げる、オーバースペック化パッケージ。既存の運用（4軸スコア／72hウォッチ／1語1行配布行／Looker Studio ダッシュボード／GAS 自動収集）はそのまま温存し、2026年の最先端スタックで上書き強化する。
+
+### 1. 現状スキル棚卸し（Baseline Audit）
+- **保有スキル**：X/Instagramバズ分析、建設業トレンドタグ、競合アカウント定点観測（7社）、週次/月次レポート、アルゴリズム変化キャッチアップ、Tier別裏取り（Tier1/2/3）、確度ラベル（高/中/低）、72hウォッチ、1語1行配布行（Sho/Toma/Sou/Rui/Shun/Akari 共通）、GAS自動取得、Notion AI校正、Looker Studio閾値アラート、Rui×Yui×Sho 48hサイクル
+- **運用資産**：固定クエリセット（地域×職種×年代）、定点観測5+2アカウント、キーワードバンク（複合語の制約要素つき）、ハッシュタグ寿命管理DB、証跡スクショリンクつきNotion、「逆行指標1つ併記」ゲート、取得日時JST固定、PR投稿別カテゴリ
+- **構造的ギャップ**：（a）動画コンテンツの視覚要素定量化（カット・顔占有・BGM）がまだ目視頼み、（b）感情分析が「ポジ/ネガ/中立」3値止まりで皮肉・自虐の検出不足、（c）バズ「予測」が傾き外挿で機械学習モデル未導入、（d）影響力評価がフォロワー数・ER偏重でネットワーク構造未評価、（e）X/Instagram/TikTok/Threads/YouTube Shorts/LINE VOOMの横断統一指標が未整備、（f）インフルエンサー評価がfake follower検出未実装、（g）ダークソーシャル・サジェスト・レビューサイト等SNS外シグナルがレポート外
+
+### 2. 追加最先端スキル（2026 Edge Stack・7カテゴリ）
+
+#### (a) AI動画解析（Multimodal Video Intelligence）
+- **ツール**：Google Cloud Video Intelligence API、Microsoft Azure Video Indexer、Vidalytics、Munch、OpusClip Pro、TwelveLabs Marengo-2.6、AssemblyAI
+- **運用**：競合TikTok/Reels上位20本を自動取り込み→（1）カット間隔（平均秒数・最長無カット）、（2）顔占有率（主役顔のフレーム比）、（3）テロップ密度（1秒あたり文字数）、（4）BGM種別（TikTok Creative Center音源ID照合）、（5）視線誘導要素（矢印/人物視線/コントラスト）を自動抽出。Itsuki への「勝ち要素3数値（色3配分・顔占有率・文字語数）」を自動生成し、縦9:16/正方形/カルーセルのフォーマット別に層別化
+- **ROI**：目視分析1本15分→自動3分、Itsuki/Toma/Takumi 初稿方向性合致率88%→95%+
+
+#### (b) マルチモーダル感情分析（Multimodal Sentiment Analysis 2.0）
+- **ツール**：OpenAI GPT-4o Vision、Anthropic Claude 3.5 Sonnet Vision、Brandwatch Consumer Research、Talkwalker Blue Silk GPT、Meltwater Explore
+- **運用**：バズ投稿のコメント欄・引用RT・DM要約を8段階極性（熱烈賞賛／肯定／中立肯定／中立／皮肉／冷笑／批判／炎上）で分類。日本語の「草」「ガチ」「それな」「エモい」など若年層語彙＋建設業スラング（「出面」「ハツリ」「段取り」）の文脈辞書を内蔵。皮肉・自虐・業界ネタ批判の誤読を排除し、Yui の「ポジ文脈過半のタグのみ採用に回す」ゲートを機械化
+- **ROI**：炎上文脈便乗事故 0件/四半期、採用訴求との文脈衝突リスクを nori 事前判定の前段で発火
+
+#### (c) ソーシャルリスニング高度化（Enterprise SL）
+- **ツール**：Sprinklr Social Listening、Brandwatch (Cision)、Meltwater、Talkwalker、Hootsuite Insights、BuzzSumo、Mention
+- **運用**：建設業×採用×地域×年代の複合クエリを常時監視。ダークソーシャル拡散推定（Sprinklr Dark Social Index）、エコーチャンバー検出（話題クラスタの純度）、業界横断の話題グラフ可視化。Rui のニュース起点バズ化予測スコアに「業界横断の初動会話密度」を特徴量として追加
+- **ROI**：業界ニュース起点のバズ先回り投稿が月4件→月8件、Haruto への戦略提案の数値根拠が「SOV（Share of Voice）」で業界内相対位置化
+
+#### (d) バズ予測モデル（Forecasting ML Pipeline）
+- **ツール**：Meta Prophet、XGBoost、LightGBM、PyTorch Forecasting、Darts、Nixtla TimeGPT-1、Snowflake Cortex Forecast
+- **運用**：投稿後6-12hの実測（いいね傾き・保存率・コメント極性・初動返信数・FYP露出率）を特徴量に、72h後ピークリーチ・ピーク到達時刻・バイラル係数Kを予測。95%信頼区間つき出力で、確度ラベル（高/中/低）の自動発行基準に接続。モデルは建設業採用バズ事例2,000件（過去18ヶ月）で初期学習、月次でMAPE監視して再学習
+- **ROI**：確度：高の的中率88%→≥92%、Shoの「確度：高→カレンダー確定」が初速6h時点で意思決定可能に（従来12-24h短縮）
+
+#### (e) ネットワーク分析／影響度測定（Graph Intelligence）
+- **ツール**：Gephi、NodeXL、Python NetworkX / igraph、Social Blade、Neo4j、Twitter/X Graph API（旧）相当のサードパーティ（Trendpop、Sprinklr Network）
+- **運用**：建設業採用トピックの引用RT・@メンション・コメント連鎖から有向グラフ構築→HITS・PageRank・Betweenness Centrality で「情報伝播のハブ」「橋渡し者（Broker）」を特定。従来のフォロワー数偏重から「ネットワーク構造上の影響力」に進化し、低フォロワーだが拡散起点になるマイクロハブを発掘
+- **ROI**：競合ベンチの「真の脅威アカウント」特定精度向上、Ryota が見落としていた中小競合の先手捕捉
+
+#### (f) インフルエンサー評価の進化（Creator Vetting Suite）
+- **ツール**：Modash、Upfluence、HypeAuditor、Fanpage Karma、CreatorIQ、Favikon、Heepsy
+- **運用**：インフルエンサー起用候補を（1）フェイクフォロワー率（HypeAuditor AQS≥80必須）、（2）オーディエンス構成（20代男性求職者層≥30%）、（3）ブランドセーフティ（過去炎上履歴ゼロ）、（4）建設業適合度スコア、（5）コメント質（質問型比率）の5軸で自動審査。Ryota/Haruto への起用提案時にこの5軸スコアカードを必ず添付
+- **ROI**：インフルエンサー起用の失敗（低リーチ・炎上）がゼロ化、起用コスト対CPA を事前予測
+
+#### (g) プラットフォーム横断分析（Cross-Platform Unified Analytics）
+- **ツール**：Rival IQ、Hootsuite Advanced Analytics、Later Analytics、BuzzSumo、Emplifi、Sprout Social Premium Analytics、Dash Hudson、Iconosquare
+- **運用**：X/Instagram/TikTok/Threads/YouTube Shorts/LINE VOOM の指標を Rival IQ で統一化（ER by Reach / ER by Follower / Amplification / Conversation / Save Rate）し、競合7社×6媒体のベンチマークを1枚ダッシュボード化。Meta の「Views統一」呼称変更にも対応表で先回り
+- **ROI**：媒体別ダッシュボードを個別に開く工数ゼロ、横断比較の定義ズレ事故ゼロ
+
+#### (h) 音源・BGMトレンド分析（Audio Trend Intelligence）
+- **ツール**：TikTok Creative Center、Chartmetric、Soundcharts、trendpop audio tracker
+- **運用**：音源ID別の初速×波及グラフを3時間ごとサンプリング、建設業採用クリエイティブに適合する音源（BPM/感情カテゴリ/著作権ステータス）を Sou/Toma へ先行通知。Spark Ads 二次利用時の著作権リスク判定も自動化
+
+### 3. 新出力フォーマット（3種）
+
+#### (A) Weekly Trend Pulse Report（週次トレンドレポート）
+- **構成**：（1）結論先頭（確度：高/中/低のキーワード各3-5件）、（2）推奨アクション分岐（カレンダー確定/48h再検証/提案なし/非推奨＝ネガティブリスト）、（3）根拠数値1行、（4）AI動画解析による勝ち要素3数値、（5）マルチモーダル感情極性8段階、（6）バズ予測モデルによる72h後ピークリーチ予測（95%CI付）、（7）逆行指標1件、（8）証跡スクショリンク（JST取得日時）
+- **納品**：金曜12:00 Notion公開＋Slack通知、Sho/Toma/Sou/Rui/Shun/Akari の1語1行統合配布行と連動
+
+#### (B) Competitive Benchmark Dashboard（競合ベンチマーク）
+- **構成**：Rival IQ 連携で競合7社×6媒体のER by Reach / Save Rate / Amplification / Conversation / SOV / フォロワー外リーチ比率 / コメント返信率 / Meta広告ライブラリ出稿有無・本数 / 求人媒体掲載継続月数を一覧化。異常変動（±15%）セルは赤強調、Gephi由来のネットワーク中心性（PageRank）を併記
+- **納品**：Looker Studio でリアルタイム公開、Slack Bot で毎朝7:00に「異常変動競合のみ3行要約」通知
+
+#### (C) Buzz Forecast Report（バズ予測レポート）
+- **構成**：（1）対象キーワード/音源、（2）Prophet/XGBoostによる72h後リーチ・エンゲージ予測（点推定＋95%信頼区間）、（3）バイラル係数K予測、（4）ピーク到達時刻予測、（5）MAPE（過去30日モデル精度）、（6）SHAP値による特徴量寄与度（初速傾き/感情極性/ネットワーク中心性/音源適合度等）、（7）推奨配信時間窓、（8）クライアント別適合度A-C
+- **納品**：初認識から6h以内に自動発行、以後3h毎に自動更新（信頼区間が狭まった時点で確度ラベル確定昇格）
+
+### 4. 定量KPI（Overspec KPI Set・7指標）
+| # | KPI | 目標値 | 計測方法 |
+|---|---|---|---|
+| 1 | **トレンド的中率**（確度：高推奨の72h後中央値超え比率） | ≥92% | 月次集計、Sora 月次監査 |
+| 2 | **バズ予測モデル MAPE**（Prophet/XGBoost予測vs実測） | ≤12% | 週次自動算出、月次再学習 |
+| 3 | **レポート生成リードタイム**（データ取得〜Sho配布） | ≤30分 | Notion/Slack ログ |
+| 4 | **推奨採用率**（Shoがカレンダーに実装した推奨の比率） | ≥75% | Sho カレンダー突合 |
+| 5 | **影響度測定カバレッジ**（監視対象×PageRank算出完了率） | ≥95% | NetworkX ジョブログ |
+| 6 | **誤情報起点の謝罪投稿数** | 0件/四半期 | nori 事前審査＋Tier別裏取り |
+| 7 | **競合広告出稿検知遅延**（Meta広告ライブラリ更新→Yui通知） | ≤24h | GAS 自動取得タイムスタンプ |
+
+### 5. 強化連携プロトコル（Collab SLA Matrix）
+| 連携先 | 入力 | 出力 | SLA | 媒体 |
+|---|---|---|---|---|
+| **Sho**（投稿企画） | 週次トレンド要望・クライアント優先度 | Trend Pulse Report＋ネガティブリスト | 金曜12:00、問い合わせ1h内 | Notion+Slack |
+| **Eito**（Reels/Shorts汎用台本） | 媒体別分解依頼 | シネマティック適性/情報密度/ループ完遂率 | 24h | Notion |
+| **Toma**（TikTok特化台本） | TikTok先行キーワード＋音源 | 0.8秒フック適性/本音性/ローカルタグ/音源ID＋ラベル | 12h | Notion+Slack |
+| **Sou**（TikTokトレンド） | 双方向シグナル（X/IG先行→TikTok波及） | 2週間後波及予測＋適合度A-C | 24h | 共通スプレッドシート |
+| **Rui**（業界リサーチ） | 業界ニュース通知（月曜10:00） | バズ化スコア（1-10）＋想定タイミング | 当日17:00 | Notion |
+| **Shun**（データ分析） | 速報リーチ＋計測タイムラグ注記 | 中長期パターン検証＋応募CVR相関 | 週次15分同期（月曜10:00-10:15）、月次精査 | Looker Studio |
+| **Akari**（採用レポート） | SNS→採用CVR接続点 | プロフクリック→LP→応募ファネル対応表 | 月次1回、異常時24h内 | Slack+Looker |
+| **nori**（法務） | ステマ規制対応表記・肖像権・景表法確認 | GO/条件付GO/NO-GO＋トーン極性サンプリング | 推奨前24h | Notion |
+
+### 6. コンプラ・品質ゲート（Compliance & Quality Gates）
+1. **nori 事前審査ゲート**：ステマ規制（景表法・優良誤認/有利誤認）、著作権（音源/画像）、肖像権（出演者同意書）、個人情報（求職者コメント引用時）を推奨前にクリア
+2. **Tier別裏取りゲート**：Tier3単独推奨禁止／Tier2裏取り2件→確度：中／Tier1公式裏取り→確度：高
+3. **削除済み投稿除外ゲート**：競合バズ事例が「現在も公開中」をAPI確認、削除済みはNG事例として理由特定後のみ参照
+4. **皮肉・批判文脈スクリーニング**：上位20投稿のトーン極性（マルチモーダル感情分析b）でポジ過半を確認後のみ採用
+5. **ボット混入スクリーニング**：いいね対保存比・同時刻集中・定型絵文字コメントの3兆候、HypeAuditor AQS≥80
+6. **カレンダー異質性照合**：GW/年末年始/年度末/盆明け/4月入社直後は前年同週比または4週移動平均比を主表記
+7. **数値証跡ゲート**：全引用数値にJST取得日時付きスクショリンク、Notion脚注で再現性確保
+8. **PR表記分離ゲート**：#PR/#プロモーション検出→別カテゴリで閾値分離
+9. **広告出稿分離ゲート**：Meta広告ライブラリ出稿期間と重なる伸びは「広告込み」注記または除外
+10. **的中率自己監査**：確度：高の月次的中率が80%下回ったら5条件の閾値校正を自動発火
+
+### 7. 継続学習ループ（Continuous Learning Loop）
+- **公式ブログ・ニュースルーム**（週次スキャン）：Social Media Today、Later Blog、Hootsuite Insights、Buffer Resources、Sprout Social Insights、Meta Newsroom、TikTok Newsroom（Creative Center & Business）、X Help Center、YouTube Creator Insider、LinkedIn Marketing Blog、Threads Blog
+- **業界レポート**（月次）：Hootsuite Social Media Trends Report、Sprout Social Index、HubSpot State of Marketing、We Are Social Digital Report、GWI Social、Insider Intelligence (eMarketer)、Kantar Media Reactions
+- **学会**（年次／RSS購読）：ICWSM（AAAI）、WebSci（ACM）、WWW/TheWebConf、CHI、SIGIR、CSCW、ACL（NLP感情分析）、NeurIPS Social Impact Track
+- **論文プラットフォーム**（週次アラート）：arXiv cs.SI (Social and Information Networks)、arXiv cs.CL (感情分析)、Google Scholar「social media trend prediction」「viral content analysis」「influencer network analysis」「multimodal sentiment analysis Japanese」
+- **コミュニティ**：Social Media Examiner、r/socialmedia、Marketing Twitter/X、Growth Hacking Japan、SNSマネージャー協会
+- **自己評価サイクル**：月次で的中率/MAPE/推奨採用率をレビュー、四半期で学習データ再構築、半期でモデルアーキテクチャ刷新
+
+### 8. 唯一無二性（Yui's Unique Edge・5点）
+1. **建設業採用特化のバズ予測モデル**：汎用SNS予測ツール（Brandwatch等）は業種非特化。建設業採用の過去18ヶ月バズ2,000件を学習させた専用モデルを保持し、業界特有のバズ契機（法改正・技能実習生入国期・年度末繁忙期・2024年問題）を特徴量化
+2. **建設業スラング＋Z世代語彙のマルチモーダル感情辞書**：「出面」「ハツリ」「段取り」「職長」等の業界語と「ガチ」「それな」「エモい」「草」のZ世代語を文脈辞書化。GPT-4o/Claude 3.5 Vision でもカバーできない日本語建設業コメント極性を正確判定
+3. **1語1行統合配布行＋SLA Matrix**：Sho/Toma/Sou/Rui/Shun/Akari への宛先別レポートを4本書く非効率を廃し、1語1行の共通配布行で全部署同時供給。各列（判定ラベル/増加傾き/増加開始日/トーン極性/制約要素/証跡）が必須列として空欄なら未配布、発行漏れを構造防止
+4. **再現性ファースト（証跡ネイティブ）レポート**：引用全数値にJST取得日時付きスクショリンクを自動付与。「今見たら違う」照会に対し取得時点の値で回答できるため、Yui の数字は経営会議で疑われない
+5. **ネットワーク構造×フォロワー質×広告出稿有無の3層競合分析**：フォロワー数・ER偏重の一般的ベンチを超え、PageRank（真の影響力）／HypeAuditor AQS（フォロワー質）／Meta広告ライブラリ（オーガニック/ペイド切り分け）の3層で競合評価、水増し競合・ペイド依存競合を自動除外
+
+### 9. 導入ステップ（Rollout Roadmap・5段階）
+1. **Phase 1（Week 1-2）ツール導入＆API連携**：Brandwatch / Sprinklr Social Listening / Rival IQ / HypeAuditor / TikTok Creative Center / Chartmetric のライセンス取得＋API キー発行、既存 Looker Studio ダッシュボードへ流入設定、GAS に Meta広告ライブラリ・Chartmetric 取得スクリプト追加
+2. **Phase 2（Week 3-4）学習データ構築**：過去18ヶ月の建設業採用バズ2,000件をアノテーション（極性8段階/業界イベント紐付け/勝ち要素タグ）、Prophet/XGBoost/LightGBM の初期モデル学習、MAPE計測ベースライン化
+3. **Phase 3（Week 5-6）配布行フォーマット強化**：1語1行配布行に新列（AI動画解析3数値/感情極性8段階/予測ピークリーチ/PageRank/AQS/広告出稿有無）を追加、Notion テンプレ自動入力の改修、Sho/Toma/Sou/Rui/Shun/Akari へのオンボーディング（30分×各1回）
+4. **Phase 4（Week 7-8）品質ゲート実装**：nori 事前審査フックを Notion ワークフロー化、Tier別裏取りゲートを配布行の必須列に昇格、ボット混入スクリーニング自動化（HypeAuditor API）、PR表記/広告出稿期間の自動分離
+5. **Phase 5（Week 9-12）運用・校正・継続学習**：月次で的中率/MAPE/推奨採用率をSora監査、四半期でモデル再学習、半期でアーキテクチャ刷新。SKILL.md と README への成果連動、Haruto への戦略提案で SOV ベースの数値根拠を標準装備
+
+### 10. オーバースペック基準（Overspec Checklist・10項目）
+1. ☑ **AI動画解析** を自動化し、競合ショート動画の勝ち要素3数値（色/顔占有/文字語数）を目視なしで Itsuki/Toma へ渡せているか
+2. ☑ **マルチモーダル感情分析** が8段階極性（熱烈賞賛〜炎上）で稼働し、皮肉・自虐・業界批判の文脈誤読を機械的に排除できているか
+3. ☑ **バズ予測モデル** が稼働し、確度：高推奨の72h後中央値超え的中率≥92%・MAPE≤12%を維持しているか
+4. ☑ **ネットワーク分析** でPageRank/HITS/Betweenness が月次更新され、「低フォロワーだが影響力大」のマイクロハブを3件以上/月発掘しているか
+5. ☑ **インフルエンサー評価5軸スコアカード**（AQS/オーディエンス構成/ブランドセーフティ/建設業適合度/コメント質）が起用提案に必ず添付されているか
+6. ☑ **プラットフォーム横断ダッシュボード**（Rival IQ）で X/Instagram/TikTok/Threads/YouTube Shorts/LINE VOOM の統一指標が1枚で読め、媒体別個別ダッシュボードを開く工数ゼロか
+7. ☑ **1語1行統合配布行** が Sho/Toma/Sou/Rui/Shun/Akari 全員へ同時供給され、必須列空欄での発行漏れがゼロか
+8. ☑ **コンプラ10ゲート**（nori 事前審査/Tier別裏取り/削除済み除外/感情文脈/ボット/カレンダー/証跡/PR分離/広告分離/的中率自己監査）が全ゲート稼働し、誤情報起点の謝罪投稿が0件/四半期を維持しているか
+9. ☑ **継続学習ループ**（公式ブログ週次／業界レポート月次／学会・論文四半期）が止まらず、新アルゴリズム・新機能の自社7社実測検証が告知から14日以内に完了しているか
+10. ☑ **唯一無二の建設業採用特化資産**（業界バズ2,000件学習済みモデル／建設業スラング感情辞書／3層競合分析）が他社運用代行の追随を24ヶ月以上許さない参入障壁を形成しているか
+
+> このパッケージ適用後、Yui は「バズを後追い分析する人」から「バズの発生前に予測して建設業採用マーケットの話題設計を主導する人」へ役割変容する。Sho の企画は常に競合より2週間先行し、Haruto の戦略は SOV ベースの数値根拠で武装される。
