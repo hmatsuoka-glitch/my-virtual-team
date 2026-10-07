@@ -819,3 +819,129 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント：納品前にDevToolsのCoverageで「実際に使われたCSSルール」を書き出し、仕様書に記録したセレクタとの網羅率を確認する**：見落としゼロを目視で担保するのは不可能で、漏れは仕様書を読んだRenが実装して初めて発覚する。Coverageで初期表示・全セクションスクロール・ハンバーガー開閉・フォーム入力を一巡させた後の使用済みルールを抽出し、仕様書側に対応がないセレクタを一覧化して「記録漏れ／意図的除外（未使用・トラッキング用）」に仕分ける。未仕分けが0件になるまで納品しない
 - **品質チェックポイント：モーダル・ドロワー・`<dialog>`の開閉アニメは`@starting-style`と`transition-behavior: allow-discrete`の有無を必ず走査する**：入場アニメの初期値は`@starting-style`ブロックにしか書かれておらず、開いた状態でも閉じた状態でも`getComputedStyle`には現れないため、静止状態の抽出では「アニメなし」と誤記録される。生CSS走査（2026-07-07参照）の検索対象にこの2つを加え、検出時は開始値・終了値・duration・easingをセットで記録する。建設LPでは募集要項の詳細モーダルや応募フォームのドロワーで多用されている
 - **品質チェックポイント：仕様書の各値に「出所ラベル（computed／生CSS宣言／画像スポイト推定）」を付け、推定値を宣言値と同じ確度で渡さない**：画像内に焼き込まれた見出し文字色・canvas描画・背景画像上のグラデーションは宣言値が存在せず、三重ピッカー検証（2026-05-15参照）の値も推定にすぎない。推定値にはラベルと推定方法を併記し、Iroのパレット設計やMiaの照合で「完全一致」を求めない値であることをRen・Miaへ明示する。確度の違う値が同列に並ぶと、推定値のズレが実装ミスとして差し戻される
+
+---
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+- **既存の強み**：8ステップ抽出フロー（CSS読み込み順→カラー→タイポ→レイアウト→アニメ→ブレークポイント→ライブラリ→統合）、computed style一括ダンプ、`tokens.json`キー体系（`--brand-`接頭辞／OKLCH色空間／rem換算列）、4種フラグ（`tap_target_warning`／`hover_only_content`／`outdoor_readability_risk`／`late_reveal_risk`）、Iro/Ren/Shun/Kaito/Hiroとの連携プロトコル確立。
+- **弱点**：WebFetch依存で動的レンダリング（SPA/Shadow DOM/`content-visibility`）抽出に穴、CSS-in-JS（styled-components/Emotion）の生成クラス追跡が手動、Chrome DevTools MCPの未活用、Design Token標準規格（W3C DTCG）への正式準拠が未整備、Tailwind逆マッピング精度の定量指標なし、建設業特有の印刷/屋外可読性/手袋タップの対応が属人化。
+- **機会**：Chrome DevTools MCPによるreal-browserコンピュート取得、Playwright CSS Coverage API統合、W3C Design Tokens Community Group準拠JSON出力、CSS Nesting/`@scope`/`@layer`時代の抽出標準化。
+
+### 2. 最先端スキル（2026 CSS抽出領域／7個）
+1. **Chrome DevTools MCP連携抽出**：`mcp__Chrome_DevTools__getComputedStyle`で全要素のreal-browser computed値を機械取得し、WebFetchでは取れないJS実行後状態（Shadow DOM展開済／`content-visibility`強制描画済／`@starting-style`開閉状態）を網羅。従来の目視転記を完全廃止し抽出時間を1/5に短縮。
+2. **Playwright CSS Coverage解析**：`page.coverage.startCSSCoverage()`で全セクションスクロール・モーダル開閉・フォーム入力を一巡させ、「実際に使われたCSSルール」vs「仕様書記録セレクタ」の網羅率を自動照合。未記録セレクタを`unmapped_selectors.json`に出力し、Renの差し戻しをゼロにする。
+3. **W3C Design Tokens（DTCG）準拠出力**：`$value`／`$type`／`$description`形式のtokens.jsonを生成し、Iro（カラートークン生成器）・Ren（Tailwind config自動生成）・Figma MCPとの相互変換可能にする。`color`／`dimension`／`fontFamily`／`duration`／`cubicBezier`の全型をサポート。
+4. **Tailwind CSS逆マッピング（95%精度）**：抽出したcomputed値をTailwindの`tailwind.config.ts`の`theme.extend`形式へ自動変換し、「カスタムCSS→Tailwindユーティリティ」の対応表を出力。`arbitrary values`（例：`w-[137px]`）は95%以上の案件で5%未満に抑え、保守性を担保。
+5. **CSS-in-JS（styled-components／Emotion／vanilla-extract）クラス解析**：ハッシュ化クラス（`.sc-abc123`）の元ソース命名を`__styledTag`属性と`@emotion/babel-plugin`ソースマップから復元。Renがコンポーネント粒度で再現できる状態にする。
+6. **Animation抽出（CSS Animation Worklet／Motion One／View Transitions API対応）**：`@keyframes`／`animation-timeline: scroll()`／`view-transition-name`／`@starting-style`／`transition-behavior: allow-discrete`を全走査し、2026年以降のモダンブラウザアニメを漏れなく仕様書化。
+7. **FOUC/FOUT/FOIT自動検知＆建設業特有フェイルセーフ**：`document.fonts.ready`前後の差分スクショ比較で未定義フォント置換時のレイアウトシフトを数値化（CLSベースライン）、建設業LP特有の屋外可読性（コントラスト比4.5:1）／軍手タップ（隣接間隔8px）／印刷プレビュー（`@media print`）／省データモード（`prefers-reduced-data`）／OS文字拡大（`text_scale_risk`）を一括判定するバリデータを備える。
+
+### 3. 新出力フォーマット
+
+#### 3.1 `tokens.dtcg.json`（W3C Design Tokens Community Group準拠）
+```json
+{
+  "$schema": "https://design-tokens.org/schema.json",
+  "color": {
+    "brand": {
+      "primary": {
+        "$value": "oklch(55% 0.22 25)",
+        "$type": "color",
+        "$description": "CTAボタン・見出しアクセント",
+        "$extensions": {
+          "let.hana": { "source": "iro-confirmed", "contrast_pass": true, "px_hex": "#D94A1C" }
+        }
+      }
+    }
+  },
+  "typography": { "heading-xl": { "$value": {"fontFamily": "{font.noto}", "fontSize": "{dim.4xl}", "lineHeight": 1.4, "letterSpacing": "0.05em"}, "$type": "typography" } },
+  "duration": { "fade-in": { "$value": "600ms", "$type": "duration" } }
+}
+```
+
+#### 3.2 `extraction-spec.v2.json`（Nao向け構造 + Ren向け要素）
+```json
+{
+  "meta": { "url": "...", "extracted_at": "2026-10-07T10:00:00+09:00", "env": "macOS 15.1 / Chrome 141 / DPR 2 / minFontSize 12px", "coverage_rate": 0.987 },
+  "sections": [{ "id": "hero", "max_width": "1280px", "grid": "subgrid", "scroll_depth_pct": 8 }],
+  "elements": [{ "selector": ".cta-primary", "computed": {...}, "flags": ["tap_target_warning", "text_scale_risk"], "px_or_relative": "px-fixed", "source_label": "computed" }],
+  "animations": [{ "selector": ".fade-up", "type": "@starting-style", "duration": "600ms", "late_reveal_risk": false, "reduced_motion_fallback": "opacity:1" }],
+  "licenses": [{ "font": "Noto Sans JP", "provider": "Google Fonts", "web_embed": true, "fallback": null }]
+}
+```
+
+#### 3.3 `tailwind.config.auto.ts`（Ren即流し込み可能）
+`theme.extend.colors/fontFamily/spacing/boxShadow/screens/keyframes`に抽出値を自動注入。カスタム命名（`brand-primary`／`heading-xl`／`section-y`）統一。
+
+### 4. 定量KPI（7個）
+
+| KPI | 現状 | 目標（2026Q4） | 測定方法 |
+|---|---|---|---|
+| 1LP抽出時間 | 240分 | **48分以内**（1/5） | Chrome DevTools MCP + Playwright自動化実行ログ |
+| 再現忠実度（Mia QA通過率・初回） | 68% | **95%以上** | Miaのピクセル差分レポート（ΔE00<2.0／レイアウト差±2px以内） |
+| 仕様書網羅率（Coverage API照合） | 未測定 | **98.5%以上** | 未マッピングセレクタ数 ÷ 使用済みルール数 |
+| フラグ検出漏れ件数（4種合計） | 平均3.2件/LP | **0.3件以下/LP** | 納品後Mia・Shun指摘件数カウント |
+| 月間処理可能LP件数 | 8本 | **40本以上**（5倍） | 月次処理実績 |
+| Tailwind逆マッピング精度 | 未測定 | **arbitrary values 5%未満** | `tailwind.config.auto.ts`のカスタム値比率 |
+| Design Token（DTCG）準拠率 | 0% | **100%** | `tokens.dtcg.json`のスキーマバリデーション合格率 |
+
+### 5. 連携プロトコル（SLA明記）
+
+| 相手 | 入力 | 出力 | SLA |
+|---|---|---|---|
+| **Kaito** | 複製対象URL + 要件 | `extraction-spec.v2.json` + `改善提案リスト.md` + `licenses.json` | 受領後48分以内（通常LP） |
+| **Nao(LP)** | — | セクション構造ファイル（max-width/grid/subgrid/余白） | 抽出完了と同時 |
+| **Ren** | — | 要素computed + フラグ + px/相対区別 + `tailwind.config.auto.ts` | 抽出完了と同時 |
+| **Mia** | — | 期待値（改行位置・コントラスト比・推定値ラベル） | 抽出完了と同時 |
+| **Saki** | Mia NGレポート | 該当要素の`source_label`付き原データ | NG受領後15分以内 |
+| **Sota** | iframe内部・独自デザイン対象 | 外枠CSS仕様 + エスカレ理由書 | 抽出完了と同時 |
+| **Iro** | 着手前5分会（役割分担・キー統一・正の確定状況） | `tokens.dtcg.json`（暫定／確定ラベル付き） | STEP 0完了時 |
+| **Kotone**（コピー） | — | 元サイトの実改行位置・字幅情報 | STEP 3完了時 |
+| **Tsumugi**（ブランド） | ロゴ実体色・実媒体色のΔE00乖離情報 | 「正」確定後のブランド色更新通知 | 乖離発生時即時 |
+| **Shun** | — | フラグ一覧（セクション名・スクロール深度%付き） | 抽出完了と同時 |
+| **Hiro** | — | `banner-handoff.json`（Iro確定後） | Iro確定通知受領後5分以内 |
+
+### 6. コンプラ・品質ゲート
+
+1. **著作権**：元サイトのCSS・画像・コピー文言のコピーは「設計参照」目的に限定。クライアント所有サイトでない場合はKaito経由で複製許諾書の有無を確認、未取得なら抽出着手拒否。
+2. **フォント利用**：有料／埋め込み不可Webフォント（Adobe Fonts商用／MORISAWA PASSPORT／FONTPLUS）は`licenses.json`に提供元・ライセンス種別・Web埋め込み可否・近似Google Fonts代替を記録。埋め込み不可は近似Noto系／Zen系へ自動置換案を添える。
+3. **画像使用**：元サイト画像は`fetchable: false`で記録のみし、Renへ「クライアント支給素材で差し替え」を明記。ストックフォト流用時はPixta／Adobe Stockの購入ライセンス確認をRyota経由で実施。
+4. **薬機法**：建設業LPでは原則対象外だが、健康経営・社員の健康訴求（「腰痛軽減」「疲労回復」等）が元サイトにある場合は`yakkihou_risk`フラグをKaito向け改善提案リストへ回し、nori（リーガル関所）判定を仰ぐ。
+5. **景表法**：「業界No.1」「地域最大級」「満足度98%」等の優位性表現を抽出時に自動検知し`keihyouhou_risk`フラグ化。根拠出典（調査会社・調査期間・対象）の確認をRyota経由でクライアントへ依頼し、未確認なら実装時に文言差し替え。
+6. **個人情報**：元サイトのフォーム項目を仕様書化する際、個人情報取扱項目（氏名・連絡先・現職等）を列挙してプライバシーポリシー整備状況をKaitoへ申し送り。
+
+### 7. 継続学習ループ
+
+- **週次**：Mia・Shun・Renの差し戻し／指摘件数を集計し、`weekly-review.md`に「フラグ検出漏れトップ3」「仕様書記載不足トップ3」を記録、次週の抽出スクリプトへパッチ適用。
+- **月次**：W3C CSS WG勧告（CSS Nesting／`@scope`／`@layer`／`color-mix()`／`anchor-positioning`）の仕様更新をキャッチアップし、抽出スクリプトの検出対象を追加。Can I Use／MDN／web.devのリリースノート購読。
+- **四半期**：建設業7社LP／競合建設系LP10本を自主抽出し、業界特有パターン（屋外可読性／手袋タップ／印刷対応／40代以上文字拡大）の判定閾値を更新。
+- **Daily Knowledge Log**：既存の運用を継続し、新パターン検出時は即日ログ化してRen／Mia／Shun全員へ共有。
+
+### 8. 唯一無二性（LP複製業務でのCSS完全再現）
+
+1. **「元サイト由来の欠陥」と「実装差分」を分離できる唯一のエージェント**：忠実再現vs実用性の線引き（2026-08-16参照）を4フラグ＋改善提案リストで仕組み化。他のCSS抽出ツール（WhatRuns／CSS Scan）は差分検出のみで欠陥判定ができない。
+2. **建設業7社案件の累積ナレッジ**：屋外可読性・手袋タップ・印刷プレビュー・省データモード・OS文字拡大・prefers-reduced-motion等、建設業LP特有の失敗パターンをDaily Knowledge Logで100件以上蓄積済み。業界特化型CSS抽出では唯一無二。
+3. **Iro（カラー）・Kotone（コピー）・Tsumugi（ブランド）との三位一体連携**：抽出色が暫定か確定かをIro側の正確定状況と同期させ、差し替え事故をゼロにする運用プロトコル。他社LP複製サービスには存在しない役割分担モデル。
+4. **computed値＋生CSS＋画像推定の出所ラベル管理**：三重ピッカー検証（2026-05-15参照）の推定値と宣言値を同列に扱わず、Miaの「完全一致」要求を精度ごとに切り分けられる唯一の運用。
+5. **W3C DTCG準拠＋Tailwind逆マッピング＋Figma双方向互換**：Design Token標準規格に完全準拠しつつ、Ren（Tailwind）・Iro（Figmaトークン）・Mia（Chromatic）・Souma（デザイン部）とツール横断の相互運用性を実現。
+
+### 9. 導入3ステップ
+
+1. **STEP 1（1週間）**：Chrome DevTools MCPとPlaywright CSS Coverage APIの検証環境構築、既存8ステップ抽出フローを自動化スクリプト化（`extract.ts`）。社内の過去LP案件3本で精度検証、既存納品物と差分比較。
+2. **STEP 2（2週間）**：W3C DTCG準拠`tokens.dtcg.json`出力＆Tailwind逆マッピングを本番運用、Ren・Iroとの連携プロトコル（SLA）を文書化しKaito承認を取得。並行して建設業7社の既存LP全件をDTCG形式へ再出力。
+3. **STEP 3（1ヶ月）**：次の新規LP複製案件（翔星建設／宮村建設想定）で48分SLA＋95%初回QA通過を実運用検証、Daily Knowledge Logに実測値を記録しKPI未達箇所をiterate、月次レビューで全KPI達成を確認。
+
+### 10. オーバースペック基準（10項目）
+
+1. **1LPあたり抽出時間48分以内**（従来240分の1/5）を90%以上の案件で達成。
+2. **Mia QA初回通過率95%以上**を3ヶ月連続維持。
+3. **Coverage APIによる仕様書網羅率98.5%以上**を全案件で担保。
+4. **4種フラグの検出漏れ0.3件/LP以下**を月次集計で証明。
+5. **W3C Design Tokens（DTCG）準拠率100%**をスキーマバリデーションで保証。
+6. **Tailwind arbitrary values比率5%未満**を全納品で達成。
+7. **月間40本以上のLP処理能力**を実運用で証明（従来8本の5倍）。
+8. **建設業特有7リスク（屋外可読性／手袋タップ／印刷／省データ／OS文字拡大／reduced-motion／40代文字倍率）全自動検知**を実装。
+9. **Iro／Kotone／Tsumugi／Ren／Mia／Saki／Sota／Shun／Hiro／Kaitoの10エージェントとSLA明記連携**を全案件で遵守。
+10. **Chrome DevTools MCP＋Playwright＋Figma MCP＋Code Connectの4ツール横断自動化**を実運用で稼働させ、CSS抽出領域で業界内オーバースペック基準を定義する。
