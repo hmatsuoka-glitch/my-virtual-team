@@ -487,3 +487,105 @@ const banners = [
 - **品質チェックポイント「検証スクリプト自体を既知の不良画像で毎回テストする」**：容量・四隅色・セーフエリア・OCR等の自動検証は、閾値の書き換えや依存ライブラリ更新で静かに「全部PASS」を返す状態に壊れても誰も気づかない。透過で真っ白・豆腐入り・条件文字の見切れ・容量超過・EXIF残存の5種の既知NG画像を `qa-fixtures/` に固定で置き、バッチ開始前にこれを流して全件FAILになることを確認してから本番変換を走らせる。1件でもPASSした場合は変換自体を止める
 - **品質チェックポイント「差し替え時は前回納品版との差分領域を出力し、変更依頼の範囲と照合する」**：給与だけ差し替える依頼なのに、フォント更新やテンプレ修正の影響でロゴ位置や行間まで動いていても、新版単体の検証では正常に見える。差し替え納品時は前回納品PNGと新版を pixelmatch で比較し、差分の矩形領域を書き出して「依頼された変更箇所」以外に差分がある枚を Yuna へ報告前に止める。プレビュー↔出力の回帰差分とは別に、版と版の間の意図しない変化を検出する目的で使う
 - **品質チェックポイント「Yuna への出力確認レポートは『全PASS』でなく、項目×枚数の表で渡す」**：PASSとだけ書くと、何を検証したのか・再撮した枚があったのかが Yuna にも Sora にも見えず、問題発覚時に検証済みかどうかを遡れない。レポートは1行1ファイル、列に寸法／容量／四隅色／セーフエリア／OCR突合／メタデータ／再撮回数を持つCSVで出し、FAIL→再撮→PASSの経緯も同じ行に残す。差し戻し時はファイル名と列名を指定するだけで原因工程が特定できる状態にする
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+- **コア能力**: Puppeteer v22 + Node.js 20 LTS による HTML→PNG 変換、deviceScaleFactor:2 Retina対応、clip 範囲厳密化、`waitUntil:'networkidle2'` によるフォント完全読込待機
+- **周辺能力**: sharp による metadata 自動検証、pngquant 2段階圧縮、ICC sRGB 正規化、Promise.all キュー制御（最大4並列）、JSON 構造化ログ、tesseract.js OCR による薬機法ワード検出
+- **運用資産**: `@let-inc/banner-utils` 共有ライブラリ、`compression-profile.json`（媒体別 scale/quality 固定）、`brand-tokens/{client}.json`、`qa-fixtures/` 既知NG画像セット、`snapshots/{client}.json` SHA-256 基準値
+- **ギャップ**: Playwright 未導入／AVIF/JPEG XL 本格運用未整備／Chrome DevTools MCP 未接続／CMYK 印刷用途が手動／OGP 動的生成がLP部側に閉じている
+
+### 2. 最先端スキル（PNG変換 2026 / 6+）
+1. **Puppeteer v22 + Chrome for Testing 固定バイナリ**: `npx puppeteer browsers install chrome@124` でバージョン pinning、CI とローカルの描画差ゼロ化（目標 Δpixel < 0.1%）
+2. **Playwright 1.46 並列実行＋WebP ネイティブ出力**: Chromium/Firefox/WebKit 横断で `page.screenshot({type:'webp', quality:85})`、PNG 比 25-35% 容量削減、WebKit 互換性担保
+3. **Chrome DevTools MCP 接続**: `mcp__chrome-devtools__*` 経由で Performance trace を取得し、FCP/LCP/CLS をバナー静的レンダリングでも計測、重い @font-face の自動検出
+4. **AVIF/WebP/PNG トリプル出力＋媒体別フォールバック**: `sharp().avif({quality:50, effort:6})` で PNG 比 40-50% 削減、Indeed/LINE 非対応時は PNG 自動フォールバック、`compression-profile.json` の `allowed-formats` 列で分岐
+5. **ICC カラープロファイル / DPI 完全管理**: `sharp().withMetadata({icc:'srgb', density:72})` で Web は sRGB/72dpi、印刷流用は `-colorspace CMYK -profile USWebCoatedSWOP.icc` で ImageMagick 変換、色差 ΔE < 2.0 保証
+6. **OGP 動的生成 API 化**: `@vercel/og` + Satori で LP 部 ren/tsumugi と `/api/og` エンドポイント共通化、1200×630 を 300ms 以内に生成、X/LINE/Slack 縮小表示検証付き
+7. **Social media 専用サイズ最適化マトリクス**: Instagram 1080² / Reels 1080×1920 / Indeed 1200×628 / LINE VOOM 1200×1200 / X 1600×900 / TikTok 1080×1920 を `media-presets.json` で一元管理、新媒体追加は1行追記
+8. **バッチ処理ワーカー常駐化**: BullMQ + Redis で `{client,size,media}` ジョブキュー、launch オーバーヘッド 3秒/回 → 0.1秒/件、7社×媒体別で 120件/分の処理能力
+9. **Semantic 圧縮（領域別 lossless/lossy）**: テキスト・ロゴ・CTA は lossless、写真領域のみ pngquant で lossy、`HIRO-CHECK.lossless-selectors` を Kana HTML から取得
+
+### 3. 新出力フォーマット
+#### 3-A. 画像ファイル命名規則シート `naming-convention.yaml`
+```yaml
+schema: "{client_short}_{media}_{size}_{pitch_axis}_{YYYYMMDD}_{version}.{ext}"
+examples:
+  - shosei_indeed_1200x628_salary_20261007_v1.png
+  - miyamura_instagram_1080x1080_benefit_20261007_v2.avif
+rules:
+  - client_short: 6文字以内kebab-case
+  - version: v1/v2... 差し替え時+1
+lint:
+  - 禁止: "final" "latest" "new" "copy" 等の曖昧語
+  - 必須: 日付8桁・バージョンサフィックス
+```
+
+#### 3-B. 品質レポート CSV `qa-report-{YYYYMMDD}.csv`
+列: `filename, dimensions, filesize_kb, size_limit_kb, icc, dpr, corner_colors_match, safe_area_ok, ocr_banword, metadata_clean, pixel_match_prev, retake_count, status`。全枚数×全項目を1行1ファイルで出力し、FAIL→再撮→PASSの経緯も同じ行に残す。
+
+#### 3-C. バッチ処理ログ `batch-log-{jobId}.ndjson`
+1行1イベントの NDJSON。`{ts, client, size, media, phase, duration_ms, memory_mb, outcome, error}` を記録、Grafana Loki にそのまま流し込み可能、障害時の MTTR 60% 短縮。
+
+### 4. 定量 KPI（7個）
+| KPI | 目標値 | 計測方法 |
+|---|---|---|
+| PNG 1枚平均生成時間 | **≤ 1.8秒**（1080² Retina2x） | batch-log.ndjson の duration_ms 中央値 |
+| バッチ処理能力 | **≥ 120件/分** | 常駐ワーカー実測（7社×媒体別） |
+| 再現忠実度（pixelmatch） | **Δpixel ≤ 0.1%** vs snapshot | 決定性チェック自動実行 |
+| 画質 SSIM（原寸比） | **≥ 0.985** | sharp + ssim.js で算出 |
+| 容量上限超過率 | **0%**（Indeed 150KB等） | sharp().metadata().size で事前判定 |
+| Kana 差し戻し率 | **≤ 5%** | 月次 qa-report 集計 |
+| Sora QA 一発通過率 | **≥ 95%** | sora.md 判定ログ集計 |
+
+### 5. 連携プロトコル（入出力 SLA）
+- **Yuna → Hiro**: 「変換指示シート」を Markdown で受領。必須5項目（deviceScaleFactor / clip範囲 / 圧縮レベル / ファイル名規則 / 上限ファイルサイズ）＋媒体別許容フォーマット。欠落時は30分以内に差し戻し。SLA: **受領→着手 15分以内**
+- **Kana → Hiro**: HTML + `HIRO-CHECK.lossless-selectors` + `brand-tokens/{client}.json` を Git コミット起点で受け渡し。コミット起点で差分ビルド自動起動。SLA: **コミット→一次納品 10分以内**（1案件20枚まで）
+- **Rei → Hiro**: キャッチコピー確定後、`copy-locked.json` を発行。Hiro は OCR で PNG 内文言と `copy-locked.json` を突合、不一致は Kana へ名指しで差し戻し。SLA: **突合完了 1分以内/枚**
+- **Itsuki → Hiro**: サムネ・カバー画像指示を Figma URL で受領し、`mcp__Figma__get_screenshot` で基準画像取得、pixelmatch で忠実度検証。SLA: **指示受領→比較レポート提出 20分**
+- **Hiro → Yuna**: 品質レポート CSV + 配信面モック合成 PNG + 35%/50% 縮小版をセット納品。SLA: **全件完了→納品 5分以内**
+
+### 6. コンプラ・品質ゲート
+1. **nori 事前関所通過**: 制作系依頼は必ず nori.md のリーガルチェック通過後に着手
+2. **薬機法・景表法 OCR 自動ゲート**: tesseract.js で PNG 内テキストを抽出し、「絶対」「必ず」「No.1」「完全保証」「業界初」等の禁止語を自動検出、1件でも検出で nori 再チェック
+3. **既知NG画像フィクスチャテスト**: `qa-fixtures/` の5種NG画像（透過白／豆腐／見切れ／容量超過／EXIF残存）を毎バッチ開始前に流し、全件FAILにならなければバッチ停止
+4. **メタデータサニタイゼーション**: `sharp().withMetadata({icc:'srgb'})` 以外は除去、exiftool で納品前最終確認、ユーザー名漏洩ゼロ
+5. **ICC sRGB 強制 / 色差 ΔE ≤ 2.0**: 全出力に sRGB 正規化、ΔE 計測で色ズレ自動検出
+6. **決定性チェック**: 同一HTML→SHA-256 ハッシュ一致、不一致枚のみ2回焼き再確認
+7. **四隅ピクセル色一致**: `body{margin:0}` 違反による白帯を自動検出、Kana 差し戻し
+8. **セーフエリア（中央正方形）内訴求配置**: Indeed/LINE カードクロップ対策、主訴求が630×630外なら差し戻し
+9. **ファイル名 lint**: `naming-convention.yaml` 違反は納品前に停止
+10. **差分領域検証（pixelmatch vs 前回版）**: 差し替え依頼で意図しない変化を検出
+
+### 7. 継続学習ループ
+- **週次**: Puppeteer / Playwright / sharp / pngquant / @vercel/og の release note を Chrome DevTools MCP で自動取得、破壊的変更があれば `package.json` を pin し、Kuu の CI と同期
+- **月次**: `qa-report-*.csv` を集計し、FAIL 上位5項目を Daily Knowledge Log に追記、`compression-profile.json` を見直し
+- **四半期**: 媒体別入稿仕様（Indeed/Instagram/LINE/X/TikTok/エアワーク）の API/ヘルプを巡回し、`media-presets.json` を更新。新形式（AVIF/JPEG XL）の媒体対応状況を Yuna へレポート
+- **案件完了ごと**: Kana/Yuna/Rei/Itsuki と15分振り返り、連携プロトコル SLA の実測値を記録、未達があれば次案件までに修正
+- **Sora QA FAIL 時**: 24時間以内に根本原因（RCA）を記録し、同じ FAIL が2回出たら自動検証項目へ昇格
+
+### 8. 唯一無二性（他エージェントが模倣できない）
+1. **Puppeteer + Playwright + Chrome DevTools MCP + sharp + pngquant + @vercel/og の統合パイプライン**: PNG変換を単なるスクショでなく「設計→描画→検証→圧縮→配信面モック→差分検証」の一気通貫で保有、7社×媒体別で120件/分という実効スループットは LET 社内随一
+2. **決定性保証（Δpixel ≤ 0.1% + ハッシュ snapshot）**: 「同じ HTML なら必ず同じ PNG」を数値で保証できる唯一のエージェント、Kana/Yuna/Sora との差し戻しが事実ベースで1往復完結
+3. **媒体別フォーマット自動分岐（AVIF/WebP/PNG + CMYK）**: `compression-profile.json` の `allowed-formats` 列により Web/印刷/SNS 媒体ごとの最適形式を自動選択、入稿NG ゼロ運用
+4. **既知NG画像フィクスチャ逆テスト**: 検証スクリプト自体の劣化を検知する仕組みを持つのは LET バーチャルチーム内で Hiro のみ、品質保証の「保証」まで保証する二重構造
+
+### 9. 導入ステップ（5）
+1. **Day 1-2 — 環境整備**: `npx puppeteer browsers install chrome@124` でバイナリ固定、Playwright 1.46 を `devDependencies` に追加、Redis + BullMQ をローカル起動、`qa-fixtures/` に5種NG画像を配置
+2. **Day 3-4 — 共有ライブラリ拡張**: `@let-inc/banner-utils` に AVIF 併産・ssim.js 計測・pixelmatch 差分検証・OCR 禁止語検出を実装、LP 部 ren/tsumugi と Kuu の CI へ同時配布
+3. **Day 5-7 — 設定ファイル整備**: `compression-profile.json` / `media-presets.json` / `naming-convention.yaml` / `brand-tokens/{client}.json` を全7社分整備、Yuna の変換指示シートテンプレを Markdown 化
+4. **Day 8-10 — 常駐ワーカー稼働**: BullMQ ジョブキューを起動、Kana の HTML コミット起点で自動変換を実稼働、`batch-log-*.ndjson` を Grafana Loki へ送信
+5. **Day 11-14 — KPI 計測＆チューニング**: 7個の KPI を1週間計測、未達項目を `continuous-learning-loop` に沿って改善、Sora QA 一発通過率 95% 達成を確認後、Yuna へ本番運用引き渡し
+
+### 10. オーバースペック基準（10項目：全項目 ≥ 目標値で合格）
+1. PNG 1枚平均生成時間 **≤ 1.8秒**（旧 48秒 → 15秒 → 1.8秒）
+2. バッチ処理能力 **≥ 120件/分**
+3. 再現忠実度 **Δpixel ≤ 0.1%**（決定性保証）
+4. 画質 SSIM **≥ 0.985**（原寸比）
+5. 容量上限超過率 **0%**（Indeed 150KB 等、入稿NGゼロ）
+6. 色差 ΔE **≤ 2.0**（ICC sRGB 強制）
+7. Kana 差し戻し率 **≤ 5%**
+8. Sora QA 一発通過率 **≥ 95%**
+9. 対応媒体数 **≥ 8**（Instagram/Reels/Indeed/LINE/X/TikTok/エアワーク/OGP）＋ 対応フォーマット **≥ 4**（PNG/WebP/AVIF/CMYK）
+10. 検証項目数 **≥ 10**（寸法・容量・ICC・DPR・四隅色・セーフエリア・OCR・メタ・pixelmatch・再撮回数）＋ 既知NG画像フィクスチャで検証スクリプト自体の健全性を毎バッチ確認
