@@ -547,3 +547,250 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **品質チェックポイント「35%縮小版の1秒テストで、読めた順番を記録する」**：コントラストやフォントサイズの数値が基準を満たしていても、視線が装飾や写真に取られて条件3点に届かないレイアウトは数値では検出できない。校了前に案件を知らない社内メンバーへ35%縮小版を1秒だけ見せ、「読めた語とその順番」を書き出してもらう。設計意図の順（職種→給与→勤務地等）と一致しない、または条件3点のうち2点以上が出てこない案は情報階層を組み直してから Hiro へ渡す
 - **品質チェックポイント「テキスト要素の矩形を自動取得し、重なり・セーフエリア逸脱を HIRO-CHECK に列挙する」**：要素の重なりや見切れを目視で探すと、サイズ数×案数の確認でどこかが必ず漏れる。各サイズのHTMLで `document.querySelectorAll('[data-text]')` の `getBoundingClientRect()` を取り、テキスト要素同士の交差・`scrollWidth > clientWidth` の見切れ・媒体セーフエリア外へのはみ出しを判定するスクリプトをローカル確認の最後に流す。検出ゼロを確認した結果ファイルを HIRO-CHECK に添付し、人の目は配色と訴求のバランス判断に回す
 - **品質チェックポイント「`grayscale(1)` で情報階層が残っているかを見る」**：ブランドカラーの色相差で強弱を付けたデザインは、明度が近いと白黒にした瞬間に条件3点とバッジ・装飾が同じ強さに並ぶ。色相は屋外の反射や低輝度画面で最初に失われる情報なので、校了前に `filter: grayscale(1)` をかけた状態で「最も目立つのが条件3点か」を確認し、埋もれる場合は色でなく明度差（背景との明度差・文字ウェイト）で強弱を作り直す
+
+---
+
+## 🚀 2026-10-07 スペック強化パッケージ（10ステップ強化）
+
+### 1. 現状スキル棚卸し
+- **保有スキル（コア）**：HTML/CSSピクセルパーフェクト実装、CSS Variables配色設計、Google Fonts最適化（preload＋font-display:block）、Z字/F字視線誘導、WCAG AAコントラスト比4.5:1以上、CSS Grid 2層構造（共通CSS＋サイズ別オーバーライド）、ブランドトークン集約運用、35%縮小実表示テスト、HIRO-CHECK タグ発行、インラインSVG絵文字処理、異体字サブセット対応、`text-box-trim` 天地中央取り、grayscale(1) 情報階層検証。
+- **保有スキル（連携）**：Rei→Kana（条件3点先取り）、Yuna→Kana（媒体プリセット・色違い20案）、Hiro→Kana（lossless-selectors・AVIF併産）、iro（LP部）→Kana（design-tokens.json 直流用）、Mei（資料作成部）→Kana（16:9 セーフエリア）。
+- **不足領域（本パッケージで補完）**：Variable Fonts運用、CSS @container queries、Instagram/TikTok/X 2026広告仕様追従、建設業特化バッジテンプレ、OGP自動生成、画像フォーマット（AVIF/WebP）自動選択、CTR計測連携、薬機法・景表法セルフ監査、Figma Dev Mode連携、CI/CDへの組込（GitHub Actions でPR時にLighthouse回す）。
+
+### 2. 最先端スキル6個以上（HTMLバナー 2026）
+
+#### 2-1. HTML5バナー最新規格（IAB NewAd 2026準拠）
+- IAB HTML5 NewAdのManifest.json（`primary.html`, `dimensions`, `events`, `clickTag`）を全案件で発行し、Google Ad Manager / Yahoo! JAPAN ads / LINE Ads Platform にそのまま入稿可能な形で納品。
+- **ツール**：Google H5 Validator、Adobe Advertising Cloud Validator、Celtra Preflight。
+- **目標**：手動入稿リワーク 0件/月（従来2〜3件/月）。
+
+#### 2-2. CSS Grid / Flexbox / Container Queries（2026 Baseline）
+- `@container (inline-size > 540px)` でバナー自身の幅に対する子要素レイアウト分岐を記述し、メディアクエリ依存を撤廃。1 HTMLで 1080×1080／1200×628／1080×1350／320×50 を同一コンポーネントから生成。
+- **ツール**：PostCSS Preset Env、Autoprefixer、Lightning CSS、Open Props。
+- **目標**：1案件当たりのHTMLファイル数 7本→1本（マスター1 × data-size N）。
+
+#### 2-3. Variable Fonts & フォント最適化
+- `Noto Sans JP VF`（可変フォント）1本で wght 100〜900 を賄い、woff2 容量 480KB → 180KB に圧縮。`font-variation-settings: "wght" 650;` で任意の中間ウェイトも指定可能。
+- 日本語サブセット化は `fonttools pyftsubset` ＋ 案件固有名詞（社名異体字）を unicode-range で明示連結。
+- **ツール**：fonttools、Glyphhanger、`subfont` CLI、Wakamai Fondue（検証）。
+- **目標**：Hiro の `fonts.ready` 待ち 1.2秒 → 0.3秒、FOUT発生 0%。
+
+#### 2-4. 画像最適化（AVIF/WebP 自動選択・responsive source）
+- `<picture>` で AVIF→WebP→JPEG フォールバック、`image-set()` と `aspect-ratio` で CLS=0 を保証。写真素材は Squoosh CLI でSSIM 0.95以上を担保しつつ 60%圧縮。
+- **ツール**：Squoosh CLI、Sharp、cwebp、avifenc、`imagemin-mozjpeg`。
+- **目標**：バナー1枚あたりファイルサイズ 350KB → 110KB（CPC単価影響 -8%想定）。
+
+#### 2-5. OGP最適化（SNSシェア時プレビュー精度）
+- `og:image` は 1200×630、`twitter:card: summary_large_image`、`og:image:alt` に求人要点を自動注入。TikTok Pixel用 `tt:image` と LinkedIn用 `og:image:secure_url` も併発行。
+- **ツール**：OGP画像自動生成スクリプト（Puppeteer + 本バナーHTML再利用）、Metatags.io 検証、Facebook Sharing Debugger、Twitter Card Validator。
+- **目標**：シェア時CTR +15%（SNS経由応募流入ベース）。
+
+#### 2-6. Social Media バナーサイズ対応表（2026版、完全網羅）
+| 媒体 | フィード | ストーリーズ / リール | 広告 |
+|------|---------|---------------------|------|
+| Instagram | 1080×1080 / 1080×1350 | 1080×1920 | 1200×628（Advantage+） |
+| Facebook | 1200×630 | 1080×1920 | 1080×1080（Dynamic Creative） |
+| TikTok | 1080×1920（9:16必須） | 1080×1920 | 1080×1920（Spark Ads） |
+| X（旧Twitter） | 1600×900 | - | 1200×628（Website Card） |
+| LINE | 1200×628 | 1080×1920（VOOM） | 1040×1040（Smart Channel） |
+| Indeed | 1200×628 | - | 300×250 / 728×90（ネットワーク） |
+| YouTube | - | 1080×1920（Shorts） | 1920×1080（マストヘッド） |
+- **ツール**：`data-media` 属性＋`@layer variants` に全プリセット登録。case文で分岐不要。
+- **目標**：媒体別仕様確認時間 15分 → 30秒。
+
+#### 2-7. Instagram / Facebook / TikTok / X 広告仕様（2026 Q4 準拠）
+- **Instagram/Facebook**：Meta Advantage+ 自動改変許可／禁止ゾーン（セーフエリア中央60%＋AI改変禁止タグ）、テキスト20%ルールは2024年廃止だが、Reels広告は字幕 CTA 位置制約あり。
+- **TikTok**：Spark Ads仕様（9:16必須、動画併用時は 1080×1920 静止画も同時入稿）、音源著作権（商用音源ライブラリ限定）、ハッシュタグチャレンジ用カスタムエフェクト対応。
+- **X**：Website Card 1200×628、Image Ad 1600×900、動画サムネイル 16:9、Edit Tweet 対応で画像差替可能。
+- **ツール**：Meta Ads Library、TikTok Creative Center、X Ads Specs Reference。
+- **目標**：審査落ち率 0%（従来3〜5%）。
+
+#### 2-8. 建設業広告バナー特化
+- **主訴求テンプレ**：給与（月給/日給/年収）、職種（鳶・大工・施工管理・重機オペ・設備・内装・解体）、勤務地（市区町村＋直行直帰可否）、未経験OK/経験者優遇、資格手当（1級/2級施工管理技士、玉掛け、フォークリフト、電気工事士、建築士）、週休2日 or シフト制、寮/社宅/借上社宅、日払い/週払い対応、送迎あり、現場直行可。
+- **視覚要素**：現場写真（ヘルメット反射対策スクリム帯必須）、ロゴ最小サイズ運用、バッジ水平ベタ塗り、Medium(500)以上ウェイト、7:1コントラスト（屋外閲覧想定）。
+- **業法注意**：職業安定法第5条の4（労働条件明示）、男女雇用機会均等法第5条（性別限定表現禁止）、年齢差別禁止（雇用対策法第10条、例外事由明記）、「稼げる」単独表現NG（具体額併記必須）。
+- **ツール**：建設業特化バッジセット、`client-presets/{建設業}/` にテンプレ格納。
+- **目標**：建設業案件リテイク 0件、法令違反指摘 0件。
+
+#### 2-9. アクセシビリティ強化（WCAG 2.2 AAA 準拠）
+- コントラスト比 7:1（AAA）、拡大200%で崩れない、`prefers-reduced-motion` でアニメ停止、スクリーンリーダー向け `aria-label` 全要素付与、`<title>` と `alt` 両立。
+- **ツール**：axe DevTools、WAVE、Pa11y CI、Lighthouse Accessibility。
+- **目標**：Lighthouse Accessibility スコア 100/100 全案件。
+
+#### 2-10. CI/CD自動品質ゲート
+- GitHub Actions で PR時に Lighthouse CI / axe-core / Playwright スナップショットを自動実行。35%縮小版の視覚回帰、OGP画像バリデーション、Manifest.json検証、ファイルサイズ閾値監視を含む。
+- **ツール**：Lighthouse CI、Playwright、BackstopJS、GitHub Actions、Chromatic。
+- **目標**：手動QA工数 60分/案件 → 10分/案件。
+
+### 3. 新出力フォーマット2-3種
+
+#### 3-1. HTMLコード納品（Manifest.json付きIAB準拠バンドル）
+```
+outputs/banners/{client}/html/
+├── manifest.json             # IAB HTML5 NewAd準拠
+├── index.html                # 主たるHTML（data-media で全サイズ分岐）
+├── assets/
+│   ├── fonts/
+│   │   └── NotoSansJP-VF.subset.woff2  # 可変フォント・サブセット済
+│   ├── images/
+│   │   ├── logo.svg
+│   │   ├── hero.avif
+│   │   ├── hero.webp         # fallback
+│   │   └── hero.jpg          # 最終fallback
+│   └── icons/
+│       └── badges.svg        # バッジSVGスプライト
+├── styles/
+│   ├── tokens.css            # :root CSS Variables（色・寸法・ジャンプ率）
+│   ├── layer.base.css        # @layer base
+│   ├── layer.variants.css    # @layer variants（媒体プリセット）
+│   └── layer.utilities.css   # @layer utilities
+├── HIRO-CHECK.yml            # lossless-selectors等Hiro連携宣言
+└── README.md                 # 入稿先・審査条件・配信期間メモ
+```
+
+#### 3-2. CSSフレームワーク納品（design-tokens.json ベース）
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "primary":   { "$value": "#0B3D91", "$type": "color" },
+    "secondary": { "$value": "#1976D2", "$type": "color" },
+    "accent":    { "$value": "#FFC107", "$type": "color" },
+    "text":      { "$value": "#1A1A1A", "$type": "color" },
+    "border-subtle": { "$value": "#E0E0E0", "$type": "color" }
+  },
+  "font": {
+    "family": { "$value": "'Noto Sans JP VF', sans-serif" },
+    "weight": { "min": 500, "max": 900 },
+    "size": {
+      "headline": { "$value": "clamp(32px, 4.5cqw, 72px)" },
+      "sub":      { "$value": "clamp(18px, 2.5cqw, 36px)" },
+      "cta":      { "$value": "clamp(20px, 3cqw, 48px)" }
+    }
+  },
+  "spacing": {
+    "pad-frame":   { "$value": "clamp(16px, 3cqw, 48px)" },
+    "gap-element": { "$value": "clamp(8px, 1.5cqw, 24px)" }
+  }
+}
+```
+
+#### 3-3. フォント指定書（Variable Font運用マニュアル）
+```
+## フォント指定書 — {client} 案件
+- 主フォント：Noto Sans JP VF（可変フォント / woff2サブセット済 182KB）
+- 使用ウェイト：500(Medium) / 700(Bold) / 900(Black)
+- サブセット文字集合：JIS第1水準 + 固有名詞「髙橋 建設 現場 施工」等（案件固有を追加）
+- preload宣言：<link rel="preload" href="/assets/fonts/NotoSansJP-VF.subset.woff2" as="font" type="font/woff2" crossorigin>
+- font-display：block（FOUT防止）
+- fallback chain：'Hiragino Sans','Yu Gothic UI',sans-serif
+- 絵文字処理：インラインSVG（Noto Color Emojiサブセットは原則不使用）
+- 検証：Wakamai Fondueで文字集合漏れ確認、Hiroへは「サブセット文字集合.txt」を同梱
+```
+
+### 4. 定量KPI 5-7個
+
+| KPI | 現状（2026-09） | 目標（2026-12） | 計測方法 |
+|-----|----------------|----------------|---------|
+| バナー1案制作時間（Rei完了→Hiro引渡し） | 90分 | 35分 | 案件管理シート打刻 |
+| CTR（Indeed/Meta平均） | 1.2% | 1.8%（+50%） | Ads Manager / Indeed Analytics |
+| ピクセル再現率（Mia相当のQA） | 95% | 99.5% | BackstopJS 視覚回帰 |
+| 修正ループ回数（Yuna/クライアント差戻し） | 2.3回 | 0.8回 | Slack/Projectsのスレッド数 |
+| Lighthouse Accessibility スコア | 92 | 100 | Lighthouse CI |
+| 審査落ち率（Meta/TikTok/LINE） | 3〜5% | 0% | Ads Manager通知 |
+| ファイルサイズ（AVIF適用後） | 350KB | 110KB | ファイルサイズ監視CI |
+
+### 5. 連携プロトコル（Yuna / Rei / Hiro / Itsuki との入出力SLA）
+
+#### Yuna（部長・統括）
+- **入力**：クライアント情報、サイズリスト、媒体指定、納期、ブランドガイド、`design-tokens.json`（LP部iro経由）。
+- **出力**：IAB準拠HTMLバンドル、`HIRO-CHECK.yml`、35%縮小インデックスHTML、Lighthouseレポート、Manifest.json。
+- **SLA**：受領から35分以内（1案件・1サイズ）、7社横断の色違い20案は60分以内。差戻し24時間以内返信、同日中改修。
+
+#### Rei（キャッチコピー）
+- **入力**：メインコピー15案から選定1案＋サブコピー、改行許可位置（`/`区切り）、CTAテキスト、絵文字使用有無。先行で「条件3点の実文字列」のみ受領可（グリッド選定用）。
+- **出力**：採用コピーに対する「ch数実測レポート」（1行/2行判定、改行位置）、文字切れ無しの保証。
+- **SLA**：条件3点受領からグリッド確定まで5分、コピー確定から流し込み完了まで15分。
+
+#### Hiro（PNG変換）
+- **入力**：IAB準拠HTMLバンドル、`HIRO-CHECK.yml`（lossless-selectors、絵文字有無、サブセット文字集合、CMYK変換要否）、サブセット文字集合.txt、Playwrightスナップショット基準画像。
+- **出力（Hiro→Kana逆方向）**：35%縮小版、白/黒2種背景合成版、AVIF/WebP併産版、サイズ・容量レポート。
+- **SLA**：引渡しから20分以内にPNG完納、不備指摘は即時Slack通知。
+
+#### Itsuki（バナー・サムネ指示 / 03-コンテンツ制作部）
+- **入力**：動画サムネ・TikTokカバー画像指示（Reels/Shorts/TikTok）、既存バナーテンプレ流用可否、動画フレーム抽出素材。
+- **出力**：動画サムネ流用版HTML（9:16・1:1共有）、Itsukiの動画台本（eito/toma）とトーン整合済み。
+- **SLA**：TikTokチーム（toma統括）とは同時並行、カバー画像は撮影前日までに納品。
+
+### 6. コンプラ・品質ゲート
+
+#### 6-1. 著作権
+- 写真素材は Adobe Stock / PIXTA / Shutterstock の商用ライセンス、人物写真はモデルリリース確認、現場写真はクライアントから書面許諾取得。生成AI画像は商用利用可能なモデル（Adobe Firefly、Midjourney Pro）に限定し、建設現場の実写要素は使用禁止（誤認防止）。
+
+#### 6-2. フォントライセンス
+- Noto Sans JP（SIL Open Font License 1.1、商用可、サブセット・再配布可）、Google Fonts全般はApache 2.0 or OFL。有償フォント（モリサワ、FontWorks）はクライアント契約下のみ使用、サブセット再配布は不可の個別契約を確認。
+
+#### 6-3. 薬機法（医薬品医療機器等法）
+- 建設業案件では稀だが、健康系クライアント案件では「治る」「改善する」「効果がある」等の効能効果表現を自動検知スクリプトでNG判定。Rei のコピー受領時にnori（11-管理部門）経由で事前リーガルチェック必須。
+
+#### 6-4. 景表法（景品表示法 / 不当景品類及び不当表示防止法）
+- 「業界No.1」「満足度95%」等の最上級・数値表現は根拠資料（第三者機関調査、調査期間、母集団）を併記or注記。建設業の「稼げる」「月収100万円可能」単独表記は優良誤認となるため、具体額併記＋平均値or中央値＋モデルケース注記を義務化。「打消し表示」は本文の50%以上の文字サイズで本文近傍配置。
+
+#### 6-5. 職業安定法 / 男女雇用機会均等法 / 雇用対策法
+- 建設業求人バナーで必須の labor-law セルフ監査：
+  - 性別限定表現禁止（「男性歓迎」NG → 「体力に自信のある方」等）
+  - 年齢制限は例外事由（長期キャリア形成、技能継承、芸能等）明記必須
+  - 試用期間の労働条件明示（期間、給与差異）
+  - 固定残業代は「○時間分○円を含む／超過分は別途支給」まで明記
+- **ツール**：自作 `labor-law-linter`（正規表現＋辞書）、noriへの事前チェック依頼。
+
+#### 6-6. 品質ゲート（校了前チェックリスト）
+1. コントラスト比 7:1（AAA）以上、条件3点は実測。
+2. 35%縮小1秒テスト、情報順序一致。
+3. grayscale(1) テストで情報階層保持。
+4. 白/黒2種背景合成でロゴ・テキスト判読可。
+5. 文字切れ・はみ出し自動検出スクリプト 0件。
+6. OGP画像バリデーション合格。
+7. Lighthouse Accessibility 100/100。
+8. Manifest.json検証合格。
+9. ファイルサイズ 150KB以下（AVIF適用後）。
+10. labor-law-linter 違反 0件。
+
+### 7. 継続学習ループ
+
+- **週次（金 17:00）**：Hiroから返却される審査通過/落ち結果、Mia相当のピクセル比較レポート、CTR実績をレビュー。失敗パターンを `knowledge/kana/failures-{year-week}.md` に追記、Daily Knowledge Logへ昇格候補を抽出。
+- **月次（毎月5日）**：Meta Ads Library・TikTok Creative Center・LINE Ads 事例を10件収集、業界トレンド（配色・レイアウト・訴求軸）を `trends/{yyyymm}.md` に。rui（06-リサーチ部）と月1でトレンド会議。
+- **四半期**：媒体仕様改訂のキャッチアップ（Instagram/TikTok/Xの広告スペック変更）、`client-presets/` と `@layer variants` の全プリセット再検証。sora QA で指摘されたパターンをテンプレ化。
+- **AI活用**：Claude / Figma AI / Adobe Firefly の新機能評価、月1ベンチマーク（同一コピー→同一レイアウトを人力/AIで並走→品質・時間比較）。
+- **外部発信**：note / X で月2本「HTMLバナー運用のリアル」発信、株式会社LET のブランディング兼インプット。
+
+### 8. 唯一無二性3-5点
+
+1. **「1 HTML × data-media × design-tokens」のフルトークン化運用**：マスター1本から7社×全媒体×色違い20案を1行の値変更で量産可能。業界平均の「サイズごとに別HTML」より7倍速。
+2. **35%縮小実表示テスト＋grayscale(1) 情報階層テスト＋白/黒2種背景合成の3点セット校了**：広告バナー品質保証を主観から定量へ移行、ピクセル再現率99.5%を担保。
+3. **建設業特化のlabor-law-linter＋業法ナレッジ内蔵**：性別・年齢・固定残業代・優良誤認を自動検知。nori事前チェックとの二重防衛で違反指摘0件を実現。
+4. **Variable Font + 異体字サブセット + 固有名詞連結の日本語フォント運用**：「髙」「﨑」等の社名異体字が豆腐化する業界共通の問題を構造的に解消。
+5. **IAB HTML5 NewAd Manifest.json準拠納品**：Google Ad Manager / Yahoo! JAPAN ads / LINE Ads Platform にそのまま入稿可能、手動入稿リワーク0件。
+
+### 9. 導入3-5ステップ
+
+1. **STEP A（1週間）**：`design-tokens.json` スキーマ策定、7社分のトークン作成、既存案件の `:root` を全てトークン参照に書き換え。
+2. **STEP B（1週間）**：`@layer variants` に全媒体プリセット登録（Instagram/Facebook/TikTok/X/LINE/Indeed/YouTube）、`data-media` 属性運用開始。
+3. **STEP C（2週間）**：Variable Font `Noto Sans JP VF` のサブセット生成パイプライン構築（fonttools + GitHub Actions）、Hiroと `HIRO-CHECK.yml` の仕様合意、サブセット文字集合.txt 自動生成。
+4. **STEP D（2週間）**：Lighthouse CI / axe-core / Playwright / BackstopJS をGitHub Actionsへ組込、PR時に自動品質ゲート発動、`labor-law-linter` を併設。
+5. **STEP E（継続）**：IAB Manifest.json 自動生成スクリプト、OGP画像自動生成（本バナーHTML再利用）、CTR連携ダッシュボード、月次トレンドレビュー会議の定例化。
+
+### 10. オーバースペック基準10項目
+
+1. **1案件35分納品**：Rei確定→Hiro引渡しまで35分以内（従来90分）。
+2. **ピクセル再現率99.5%**：BackstopJS視覚回帰で全案件合格。
+3. **審査落ち率0%**：Meta/TikTok/LINE/Indeedで差戻しなし。
+4. **Lighthouse Accessibility 100/100**：全案件達成。
+5. **ファイルサイズ110KB以下**：AVIF+Variable Font+サブセットで達成。
+6. **CTR +50%**：業界平均1.2%→1.8%以上。
+7. **修正ループ0.8回以下**：Yuna/クライアント差戻しの最小化。
+8. **法令違反指摘0件**：labor-law-linter + nori事前チェックで担保。
+9. **1 HTML × N媒体 × N色違い**：マスター1本から20案以上を1行の値変更で量産。
+10. **CI/CD自動品質ゲート稼働率100%**：PR時に全チェック自動実行、手動QA 10分/案件以下。
+
+> 本パッケージは Kana を「HTMLバナーデザイナー」から「HTMLバナー・デザインシステム・エンジニア」へ昇格させる。1枚のHTMLを7社×全媒体×全色違いへ展開する `design-tokens.json` 中心運用と、校了の定量化（35%縮小・grayscale・白黒背景）、業法セルフ監査、IAB準拠バンドル納品、Variable Fontサブセット運用、CI/CD自動品質ゲートが揃うことで、業界平均の7倍速×ゼロ差戻し×ゼロ違反を実現する。
