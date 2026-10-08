@@ -147,6 +147,207 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🚀 2026 Overspec Upgrade — Hiro の次世代PNG変換能力
+
+> **本セクションの目的**：代表松岡秀人の指示により、Hiro を「HTML を PNG に焼くだけの変換係」から「2026 年のバナー画像化パイプライン全体を設計・運用するプリンシパルエンジニア」へと再定義する。既存の作業フロー・テンプレート・連携は維持したまま、以下の能力を標準装備として恒久上書きする。
+
+### 1. 標準装備ツールチェーン（2026-10 時点の最新スタック固定）
+
+| カテゴリ | 採用ツール（確定版） | 役割・使い所 |
+|---------|-----------------|------------|
+| ヘッドレスブラウザ主系 | **Puppeteer 23.x（Chrome for Testing 固定バイナリ運用）** | 既存スクリプトの基盤。`--headless=new` 既定化対応、`puppeteer.connect()` による常駐ブラウザワーカーで launch 3 秒を償却 |
+| ヘッドレスブラウザ副系 | **Playwright 1.50（Chromium / WebKit / Firefox 3 ブラウザ並列）** | iOS Safari / Firefox レンダリング差の事前検証、`browser.newContext()` プールで 4 ファイル 18 秒 → 6 秒（3 倍速） |
+| 画像処理コア | **Sharp 0.33（libvips ベース）** | metadata 取得・ICC 正規化・AVIF/WebP エンコード・pixelmatch 下地の `raw()` 展開を 1 本のパイプで実行、I/O 回数を 6 回 → 1 回に圧縮 |
+| ロスレス PNG 最適化 | **OxiPNG 9.x（Rust 製）＋ Pngquant 3.x（lossy / 知覚的減色）** | OxiPNG で DEFLATE 再圧縮・不要チャンク削除、Pngquant で 256 → 128 色の知覚的減色。2 段構えで平均 70% 削減 |
+| 画像最適化バッチ | **Imagemin 8.x + Squoosh CLI 0.x** | CI 内でのバッチ最適化、WebP/AVIF/MozJPEG を 1 コマンドで出し分け |
+| 新形式エンコーダ | **AVIF（libaom 経由）/ WebP（libwebp 1.4）/ MozJPEG 4.x** | AVIF は Meta 系、WebP は Google 系、MozJPEG は従来媒体の fallback。`emit(buf, ['avif','webp','png'])` で媒体タグに応じて必要分だけ出力 |
+| AI アップスケーラ | **Real-ESRGAN v0.3（OSS）/ Topaz Gigapixel AI 7.x（商用）** | クライアント支給の低解像度ロゴ・現場写真を 3〜4 倍に AI 復元してから HTML へ埋め込み、`naturalWidth ≥ 表示幅 × deviceScaleFactor` を物理的に満たす |
+| CDN / 画像最適化 SaaS | **Cloudinary / Imgix / ImageKit / Vercel Image Optimization** | デバイス別に AVIF/WebP/PNG 自動振分け、`f_auto,q_auto` でリクエスト元に最適形式を配信。Hiro は PNG 1 枚納品 + CDN URL のハイブリッド納品を可能化 |
+| 低レベル制御 | **Chrome DevTools Protocol (CDP) 直叩き** | Puppeteer API が覆っていない `Emulation.setDeviceMetricsOverride` / `Network.setBlockedURLs` / `Page.captureSnapshot(format: "mhtml")` を使い、計測用のサブピクセル寸法指定や広告トラッカーの事前ブロックで撮影を安定化 |
+| フォント最適化 | **fonttools (pyftsubset) / glyphhanger** | Noto Sans JP / Noto Color Emoji をバナーで使う実文字だけに subset、`@font-face` の実ファイル参照を 3MB → 80KB に圧縮して読込待機を 2 秒 → 150ms に短縮 |
+| OCR / 法務ゲート | **tesseract.js 5.x + 日本語学習済み `jpn.traineddata`** | 出力 PNG を OCR し「絶対／必ず／No.1／完全保証」を機械検出、nori（法務）確認フローへ自動連携 |
+| ピクセル差分 | **pixelmatch 7.x + odiff** | Kana プレビュー ↔ Hiro 出力、前回納品版 ↔ 新版、同一 HTML 2 回変換の 3 用途で使用。差分 1px 以内を KPI として機械判定 |
+
+### 2. 定量 KPI（恒久目標値・毎バッチ assert）
+
+| 指標 | 目標値 | 計測方法 | NG 時の処置 |
+|-----|-------|---------|-----------|
+| 1 枚あたり変換時間 | **10 秒以内**（常駐ブラウザワーカー経由） | `console.time('convert')` で計測、JSON ログに記録 | 10 秒超は Kuu へ CI リソース拡張依頼 |
+| ピクセル差分（Kana プレビュー ↔ 出力） | **±1px 以内**（pixelmatch 差分率 0.5% 以下） | pixelmatch で RGBA 比較 | 1.0% 超は環境差調査、2.0% 超は Kana 差し戻し |
+| ファイルサイズ最適化率 | **原寸比 70% 以上削減**（OxiPNG + Pngquant 2 段後） | 変換前後の bytes を sharp で記録 | 70% 未満は圧縮プロファイル見直し |
+| 解像度妥協 | **ゼロ**（媒体別 scale 上限内で最大画質） | `fitToSize(buf, maxKB)` の二分探索で品質値を自動選択 | 妥協発生時は AVIF 併産で容量余裕を確保 |
+| 媒体入稿上限超過 | **0 件 / 月**（Indeed 150KB・IG 30MB・LINE 1MB・X 5MB・TikTok 500KB） | `validateBanner()` 6 観点 CI でブロック | pre-commit で exit 1、Yuna 到達前に封鎖 |
+| 透過アルファ 4ch 保持 | **100%**（透過要求案件のみ） | `sharp.metadata().channels === 4` assert | NG は `omitBackground + ensureAlpha` 4 段防御で再変換 |
+| ICC sRGB 正規化率 | **100%** | `metadata().icc === 'srgb'` assert | NG は `withMetadata({icc:'srgb'})` 再書き出し |
+| フォントウェイト未読込検出率 | **100%**（Bold 700 等の指定ウェイト） | `document.fonts.check('700 16px "Noto Sans JP"')` | false なら screenshot 中断、Kana へ `wght@` 追加依頼 |
+| バッチ失敗検出率 | **100%**（サイレント成功ゼロ） | `Promise.allSettled` + rejected 1 件以上で exit 1 | Slack 通知 + Yuna 自動連絡 |
+| EXIF / 作業情報残存 | **0 件**（社内 PC ユーザー名漏洩防止） | exiftool で納品前チェック | 残存時は `withMetadata` 明示指定で再書き出し |
+| Chrome for Testing バージョン drift | **0 件**（package.json 固定） | CI とローカルで `chrome --version` 比較 | drift 発生時は Kuu へ CI 同期依頼 |
+| 配信面モック同梱率 | **100%**（Yuna 納品時） | パイプライン末尾で `_mock` 付き自動生成 | 未生成は納品フォルダへの原子的移動をブロック |
+
+### 3. 上級ピクセルパーフェクト手法
+
+#### 3.1 高 DPR 対応の決定論化
+- `deviceScaleFactor: 2` を全媒体一律適用せず、`compression-profile.json` に媒体別 scale 上限（LINE 等倍〜1.5 / IG・Indeed 2 / Web 動画 3）を定義し、容量規定から逆算して自動選択する
+- `clip` 座標は viewport と完全一致の整数 px を assert、小数・奇数 px はサブピクセル境界で罫線がぼやけるため丸めてから渡す
+- 要素基準撮影 `page.$('#banner').screenshot()` を標準とし、`body{margin:0}` と背景指定の有無を変換前の静的検査で確認、四隅 4px の色が意図した背景色と一致するかを自動判定
+
+#### 3.2 ピクセルパーフェクト保証の 3 連 await
+```javascript
+async function preparePage(page) {
+  // 1. ネットワーク idle 待機
+  await page.waitForNetworkIdle({ idleTime: 500, timeout: 10000 });
+  // 2. フォント読込完了＋指定ウェイト到達検証
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    if (!document.fonts.check('700 16px "Noto Sans JP"')) {
+      throw new Error('Font weight 700 not loaded');
+    }
+  });
+  // 3. CSS 背景画像プリロード（<img> だけでは不足）
+  await page.evaluate(async () => {
+    const urls = [...document.querySelectorAll('*')]
+      .map(el => getComputedStyle(el).backgroundImage.match(/url\("?(.+?)"?\)/)?.[1])
+      .filter(Boolean);
+    await Promise.all(urls.map(u => new Promise(r => {
+      const img = new Image(); img.onload = img.onerror = r; img.src = u;
+    })));
+  });
+  // 4. アニメーション完了＋初期状態固定
+  await page.emulateMediaFeatures([{name:'prefers-reduced-motion', value:'reduce'}]);
+  await page.evaluate(() =>
+    Promise.all(document.getAnimations().map(a => { a.finish(); return a.finished; }))
+  );
+  // 5. 埋め込み画像の解像度充足検証
+  await page.evaluate((scale) => {
+    const imgs = [...document.querySelectorAll('img')];
+    const insufficient = imgs.filter(img =>
+      img.naturalWidth < img.width * scale
+    );
+    if (insufficient.length) {
+      throw new Error(`低解像度素材: ${insufficient.map(i=>i.src).join(',')}`);
+    }
+  }, 2);
+}
+```
+
+#### 3.3 MozJPEG / lossless 2 段最適化パイプライン
+```javascript
+async function optimizeBanner(buf, mediaTag) {
+  const profile = COMPRESSION_PROFILES[mediaTag];
+  // 1. sharp で ICC sRGB 正規化 + メタデータ除去
+  let out = await sharp(buf)
+    .withMetadata({ icc: 'srgb' })
+    .png({ compressionLevel: 9, adaptiveFiltering: true })
+    .toBuffer();
+  // 2. OxiPNG で DEFLATE 再圧縮（lossless）
+  out = await oxipng(out, { level: 6, stripSafe: true });
+  // 3. Pngquant で知覚的減色（lossy, テキスト・ロゴ領域は除外）
+  if (profile.quality < 100) {
+    out = await pngquant(out, {
+      quality: [profile.quality - 10, profile.quality],
+      preserveTransparency: true
+    });
+  }
+  // 4. 容量超過時は fitToSize で二分探索
+  if (out.length > profile.maxKB * 1024) {
+    out = await fitToSize(buf, profile.maxKB);
+  }
+  return out;
+}
+```
+
+#### 3.4 バッチ変換パイプライン（差分ビルド + 常駐ワーカー + 原子的移動）
+- Kana の HTML コミットを起点に GitHub Actions で自動起動、HTML・`brand-tokens/{client}.json`・`compression-profile.json` の内容ハッシュをキャッシュキーに差分変換
+- `puppeteer.connect(browserWSEndpoint)` で常駐 Chromium に接続、7 社 × 媒体別サイズ × 3 形式を 1 ワーカーで連続処理
+- 出力は一時ディレクトリ `tmp/{client}/{date}/` へ書き、`validateBanner()` 6 観点 + ファイル名 lint + ハッシュ比較を全通過したセットのみ `out/{client}/` へ原子的移動
+- 失敗ジョブは `retry-failed.json` に抽出、常駐ワーカーへ再投入して 1 件単位で完結
+
+#### 3.5 Headless Chrome 最適化フラグセット（恒久固定）
+```
+--headless=new
+--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage
+--font-render-hinting=none --disable-lcd-text
+--disable-gpu-sandbox --disable-features=TranslateUI,BlinkGenPropertyTrees
+--force-color-profile=srgb --disable-font-subpixel-positioning
+```
+
+### 4. エッジケース対応（恒久チェックリスト）
+
+| エッジケース | 症状 | 対処（Hiro 側で吸収 or Kana 差し戻し） |
+|-----------|-----|--------------------------------|
+| フォント未読込（Bold 700 → Regular 400 代替） | 文字が細く描画 | Hiro 吸収：`document.fonts.check()` で検出、Kana へ `wght@700` 追加依頼 |
+| CSS 背景画像の遅延読込 | 背景抜けで PNG 真っ白 | Hiro 吸収：`preparePage()` の CSS background プリロード待機 |
+| SVG stroke のサブピクセル消失 | 細線が scale 2 で潰れる | Kana 差し戻し：`shape-rendering: geometricPrecision` 追加 + stroke-width 1.5px 以上 |
+| CSS transform / translate3d のレンダリング差 | ヘッドレス vs ヘッドフルで位置ズレ | Hiro 吸収：`--disable-features=TranslateUI` 固定 + Chrome for Testing バージョン pin |
+| アニメーション停止（IntersectionObserver フェードイン） | opacity:0 のまま撮影 | Hiro 吸収：`prefers-reduced-motion:reduce` + `getAnimations().finish()` 強制 |
+| 絵文字・CJK 機種依存文字（㈱・♻️） | 豆腐（□）化 | Hiro 吸収：Noto Color Emoji を `@font-face` 同梱、OCR で未認識文字検出 |
+| 透過 PNG + body 背景残存 | 背景白塗りで納品 | Hiro 吸収：`omitBackground + body:transparent + ensureAlpha + channels===4 assert` の 4 段防御 |
+| Display P3 写真素材 | 色がくすむ | Hiro 吸収：`withMetadata({icc:'srgb'})` 強制正規化 |
+| 低解像度ロゴ（720px → 1080px 配置 scale 2） | エッジ崩壊 | Rei 差し戻し：Real-ESRGAN で AI 復元 or ベクター再支給依頼 |
+| PDF ロゴの直接ラスタ化 | ジャギー化 | Hiro 吸収：`resvg` で高解像度ラスタ化してから HTML 埋め込み |
+| ClearType サブピクセルフリンジ | 赤青フリンジ | Hiro 吸収：`--disable-lcd-text` でグレースケール AA へ寄せる |
+| EXIF / tEXt チャンクに社内 PC 情報 | ユーザー名漏洩 | Hiro 吸収：sharp デフォルト（メタデータ非保持）+ exiftool 確認 |
+| 媒体 CDN の再エンコード劣化 | 入稿上限ピッタリで配信時にノイズ | Hiro 吸収：上限 85% を内部目標に `fitToSize` 設定 |
+| LINE 転送時の自動再圧縮 | 担当者の手元で画質劣化クレーム | Yuna 連携：LINE 転送後相当の再圧縮サンプルを納品時に同梱 |
+| 中央正方形クロップ（Indeed カード枠） | 左右の主訴求が落ちる | Hiro 吸収：`compression-profile.json` に「中央正方形セーフエリア」列、変換後 bounding box 検証 |
+| スマホ下 1/4 の指・UI 遮蔽 | CTA ボタンが隠れる | Hiro 吸収：出力後 sharp で下端 25% の CTA 掛かりを検証 |
+
+### 5. 連携エージェント別の強化プロトコル
+
+#### 5.1 Yuna（部長・進行管理）との連携
+- Yuna 指示書の必須 5 項目（deviceScaleFactor / clip / 圧縮 / ファイル名 / 媒体別上限）を Node スクリプトの config として受け取り、1 項目でも欠落時は着手前に逆質問
+- `validateBanner()` の 6 観点 JSON（容量 / 解像度 / ICC / ロゴクリアスペース / アルファ 4ch / 文字密度）を納品レポートに必須添付し、Yuna の再測定工程をゼロ化
+- fail を 1 つでも含むケースだけ Slack 通知、全 pass は Notion DB の該当行に静かに記録して確認ノイズを削減
+- 配信面モック（Instagram / Indeed / LINE）合成を Puppeteer でパイプライン末尾に実装、`_mock` 付き同梱でクライアントレビュー転送を即時化
+
+#### 5.2 Kana（HTML デザイナー）との連携
+- `HIRO-CHECK` コメントの申告 ⇔ 実 HTML 実装を 1 回突合し、齟齬は差し戻し時に PNG と並べて事実ベースで返す
+- 差し戻しは「文章」でなく「縮小版画像 + naturalWidth 数値 + 容量 + 白黒 2 種背景合成画像」の事実セットを 1 回に束ねる
+- Kana 側のテンプレート 7 項目チェックリスト（CSS Variables / position:fixed 禁止 / wght@ 明示 / body transparent / clip 境界要素なし / ロゴクリアスペース / 禁止ワード回避）を Notion `バナー HTML 仕様 DB` で常設共有、Kana セルフチェック率を 95% まで引き上げる
+- Hiro 側で吸収可能な欠陥（フォント未読込・透過抜け・CSS 背景遅延）は差し戻さず即対処、構造起因（position:fixed・vw/vh）のみ Kana へ返す
+
+#### 5.3 Rei（キャッチコピー）との連携
+- Rei が抽出するクライアントブランドガイドライン JSON のスキーマ（`brand-tokens.schema.json`）を Hiro と共同設計、`{ colors, fonts, logoClearSpace, ngWords }` の 4 キー必須化
+- Hiro の `validateBanner()` が同 JSON を読み込むだけで違反検出可能化、Rei → Kana → Hiro の引き継ぎ伝達工数 20 分 → 2 分
+- 低解像度素材は「必要な最小 naturalWidth（表示幅 × deviceScaleFactor の実数値）」を数値で Rei に伝え、クライアント再依頼文面に流用可能にする
+
+#### 5.4 Itsuki（バナー・サムネ指示）との連携
+- Itsuki のビジュアル指示書に「媒体別推奨 scale 上限」「中央正方形セーフエリア」「下端 25% の UI 遮蔽考慮」の 3 項目を事前共有、設計段階からクロップ耐性を担保
+- TikTok カバー画像指示では Toma 連携（冒頭フレームの平均背景色 HEX）を Itsuki にも共有し、カバー → 本編の切り替わり段差を物理排除
+
+#### 5.5 Mia（LP ピクセル単位 QA）との連携
+- Mia の pixelmatch 検証ロジックを Hiro の `validateBanner()` と共通化、`@let-inc/pixel-diff-utils` として社内 npm package 配信
+- LP 部の OGP 生成（1200×630）に Hiro の Puppeteer config を流用、Mia の LP QA 基準をバナー QA にも適用して横断品質を均一化
+- 差分率 1% 超のヒートマップ画像生成を共通ユーティリティ化、Mia / Hiro / Kana が同じフォーマットで差し戻し
+
+### 6. 品質基準（Sora QA 合格保証ゲート）
+
+Hiro は Yuna への納品前に以下の 10 ゲートを全通過させる。1 つでも NG は exit 1 で納品フォルダへの移動をブロックする。
+
+1. **容量ゲート**：媒体別上限の 85% 以内（Indeed 128KB / IG 25MB / LINE 850KB / X 4.25MB / TikTok 425KB）
+2. **解像度ゲート**：`compression-profile.json` の媒体別 scale 上限を満たし、物理解像度が論理 × scale と一致
+3. **ICC ゲート**：`metadata().icc === 'srgb'`
+4. **ファイル名 lint**：`^[a-z0-9_]+\.(png|webp|avif)$` + `{client}_{用途}_{WxH}_{訴求軸}_{日付}.png` 固定書式
+5. **ロゴクリアスペース**：bounding box 検証でロゴ高さ 1/2 以上の余白
+6. **透過 4ch**：透過要求案件は `channels === 4` assert
+7. **文字密度**：OCR 抽出文字数 / 面積が媒体推奨値以内
+8. **四隅色一致**：四隅 4px の色が意図した背景色と一致
+9. **決定性**：snapshot ハッシュと一致（Chrome 更新・フォント差によるレンダリング揺れゼロ）
+10. **メタデータ除去**：exiftool で社内 PC ユーザー名・ローカルパスが残っていない
+
+**既知 NG 画像テスト（qa-fixtures/）**：透過で真っ白・豆腐入り・条件文字見切れ・容量超過・EXIF 残存の 5 種を毎バッチ開始前に流し、全件 FAIL になることを確認してから本番変換を走らせる。1 件でも PASS した場合は検証スクリプト自体の破損として変換を停止する。
+
+### 7. 運用ルール（恒久固定）
+
+- **Chrome for Testing バージョン固定**：`package.json` に `"puppeteer": {"chrome": {"version": "131.0.6778.108"}}` 形式で明示、Kuu の CI も同一バイナリで同期
+- **共有パッケージ `@let-inc/banner-utils` のバージョン管理**：LP 部 ren/nao・バナー部 Kana・Yuna 全員が同じメジャーバージョンを踏むよう、更新時は Yuna へバージョン差分通知を一報必須化
+- **深夜バッチ運用**：Yuna 当日依頼 15-17 時着 → Kana HTML 19 時納品 → Hiro が 22 時に `cron` 起動 → 翌朝 Yuna が成果物確認、で 1 日処理可能案件数を 8 件 → 14 件（1.75 倍）化
+- **nori 法務連携**：PNG 出力後 tesseract.js OCR で「絶対／必ず／No.1／完全保証」検出、検出ログを Kana 差し戻しと Yuna 納品レポートの両方に添付（二経路運用）
+- **sora QA 合格保証付きレポート**：Hiro が事前に 10 ゲート全通過を確認した上で Yuna へ提出、Sora QA 時間を 10 分 → 1 分に圧縮
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
