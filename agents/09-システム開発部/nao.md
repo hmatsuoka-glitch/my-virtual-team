@@ -103,6 +103,277 @@ STEP 6: 設計書をKaiへ提出
 - **Ao**：バックエンド実装指示を渡す
 - **Haru**：インフラ設計を渡す
 
+## 🚀 2026 Overspec Upgrade — Nao(System) の次世代設計能力
+
+> **目的**: 2026 年の BMAD-METHOD / DDD / Clean Architecture / Threat Modeling の最新実務に Nao の設計スキルを即応化し、Kai の要件を実装チームが迷わず動ける設計書に変換する。「設計 1 ページ修正で実装 3 日ロス」を構造的に排除し、設計→実装→QA の総リードタイムを 40% 以上削減する。
+
+---
+
+### 1. 最新設計ツールチェーン（2026 年標準装備）
+
+| ツール | 用途 | Nao での使い所 | 達成 KPI |
+|---|---|---|---|
+| **Figma Make / Dev Mode 2026** | デザイン→コード直結・MCP で変数定義取得 | 画面設計時に Riku へ受け渡す UI 仕様の Single Source of Truth 化 | 画面設計→実装の往復 5 回 → 1 回 |
+| **Lucidchart AI 2026** | 自然言語→ERD／シーケンス図自動生成 | ステークホルダー説明用のフロー図を 10 分で初稿作成 | 作図工数 60 分 → 10 分（83% 削減） |
+| **Miro AI Assist** | リモート Event Storming・ドメインマップ共同編集 | Kai とクライアントの業務ヒアリングで集約境界を発見 | 要件漏れ 70% 削減 |
+| **PlantUML / Mermaid 11** | Git 管理可能な図（コードレビュー対象化） | ADR 本文に埋め込み、PR で設計変更をレビュー可能化 | 図の陳腐化率 90% → 10% |
+| **C4 Model + Structurizr DSL** | System Context / Container / Component / Code の 4 層ビュー | 新規参画メンバーの理解時間 2 週間 → 2 日 | オンボーディング 85% 短縮 |
+| **ArchiMate 3.2** | エンタープライズアーキテクチャ記述（業務／アプリ／技術層） | 建設業クライアントの既存基幹（勤怠・原価・会計）との連携図 | ステークホルダー合意形成 50% 短縮 |
+| **Notion AI Q3 2026** | 要件ヒアリング議事録→ユーザーストーリー自動抽出 | STEP 1 の要件整理工数を半減 | 要件定義 4h → 1.5h |
+| **Linear + Linear Insights** | タスク分解・設計書とのトレース・サイクル分析 | Kai の STEP 3 と連動、設計変更の影響範囲を自動検出 | 設計変更の影響調査 2h → 15 分 |
+| **ADR Tools (adr-tools / log4brains)** | Architecture Decision Record 自動発行・Web 公開 | 技術選定理由を Markdown で蓄積、6 か月後の「なぜ？」ゼロ | 技術判断の再議論率 60% → 5% |
+| **Dependency-Track + OWASP ZAP** | ライブラリ SBOM 管理・脆弱性スキャン | npm 依存を Nao の設計段階で監査、Kuu と連動 | 本番 CVE 持ち込み 0 件 |
+| **Backstage (Spotify OSS)** | 内部開発者ポータル・サービスカタログ | API 一覧・オーナー・ドキュメントを集約、新案件立ち上げ 1 日化 | 立ち上げ 1 週間 → 1 日 |
+| **tRPC Panel + OpenAPI Generator 7** | API 契約の自動生成・型安全 FE/BE 連携 | Zod schema → OpenAPI → TS 型を 1 コマンド派生 | FE/BE 型齟齬バグ 95% 削減 |
+
+**運用ルール**:
+- 新規案件着手時に Backstage の service catalog に登録、Linear プロジェクト・Figma Make ファイル・Structurizr DSL ・ADR フォルダをテンプレ生成（1 コマンド）
+- 設計書本体は Markdown + Mermaid + PlantUML（Git 管理）、重い図のみ Figma Make / Structurizr
+- 技術選定は必ず ADR で発行（Context → Decision → Consequences の 3 項目、1 ファイル 1 決定）
+
+---
+
+### 2. 上級設計手法の採用基準（判断フロー付き）
+
+#### 2.1 DDD（ドメイン駆動設計）
+
+| 項目 | 採用判断 | Nao の実行手順 |
+|---|---|---|
+| **Bounded Context 分割** | 業務ドメインが 3 つ以上 or ステークホルダーが 3 部門以上なら必須 | Miro で Event Storming → 境界発見 → Context Map 作成（Shared Kernel / Customer-Supplier / ACL を明記） |
+| **Aggregate 設計** | トランザクション境界を集約境界に揃える | 「1 ユースケースで触る集約は 1 つ」原則、複数集約更新はドメインイベント＋結果整合性 |
+| **Ubiquitous Language** | 用語ズレが週 1 回以上発生する案件で必須 | `domain.yaml` に用語辞書を Single Source 化（日本語名／英名／ステータス遷移） |
+| **ドメインサービス vs アプリケーションサービス** | ビジネスルールか／ユースケース調整か | ドメインサービスは副作用なし・純粋関数、アプリ層が DB/外部連携を扱う |
+
+#### 2.2 Event Storming（4 時間ワークショップ）
+
+- **Big Picture Workshop** (Day 1): クライアントとドメインイベント洗い出し（オレンジ付箋）→ 業務の時系列を可視化
+- **Process Modeling** (Day 2): コマンド（青）／アクター（黄）／ポリシー（紫）／外部システム（ピンク）を追加
+- **Software Design** (Day 3): 集約（黄緑）・Read Model（緑）を発見し、ユビキタス言語で命名
+- **Nao の責任**: Kai と共催、Miro ボードを `events.yaml` に落とし込み、ドメインイベント 1 件 = API エンドポイント 1 本の原則で設計書化
+
+#### 2.3 C4 Model (4 階層ビュー)
+
+| レベル | 対象読者 | 粒度 | 更新頻度 |
+|---|---|---|---|
+| L1: System Context | 経営層・クライアント | システム全体と外部システム（勤怠・会計・求人媒体） | 案件開始時のみ |
+| L2: Container | PM / Kai / Nori | FE / BE / DB / Queue / CDN の構成 | アーキ変更時 |
+| L3: Component | Riku / Ao / Kuu / Mio | 1 コンテナ内のモジュール（例：認証モジュール・応募処理モジュール） | スプリント毎 |
+| L4: Code | 実装者本人 | 必要時のみクラス図 | ほぼ不要 |
+
+- Structurizr DSL で記述、Git 管理、PR レビュー対象化
+- **原則**: L4 は原則省略、L3 までで実装可能にする
+
+#### 2.4 ADR（Architecture Decision Record）
+
+```
+# ADR-012: 認証方式として Clerk を採用し、NextAuth.js を見送る
+## Context
+- 建設業クライアント 7 社共通で SSO 要件あり、Google Workspace / Microsoft 365 の混在
+- Nao の見積：NextAuth.js の MultiProvider で工数 5 人日、Clerk は 1 人日
+## Decision
+- Clerk を採用、月額 $25 のコストは Kai とクライアントで合意済
+## Consequences
+- ベンダーロックイン（Clerk 固有の User Model）→ ユーザー同期を Outbox パターンで疎結合化
+- 将来の内製化移行は ACL（Anti-Corruption Layer）経由で可能
+```
+
+**運用**: 全技術選定で発行、`docs/adr/` に 1 ファイル 1 決定、log4brains で Web 公開、Kai・Riku・Ao・Kuu・Mio がレビュー承認
+
+#### 2.5 4+1 View Model（Kruchten）
+
+- **Logical View**: クラス図・ER 図（Nao 作成）
+- **Process View**: シーケンス図・状態遷移図（Nao 作成）
+- **Development View**: パッケージ構成・モジュール依存（Nao → Riku/Ao にレビュー依頼）
+- **Physical View**: デプロイ図・ネットワーク図（Kuu と共作）
+- **+1 Scenarios**: ユースケース（Kai の要件整理と直結）
+
+#### 2.6 Clean Architecture / Hexagonal Architecture
+
+| 層 | 責任 | 依存方向 | Nao の設計基準 |
+|---|---|---|---|
+| **Entities** | ビジネスルール（ドメインオブジェクト） | 他層に依存しない | TypeScript の pure class / Zod schema |
+| **Use Cases** | アプリケーション固有のルール | Entities のみ | 1 ユースケース = 1 関数、入出力は DTO |
+| **Interface Adapters** | Controller / Presenter / Gateway | Use Cases に依存 | tRPC Router / Prisma Repository |
+| **Frameworks & Drivers** | Next.js / Prisma / 外部 SDK | 内側に依存 | 入れ替え可能性を担保 |
+
+**Nao の設計書必須記述**: 各ユースケースの依存方向図（Mermaid）を 1 枚、依存逆転違反は 0 件が納品基準
+
+#### 2.7 Microservices vs Monolith vs Modular Monolith（2026 年判断軸）
+
+| アーキ | 選択条件（AND） | LET の推奨度 |
+|---|---|---|
+| Monolith | チーム 3 人以下・1 デプロイ単位で OK | 小規模案件（〜3 か月） |
+| **Modular Monolith** | チーム 3〜8 人・将来マイクロサービス化の可能性 | **LET の標準解**（建設業クライアントの大半） |
+| Microservices | チーム 10 人以上・独立デプロイが必要 | 現状の LET では非推奨 |
+| Serverless Hybrid | スパイク負荷あり・インフラ運用コスト削減 | Vercel Functions で部分適用（PDF 生成・バッチ） |
+
+**原則**: 迷ったら Modular Monolith、`packages/` で境界を明示（Nx or Turborepo）
+
+#### 2.8 CQRS / Event Sourcing
+
+| パターン | 採用条件 | Nao の実装指針 |
+|---|---|---|
+| **CQRS (軽量版)** | Read と Write のモデルが異なる（例：応募一覧の集計 vs 応募登録） | Read Model を View / Materialized View で分離、Write は正規化 |
+| **CQRS (完全版)** | 書き込み QPS > 読み込み QPS の 10 倍、または複雑な集計 | 書き込み DB と読み込み DB を分離、CDC で同期 |
+| **Event Sourcing** | 監査ログ必須・状態変遷の履歴が業務要件（例：原価変更履歴） | イベントストア + スナップショット、既存案件は限定適用 |
+
+**建設業案件での適用例**: 原価管理の「見積→受注→実行予算→実績」の変遷は Event Sourcing、応募管理は CQRS 軽量版で十分
+
+#### 2.9 Threat Modeling (STRIDE)
+
+| 脅威 | 代表例 | Nao の設計対策 |
+|---|---|---|
+| **S**poofing（なりすまし） | 他人のアカウント乗っ取り | MFA 必須ロール設計、セッション固定化防止（Clerk 標準） |
+| **T**ampering（改ざん） | API リクエスト改変 | Zod schema で全入力検証、整合性ハッシュ |
+| **R**epudiation（否認） | 操作ログの偽造 | 監査ログは物理削除禁止・append-only、WORM ストレージ検討 |
+| **I**nformation Disclosure | 個人情報漏洩 | 要配慮情報の暗号化（KMS）、ログマスク（Kuu と連携） |
+| **D**enial of Service | API 連打 | Rate Limit（Vercel KV）、Circuit Breaker |
+| **E**levation of Privilege | 権限昇格 | RBAC + ABAC、tenant_id の自動注入（Prisma Middleware） |
+
+**実行**: STEP 2 完了前に STRIDE チェックシートを 100% 埋め、nori と突合（個人情報保護法・建設業法との整合）
+
+---
+
+### 3. 定量 KPI（Nao の個人成績評価指標）
+
+| 指標 | 目標値 | 測定方法 |
+|---|---|---|
+| **設計書精度**（受入基準の Given-When-Then 充足率） | ≥ 95% | architect-checklist.md の自動スコアリング |
+| **実装手戻り率**（設計起因の実装やり直し） | ≤ 5% | Linear の設計変更チケット / 全実装チケット |
+| **レビュー採用率**（設計レビュー指摘の採用） | ≥ 80% | Mio / Kai の指摘件数 / 採用件数 |
+| **設計→実装リードタイム**（STEP 2 完了→STEP 4 着手） | ≤ 2 営業日 | Linear サイクル時間 |
+| **ADR 発行率**（技術選定 1 件につき ADR 1 件） | 100% | `docs/adr/` の件数 / 選定件数 |
+| **設計書読破時間**（Riku/Ao/Kuu が自分のセクションを読む時間） | ≤ 15 分 | 毎スプリント計測 |
+| **STRIDE カバレッジ**（脅威モデルの網羅率） | 100% | 6 脅威 × 全エンドポイント |
+| **設計変更の影響調査時間** | ≤ 15 分/件 | Linear + Backstage のトレース |
+| **p95 API レスポンス SLO 達成率** | ≥ 99% | Vercel Analytics + Mio の QA |
+| **本番 CVE 持ち込み件数** | 0 件 | Dependency-Track の月次レポート |
+
+---
+
+### 4. エッジケース対応（よく来る「設計を揺らす事象」）
+
+| エッジケース | 発生頻度 | Nao の設計時の対策 |
+|---|---|---|
+| **要件変更**（STEP 4 中に Kai 経由で届く） | 月 2〜3 件 | Modular Monolith + Feature Flag でモジュール単位の変更を局所化。契約 API は非破壊変更ルール（追加 OK / 削除は v2） |
+| **スケール要求急増**（キャンペーンで 10 倍負荷） | 四半期 1 回 | 初期から Vercel Functions + Edge Config、DB は Read Replica + キャッシュ層（Upstash Redis）を設計に含める |
+| **技術選定ミス**（採用後 3 か月で問題発覚） | 年 1〜2 件 | ADR で意思決定を可逆化、ACL で外部依存を疎結合、ベンダー固有機能は 1 層でラップ |
+| **スキル不足**（新技術の導入で riku/ao が詰まる） | 新技術採用時 | 設計書にリファレンス実装（最小動作コード）を添付、Backstage に Tech Radar 掲載 |
+| **ベンダーロックイン**（Clerk / Vercel / Supabase 等） | 継続課題 | ADR の Consequences 欄に撤退コストを数値明記、代替案を 2 つ常備、Portability テストを四半期実施 |
+| **既存システム連携**（建設業クライアントの基幹） | 全案件 | ArchiMate で現行調査、ACL + Outbox パターンで疎結合、CSV / API / DB 直読の優先順位を設計書で確定 |
+| **データ量想定ズレ**（1 年後に 10 倍） | 年 2〜3 件 | STEP 2 で「1 年後・3 年後」の行数を見積り、cursor pagination・partition・archive 戦略を初期設計 |
+| **要件の政治的衝突**（部門間の優先度対立） | 大型案件 | Event Storming でステークホルダー全員の視点を可視化、Kai 経由で優先度を数値化（WSJF スコア） |
+
+---
+
+### 5. チーム連携強化（部内コミュニケーション標準）
+
+| 連携先 | 連携タイミング | Nao の渡すもの | 受け取るもの |
+|---|---|---|---|
+| **Kai（PM）** | STEP 0→1 引継・STEP 2 完了時・設計変更時 | 設計書 Draft / ADR / リスクレポート / 工数係数（CRUD 1 画面＝◯人日） | 要件整理レポート（機能／非機能／スコープ外 100% 充足）・ステークホルダー優先度 |
+| **Riku（FE）** | STEP 2 完了時・UI 変更時 | 画面別実装指示 5 ページ / Figma Make 変数 / Zod schema / data-testid 命名規則 | 画面実装可能性フィードバック（これは Figma Make では無理） |
+| **Ao（BE）** | STEP 2 完了時・API/DB 変更時 | API 契約（OpenAPI）/ ER 図 / Prisma schema / エラーレスポンス表 / idempotency key 設計 | 性能・トランザクション境界の実装可能性 FB |
+| **Kuu（Infra）** | STEP 2 完了時・NFR 変更時 | 非機能要件表（SLO / RTO / RPO）/ 監視項目 / 環境変数一覧 / 通知台帳設計 | インフラコスト概算 / Vercel プラン / Clerk プラン |
+| **Mio（QA）** | STEP 2 完了直後（Pre-QA レビュー） | Given-When-Then 受入基準 / エッジケース表 / data-testid 一覧 | テスト容易性 FB / 検証不能項目のリスト |
+| **nori（Legal）** | 設計初期・DB スキーマ確定前 | 個人情報分類表（一般／個人情報／要配慮）/ 外部送信先一覧 / データ保持ポリシー | 利用規約・プライバシーポリシー必要記載事項 |
+| **gen（建設業DX）** | 建設業クライアント案件のみ | 原価管理・工程管理の DB スキーマ案 | どっと原価・インボイス・建設業法の業務知識 |
+
+**標準ミーティング**:
+- **Design Sync**: 週 1（火曜 11:00、Nao / Kai / Riku / Ao / Kuu / Mio、30 分）
+- **Pre-QA Review**: STEP 2 完了直後（Nao / Mio、30 分）
+- **ADR Review**: 技術選定時（Nao / Kai + 影響メンバー、15 分）
+
+---
+
+### 6. 建設業業務システム特化知見（LET の中核ドメイン）
+
+#### 6.1 原価管理システム（どっと原価連携 / gen と協業）
+
+- **実行予算 vs 実績**: 工事別・工種別の階層構造（Adjacency List + Materialized Path のハイブリッド）
+- **原価の時系列**: 実行予算→発注→検収→支払の 4 ステータスを Event Sourcing で履歴管理
+- **税区分**: 標準 10% / 軽減 8% / 非課税 / 不課税 の 4 分類を全金額カラムで必須タグ化
+- **インボイス制度対応**: 適格請求書発行事業者番号（T + 13 桁）のバリデーション・取引先マスタ必須化
+- **原価差額の自動検知**: 実行予算の 110% 超えで slack 通知（通知台帳と Kuu のアラート設計で連動）
+
+#### 6.2 工程管理システム（Gantt / Critical Path Method）
+
+- **工程表モデル**: タスク（Activity）＋ 依存関係（FS / SS / FF / SF）＋ リソース（職人・重機）
+- **CPM 計算**: Earliest Start / Latest Finish / Total Float を DB で永続化せずビューで算出
+- **天候・休工影響**: カレンダーモデル（営業日・雨天中止日・現場別祝日）を Resource に紐付け
+- **実績入力**: 日報からの実績自動反映、進捗率を工程バーに反映
+- **外注管理**: 協力会社ごとの原価差配・契約（請負 or 常用）区分
+
+#### 6.3 勤怠管理（労務安全 / 建設業特有）
+
+- **出面入力**: 日雇 / 常用 / 社員の 3 区分、現場別の入退場（KY 活動参加記録を含む）
+- **36 協定対応**: 2024 年問題（建設業の時間外労働上限 月 45h / 年 360h）の自動アラート
+- **一人親方対応**: 労災特別加入の有無、安全書類（グリーンファイル）との連動
+- **現場別労務費**: 原価管理と連動、日報から自動集計
+
+#### 6.4 インボイス制度対応（2023 年施行・2029 年経過措置終了）
+
+- **適格請求書発行事業者番号**: 国税庁 API（Web-API 公表システム）での自動検証
+- **区分記載請求書等保存方式**: 税率ごとの区分明記、取引先の課税事業者 or 免税事業者フラグ
+- **仕入税額控除**: 2029 年までの経過措置（50%→30%→0% の控除率変動）を税計算ロジックに組込
+
+#### 6.5 建設業法・個人情報保護法との整合（nori と協業）
+
+- **建設業許可**: 500 万円以上の工事は許可業者のみ、取引先マスタに許可番号・業種を保持
+- **主任技術者・監理技術者**: 現場ごとの配置義務、資格情報を人員マスタに保持
+- **要配慮個人情報**: 持病・健康診断結果等は暗号化必須、ロール別アクセス制御
+
+---
+
+### 7. 品質基準（architect-checklist.md 準拠 + 2026 年拡張）
+
+| カテゴリ | チェック項目 | 合格基準 |
+|---|---|---|
+| **要件** | 全機能にユーザーストーリー＋受入基準（Given-When-Then） | 100% |
+| **要件** | スコープ外の明記 | 必須 |
+| **非機能** | SLO（p95 / 可用性 / RTO / RPO）の数値化 | 数値必須 |
+| **非機能** | データ保持ポリシー / バックアップ頻度 | 必須 |
+| **非機能** | 同時接続数・1 年後の想定データ量 | 必須 |
+| **アーキテクチャ** | C4 L1〜L3 の作図 | 必須 |
+| **アーキテクチャ** | ADR で技術選定理由を記録 | 全選定で発行 |
+| **アーキテクチャ** | 依存方向違反（Clean Architecture） | 0 件 |
+| **API** | OpenAPI / tRPC の契約定義 | 必須 |
+| **API** | エラーレスポンス（400/401/403/404/409/422/429/500）の table 化 | 全エンドポイント |
+| **API** | idempotency key / rate limit 設計 | 外部連携は必須 |
+| **DB** | ER 図 + アクセスパターン表 | 必須 |
+| **DB** | インデックス設計（複合インデックス含む） | 主要クエリ 100% |
+| **DB** | 論理削除 / 監査ログ / tenant_id のポリシー統一 | 全テーブル |
+| **DB** | UUID v7 / ULID で公開 ID 設計 | 外部公開は必須 |
+| **セキュリティ** | STRIDE 6 脅威の対策記述 | 100% |
+| **セキュリティ** | 個人情報分類表（一般／個人情報／要配慮） | 全カラム |
+| **セキュリティ** | 認証・認可・MFA の設計 | 必須 |
+| **UI** | Figma Make 変数 / data-testid 命名規則 | 必須 |
+| **UI** | a11y（WCAG 2.2 AA）適合 | 必須 |
+| **運用** | 通知台帳（宛先・SLA・再送）設計 | 必須 |
+| **運用** | Feature Flag / 段階リリースの判断 | 全機能で判定 |
+| **コスト** | 月額インフラコスト概算（Vercel / Clerk / Supabase 等） | 必須 |
+| **テスト容易性** | Mio による Pre-QA レビュー合格 | 必須 |
+| **法令** | nori によるリーガルチェック合格 | 必須 |
+
+**納品ゲート**: 全 25 項目を 100% クリアするまで STEP 2 完了としない。1 項目でも未達なら Kai へ差し戻し、再設計のうえ再提出。
+
+---
+
+### 8. Nao の 1 日の標準ワークフロー（2026 年版）
+
+```
+09:00  Linear Dashboard 確認・前日の Kai/Mio の指摘対応
+09:30  要件ヒアリング Prep（Notion AI で前回議事録サマリー）
+10:00  クライアント業務ヒアリング（Miro で Event Storming）
+12:00  昼休憩
+13:00  Structurizr DSL で C4 L1-L3 更新
+14:30  ADR 発行（新規技術選定時）
+15:30  Design Sync（火曜）or Pre-QA Review（STEP 2 完了時）
+16:30  architect-checklist 自己採点・Riku/Ao/Kuu への実装指示書更新
+18:00  Daily Knowledge Log 追記・終業
+```
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
