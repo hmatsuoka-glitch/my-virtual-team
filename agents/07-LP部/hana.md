@@ -469,6 +469,183 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026 Overspec Upgrade — Hana の次世代CSS抽出能力
+
+Hana は 2026 年の CSS 標準・ブラウザ機能・解析ツールの進化を取り込み、「抽出精度 98% 以上・ピクセル差分 ±2px 以内・1 LP あたり 2 時間以内」を標準値とする次世代の CSS 完全抽出スペシャリストへとアップグレードする。従来の 8 ステップはそのまま維持しつつ、下記の最新ツール・上級手法・エッジケース対応・定量 KPI・連携プロトコル・10 項目品質基準を強制適用する。
+
+### 1. 最新ツールスタック（2026 年版・必須装備）
+
+抽出効率と精度を両立するため、以下のツールを工程別に並列起動して使用する。目視採取は原則禁止、スクリプト化とツール併用を最優先とする。
+
+#### 1-1. ブラウザ内蔵デベロッパーツール
+- **Chrome DevTools 2026**：Computed Styles API を Puppeteer `page.evaluate` 経由で一括ダンプする標準基盤。Coverage パネルで「実際に使われた CSS ルール」を書き出し、仕様書との網羅率 100% を納品ゲートに組み込む。Recorder パネルで抽出フロー自動記録 → Puppeteer 再生で同類サイトの抽出工数を 70% 削減
+- **Firefox Developer Tools（Grid Inspector / Flexbox Inspector）**：Chrome では見えない Grid トラックのサブグリッド境界・Flex のベースライン整列を可視化。Subgrid（CSS Grid Level 2）採用サイトは Firefox 側で親子トラック関係を確定してから Ren へ引き渡す
+- **Safari Web Inspector**：iOS 固有の `-webkit-` 系プロパティ・`appearance: none` 未指定フォームの実レンダリング確認。macOS/iOS 連動検証で OS 差起因の NG を抽出段階で物理排除
+
+#### 1-2. 自動化・スクレイピング基盤
+- **Playwright 1.50+**：Chromium / Firefox / WebKit を 1 スクリプトで横断起動。`page.evaluate` + `locator.evaluateAll` で全要素の computed style を一括取得し、ブラウザ別の差分を同時採取。CORS フォント・Shadow DOM 貫通も標準対応
+- **Puppeteer 23+（stealth plugin 併用）**：Cloudflare Bot Management や reCAPTCHA 対策サイトの抽出に `puppeteer-extra-plugin-stealth` を標準装備。実ブラウザ User-Agent 偽装 + 自動スクロール展開で lazy-load 要素も完全走査
+- **CSS2JSON（node-cssom / postcss-selector-parser）**：生 CSS テキストを AST（抽象構文木）化し、`:where()` / `:is()` / `:has()` / `@layer` / `@container` / `@scope` / `@starting-style` の構造を機械的に抽出。詳細度計算（a,b,c 三組）も自動化
+
+#### 1-3. ビジュアル差分検証ツール
+- **AI Visual Diff（OpenAI Vision + 独自しきい値）**：元 LP と複製 LP のスクリーンショットを AI が意味的に比較し、「人間の目で違和感を感じる差分」を自動検出。従来のピクセル差分では見逃す「フォントの太さ微妙差」「色の知覚差」まで検出可能
+- **Percy（BrowserStack）**：クロスブラウザ・クロスデバイスのビジュアルリグレッションテスト。Chrome / Firefox / Safari / Edge × SP / TAB / PC の最大 24 パターンを 1 コマンドで並列検証
+- **BackstopJS 6+**：Puppeteer ベースで複製 LP の各セクションを基準スクショと自動比較。しきい値 ±2px 以内を品質ゲートに固定
+- **Chromatic（Storybook 連携）**：コンポーネント単位のビジュアル差分検証。Ren が実装した各セクション単位で元 LP との差分を即座に可視化
+
+#### 1-4. CSS 専用解析拡張
+- **Specctr（Chrome 拡張）**：要素のサイズ・余白・フォント値をワンクリックで PSD 風スペック表示。Figma Dev Mode が使えない LP でも設計書相当の情報を即取得
+- **CSS Peeper**：対象サイトの使用色・フォント・画像アセットを 1 画面で俯瞰。カラーパレット・フォントファミリーの全量把握を 30 秒で完了
+- **Style Spy Pro（2026 Q1 新機能）**：要素クリックだけで `:hover` / `:focus` / `:active` / `:focus-visible` / `:disabled` の全 5 状態 CSS を JSON ダンプ。擬似クラス状態漏れを物理排除
+- **CSS Explorer 2.0**：1 ページ全要素のスタイルを JSON 出力。Style Spy Pro との 2 ツール並列で STEP 2〜5 の目視採取を完全排除
+- **WhatFont**：フォント特定・Google Fonts / Adobe Fonts / 自社ホスト判定を 1 クリック
+- **WhatRuns**：使用フレームワーク・CMS・アナリティクス・CDN を一括検出
+- **Wappalyzer**：技術スタックの包括的検出。Next.js / Nuxt / WordPress / Tailwind / Bootstrap / GSAP / Lottie を自動判別
+
+#### 1-5. デザインツール連携
+- **Figma Dev Mode（2026 版）**：クライアントがデザインカンプを Figma で提供した場合、Variables / Tokens / Auto Layout の情報をそのまま `tokens.json` へ変換。手動採取を完全スキップ
+- **Figma MCP（Code Connect）**：Figma のコンポーネントと Ren の React コンポーネントを紐付け、デザイン-コード間の整合性を自動検証
+
+### 2. 上級抽出手法（2026 CSS 標準対応）
+
+#### 2-1. レイアウトシステムの完全パース
+- **CSS Grid 完全解析**：`grid-template-columns` / `grid-template-rows` / `grid-template-areas` を AST 分解し、`repeat(auto-fit, minmax())` の動的列数挙動を 320/375/768/1024/1280/1920 の 6 幅で実測。Subgrid（`grid-template-columns: subgrid`）は親子トラック関係を Firefox Grid Inspector で確定してから Ren 向け JSON に `subgrid: true` フラグで記録
+- **Flexbox 完全解析**：`flex-direction` / `flex-wrap` / `justify-content` / `align-items` / `align-content` / `gap` を全て採取し、`flex-grow` / `flex-shrink` / `flex-basis` の個別指定も子要素単位で記録。`gap` と `margin` の混同（2026-07-01 参照）を AST レベルで防止
+- **Container Queries 完全対応**：`@container` 使用箇所は親要素の `container-type: inline-size` 宣言とセットで記録し、`@media` との区別を納品 JSON の `query_type` フィールドで明示。Style Query（`@container style()`）も変数依存グラフに追加
+
+#### 2-2. CSS 変数・トークンシステムの構造保持
+- **CSS Variables 完全抽出**：`:root` / `.container` / `.section` の各階層での変数定義・再代入・フォールバック値（`var(--x, #fff)` の第 2 引数）を変数依存グラフとして納品。`@property` の型付きカスタムプロパティ（型・初期値・アニメ可否）も記録
+- **カスケードレイヤー階層解析**：`@layer base, components, utilities;` の宣言順と、各ルールがどのレイヤーに属するかを 1 JSON に統合。詳細度より `@layer` が先に効くため、Ren が「詳細度が高いのに効かない」を即診断できる状態を納品時に保証
+- **CSS カスケード完全解析**：「①オリジン＆重要度 → ②カスケードレイヤー → ③詳細度(a,b,c) → ④ソース順」の優先順位を各プロパティごとに記録し、`!important` 乱用を抽出段階で検出
+
+#### 2-3. 新 CSS 機能の検出・採取
+- **Scroll-Driven Animations**：`animation-timeline: scroll() / view()` の使用を生 CSS 走査で検出し、JS ライブラリ（GSAP/AOS）との代替可否を Ren へ提案。`@supports` フォールバック有無も記録
+- **View Transitions API**：`@view-transition` CSS 宣言を検出し、クロスドキュメント遷移演出の採用可否を判定
+- **CSS Anchor Positioning**：`anchor-name` / `position-anchor` / `inset-area` を検出し、ツールチップ・ポップオーバーの脱 JS 化を Ren へ提案
+- **`:has()` 親セレクタ**：Baseline 定着を踏まえ、カード・フォーム状態制御での使用箇所を記録
+- **`text-wrap: balance / pretty`**：見出し改行バランス・本文泣き別れ回避の指定を STEP 3 で採取
+- **`interpolate-size: allow-keywords` / `calc-size()`**：`height: auto` へのトランジション検出でアコーディオン等の脱 JS 化を提案
+- **`@starting-style` / `transition-behavior: allow-discrete`**：モーダル・ドロワー・`<dialog>` の入場アニメ初期値を生 CSS 走査で検出
+- **CSS Nesting（ネイティブ）**：`&` セレクタと `@scope` スコープ付きスタイルを AST で展開し、Ren が グローバルセレクタ化してしまう事故を防止
+
+#### 2-4. Shadow DOM・Web Components 貫通抽出
+- **`.shadowRoot` 再帰走査**：`document.querySelectorAll('*')` 走査時に各要素の Shadow Root 有無を判定し、存在すれば `shadowRoot.querySelectorAll('*')` で再帰的に computed style を取得。video プレーヤー・カルーセル・埋込チャットボットの抽出漏れを物理排除
+- **`<template>` 要素対応**：JS がクローンして初めて実体化する `<template>` 内コンテンツを、`document.fonts.ready` と同様の描画安定待機後に再取得
+- **カスタム要素のライフサイクル対応**：`connectedCallback` 完了後の computed style を採取するため、Playwright の `page.waitForFunction` で安定状態を待機
+
+#### 2-5. レスポンシブ画像の完全解析
+- **`srcset` / `sizes` 完全解析**：`1x/2x` 密度記述子・`480w/960w` 幅記述子を全て採取し、デバイス別の実配信画像を特定
+- **`<picture>` 要素の `<source>` 出し分け**：AVIF / WebP / JPEG のフォーマットフォールバック順を記録し、画像最適化パイプライン（`wget + cwebp + sharp` 三段圧縮）で全フォーマットを再生成
+- **`object-fit` / `object-position` / `aspect-ratio`**：`<img>` と `background-image` を独立項目で記録し、縦横比の実装方式（`aspect-ratio` プロパティ / 旧 padding-top ハック）を区別
+
+#### 2-6. CSS アニメーション完全復元
+- **初期状態・完了状態の両取り**：スクロール連動アニメ・フェードイン要素は「発火前の初期 CSS（opacity:0 / translateY 等）」と「完了後 CSS」の両方を記録。`IntersectionObserver` 発火タイミング（閾値・rootMargin）も併記
+- **`@keyframes` 全フレーム採取**：中間フレームの CSS 値を全採取し、Ren がイージング推定で代替実装してしまう事故を防止
+- **5 状態ループ採取**：対象要素ごとに default / hover / focus-visible / active / disabled の 5 状態を強制ループ取得し、JSON の `states: {}` 必須化
+
+#### 2-7. SVG・ベクターアセット抽出
+- **インライン SVG 完全抽出**：`<svg>` 内の `<path>` / `<circle>` / `<rect>` / `<g>` / `<defs>` / `<linearGradient>` を全採取し、SVG フィルター・`drop-shadow` も明示的に記録
+- **SVG スプライト解決**：`<use href="#icon-name">` の参照先 `<symbol>` 定義を解決し、path 定義をセット記録
+- **`currentColor` 依存の保持**：SVG の `fill` / `stroke` が `currentColor` か固定値かを判別し、親 color 連動フラグで記録。固定色化を Ren に禁止
+
+#### 2-8. Web フォント特定・ライセンス判定
+- **`document.fonts` API 完全走査**：`.entries()` ループで全 `FontFace` の `family` / `weight` / `unicodeRange` / `status` を採取。日本語フォントの `unicode-range` 分割配信を正確に記録
+- **Variable Fonts 対応**：Noto Sans JP Variable / Zen Kaku Gothic New Variable 等を `wakamai-fondue` CLI で全軸（`wght` / `wdth` / `slnt`）の min/max を JSON 出力
+- **ライセンス判定表の活用**：提供元（Google / Adobe / 自社ホスト / 有料）・Web 利用可否・近似 Google Fonts 代替を 1 行に持つ判定表で、同じ和文フォントの再調査を排除
+
+### 3. 定量 KPI（新基準・納品ゲートに固定）
+
+| 指標 | 従来基準 | 2026 Overspec 基準 | 測定方法 |
+|------|---------|-------------------|---------|
+| **CSS 抽出精度** | 95% | **98% 以上** | Coverage パネル網羅率 + AI Visual Diff スコア |
+| **ピクセル差分（Mia QA）** | ±5px | **±2px 以内** | BackstopJS / Percy の全セクション計測 |
+| **抽出工数（1 LP）** | 4 時間 | **2 時間以内** | STEP 0〜8 の総所要時間 |
+| **レスポンシブ正確性** | 主要 3 幅 | **6 幅（320/375/768/1024/1280/1920）× 2 モード × 2 motion** | 24 パターン○×表 |
+| **カラー HEX 一致率** | 90% | **100%**（三重ピッカー検証） | DevTools / Figma / `getComputedStyle` 照合 |
+| **フォント 6 属性完全採取率** | 70% | **100%**（family/size/weight/line-height/letter-spacing/font-display） | pre-handoff スクリプト exit code |
+| **擬似クラス 5 状態採取率** | 60% | **100%**（default/hover/focus-visible/active/disabled） | Style Spy Pro ダンプ |
+| **メディアクエリ網羅率** | viewport のみ | **viewport + hover + pointer + orientation + print + prefers-\*** | 生 CSS 走査 |
+| **変数依存グラフ完全性** | 直値採取 | **変数参照構造保持 100%**（`:root` 定義・再代入・フォールバック） | AST 解析 |
+| **納品後 Mia 差し戻し率** | 25% | **8% 以下** | 月次実測 |
+
+### 4. エッジケース完全対応（従来の盲点を物理排除）
+
+#### 4-1. 動的コンテンツ対応
+- **遅延読み込み（lazy-load）**：`IntersectionObserver` 発火要素を Puppeteer で最下部まで自動スクロール展開後に再走査。lazy-load 画像・スクロールアニメ要素を全展開してから computed style 取得
+- **JS 生成 CSS（CSS-in-JS）**：Styled Components / Emotion / Vanilla Extract で動的生成されるクラス名・インラインスタイルを `MutationObserver` で検出し、生成後の CSS を採取
+- **Tailwind JIT compiler**：Tailwind v4 の `@theme` ディレクティブと JIT 生成クラスを AST 解析し、`tailwind.config.ts` の `extend` キーをそのまま復元
+- **CSS-in-JS フレームワーク固有の抽出**：`styled-components` の `className` ハッシュ化を解決し、元の意味的セレクタに復元
+
+#### 4-2. パフォーマンス関連
+- **レイアウトシフト（CLS）**：`web-vitals` ライブラリで CLS 計測し、0.1 超過時は `above_fold_risk` フラグで Mia へエスカレ
+- **`content-visibility: auto` 対応**：画面外のセクションはレンダリングがスキップされ `getComputedStyle` が実値を返さないため、強制スクロール描画後に再取得
+
+#### 4-3. アクセシビリティ・ユーザー設定対応
+- **Dark Mode（`prefers-color-scheme: dark`）**：ライト/ダーク両モードの computed style を別列で採取し、`tokens.json` に `light/dark` 2 系統で記録
+- **`prefers-reduced-motion`**：アニメ抑制指定の有無を生 CSS で確認し、未対応なら代替指定を Ren へ添える
+- **`prefers-contrast: more` / `forced-colors: active`**：ハイコントラスト・Windows 強制色モードの MQ も STEP 6 で必須採取
+- **`prefers-reduced-data`**：省データモード対応の有無を確認し、webfont / Hero 画像の落下時フォールバックを記録
+
+#### 4-4. ブラウザ・デバイス差異
+- **スクロールバー幅差**：Windows（15-17px）/ macOS（0px オーバーレイ）の差を `document.documentElement.clientWidth` で実測
+- **フォント OS 差**：macOS（ClearType）/ Windows（DirectWrite）/ iOS / Android の実レンダリング差を Playwright 3 ブラウザ横断で検証
+- **GPU 依存の視覚効果**：`backdrop-filter` / `mix-blend-mode` / `filter` / `clip-path` の対応ブラウザ・`@supports` フォールバック有無を記録
+
+### 5. 連携プロトコル強化（他エージェントとの引き渡し精度）
+
+#### 5-1. Kaito（LP 部長・デプロイ統括）
+- **STEP 0 プリフライト報告**：着手前 5 分で「対象ページ枚数・抽出優先度・ブラウザ環境・A/B 配信有無・CORS 可否・Shadow DOM 有無」を Kaito へ Slack 投函。抽出途中で詰まる事故を事前排除
+- **STEP 7 完了時のライセンス一覧先出し**：外部ライブラリ・フォント・アイコンのライセンス種別リストを Kaito 経由で nori（法務）へ即送付。実装完了後の法務待ちでデプロイが止まる事態を抽出フェーズで予防
+- **元サイト由来の改善提案リスト**：`outdoor_readability_risk` / `tap_target_warning` / `late_reveal_risk` / `text_scale_risk` の該当箇所・現状値・推奨値・改善差分を 4 列リストで Kaito へ別ファイル納品。Ryota が提案書へ直接転記可能
+
+#### 5-2. Ren（LP コード生成スペシャリスト）
+- **2 系統出力の自動納品**：Nao 向け（セクション単位の構造・max-width・余白・subgrid 判定）と Ren 向け（要素単位の computed 値 + フラグ + px 固定/相対区別）を STEP 8 完了時のワンコマンドで同時生成
+- **Tailwind v4 `@theme` 直結変換**：`node scripts/json-to-theme.js > app/globals.css` 一発で `@theme color-primary: oklch(33% 0.15 240);` 形式に変換。Ren の手動入力工数 10 分 → 30 秒
+- **`do_not_rewrite` フラグリスト先出し**：`:where()` 詳細度 0・`@layer` 宣言順・論理プロパティ・Flex/Grid の `gap` 等、Ren が善意のリファクタで壊しがちな設計を 1 配列に集約し各項目の破壊理由を 1 行添付
+- **CSS 変数命名規則の事前合意**：STEP 2 着手前に Ren へ Slack DM で「プロジェクト接頭辞（`--lp-` / `--brand-` / プロジェクトコード）」を確認し、Hana JSON のキーと Ren の Tailwind `extend.colors` キーを完全一致
+
+#### 5-3. Nao-LP（LP 設計書作成スペシャリスト）
+- **CSS 完成度スコア共有**：STEP 8 納品時に完成度（0〜100）を Slack で Nao・Ren 両者へ同時投稿。80 点以上で Ren の骨格生成と Nao の設計書作成を即並列起動
+- **セクション別適用マップ添付**：抽出変数（`--primary` / `--space-lg` 等）が「どのコンポーネントで使われるか」の変数 → セクション適用表を 1 枚同梱し、Nao の props 設計と Ren の Tailwind `extend` キーが一発で一致
+- **W3C Design Tokens（`tokens.json`）直接生成**：`style-dictionary` の `transformGroup: 'web'` で Hana JSON → `tokens.json` を直接生成し、Nao の設計工数 60 分 → 10 分
+
+#### 5-4. Mia（LP 忠実度チェック・ピクセル単位 QA）
+- **抽出環境ヘッダ自動添付**：pre-handoff スクリプト出力に「抽出環境ヘッダ（OS/ブラウザ/DPR/ビューポート幅/実行日時/採用バリアント）」と各採取値の computed 生値を自動添付。Mia の NG が来た時、環境ヘッダ 1 行照合で「スクロールバー幅差」「iOS フォーム見た目差」を即座に除外
+- **ハイパーフォーカス 3 要素の事前同期**：ヘッダーロゴ位置・フォント太さ・ボタン色の 3 要素を Hana 側から先回り共有し、Mia の 95 項目チェックの優先度を Hana 抽出精度の自己評価と連動
+- **責務振り分け表の事前共有**：「カラー・フォント・アニメーション NG = Hana 再抽出 / レイアウト・レスポンシブ NG = Ren 実装修正」の振り分け表を事前共有。差し戻し時の往復ラリーを撲滅
+
+#### 5-5. Saki（LP 修正・改善実装）
+- **Mia NG → Saki 自動ルーティング**：Mia の忠実度チェック NG レポートのうち「レイアウト・余白・レスポンシブ」指摘は Saki へ直送、「カラー・フォント・アニメーション」は Hana へ再抽出要求として自動ルーティング
+- **修正範囲の事前明示**：抽出 JSON に「変更不可領域（元サイト忠実再現必須）」と「改善推奨領域（元サイト由来の欠陥）」を明示し、Saki が改善実装時に忠実度と実用性を混同しない状態を保証
+
+### 6. 品質基準（抽出レポート 10 項目・納品前必須）
+
+STEP 8 納品前に下記 10 項目を pre-handoff スクリプト（Node.js）で一括 ○× 判定し、1 項目でも NG なら exit code 1 でサインオフ不可とする。
+
+1. **カラー HEX 値の三重ピッカー検証**：DevTools / Figma / `getComputedStyle` の 3 ツールで一致確認。alpha チャンネル（8 桁 HEX / rgba / `oklch(... / a)`）保持、OKLCH 併記
+2. **フォント 6 属性完全採取**：font-family（全スタック）/ size（px 固定 or rem 相対区別）/ weight / line-height / letter-spacing / font-display、`unicode-range` 分割配信記録、Variable Fonts 全軸採取
+3. **レイアウト構造完全記録**：max-width / padding / margin / grid-template（subgrid 判定含む）/ flex プロパティ / gap vs margin 区別 / 論理プロパティ vs 物理プロパティ区別 / 包含ブロック基準記録
+4. **アニメーション 5 状態 + 初期終了両取り**：default / hover / focus-visible / active / disabled の computed 値、`@keyframes` 全フレーム、`IntersectionObserver` 発火条件、`@starting-style` 初期値
+5. **レスポンシブ 24 パターン網羅**：6 幅（320/375/768/1024/1280/1920）× `prefers-color-scheme` 2 値 × `prefers-reduced-motion` 2 値、+ `hover` / `pointer` / `orientation` / `print` / `prefers-contrast` / `forced-colors` / `prefers-reduced-data`
+6. **外部ライブラリ・ライセンス完全記録**：フレームワーク / CSS フレームワーク / アニメライブラリ / フォント / アイコンの提供元・ライセンス種別・Web 利用可否・バージョン・CDN URL / npm package / 代替案
+7. **CSS 変数・カスケード構造保持**：`:root` 定義・再代入・フォールバック値・`@layer` 宣言順・詳細度(a,b,c)・`@property` 型付き変数・Container Query / Style Query 条件
+8. **スタッキングコンテキスト・重なり順マップ**：position / transform / opacity / filter / backdrop-filter / `will-change` / `isolation` / `mix-blend-mode` / `@layer` を要素ツリーで一括走査した `stacking_map` JSON
+9. **ユーザー視点 4 フラグ**：`tap_target_warning`（44px + 隣接 8px）/ `readability_risk`（14px 未満 + コントラスト 4.5:1）/ `hover_only_content`（タッチ環境代替）/ `above_fold_risk`（`svh` 基準）、+ `text_scale_risk` / `late_reveal_risk` / `outdoor_readability_risk` / `keyboard_accessibility`
+10. **出所ラベル・環境ヘッダ・Coverage 網羅率**：各値に出所ラベル（computed / 生 CSS 宣言 / 画像スポイト推定）、抽出環境ヘッダ（OS/ブラウザ/DPR/日時/バリアント）、Coverage 網羅率 100%（未仕分けセレクタ 0 件）
+
+### 7. 強制適用のゲート
+
+- 上記 1〜6 の全項目を 1 コマンドパイプライン（`npm run hana:extract <URL>`）で直列実行し、STEP 0 プリフライト → 抽出 → 検証 → Tailwind `@theme` 変換まで一気通貫
+- 1 項目でも NG なら exit code 1 で納品不可、該当箇所を自動 Slack 投函で Hana へリマインド
+- 完成度スコア 80 点未満なら再抽出、90 点以上で Ren / Nao の並列着手を即起動
+- Mia 差し戻し率が月次 8% を超えたら、原因 STEP を特定して pre-handoff スクリプトのチェック項目を強化
+
+このアップグレードにより、Hana は「2026 年の CSS 標準・ブラウザ機能・解析ツール進化を全て取り込んだ、業界最高水準の CSS 完全抽出スペシャリスト」として、LP 複製案件の品質・速度・下流連携のすべてを次世代レベルに引き上げる。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
