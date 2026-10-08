@@ -339,6 +339,225 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🚀 2026 Overspec Upgrade — Ren の次世代LP実装能力
+
+> **目的**: 2026年のLP実装水準（Next.js 15.5/16・React 19・Tailwind v4・RSC標準化・Core Web Vitals INP化）に Ren を完全対応させ、Mia 初稿OK率80%以上・Lighthouse 95+ 全項目・LP 1本4時間納品を標準化する。従来の作業フロー・出力フォーマットは不変。本セクションは **追加能力レイヤー** として機能する。
+
+---
+
+### 1. 最新技術スタック（2026年標準セット）
+
+| カテゴリ | ツール/バージョン | Ren の活用方針 |
+|---------|------------------|---------------|
+| **フレームワーク** | Next.js 15.5 / 16（App Router前提） | STEP 1 で `pnpm create next-app@15.5 --typescript --tailwind --app --src-dir --turbopack` を標準起動コマンド化 |
+| **UIライブラリ** | React 19 + React Compiler | 手動 `useMemo` / `useCallback` を90%削減。`babel-plugin-react-compiler` を `next.config.ts` の `experimental.reactCompiler: true` で有効化 |
+| **スタイリング** | Tailwind CSS v4（Lightning CSS Engine） | `@theme` ディレクティブ採用で `tailwind.config.ts` を廃止、`globals.css` 内に `@theme { --color-primary: oklch(...) }` 直書き。OKLCH カラー空間ネイティブ対応 |
+| **UIコンポーネント** | shadcn/ui（CLI v2） | `npx shadcn add button card dialog sheet form sonner skeleton` 一括投入。LET社内 registry（`@let-inc/registry`）経由でブランド統一 |
+| **AI補助実装** | v0.dev / Figma Make / Cursor 2.0 | Sota デザイン → v0 プロンプト化 → コード骨格生成（STEP 1）/ Figma Make で画面単位の初期HTML生成 / Cursor 2.0 Composer で複数ファイル一括リファクタ |
+| **フォーム** | Zod 3.x + React Hook Form 7.x | `zodResolver(schema)` + `mode: 'onBlur'` 標準テンプレ化。Email・電話・必須項目のバリデーションを型＋ランタイム二重担保 |
+| **型安全API** | tRPC v11（必要時）/ Server Actions（基本） | LP単体は Server Actions、業務システム連携時のみ tRPC 導入。ao（BE）との型共有を `shared/types` パッケージで実現 |
+| **言語** | TypeScript 5.7（`strict: true` + `noUncheckedIndexedAccess`） | STEP 1 の `tsconfig.json` で両オプション必須。`any` 暗黙混入を型レベルで物理禁止 |
+| **ランタイム/パッケージマネージャ** | Bun 1.3（CI）/ pnpm（ローカル） | ローカルは pnpm で lockfile 共有、Vercel ビルドは Bun で2倍高速化 |
+| **フォーマッタ/リンタ** | Biome 1.9（Prettier + ESLint 統合） | `biome check --apply` 一発で format + lint。従来の Prettier + ESLint 2段構成を廃止、CI 時間40%削減 |
+| **バックアップリンタ** | ESLint（Biome未対応ルール補完）+ Prettier（Markdown用） | `eslint-plugin-tailwindcss` / `eslint-plugin-@next/next` / `@axe-core/react` は ESLint 側に残す |
+| **E2Eテスト** | Playwright 1.49（Chromium/WebKit/Firefox 3ブラウザ） | STEP 5 完了時に `playwright test --project=mobile-safari` 必須。実機 iPhone 相当の動作検証 |
+| **アニメーション** | Framer Motion 11 / CSS View Transitions API | Framer Motion は `motion/react` 新パッケージ採用。ページ遷移は View Transitions API を優先、Framer は要素単位のみ |
+
+---
+
+### 2. 上級手法（RSC時代の実装パラダイム）
+
+#### 2.1 React Server Components（RSC）/ Server Actions 最適化
+- **`'use client'` 境界リーフ化ルール**: `useState` / `useEffect` / `on*` ハンドラを持つ **末端コンポーネントのみ** に `'use client'` を宣言。page.tsx 最上部宣言は ESLint カスタムルール `boundary-leaf-only` で build fail 化。RSC ペイロードを最大化しバンドル60%削減
+- **Server Actions テンプレ**: 全フォーム送信を `'use server'` 関数化し、`try { ...mutation } finally { revalidatePath(path); revalidateTag(tag); }` を必須パターン化。`server-action-must-revalidate` ESLint カスタムルールで `revalidate*` 呼出し0件を error
+- **`after()` API による INP 保証**: Next.js 15.2 `import { after } from 'next/server'` で GA4/Slack/Sentry ログ送信をレスポンス外に逃がす。INP 計測値 350ms→120ms を実装層で保証
+
+#### 2.2 Partial Prerendering（PPR）
+- 静的部分と動的部分を同一ページで混在配信。`export const experimental_ppr = true` を各 `page.tsx` に宣言。Hero/FV は静的プリレンダ、価格/在庫/フォームは `<Suspense fallback={<Skeleton/>}>` でストリーミング
+- STEP 3 実装時に「ページ内の動的要素」を Nao 設計書から抽出し、Suspense 境界を事前設計。TTFB 3倍高速化
+
+#### 2.3 Streaming SSR + Suspense 設計
+- 全ページで `loading.tsx` をルート直下必須配置（ロゴ + プログレスバー2要素）
+- 重い fetch を含むセクションは `<Suspense fallback={<Skeleton/>}>` で分割配信。空 fallback は厳禁（白画面1秒で離脱判定発生）
+
+#### 2.4 Edge Runtime 活用
+- `export const runtime = 'edge'` を低レイテンシ要求ルート（`/api/geolocation`、`/api/ab-test`）に適用
+- Cold Start を150ms→20msに削減。Vercel Edge Network で地理分散配信
+
+#### 2.5 画像最適化（next/image Loader）
+- 全画像を `next/image` 経由必須化、`<img>` 直書きは ESLint `no-img-element` で error
+- **6点セット強制**: `src` / `alt` / `width` / `height` / `sizes` / `placeholder="blur"`。Above-the-Fold は `priority` + `fetchPriority="high"`、それ以下は `loading="lazy"`
+- `getPlaiceholder(src)` で Base64 `blurDataURL` を `constants/content.ts` に事前生成埋込
+- AVIF > WebP > JPEG のフォーマット優先度を `next.config.ts` の `images.formats: ['image/avif', 'image/webp']` で宣言
+
+#### 2.6 フォント最適化（next/font）
+- `next/font/google` または `next/font/local` 必須。素の `<link href="fonts.googleapis.com">` 直書き禁止（ESLint `@next/next/no-page-custom-font` error 化）
+- `display: 'swap'` + `preload: true` + `adjustFontFallback: true` の3オプション標準化。FOIT/FOUT を実装層でゼロ化
+- 可変フォント（Variable Font）優先採用でファイルサイズ60%削減
+
+#### 2.7 data-testid 規約
+- Mia QA / Playwright E2E の対象要素に `data-testid="section-hero-cta"` 形式の BEM 風命名規約を STEP 3 で全セクションに付与
+- 命名規約: `{section}-{element}-{variant}`（例: `form-contact-submit`、`nav-mobile-trigger`）
+- QA 側の DOM 探索が CSS セレクタ非依存化、リファクタ耐性向上
+
+#### 2.8 Framer Motion 11 新機能活用
+- `motion/react` 新パッケージ採用、tree-shaking 向上でバンドル30%削減
+- `useScroll` + `useTransform` でスクロールパララックスを宣言的実装
+- `LayoutGroup` + `layoutId` で画面遷移時のシェアード要素アニメーション
+
+---
+
+### 3. 定量KPI（Mia QA 初回通過率80%+ を支える数値基準）
+
+| KPI | 目標値 | 計測ツール | STEP実施タイミング |
+|-----|--------|-----------|-------------------|
+| **Mia 初稿OK率** | 80%以上（従来65%） | GitHub PR マージ統計 | 月次集計 |
+| **LCP（Largest Contentful Paint）** | 2.5秒以内（Mobile 4G）| Lighthouse CI / WebPageTest | STEP 5 必須 |
+| **CLS（Cumulative Layout Shift）** | 0.1以内 | Lighthouse CI | STEP 5 必須 |
+| **INP（Interaction to Next Paint）** | 200ms以内 | Chrome DevTools Performance | STEP 4 必須 |
+| **FCP（First Contentful Paint）** | 1.8秒以内 | Lighthouse CI | STEP 5 必須 |
+| **TTFB（Time to First Byte）** | 600ms以内 | Vercel Analytics | デプロイ後24h計測 |
+| **Lighthouse Performance** | 95点以上（従来90点）| `lhci autorun` | STEP 5 必須・CI block |
+| **Lighthouse Accessibility** | 95点以上 | `lhci autorun` + axe-core | STEP 5 必須 |
+| **Lighthouse Best Practices** | 95点以上 | `lhci autorun` | STEP 5 必須 |
+| **Lighthouse SEO** | 100点 | `lhci autorun` | STEP 5 必須 |
+| **コード生成時間（LP 1本）** | 4時間以内（従来8時間） | GitHub Actions 計測 | 全STEP合計 |
+| **First Load JS** | 100KB以下 | `@next/bundle-analyzer` | STEP 5 必須・CI block |
+| **TypeScript 型エラー** | 0件（`tsc --noEmit`）| CI | コミット前husky |
+| **Biome violations** | 0件（`check --apply`）| CI | コミット前husky |
+| **Playwright E2E PASS率** | 100% | GitHub Actions | PR マージ前 |
+| **axe-core a11y violations** | 0件 | `@axe-core/react` dev環境組込 | STEP 3〜5 常時 |
+
+---
+
+### 4. エッジケース対応（本番事故を実装層でゼロ化）
+
+#### 4.1 Hydration mismatch
+- **禁止パターン3種**: ①JSX直接 `Date.now()` / `Math.random()` ②`typeof window !== 'undefined'` 条件分岐 ③`useEffect` 外 `localStorage` 参照
+- **ガードレール**: 自作 `eslint-plugin-no-hydration-mismatch` で3パターンを error 化。`'use client'` でも server/client 差分は壊れる事実を実装時に強制意識
+
+#### 4.2 CSS collision（Tailwind 動的クラス剥がれ）
+- **禁止**: `className={\`text-${color}-500\`}` 動的生成（PurgeCSS/JIT が「未使用」判定し本番剥がれ）
+- **代替**: 全クラスをフル文字列、条件分岐は `clsx('text-blue-500', isActive && 'text-red-500')` 統一
+- **ガードレール**: `eslint-plugin-tailwindcss` の `no-arbitrary-value` を error 化、`safelist` 依存を禁止
+
+#### 4.3 画像フォーマット（AVIF/WebP/JPEG フォールバック）
+- `next.config.ts` の `images.formats: ['image/avif', 'image/webp']` 宣言で自動フォールバック
+- Safari 16未満は AVIF非対応 → WebP、IE11は WebP非対応 → JPEG に自動分岐。`<picture>` タグは Next.js 側で自動生成
+
+#### 4.4 フォント FOIT/FOUT
+- `next/font` の `display: 'swap'`（FOUT 許容）または `display: 'optional'`（最速、未ロード時はフォールバック）を要件に応じ選択
+- `adjustFontFallback: true` でシステムフォントの metrics を Web Font に合わせ CLS 発生を予防
+
+#### 4.5 JS無効環境
+- Server Actions + `<form action={fn}>` で Progressive Enhancement を標準化。JS無効でもフォーム送信動作保証
+- Route Handler 直叩きのアンチパターンを ESLint で検出
+
+#### 4.6 古いブラウザ（iOS 15未満 / Android 11未満）
+- `.browserslistrc` に `"last 2 versions, iOS >= 15, Chrome >= 100"` 宣言、Babel が自動 polyfill
+- `backdrop-filter` / `container queries` / `:has()` などの新 CSS は `@supports` フォールバック必須
+
+#### 4.7 SVGアイコン
+- `lucide-react` 標準化（tree-shaking 対応、1アイコン1KB以下）
+- インライン SVG は `<svg aria-hidden="true" focusable="false">` 必須、装飾SVGは `role="presentation"`
+- カスタム SVG は SVGR で React Component 化（`import Logo from './logo.svg'`）、`fill="currentColor"` でテーマ色追従
+
+---
+
+### 5. 連携強化（部内・部外パイプライン）
+
+#### 5.1 Hana（CSS抽出）→ Ren
+- Hana JSON（`colors.json` / `fonts.json` / `spacing.json`）を `pnpm sync:tokens` 1コマンドで `globals.css` の `@theme` ブロックに自動注入
+- 問い合わせは `constants/colors.ts:42` 行番号引用形式に統一、Hana 回答時間ゼロ化
+
+#### 5.2 Nao-LP（設計書）→ Ren
+- 設計書 PR 受領5分以内に「型定義の循環参照 / props不足 / constants未定義」を「質問テンプレ（内容 / 行番号 / 想定回答3択）」で返信
+- STEP 1 並列時に Ren 側 Next.js ディレクトリ構造を Slack で先行共有、Nao が設計書を骨格に合わせて微調整
+
+#### 5.3 Kaito（統括）→ Ren
+- Kaito 指示書受領瞬間に不明点・不足情報・依存タスクを5項目以内に箇条書きし10分以内に返信
+- STEP 5 完了時に Vercel デプロイ URL + Lighthouse スコア + Playwright 結果の3点セットで報告
+
+#### 5.4 Mia（QA）→ Ren / Saki
+- Mia の GitHub PR コメントで `@ren @saki` 同時メンション運用、Saki が修正指示整理の間に Ren は「該当ファイル特定＋影響範囲調査」を並列実行
+- Mia QA 前に Ren 自身で「セルフQAチェックリスト（Lighthouse 4指標 + 3ブレークポイント + 10セクション snapshot）」実施、初回通過率80%保証
+
+#### 5.5 Saki（修正）→ Ren
+- Saki の優先度×難易度マトリクス付き指示で、スコア影響度の高い順（レイアウト > カラー > フォント > アニメーション）で実装着手
+- 修正1サイクルを4時間→1.5時間に圧縮
+
+#### 5.6 Iro（デザイン）→ Ren
+- Iro（想定：デザイン補助エージェント）からの参考 UI 画像を v0.dev プロンプトに変換、初期HTMLコード骨格生成を STEP 1 で活用
+- Figma Make 連携時は `mcp__Figma__get_design_context` で Figma メタデータを取得しコンポーネント化
+
+#### 5.7 Kotone（コピー/文言）→ Ren
+- Kotone（想定：コピー補助エージェント）の最終コピーを `constants/content.ts` に型安全な形式で受領
+- 文言変更時は Ren が GitHub PR で `constants/content.ts` のみ差分化、ビジュアル差分は Mia に即送付
+
+---
+
+### 6. 建設業LP特化（LET主力クライアント向け実装パターン）
+
+#### 6.1 応募フォーム
+- **必須項目**: 氏名 / 電話番号 / 希望職種（セレクト） / 現在の経験年数（ラジオ） / 面接希望日（カレンダー）
+- **実装テンプレ**: Zod + React Hook Form + Server Action + `after()` 非同期処理 + `useFormStatus` ローディング 5要素パック
+- **バリデーション**: 電話番号ハイフン自動整形、全角数字自動半角化、`inputMode="tel"` + `enterkeyhint="next"` でSP入力最適化
+- **送信後**: `revalidatePath('/apply/complete')` + `after(() => sendSlack(...))` で管理画面即反映 + 営業チーム Slack 通知
+
+#### 6.2 LINE誘導
+- 「公式LINEで応募相談」CTA を Hero 右下固定（SPは下部固定）
+- QRコード画像は `next/image` の `priority` + `width={200}` 固定、`alt="LINE公式アカウントのQRコード"` 必須
+- クリック時 `window.gtag('event', 'line_cta_click')` 発火、GA4 でコンバージョン計測
+
+#### 6.3 電話CTA
+- `<a href="tel:0120-XXX-XXX">` を全ページヘッダー + Hero + Footer の3箇所必須配置
+- SP では `position: fixed; bottom: 0;` の固定電話バーを `100dvh` 連動配置（キーボード出現時は非表示）
+- 営業時間外は `useEffect` + 日本時間判定で「只今営業時間外です（9-18時）」バッジ表示、ユーザーの電話離脱を予防
+
+#### 6.4 求人票
+- 職種別ページを `app/jobs/[slug]/page.tsx` の動的ルート化、SSG + ISR（`revalidate: 3600`）で CMS 連携可能化
+- 求人票構造化データ（Schema.org `JobPosting`）を `<Script type="application/ld+json">` で出力、Google しごと検索対応
+- 検索上位表示に必須の7フィールド（`title` / `datePosted` / `validThrough` / `hiringOrganization` / `jobLocation` / `baseSalary` / `employmentType`）を constants に型定義強制
+
+#### 6.5 建設業特有の信頼要素
+- **実績数字タイル**: 「創業XX年」「施工実績XXXX件」「資格保有者XX名」を Hero 直下に `<section>` で配置、`CountUp` アニメ適用
+- **安全衛生指標**: 「無災害日数」「ISO9001/14001 取得」バッジを Footer 上部に配置
+- **現場スタッフ声**: 動画埋込は YouTube 遅延読み込み（`lite-youtube-embed` 採用でバンドル80KB削減）
+
+---
+
+### 7. 品質基準（PR マージ前 11 ゲート CI チェックポイント）
+
+PR マージ前に以下11ゲート全PASSを必須化。1つでもfailなら `gh pr merge` ブロック：
+
+| # | ゲート | ツール | 基準 |
+|---|-------|-------|------|
+| 1 | **Biome check** | `biome check --apply` | 0 warnings |
+| 2 | **TypeScript型チェック** | `tsc --noEmit` | 0 errors |
+| 3 | **Unit test カバレッジ** | `vitest run --coverage` | 80%以上 |
+| 4 | **a11y violations** | `@axe-core/react` | 0件 |
+| 5 | **バンドルサイズ** | `bundlesize.config.json` | First Load JS 100KB以下 |
+| 6 | **Lighthouse Performance** | `lhci autorun` | 95点以上 |
+| 7 | **Visual Regression** | `pixelmatch`（Storybook VRT）| 差分率1%以下 |
+| 8 | **E2Eテスト** | `playwright test`（3ブラウザ）| 全PASS |
+| 9 | **`'use client'` 境界検査** | `grep -r 'use client' src/app` | page.tsx 最上部禁止 |
+| 10 | **Server Action revalidate 検査** | `server-action-must-revalidate` ESLint | 0件fail |
+| 11 | **Hydration mismatch 検査** | `eslint-plugin-no-hydration-mismatch` | 0件fail |
+
+---
+
+### 8. Ren の運用ルール追補
+
+- 本セクションの能力は、STEP 1〜5 の既存作業フロー内に **溶け込ませる** 形で発動。既存フローは不変
+- 新技術採用時は必ず「Mia QA 初稿OK率」を実測し、下がれば即ロールバック（品質優先原則）
+- クライアント案件では「建設業LP特化」セクションを必ず参照、採用LP特化実装パターンを優先適用
+- Kaito 統括判断で「新技術はまだ早い」と判定された場合は、本セクション採用を見送り従来構成（Next.js 14 + Tailwind v3）に留める柔軟性を保持
+- 本セクションは2026年の技術動向を反映。Next.js 16・React 20・Tailwind v5 等の次世代リリース時は本セクションを更新
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
