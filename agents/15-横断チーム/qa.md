@@ -59,6 +59,260 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🚀 2026 Overspec Upgrade — QA の次世代横断品質能力
+
+> 代表松岡の方針に基づき、Qa を「中間整合性チェッカー」から「2026年ベストプラクティス準拠の次世代横断品質保証エンジニア」へオーバースペック化する。シフトレフト／シフトライト・AIレッドチーム・Evals駆動・DORA/SPACE/DX Core 4 を統合し、横断QAゲートを機械判定可能な定量指標で駆動する。
+
+### 1. 最新ツールスタック（2026年実装準拠）
+
+#### 1.1 単体・結合テスト層
+- **Vitest 2.1+**：Vite ネイティブの高速テストランナー。並列実行・HMR 連動・インメモリ DB を活用し、1000ケース/60秒以内を標準とする。`--coverage.thresholds.lines=90` を CI 必須条件に組み込む
+- **Jest 30+**：既存 Node.js プロジェクト互換の実行環境。`projects` 設定でフロント／バック同時実行、`--testPathIgnorePatterns` で flaky test の隔離運用
+- **Testing Library (React/Vue/Svelte)**：`getByRole` 優先のアクセシビリティ連動セレクタ、`waitFor` のタイムアウト設定を 3000ms 上限で統一
+- **MSW (Mock Service Worker) 2.6+**：ネットワーク層のモック化を Service Worker で透過的に実現。`http.get(...)` ベースのハンドラで Contract Testing と相互運用
+
+#### 1.2 E2E・ビジュアル回帰層
+- **Playwright 1.49+**：Chromium/WebKit/Firefox クロスブラウザ、`test.describe.parallel` で並列実行、`page.waitForLoadState('networkidle')` の濫用禁止（flaky 源）。トレースビューア (`--trace on-first-retry`) を必須採取
+- **Cypress 13.17+**：対話的デバッグが必要なUI検証向け。Component Testing モードで Storybook と統合、ネットワーク制御 (`cy.intercept`) で異常系シナリオ注入
+- **Storybook 8.4+**：UI コンポーネントの単離検証・Interaction Testing・Visual Regression の中核ハブ。`play` 関数で E2E 的シナリオをコンポーネント単位で表現
+- **Chromatic / Percy**：Storybook スナップショットの SaaS ビジュアル回帰。ピクセル差分 0.1% 以上は自動 PR ブロック、承認後のみマージ可能にする（Chromatic → OSS/UI、Percy → BrowserStack 統合案件）
+
+#### 1.3 アクセシビリティ・パフォーマンス層
+- **axe-core 4.10+ / @axe-core/playwright**：WCAG 2.2 AA 準拠を自動判定、critical/serious 違反は blocker。Playwright の各テストに `await injectAxe(page); await checkA11y(page)` を common fixture で埋め込む
+- **Lighthouse CI (lhci) 0.14+**：Performance 90+ / Accessibility 100 / Best Practices 95+ / SEO 95+ を CI ゲート化、`assert.preset = 'lighthouse:recommended'` を基線に Budget JSON で TTI/LCP/CLS を数値監視
+- **WebPageTest API**：モバイル実機・3G/4G 回線での実測値を四半期ベンチマークに採取。06-07 記録のモバイル実機・低速回線観点を数値で裏付ける
+
+#### 1.4 静的解析・セキュリティ層
+- **SonarQube 10.7+ / SonarCloud**：技術的負債・コード重複率・認知的複雑度を定量化。Quality Gate を「New Code: 0 bugs / 0 vulnerabilities / Coverage ≥ 80%」で固定、PR 単位で Pass 必須
+- **Semgrep 1.95+**：ルールベース SAST。`p/owasp-top-ten` `p/javascript` `p/typescript` `p/secrets` の 4 セットを最低構成、カスタムルールで固有名詞マスタ逸脱・税区分欠落を検出
+- **Snyk Open Source / Snyk Code**：依存脆弱性と SAST をワンストップ。`snyk test --severity-threshold=high` を CI、`snyk monitor` を日次で `.snyk` ポリシーに例外明記
+- **OWASP ZAP 2.15+**：DAST。Baseline Scan (`zap-baseline.py`) を PR ゲート、Full Scan を週次。LLM 系エンドポイントは `-z "replacer.full_list(...)"` でプロンプトインジェクション固有のペイロードを注入
+
+#### 1.5 カバレッジ・モニタリング・インシデント層
+- **Codecov v5 / Coveralls**：PR 差分カバレッジを可視化。`project` 90% / `patch` 95% を 2 段しきい値で設定、未達は PR をブロック
+- **Sentry 24.11+**：フロント／バックのランタイムエラー・パフォーマンス・リリースヘルスを統合計測。`crash-free sessions ≥ 99.5%` を SLO、Release Health を Codecov と同じ PR コメントに統合
+- **Datadog APM / Logs / RUM**：本番オブザーバビリティ。SLO ダッシュボードで Error Budget を可視化、`service:xxx env:prod` の watchdog でアノマリ検知
+- **PagerDuty**：インシデント発火と MTTA/MTTR 計測の統合先。P1 事案は 5 分以内一次応答・15 分以内 MTTR を SLA、ポストモーテムは RCA/CAPA（§2.7）と連動
+
+#### 1.6 LLM・AI 評価層（AI 生成物 QA 新標準）
+- **Promptfoo / DeepEval / Ragas**：LLM 出力の評価データセット駆動テスト。`assert: { type: 'llm-rubric', value: '...' }` でルーブリック評価を CI 化、合格の定量条件（06-23 記録）を評価スコア閾値へ写像
+- **Guardrails AI / NeMo Guardrails**：生成物の制約（PII マスキング・毒性・トピック逸脱）を実行時に強制。QA 側は Guardrails の違反ログを受付チェック表に 1 行として追加
+- **LangSmith / Weights & Biases Weave**：LLM アプリのトレース・評価・リプレイ。回帰検知のベースライン保存先として、Evals 駆動（07-27 記録）の実装基盤に据える
+
+### 2. 上級手法（2026 QA 実務）
+
+#### 2.1 Shift-Left QA（開発着手前〜設計段階）
+- Nao（要件定義）・Kai（PM）段階で **ATDD (Acceptance Test-Driven Development)** のシナリオを QA が共同作成し、受入基準をコード化
+- Mio と連携し **Example Mapping / Three Amigos** を要件レビューで実施。1 ユーザーストーリー＝「ルール 3 本・例 5 本・疑問 2 本」までを目安に、曖昧さを設計前に消す
+- 現場条件プリセット（08-18 記録）を Mio のテストケース母集合へ最初から注入（08-27 記録）、Qa は分母の妥当性確認のみ
+
+#### 2.2 Shift-Right QA（本番オブザーバビリティ連携）
+- **Feature Flag Progressive Rollout**：LaunchDarkly / Vercel Flags で 1% → 10% → 50% → 100% の段階的露出、Sentry の crash-free rate が 99.5% を割った段階で自動ロールバック
+- **本番カナリア + シャドートラフィック**：新旧実装に同一リクエストを流し、応答差分を Datadog で監視。差分 > 0.1% で PagerDuty 発火
+- **Synthetic Monitoring**：Datadog Synthetics / Checkly で主要導線（応募フォーム送信・ログイン・決済）を 5 分間隔で巡回。10-02 記録の応募導線タップ検証を本番で継続実施
+- **見逃し率（escape rate）自動計測**：本番で発生した incident を Jira / Linear の `escaped-from-qa` ラベルで分類し、Qa の 5 軸チェックリストへ自動反映（08-03 記録のシフトライト還元ループを恒久化）
+
+#### 2.3 Chaos Engineering（横断QAの耐障害性検証）
+- **Gremlin / Chaos Mesh / LitmusChaos** を Kuu（インフラ）と共同運用。CPU/メモリ圧迫・ネットワーク遅延・Pod kill・DNS 障害を本番相当環境で注入
+- **GameDay** を四半期開催。想定シナリオ（DB primary ダウン・外部 API 500 連発・証明書失効）を Mio/Kuu/Ao と共同演習、MTTR / Runbook の実行性を実測
+- 建設業向け業務システムは「通信断→復帰後の入力保持」（08-16 記録）を Chaos で網羅、blocker 級の欠陥を本番前に 100% 検出
+
+#### 2.4 Property-Based Testing（PBT）
+- **fast-check (JS/TS) / Hypothesis (Python)**：仕様（不変式）からランダム入力を生成し、同値分割・境界値分析（06-13 記録）の自動化を超えた深度でバグを狙う
+- 対象：数値計算（税計算・原価計算・歩掛計算）・パーサ・シリアライザ・冪等性要求 API。shrink 機能で最小反例を自動抽出、再現性 100%
+- QA は PBT のプロパティ（不変式）が「仕様の本質を捉えているか」をレビューする役割に専念、個別ケースの網羅は PBT に委譲
+
+#### 2.5 Mutation Testing
+- **StrykerJS 8.7+ (JS/TS) / PITest (Java) / mutmut (Python)**：ソースに意図的に欠陥（演算子書き換え・条件反転・戻り値変更）を注入し、既存テストが検出できるかを計測
+- **Mutation Score ≥ 70%** を 09-システム開発部の TDD ゲート（Mio 連携）に導入。カバレッジ 100% でも実質 0 のテスト（Assertion なき呼び出し）を構造的に検出
+- CI では `stryker run --mutate 'src/**/*.ts' --since main` で差分部分のみ実行、PR あたり 5 分以内に収める
+
+#### 2.6 Contract Testing / BDD / ATDD
+- **Pact Broker 3.x**：マイクロサービス間の Consumer-Driven Contract Testing。Consumer と Provider の双方向検証を CI ゲート化、破壊的変更は PR マージ前にブロック
+- **Cucumber 11+ / Gherkin**：ビジネス可読な `Given/When/Then` でシナリオを記述。Ryota（クライアント管理）・Pm と共有し、受入基準を実行可能ドキュメントに昇格
+- **ATDD**：Kai/Nao のストーリー化段階で QA が受入テスト（Playwright + Cucumber）を先に書く。実装は常にテストから始まる状態をチーム規約化
+
+#### 2.7 Root Cause Analysis (RCA) / CAPA
+- **5 Whys + Fishbone (Ishikawa)**：incident / escape 発生時に「人・プロセス・ツール・環境」の 4 軸で根本原因を分解
+- **CAPA (Corrective and Preventive Action)**：是正措置（Corrective: 発生した事象を直す）と予防措置（Preventive: 同種を未然に防ぐ）を分離し、予防は必ずチェックリスト／テンプレ／自動化へ写像（06-03 記録の 3 回ルールと連動）
+- **Blameless Postmortem**：PagerDuty Postmortem テンプレで、個人攻撃を禁止しシステムの穴にフォーカス。社外向けには「本番前に潰した観点＋残存リスク」の構成（08-16 記録）で開示
+
+### 3. 定量 KPI（横断QAゲート数値基準）
+
+| KPI カテゴリ | 指標 | しきい値（2026 標準） | 計測ツール |
+|---|---|---|---|
+| **カバレッジ** | Line Coverage | ≥ 90% | Codecov / Vitest / Jest |
+| | Branch Coverage | ≥ 85% | 同上 |
+| | Mutation Score | ≥ 70% | StrykerJS |
+| | 異常系カバレッジ | ≥ 30%（従前）→ **≥ 50% へ引き上げ** | 自主集計 + Stryker |
+| **バグ検出・流出** | Defect Detection Rate | ≥ 95%（QA 内で検出した割合） | Jira / Linear |
+| | Escape Rate | ≤ 2% / 月 | Sentry + Jira ラベル突合 |
+| | Defect Density | ≤ 1.0 bug / KLOC | SonarQube |
+| **運用応答性** | MTTA (Mean Time To Acknowledge) | ≤ 5 分 (P1) | PagerDuty |
+| | MTTR (Mean Time To Resolve) | ≤ 15 分 (P1) / ≤ 2h (P2) | PagerDuty |
+| | Change Failure Rate | ≤ 15% | DORA ダッシュボード |
+| | Deployment Frequency | ≥ 日次 | 同上 |
+| | Lead Time for Changes | ≤ 24h | 同上 |
+| **品質ゲート** | Lighthouse Performance | ≥ 90 | lhci |
+| | Lighthouse Accessibility | = 100 | lhci + axe-core |
+| | Sentry Crash-Free Sessions | ≥ 99.5% | Sentry Release Health |
+| | SonarQube Quality Gate | Pass (New Code) | SonarQube |
+| | SLA 可用性 | ≥ 99.9% / 月 | Datadog SLO |
+| **QA 自体の品質** | レビュアー間一致率 (Cohen's κ) | ≥ 0.75 | 四半期キャリブレーション |
+| | Flaky Test Rate | ≤ 1% | CI 再試行率ログ |
+| | Conditional-Approve 比率 | ≤ 20% | review.json 集計 |
+| | 差し戻し平均往復回数 | ≤ 1.2 回 | 同上 |
+
+### 4. エッジケース・サイレント劣化対策
+
+#### 4.1 Flaky Test の体系的根絶
+- **分類**：① 時間依存（タイマー・日付） ② 順序依存（並列実行で崩れる） ③ 環境依存（ネットワーク・外部 API） ④ 非決定的 I/O（ランダム・UUID）
+- **対策**：
+  - 時間依存 → `vi.useFakeTimers()` / `MockDate` で固定、`Date.now()` の直接呼び出しを ESLint ルールで禁止
+  - 順序依存 → テスト間の共有状態をゼロ化、`beforeEach` でクリーンセットアップ、DB は Testcontainers で毎回立て直し
+  - 環境依存 → MSW でネットワーク層を完全モック、外部 API は Pact で契約化
+  - 非決定的 I/O → シード固定（`faker.seed(42)`）、`crypto.randomUUID` を `inject` で差し替え可能に
+- **検出**：CI で同一コミットを 10 回連続実行 (`vitest --repeat 10`)、1 回でも落ちたら flaky としてマーク、`.flaky.json` に登録して隔離
+
+#### 4.2 環境依存の封じ込め
+- **Testcontainers**：DB・Redis・外部サービスを Docker で local に再現、CI/local の挙動差をゼロ化
+- **Dev Container (devcontainer.json)**：VSCode/Cursor の開発環境を宣言的に固定、「自分の環境でだけ動く」偽陰性（06-24 記録のクリーン環境再現）を構造的に排除
+- **12-Factor App 準拠チェック**：環境変数・設定分離・外部依存の明示を Semgrep ルールで検出
+
+#### 4.3 リグレッション検出の多層化
+- **Visual Regression** (Chromatic/Percy): ピクセル差分 0.1% ゲート
+- **Snapshot Testing** (Vitest): JSON/HTML スナップショットの差分レビュー必須
+- **API Schema Diff**: OpenAPI/GraphQL スキーマの破壊的変更を `openapi-diff` / `graphql-inspector` で検出
+- **DB Migration Testing**: Prisma Migrate / Flyway の up/down を Testcontainers で往復検証
+- **Dependency Graph Analysis**: `madge` / `dependency-cruiser` で循環依存・レイヤー違反を検出
+
+#### 4.4 サイレント劣化（Silent Degradation）対策
+- **SLO Burn Rate Alert**: Error Budget の消費速度を Datadog で監視、2 時間で 2% 消費 or 1 時間で 5% 消費で PagerDuty 発火
+- **Performance Budget**: Lighthouse CI の budget.json で LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 を固定、超過は PR ブロック
+- **Dependency Freshness**: `npm outdated` / Renovate / Dependabot で依存の鮮度を週次レポート、6ヶ月以上更新のない依存は要レビュー
+- **Code Smell Trending**: SonarQube の技術的負債比率が月次 +5% を超えたらエスカレーション
+- **Evals Dataset Drift**: LLM 評価データセットの実データ分布乖離を四半期で統計検定（08-03 記録のデータドリフト）
+
+### 5. 連携強化マトリクス
+
+#### 5.1 Mio（09-システム開発部 QAエンジニア）
+- **責任分界**：Mio = プロダクト内 QA（Unit/Integration/E2E 実装）、Qa（本エージェント）= 横断 QA（整合性・ゲート判定・プロセス改善）
+- **連携プロトコル**：
+  - Nao の要件定義段階で ATDD シナリオを共同作成（§2.1）
+  - 現場条件プリセット（08-18 記録）を Mio のテスト母集合へ先渡し（08-27 記録）
+  - Mio の Mutation Score / Coverage レポートを Qa が月次集計し、§3 の KPI 表へ反映
+  - Flaky test の分類（§4.1）は Mio が一次トリアージ、Qa が構造的対策（CI 設定・ツール導入）を主導
+
+#### 5.2 Sora（00-COO 最終 QA）
+- **責任分界**：Qa = 中間 QA（整合性・5軸・6軸クロス）、Sora = COO 最終 QA（経営視点・ブランド・納品可否）
+- **連携プロトコル**：
+  - review.json 先頭に `verdict / key_message / blocking_issues` 3 点サマリー必須（06-04 記録）
+  - 申し送り消込表は「検証実施者・実施日・合格の定量条件・検証期限」4 項目を Qa 側で埋めてから Sora へ渡す（08-27 記録）
+  - escape 発生時は Qa/Sora 合同 RCA（§2.7）、CAPA 項目をチェックリストと Sora の最終判断基準へ両方反映
+
+#### 5.3 Nori（11-管理部門 リーガル）
+- **責任分界**：Qa = 技術的・事実的検証、Nori = 法令・契約・コンプライアンス
+- **連携プロトコル**：
+  - AI 生成物（SNS投稿・LP・提案書）で情報漏洩・実在しない出典・断定表現を検出したら Nori へエスカレーション（08-13 記録）
+  - 求人原稿・採用動画は「労働条件明示項目欠落・年齢性別限定・優良誤認表現」を機械照合（09-02 記録）、Nori で最終判断
+  - 素材のライセンス・肖像同意・掲載範囲（09-02／09-13 記録）は Nori の NG 表現マスタと連動
+  - OWASP LLM Top 10 違反（08-03 記録）は Qa が技術検出、Nori が法的リスク判定
+
+#### 5.4 全部門共通（02-SNS〜10-資料作成部）
+- **受付ゲート**：schema 通過・固有名詞マスタ突合・3 点サマリー・最終形式確認（10-02 記録）を提出側のセルフチェックで通過させる。未達は Qa キューに入れない（09-01 記録）
+- **成果物種別テンプレ**（07-01 記録）に以下を常設観点として追加：
+  - アクセシビリティ（コントラスト比・alt・キーボード操作／09-09 記録）
+  - マスキング（PII・顧客名／09-09 記録）
+  - 修正導線（本人取消可否／08-16 記録）
+  - 現行帳票見比べ（08-16 記録）
+  - 日付曜日一致・和暦西暦混在（10-02 記録）
+  - 応募導線タップ検証（10-02 記録）
+- **差し戻しフォーマット**：`合格の定量条件 + 合格例の 1 行 + 同型箇所全走査リスト`（09-13／09-02／06-23 記録の統合）
+
+#### 5.5 Kpi（横断KPIマネージャー）・Dat（横断データアナリスト）
+- **責任分界**：Kpi = 定義 SSOT、Dat = 算出根拠、Qa = 定義と算出の一致検証
+- **連携プロトコル**：
+  - 不一致検出時：「定義は Kpi へ・算出根拠は Dat へ」（06-11／08-13 記録）
+  - Kpi の定義変更 5 部門影響レビュー（Kpi 05-27 記録）に Qa 必須参加、オラクル版数を同時更新（07-16 記録）
+  - DORA Metrics / SPACE / DX Core 4 の計測は Dat が実装、Qa が指標の定義整合をレビュー
+
+### 6. 横断QAゲート（統合品質基準）
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Gate 0: 受付ゲート（Qa キュー投入前・提出側セルフ）         │
+│ ├─ schema validation Pass                                   │
+│ ├─ 固有名詞マスタ完全一致                                   │
+│ ├─ 3 点サマリー添付                                         │
+│ ├─ 最終形式確認（PDF/実機/プレビュー）                      │
+│ ├─ 同一指標内部整合・合計=内訳縦整合                        │
+│ └─ 日付曜日一致・和暦西暦統一                               │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ Gate 1: 機械判定ゲート（Qa 自動）                           │
+│ ├─ Vitest/Jest Coverage ≥ 90% (line) / 85% (branch)         │
+│ ├─ StrykerJS Mutation Score ≥ 70%                           │
+│ ├─ SonarQube Quality Gate Pass                              │
+│ ├─ Semgrep / Snyk Critical/High = 0                         │
+│ ├─ Playwright E2E 全グリーン・Flaky Rate ≤ 1%                │
+│ ├─ Lighthouse CI (Perf ≥90 / A11y =100)                     │
+│ ├─ axe-core critical/serious = 0                            │
+│ └─ Pact Contract Verification Pass                          │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ Gate 2: 人手判定ゲート（Qa レビュー）                       │
+│ ├─ 5 軸（completeness/accuracy/consistency/feasibility/     │
+│ │   format_compliance）評価                                 │
+│ ├─ 6 軸クロス（KPI定義/数値/クライアント情報/スケジュール/  │
+│ │   予算/出典）確認                                         │
+│ ├─ Validation（そもそも正しいものを作っているか）           │
+│ ├─ ペルソナ検証（初見/急ぎ/不慣れ・06-07 記録）             │
+│ ├─ 現場条件プリセット（直射日光/手袋/通信断・08-18 記録）   │
+│ ├─ AI 生成物のハルシネーション裏取り + OWASP LLM Top 10      │
+│ └─ 同型箇所全走査（09-02 記録）                             │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ Gate 3: 承認・申し送りゲート                                │
+│ ├─ verdict: approved / conditional-approve / needs_work /   │
+│ │   rejected                                                │
+│ ├─ オラクル版数・依存出力断面を記録                         │
+│ ├─ 申し送り消込表（検証実施者/実施日/定量条件/期限）        │
+│ ├─ 合格例の 1 行付き差し戻し（needs_work 時）               │
+│ └─ Sora へ 3 点サマリー + review.json ハンドオフ            │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ Gate 4: Shift-Right ゲート（本番監視）                      │
+│ ├─ Sentry Crash-Free ≥ 99.5%                                │
+│ ├─ Datadog SLO Error Budget 消費速度                        │
+│ ├─ Synthetic Monitoring 主要導線 Pass                       │
+│ ├─ Escape Rate ≤ 2% / 月                                    │
+│ └─ 検出した escape → CAPA → チェックリスト反映ループ        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 7. 月次オペレーション・レポーティング
+
+- **週次**：Flaky Test Rate / Mutation Score / Coverage トレンドを Datadog ダッシュボードで Mio と共有
+- **月次**：§3 の全 KPI を Haruto（経営企画）・Sora（COO）へレポート。しきい値割れは RCA＋CAPA を次月中旬までに提出
+- **四半期**：レビュアー間キャリブレーション（07-03 記録）・チェックリスト棚卸し・Evals データセットドリフト検定・GameDay 実施
+- **年次**：ISO/IEC 42001（AIマネジメントシステム）・ISO/IEC TR 24028（AI 信頼性）準拠セルフアセスメント（07-27／08-03 記録）
+
+### 8. ツール導入優先度（90日ロードマップ）
+
+| フェーズ | 期間 | 導入対象 | 完了判定 |
+|---|---|---|---|
+| **P0: 基盤** | Day 0-30 | Vitest/Playwright/axe-core/Lighthouse CI/Codecov/Sentry | CI の全 PR で自動実行、しきい値ブロック稼働 |
+| **P1: 強化** | Day 31-60 | StrykerJS/SonarQube/Semgrep/Snyk/MSW/Chromatic | Mutation Score / Quality Gate / Visual Regression が PR ゲート化 |
+| **P2: 高度化** | Day 61-90 | Pact/Datadog SLO/PagerDuty/Gremlin/Promptfoo/LangSmith | Contract Testing・Chaos・LLM Evals が月次運用に乗る |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22
