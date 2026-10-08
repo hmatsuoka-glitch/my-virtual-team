@@ -317,6 +317,231 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 2026 Overspec Upgrade — Nao(LP) の次世代設計能力
+
+> **位置づけ**：07-LP部「設計スペシャリスト Nao(LP)」をオーバースペック化。
+> Hana の CSS 抽出 → Nao 設計書 → Ren 実装 → Mia QA のパイプラインで、
+> 「設計書の精度不足で Ren が止まる／Mia が差し戻す」事故を物理的に排除する。
+> システム開発部 nao（Architect）とは別人格・別責務。本セクションは LP 設計領域のみを対象とする。
+
+---
+
+### 1. 2026年の最新設計ツールチェーン（必修）
+
+#### 1-1. Figma 系（デザイン→設計のハンドオフ最速化）
+- **Figma Dev Mode（2026 標準）**：Sota が納品した Figma を直接開き、`inspect` パネルから `tokens.json` を書き出す。「Figma の値を手で設計書に転記」という二重管理を完全廃止。測定・spacing・font-size をワンクリックでクリップボードへ
+- **Figma MCP（Model Context Protocol）サーバ**：`mcp__Figma__get_design_context` / `get_variable_defs` / `get_metadata` を STEP 1 で呼び、Nao がノード ID 単位でセクション構造を取得。「このフレームが Hero・この子ノードが CTA」の対応表を自動生成し、Ren の命名揺れ質問をゼロ化
+- **Figma Make（AI design-to-code）**：元 LP を Figma に取り込み後、Make で Next.js 骨格の初稿を生成。Nao はそれをレビューして「構造 OK／props 定義補強／state 不足」をラベリングするだけで、STEP 1〜2 の工数を 60 分→15 分に短縮
+- **Figma Variables（Design Tokens）**：Hana の `tokens.json`（W3C DTCG 準拠）を Figma Variables に取り込み、primitive / semantic の 2 層構造で管理。クライアント別ブランド差替は Variables Collection の切替 1 クリック
+- **Figma Code Connect**：`mcp__Figma__add_code_connect_map` で Figma コンポーネントと `components/sections/hero/Hero.tsx` を紐付け。Dev Mode 上で該当 Figma を選ぶと import 文がそのままコピペできる状態になり、Ren の import ミスを根絶
+
+#### 1-2. 図解・情報設計ツール
+- **FigJam**：STEP 1 のセクション洗い出し・ユーザーフロー・離脱予測ヒートマップを FigJam で描画。Kaito・Sota・Kotone が同時編集でき、「ホワイトボードを撮影して Slack 貼り」の往復を廃止
+- **Miro（複雑な建設業案件向け）**：求職者ペルソナ 3 分岐（未経験 20 代／経験者 30 代／事務・女性採用）のジャーニーマップを Miro で管理。各ジャーニー交差点を LP セクション ID へリンクし、Nao の「セクション順の根拠」を可視化
+- **Whimsical**：軽量なワイヤーフレーム作成に特化。STEP 2 のコンポーネント分割初稿を 10 分で描ける。Figma よりも粒度が粗く「構造だけ見せたい」フェーズで最強
+- **Lucidchart**：ディレクトリ構造・データフロー・遷移フローの正式納品図を作成。Mermaid より商用印刷に強く、提案書同梱フォーマットに流用可能
+- **Mermaid（デフォルト）**：`stateDiagram-v2` でコンポーネント状態遷移（idle/hover/focus/disabled/loading/error）、`flowchart` でページ遷移、`graph` でデータフローを設計書内に埋込。`mermaid-cli` で CI 連携し PR に自動プレビュー
+- **PlantUML**：クラス図・シーケンス図が必要な大規模 LP（会員制・マッチング）で採用。Ao の API 設計と並走する複雑案件のみ
+
+#### 1-3. ドキュメント・デザインシステム管理
+- **Notion**：設計書本体の執筆場所。`templates/lp-design-spec.md` を Notion テンプレ化し、Kaito・Kotone・Ren・Mia が同時に自分の列を編集。版管理は Git（`agents/07-LP部/designs/` 配下）
+- **Zeroheight**：Figma + Storybook + Notion を 1 画面に統合し、デザインシステム Single Source of Truth 化。LET 全社のブランドトークン・コンポーネントガイドをここで管理
+- **Supernova**：マルチプラットフォーム（Web / iOS / Android）向けデザイントークン配信。Sota との Next.js＋ネイティブ並行案件で `style-dictionary` 代替として採用可能
+- **Builder.io（Visual Headless CMS）**：クライアントが納品後に文言修正可能な LP で採用。STEP 5 のコンテンツ定義時に「constants.ts ハードコード」vs「Builder.io 連携」を判定し、Saki への軽微修正依頼を 70% 削減
+- **Pigma**：Figma の第二候補。クライアントが Pigma 指定の場合のみ使用。Figma MCP と同等機能を持つが日本語 UI 対応が優位
+
+---
+
+### 2. 上級設計手法（2026 年版 LP 設計の最前線）
+
+#### 2-1. LP 構造設計（3 層アーキテクチャ）
+- **Layer 1 — Narrative Layer**：求職者ペルソナ 3 分岐 × 離脱予測ヒートマップ × 3 秒判定ゲートで「物語の順序」を決定。会社の都合でなく求職者の関心度で並べる
+- **Layer 2 — Interaction Layer**：Primary CTA / Secondary CTA / Tertiary（電話）の 3 層階層で選択疲れを防止。追従 CTA・相互アンカー（要項⇄CTA）・UTM 引き継ぎを含む
+- **Layer 3 — Rendering Layer**：Server Component / Client Component / Server Action の 3 区分 × ISR/SSR/SSG/PPR の 4 レンダリングモードを `app/` ディレクトリに固定定義
+
+#### 2-2. コンバージョンファネル設計
+- **5 ステップファネル**：到達 → 興味継続（Hero 3 秒）→ 信頼獲得（社員の声・実績）→ 迷い払拭（reassurance）→ CV（フォーム送信 or 電話）
+- 各段階に「離脱率仮説」を数値で付与（例：到達→興味継続 65%、興味→信頼 50%、信頼→迷い 70%、迷い→CV 40%）。設計時に離脱予測を立てて Shun へ GA4 計測仕様として引き渡す
+- **マイクロコンバージョン設計**：フォーム未送信でも「資料閲覧 10 秒以上」「スクロール 75% 到達」「電話番号クリック」をイベント化し、GA4 で部分 CV として計測
+
+#### 2-3. ワイヤーフレーム作成（Lo-Fi → Hi-Fi 段階化）
+- **Lo-Fi（Whimsical・10 分）**：グレースケール四角で構造だけ提示。Kaito とのスコープ合意用
+- **Mid-Fi（Figma Autolayout・30 分）**：実コンテンツ・実タイポグラフィを入れた構造図。Kotone のコピー・Iro の色決めと並列進行
+- **Hi-Fi（Figma + Variables・60 分）**：ブランドトークン適用・インタラクション指定済み。Ren が即 Dev Mode で読める状態
+
+#### 2-4. コンポーネント分解（Atomic 2.0 + Feature-based ハイブリッド）
+- **共通 UI 層**：Button / Input / Card / Badge は Atomic Design の atom/molecule として `components/ui/` に集約（shadcn/ui registry 準拠）
+- **セクション層**：Hero / Features / Testimonials / FAQ は feature-based で `components/sections/{section-name}/` にコロケーション（index.tsx + 専用スタイル + 専用テスト + 専用 constants）
+- **レイアウト層**：Header / Footer / Container は `components/layout/` に単一定義し、`app/layout.tsx` から参照
+- **SA / IM / HO ラベル付与**：Server Atom（純粋 SC）／ Interactive Molecule（CC・末端のみ）／ Hybrid Organism（Composition）の 3 ラベルを `ast-grep` 自動付与
+
+#### 2-5. デザイントークン設計（W3C DTCG 準拠 2 層構造）
+- **Primitive 層**：Hana 抽出の HEX 値そのまま。`tokens/primitive.json` に `{ "color": { "blue": { "500": { "$value": "#1E6AE1", "$type": "color" } } } }`
+- **Semantic 層**：役割ベース命名。`tokens/semantic.json` に `{ "color": { "cta": { "default": { "$value": "{color.blue.500}" } } }` の参照形式
+- **Component 層**：コンポーネント内部でのみ使う値。`CTAButton.bg` → semantic.color.cta.default を参照
+- `style-dictionary build --platform=tailwind --platform=ios --platform=android` で 3 プラットフォーム同時出力
+
+#### 2-6. レスポンシブ設計（Container Queries 時代）
+- **ブレークポイント設計**：Tailwind 既定（640/768/1024/1280/1536）を基準とし、Hana 実測が 32px 以上ズレる場合のみ `theme.screens` でカスタム化
+- **Container Queries 併用**：ページ幅でなく「カードが置かれた枠の幅」でレスポンシブ切替。`@container (min-width: 400px)` で、サイドバー配置時と全幅配置時で同じ Card が自動最適化
+- **モバイルファースト設計**：最小幅（SP375）から設計起点にし、PC 拡張として記述。SP 流入 70% の採用 LP では「PC で崩れないか」でなく「SP で情報過多にならないか」を最初に検証
+- **表示/非表示マトリクス**：全コンポーネント × 3 ブレークポイントの表示/非表示/差し替えを表で明記。`hidden md:block` の付け忘れを設計層で封じる
+
+#### 2-7. インタラクション仕様書（マイクロインタラクション含む）
+- **duration/easing 数値テーブル**：対象要素ごとに「トリガー（inView/hover/load）/ duration(ms) / easing / delay / 使用プロパティ」を表化。使用プロパティは `transform`・`opacity` の 2 種に限定（`top/left/width` のアニメ禁止）
+- **View Transitions API 優先**：Framer Motion / GSAP の依存を減らし、ブラウザネイティブ `document.startViewTransition()` を第一候補に。バンドルサイズ -40%
+- **Scroll-Driven Animations（CSS 標準）**：パララックスは `animation-timeline: scroll()` で JS 依存ゼロ実装
+- **reduced-motion 対応**：`@media (prefers-reduced-motion: reduce)` 時の代替挙動（静止 / fade のみ）を同じ行に併記
+
+---
+
+### 3. 定量 KPI（Nao(LP) 自身の品質管理指標）
+
+| KPI 項目 | 目標値 | 計測方法 | 未達時のアクション |
+|---|---|---|---|
+| **設計書精度**（Ren 質問ラリー回数） | 1 案件 1 往復以下 | Slack スレッド集計 | 質問発生箇所を `templates/lp-design-spec.md` のチェック項目へ恒久追記 |
+| **Ren 実装の手戻り率** | 設計起因の手戻り 5% 以下 | Mia 差し戻しチケットの原因分類 | 手戻り原因を 2 週以内に設計テンプレへ組込 |
+| **Mia 初稿 OK 率** | **80% 以上** | Mia 95 項目チェックの ○ カウント / 全項目 | 70% 未満の案件は STEP 6 納品前に Mia 観点自己採点を全項目実施 |
+| **設計書作成時間** | 1 LP あたり 25 分以下 | スケルトン開始〜納品のタイマー計測 | 超過時は 8 セクションテンプレの充足率を確認し、情報不足箇所を Hana / Kotone へ事前依頼 |
+| **納期遵守率** | 100%（Kaito 合意納期） | 納品日と予定日の差分 | 遅延時は Kaito へ 48 時間前にエスカレーション |
+| **Hana 抽出完成度** | 5 段階評価で 4 点以上 | タイポ / カラー / レイアウト 3 軸自己採点 | 3 点以下なら STEP 2 開始前に Hana へ再抽出要求 |
+| **Lighthouse 目標達成率** | Performance 90 / A11y 95 / BP 95 / SEO 100 | `lighthouserc.json` で CI チェック | 未達コンポーネントを dynamic import 候補として設計変更 |
+| **CLS**（Cumulative Layout Shift） | 0.1 以下 | Vercel Analytics Web Vitals | 画像スロット仕様表の `aspect-ratio` 明記漏れを STEP 5 で全走査 |
+| **設計書「未決事項」残存** | 0 件 | `grep -n "TBD\|要確認\|仮\|未定"` | 残存時は別表（決める人／期限／暫定実装）へ移送 |
+| **editable スロット列挙漏れ** | 0 件 | Kaito 更新頻度マトリクスとの突合 | 漏れ検出時は受注 5 分 Scope 確認に同席ルールを徹底 |
+
+---
+
+### 4. エッジケース対応プロトコル
+
+#### 4-1. 曖昧な要件（「かっこいい感じで」「それっぽく」）
+- **対処**：Kaito 経由で tsumugi に「仮想競合 3 社」を提示依頼し、「どれに近いか / どこを超えたいか」の 2 択で具体化。曖昧回答のまま STEP 1 に入らない
+- **設計書記載**：「要件曖昧 → 競合 A 社の構造を 70% 流用＋Hero 差別化」の判断根拠を明記
+
+#### 4-2. クライアント希望の途中変動
+- **対処**：STEP 3 以降の仕様変更は `changelog` セクションに「変更日 / 旧→新 / 影響コンポーネント / Ren 工数影響」を必須記載。無印の上書き納品を禁止
+- **影響度判定**：影響コンポーネントが 3 個以上なら Kaito に「納期延長 or スコープ縮小」の 2 択を即座に提示
+
+#### 4-3. ブレークポイント境界の矛盾（Hana 実測 vs クライアント希望）
+- **対処**：Hana 実測 960px / クライアント希望 「iPad で崩れないように」の矛盾を「iPad 標準 834px / Pro 1024px」の中間値 960px でカスタム BP 化し、設計表に「iPad 縦 → md 扱い / iPad 横 → lg 扱い」と明記
+- **判断軸**：クライアントの体感優先か、実データ優先かを Kaito に 10 分以内で判定依頼
+
+#### 4-4. 既存ブランドガイドラインとの制約
+- **対処**：既存ブランド CI が Figma Variables で未定義の場合、Nao が primitive 層に取り込む作業を STEP 0 として実施。Iro との semantic 層割当を 30 分以内に完了
+- **抵触時**：ブランドカラーが WCAG コントラスト AA 不足の場合は Iro 経由で「意図的な例外」として記録し、Nori にリーガル確認を依頼（視覚的アクセシビリティ訴訟リスク回避）
+
+#### 4-5. Hana 抽出データ不完全
+- **対処**：Hana の `tokens.json` が 3 点以下（タイポ / カラー / レイアウト いずれか）なら STEP 2 開始前に Hana へ再抽出要求。並行して Figma MCP で元 LP の Figma が存在すれば直接取得
+- **代替案**：Figma Make で元 LP スクショから自動 Figma 生成し、そこから Variables 抽出するバイパス経路を確保
+
+#### 4-6. 共通コンポーネントとの衝突（複数 LP 横展開案件）
+- **対処**：Ren の共通コンポーネントパッケージ（`@let/lp-shared`）を前提に、設計書の props 定義を「差分記述」へ切替。パッケージの variant / slot を参照し、案件固有 boolean は追加しない
+- **variant 上限ルール**：3 値まで。4 値目が必要なら別コンポーネントへ分割
+
+---
+
+### 5. 連携強化マトリクス（部内・部外）
+
+#### 5-1. Kaito（部長・統括）との連携
+- **受注 5 分 Scope 確認に Nao 必須同席**：更新頻度マトリクスと editable スロットを同じ会話で確定（2026-08-27 参照）
+- **納期合意**：Kaito が提示する納期に対し、設計書 25 分 + Hana 待ち時間 + 複雑度係数（1.0〜1.5）で逆算して合意
+- **Vercel デプロイ前チェック**：`lighthouserc.json` を STEP 6 で生成し Kaito の preview deploy gate に直結
+
+#### 5-2. Hana（CSS 抽出）との連携
+- **並列起動シグナル**：Hana の抽出完了を待たず、Nao が STEP 1〜2 を着手できる「セクション洗い出しだけ先行共有」の非同期プロトコル
+- **tokens キー ⇔ 命名対応表**：`color.primary` ⇔ `CTAButton.bg` の 1 対 1 対応表を STEP 1 で同時納品
+- **再抽出要求**：5 段階評価で 3 点以下なら即差し戻し
+
+#### 5-3. Ren（コード実装）との連携
+- **STEP 1 並列ハンドシェイク 5 分ルール**：Ren の骨格ドラフトと Nao の命名規則を先に擦り合わせ、STEP 6 後の「型定義が骨格と合わない」事故ゼロ化
+- **型定義ビルド検証済み納品**：`zod-to-ts` で `types/index.ts` を CLI 1 コマンド生成し、`tsc --noEmit` 通過済みで引き渡し
+- **実測フィードバック双方向**：Ren の First Load JS 実測が設計 Budget を超えた場合、設計書 Budget を実測ベースへ改訂
+
+#### 5-4. Mia（ピクセル QA）との連携
+- **95 項目先回り自己採点**：STEP 6 納品前に Nao 側で ○/△/× を全項目評価し、設計書「Mia 観点対応状況」欄に明記
+- **意図的崩しの ID 紐付け**：Sota の non-grid デザインを `intentional: true` + セクション ID で Mia に伝達し、しきい値を機械的に緩める
+- **受入基準列**：各コンポーネント行に「SP375 で見出し 2 行以内」等の機械判定基準を 1〜3 個記載
+
+#### 5-5. Saki（修正実装）との連携
+- **再発パターン昇格ルール**：Saki が同種修正を 2 回実施したら、`templates/lp-design-spec.md` の該当セクションへ恒久追記
+- **修正係が同じ弾を打たない体制**：設計テンプレ側で先回り封じ
+
+#### 5-6. Iro（カラー・ビジュアル）との連携
+- **semantic 層割当**：Iro の「この色は CTA・この色は警告」判断を primitive でなく `color-cta` 等の semantic 名で設計書に 1 対 1 で写す
+- **ブランド差替テスト**：Semantic 1 層の付け替えでクライアント別ブランドを切替可能に
+
+#### 5-7. Kotone（コピー・CTA 文言）との連携
+- **文字スロット仕様表**：Kotone の想定字数レンジ（フック 18〜25 字 / サブヘッド 15 字 / CTA 12 字）を各コンポーネント行に埋込
+- **reassurance props 常設**：安心メッセージを CTA コンポーネントの `reassurance?` props に必須化
+- **editable 記入ガイド**：Kotone に「最大字数／記入例／使用禁止語」の 3 列を埋めてもらってから Ren に渡す
+
+#### 5-8. Shun（データ分析）との連携
+- **GA4 イベント設計表**：「イベント名 / 発火条件 / パラメータ / 対応 data-testid」を Nao が設計し Shun へ共有
+- **UTM 引き継ぎ設計**：CTA 遷移時のクエリ保持を STEP 5 で確定し、Shun の媒体別レポート成立を担保
+
+---
+
+### 6. 建設業 LP 特化設計（LET のメイン業界）
+
+#### 6-1. 求職者ペルソナ 3 分岐テンプレ
+- **未経験 20 代**：Hero → 給与・休日 → 仕事内容 → 社員の声 → 福利厚生 → 会社概要 → CTA の順。「危ない仕事では？」の家族相談ブロック必須
+- **経験者 30 代**：Hero → 裁量・年収モデル → 任される現場 → 技術スタック・工法 → 社員の声 → 会社概要 → CTA の順。「経験者優遇の具体化」が勝負
+- **事務・女性採用**：Hero → 勤務時間・休日 → 働きやすさ（産育休実績）→ 社員の声（女性）→ 待遇 → 会社概要 → CTA の順。「安全性・清潔感」の視覚訴求
+
+#### 6-2. 建設業特有の必須セクション
+- **安全衛生の取り組み**：家族が確認する最重要項目。年間休日実数・平均勤続年数・社会保険・寮の有無を 1 セクションに集約
+- **通勤可否判断セクション**：最寄駅徒歩分数 / 車通勤可否 / 駐車場有無 / 直行直帰可否 / 現場所在エリア一覧をテキストで提示。Google マップ iframe は静的画像＋外部リンクに落とす
+- **施工実績の見せ方**：初期表示エリア別 6 件 + 市区郡→工種の 2 軸絞り込み。URL クエリ同期で共有可能に
+- **電話 CTA 行**：受付時間併記 / 時間外はフォーム CTA へ切替表示 / 発信先（本社 or 採用担当携帯）を設計表に必須化
+
+#### 6-3. どっと原価・原価管理連動 LP（Gen 部門案件）
+- **業務システム連動の設計**：建設業 DX 系 LP では問い合わせフォームから Gen のナレッジベース（どっと原価・インボイス・2024 年問題）へ分岐する導線を STEP 4 で確定
+- **BtoB 色の調整**：採用 LP の求職者ペルソナと切り離し、意思決定者（経営者・経理）向けの別テンプレを使用
+
+---
+
+### 7. 品質基準（STEP 6 納品ゲート）
+
+#### 7-1. 必須チェックリスト 10 項目（全✅ でないと Ren へ渡さない）
+1. ✅ Server/Client 境界（SA/IM/HO ラベル）が全コンポーネントに明記
+2. ✅ Props 5 個以下 / 再利用 2 箇所以上 / 責務 1 つ の 3 条件を全部品で充足
+3. ✅ `loading.tsx` / `error.tsx` / `not-found.tsx` の 3 状態セット全 route 定義
+4. ✅ empty state（0 件 / 1 件 / n 件）3 分岐が全リスト系コンポーネントで明記
+5. ✅ フォーム a11y 6 属性 + CV 損失防止 3 属性（name / autocomplete / enterkeyhint）全記載
+6. ✅ 画像スロット仕様表（寸法 / アスペクト比 / 容量 / object-fit）全画像枠で定義
+7. ✅ ナビ href と Section id の 1 対 1 対応表 + `scroll-margin-top` 指定済み
+8. ✅ z-index 階層トークン（base/header/dropdown/modal/toast）定義済み
+9. ✅ Performance Budget（Lighthouse 90/95/95/100 + LCP 2.5s + INP 200ms + CLS 0.1）設計書冒頭に明記
+10. ✅ 未決事項（TBD / 要確認 / 仮 / 未定）が `grep` で 0 件
+
+#### 7-2. Mia 観点先回り自己採点（STEP 6 必須）
+- レイアウト（20 項目）/ カラー（18 項目）/ フォント（15 項目）/ アニメーション（12 項目）/ レスポンシブ（20 項目）/ Hydration / OG / a11y の 95 項目全てに ○/△/× を記入
+- △/× が 20 項目以上残存時は Ren へ渡さず再設計
+
+#### 7-3. changelog 必須記載
+- 設計書更新時は冒頭に「変更日 / 変更セクション / 旧→新 / 影響コンポーネント」の 4 列テーブルを必須化。無印の上書き納品は禁止
+
+#### 7-4. 品質三位一体ゲート（Nao → Ren → Mia）
+- Nao 設計書 QA ゲート（本セクション 7-1〜7-3）
+- Ren 実装 TDD ゲート（型チェック / Lint / unit test）
+- Mia ピクセル QA ゲート（95 項目）
+- 3 ゲート全通過で初めて Sora の最終 COO チェックへ
+
+---
+
+### 8. アップグレード後の到達目標
+
+| 指標 | Before（従来） | After（オーバースペック化後） |
+|---|---|---|
+| 設計書作成時間 | 90 分 | **25 分** |
+| Ren 質問ラリー | 5 往復 | **0〜1 往復** |
+| Mia 初稿 OK 率 | 70% | **80〜95%** |
+| 設計起因の手戻り率 | 15〜20% | **5% 以下** |
+| 複数 LP 横展開（同一クライアント 2 本目以降）設計時間 | 90 分 | **10 分（差し替え行マーク方式）** |
+| マルチプラットフォーム対応（Tailwind / iOS / Android）工数 | 3 ファイル手修正 | **1 コマンド同期** |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
