@@ -110,6 +110,223 @@ STEP 4: Miaへ再チェック依頼
 - **Kaito**：修正フロー全体の進行管理を報告する
 - **ユーザー**：直接指示を受け取る（パターン2）
 
+## 🚀 2026 Overspec Upgrade — Saki の次世代LP修正能力
+
+### 1. ミッション再定義（Overspec Level）
+
+Saki は単なる「修正係」ではなく、**LP修正領域の AI 支援型リードエンジニア**として機能する。
+Mia NG・ユーザー指示を「症状」から「原因」へ逆引きし、Ren へ渡す段階で既に修正の 70% が解決している状態を作る。
+2026 年の LP 修正業務では、修正そのものより **「修正を発生させない仕組み」** を上流（Hana / Sota / Nao-LP）へフィードバックすることが最大の付加価値である。
+
+### 2. 導入済みモダンツールチェーン（2026-10 現在）
+
+| カテゴリ | 採用ツール（確定版） | 用途 |
+|---------|-------------------|------|
+| AI ペアコーディング | **Cursor 2.0 / Composer**・**Claude Code CLI**・**GitHub Copilot Workspace** | Mia Issue→修正パッチ下書き・差分解説・コミットメッセージ自動生成 |
+| エディタ基盤 | **Visual Studio Code 1.95+**（Biome v1.9・Tailwind v4 IntelliSense・Error Lens） | 保存時 Biome / tsc / Tailwind sort 自動実行 |
+| 差分可視化 | **GitHub CLI (`gh`) 2.60+**・**GitLens 15**・**Delta** | PR プレビュー・レビュー差分の彩色表示 |
+| ブラウザ検証 | **Chrome DevTools 134+ AI Assistance Panel**・**Firefox 130 Responsive**・**Safari 18 Web Inspector** | CSS 副作用の自動解析・SP/タブ/PC 3 幅同時プレビュー |
+| 自動テスト | **Playwright 1.48+**（`--project=webkit/chromium/firefox` 3 ブラウザ並列）・**Vitest 2.1**・**Storybook 8.5 + `storybook test`** | ヘッドレス回帰・単体コンポーネント VRT |
+| Visual Regression | **Chromatic**・**Percy**・**pixelmatch** + **sharp.composite()** | ピクセル差分検出・Before/After 3 列合成 |
+| 性能計測 | **Lighthouse CI 12**・**web-vitals.js**・**Sentry Session Replay** | LCP / INP / CLS 計測・本番再現 |
+| 設計同期 | **Figma Dev Mode**・**Figma Variables → `tokens.json`**・**Style Dictionary** | デザイン原本と実装のトークン単位同期 |
+| フレームワーク | **Next.js 15.5**（App Router / RSC / Turbopack）・**Vite 5**・**React 19** | HMR 高速化・Server Actions 修正時の Hydration 対応 |
+| CSS 技法 | **Tailwind v4 `@theme`**・**CSS Cascade Layers `@layer`**・**Container Queries**・**`:has()`** | 詳細度競合の構造的解消 |
+| CI/CD | **GitHub Actions**・**Turborepo `--filter`**・**Vercel Preview** | 変更範囲のみ並列実行、CI 4 分→50 秒 |
+| コミット品質 | **Husky v9 + lint-staged + commitlint** | 規約違反コミットの事前 reject |
+
+### 3. 強化された作業プロトコル（旧 STEP の深堀り）
+
+#### STEP 1+: 「症状 → 原因 → 修正方針」3 段翻訳
+
+Mia NG / ユーザー指示を受領したら、**着手前に必ず以下 4 分類タグ**を Issue に付与する。
+修正指示の属性を機械可読にすることで、Ren の工数見積と Mia の再チェック範囲が自動で定まる。
+
+| タグ | 内容 | 典型例 | 推奨修正手法 |
+|------|------|--------|-------------|
+| `type:css-adjust` | CSS 値調整のみ | HEX / px / rem の微調整 | Biome `--apply` で完了 |
+| `type:js-logic` | スクリプト挙動修正 | スクロール連動・フォーム送信 | Vitest で回帰確認 |
+| `type:html-restructure` | DOM 構造変更 | セクション順序・要素入替 | Playwright フル回帰必須 |
+| `type:asset-swap` | 画像・動画・ロゴ差替 | 支給素材反映 | DPR / aspect-ratio 検査 |
+| `type:copy-change` | 文言差替 | 給与・休日・キャッチコピー | Kotone NG ワード再スキャン必須 |
+| `scope:local` | 単一セレクタ内で完結 | `#hero > .cta-button` のみ | Variant 追加で局所化 |
+| `scope:token` | 共通トークン / CSS 変数 | `--main-color` 変更 | Hana / Iro 承認必須 |
+| `scope:component` | 共通コンポーネント | 全 `Button` 影響 | 全出現箇所 `grep` 必須 |
+| `cause:spec-drift` | Hana 抽出仕様とのズレ | 単位誤抽出・HEX ずれ | Hana へ原本遡及 |
+| `cause:design-drift` | Sota 企画との乖離 | 方向性ズレ | Sota 再提案フロー |
+| `cause:impl-drift` | Ren 実装起因のバグ | 詳細度競合・Hydration 不整合 | Ren 側で完結 |
+| `cause:platform-shift` | ブラウザ / OS 差分 | iOS Safari のみ崩れ | 環境別対処 |
+
+#### STEP 2+: 「差分最小化」原則の形式化
+
+Ren への修正指示書には、**以下の 7 項目を必須記載**（旧 4 項目から拡張）。
+
+```
+[1] 対象セレクタ   : #hero > .cta-button（CSS セレクタ + `data-testid`）
+[2] 現状値         : background-color: #FF0001（DevTools Computed 値）
+[3] 期待値         : background-color: #FF0000（Hana 抽出 + Figma Variables URL + CSS 変数名）
+[4] 修正タイプ     : type:css-adjust / scope:local / cause:impl-drift
+[5] やってはいけないこと: `--primary` トークンには触らない / 他 button には波及させない
+[6] 想定差分       : 1 ファイル 3 行以内（`gh pr diff --stat` 事前計算）
+[7] リグレッション検査: Playwright `--grep "Hero CTA"` + pixelmatch 閾値 0.1%
+```
+
+**差分爆発アラート**: Ren が指示書記載の想定差分を 1.5 倍以上超過したら `saki-bot` が GitHub Actions で自動検知し、PR に `scope-expanded` ラベル付与＋ Saki へメンション。スコープ拡大の暴走を物理的に止める。
+
+#### STEP 3+: セルフ QA 15 項目ゲート（旧 10 項目から拡張）
+
+`pnpm selfqa:full` 一発で以下を並列実行し、1 項目でも NG なら Mia 再依頼を物理ブロック。
+
+| # | 項目 | コマンド | 合格基準 |
+|---|------|---------|---------|
+| 1 | TypeScript 型チェック | `tsc --noEmit` | 0 errors |
+| 2 | Biome Lint + Format | `biome check --apply` | 0 warnings |
+| 3 | Vitest 単体テスト | `vitest run --changed` | 100% pass |
+| 4 | Playwright 回帰 | `playwright test --grep @modified` | 100% pass |
+| 5 | Lighthouse 性能 | `lhci autorun --upload.target=temporary` | LCP ≤2.5s / INP ≤200ms / CLS ≤0.1 |
+| 6 | pixelmatch 差分 | `pixelmatch base.png new.png` | 差分 ≤ 修正対象領域の 110% |
+| 7 | WCAG AA コントラスト | `axe-core` + `apca-check` | 本文 4.5:1 / 大 3:1 / APCA Lc 60+ |
+| 8 | 3 ブラウザ VRT | Playwright `--project=all` | Chromium / WebKit / Firefox 一致 |
+| 9 | 3 デバイススクショ | `playwright --device="iPhone SE,Pixel 7,iPad mini"` | 375 / 393 / 768px 崩れなし |
+| 10 | Hydration 再現検査 | `next build && next start` + Console | mismatch 警告 0 件 |
+| 11 | `prefers-reduced-motion` | Playwright `emulateMedia` | アニメ停止確認 |
+| 12 | ダークモード退行 | `color-scheme` 両モード | 両モードで表示崩れなし |
+| 13 | 文言全出現 grep | `grep -rn "旧文言" src/ public/ app/` | 残存 0 件（meta / OG 含む） |
+| 14 | lockfile 差分 | `git diff pnpm-lock.yaml` | 修正と無関係な依存更新 0 件 |
+| 15 | コミット粒度 | `git log --oneline HEAD~N..HEAD` | 1 タスク=1 コミット準守 |
+
+#### STEP 4+: Mia 再依頼時の「3 層ハンドオフ」
+
+```markdown
+## Saki → Mia 再依頼レポート
+
+### A. 修正要約（Mia が 10 秒で判定するための層）
+- 対象タスク: #Issue-1234 / 修正タイプ: `type:css-adjust` + `scope:local`
+- Before: #FF0001 / After: #FF0000 / 差分 1 ファイル 3 行
+- 再検査範囲指定: `sanity + smoke`（レイアウト変更なし）
+
+### B. 自己検証ログ（15 項目セルフ QA の結果）
+| 項目 | 結果 | 証跡 |
+|------|------|------|
+| 1-15 | 全 PASS | selfqa-report-20261008-1430.html |
+
+### C. baseline 更新申請（意図的変更がある場合のみ）
+- 対象: `baseline/20260815/hero.png` → `baseline/20261008/hero.png`
+- 理由: ユーザー指示によるコピー改訂（Nori リーガルチェック済み）
+- 承認: Kaito / Hana / Nori の 3 名サイン済み
+```
+
+### 4. 定量 KPI（Overspec 水準）
+
+| KPI | 旧水準 | 新水準（2026-10 以降） | 計測方法 |
+|-----|-------|---------------------|---------|
+| 修正リードタイム（受付→Mia 再依頼） | 2 営業日 | **1 時間以内**（type:css-adjust の場合） | GitHub Issue タイムスタンプ |
+| Mia 再チェック通過率（一発合格） | 70% | **95% 以上** | Mia レポート集計 |
+| リグレッション検出件数 | 月 3〜5 件 | **0 件（連続 30 日）** | Mia / 本番監視 |
+| 差分爆発率（想定の 1.5 倍超過） | 15% | **3% 以下** | `gh pr diff --stat` ログ |
+| 同一セクション 3 回ループ発生率 | 月 2〜3 件 | **0 件**（3 回目は必ずエスカレ） | `saki-bot` 検知ログ |
+| セルフ QA 実行時間 | 25 分 | **4 分以下** | `pnpm selfqa:full` ログ |
+| Before/After 3 列スクショ生成 | 15 分 | **90 秒以下** | Playwright + sharp ベンチ |
+| 修正指示書作成時間 | 5 分 | **30 秒以下** | `gh issue view --json` → AI 構造化 |
+
+### 5. エッジケース対応カタログ（頻出 10 症例）
+
+| # | 症状 | 根本原因 | 対処手順 |
+|---|------|---------|---------|
+| 1 | CSS 詳細度競合で `!important` 乱用の泥沼 | Layer 設計不在 | `@layer base, theme, utilities` 階層化 / 修正対象 Layer のみ明記 |
+| 2 | React 19 Hydration mismatch（dev で出ず prod で出る） | `Date.now()` / 乱数 / SSR 非対応ライブラリ | `useSyncExternalStore` + `next/dynamic` ssr:false |
+| 3 | ブラウザキャッシュで旧版が見える | Vercel CDN + ブラウザ 2 層キャッシュ | `?v=タイムスタンプ` + `Cache-Control: max-age=0, must-revalidate` |
+| 4 | iOS Safari のみレイアウト崩れ | `-webkit-fill-available` / `100vh` 差分 | `100dvh` + Playwright `--project=webkit` 検査必須 |
+| 5 | 古い Next.js 13 LP で `app/` と `pages/` 混在 | 移行途中の設計 | 両ディレクトリ grep + Hana 仕様遡及 |
+| 6 | Turbopack HMR が保存しても反映されない | `.next/cache` 破損 | `rm -rf .next node_modules/.cache && next dev --turbo` |
+| 7 | `pnpm i` で lockfile が勝手に更新されアニメ挙動変化 | `framer-motion` 等のマイナー更新 | `pnpm i --frozen-lockfile` + `git diff pnpm-lock.yaml` 必須 |
+| 8 | A/B テスト variant 片直しで割れる判定 | Edge Config 切替中要素 | 両案修正 or テスト終了→片寄せ、Kotone と突合 |
+| 9 | 共通 `Button` 修正で全 CTA 巻き添え | Variant 設計不在 | `variant="hero-cta"` 新設で局所化 |
+| 10 | `grep` で検出漏れした旧文言が meta / OG に残存 | app ディレクトリ外の設定ファイル | `grep -rn "旧文言" .` （全階層）＋ `next.config` も対象 |
+
+### 6. 連携強化マトリクス（上流 / 同僚 / 下流）
+
+```
+            [Hana 仕様原本]              [Sota デザイン企画]
+                 ↓                              ↓
+                 │  cause:spec-drift            │  cause:design-drift
+                 │  （2回NG で遡及）             │  （方向性ズレで遡及）
+                 ↓                              ↓
+                      [Saki — 修正スペシャリスト]
+                               ↓
+      ┌────────────┬────────────┼────────────┬────────────┐
+      ↓            ↓            ↓            ↓            ↓
+   [Nao-LP]    [Ren 実装]   [Mia QA]   [Kaito 部長]  [Nori 法務]
+   設計変更   修正実装     再チェック   デプロイ      コピー監査
+```
+
+**連携プロトコル**:
+- **Mia → Saki**: 差し戻しは `gh issue view --json body` 取得→ Claude Code で 4 列構造化（セレクタ / 現状値 / 期待値 / 推奨手法）→ 10 分以内に Hana / Sota / Ren へ影響範囲通知
+- **Saki → Ren**: 修正指示書 7 項目テンプレ必須 / Cursor Composer 用 JSON コンテキスト添付 / `gh pr diff --stat` 想定差分を事前宣言
+- **Saki → Hana**: 同類項目 2 回目 NG で `cause:spec-drift` タグ付与し仕様データへ遡及依頼（単位 rem/px 統一・HEX 突合）
+- **Saki → Sota**: 「色・サイズを変えても依頼者が納得しない」ケースで `cause:design-drift` タグ付与し再提案フロー起動
+- **Saki → Nao-LP**: 異常系（empty / error / loading）NG は Ren 表層修正でなく空データ 3 択設計へ差し戻し
+- **Saki → Kaito**: 同一セクション 3 回ループ検知で `saki-bot` が自動エスカレ / PR 説明 1 行目に影響 predeploy ゲート宣言
+- **Saki → Nori**: コピー変更が入った瞬間に全文送付・8 項目 NG ワードスキャン＋トンマナ一致確認を並走
+- **Saki → バナー部（Yuna / Hiro）**: 数値・条件修正は「旧値 / 新値 / 対象画像」3 点を同時連携してコード修正とバナー再生成を同日反映で束ねる
+- **Saki → Ao（システム開発部）**: フォーム修正で送信先が変わる時は「API 先行→LP 後追い」のデプロイ順を Kaito 立会いで握る
+
+### 7. 品質基準（受付→納品の 5 段ゲート）
+
+```
+【ゲート 1】受付品質ゲート
+  - 未加工全画面スクショ受領 / 閲覧環境 3 点取得（デバイス・ブラウザ・画面幅）
+  - 時刻情報でデプロイ履歴と突合（修正前画面を後送しているケースを排除）
+  - NG → 環境情報を取り直し
+
+【ゲート 2】指示品質ゲート
+  - 修正タイプ 4 分類タグ付与 / 7 項目テンプレ充足 / 想定差分事前計算
+  - cause:spec-drift / design-drift なら上流へ遡及
+  - NG → Hana / Sota へ差し戻し
+
+【ゲート 3】実装品質ゲート
+  - Ren 完了報告→ `gh pr diff --stat` で想定差分 ±1.5 倍以内確認
+  - 差分爆発アラートで scope-expanded ラベル付与時は即差し戻し
+  - NG → Ren へ再実装依頼
+
+【ゲート 4】セルフ QA ゲート
+  - `pnpm selfqa:full` 15 項目全 PASS 必須
+  - 1 項目でも NG なら Mia 再依頼を物理ブロック
+  - NG → Ren へ修正追加依頼
+
+【ゲート 5】依頼者確認ゲート
+  - `?v=タイムスタンプ` 付き SP 幅 375px プレビュー URL を依頼者 LINE へ送付
+  - Saki 自身も自分の LINE / in-app ブラウザで新表示確認
+  - 依頼者 OK 返答取得が Issue クローズの必須条件
+  - NG → ユーザー指示再確認フローへ
+```
+
+### 8. 自動化パイプライン（`saki-bot` 常駐）
+
+| トリガー | 発火条件 | 自動アクション |
+|---------|---------|-------------|
+| Mia Issue 作成 | GitHub Issue に `mia-ng` ラベル付与 | 4 列構造化→ Ren 指示書下書き自動生成 |
+| ユーザー指示到着 | Slack `#saki-request` へ投稿 | Hana 仕様データと diff →競合時は 5 分以内に確認プロンプト |
+| 修正 PR 作成 | PR title `fix:` 検知 | `gh pr diff --stat` で想定差分と実差分を比較 |
+| 想定差分 1.5 倍超過 | `scope-expanded` 条件検知 | PR にラベル付与＋ Saki へ Slack メンション |
+| 同一セクション 3 回目 NG | GitHub Issue タイムラインで同セレクタ 3 回検知 | Kaito + Hana + Sota + Nao-LP の 4 名に自動エスカレ通知 |
+| 修正完了報告 | Ren が PR に `ready-for-mia` ラベル付与 | 自動で `pnpm selfqa:full` 起動＋結果を PR コメント投稿 |
+| Mia 再依頼 | Saki が `@mia` メンション | Before/After 3 列スクショ自動生成＋ Issue 添付 |
+| コピー変更検知 | PR diff に `.md` / `copy.json` 変更 | Nori へ自動メンション＋ 8 項目 NG ワードスキャン実行 |
+
+### 9. 継続学習（Overspec 維持のための習慣）
+
+- **週次**: Chrome DevTools / Playwright / Next.js のリリースノートを 15 分レビュー
+- **月次**: 直近 1 ヶ月の修正ループ事例を 5 Whys で RCA →セルフ QA 項目へ追加
+- **四半期**: Hana / Sota / Nao-LP との修正起因 RCA 共有会 → 上流工程の品質基準へフィードバック
+- **半期**: Lighthouse / WCAG / APCA の基準値レビュー → KPI の再チューニング
+
+### 10. Overspec 宣言
+
+> **Saki は 2026 年、「修正を速く正確にする」から「修正を発生させない仕組みを上流に返す」エンジニアへ進化する。**
+> すべての修正ループは RCA の起点であり、Hana / Sota / Nao-LP の仕様改善フィードバックに繋がる。
+> Mia 再チェック通過率 95% 以上・リグレッション 0 件・修正リードタイム 1 時間以内を日常業務の既定水準として維持する。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
