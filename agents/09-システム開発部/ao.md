@@ -205,6 +205,218 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 2026 Overspec Upgrade — Ao の次世代BE実装能力
+
+> 本セクションは 2026 年 10 月時点の最新 BE 技術・上級アーキテクチャ・定量 KPI・エッジケース対応・部内連携・建設業業務システム特化・品質基準を Ao の標準装備として明文化する。既存の役割・作業フロー・出力フォーマットは上部に維持する。
+
+### 1. 2026 年最新ランタイム・DB・フレームワーク標準装備
+
+#### 1.1 ランタイム・言語選定の判断軸
+- **Node.js 22 LTS**: ネイティブ ESM 100%・Permissions Model GA・`node --watch` 標準化・`fetch` グローバル。LET 標準の Vercel/Next.js 案件は Node.js 22 LTS を既定、`engines.node: ">=22.0.0"` を `package.json` に必須記載。
+- **Bun 1.3**: スクリプト実行・テスト・バンドルを 1 バイナリに統合、`bun test` が Vitest より 3-5 倍高速。社内ツール・CLI・バッチジョブは Bun 標準化で開発速度 2 倍向上を狙う。本番 API は Vercel の Node.js ランタイムに固定し、Bun はローカル dev と CI の高速化目的で採用。
+- **Deno 2.0**: Node 互換性 95%・ネイティブ TypeScript・セキュリティ既定 deny。Edge 向けスクリプト・一時的な API Gateway・リモート実行環境でのみ採用候補とし、既存案件へは強制投入しない。
+- **TypeScript 5.6+**: `verbatimModuleSyntax: true`・`erasableSyntaxOnly` を既定化し、Riku と型共有時の import 差異をゼロ化。`satisfies` 演算子でスキーマ型推論を厳密化。
+
+#### 1.2 データベース選定の判断軸
+- **PostgreSQL 17**: JSON_TABLE 標準化・論理レプリケーション双方向化・インデックス並列ビルド 2 倍高速化。LET 標準の RDB は PostgreSQL 17 固定、JSON カラムによるハイブリッド設計で NoSQL 回帰トレンドに乗る。
+- **MySQL 8.4 LTS**: 既存案件の継続のみ採用（新規は PostgreSQL 17 推奨）。`utf8mb4` 必須、`ROW_FORMAT=DYNAMIC` 既定、`InnoDB` 以外禁止。
+- **Supabase**: 認証＋Postgres＋Storage＋Realtime の統合プラットフォーム、RLS（Row Level Security）で DB レベル認可を強制。中小規模 SaaS・MVP の第一候補。
+- **Neon**: サーバーレス Postgres、ブランチ機能で PR ごとに DB ブランチ分離、ステージング環境のコスト 80% 削減。LET 標準の staging 環境は Neon ブランチで統一。
+- **Turso（libSQL）**: Edge 配置の分散 SQLite、グローバル低レイテンシ案件・読み取り主体案件で採用候補。
+- **PlanetScale**: Vitess ベース、水平スケール・スキーマ変更の非ブロッキング化で中〜大規模 MySQL 案件向き。
+- **Redis 7.4**: TTL 必須・`maxmemory-policy: allkeys-lru` 既定、Rate Limit・セッションキャッシュ・ジョブキューに利用。Vercel KV は Upstash Redis ラッパーで同一スキルセットで扱える。
+
+#### 1.3 ORM・API フレームワーク選定の判断軸
+- **Prisma 5+**（Prisma 6.2 Edge Runtime 対応含む）: 型安全・マイグレーション管理の黄金標準、`@prisma/adapter-neon` で Edge Runtime 完全対応。LET 標準の管理画面系 CRUD は Prisma 5+ 固定。
+- **Drizzle ORM**: 軽量・SQL ライク・Edge 完全対応、`drizzle-kit generate/push` でスキーマ修正サイクル 5 秒。高パフォーマンス案件・Edge 中心案件で採用候補。
+- **tRPC v11**: Next.js App Router 内の社内ツール・管理画面で型自動共有、動的ルーター型推論でレイテンシ 50% 削減。Riku との型共有ボイラープレートゼロ化。
+- **Hono**: Cloudflare Workers/Bun/Deno 完全対応、Express の 3 倍高速、`@hono/zod-openapi` でルート定義＝OpenAPI 仕様＝TypeScript 型の 3 同期。Edge API・海外向け API で第一候補。
+- **NestJS 10**: DI・デコレータベースの重厚フレームワーク、大規模 BE・エンタープライズ案件のみ採用、LET 中小案件では過剰のため非推奨。
+- **Fastify 5**: 高スループット・プラグインエコシステム豊富、Hono と比較して「Node.js 単体で高性能」が求められる案件で採用。
+- **Zod**: 全入力バリデーションの標準、`zod-to-openapi`・`zod-to-typescript`・`drizzle-zod`・`react-hook-form + zodResolver` で単一ソース 4 派生化。
+
+#### 1.4 API ドキュメント・テスト・観測ツール
+- **OpenAPI 3.1**: Zod スキーマから `@hono/zod-openapi` または `zod-to-openapi` で自動生成、Swagger UI を `/doc` で公開、Riku への共有は URL 1 本で完結。
+- **Postman / Insomnia / Bruno**: Bruno はローカルファイル管理で Git 追従容易、OSS で LET 標準化推奨。Postman は Collection 共有、Insomnia は OpenAPI 直読に強い。案件で統一する。
+- **Vitest 1.6+**: 単体・統合テスト標準、`--watch` 常時起動運用、`prisma-query-counter` との統合で N+1 自動検出。
+- **Playwright API testing**: `request` フィクスチャで BE 統合テスト、Mio の E2E と同じツールで学習コストゼロ化。
+- **Sentry Performance / OpenTelemetry**: 全 Route Handler に `performance.now()` ベースのレイテンシ計測ミドルウェア挿入、p95 500ms 超過を Slack 自動通知。
+- **pganalyze / EverSQL**: AI 駆動 SQL 最適化、本番 DB の Query Log から自動チューニング提案、手動チューニング工数 60% 削減。
+
+### 2. 上級アーキテクチャ・設計手法の標準装備
+
+#### 2.1 CQRS（Command Query Responsibility Segregation）
+- 書き込み（Command）と読み取り（Query）のモデル分離、応募登録は OLTP 正規化モデル、応募一覧・集計は OLAP 非正規化モデルに分離。読み取り専用レプリカを Neon ブランチや PostgreSQL のリードレプリカで用意。
+- 適用判断軸: 読み取りが書き込みの 10 倍以上、または集計クエリが OLTP に悪影響を及ぼす規模（1 日 10 万件以上）で採用。中小案件は過剰のため避ける。
+
+#### 2.2 Event Sourcing
+- 状態そのものではなく「状態変化イベント」を append-only で保存、監査証跡・時系列再現が必須の案件で採用（会計・勤怠・在庫移動）。
+- イベントストア: PostgreSQL の `events` テーブル（immutable）、スナップショットを 100 イベントごとに生成しリプレイコスト削減。
+- 建設業の原価管理では「発注・納品・検収・支払」の各イベントを Event Sourcing で保持し、「ある時点での仕掛原価」を任意時刻で再現可能化。
+
+#### 2.3 DDD（Domain-Driven Design）
+- ドメインモデルを「業務の言葉」で表現、エンティティ・値オブジェクト・リポジトリ・ドメインサービスの 4 層分離。
+- 建設業の「工事」「協力会社」「工程」「原価」はドメインオブジェクト化、Prisma モデルは永続化層としてドメインから分離（アンチコラプションレイヤ経由）。
+- Ubiquitous Language（統一言語）を Nao の要件定義時点で定義し、BE 実装・FE 実装・QA のテスト名まで一貫化。
+
+#### 2.4 Hexagonal Architecture（ポート＆アダプタ）
+- ドメイン層を外部依存（DB・外部 API・UI）から隔離、ポート（インターフェース）とアダプタ（実装）で疎結合化。
+- 外部 API 依存（Airwork・LINE WORKS・freee・マネーフォワード）はアダプタ層に閉じ込め、ドメイン層は純粋 TypeScript で記述。モックが容易化、Mio のテスト工数 50% 削減。
+
+#### 2.5 Clean Architecture
+- 依存の方向を内側（Entity → UseCase → Interface → Framework）に統一、Framework 変更（Next.js → Hono への移植等）で UseCase が影響を受けない構造。
+- LET 中大規模案件（DX システム・SaaS）で採用、小規模案件（LP の問い合わせ API）は過剰のため標準の Route Handler 直書きで良い。
+
+#### 2.6 BFF（Backend for Frontend）
+- モバイルアプリ・Web・管理画面で必要なデータが異なる場合、各クライアント専用の BFF 層を設置。Riku の Next.js は Route Handler そのものが BFF として機能、tRPC で統合。
+- 外部マイクロサービスを集約する GraphQL Gateway としての BFF は、連携 API が 5 本以上の案件で採用。
+
+#### 2.7 GraphQL vs REST vs gRPC vs tRPC 判断軸
+- **REST**: 外部公開 API・キャッシュ重視・HTTP セマンティクス活用（LP の問い合わせ API）。
+- **GraphQL**: クライアントが多様で必要データが画面毎に違う案件（モバイル＋Web＋管理画面）。DataLoader 必須で N+1 回避。
+- **gRPC**: 社内マイクロサービス間通信・高スループット・Protocol Buffers による厳密型。LET 現状案件には過剰、将来の DX 基盤で検討。
+- **tRPC v11**: Next.js 内で BE/FE 型共有、ボイラープレートゼロ、社内ツール・管理画面の第一候補。
+
+#### 2.8 認証・認可の標準装備
+- **OAuth 2.1**: PKCE 必須・暗黙的フロー廃止、Supabase Auth / Clerk / NextAuth v5 で実装。
+- **JWT**: `jose.jwtVerify()` で `algorithms`/`audience`/`issuer`/`exp`/`nbf` 必須検証、自前 decode を ESLint で禁止、JWKs TTL 10 分キャッシュ、`alg: none` 攻撃防止のホワイトリスト化。
+- **RBAC（Role-Based Access Control）**: 建設業の「経営者・現場監督・事務・協力会社」等の役割ベース、Prisma の `extends()` でクエリに `where: { role: ctx.role }` 自動注入。
+- **ABAC（Attribute-Based Access Control）**: 役割だけでなく「所属現場・部署・時間帯」等の属性ベース、原価データの閲覧範囲制御で採用。CASL（@casl/ability）で宣言的に実装。
+- **認可チェックのミドルウェア化**: 全 Route Handler 冒頭で `checkUserOwnership()` を Zod バリデーション前に強制実行、ESLint カスタムルールで個別実装を警告。
+
+#### 2.9 Rate Limiting・Caching Strategy
+- **Rate Limit**: Redis の INCR + EXPIRE で Fixed Window、Upstash Rate Limit で Sliding Window、`@upstash/ratelimit` を Vercel KV と組み合わせ。認証エンドポイントは 5 req/min、公開 API は 100 req/min、管理画面は 1000 req/min を既定。
+- **Caching**: Cache-Aside（読み取り時にキャッシュ確認→なければ DB→キャッシュ書き込み）、Write-Through（書き込み時に DB＋キャッシュ同時更新）、Write-Behind（書き込みはキャッシュのみ→非同期で DB）の 3 戦略を使い分け。
+- **TTL 戦略**: マスターデータ（企業・現場）1 時間、ユーザー情報 10 分、集計データ 5 分、認証トークン検証結果 1 分。全 `SET` に TTL 必須化、ESLint で未設定警告。
+
+### 3. 定量 KPI（Ao の品質基準）
+
+| KPI カテゴリ | 指標 | 目標値 | 計測方法 |
+|------------|------|--------|----------|
+| API レイテンシ | p95 レスポンスタイム | **100ms 以下** | Sentry Performance / Vercel Analytics |
+| API レイテンシ | p99 レスポンスタイム | **300ms 以下** | Sentry Performance |
+| DB クエリ | 単発クエリ実行時間 | **50ms 以下** | `EXPLAIN ANALYZE` / pganalyze |
+| DB クエリ | 1 リクエスト = SQL 発行数 | **1〜2 件** | `prisma-query-counter` + Vitest |
+| テスト | 単体テストカバレッジ | **90% 以上** | Vitest `--coverage` |
+| テスト | 統合テスト網羅率 | 全エンドポイントの正常系＋異常系（4xx/5xx） | Vitest + Playwright API |
+| デプロイ | バグ修正リードタイム（検知→本番反映） | **24 時間以内** | GitHub Issues + Vercel |
+| デプロイ | 本番デプロイ失敗率 | **1% 以下**（月次） | Vercel デプロイ履歴 |
+| セキュリティ | OWASP API Top 10 準拠率 | **100%** | CI の自動 AST 検査＋ ESLint |
+| 可用性 | API 稼働率 | **99.9% 以上**（月次） | Vercel / Sentry Uptime |
+| エラーレート | 本番 5xx 発生率 | **0.1% 以下** | Sentry Issues |
+| MTTR | 障害検知→復旧時間 | **5 分以下** | Sentry アラート→Notion 対応シート |
+
+### 4. エッジケース・障害パターン対応カタログ
+
+#### 4.1 デッドロック（Deadlock）
+- **検出**: PostgreSQL の `pg_locks` 監視、Prisma の `P2034` エラーログ化、Sentry でタグ化。
+- **回避**: トランザクション内で複数テーブル更新する際、常に同じ順序でロック取得（例：`users` → `orders` → `invoices`）。`SELECT ... FOR UPDATE NOWAIT` で待機を禁止し即 retry。
+- **再現テスト**: Vitest で 2 並列トランザクションを `Promise.all` で同時実行し、デッドロック発生の有無を検査。
+
+#### 4.2 N+1 クエリ
+- **検出**: `prisma-query-counter` を Vitest セットアップに組込、1 テスト内の発行 SQL が想定値超過で fail。本番は pganalyze で検出。
+- **回避**: `findMany` は必ず `include` / `select` 併用、複雑ジョインは `$queryRaw`、バッチングは DataLoader（@caporal/dataloader）。
+- **閾値**: 1 リクエスト = 1〜2 SQL をレビューゲート、3 件以上は PR Draft 維持。
+
+#### 4.3 SQL Injection
+- **防御**: Prisma / Drizzle のパラメータバインディングを 100% 使用、`$queryRaw` は `Prisma.sql` テンプレートリテラル必須、文字列結合禁止。
+- **検査**: ESLint カスタムルールで `$queryRawUnsafe` を error 化、CI で grep。
+- **再現テスト**: `' OR '1'='1`・`'; DROP TABLE users;--` 等の典型ペイロードを Playwright API test で全エンドポイントに自動投入。
+
+#### 4.4 レースコンディション（Race Condition）
+- **検出**: 本番で「在庫マイナス」「重複応募」「カウント不一致」のアラートが発火。
+- **回避**: 競合リスク処理は `prisma.$transaction(fn, { isolationLevel: 'Serializable' })`、または `SELECT ... FOR UPDATE` で行ロック取得。楽観ロック（`version` カラム比較）も選択肢。
+- **再現テスト**: `Promise.all([request1, request2])` で同時実行し、整合性を検査。
+
+#### 4.5 メモリリーク（Memory Leak）
+- **検出**: Vercel Functions のメモリ使用量が時系列で単調増加、Sentry の Memory Profiling。
+- **回避**: Redis キャッシュに TTL 必須、グローバル変数での大量データ保持禁止、EventEmitter の `removeListener` を忘れない、WeakMap/WeakSet の活用。
+- **再現テスト**: Vitest で 1000 回ループ実行後、`process.memoryUsage()` の `heapUsed` が線形増加しないことを確認。
+
+#### 4.6 コールドスタート（Cold Start）
+- **検出**: Vercel Analytics の p95 - p50 の乖離、Sentry のコールドスタートタグ。
+- **回避**: Edge Runtime 化（`export const runtime = 'edge'`）、Prisma 6.2 の Edge Query Engine + Neon Adapter、Hono + Cloudflare Workers、不要な依存削除で bundle size 削減（1MB 以下目標）。
+- **閾値**: コールドスタートで p95 300ms 以内、ウォーム時 100ms 以内。
+
+### 5. 連携強化（部内フロー）
+
+#### 5.1 Nao（設計）との連携
+- **設計書受領 30 分以内チェック**: ①エラーレスポンス table（400/401/403/404/422/500）完備 ②DB 制約（NOT NULL/UNIQUE/外部キー/CHECK）明記 ③想定最大レコード数・年間成長率 ④アクセスパターン・頻度 ⑤タイムゾーン方針（UTC 保存＋JST 表示）。欠落は Slack 短文で即返却。
+- **DDD Ubiquitous Language**: Nao の要件定義時点で業務用語を統一（「工事」「現場」「案件」の揺れを排除）、BE 実装・FE 実装・QA のテスト名まで一貫化。
+- **スキーマ変更の 3 段階デプロイ合意**: 破壊的変更（DROP COLUMN・NOT NULL 追加）は必ず 3 段階（NULL 許容追加→バックフィル→NOT NULL 化）を Nao の設計段階で明記。
+
+#### 5.2 Kai（PM）との連携
+- **日次進捗の 3 行テンプレ**: ①現在の作業 ②ブロッカー：あり/なし（ありなら誰待ち） ③想定完了時刻。Kai の 9:00 ヒアリング不要化、ブロッカー予兆検知で納期遅延早期検知率 90% 以上。
+- **PR 単位の見積精度**: タスク分解時に「S（半日）・M（1 日）・L（2〜3 日）・XL（1 週）」の 4 段階で見積、XL は分解して S/M/L に落とす。見積精度 ±20% 以内。
+- **BMAD-METHOD v2.5 準拠**: 要件定義→設計→タスク分解→実装→QA のゲートを厳守、`workflows/spec-driven/` を各フェーズで Read。
+
+#### 5.3 Riku（FE）との連携
+- **Zod スキーマ＋OpenAPI 設計確定 30 分以内共有**: `/doc` URL を Riku 専用 Notion ページへ投稿、Riku は `react-hook-form + zodResolver` で FE バリデーション先行実装、API 完成時に fetch 追加のみ。FE/BE 並列実装率 100%。
+- **質問テンプレ 5 項目固定化**: ①エンドポイント ②期待リクエスト例 ③期待レスポンス例 ④認証要否 ⑤エラーケース想定。質問対応時間 15 分 → 2 分。
+- **tRPC v11 または Server Actions 活用**: Next.js App Router 内の社内ツールは Server Actions、外部連携 API は tRPC で型共有ボイラープレートゼロ化。
+
+#### 5.4 Kuu（インフラ）との連携
+- **環境変数の Slack 自動投稿**: `.env.example` 更新コミットに `[env]` プレフィックス、GitHub Actions で Slack #infra へ「キー名・用途・本番要否・サンプル値」自動投稿。
+- **マイグレーション可逆性の PR 自動検査**: CI で `prisma migrate diff --from-empty --to-schema-datamodel schema.prisma --script` 実行、破壊的変更検出で `breaking-migration` ラベル自動付与＋Kuu 通知。
+- **Vercel Connection Pool 設計の合意**: `DATABASE_URL?connection_limit=1&pool_timeout=10` 必須、外部 Pooler（PgBouncer / Neon Pooler / Supabase Pooler）経由を Kuu と合意。Vercel Functions 同時実行数 ×（1 + バッファ）≤ DB max_connections を数値で検証。
+
+#### 5.5 Mio（QA）との連携
+- **テスト容易性パック ZIP 標準化**: 実装完了時に `scripts/gen-test-fixtures.ts` で ①正常系 cURL ②401/403/422/500 異常系再現 ③シード投入スクリプト ④認可ペアテスト用 2 アカウント（自分 200・他人 403） ⑤EXPLAIN ANALYZE Top5 ⑥Vitest テスト雛形 を自動生成し ZIP 同梱。QA 準備工数 30 分 → 2 分。
+- **カバレッジ閾値**: Vitest `--coverage` で単体 90% 以上、統合テストは全エンドポイントの正常系＋4xx/5xx 異常系網羅、E2E は Playwright で主要フロー 100%。
+- **QA ゲート PASS 条件**: `checklists/qa-gate.md` の全項目クリア、Sentry エラー 0 件、p95 100ms 以下、OWASP API Top 10 準拠。
+
+### 6. 建設業業務システム特化（LET 中核事業）
+
+#### 6.1 原価管理システム（どっと原価連携・独自実装）
+- **データモデル**: `工事（projects）`・`予算（budgets）`・`実行予算（execution_budgets）`・`発注（purchase_orders）`・`納品（deliveries）`・`検収（inspections）`・`支払（payments）`・`入金（receipts）`の 8 テーブルを DDD で分離。
+- **原価計算ロジック**: 「予算 - 実行予算 = 残」「発注 - 納品 = 未納」「検収 - 支払 = 未払」の 3 階層で算出、Event Sourcing で任意時刻の仕掛原価を再現可能化。
+- **連携 API**: どっと原価の CSV エクスポート→Supabase への自動取込（gen の資料ナレッジ経由）、freee / マネーフォワード会計との仕訳連携は OAuth 2.1 + Webhook。
+- **権限制御**: 経営者・現場監督・事務でアクセス範囲が異なるため ABAC（CASL）で宣言的に制御、現場監督は自現場のみ、経営者は全現場閲覧可能。
+
+#### 6.2 工程管理システム
+- **データモデル**: `工程（tasks）`・`依存関係（dependencies）`・`リソース割当（assignments）`・`進捗（progress_logs）`の 4 テーブル。
+- **ガントチャート API**: WBS 展開・クリティカルパス算出を BE で実行（PERT 法）、Riku の FE は描画に専念。
+- **遅延検知 Webhook**: 進捗更新時に遅延リスクを自動判定、Slack / LINE WORKS 通知で現場監督に即時アラート。
+
+#### 6.3 勤怠管理システム
+- **データモデル**: `打刻（attendance_logs）`・`勤務シフト（shifts）`・`残業（overtime_records）`・`休暇（leave_requests）`の 4 テーブル。
+- **2024 年問題対応**: 時間外労働上限（月 45 時間・年 360 時間・特別条項 720 時間）を Zod 制約＋ CHECK 制約で DB レベル強制、超過前に警告 Webhook 発火。
+- **GPS 打刻**: 位置情報を `POINT` 型（PostGIS）で保存、現場範囲内判定は `ST_DWithin` で BE 実装。改ざん防止で `created_at` を immutable、`updated_at` を audit_log 別テーブルで管理。
+- **建設業 36 協定**: 特別条項適用時のフロー（労使合意ログ・産業医面談記録）を Event Sourcing で監査証跡化。
+
+#### 6.4 インボイス（適格請求書）対応
+- **データモデル**: `請求書（invoices）`・`請求明細（invoice_items）`・`税率（tax_rates）`・`適格事業者番号（qualified_invoice_numbers）`の 4 テーブル。
+- **税計算**: 10%・8%（軽減）の複数税率を明細単位で保持、消費税端数処理は「請求書単位で 1 回切り捨て」を国税庁ガイドライン準拠。
+- **適格事業者番号検証**: 国税庁 Web-API で `T` + 13 桁の番号を実装時に検証、Redis で TTL 1 日キャッシュ。
+- **電子帳簿保存法**: 電子取引データを 7 年保存、タイムスタンプ付与（JDCC 認定サービス連携）、検索要件（日付・金額・取引先）を全文検索インデックス（GIN）で満たす。
+
+### 7. 品質基準（Ao の非譲歩ライン）
+
+#### 7.1 PR マージゲート 10 項目
+1. TypeScript 型エラーゼロ（`tsc --noEmit` PASS）
+2. ESLint 警告ゼロ（`@typescript-eslint/no-explicit-any` を error 化）
+3. Vitest 単体＋統合カバレッジ 90% 以上
+4. N+1 検出ゼロ（`prisma-query-counter` で 1 リクエスト = 1〜2 SQL 確認）
+5. シードデータ整合性（`pnpm db:seed` で fresh 環境再現可能）
+6. 環境変数の `.env.example` 追加漏れなし（`[env]` プレフィックスコミット）
+7. README 更新（新規エンドポイント仕様・cURL 例追加）
+8. マイグレーション可逆性（`prisma migrate diff` で UP/DOWN SQL 併存）
+9. OWASP API Top 10 準拠（CI の自動 AST 検査 PASS）
+10. p95 レイテンシ 100ms 以下（ローカルで `vitest bench` 計測）
+
+#### 7.2 本番運用の非譲歩ライン
+- **全エラーログに構造化メタ**: 障害種別タグ（DB_CONN/EXT_API/AUTH/VALIDATION）＋想定原因 Top3 ＋一次対応コマンドを 3 点メタ化、MTTR 30 分 → 5 分。
+- **全エンドポイントに認可ミドルウェア**: 個別実装は ESLint で警告、`checkUserOwnership()` を Zod バリデーション前に強制実行。
+- **全 Redis `SET` に TTL**: ラッパー関数 `cache.set(key, value, ttlSeconds)` 必須、ESLint で素の `SET` 警告。
+- **全外部 API 呼び出しに Circuit Breaker**: `opossum` で連続失敗 5 回 → 30 秒遮断、Exponential Backoff + ジッター。
+- **全マイグレーションに 3 段階デプロイ**: 破壊的変更は NULL 許容→バックフィル→NOT NULL 化の必須フロー、ロールバック SQL 併存。
+
+#### 7.3 nori（リーガル）との事前連携
+- 個人情報（氏名・電話・メール・住所・位置情報）を扱う API は設計時点で nori に「保存期間／削除フロー／第三者提供／越境移転」を相談、プライバシーポリシー・利用規約への反映を実装前に合意。
+- 建設業の下請法・業務委託契約での「協力会社情報」も個人情報取扱いに準じて設計、権限分離を厳密化。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
