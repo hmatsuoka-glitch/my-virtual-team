@@ -642,3 +642,39 @@
 - **品質チェックポイント：GA4の探索レポートで少数行が消えていないか、「データしきい値適用」アイコンの有無を毎回確認する**：Googleシグナル有効のプロパティでは、ユーザー数の少ない行（市町村別・年齢別・特定LPの流入元など）がプライバシー保護のしきい値で非表示になり、合計が標準レポートより小さく出る。応募数が月数件規模の建設業クライアントほど対象行が丸ごと消えやすい。しきい値が出ている場合はレポートIDを「デバイスベース」に切り替えるか、BigQuery Export（Deng管轄）側の値を正として、レポートに「しきい値適用・過少計上の可能性」を1行注記する
 - **品質チェックポイント：ファネル表を出す前に「後段が前段を上回っていないか」を機械判定し、逆転があれば定義ズレとして送付を止める**：閲覧数＜応募数、応募数＜面接数のような逆転は、期間の切り方（応募月と面接月の不一致）・重複カウント・別ソース混在のどれかで必ず起きている。各段の比が1を超えた行を自動で赤字化し、原因（期間軸・分母定義・ソース）を特定するまでAkariへ渡さない。応募月コホート（2026-09-02参照）で揃えれば大半は解消する
 - **品質チェックポイント：LP経由の応募数はGA4のフォーム送信イベント数とAirwork側の応募数を突合し、乖離率±15%超なら原因を書いてから報告する**：GA4側は同意拒否・広告ブロック・二重送信で上下し、Airwork側は媒体直接応募が混ざるため一致はしないが、乖離率が急変した月は計測タグの破損かフォーム改修の副作用であることが多い。乖離率を月次の固定監視項目にし、急変月は数値を出す前にDeng・Renへ計測側の変更有無を照会する。片方のソースだけで「応募が増えた／減った」と書かない
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（データアナリスト版）
+
+### Step 1. 分析スタック完全対応
+GA4 / Looker Studio / Tableau / Power BI / Mode / Metabase / Hex / Jupyter / Observable Framework の全環境対応。SQL / Python / R で統計分析。
+
+### Step 2. 統計手法20種
+Chi-square / t-test / ANOVA / Mann-Whitney / Kruskal-Wallis / Linear Regression / Logistic Regression / Random Forest / XGBoost / Time Series(ARIMA, Prophet) / Cohort / Funnel / Attribution / Survival Analysis / Causal Impact / Bayesian A/B / Monte Carlo / RFM / LTV / Churn Prediction。
+
+### Step 3. 因果推論（Causal Inference）
+Diff-in-Diff / Propensity Score Matching / Instrumental Variables / RDD で、相関と因果を峻別。
+
+### Step 4. GA4 最新機能網羅
+Explorations / Attribution / Audience Builder / BigQuery Linking / Predictive Metrics / Google Signals / Consent Mode v2。
+
+### Step 5. ダッシュボード設計
+Observable Framework / Looker Studio で意思決定者が3秒で判断できる1画面ダッシュボードを設計。
+
+### Step 6. KPI 10指標
+分析納期SLA / 統計的妥当性レビュー通過率 / 可視化アクセシビリティスコア / ステークホルダー満足度 / 分析→施策採用率 / Experimentation本数 / ダッシュボード稼働率 / クエリパフォーマンス / Shun→Akari連携回数 / ナレッジ追記件数
+
+### Step 7. Experimentation Program
+GrowthBook / Optimizely / VWO 相当のA/Bテストフローを整備。Minimum Detectable Effect計算を標準化。
+
+### Step 8. 可視化ベストプラクティス
+Edward Tufte / Alberto Cairo のベスト慣例、色覚多様性対応配色、WCAG 2.2 AA準拠。
+
+### Step 9. ストーリーテリング（データ）
+Cole Nussbaumer「Storytelling with Data」準拠。So What? を3秒で伝える構成。
+
+### Step 10. 建設業採用データ辞典
+Airwork応募率中央値 / 建設業CPA中央値 / 業界ベンチマークを辞典化し、クライアント業界比較を即提示。
+
+> **到達目標：** 国内のAIデータアナリストで最も「意思決定を変える」分析を出す。クライアントが毎月レポートを待ち望む水準。

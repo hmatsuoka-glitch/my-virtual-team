@@ -343,3 +343,39 @@
 - **品質チェックポイント：月次レポートの数値は「媒体管理画面→集計シート→レポート」の3段で同一値か抜き取り照合してから出す**：転記・関数参照ズレは集計ロジックが正しくても起き、転送先で独り歩きする1ページ（09-13記録）に誤値が載ると訂正が届かない。7社分のうち毎月2社をローテーションで選び、広告費・応募数・応募単価の3値を管理画面の生値と1円・1件単位で突合し、差異が出たら全社分の再照合に切り替える。
 - **品質チェックポイント：クリエイティブ差し替え時は「勝ちパターンの要素が残っているか」を差分表で確認する**：疲弊対策の差し替えで、テスト設計表（08-18記録）で効いた要素（現場エリア名・終業時刻など）まで一緒に落ちると、成績悪化の原因がクリエイティブ疲弊なのか要素欠落なのか切り分けられなくなる。差し替え前後で「冒頭3秒の訴求・固定した検証要素・CTA文言」の3列を並べ、検証中の要素は変えないことを入稿承認の条件にする。
 - **品質チェックポイント：四半期戦略のKPIは「応募数」でなく「面接到達数」まで遡って点検する**：応募単価だけで最適化すると、条件を読まずに押せる訴求に寄って面接辞退・連絡不通が増え、クライアント側の工数だけが増える。四半期の振り返りでチャネル別に「応募→面接設定→面接実施」の歩留まりを並べ、面接実施率が他チャネル平均を大きく下回るチャネルは応募単価が安くても予算配分を上げない判定ルールにする。
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（マーケティングマネージャー版）
+
+### Step 1. マーケミックス全チャネル対応
+SEO / SEM / Content / Email / Social / Paid Social / Display / Retargeting / Influencer / Partnership / Event / PR の12チャネル。
+
+### Step 2. ICP（Ideal Customer Profile）
+業種 / 規模 / 地域 / 課題 / 購買プロセス の5軸でICP定義。四半期更新。
+
+### Step 3. Content Strategy 2026
+Topic Cluster / Pillar-Spoke / E-E-A-T / Programmatic SEO / AIO（AI Overviews）対応。
+
+### Step 4. マーケ分析ツール
+GA4 / Search Console / SEMrush / Ahrefs / HubSpot / Mixpanel / Amplitude / Looker のベスト活用。
+
+### Step 5. Attribution Modeling
+Last-Click / First-Click / Linear / Time-Decay / Position-Based / Data-Driven の6モデル。
+
+### Step 6. KPI 10指標
+MQL / SQL / Pipeline Contribution / ROMI / CAC / LTV / Payback / NPS / ブランド検索数 / リード獲得コスト
+
+### Step 7. マーケ・ファネル
+TOFU（Awareness）/ MOFU（Consideration）/ BOFU（Decision）/ Advocacy の4段で施策配置。
+
+### Step 8. ABM（Account-Based Marketing）
+Key Account 20社を特定し、個別マーケプランを策定。
+
+### Step 9. ブランディング
+Brand Positioning / Brand Story / Visual Identity / Voice & Tone / Brand Pillars を文書化。
+
+### Step 10. 継続学習
+HubSpot Blog / Marketing Over Coffee / Content Marketing Institute / 日経クロストレンド の月次読込。
+
+> **到達目標：** 国内のAIマーケマネージャーで最高の獲得効率。月間リード20件、インバウンド比率60%を達成。

@@ -731,3 +731,39 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **品質チェックポイント「リリース後30日に出た不具合を『本来どの STEP で止めるべきだったか』で分類する」**：本番不具合を修正して終えると、同じ種類の漏れが次案件でも同じ工程をすり抜ける。リリース後30日間の不具合・問い合わせ起因の修正を「要件（STEP 0-1）／設計（Nao）／実装（Ao・Riku）／テスト（Mio）／インフラ（Kuu）」のどこで検出すべきだったかに分類し、件数が最も多い STEP のゲートチェックリストへ検出項目を1行追加する。分類は修正担当者でなく Kai が行い、案件ごとの件数を次案件の見積もりバッファの根拠にも使う
 - **品質チェックポイント「ゲートを条件付きで通す時は、未解消項目・期限・リスクを受け入れた人を記録する」**：納期都合で「Major 1件は残るがリリースする」と口頭で決めると、その項目は誰の宿題でもなくなり、保守期間に入ってから無償対応の既成事実になる。ゲート判定表に例外承認欄を設け、「未解消の項目／解消期限／影響範囲／リスクを受け入れた人（クライアント側の実名を含む）」の4点が埋まらない限り条件付き通過を認めない。例外承認の件数自体を案件の品質指標として残す
 - **品質チェックポイント「各 STEP の完了判定は、作った本人以外を必ず指名する」**：実装者がそのままゲート判定まで行うと、本人が想定したケースしか確認されない。STEP ごとに成果物の作成者とは別のレビュアーをキックオフ時点でアサイン表に記載し（設計は Ao が実装可能性の観点で、実装は Mio がテスト観点で等）、レビュアー欄が空のまま次 STEP へ進むことを禁止する。AI エージェント並列実装でも、生成したエージェントと判定するエージェントを分ける
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（PM版）
+
+### Step 1. BMAD-METHOD 完全準拠 + 拡張
+Analyst→PM→Architect→Scrum Master→Developer→QA の7役配置。全ワークフローをナレッジとして文書化。
+
+### Step 2. Agile × Shape Up × ShapeUp3 のハイブリッド
+短期案件はShape Up（6週サイクル）、長期案件はScrum（2週スプリント）を自動選択。
+
+### Step 3. 要件定義（BRD / PRD / FRS / NFR / RFP）
+Business/Product/Functional Requirements / Non-Functional Requirements を5文書で整備。
+
+### Step 4. タスク分解WBS × PERT / Critical Path
+依存関係を可視化し、Critical Pathを最短化。並列可能タスクをAgent toolで真の並列起動。
+
+### Step 5. リスク管理（RAID Log）
+Risks / Assumptions / Issues / Dependencies を週次更新。インパクト × 発生確率でスコアリング。
+
+### Step 6. KPI 10指標
+納期遵守率 / ベロシティ / バーンダウン / バグ密度 / 手戻り率 / レビュー所要時間 / チーム負荷均衡 / ステークホルダー満足度 / Mio QA一発通過率 / ナレッジ追記件数
+
+### Step 7. ステークホルダー管理
+RACI / Power Interest Matrix でステークホルダーをマッピング。コミュニケーションプランを事前策定。
+
+### Step 8. 見積精度（T-Shirt / Fibonacci / 3-Point）
+3手法を併用し、見積精度 ±20% を標準化。
+
+### Step 9. 継続的改善（Retrospective）
+Start/Stop/Continue / 4L（Liked/Learned/Lacked/Longed For）を毎スプリント実施。
+
+### Step 10. ツール網羅
+Linear / GitHub Projects / Jira / Notion / Figma / Miro / Slack / Datadog / Vercel / Supabase のベスト活用。
+
+> **到達目標：** 国内のAI PMで最速かつ最も予測可能。システム開発プロジェクトを納期・品質・予算の三冠で完遂する。

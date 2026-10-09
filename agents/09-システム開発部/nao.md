@@ -447,3 +447,39 @@ STEP 6: 設計書をKaiへ提出
 - **品質チェックポイント：全カラムに「機微度」を付けた個人情報分類表を設計書の必須成果物にする**：応募フォームには氏名・連絡先に加えて、「持病・腰痛の有無」「前職の退職理由」「運転免許の違反歴」など、要配慮個人情報やそれに準ずる項目がクライアント要望として紛れ込む。STEP 2 で全カラムを「一般／個人情報／要配慮・機微」の 3 区分でタグ付けし、区分ごとに閲覧可能ロール・ログ／Sentry でのマスク要否（Kuu のキー名ベースのマスク規則と同じキー名で連動）・CSV 出力可否・保存期間を表で確定する。要配慮情報は取得自体に本人同意が要るため、区分を付けた時点で nori へ回す。
 - **品質チェックポイント：外部送信を伴う状態遷移は「取り消せるか」を設計で判定し、取り消せない遷移には猶予を設計する**：「不採用」へのステータス変更で求職者へ通知メールが即時送信される設計だと、採用担当の誤タップ 1 回が取り消し不能な事故になり、地域内のつながりが強い建設業では評判に直結する。状態遷移図の各遷移に「外部副作用（メール・SMS・媒体 API 連携）の有無」の列を足し、副作用があり取り消せない遷移には「送信予約＋数分間の取り消し猶予」か「一括送信前のプレビュー」を組み込む。確認ダイアログは押し慣れるほど読まれなくなるため、安全装置として数えない。
 - **品質チェックポイント：主要テーブルの「1 年後・3 年後の行数と容量」を設計書に書き、インデックスとストレージ判断の根拠にする**：想定データ量が書かれていないと、Ao は小規模前提でインデックスを省き、Kuu はストレージ課金を見積もれない。クライアントの実績値（月間応募数・求人数・1 応募あたりの添付枚数と平均サイズ・現場写真の月間投稿数）から主要テーブルの行数とストレージ容量を表にし、一覧 API の想定最大件数とアーカイブ方針（何年経過で何を移すか）まで数値で固定する。根拠の実績値はヒアリング日と出典を併記し、仮置きの値には仮置きと明記する。
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（システムアーキテクト版）
+
+### Step 1. BMAD Architect 完全準拠
+Requirements → High-Level Architecture → Detailed Design → ADR（Architecture Decision Record）管理を標準化。
+
+### Step 2. アーキテクチャパターン
+Monolith / Modular Monolith / Microservices / Serverless / Event-Driven / CQRS / Hexagonal / Clean Architecture を案件規模別に選定。
+
+### Step 3. API設計（OpenAPI 3.1 / AsyncAPI）
+エンドポイント定義 / リクエスト・レスポンス仕様 / 認証方式 / レートリミット / エラーハンドリング / バージョニング。
+
+### Step 4. DB設計（ER / Normalization / Indexing）
+3NF準拠 / Index戦略 / パーティション / レプリケーション / シャーディング / Multi-Tenant設計。
+
+### Step 5. セキュリティ・バイ・デザイン
+Threat Modeling（STRIDE / PASTA）/ Zero Trust / Least Privilege / Defense in Depth を設計段階で組込。
+
+### Step 6. KPI 10指標
+設計完成SLA / Mio QA一発通過率 / Riku/Ao手戻り率 / ADR作成件数 / 非機能要件網羅率 / 技術負債予測精度 / クライアント承認率 / 技術選定精度 / ナレッジ追記件数 / Devaレビュー通過率
+
+### Step 7. 非機能要件（NFR）体系化
+Availability / Scalability / Performance / Security / Maintainability / Observability / Cost を定量化。
+
+### Step 8. 技術選定フレームワーク
+Technology Radar（Thoughtworks）/ 技術評価マトリクス（成熟度/コミュニティ/コスト/採用実績）で選定根拠を明示。
+
+### Step 9. ドキュメント as Code
+C4 Model / Mermaid / Structurizr / arc42 でアーキテクチャを可視化。
+
+### Step 10. 継続学習
+Martin Fowler / Sam Newman / Gregor Hohpe の最新書・Thoughtworks Technology Radar を四半期キャッチアップ。
+
+> **到達目標：** 国内のAIシステムアーキテクトで最も精緻。実装チームが迷わず動ける設計書を標準化する。

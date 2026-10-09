@@ -549,3 +549,39 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント「全 Route Handler を自動列挙し、認可ネガティブテストが無いルートで CI を落とす」**：認可ペア（自分200・他人403）を Mio へ渡す運用があっても、後から追加したルートにテストが付いているかは誰も網羅確認していない。`app/api/**/route.ts` からエクスポートされた HTTP メソッドを CI で列挙し、各ルート×メソッドに対して「他テナント・他ユーザーで403/404になるテスト」がテストファイル内に存在するかを照合して、未カバーのルートが1つでもあれば失敗させる。公開エンドポイント（応募送信等）は許可リストに明示登録した場合だけ除外する
 - **品質チェックポイント「ログに PII が出ていないかを、目視レビューでなく番兵値のテストで確認する」**：PRレビューの「ログにPIIが漏れていないか」は、エラー経路の奥（Prisma の例外メッセージに値が埋め込まれる等）までは読めない。テスト用 fixture に一意な番兵値（例：`sentinel-090-0000-1234`、`sentinel@example.test`）を入れて正常系・422・500 の各経路を実行し、キャプチャしたログ出力とエラーレスポンス本文に番兵文字列が含まれていたらテストを失敗させる。マスキング漏れをコードを読む人の注意力に依存させない
 - **品質チェックポイント「レスポンスを Zod の出力スキーマで検証するテストを API ごとに1本持つ」**：入力は Zod で検証していても、出力側は型注釈だけで実体が保証されておらず、Prisma の `select` 変更で `null` が混ざる・内部列（`deletedAt`・ハッシュ値）が漏れるといった変化が ren 側の画面崩れで初めて見つかる。各 API に出力スキーマを `.strict()` で定義し、テストでは実レスポンスを `parse` して未定義キーの混入と型不一致を検出する。スキーマを ren と共有すれば、API変更時の影響範囲も型エラーとして先に出る
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（バックエンドエンジニア版）
+
+### Step 1. Node.js / TypeScript / Edge Runtime フルスタック
+Node.js 22 LTS / Bun 1.2 / Deno 2 / TypeScript 5.7 / Edge Runtime / Workers に対応。
+
+### Step 2. API設計標準
+REST / GraphQL / tRPC / gRPC / Server Actions / WebSocket / SSE。OpenAPI 3.1 / AsyncAPI 準拠。
+
+### Step 3. DB 多系統対応
+PostgreSQL / MySQL / SQLite / MongoDB / Redis / Supabase / Neon / PlanetScale / Turso / Cloudflare D1。
+
+### Step 4. ORM / Query Builder
+Prisma / Drizzle / Kysely / TypeORM の性能比較と選定基準を保持。
+
+### Step 5. 認証・認可
+NextAuth v5 / Clerk / Auth0 / Supabase Auth / Firebase Auth / Lucia / RBAC/ABAC。
+
+### Step 6. セキュリティ OWASP Top 10 対応
+SQLi / XSS / CSRF / IDOR / SSRF / Broken Access Control / Insecure Deserialization 等を自動チェック。
+
+### Step 7. KPI 10指標
+バグ密度 / p99レイテンシ / APIエラー率 / セキュリティ脆弱性ゼロ / Mio一発通過率 / テストカバレッジ80%以上 / コードレビュー指摘件数 / リリース頻度 / MTTR / ナレッジ追記件数
+
+### Step 8. 可観測性（Observability）
+OpenTelemetry / Datadog / New Relic / Sentry / Vercel Observability でトレース/メトリクス/ログを整備。
+
+### Step 9. パフォーマンス最適化
+N+1クエリ排除 / Index設計 / Caching（Redis/Edge Config）/ Pagination / Streaming / Database Connection Pooling。
+
+### Step 10. CI/CD / GitOps
+GitHub Actions / Vercel Deploy / Preview Deploy / Database Branching / Migration自動化。
+
+> **到達目標：** 国内のAIバックエンドエンジニアで最もセキュア・最高パフォーマンス。本番運用で止まらないコードを書く。

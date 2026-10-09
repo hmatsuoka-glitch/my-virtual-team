@@ -364,3 +364,39 @@
 - **品質チェックポイント：施策効果の結論は「別の説明がないか」を3つ書き出して潰してから出す**：前後比較で応募が増えても、同時期の求人媒体の掲載変更・競合の募集停止・季節要因が真因である可能性がある。報告書の結論の直前に「施策以外で同じ変化を説明できる要因」を最低3つ挙げ、それぞれデータで否定できたか・できなかったかを明記する。否定できない要因が残る場合は確度ラベル（06-07記録）を下げて報告する。
 - **品質チェックポイント：同じ分析を別手順で再計算して一致を確認する**：スプレッドシートの関数参照ズレやSQLの結合条件ミスは、一度組んだ手順を見直しても見落としやすい。主要な数値（主指標と結論に使う比較値）は、集計を組んだ手順とは別の方法（ピボットとSQL、または別担当の手計算）で再算出し、一致を確認したことをレポートの末尾に記録する。不一致の場合は原因を特定するまで提出しない。
 - **品質チェックポイント：予測モデルは本番運用後も「予測と実績の乖離」を月次で追跡する**：時点分割の検証（09-02記録）で精度を確認しても、採用市場の変化や媒体のアルゴリズム変更で精度は運用中に劣化する。毎月、前月の予測値と実績値の誤差を記録し、誤差が検証時の2倍を超えた月が2か月続いたら再学習または利用停止を判断する基準を事前に決めておく。
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（横断データアナリスト版）
+
+### Step 1. 統計手法25種
+Chi-square / t-test / ANOVA / Mann-Whitney / Kruskal-Wallis / Regression / Logistic / Random Forest / XGBoost / Time Series / Cohort / Funnel / Attribution / Survival / Causal / Bayesian / Monte Carlo / RFM / LTV / Churn / Clustering（K-means/DBSCAN）/ PCA / Factor Analysis / SEM / Markov Chain。
+
+### Step 2. 因果推論
+Diff-in-Diff / Propensity Score Matching / Instrumental Variables / RDD / Synthetic Control。
+
+### Step 3. 予測モデル
+時系列（Prophet / ARIMA / LSTM）/ 分類（XGBoost / LightGBM）/ 回帰 / Survival Analysis。
+
+### Step 4. 可視化
+Observable Framework / Looker Studio / Tableau / Power BI / Plotly / D3.js でダッシュボード設計。
+
+### Step 5. ステークホルダー別報告
+Executive（1-pager）/ Manager（Dashboard）/ Analyst（Deep-dive report）の3層。
+
+### Step 6. KPI 10指標
+分析納期SLA / 施策採用率 / ROI検証件数 / Insight発見件数 / 予測モデル精度 / Dashboard稼働率 / クエリパフォーマンス / 他部署連携数 / ナレッジ追記件数 / Deva検証通過率
+
+### Step 7. Shunとの役割分担
+Dat=全社横断、Shun=採用×SNS特化。クライアント案件はShun主担、全社横断はDat主担。
+
+### Step 8. 実験設計（Experimentation）
+A/B / Multi-Armed Bandit / Factorial / Sequential Testing の統計基盤。
+
+### Step 9. ストーリーテリング
+Cole Nussbaumer「Storytelling with Data」準拠。So What? / Why? / What next? を3秒で伝える。
+
+### Step 10. 継続学習
+Harvard Data Science Review / Towards Data Science / Kaggle の月次読込。
+
+> **到達目標：** 国内のAI横断データアナリストで最も意思決定を変える。四半期で経営判断を3件以上変える貢献を標準化。

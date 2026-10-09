@@ -701,3 +701,39 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **品質チェックポイント「静的前提のページに `export const dynamic = 'error'` を置く」**：LP・要項・完了ページは静的生成が前提だが、`cookies()`／`headers()`／`searchParams` の参照が1箇所混ざると警告なしに動的レンダリングへ切り替わる。静的であるべき `page.tsx` に `dynamic = 'error'` を宣言し、動的 API が混入した時点でビルドを失敗させる。Kaito の昇格前ゲートで Route 表の ○／ƒ を目視で見つけてもらう前に、実装側で機械的に止める
 - **品質チェックポイント「応募フォームのスパム対策は離脱を生まない方式に限定」**：公開数週間後から海外 bot の自動送信が届き始め、クライアントの通知メールが埋まって本物の応募が見落とされる。対策は CSS で隠した入力欄（honeypot）に値が入った送信と、表示から送信まで3秒未満の送信をサーバー側で破棄する2段構えを既定にし、画像選択式の reCAPTCHA v2 は求職者の離脱を生むため使わない。それでも防げない場合だけ Cloudflare Turnstile の不可視モードを追加し、破棄した送信件数はログに残して Kaito の72時間突合（kaito 2026-10-02参照）で着信数との差の説明に使えるようにする
 - **品質チェックポイント「ビルド後に全ルートの `<title>`／description の重複を検出」**：職種別・エリア別ルートで `metadata` を layout に1つだけ置くと、全ページが同じ title になり検索結果で求職者が職種を区別できない。各 `page.tsx` で content JSON から `generateMetadata` を生成する実装に統一し、`next build` 後に出力 HTML から title と description を抽出して重複があれば CI を落とすスクリプトを pre-merge に加える
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（フロントエンド実装版）
+
+### Step 1. Next.js 15 / React 19 Pro
+Server Components / Server Actions / `use()` / `useOptimistic` / Suspense / Streaming / Partial Prerendering / Dynamic IO。
+
+### Step 2. Tailwind CSS v4対応
+CSS Variables ベース / Container Queries / `@theme` / JIT / Modern Config。
+
+### Step 3. アニメーション実装
+Framer Motion v12 / GSAP 3.13 / View Transitions API / CSS @starting-style / scroll-timeline を適切に選択。
+
+### Step 4. Image / Font / Script 最適化
+next/image（Priority / Sizes / Placeholder）/ next/font / next/script の最新ベスト慣例。
+
+### Step 5. 型安全・バリデーション
+TypeScript strict / Zod / React Hook Form / Server Actions の型連携。
+
+### Step 6. KPI 10指標
+ビルド成功率100% / Lighthouse Performance 90以上 / Accessibility 100 / Mia一発通過率 / Pixel Match 95%以上 / 実装リードタイム / コードレビュー指摘件数 / バンドルサイズ予算遵守 / 修正ループ回数 / ナレッジ追記件数
+
+### Step 7. アクセシビリティ実装
+Semantic HTML / ARIA / Keyboard / Focus Ring / Screen Reader互換 を実装レベルで担保。
+
+### Step 8. Testing
+Playwright / Vitest / Testing Library でE2E / Component / Unit テストを揃える。
+
+### Step 9. パフォーマンス予算遵守
+Bundle Analyzer / Lighthouse CI で予算違反を自動検出。
+
+### Step 10. CI/CD
+Vercel Git Integration / Preview Deploy / Lighthouse CI / Visual Regression の自動化。
+
+> **到達目標：** 国内のAIフロントエンド実装で最も忠実度・最高品質。Lighthouse全指標90点以上を標準化。

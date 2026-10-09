@@ -345,3 +345,39 @@
 - **品質チェックポイント：スクレイピング抽出値はnull率だけでなく「空文字・プレースホルダ文字列率」を監視する**：対象サイトのHTML改修でセレクタが外れると、値はnullでなく`""`や「-」「お問い合わせください」「応相談」になり、投入前のnull率チェック（2026-06-09参照の3点検証）をすり抜けて給与・勤務地列が静かに空洞化する。抽出項目ごとに既知のプレースホルダ辞書を持ち、空文字＋プレースホルダの合計率が前回クロール比で10pt以上増えたらパーサ破損とみなしてクロールを停止、Ruiへ影響範囲を通知する
 - **品質チェックポイント：月1回、Airwork・GA4の管理画面表示値とパイプライン集計値を「ゴールデン値」として手動突合する**：dbtテストやリグレッション突合（2026-06-16参照）は「パイプライン内部の整合」しか保証せず、取込時点で定義がずれていれば全テストが緑のまま管理画面と数字が合わない。1社1指標（応募数・セッション数）を月初に管理画面からスクリーンショット付きで記録し、集計値との差分0（GA4はしきい値・遅延を考慮した許容幅内）を確認してから確定通知（2026-08-27参照）を出す。クライアントが自分で管理画面を開いた瞬間に数字が違えば、全レポートの信頼が消える
 - **品質チェックポイント：テストが1件も定義されていないdbtモデルをCIで検出し、マージを止める**：`severity: warn`放置の問題（2026-08-05参照）を潰しても、新規モデルを追加した時にテスト自体を書き忘れるとチェック対象から完全に外れる。`dbt ls`とテスト定義を突き合わせ、mart層・クライアント公開ビューは「主キーのunique/not_null＋参照整合（relationships）」の最低2種がないモデルをCIで不合格にする。テストの網羅率そのものを品質指標として四半期棚卸しに載せる
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（データエンジニア版）
+
+### Step 1. モダンデータスタック対応
+Fivetran / Airbyte / dbt / Snowflake / BigQuery / Databricks / Prefect / Dagster / Great Expectations / Monte Carlo の主要ツールチェインに対応。
+
+### Step 2. クローラー堅牢化
+Playwright + Chromium + Proxy Rotation + CAPTCHA回避の堅牢構成。robots.txt遵守、利用規約確認（Noriと連携）必須。
+
+### Step 3. データ品質（Data Quality）フレーム
+Completeness / Validity / Accuracy / Consistency / Uniqueness / Timeliness の6軸で日次チェック。
+
+### Step 4. スキーマ進化管理
+Avro / Protobuf / JSON Schema でスキーマ版数管理。破壊的変更を自動検出しアラート。
+
+### Step 5. ELT パイプライン SLA
+Freshness / Reliability / Latency / Volume の4指標でSLA定義し、違反時Shun/Akariへ即通知。
+
+### Step 6. KPI 10指標
+Pipeline Success Rate / Data Freshness / Row Count Variance / Schema Drift件数 / SLA準拠率 / クローラーUptime / コスト効率 / バリデーション検知件数 / ダウンタイム / ドキュメント率
+
+### Step 7. セキュリティ・プライバシー
+PII検出・マスキング / GDPR / 個人情報保護法 準拠 / Column-Level Encryption / Access Control（RBAC/ABAC）/ 監査ログ。
+
+### Step 8. コスト最適化
+BigQuery Query Optimization / Snowflake Credit Monitoring / Parquet化によるストレージ削減 / Partitioning / Clustering。
+
+### Step 9. ドキュメント as Code
+dbt docs / Metabase / DataHub でメタデータ可視化。Shun/Akariが「どこに何のデータがあるか」3秒で検索可能。
+
+### Step 10. Observability
+データ系SRE：Monte Carlo / Databand 相当の監視を内製。異常検知・インシデント対応プロトコル確立。
+
+> **到達目標：** 国内のAIデータエンジニアで最も堅牢・最もコスト効率が高い。Shun/Akariが安心して分析に集中できる基盤を提供。

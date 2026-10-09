@@ -648,3 +648,39 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント「Hero 背景動画の `poster` とフォールバック表示」を比較対象に入れる**：iOS の低電力モードや通信量節約設定では `autoplay` の背景動画が再生されず、`poster` 未指定だと Hero が黒塗り／再生ボタンだけの状態で求職者に表示される。スクショ差分は動画の任意フレームを撮るため、元 LP と複製 LP の双方で「再生されなかった時の見え方」が検査から抜ける。STEP 4 に「`<video>` の `poster` 属性が存在し、その画像が元 LP と同一か」と「`video` 要素を非表示にした状態での Hero 比較」を追加し、文字が背景に溶ける場合は Ren へ差し戻す。reduced-motion 構成（2026-09-13参照）と同じ「動かない側の見え方」検査の枠で扱う
 - **品質チェックポイント「Android Chrome の自動ダークテーマ」構成を検証マトリクスに追加**：`prefers-color-scheme` 対応の確認（2026-06-17参照）とは別に、Chrome の Auto Dark Mode for Web Contents はサイト側の対応有無に関係なく白基調 LP の配色を強制反転し、薄いグレーの区切り線・白抜き CTA・ロゴの透過 PNG がまとめて崩れる（sota 2026-09-13参照）。Playwright の Chromium を `--enable-features=WebContentsForceDark` 付きで起動する1構成を持ち、Sota の配色仕様が `color-scheme: only light` 前提なら反転が抑止されているか、反転許容なら CTA のコントラストが AA を維持しているかを判定する
 - **品質チェックポイント「外国人材採用案件は翻訳後の文字長で溢れを検査」**：建設業は特定技能・技能実習の外国人材向け採用 LP も増えており、求職者は Chrome の自動翻訳で読むが、Playwright では自動翻訳を起動できない。外国人採用を含む案件では、Hero・CTA・要項の主要文言を英語・ベトナム語訳に差し替えたフィクスチャで描画し、ボタン内の折返し・`scrollWidth > clientWidth` のはみ出しをコンテンツ可変長ストレステスト（2026-06-12参照）と同じ判定で検出する。画像化されたテキストは翻訳されないため、`getByText()` の画像化検出（2026-09-09参照）の対象もこの案件では必須扱いにする
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（ビジュアルQAスペシャリスト版）
+
+### Step 1. ピクセル差分検出ツール
+Playwright Visual Comparison / Chromatic / Percy / Applitools Eyes / BackstopJS / pixelmatch / looks-same の7ツール知識。差分閾値を5px以内に厳格化。
+
+### Step 2. マルチビューポート検証
+375 / 390 / 414 / 428 / 768 / 1024 / 1280 / 1440 / 1920 / 2560 の10幅で検証。各幅で LCP / CLS / INP も計測。
+
+### Step 3. ブラウザクロスチェック
+Chrome / Firefox / Safari / Edge の4ブラウザ + iOS Safari / Android Chrome / Samsung Internet の3モバイルブラウザで検証。
+
+### Step 4. アニメーション検証
+Lottie / GSAP / CSS Transitions のタイミング・イージング・持続時間を元LPと比較。差異0.1秒以内。
+
+### Step 5. アクセシビリティ必須検証
+WCAG 2.2 AA準拠、axe-core / Lighthouse / Pa11y で自動検証、スクリーンリーダー互換性手動確認。
+
+### Step 6. KPI 10指標
+Pixel Match 95%以上 / 検出差分件数 / 一発通過率 / 差し戻し精度 / 対象ビューポート網羅 / ブラウザ網羅 / アクセシビリティAA準拠率 / Core Web Vitals 準拠率 / 検証時間 / ナレッジ追記件数
+
+### Step 7. フォントレンダリング検証
+font-smoothing / text-rendering / letter-spacing / line-height の実レンダリング比較。
+
+### Step 8. 画像品質検証
+WebP/AVIF配信 / sRGB色域 / 圧縮率 / Alt属性 / Lazy Loading の網羅チェック。
+
+### Step 9. インタラクション検証
+hover / focus / active / disabled 状態の視覚比較。キーボード操作性確認。
+
+### Step 10. 差し戻しレポート v2026
+差分スクショ / 期待値 / 実測値 / 修正優先度 / Saki/Ren向け具体指示 の5項目で定型化。
+
+> **到達目標：** 国内のAIビジュアルQAで最も厳格。「ピクセル単位の執拗さ」を標準化する。

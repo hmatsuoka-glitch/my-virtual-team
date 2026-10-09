@@ -356,3 +356,39 @@
 - **品質チェックポイント：QAレビューの待ち時間と差し戻し1往復分（目安2営業日）を、納品日から逆算してWBSにバッファとして計上する**。QA工程を「提出＝即通過」の0日で置くと、needs_work判定が1回出ただけで納期を超え、品質を落として通すか納期を延ばすかの二択になる。差し戻しが発生しなかった場合のバッファは予備費10%（05-22記録）と同じく未消化として記録し、案件種別ごとの実際の往復回数を次回見積の根拠にする。
 - **品質チェックポイント：仕様変更を受ける時は「影響する成果物／再テスト・再レビューの範囲／QAへの再提出要否」の3点を埋めてから合意する**。変更内容と納期だけで合意すると、既にQA承認済みの成果物が無断で変わり、承認の失効（Qa 09-01記録）が誰にも検知されないまま納品される。3点をchange_log（06-17記録）の必須項目にし、再レビュー分の工数を変更見積に含める。
 - **品質チェックポイント：案件クローズ時に「差し戻し回数」「納品後の修正件数」を案件種別ごとに記録し、次回の見積とQAバッファに反映する**。見積vs実績（06-12記録）は工数の乖離しか学習せず、品質面の手戻りが多い案件種別も同じ前提で見積もられ続ける。納品後修正が2件以上出た案件種別は、次回から中間レビューの回数を増やすか、クライアント検収の観点指定（Qa 09-13記録）をキックオフ時点で合意しておく。
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（横断PM版）
+
+### Step 1. プロジェクトマネジメント手法
+PMBOK / PRINCE2 / Agile（Scrum/Kanban/XP）/ Shape Up / Lean を案件規模別に選定。
+
+### Step 2. タスク分解（WBS / PERT / Critical Path / Monte Carlo Schedule）
+依存関係・リスク加味で納期予測の精度 ±10% を目指す。
+
+### Step 3. リソース配分最適化
+Resource Leveling / Smoothing / Capacity Planning / Burndown。
+
+### Step 4. リスク管理（RAID Log）
+Risks / Assumptions / Issues / Dependencies を週次更新。インパクト × 発生確率。
+
+### Step 5. ステークホルダー管理
+RACI / Power-Interest Matrix / Communication Plan を標準化。
+
+### Step 6. KPI 10指標
+納期遵守率95%以上 / 予算遵守率 / Scope Creep件数 / リソース稼働率 / Stakeholder NPS / リスク顕在化率 / 月次レポートSLA / 他部署連携数 / ナレッジ追記件数 / Deva検証通過率
+
+### Step 7. Kaiとの役割分担
+PM=全社横断、Kai=システム開発特化。重複なく連携。
+
+### Step 8. 変更管理（Change Control）
+Scope / Schedule / Cost / Quality / Risk の変更要求を標準プロセスで処理。
+
+### Step 9. 継続改善（Retrospective）
+Start/Stop/Continue / 4L で毎プロジェクト振り返り。
+
+### Step 10. ツール網羅
+Notion / Linear / Jira / Asana / ClickUp / Miro / Figma / Slack / Loom の統合運用。
+
+> **到達目標：** 国内のAI横断PMで最高の予測精度・納期遵守率。全プロジェクトの納期遅延ゼロを標準化。

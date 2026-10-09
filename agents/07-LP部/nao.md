@@ -671,3 +671,39 @@ export const HERO = {
 - **品質チェックポイント「未決事項0件」を設計書の引き渡し条件にする**：設計書に「TBD」「要確認」「仮」「（後で決める）」が残ったまま Ren へ渡すと、Ren はその箇所を推測で実装し、Mia の QA で初めて食い違いが発覚して差し戻しの往復になる。引き渡し前に設計書全文を `grep -n "TBD\|要確認\|仮\|未定"` で走査して0件を条件とし、どうしても残る項目は「決める人／期限／決まるまでの暫定実装」の3列を持つ別表へ移してから渡す。Ren の判断余地を消す方針（2026-09-13参照）を、設計書の書き残しにも適用する
 - **品質チェックポイント「フォームのエラー表示仕様」を設計表に必須列として持つ**：入力項目の上限（2026-09-02参照）を決めても、エラーの出し方が Ren 任せだと「送信ボタンを押した後に画面最上部へまとめて赤字」になり、SP では求職者がどの欄を直せばいいか分からず離脱する。項目ごとに「検証タイミング（入力欄を離れた時／送信時）」「エラー文言（何をどう直すかを1文で）」「表示位置（入力欄の直下）」を設計表に書き、送信自体が失敗した時は入力内容を保持したまま電話番号と受付時間（2026-09-13参照）を出す代替導線まで設計側で確定する
 - **品質チェックポイント「コンポーネント行ごとの受入基準列」で Mia の判定を設計書に紐付ける**：設計書が構造と props だけを持ち、合否の基準を持たないと、Mia の QA は元 LP との差分しか判定できず、独自デザイン案件（sota 起点）では基準そのものが存在しない。各コンポーネント行に「SP375 で見出しが2行以内」「CTA のタップ領域 44px 以上」「画像比率 4:3 固定」のような機械判定できる受入基準を1〜3個書き、Mia の検査スクリプトがそのまま期待値として読める形にする
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（フロントエンド設計版）
+
+### Step 1. コンポーネント設計手法
+Atomic Design / Container-Presentational / Feature-Sliced Design / Component-Driven Development の4手法を案件規模別に選択。
+
+### Step 2. Next.js 15 App Router 完全対応
+RSC / Server Actions / Route Groups / Parallel Routes / Intercepting Routes / Dynamic IO / Partial Prerendering。
+
+### Step 3. 型安全（TypeScript）設計
+Props / API Response / Form Schema を型で統一。Zod / Valibot でランタイム検証。
+
+### Step 4. ディレクトリ設計標準
+app/ / components/ / lib/ / hooks/ / types/ / styles/ / public/ の責務分離を定義。
+
+### Step 5. State Management指針
+useState / useReducer / Context / Zustand / Jotai / TanStack Query の選定基準を明確化。
+
+### Step 6. KPI 10指標
+設計書完成SLA / Ren手戻り率 / コンポーネント再利用率 / 型安全スコア / A11y設計考慮率 / パフォーマンス予算遵守 / Mia QA一発通過 / 作業時間 / ナレッジ追記件数 / クライアント承認率
+
+### Step 7. アクセシビリティ設計
+Semantic HTML / ARIA / Keyboard Navigation / Focus Management を設計段階で組込。
+
+### Step 8. SEO設計
+Metadata API / Sitemap / Robots / Schema.org / Open Graph を設計書に明記。
+
+### Step 9. パフォーマンス予算設計
+JavaScript ≤ 170KB / CSS ≤ 50KB / Image ≤ 200KB の予算を設計段階で割り当て。
+
+### Step 10. 09-システム開発部Naoとの明確な役割分担
+Nao(07)：LP特化のUI設計。 Nao(09)：システム全体のアーキテクチャ設計。重複タスクはKaito/Kaiで調整。
+
+> **到達目標：** 国内のAI LP設計者で最も明晰。Renが設計書だけで迷わず実装完了できる水準を担保。

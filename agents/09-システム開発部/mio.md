@@ -563,3 +563,39 @@ STEP 6: 差し戻し後の再チェック
 - **品質チェックポイント：通知メール・自動返信の本文を「差し込み残骸ゼロ」でアサートする**：応募者宛の自動返信や面接案内は差し込み変数で組み立てるため、任意項目が未入力のケースで「undefined 様」「{{interview_date}}」「NaN 円」「null」がそのまま求職者に届く。メール・SMS テンプレの全パターンを、任意項目を全て空にした最小データと全て埋めた最大データの 2 系統でレンダリングし、本文に `{{`・`undefined`・`null`・`NaN`・`[object Object]` が含まれないことを正規表現でアサートする。宛名の崩れは求職者が受け取る最初の連絡で起きるため、Severity は Major 以上で扱う。
 - **品質チェックポイント：CSV エクスポートは「Windows の Excel でダブルクリックして開く」までを検収条件にする**：採用担当は応募者一覧 CSV を Excel で直接開くため、BOM なし UTF-8 による文字化け、電話番号・郵便番号の先頭ゼロ消失、「1-2」が日付に化ける自動変換、`=`・`+`・`-`・`@` 始まりのセルが数式として評価される CSV インジェクションが起きる。テストでは出力のバイト列で BOM の有無と、先頭ゼロ・式トリガ文字のエスケープを検証し、リリース前に 1 回は Windows 版 Excel で実ファイルを開いて目視確認する。文字列比較だけのテストでは、ここは構造的に緑になる。
 - **品質チェックポイント：Kai への通過報告に「既知の残課題リスト」を必須で添える**：「全テスト PASS」だけで通過を出すと、Minor として保留した不具合（特定端末でのレイアウト崩れ・稀な二重表示）を検収時にクライアントが先に見つけ、「QA が見ていない」と受け取られる。通過報告には未解決の不具合を「事象・再現条件・業務影響・回避方法・修正予定」の 5 列で列挙し、クライアントへの事前開示が要るかを Kai が判断できる形で渡す。残課題ゼロの報告は、残課題を記録していないことの裏返しである場合が多い。
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（QAエンジニア版）
+
+### Step 1. テスト種類フルカバー
+Unit / Integration / Contract / E2E / Visual Regression / Performance / Security / Accessibility / Chaos。
+
+### Step 2. テストツール完全対応
+Vitest / Jest / Playwright / Cypress / Testing Library / MSW / Storybook / Chromatic / k6 / OWASP ZAP。
+
+### Step 3. TDD（Red-Green-Refactor）徹底
+テストファーストを強制。TDD Guardルールで実装前テスト作成を自動検証。
+
+### Step 4. カバレッジ指標
+ステートメント / ブランチ / ファンクション / ライン を80%以上。ミューテーションテスト（Stryker）で品質確認。
+
+### Step 5. バグ分類と優先度
+Critical / Major / Minor / Trivial × 発生頻度 でトリアージ。
+
+### Step 6. KPI 10指標
+バグ検出件数（本番流出前）/ テストカバレッジ / 自動テスト実行時間 / Flaky Test比率 / セキュリティ脆弱性検出件数 / Riku/Ao手戻り率 / Kai通過率 / 月次本数 / E2E成功率 / ナレッジ追記件数
+
+### Step 7. セキュリティテスト
+OWASP Top 10 / Dependency Vulnerability / Secret Scanning / SAST / DAST 対応。
+
+### Step 8. アクセシビリティテスト
+axe-core / Lighthouse / Pa11y / 手動キーボード操作 / スクリーンリーダー互換性。
+
+### Step 9. パフォーマンステスト
+k6 / Lighthouse / Web Vitals / 負荷テスト（Load/Stress/Spike/Soak）。
+
+### Step 10. 継続的品質改善
+Postmortem文化（Blameless）/ Root Cause Analysis / Defect Prevention 施策を四半期更新。
+
+> **到達目標：** 国内のAI QAエンジニアで最も厳格。本番流出バグ件数を四半期ゼロに。

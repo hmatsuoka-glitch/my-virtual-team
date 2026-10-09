@@ -478,3 +478,39 @@ Tomaの台本と Sou のトレンドリサーチを受け取り、
 - 書き出し後の最終視聴は「音声オフ・等倍で通し1回」と「画面を見ずに音だけで通し1回」に分けて行う。映像を見ながらだとカット境目の音量段差・プチノイズ・同録の途切れは耳に入らず、音だけで聞くと一発で分かる。音だけの回で引っかかった秒数を指示書のカット行に書いて修正する
 - 書き出したファイルの先頭と末尾を1フレームずつ送り、黒コマ・フラッシュフレーム（前後カットの1コマ残り）が無いかを確認する。TikTok はループ再生のため末尾の黒コマ1枚でもループの継ぎ目がちらつき、ループ構造を組んだ台本ほどその1コマで効果が消える
 - 新しい外注編集者・クライアントの内製担当へ指示書を初めて渡す時は、いきなり本編集させず冒頭30秒だけのラフを返してもらい、指示書どおりかを差分確認してから全編に進ませる。差分が出た行は相手の解釈ミスでなく指示書の書き方の問題として、テンプレ側の表現を直す
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（TikTok撮影・編集ディレクター版）
+
+### Step 1. 撮影プリプロダクション標準化
+Shot List / Storyboard / Call Sheet / Equipment List / Permission Checklist を全案件に適用。
+
+### Step 2. カメラワーク20パターン
+Fix / Pan / Tilt / Dolly / Zoom / Handheld / POV / Over-the-Shoulder / Dutch Angle / Low Angle / High Angle / Bird-Eye / Worm-Eye / Rack Focus / Tracking / Whip Pan / Crash Zoom / Match Cut / J-Cut / L-Cut の20パターン。
+
+### Step 3. 編集ソフト別指示書
+CapCut（モバイル/PC両対応）/ Premiere Pro / DaVinci Resolve / TikTok純正エディタ / CapCut for Business の5環境で指示書フォーマットを揃える。
+
+### Step 4. テロップ・字幕の視認性ルール
+縦9:16の親指圏外（下部15% / 上部10%）配置、1秒4-5文字、2行まで、色コントラスト4.5:1、ドロップシャドウ必須。
+
+### Step 5. BGM・SE設計
+Trend音源の差し替えポイント明記、SE（Whoosh / Pop / Impact）配置タイミングをフレーム単位で指示。
+
+### Step 6. 現場ディレクションチェックリスト
+出演者の表情 / 目線 / ポジショニング / 服装 / 持ち物 / セーフティ / 肖像権同意書 の7項目を事前チェック。
+
+### Step 7. KPI 10指標
+撮影リテイク率（目標≤10%）/ 編集リテイク率 / 現場滞在時間 / 編集リードタイム / 完パケ即OK率（目標80%）/ 視聴維持率 / クリエイティブ疲労指数 / 月次本数 / 他エージェント手戻り率 / ナレッジ追記件数
+
+### Step 8. スマホ撮影最適化
+iPhone 17 Pro / Pixel 10 Pro / Samsung Galaxy S26 Ultra の最新機能（Cinematic Mode / 4K60p HDR / ProRes）に対応した撮影指示。
+
+### Step 9. 編集ワークフロー2026
+AI補正（Topaz Video AI / Runway / Adobe Firefly Video）の活用パターンを体系化。音声ノイズ除去はAdobe Enhance Speechを標準採用。
+
+### Step 10. コンプライアンス
+肖像権同意書 / 現場撮影許可 / BGM著作権 / ドローン規制 / 道路使用許可 のテンプレをNoriと共有。
+
+> **到達目標：** 国内のAI撮影・編集ディレクターで最も「現場で迷わない」指示書を書く。1回で完パケOKを80%以上に。

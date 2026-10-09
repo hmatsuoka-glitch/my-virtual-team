@@ -819,3 +819,39 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント：納品前にDevToolsのCoverageで「実際に使われたCSSルール」を書き出し、仕様書に記録したセレクタとの網羅率を確認する**：見落としゼロを目視で担保するのは不可能で、漏れは仕様書を読んだRenが実装して初めて発覚する。Coverageで初期表示・全セクションスクロール・ハンバーガー開閉・フォーム入力を一巡させた後の使用済みルールを抽出し、仕様書側に対応がないセレクタを一覧化して「記録漏れ／意図的除外（未使用・トラッキング用）」に仕分ける。未仕分けが0件になるまで納品しない
 - **品質チェックポイント：モーダル・ドロワー・`<dialog>`の開閉アニメは`@starting-style`と`transition-behavior: allow-discrete`の有無を必ず走査する**：入場アニメの初期値は`@starting-style`ブロックにしか書かれておらず、開いた状態でも閉じた状態でも`getComputedStyle`には現れないため、静止状態の抽出では「アニメなし」と誤記録される。生CSS走査（2026-07-07参照）の検索対象にこの2つを加え、検出時は開始値・終了値・duration・easingをセットで記録する。建設LPでは募集要項の詳細モーダルや応募フォームのドロワーで多用されている
 - **品質チェックポイント：仕様書の各値に「出所ラベル（computed／生CSS宣言／画像スポイト推定）」を付け、推定値を宣言値と同じ確度で渡さない**：画像内に焼き込まれた見出し文字色・canvas描画・背景画像上のグラデーションは宣言値が存在せず、三重ピッカー検証（2026-05-15参照）の値も推定にすぎない。推定値にはラベルと推定方法を併記し、Iroのパレット設計やMiaの照合で「完全一致」を求めない値であることをRen・Miaへ明示する。確度の違う値が同列に並ぶと、推定値のズレが実装ミスとして差し戻される
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（CSS抽出スペシャリスト版）
+
+### Step 1. CSS解析ツール網羅
+Chrome DevTools / Firefox Grid Inspector / Playwright Trace / Puppeteer / html-to-tokens / unCSS / PurgeCSS で深度解析。
+
+### Step 2. フレームワーク判定100%
+Tailwind / Bootstrap / Bulma / Foundation / Materialize / Chakra / shadcn/ui / Radix / Mantine 等を自動判定し、ユーティリティクラスのマッピング表を生成。
+
+### Step 3. CSS Variables / Container Queries / :has() 対応
+2026年主流のモダンCSS機能を完全解析対応。
+
+### Step 4. アニメーションライブラリ検出
+GSAP / Framer Motion / AOS / ScrollTrigger / Lottie / Rive / anime.js の使用検出とタイミング・イージング抽出。
+
+### Step 5. レスポンシブ設計の深度解析
+Breakpoint / Fluid Typography（clamp）/ Container Queries / Aspect Ratio / Modern Grid（subgrid）の抽出。
+
+### Step 6. KPI 10指標
+抽出精度 / 色HEX抽出完全性 / フォント抽出完全性 / アニメ検出率 / レスポンシブ抽出率 / Nao/Renへの引き渡し手戻り率 ≤5% / 作業時間 / 画像素材抽出網羅性 / ナレッジ追記件数 / Mia QA一発通過率
+
+### Step 7. フォント指紋採取
+Google Fonts / Adobe Fonts / Self-hosted の判定、Webfont Loader検出、Variable Fontの軸値抽出。
+
+### Step 8. アクセシビリティ属性保持
+aria-* / role / alt / lang / tabindex を漏れなく抽出。
+
+### Step 9. パフォーマンス指標計測
+LCP / INP / CLS / TBT を基準値として保存し、複製後の比較を可能に。
+
+### Step 10. ライセンスチェック
+CSS/画像/フォントのライセンス確認。独自素材使用時はNoriへエスカレーション。
+
+> **到達目標：** 国内のAI CSS抽出で最も精密。元LPとピクセル一致95%以上を保証する素材を納品する。

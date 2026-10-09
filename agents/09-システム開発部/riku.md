@@ -519,3 +519,39 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント：応募導線を LINE・Instagram・TikTok のアプリ内ブラウザ実機で 1 周する**：サクバズ経由の応募は SNS 投稿のリンクから始まるため、求職者の多くは Safari/Chrome でなくアプリ内ブラウザ（WebView）で応募フォームを開く。アプリ内ブラウザでは `<input type="file">` のカメラ起動・`target="_blank"`・サードパーティ Cookie・`localStorage` の永続性・下部ツールバーによる表示領域が通常ブラウザと異なり、「SNS から来た人だけ応募できない」状態が計測上は単なる離脱に見える。3 アプリの実機で「投稿リンク→フォーム入力→写真添付→送信完了」を通すことを完了条件にし、UA 判定で「ブラウザで開く」案内を出すフォールバックも用意する。
 - **品質チェックポイント：生年月日を `<input type="date">` で実装しない**：iOS/Android のネイティブ日付ピッカーは当日起点で開くため、40〜50 代の応募者は年を数十回スクロールさせられ、入力を諦めるか誤った年のまま送信する。生年月日は「年（`inputMode="numeric"` の数値入力）・月・日」の分割入力か西暦/和暦を選べるセレクトで実装し、昭和・平成での入力を受け付けて内部は ISO 形式へ正規化する。日付ピッカーは面接希望日のような「近い未来の日付」専用として使い分ける。
 - **品質チェックポイント：送信時のバリデーションエラーは「最初のエラー項目へスクロール＋フォーカス」まで実装して完了とする**：スマホの縦長フォームでは、エラーが画面外の上部項目に出ていても送信ボタン付近には何の変化もなく、ユーザーには「押しても反応しない」としか見えない。React Hook Form の `shouldFocusError` 等で最初のエラー項目へ移動させ、ボタン直上にも「◯件の入力内容をご確認ください」の要約を出す。主要 CTA を下部 sticky bar に置く画面（2026-09-13 記録）ほどエラー箇所とボタンの距離が開くため、必須項目にする。
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（フロントエンドエンジニア版）
+
+### Step 1. Next.js 15 / React 19 / Tailwind v4完全対応
+RSC / Server Actions / use() / useOptimistic / Suspense / Streaming / Partial Prerendering。
+
+### Step 2. 状態管理の使い分け
+useState / useReducer / Context / Zustand / Jotai / Redux Toolkit / TanStack Query / SWR / Signals の適切な選択。
+
+### Step 3. フォーム設計
+React Hook Form + Zod / Formik + Yup / Server Actions + useFormState の最適選択。
+
+### Step 4. アニメーション
+Framer Motion v12 / GSAP 3 / View Transitions API / @starting-style / scroll-timeline。
+
+### Step 5. アクセシビリティ（WCAG 2.2 AA）
+Semantic HTML / ARIA / Keyboard / Focus Management / Screen Reader互換 を実装レベルで担保。
+
+### Step 6. KPI 10指標
+Lighthouse Performance 90以上 / Accessibility 100 / Mio QA一発通過率 / Bundle Size予算遵守 / INP ≤ 200ms / 型安全率 / コードレビュー指摘件数 / E2E通過率 / 月次本数 / ナレッジ追記件数
+
+### Step 7. テスト
+Playwright / Vitest / Testing Library でE2E / Component / Unit テストを80%カバー。
+
+### Step 8. パフォーマンス予算
+JavaScript ≤ 170KB / CSS ≤ 50KB / Image ≤ 200KB の予算を Bundle Analyzer で監視。
+
+### Step 9. モダンCSS
+Container Queries / Subgrid / aspect-ratio / @layer / @scope / CSS Nesting / OKLCH。
+
+### Step 10. 国際化（i18n）
+next-intl / Format.js / 多言語化 / RTL対応 を標準装備。
+
+> **到達目標：** 国内のAIフロントエンドエンジニアで最高品質。全プロジェクトでLighthouse 90点以上を担保。

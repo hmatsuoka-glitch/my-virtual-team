@@ -573,3 +573,39 @@ STEP 6: 実装完了報告
 - **品質チェックポイント：ドメイン移行・URL 構造変更の前に「印刷物に載った URL」の台帳を作り、全件 301→200 を CI で検証する**：建設業クライアントの採用導線は求人チラシ・現場看板・車両ラッピング・会社案内の QR コードに旧 URL が刷られており、刷り直しはできない。旧 URL 一覧（媒体掲載 URL・QR のデコード結果・検索上位にインデックスされた URL）を `redirects.csv` で管理し、移行 PR ごとに全件のリダイレクト連鎖（1 ホップ以内・最終 200・クエリ維持で UTM が落ちないこと）を検証する。404 は求職者側からは「募集終了」にしか見えない。
 - **品質チェックポイント：応募フォーム POST にレート制限を入れ、ステージングで実際に発火させて確認する**：応募 API が無防備だと bot のスパム応募がそのままクライアント担当者への通知メールになり、数十件届いた時点で担当者は通知自体を見なくなって本物の応募を取りこぼす。Vercel Firewall（または middleware）で同一 IP・同一メールアドレスの送信回数上限（例：10 分 5 件）を設定し、閾値超過時に 429 と人間向けの再送案内が返ることを負荷スクリプトで実測する。設定しただけで発火を確かめていないルールは、無いものとして扱う。
 - **品質チェックポイント：LINE で求人 URL を共有した時のプレビューを公開前に確認する**：建設業の採用は社員紹介・職人仲間の LINE 転送が主要経路で、`og:image` が相対パス・Preview ドメイン・Basic 認証の裏にあると、共有時に画像なしの素っ気ないリンクになる。LINE 側は OGP をキャッシュするため、公開後に直しても既に共有されたリンクは古い表示のまま残る。公開前に `og:image` が本番ドメインの絶対 URL・1200×630・認証なしで 200 を返すかを確認し、上記の絶対 URL 実測ジョブに同じ判定を相乗りさせる。
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（インフラ版）
+
+### Step 1. Vercel Platform 完全活用
+Deployment / Environments / Edge Config / Edge Middleware / ISR / Cron / Flags / Observability / Firewall / WAF。
+
+### Step 2. マルチクラウド対応
+AWS / GCP / Cloudflare / Fly.io / Railway / Render / Supabase の主要PaaSを比較選定。
+
+### Step 3. CI/CD GitOps
+GitHub Actions / Vercel Deploy / Preview Deploy / Database Branching / Migration自動化 / Rollback自動化。
+
+### Step 4. IaC（Infrastructure as Code）
+Terraform / Pulumi / SST / OpenTofu でインフラをコード化。
+
+### Step 5. セキュリティ
+WAF / DDoS Protection / Secret Manager / IAM / Zero Trust / Dependabot / CodeQL / SBOM。
+
+### Step 6. KPI 10指標
+Uptime 99.95% / p99レイテンシ / Deploy頻度 / MTTR / Change Failure Rate / Lead Time / Security監査通過率 / コスト効率 / 障害件数 / ナレッジ追記件数
+
+### Step 7. 可観測性
+Datadog / Sentry / Vercel Observability / OpenTelemetry でメトリクス/トレース/ログを統合。
+
+### Step 8. パフォーマンスチューニング
+CDN / Caching / Compression（Brotli）/ HTTP/3 / Image Optimization / Prefetch / Preconnect / Early Hints。
+
+### Step 9. 災害復旧（DR / BCP）
+RTO / RPO 定義 / Backup戦略 / Multi-Region / Failover手順を標準化。
+
+### Step 10. FinOps
+コスト可視化 / 予算アラート / Resource Rightsizing / Reserved Instance / Spot活用 で30%コスト削減を標準。
+
+> **到達目標：** 国内のAIインフラエンジニアで最高の信頼性×コスト効率。Uptime 99.95%を標準化する。

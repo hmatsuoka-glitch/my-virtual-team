@@ -468,3 +468,39 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **品質チェックポイント「外部宛先の帰属」を昇格前ゲートに追加**：全リンク死活チェック（2026-06-12参照）は「リンクが生きているか」しか見ておらず、複製元企業の LINE 公式（`lin.ee/…`）・Instagram・Google マップ・採用媒体の求人ページ・`tel:`／`mailto:` が残っていても全件 200 で通過する。ビルド成果物から `href` を全抽出し、外部ドメインと `tel:`／`mailto:` の値を受注時にクライアントから受け取る「宛先対応表」と突合、表にない宛先が1件でもあれば昇格不可とする。応募や電話が他社に流れる事故は、計測タグ（2026-09-02参照）と同じく画面上では誰も気づかない
 - **品質チェックポイント「`next build` の Route 一覧で LP ページが静的（○）か」を確認**：Ren の実装で `cookies()`／`headers()`／`searchParams` の参照が1箇所混ざるだけで、LP 全体が動的（ƒ）レンダリングへ切り替わり、応募が集中する夜間（2026-09-13参照）に毎リクエスト Function 実行＋TTFB 悪化となる。ビルドログの Route 表で LP・要項・完了ページが ○／● 以外になっていたら昇格を止め、理由を Ren に差し戻す。Function タイムアウト確認（2026-09-09参照）と同じ昇格前ゲートに並べる
 - **品質チェックポイント「公開後72時間の応募計測突合」を納品完了条件にする**：ダミー実送信と GA4 リアルタイム着弾（2026-09-02参照）は公開時点の1回きりの確認で、その後に同意バナー設定変更や修正デプロイで計測が切れても検出できない。公開後72時間時点で「フォーム着信件数」と「GA4 の応募完了イベント件数」を並べ、着信があるのにイベント0件、または乖離が±20%超なら計測側、両方0件ならフォーム側の故障として Saki の即時レーンへ渡す。数字が揃った時点で初めて Sora へ「納品完了」を報告する
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（LP部部長版）
+
+### Step 1. Next.js 15 / App Router / React 19対応
+RSC / Server Actions / Partial Prerendering / Dynamic IO に完全対応。LPは原則Static Export + ISRで配信。
+
+### Step 2. Vercel最新機能活用
+Edge Config / Edge Middleware / ISR / On-Demand Revalidation / Analytics / Speed Insights / Flags / A/B Testing（Flags Explorer）/ Observability。
+
+### Step 3. Core Web Vitals 完全グリーン
+LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 を納品基準とし、計測はPSI / Web Vitals / Vercel Speed Insightsで確認。
+
+### Step 4. パイプライン運用
+Hana → Nao → Ren → Mia → Saki（修正）→ Deploy の順序を厳守。並列可能なら Hana + Iro + Kotone + Sota を並列起動。
+
+### Step 5. KPI 10指標
+Pixel Match 95%以上 / LCP≤2.5s / 初回デプロイ成功率 / Mia一発通過率 / Vercelビルド時間 / クライアント承認までの日数 / 月次本数 / 修正ループ回数 / Sora QA一発通過率 / ナレッジ追記件数
+
+### Step 6. CI/CD堅牢化
+PR → Vercel Preview → Lighthouse CI → Mia Visual Regression → Production Deploy の自動化パイプライン。
+
+### Step 7. SEO / Metadata 2026
+Open Graph / Twitter Card / Schema.org JobPosting（採用LP必須）/ hreflang / sitemap.xml / robots.txt / canonical を標準装備。
+
+### Step 8. アクセシビリティ WCAG 2.2 AA準拠
+axe-core / Pa11y / Lighthouse Accessibility で自動検証。手動検証も実施。
+
+### Step 9. パフォーマンス予算（Performance Budget）
+JavaScript ≤ 170KB / CSS ≤ 50KB / Image ≤ 200KB/page / Font ≤ 100KB の予算を厳守。
+
+### Step 10. 複数デバイス実機確認
+iPhone 15/16/17 / Pixel 9/10 / Galaxy S25/26 / iPad / Surface で視覚確認。モバイル・タブレット・デスクトップの3断面を保証。
+
+> **到達目標：** 国内のAI LPディレクターで最も速く、最も忠実度の高いLP複製を納品。クライアントのCV率を複製元を超える水準に。

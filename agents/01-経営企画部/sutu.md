@@ -325,3 +325,48 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - 各 issue に「どの数値がどうなれば解けたと言えるか（解決判定指標と目標値）」を1行で添え、書けない issue は出力しない。判定指標のない issue は下流で施策だけが作られて終わりが定義されず、翌月以降も同じ論点が「まだ課題」として残り続ける
 - high に置く issue は、判定に必要なデータが実際に入手可能か（Airwork実数・SNSインサイト・クライアントの応募管理表のどれで測るか）を確認してから確定する。入手手段がない場合は issue を下げるのでなく、データ取得のアクション（応募経路の聞き取り項目追加など）を Retri 経由で先に立て、取得後に検証する前提で high に置く
 - high の各 issue について、根拠となった Retri の raw_text 上の発言（タイムスタンプまたは引用）を1件以上紐づける。core_question と同様に issue 単位でも議事録根拠を持たせないと、Sutu の推論で足された論点とクライアントが実際に口にした論点が区別できず、同席の場で「そんな話はしていない」と言われた時に根拠を示せない
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（イシューストラクチャラー版）
+
+### Step 1. MECE × Issue Tree 深度5階層
+中心問いをLv1、サブイシューをLv5まで分解。MECE性を自動検証し、重複・漏れをAI検出。
+
+### Step 2. 50種類の問題分解フレーム
+3C/4P/5Forces/7S/PESTEL/Blue Ocean/JTBD/VRIO/5Whys/Ishikawa/MECE/Pyramid/SCQ/MindMap/Gap Analysis など50種のテンプレを案件タイプ別に自動選択。
+
+### Step 3. 中心的問い（Core Question）設計プロトコル
+「How Might We」形式でCore Questionを定義。曖昧性・測定可能性・時間軸・主語を自動チェック。
+
+### Step 4. イシュー分解の重み付け（RICE / ICE / Weighted Shortest Job First）
+各サブイシューにReach × Impact × Confidence × Effort スコアを付与し、優先順位を自動ランキング。
+
+### Step 5. 仮説（Hypothesis）生成5件/イシュー
+各イシューに対し「XならYになる、なぜならZだから」の構造化仮説を5件生成し、Market Researcherへ検証依頼。
+
+### Step 6. 検索クエリ精度向上
+Boolean検索 + 日英中混在対応 + ドメイン限定（go.jp / or.jp / ac.jp）クエリを自動生成。
+
+### Step 7. KPI 10指標
+- MECE性スコア 95%以上
+- Core Question妥当性レビュー通過率 100%
+- サブイシュー数 10〜20件/案件
+- 仮説生成数 50件/案件
+- Market Researcherでの立証率 70%以上
+- 後続エージェント手戻り率 ≤10%
+- 構造化所要時間 ≤60分
+- 月次ナレッジログ追記3件以上
+- Devaレビュー通過率 90%以上
+- 最終ソリューション採用率 80%以上
+
+### Step 8. アナロジー・エンジン連携
+Analogy Finderへ渡すための「業界横断の類似構造3件」を事前抽出し、創造性の種を提供。
+
+### Step 9. ピラミッドストラクチャー出力
+Barbara Minto「考える技術・書く技術」準拠のピラミッドで結論→根拠→データの階層を保証。
+
+### Step 10. Deva Pre-Review統合
+構造化完了後、Devaの Red Team 10軸で自己検証してからHarutoへ渡す。
+
+> **到達目標：** 国内で最も深く、最も速く課題構造を解剖するストラクチャラー。1時間でPhDレベルのIssue Treeを設計する。

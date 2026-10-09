@@ -322,3 +322,39 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **品質チェックポイント：本文中のリンクを色だけで識別させる場合は、`--link`と周囲の`--text`の間にも3:1以上の差を確保し、満たせなければ下線を必須にする**：45ペア検証は「リンク色×背景色」を見ているが、文中リンクが本文と区別できるかは「リンク色×本文色」の差で決まる（WCAG 1.4.1 色の使用、達成方法G183）。建設業に多い紺系`--link`と黒系`--text`は背景に対しては十分なコントラストでも、互いの差が小さく文中で埋もれる。判定ペアに「link×text」を追加し、不足時は適用ガイドラインに「本文中リンクは`text-decoration: underline`必須」と明記してRenへ渡す
 - **品質チェックポイント：納品物3点（CSS変数定義書・スウォッチ画像・適用ガイドライン）のHEX値を機械照合し、手転記の不一致を0件にしてから納品する**：パレットを微調整した後にスウォッチ画像だけ旧値のまま残ったり、ガイドライン本文のHEXを1桁打ち間違えたりすると、Renは定義書、クライアントはスウォッチ、tsumugiはガイドラインを正として別々の色で進んでしまう。3点とも同一のtokens JSONから自動生成する形に寄せ、手書き部分が残る場合は納品前にHEX文字列を抽出して全一致を確認する
 - **品質チェックポイント：APCA判定には色ペアだけでなく、Hanaの仕様書（または実装予定）の実際のfont-size・font-weightを入力する**：Lcの必要値は文字サイズと太さで変わる（2026-07-27参照）ため、ロール名だけで判定すると14px・Regularの給与但し書きが大見出し基準で合格してしまう。一括判定スクリプト（2026-09-01参照）の入力を「ロール×色ペア×最小使用サイズ×ウェイト」に拡張し、同じ色ペアでも最小サイズで使われる箇所の基準で合否を出す
+
+---
+
+## 🚀 2026 Overspec Upgrade — 10 Growth Vectors（ブランドカラー抽出版）
+
+### Step 1. 色抽出アルゴリズム（K-means / Median Cut / Octree）
+3手法で抽出し、人間知覚（CIEDE2000）での類似性で統合。
+
+### Step 2. 色空間変換（HEX/RGB/HSL/LAB/LCH/OKLCH）
+2026年標準のOKLCH色空間対応。Modern CSS Color 4 Spec準拠。
+
+### Step 3. WCAG 2.2 AA/AAA 完全対応
+全ペアでコントラスト比を自動計算。4.5:1 / 7:1の両基準で判定。
+
+### Step 4. ブランドカラーパレット10色構成
+Primary / Primary-Variant / Secondary / Accent / Background / Surface / Text-Primary / Text-Secondary / Success / Warning / Error の11色 + hover/focus/active状態まで提案。
+
+### Step 5. 色覚多様性（P/D/T型）シミュレーション
+Color Oracle / Sim Daltonism 相当のシミュレーションを自動実行。識別困難ペアを自動検出。
+
+### Step 6. KPI 10指標
+抽出精度 / AA準拠率100% / AAA準拠率60%以上 / 色覚多様性互換性 / Ren引き渡し手戻り率 / 作業時間 / ロゴとの一致度 / クライアント承認率 / ナレッジ追記件数 / Mia QA通過率
+
+### Step 7. ブランドトーン分類
+Elegant / Modern / Playful / Trustworthy / Energetic / Minimal の6軸で色のトーンを分類。
+
+### Step 8. CSS Custom Properties v2026
+`:root { --primary: oklch(0.6 0.2 240); ... }` 形式でダークモード対応変数も自動設計。
+
+### Step 9. 業界別配色辞典
+建設 / 医療 / 教育 / 飲食 / IT等の業界慣例配色を事典化し、クライアント業界に合わせた微調整を提案。
+
+### Step 10. Figma Variables / Tokens連携
+Design Tokens Community Group準拠のJSONを出力し、FigmaへImport可能に。
+
+> **到達目標：** 国内のAIブランドカラー設計で最も厳密。WCAG完全準拠と美しさを両立する。
