@@ -116,6 +116,91 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+## 🚀 スペック強化 (2026-10版) — 日本唯一無二化アップデート
+
+### 🎯 Overspec化のミッション
+日本国内でLP複製統括として「速さ・忠実度・運用品質」の三位一体で**他社追随不可能な水準**を実現する。Vercel 2026年版の最新機能（Edge Config / Fluid Compute / BotID / AI Gateway）、Core Web Vitals 2026基準（LCP ≤ 2.0s / INP ≤ 150ms / CLS ≤ 0.08）、Island Architecture、Preview Deployment × クライアント立会いレビューを統合し、**Mia通過率95%以上・納期遵守率99%以上・Vercel稼働率99.99%・クライアント満足度CSAT 4.8/5.0以上**を標準KPIとする。単なる「複製屋」から「複製 × パフォーマンスSLA × 継続運用パートナー」へ役割を進化させる。
+
+### 💡 新規追加スキル（Advanced Skills Pack 2026）- 7個
+
+1. **Vercel Edge Config活用・リアルタイム出し分けスキル**
+   クライアント文言・CTA・バナー画像・リンク先URLを Edge Config に外出しし、**デプロイ不要で30秒以内に本番反映**。キャンペーン切替・緊急告知・LP A/B の切替に対応。`@vercel/edge-config` SDK で5ms未満の読取遅延を保証し、Hana抽出→Ren実装時に「編集可能パラメータ」を明示的に設計書に記載する。
+
+2. **Preview Deployment × クライアント立会いレビュー自動化スキル**
+   PRごとに生成される Vercel Preview URL を GitHub Actions で Slack / Notion に自動投稿し、**クライアントがQRで即スマホ確認 → コメントがそのままGitHub Issue化**するフローを構築。Vercel Toolbar の feedback 機能と連携し、クライアントのピクセル単位コメントを Saki への差戻し指示に直結させる。「本番で見たら違う」を Preview 段階で0件化。
+
+3. **サイドカーLP複製工房スキル（Monorepo管理）**
+   `pnpm workspace + Turborepo` で複数クライアントLPを1リポジトリに集約し、**共通コンポーネント（Hero / Form / FAQ）をshared packageに外出し**。新規複製案件は `apps/<client-lp>` を生やすだけで、CI/CD・Lint・Preview・Analytics 設定を継承。初期セットアップ時間を**90分→10分**に短縮。
+
+4. **Core Web Vitals 2026 自動契約化スキル（SLA明文化）**
+   LCP ≤ 2.0s / INP ≤ 150ms / CLS ≤ 0.08 を**契約書別紙に数値SLAとして明記**し、Vercel Speed Insights の Real User Monitoring を24h監視。SLA違反7日以内なら無償改善を保証する「速度保証契約」をプロダクト化。pagespeed-insights API を日次cronで回し、Slack #lp-sla に自動アラート。
+
+5. **Island Architecture（Astro / Qwik風）適用判断スキル**
+   JS実行をインタラクション箇所のみに隔離し、**静的ヒーローセクションは完全HTML配信**。Next.js App Router の `use client` 境界を Nao の設計書段階で確定させ、JS bundle を**平均70%削減**。LCP改善と同時にモバイル3G環境でも実用速度を担保する判断フローを標準化。
+
+6. **Vercel AI SDK活用・LPコピー自動最適化スキル**
+   Vercel AI Gateway 経由で Claude / GPT を呼び、**訪問者属性（流入経路・デバイス・時間帯）に応じたキャッチコピー差替え**を Edge Function で実装。rei の初稿コピー15案を基に、AI SDK が CTR 実績データからベストバージョンを選出。LP複製納品時に「学習型LP」として付加価値を提供。
+
+7. **Fluid Compute × ISR最適化スキル**
+   `revalidate: 60` + On-Demand Revalidation + Fluid Compute で、**CMS更新時のみ再ビルドする超高速ハイブリッド配信**を構築。Hana/Ren 設計時に「静的 / ISR / SSR / Edge」の4区分を各セクションに割当。ビルド時間を8分→90秒、Vercel帯域コストを**月額40%削減**。
+
+### 📚 最新ナレッジ・フレームワーク（2026年基準）- 4個
+
+1. **Progressive Enhancement 2026 フレームワーク**
+   「HTML First → CSS Enhancement → JS Interaction → AI Personalization」の4層構造。JS無効環境でもフォーム送信・CTA遷移が機能する**法的アクセシビリティ準拠**（JIS X 8341-3 準拠レベルAA）を標準。Mia 検証項目に「JS無効時の購入導線成立」を追加。
+
+2. **Core Web Vitals 2026 新基準（LCP 2.0 / INP 150 / CLS 0.08）**
+   Google 2026アップデートで旧基準から約20%厳格化。本スキルでは**納品時の全URL対象で緑ゾーン必達**。LCP画像は `priority + fetchpriority="high"` + AVIF/WebP + Vercel Image Optimization の三点セットを標準装備。INPは `useTransition` + Web Workers 分離で保証。
+
+3. **Island Architecture 設計原則**
+   LPを「静的な島」と「動的な島」に分離。ヘッダー・ヒーロー・FAQは完全静的、フォーム・カルーセル・チャットのみJSハイドレーション。Nao設計書に **Island Map（島分布図）** を必須添付。Next.js RSC / Astro / Qwik のいずれでも適用可能な抽象フレームワーク化。
+
+4. **Vercel AI SDK × Edge AI 統合フレームワーク**
+   `ai` パッケージ + Vercel AI Gateway で、LP内の動的要素（レコメンド・FAQ応答・コピー最適化）をEdge Runtimeで実行。レイテンシ100ms以内を保証し、OpenAI/Anthropic/Google を**プロバイダ切替可能**な抽象レイヤで実装。クライアントのAI活用提案に即応。
+
+### 🎚️ 強化版出力品質基準 - 5項目比較表
+
+| 項目 | 旧基準（〜2026-05） | 強化版（2026-10〜） | 計測方法 |
+|---|---|---|---|
+| **Mia忠実度スコア** | 85点以上 | **95点以上**（±1pxレベル） | ピクセル差分 + カラーΔE < 1.0 |
+| **LCP（最大描画）** | 2.5s以内 | **2.0s以内**（Field Data） | PageSpeed Insights API 日次 |
+| **INP（応答性）** | 200ms以内 | **150ms以内**（Field Data） | Vercel Speed Insights RUM |
+| **CLS（レイアウト安定）** | 0.1以内 | **0.08以内** | Lighthouse CI + 本番RUM |
+| **Lighthouse総合** | 90点以上 | **Perf 95 / A11y 98 / BP 95 / SEO 100** | lighthouse-ci 全URL |
+
+### 🏆 競合優位性ポイント - 4個
+
+1. **「複製 + SLA保証契約」の二段提供**：他社は複製納品で終わりだが、本スキルは Core Web Vitals SLA を**契約別紙に数値化**し、違反時の無償改善を保証。LP制作会社で速度SLA契約を提供するのは国内で極めて稀。
+2. **Preview Deployment × 立会いレビューの即時フィードバックループ**：クライアントがQR→スマホ→1タップでVercel Toolbar コメント→GitHub Issue自動起票。修正着手までの平均時間を**24h→30分**に短縮。
+3. **Monorepo工房による量産体制**：Turborepo + shared package で、2社目以降のLPは**初期工数10分**。価格競争力と納期短縮を同時実現。
+4. **Island Architecture + Edge AI の実装力**：Next.js RSC / Astro / Vercel AI Gateway を実運用レベルで組み合わせられるLPチームは国内希少。「速さ×パーソナライズ×AIパートナー」として選ばれる。
+
+### 📊 KPI・成果測定基準 - 4つの定量KPI
+
+| KPI | 目標値 | 計測頻度 | 計測ソース |
+|---|---|---|---|
+| **納期遵守率** | **99%以上** | 月次 | GitHub Projects のmilestone達成率 |
+| **Mia通過率（初回）** | **95%以上** | 案件単位 | Mia QAレポート（STEP 4） |
+| **Vercel稼働率** | **99.99%以上** | 月次 | Vercel Analytics + UptimeRobot |
+| **クライアント満足度（CSAT）** | **4.8/5.0以上** | 納品直後＋30日後 | Google Forms自動配信 |
+
+未達の場合は、翌月の Daily Knowledge Log に根本原因（RCA）と再発防止策を必須記載する。
+
+### 🔄 10ステップ品質向上プロセス（必須実行）- 10ステップ
+
+1. **STEP 1: 要件ヒアリング10項目チェック** — URL / 複製範囲 / 対応デバイス / アニメーション有無 / 編集可能パラメータ / 納期 / SLA / 想定流入 / 法令チェック(nori) / 継続運用の有無。
+2. **STEP 2: Hana起動 + CSS抽出完成度スコア報告** — 完成度80点以上で Nao / Ren を並列起動。
+3. **STEP 3: Nao設計書に Island Map / Edge Config変数 / ISR区分を必須記載** — アーキ決定を上流で確定。
+4. **STEP 4: Ren実装時にProgressive Enhancement 4層構造を遵守** — JS無効時も導線成立を保証。
+5. **STEP 5: Preview Deployment を Slack / Notion 自動投稿 → クライアント立会いレビュー** — ピクセル確認を本番前に完了。
+6. **STEP 6: Mia忠実度チェック 95点基準 + ΔE < 1.0 カラー検証** — 旧基準から大幅厳格化。
+7. **STEP 7: 5ゲート品質ゲートウェイ** — build / lint / tsc / lighthouse (Perf95+) / Mia95点を `predeploy` スクリプトで強制。
+8. **STEP 8: Core Web Vitals 2026基準の自動確認** — PageSpeed Insights API で LCP2.0 / INP150 / CLS0.08 を緑確認。
+9. **STEP 9: Vercel本番デプロイ + 4ブラウザ×3デバイス=12環境のPlaywright E2E** — Safari sticky / iOS Safari viewport問題を事前排除。
+10. **STEP 10: SLA契約書別紙発行 + Sora QA + 30日後CSAT自動送信** — 継続運用の起点を納品時に埋め込む。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

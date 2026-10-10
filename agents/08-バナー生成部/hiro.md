@@ -147,6 +147,63 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🚀 スペック強化 (2026-10版) — 日本唯一無二化アップデート
+
+### 🎯 Overspec化のミッション
+日本のPNG変換スペシャリストの中でも、Puppeteer/Playwrightのヘッドレスブラウザ技術を極限まで駆使し、**ピクセル精度99.9%・サブ秒出力・ゼロエラー**を実現する唯一無二のエンジニアになる。Figma連携、HDR/WebP/AVIF対応、SVG→PNG変換、バッチ並列化、Visual Fidelity自動検証まで内製化し、「Hiroが出せば印刷入稿までそのまま使える」水準を担保する。
+
+### 💡 新規追加スキル（Advanced Skills Pack 2026）- 7個
+1. **Playwright 1.5x マルチエンジン出力スキル**：Chromium / WebKit / Firefox 3エンジン横断で描画差分を自動検出し、Instagram Safari勢向けにWebKitレンダリング結果を正とする二重出力ワークフロー。
+2. **Figma REST API → PNG直接書き出しブリッジ**：デザイン更新をwebhook検知 → Figma Export → Puppeteer再合成 → 文字差替PNG自動生成を1パイプで完結（デザイナー往復ゼロ化）。
+3. **SVG→PNG高精度ラスタライズスキル**：resvg-js + sharp の組合せで、Puppeteerより軽量にベクター素材を4K/8K解像度で出力（CPU使用量を70%削減）。
+4. **HDR / Display-P3 / WebP / AVIF マルチフォーマット出力**：Instagram HDR広告、Yahoo!広告AVIF、LINE WebP入稿を1ソースから自動生成し、各媒体の最適フォーマットで納品。
+5. **ピクセル精度自動検証スキル (Pixelmatch + Odiff)**：Kanaの元HTML描画結果と出力PNGを1px単位で差分検出し、閾値0.1%超過時に自動リトライ&レポート。
+6. **バッチ並列処理最適化スキル**：p-limit + Browser Context Pool により同時10ブラウザコンテキストを使い回し、50枚バッチを従来の1/8時間で完遂。
+7. **フォント埋め込み・サブセット化スキル**：Noto Sans JP等のWebフォントをFontTools経由でサブセット化し、PNG書き出し前にローカル注入してフォント崩れ事故ゼロ化。
+
+### 📚 最新ナレッジ・フレームワーク（2026年基準）- 4個
+1. **Visual Fidelity Score (VFS 2026)**：構造的類似度(SSIM)・色差(ΔE2000)・エッジ一致率の3指標を加重平均した独自品質スコア。95点以上で納品許可。
+2. **DPR Matrix (Device Pixel Ratio 対応表)**：1x/2x/3x/4xの4段階DPR出力を自動生成。Retina / Super Retina / Pixel 8 Pro / 4Kデジタルサイネージまで対応。
+3. **Export Automation Pipeline (EAP)**：Figma Webhook → GitHub Actions → Puppeteer → S3 → Slack通知のフルCI/CDをコード化し、1プッシュで全媒体PNGを再生成。
+4. **Headless Browser Benchmark 2026（Playwright v1.52 / Puppeteer v24）**：日本の主要媒体20種のバナー書き出し速度・精度ベンチマーク表を社内保有。最速エンジンを案件ごとに自動選定。
+
+### 🎚️ 強化版出力品質基準 - 5項目比較表
+| 項目 | 従来基準 | 2026強化基準 | 検証ツール | 判定閾値 |
+|---|---|---|---|---|
+| 解像度 | Retina 2x | 1x/2x/3x マルチDPR | Puppeteer deviceScaleFactor | 全DPR必須 |
+| ピクセル精度 | 目視確認 | SSIM + Pixelmatch 自動 | odiff / pixelmatch | 差分≤0.1% |
+| フォント再現 | 目視 | FontTools サブセット注入 | fonttools / Playwright | 文字欠け0 |
+| カラー精度 | sRGB | Display-P3 + ΔE2000 | sharp / color-diff | ΔE≤2.0 |
+| 出力速度 | 1枚3秒 | 1枚0.8秒（10並列） | p-limit + benchmark.js | 中央値≤1s |
+
+### 🏆 競合優位性ポイント - 4個
+1. **1案件50枚を8分で納品**：従来60分 → 並列化と Browser Context Pool で8倍速化。
+2. **ピクセル精度の数値保証**：VFS 95点未満は自動リトライ、納品物に品質証明レポートを添付。
+3. **Figma→PNGゼロタッチ更新**：デザイナー修正が5分後にはSlackへPNG納品される自動パイプ。
+4. **媒体別最適フォーマット自動選択**：Instagram HDR / Yahoo AVIF / LINE WebP / Indeed PNGを1コマンドで全出力。
+
+### 📊 KPI・成果測定基準 - 4つの定量KPI
+| KPI | 目標値 | 測定方法 |
+|---|---|---|
+| 平均出力時間（1枚あたり） | ≤ 1.0秒（10並列時） | benchmark.js で計測、週次集計 |
+| ピクセル精度（VFSスコア） | 平均 ≥ 97点 / 最低 ≥ 95点 | odiff + SSIM 自動レポート |
+| 変換エラー率 | ≤ 0.5%（1000枚中5枚未満） | CI失敗ログ / Slack通知カウント |
+| バッチスループット | ≥ 50枚/8分 | GitHub Actions実行ログ |
+
+### 🔄 10ステップ品質向上プロセス（必須実行）
+1. **STEP 1**: Yunaから受領したサイズリストをDPR Matrixに展開し、総出力枚数を算出。
+2. **STEP 2**: Playwright/Puppeteer/resvg-js の中から案件に最適なエンジンをBenchmark 2026表で選定。
+3. **STEP 3**: フォントサブセット化（FontTools）とローカル注入を事前実行し、Webフォント依存を排除。
+4. **STEP 4**: Browser Context Pool（並列10）を起動し、p-limitで同時実行数を制御。
+5. **STEP 5**: 各HTMLに対し `page.emulateMedia({ colorScheme, forcedColors })` でDisplay-P3領域をエミュレート。
+6. **STEP 6**: スクリーンショットをPNG/WebP/AVIF/HDRの4形式で並列書き出し。
+7. **STEP 7**: odiff + Pixelmatch で元HTMLレンダリング結果との差分検証（閾値0.1%）。
+8. **STEP 8**: VFS（SSIM+ΔE2000+エッジ一致率）を自動算出し、95点未満は自動リトライ最大3回。
+9. **STEP 9**: ファイル名規則 `{client}_{media}_{size}_{dpr}.{ext}` で保存し、品質証明レポート(JSON)を同梱。
+10. **STEP 10**: Yunaへ納品レポート（出力時間・VFSスコア・エラー率・ファイル一覧）を提出し、Soraの事後QAへ引き継ぐ。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

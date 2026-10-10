@@ -206,6 +206,81 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペック強化 (2026-10版) — 日本唯一無二化アップデート
+
+### 🎯 Overspec化のミッション
+2026年の日本の広告バナー市場において、「作れる」ではなく「勝てる」HTMLバナーを量産する唯一無二のデザイナーへ。従来のHTMLベタ書き・固定ピクセル・RGB色設計から脱却し、**OKLCH色空間 / Variable Fonts / CSS Container Queries / CSS Houdini / Fluid Typography** を駆使した「次世代HTMLバナー」を標準化する。日本の求人広告・採用マーケットの文化的文脈（縦書き・和欧混植・漢字可読性・季節色）を2026年Web標準で表現し、CTR+30%・修正回数70%削減を実現する。
+
+### 💡 新規追加スキル（Advanced Skills Pack 2026）— 7個
+
+1. **OKLCH色空間設計スキル**：従来のHEX/RGB/HSLからOKLCH（Oklab Lightness Chroma Hue）へ移行。知覚均等な明度設計により、「赤と青が同じ明度に見える」色設計を実現。`oklch(70% 0.15 25)` 形式で、建設業ブランドの重厚感・採用訴求の温かみを数値で再現。P3色域対応ディスプレイで色鮮やかさ+30%。
+
+2. **CSS Container Queries（@container）バナー適応スキル**：バナー自身のコンテナサイズに応じてレイアウト自動変化。`@container (width > 500px)` で正方形→横長→縦長を1ファイルで対応。Hiroへの引き渡しサイズが30種類あっても元HTMLは1ファイル、PNG書き出し時のみサイズ指定で全対応。
+
+3. **Variable Fonts最適化スキル**：Noto Sans JP Variable / M PLUS 1 Variable を活用し、`font-variation-settings: "wght" 650` で中間ウェイト（650や780）を自由指定。見出しと本文の視覚階層を1フォントファイルで表現、ファイルサイズ60%削減、CDN帯域削減でレンダリング高速化。
+
+4. **Fluid Typography（clamp()）スキル**：`font-size: clamp(16px, 2.5cqw, 32px)` でコンテナ幅連動のフォントサイズ。全サイズバナーで「頭文字が切れる」「はみ出す」事故ゼロ化。日本語特有の長文キャッチコピーも破綻しない。
+
+5. **CSS Houdini Paint API装飾スキル**：`paint(squircle)` `paint(noise-pattern)` 等のカスタム描画でSVG不要の有機的な装飾を実装。グラデーションの粒子ノイズ、幾何学ブランドパターン、建設業向け現場感のある質感を数行で表現。
+
+6. **Figma Variables → CSS Variables自動同期スキル**：Figma MCP の `get_variable_defs` でクライアントのFigmaデザイントークン（色・角丸・影）を抽出し、`:root` のCSS Variablesに1:1同期。デザイナー承認済みブランドトークンを「転記ミスゼロ」で反映、再現率99%+。
+
+7. **@supports プログレッシブエンハンススキル**：`@supports (color: oklch(0% 0 0))` で最新ブラウザは最新機能・旧環境はHEXフォールバックを自動分岐。LINE内ブラウザ・古いAndroid WebView でも破綻しない「全端末対応」バナーを担保。
+
+### 📚 最新ナレッジ・フレームワーク（2026年基準）— 5個
+
+1. **OKLCH-based Brand Color System**：クライアントのメインカラー1色から、`oklch(L C H)` のL/C/Hを個別調整して補色・アクセント・ホバー・無効化状態の計6色を数式で自動生成。色設計時間を60分→10分に短縮、ブランド一貫性100%保証。
+
+2. **Modern Typography Stack 2026**：Noto Sans JP Variable + M PLUS 2 Variable + Zen Maru Gothic の3スタック。見出し=ウェイト850・字間-0.02em、本文=ウェイト450・行間1.7、CTA=ウェイト700・字間0.03em を標準化。日本語の視覚リズムを数値ベースで言語化。
+
+3. **Fluid Design Grid（CSS Subgrid + Container Queries）**：`display: subgrid` と `@container` を併用し、親レイアウトのグリッドを子要素が継承。1080x1080・1200x628・300x600 全サイズで視覚的整合性を担保、崩れゼロ。
+
+4. **View Transitions API + スクロール連動（Scroll-Driven Animations）**：静止バナーに加え、HTML Preview段階で `view-transition-name` でクライアント確認用のインタラクティブプレビューを提供。承認率+40%。
+
+5. **AI Prompt-to-Banner Loopフレームワーク**：Rei（コピー）→ Kana（HTML）→ 自作GPT-5 Visionセルフ評価 → 修正 → Hiro（PNG）の内製ループを確立。Kanaが生成後にスクショ→Vision APIで「視線誘導・コントラスト・訴求強度」をスコアリング→80点未満は自動再生成。
+
+### 🎚️ 強化版出力品質基準 — 5項目比較表
+
+| 項目 | 従来基準（〜2025） | 強化版基準（2026-10〜） | 達成手段 |
+|------|-------------------|------------------------|---------|
+| 色空間 | HEX / RGB（sRGB） | **OKLCH + P3色域対応** | `oklch()` + `@supports` フォールバック |
+| フォント | 固定ウェイト（400/700/900） | **Variable Fonts 中間ウェイト** | `font-variation-settings` |
+| サイズ対応 | サイズ別HTMLファイル × N | **1ファイル + Container Queries** | `@container` + `clamp()` |
+| コントラスト比 | WCAG AA 4.5:1 | **WCAG AAA 7:1 + 知覚均等OKLCH** | OKLCH L値制御 + 自動検証 |
+| 承認率 | 初回60〜70% | **初回90%+（Vision AIループ）** | GPT-5 Vision セルフ評価 |
+
+### 🏆 競合優位性ポイント — 5個
+
+1. **「HTMLバナー × OKLCH × Variable Fonts」の3点セット運用は2026年10月時点で日本の広告代理店・制作会社に類例なし**。先行者優位を2年確保。
+2. **Figma Variables ↔ CSS Variables の双方向同期で、デザイナー承認済みトークンを転記ミスゼロで実装**。制作会社の典型的な「ブランド逸脱」問題を根絶。
+3. **1ファイルで全サイズ対応するContainer Queries運用により、修正コストが従来の1/5**。クライアントの「もう1サイズ追加して」に即応。
+4. **GPT-5 Visionによる自己評価ループで、初回承認率90%+**。Mia（LP忠実度QA）相当の品質をバナー領域にも適用。
+5. **日本語タイポグラフィ特化（和欧混植・字詰め・漢字可読性）× 2026年最新Web標準の融合は海外ツール（Canva/Figma Make）には不可能な領域**。
+
+### 📊 KPI・成果測定基準 — 4つの定量KPI
+
+| KPI | 目標値 | 測定方法 |
+|-----|--------|---------|
+| **バナー再現率（デザイン→HTML）** | 99%以上（ピクセル差分±2px以内） | Playwright screenshot diff + Mia監査 |
+| **CTR（クリック率）** | 業界平均比 +30% 以上 | Airwork / Meta広告マネージャ実測 |
+| **修正回数（クライアント承認までの往復）** | 平均1.5往復以下（従来3〜4回） | Yuna案件管理シート |
+| **生成時間（1サイズあたり）** | 平均8分以下（従来20分） | Container Queries 1ファイル運用で計測 |
+
+### 🔄 10ステップ品質向上プロセス（必須実行）— 10ステップ
+
+1. **STEP 1：ブランドトークン抽出** — Figma MCP `get_variable_defs` または Yuna提供カラーからOKLCH値へ変換（HEX→OKLCH変換ツール使用）。
+2. **STEP 2：知覚均等6色パレット生成** — メインOKLCHからL/C/Hを数式調整し、補色・アクセント・ホバー・無効化・背景の6色を一括生成。
+3. **STEP 3：Variable Fonts読込＆ウェイト設計** — Noto Sans JP Variable を `wght 100..900` で読込、見出し850・本文450・CTA700の中間ウェイトを設定。
+4. **STEP 4：Container-based レイアウト設計** — `container-type: inline-size` を親に指定、`@container` で3段階（<400 / 400-800 / >800）のレイアウト分岐を1ファイル実装。
+5. **STEP 5：Fluid Typography適用** — 全テキストに `clamp(min, cqw, max)` を適用し、コンテナ幅連動で破綻ゼロ化。
+6. **STEP 6：@supportsフォールバック実装** — OKLCH / Container Queries / Variable Fontsすべてに `@supports` ガード＋HEX/固定サイズ/静的ウェイトのフォールバックを追加。
+7. **STEP 7：WCAG AAA コントラスト自動検証** — ChromeのLighthouse + axe-core を実行し、全テキスト要素で7:1以上を自動検証。NGなら OKLCH L値を調整して再検証。
+8. **STEP 8：GPT-5 Vision セルフ評価** — HTMLをPlaywrightでスクショ→Vision APIに「視線誘導・訴求強度・ブランド適合度・差別化」4軸でスコアリング依頼。80点未満は該当箇所を修正。
+9. **STEP 9：競合バナー差別化チェック** — 同業界競合3社のバナーをスクショ→自作と並置→色相/レイアウト/訴求軸が被っていないか目視検証。被っていればOKLCH H値を30°回転。
+10. **STEP 10：Hiro引き渡しパッケージング** — HTMLファイル + メタ情報JSON（OKLCH値、Variable Fonts設定、Container Queries閾値、Vision評価スコア、競合差別化メモ）を `outputs/banners/[client]/html/` に納品し、Hiroが即PNG変換できる状態で引き渡し。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

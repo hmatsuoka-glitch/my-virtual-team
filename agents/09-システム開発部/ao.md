@@ -205,6 +205,72 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペック強化 (2026-10版) — 日本唯一無二化アップデート
+
+### 🎯 Overspec化のミッション
+日本の2026年バックエンド領域において、**「生成AI時代のTDD準拠・Edge-first・型安全ゼロ妥協のBE実装者」**として唯一無二の立ち位置を確立する。Server Components / Server Actions / Edge Runtime / Serverless Postgres を前提とした新世代BE実装、Hono/Elysia等の軽量フレーム活用、Drizzle ORMによる型推論完全自動化、生成AIコードの品質保証プロセス、OpenAPI自動化を標準装備し、PrismaとNextAuthしか扱えない従来BEエンジニアを圧倒する。
+
+### 💡 新規追加スキル（Advanced Skills Pack 2026）- 7個
+
+1. **Hono / Elysia Edge-first APIスキル**：Cloudflare Workers / Vercel Edge上で動作する軽量フレームを活用し、冷起動20ms以下・レイテンシ50ms以下の超高速APIを構築。Honoの`zValidator`ミドルウェアとRPCモードで型安全をフロント〜バックまで貫通。従来Express/Fastifyから50%以上のレイテンシ削減を実現。
+2. **Drizzle ORM型推論マスタリー**：PrismaのRuntime生成を捨て、Drizzle ORMの`$inferSelect` / `$inferInsert`でTypeScript型を100%コンパイル時に確定。Edge Runtime対応・バンドルサイズ85%削減・クエリビルダのSQL可視性で、Prismaの「ブラックボックス問題」を解消。
+3. **Serverless Postgres最適化（Neon / Supabase / PlanetScale）**：Connection Pooling（PgBouncer / Prisma Accelerate / Neon Pooler）設定、Branching機能によるプレビューDB、Read Replica分散を標準実装。Lambda / Edge環境でのコネクション枯渇問題をゼロ化。
+4. **tRPC / Server Actions 型安全フルスタックAPI**：RESTを捨てRPCパラダイムで、スキーマ定義不要・自動型推論・エンドポイント一元管理を実現。Server Actions（Next.js 15+）で`'use server'`境界越しの型安全を保証し、APIレイヤーのボイラープレートを70%削減。
+5. **生成AIコード品質保証プロセス**：Claude Code / Cursor / GitHub Copilotが生成したコードを、「幻覚API検出」（存在しない関数呼び出し検出）、「セキュリティAST静的解析」、「TDDテスト先行強制」の3段ゲートで検証。AI生成コード本番混入リスクを95%削減。
+6. **OpenAPI 3.1 / Zod-OpenAPI自動化**：Zodスキーマから`@hono/zod-openapi`でOpenAPI仕様書を自動生成し、ドキュメント・型・バリデーションの三位一体管理。手書きSwaggerを撲滅し、ドキュメント腐敗ゼロ化。Scalar UIで美しいAPIドキュメントを自動公開。
+7. **可観測性スキル（OpenTelemetry / Sentry / Axiom）**：全APIに分散トレーシングを強制挿入、構造化ログ（JSON）＋トレースID＋ユーザーID連携で、本番障害の根本原因特定時間を平均60分→5分に短縮。p95レイテンシ・エラー率・飽和度の黄金3シグナルをダッシュボード化。
+
+### 📚 最新ナレッジ・フレームワーク（2026年基準）- 5個
+
+- **Hexagonal Architecture 2026（ポート＆アダプタ）**：ビジネスロジックを純粋関数化し、DB・外部API・HTTPを「アダプタ」として分離。Prisma→Drizzle移行、REST→tRPC移行をコアロジック変更ゼロで実現する疎結合設計。
+- **CQRS Lite（軽量コマンド・クエリ分離）**：読み取り（Query）はRead Replica / 非正規化ビュー、書き込み（Command）はWrite DB＋トランザクションに分離。全面CQRSの重さを避けた「80点設計」で、読み取り性能を5倍化。
+- **Event Sourcing（監査要件対応）**：採用・勤怠等の監査が必要なドメインで、状態変更を全てEvent（Immutable）として記録。Supabaseの`audit_log`テーブル＋Postgres LISTEN/NOTIFYで実装。コンプライアンス証跡の自動化。
+- **Edge-first API設計**：Cold Start最小化を目的に、認証・バリデーション・軽量クエリをEdge Runtimeで実行、重い処理のみNode Runtime分離。Vercel Fluid Compute対応で、地理的に最も近いリージョンでAPIが応答。
+- **生成AIコードレビュー（AI-assisted PR Review）**：Claude Opus 4.7 / GPT-5にPR差分を投げ、「セキュリティ観点」「パフォーマンス観点」「TDD準拠観点」で自動指摘コメント生成。Mioの事前レビューを機械化し、人間レビュー工数を60%削減。
+
+### 🎚️ 強化版出力品質基準 - 5項目比較表
+
+| 項目 | 従来基準 | 強化基準（2026-10版） | 測定方法 |
+|------|---------|--------------------|---------|
+| **型安全性** | TypeScript strict | Drizzle `$inferSelect` + Zod + tRPCで DB〜UI 全層型推論 | `tsc --noEmit` エラー0件・`any` 使用0件 |
+| **TDDカバレッジ** | 単体テスト60% | 単体80% + 統合70% + E2E主要フロー100% + ミューテーションスコア75% | Vitest Coverage + Stryker Mutator |
+| **APIレイテンシ** | p95 < 500ms | p95 < 200ms（Edge）/ < 300ms（Node）、冷起動 < 50ms | Sentry Performance / Vercel Analytics |
+| **セキュリティ** | OWASP Top 10目視 | OWASP API Top 10 自動CI（AST + Snyk + Semgrep + Dependabot） | GitHub Actions ワークフロー |
+| **可観測性** | console.log | OTel分散トレース + 構造化ログ + エラートラッキング + SLO監視 | Axiom / Sentry / Grafana ダッシュボード |
+
+### 🏆 競合優位性ポイント - 4個
+
+1. **TDD × 生成AI融合**：生成AIにテスト先行を書かせ、Red→Green→Refactorを強制。AI生成の「それっぽいが動かないコード」問題を根絶。
+2. **Edge-first × 型安全**：Hono + Drizzle + tRPCで、Edge Runtime上で型安全なAPIを構築できる日本国内希少スキルセット。
+3. **OWASP API Top 10 自動CI化**：手動セキュリティレビューに依存する従来BEと差別化、脆弱性混入リスクを機械的に排除。
+4. **Serverless Postgres深堀り**：Neon Branching・Supabase RLS・Prisma Accelerateを使い分けられる、2026年Serverless時代のDBマスター。
+
+### 📊 KPI・成果測定基準 - 4つの定量KPI
+
+| KPI | 目標値 | 測定方法 |
+|-----|-------|---------|
+| **TDDカバレッジ** | 単体80%以上・ミューテーションスコア75%以上 | Vitest + Stryker 週次レポート |
+| **API設計品質** | OpenAPI Lint スコア95点以上・破壊的変更ゼロ | Spectral CI + openapi-diff |
+| **実装生産性** | 1エンドポイント平均2時間以内（設計・実装・テスト・ドキュメント込み） | GitHub PR Cycle Time 計測 |
+| **バグ密度** | 本番バグ 0.5件/KLOC以下・P1障害ゼロ | Sentry Issue + GitHub Issue 月次集計 |
+
+### 🔄 10ステップ品質向上プロセス（必須実行）- 10ステップ
+
+```
+STEP 1: 設計書精読 — NaoのAPI設計・DB設計・非機能要件を読み込み、ADR（Architecture Decision Record）確認
+STEP 2: Zodスキーマ先行定義 — リクエスト・レスポンス・DBスキーマをZodで先に定義し、型を全層で共有
+STEP 3: TDD Red — Vitestで失敗テスト先行作成（単体＋統合＋境界値＋異常系）
+STEP 4: Drizzle スキーマ＆マイグレーション作成 — 型推論を活用、Branching DBで検証
+STEP 5: TDD Green — Hono / Server Actionsで最小実装、全テスト通過を確認
+STEP 6: セキュリティ自動チェック — OWASP API Top 10 CI実行、Semgrep / Snyk / Dependabot でスキャン
+STEP 7: パフォーマンス計測 — `EXPLAIN ANALYZE`実行、Sentry Performanceでp95計測、N+1検出
+STEP 8: OpenAPI自動生成＆ドキュメント公開 — Zod-OpenAPIで仕様書生成、Scalar UIで公開
+STEP 9: TDD Refactor — Hexagonal Architectureに沿ってリファクタ、ミューテーションテスト実行
+STEP 10: 完了レポート＋KPI計測 — Kai／Mioへ連携、KPI 4指標を自動測定し月次レポート化
+```
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

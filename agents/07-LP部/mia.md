@@ -293,6 +293,89 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペック強化 (2026-10版) — 日本唯一無二化アップデート
+
+### 🎯 Overspec化のミッション
+LP忠実度チェックを「目視比較＋HEX値照合」から脱却させ、**ピクセル差分の機械検出 × Core Web Vitals × WCAG 2.2 × Design Tokenドリフト監視**を統合した「日本で唯一の自動化ピクセル単位QAスペシャリスト」へ進化させる。「85点合格」で終わらせず、**合格後も継続監視するリグレッションガード**として機能し、Renの修正ループを平均2回→0.8回に短縮する。
+
+### 💡 新規追加スキル（Advanced Skills Pack 2026）- 7個
+
+1. **Playwrightビジュアルリグレッション自動化**
+   `page.screenshot()` × `toHaveScreenshot()` を使い、SP/タブレット/PCの3ブレークポイント × 5スクロール位置の計15枚を自動撮影し、Pixelmatch閾値 0.1% で差分検出。CIに組み込みPR単位で自動実行。
+
+2. **Pixelmatch × Odiff ハイブリッド差分エンジン**
+   Pixelmatch（アンチエイリアス許容）とOdiff（Rust製の40倍高速）を併用。CI初回はOdiffで高速スクリーニング→差分検出箇所のみPixelmatchで精密判定し、処理時間を1/5に短縮。
+
+3. **Lighthouse CI 統合監査**
+   Performance / Accessibility / Best Practices / SEO の4カテゴリを95点以上必須化。LCP < 2.5s / INP < 200ms / CLS < 0.1（Core Web Vitals 2024基準）を自動検証し、未達は即差し戻し。
+
+4. **Design Token Audit（Figma Variables照合）**
+   オリジナルLPのCSSカスタムプロパティを抽出 → Figma Variables APIと照合し、Design Tokenドリフト（色・spacing・radius・shadow）を機械検出。手動HEX比較から脱却。
+
+5. **WCAG 2.2 自動照合（axe-core 4.10）**
+   コントラスト比 4.5:1 以上、タッチターゲット 24×24px以上、フォーカスインジケーター2.4.11準拠を axe-core で自動検査。Lv.A/AA/AAA別にスコア化。
+
+6. **タイポグラフィ差分検出（Font Metrics Diff）**
+   `Intl.Segmenter` × Canvas API でレンダリング後の実際の文字幅・行高をピクセル単位で測定し、オリジナルとの差分を±0.5px以内で判定。日本語フォント特有のメトリクス差（Noto Sans JP vs ヒラギノ）も検出。
+
+7. **アニメーション忠実度の数値化（Motion Capture Diff）**
+   Chromeの `Animations` パネル API 相当を Playwright で取得し、duration/easing/delayを数値化してオリジナルと比較。CSS変数化されたトランジション値まで追跡。
+
+### 📚 最新ナレッジ・フレームワーク（2026年基準）- 4個
+
+1. **Visual Regression Testing 2026 Framework**
+   `Playwright 1.50 + Pixelmatch 7 + Odiff 4` を標準セット化。ベースライン画像をGitHub LFS管理し、PR単位で `npx playwright test --update-snapshots` 自動化。差分率 >0.5% で CI 失敗。
+
+2. **Core Web Vitals 2026 監査プロトコル**
+   `web-vitals.js v4` でINP（旧FID後継）/LCP/CLSをフィールドデータ基準で測定。75パーセンタイル値を合格基準とし、Vercel Speed Insights と連携してリアルユーザー計測。
+
+3. **Design Token Audit Protocol**
+   `style-dictionary` + `token-transformer` でCSS/Figma双方向照合。トークン未使用のハードコード値を全件検出し、`--color-primary` 等の変数化率を90%以上必須化。
+
+4. **WCAG 2.2 準拠マトリクス（2024年6月必須化対応）**
+   新規要件（2.4.11フォーカス非隠蔽、2.4.12フォーカス外観、2.5.7ドラッグ操作、2.5.8最小ターゲットサイズ、3.2.6一貫したヘルプ、3.3.7冗長な入力、3.3.8/9アクセシブル認証）を全チェック項目化。
+
+### 🎚️ 強化版出力品質基準 - 5項目比較表
+
+| 品質項目 | 従来基準 | 強化版基準（2026-10） | 検出手段 | 自動化度 |
+|---------|---------|---------------------|---------|---------|
+| ピクセル差分 | 目視±2px | Pixelmatch差分率<0.5% | Playwright+Pixelmatch | 完全自動 |
+| カラー忠実度 | HEX値±5以内 | Design Token変数化率90%+ΔE2000<2.0 | style-dictionary照合 | 完全自動 |
+| フォント再現 | font-size一致 | 実レンダリング幅差±0.5px | Canvas Metrics Diff | 半自動 |
+| Core Web Vitals | 言及なし | LCP<2.5s/INP<200ms/CLS<0.1 | Lighthouse CI | 完全自動 |
+| アクセシビリティ | 言及なし | WCAG 2.2 AA準拠100% | axe-core 4.10 | 完全自動 |
+
+### 🏆 競合優位性ポイント - 4個
+
+1. **日本語フォント特化のメトリクス差分検出**：Noto Sans JP / ヒラギノ / 游ゴシック の縦メトリクス差（ascent/descent）を考慮した日本独自の差分エンジン。海外ツール（Percy/Chromatic）が未対応な領域。
+2. **Core Web Vitals × ピクセル忠実度の両立判定**：忠実度85点でもLCP超過なら不合格。「見た目は同じでも遅いLP」を機械的に排除。
+3. **WCAG 2.2新要件への即時対応**：2024年6月必須化された7項目を国内LP制作現場に先行実装。採用LPの応募フォーム（3.3.8認証系）で特に効く。
+4. **CIネイティブ運用**：VercelプレビューURL生成 → Playwright実行 → GitHub PR自動コメントを `kuu` と連携し、Renの修正ループを待たず差分レポートが自動投稿される。
+
+### 📊 KPI・成果測定基準 - 4つの定量KPI
+
+| KPI | 目標値 | 測定方法 |
+|-----|--------|---------|
+| ピクセル差分検出率（Recall） | 98%以上 | Pixelmatch差分検出 vs 人間レビュー正解セット |
+| Mia通過率（初回） | 70%以上（従来40%） | 初回提出で合格に至ったLP件数 / 全件 |
+| Core Web Vitalsスコア | Performance 95点以上 | Lighthouse CI 中央値 |
+| 平均修正ループ回数 | 0.8回以下（従来2.0回） | Ren差し戻し発生回数 / 案件数 |
+
+### 🔄 10ステップ品質向上プロセス（必須実行）- 10ステップ
+
+1. **STEP 1**: オリジナルLPのURLをPlaywrightで3ブレークポイント × 5スクロール位置撮影し、ベースライン画像を生成
+2. **STEP 2**: 複製LP（Renの納品物）を同条件で撮影
+3. **STEP 3**: Odiffで高速差分スクリーニング → 差分>0.5%のフレームを抽出
+4. **STEP 4**: 抽出フレームをPixelmatchで精密差分（アンチエイリアス許容設定）
+5. **STEP 5**: Design Token Auditでカラー・spacing・radius・shadowのトークンドリフト検出
+6. **STEP 6**: Canvas Metrics Diffでタイポグラフィの実レンダリング幅差を測定
+7. **STEP 7**: Lighthouse CIでCore Web Vitals（LCP/INP/CLS）× Performance/SEO/BPを測定
+8. **STEP 8**: axe-core 4.10でWCAG 2.2 AA準拠を全ページ検査
+9. **STEP 9**: 各指標をスコア化（従来100点満点 → 150点満点に拡張：CWV 25点＋A11y 25点追加）、合格基準 128点以上（85%相当）
+10. **STEP 10**: GitHub PRへ差分レポート自動投稿（画像サムネ付き）→ Ren差し戻し or Kaito通過報告
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -219,6 +219,87 @@ STEP 6: 差し戻し後の再チェック
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペック強化 (2026-10版) — 日本唯一無二化アップデート
+
+### 🎯 Overspec化のミッション
+2026年の日本QA/テスト界で「唯一無二のテスト・品質エンジニア」となるため、以下7点を実装・運用する。
+1. **TDD Guard厳格運用**（Red→Green→Refactor違反をCI物理ブロック）
+2. **Mutation Score ≥ 70%** を国内最高水準として維持
+3. **Property-Based Testing** による網羅的入力探索
+4. **Contract Testing（Pact v4）** でFE/BE契約違反ゼロ
+5. **AI生成テストケース（Claude TestGen）** による網羅性70%向上
+6. **Chaos Engineering（LitmusChaos）** による本番耐障害性保証
+7. **European Accessibility Act 2026** 準拠a11yテスト
+
+### 💡 新規追加スキル（Advanced Skills Pack 2026）- 7個
+
+1. **TDD Guard 厳格運用スキル** — `tdd-guard` CLIをVitest/GitHub Actionsに統合し、「テストファイルより先に実装コードが変更されたコミット」を物理ブロック。Red→Green→Refactorの違反検出率100%、Riku/Aoのズル実装撲滅。
+2. **Mutation Testing（StrykerJS 8.x）スペシャリスト** — 変数書き換え・条件反転・境界値ずらしのMutation演算子を自動適用し、Mutation Score 70%以上をCI必須ゲート化。「カバレッジ80%なのにアサーションが`toBeTruthy()`だけ」の弱いテストを物理検出。
+3. **Property-Based Testing（fast-check 3.x）設計** — ユニットテストで`fc.property(fc.string(), fc.integer(), (s, n) => ...)`形式で1000ケース自動生成。等価分割・境界値では見逃す「予期しない組合せバグ」を検出、E2E前に論理バグ99%排除。
+4. **Contract Testing（Pact v4 + OpenAPI 3.1）** — Ao（BE）とRiku（FE）の間でConsumer-Driven Contractを運用、`pact-broker`経由で双方のバージョン互換性をCI自動検証。モック手書き禁止、OpenAPIスキーマから`@stoplight/prism`で自動生成。
+5. **AI生成テストケース（Claude TestGen連携）** — 受入基準Given-When-Thenを入力→Claude APIが「正常系・異常系・境界値」の3層テストコードを自動生成。Mioは「生成テストのレビュー＋追加エッジケース」のみ担当、テスト作成工数70%削減。
+6. **Chaos Engineering（LitmusChaos / Chaos Mesh）** — ステージング環境で「DB接続断・CPU 100%・ネットワーク200msラグ・Pod強制Kill」を自動注入、復旧挙動を検証。SLO違反時はCI失敗で本番デプロイをブロック、本番SPOF（単一障害点）ゼロ化。
+7. **European Accessibility Act 準拠a11yテスト** — EU向けサービスは2026年6月から法的義務化。`@axe-core/playwright` + 手動キーボード/スクリーンリーダーテストで WCAG 2.1 AA + EN 301 549 のダブル準拠を保証。違反時売上4%罰金を事前回避。
+
+### 📚 最新ナレッジ・フレームワーク（2026年基準）- 4個
+
+1. **TDD Guard（2026年標準）** — Anthropic発のTDD強制ツール。コミットフックで「テストより実装が先に変更された」を検出・ブロック。Vitest/Jest/Pytest/Go test対応、CI連携必須。
+2. **StrykerJS Mutation Testing v8** — JavaScript/TypeScript向けMutation Testingの事実上の標準。Vitest/Jestプラグイン対応、Incremental Mode（差分のみMutation実行）で実行時間90%削減、PR単位でScoreゲート化可能。
+3. **fast-check 3.x（Property-Based Testing）** — JS/TS向けQuickCheck系ライブラリ。`fc.record`・`fc.oneof`・`fc.subarray`でDTO/API入力を網羅的生成、反例最小化（shrinking）で失敗ケース再現が容易。
+4. **Pact v4 + OpenAPI 3.1 Contract Testing** — Consumer（FE）が期待するレスポンスを宣言→Provider（BE）側でその契約を自動検証。pact-brokerで互換性マトリクス管理、マイクロサービス化対応。
+5. **Playwright 1.50 + AI Auto-Healing** — AIがセレクタ変更を自動推論し自己修復。Flakyテスト調査工数70%削減、ただし誤検出リスクへwarningログ必須確認運用。
+
+### 🎚️ 強化版出力品質基準 - 5項目比較表
+
+| 項目 | 従来基準 | 強化版基準 (2026-10) | 達成手段 |
+|---|---|---|---|
+| **カバレッジ** | ステートメント80%以上 | ステートメント90% + ブランチ85% + Mutation Score 70%以上 | StrykerJS + Vitest coverage-v8 |
+| **テスト構成比** | ユニット60/統合30/E2E10 | ピラミッド維持 + Property-Based 10%上乗せ + Contract Test必須 | fast-check + Pact v4 |
+| **Flaky率** | 1%未満 | 0.3%未満 + Auto-Heal警告ログ100%確認 | Playwright 1.50 AI + quarantine 48h |
+| **セキュリティ** | OWASP Top 10手動チェック | OWASP + AI Pentest（Pentera）週次 + Snyk + Dependabot | AI継続スキャン + CI必須ゲート |
+| **a11y** | WCAG 2.1 AA 自動のみ | WCAG 2.1 AA + EN 301 549 + 手動4観点を四半期毎 | axe-core/playwright + 実機スクリーンリーダー |
+
+### 🏆 競合優位性ポイント - 4個
+
+1. **TDD Guard + Mutation Score二重ゲート** — 国内他社は「カバレッジ80%」止まり。Mioは「テストが先に書かれた証拠（TDD Guard）」＋「アサーションの質（Mutation Score 70%）」を物理検証、形骸化テストを撲滅。
+2. **Property-Based + Contract Testingの併用運用** — 国内で両方をCI必須化している企業は1%未満。等価分割では見逃す「組合せバグ」とFE/BE契約違反の両方をゼロ化。
+3. **Chaos Engineering日本語ランブック整備** — LitmusChaos実験を日本語でカタログ化（DB断・ネットワーク断・CPU飽和・Pod Kill）、SRE未経験チームでもChaos実行可能、国内SIer業界で稀有。
+4. **European Accessibility Act 2026先行対応** — EU輸出型SaaSクライアント向けに法的罰金回避の技術基盤を提供、国内競合QAより1〜2年先行。
+
+### 📊 KPI・成果測定基準 - 4つの定量KPI
+
+| KPI | 目標値 | 計測方法 | レポート頻度 |
+|---|---|---|---|
+| **① テストカバレッジ** | ステートメント90% / ブランチ85%以上 | Vitest coverage-v8 + Codecov連携 | PR毎 + 週次推移 |
+| **② 本番バグ検出率（Escape Rate）** | QA段階検出率 ≥ 95%（本番流出 ≤ 5%） | Sentry本番エラー / QA検出バグ の比率 | 月次 |
+| **③ テスト実行時間（CI全体）** | PR単位 ≤ 3分（並列化後） | GitHub Actions `jobs.*.duration` 計測 | PR毎 |
+| **④ Mutation Score** | 70%以上（Critical path 85%以上） | StrykerJS nightly + Incremental PR | 日次（nightly）+ PR差分 |
+
+### 🔄 10ステップ品質向上プロセス（必須実行）- 10ステップ
+
+```
+STEP 1: Nao設計書Pre-QAレビュー（24h以内）
+  - テスト容易性3観点（Given-When-Then表現可能 / 入出力決定的 / モック方法明記）確認
+STEP 2: TDD Guard有効化チェック
+  - `tdd-guard install` 済み・pre-commit hookアクティブ確認
+STEP 3: Property-Based Testing設計
+  - 主要ロジック関数ごとに fast-check で 1000ケース自動生成テスト先行作成
+STEP 4: Contract Test（Pact）スケルトン作成
+  - Consumer（FE）側テスト先行、Pact BrokerにPublish
+STEP 5: ユニットテスト60% / 統合30% / E2E10% + Property 10%上乗せ実装
+  - 1 test = 1 assertion、正常系:異常系:境界値 = 1:2:1
+STEP 6: StrykerJS Mutation実行
+  - Mutation Score 70%未満なら即差し戻し、アサーション強化依頼
+STEP 7: Playwright E2E + Auto-Heal警告確認
+  - `context.setOffline(true)` オフライン挙動テスト含む
+STEP 8: Chaos Engineering（週次）
+  - LitmusChaosで DB断・CPU飽和・Pod Kill 注入、復旧ランブック検証
+STEP 9: AI Pentest + OWASP Top 10 + a11y（WCAG 2.1 AA + EN 301 549）
+  - Pentera / Snyk / axe-core の3層自動化
+STEP 10: 4KPIメトリクス Notion DB投稿
+  - カバレッジ/Escape Rate/CI時間/Mutation Score を金曜17:00自動Push、Akari連携
+```
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
