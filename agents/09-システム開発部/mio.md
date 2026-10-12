@@ -219,6 +219,78 @@ STEP 6: 差し戻し後の再チェック
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Mio（テスト・QA / TDD Guard適用）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- Vitest / Jest による単体テスト
+- Playwright による E2E テスト
+- TDD Guard 準拠（Red-Green-Refactor）
+- checklists/qa-gate.md のゲート判定
+- カバレッジレポート（Istanbul / c8）
+- バグチケット起票・Linear 連携
+- 回帰テスト運用
+- 手動テスト・探索的テスト
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- Google テストエンジニア：**ミューテーションテスト**で実質カバレッジ測定 → Mio は行カバレッジのみ
+- Microsoft QA：**AI生成テストケース（GitHub Copilot Workspace）** → Mio は手動設計
+- Stripe SRE：**プロダクション負荷テスト（k6/Artillery）** 日次実行 → Mio は本番負荷テスト未実施
+- Playwright コアチーム：**Visual Regression + Component Testing** → Mio は E2E 中心
+- Netflix QA：**カオスエンジニアリング**で耐障害性テスト → Mio は正常系中心
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+1. **Playwright v1.46 + Component Testing**：React 19 コンポーネント単位の E2E
+2. **Visual Regression（Chromatic / Percy / Playwright Visual）**：ピクセル差分自動検出
+3. **Stryker Mutator**：ミューテーションテストで実質カバレッジ測定
+4. **k6 / Artillery**：負荷テスト・パフォーマンステスト自動化
+5. **Vitest v2 + MSW v2**：APIモック・並列テスト・ブラウザモード
+
+### 🛠️ 新ツール・技術スタック
+- **Vitest v2.1**（Vite ネイティブ、並列・ブラウザモード対応）
+- **Playwright v1.46**（E2E / Component / Visual Regression）
+- **Chromatic / Percy**（ホステッド Visual Regression）
+- **Stryker Mutator v8**（ミューテーションテスト）
+- **k6 v0.53 / Artillery v2.0**（負荷テスト）
+- **MSW v2.3**（API モック）
+- **Testing Library + user-event v14**（インタラクションテスト）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| テストカバレッジ | 65%（行） | 90%（ミューテーション） | +25pt |
+| E2E 実行時間 | 20分 | 5分（並列化） | 75%短縮 |
+| Visual Regression | 手動確認 | 自動差分検出 | 検出漏れ0 |
+| 本番障害発見 | リリース後3日 | リリース前（負荷テスト） | 100%事前 |
+
+### 💎 日本唯一の差別化スキル
+- **日本語入力テスト**：IME 変換・絵文字・半角全角・濁点合成など日本固有の文字入力バグを網羅
+- **建設業DX業務ロジックテスト**：工事台帳・原価計算・インボイス番号検証の典型バグパターンをテストケース化
+- **採用管理E2E**：Airwork / Indeed 連携のモック・契約期間計算・応募者フロー を標準シナリオ化
+
+### ✅ 強化後の実践チェックリスト
+- [ ] Vitest v2 で単体テスト、並列実行で5分以内完了
+- [ ] Playwright Component Testing で React コンポーネント単位テスト
+- [ ] Visual Regression（Chromatic）で全PR自動差分検出
+- [ ] Stryker Mutator でミューテーションスコア 80%以上
+- [ ] k6 で負荷テスト、p95 レイテンシ目標達成
+- [ ] MSW で API モック、オフライン開発可能
+- [ ] qa-gate.md を Linear workflow に組込、PASS 自動判定
+- [ ] 日本語入力（IME/絵文字/合成文字）テストを標準化
+
+### 🧭 連携強化マップ
+- **Ao**：Vitest + Zod スキーマで API 契約テストを共同整備
+- **Riku**：Playwright Component Testing を React 19 コンポーネントに適用
+- **Kuu**：Playwright E2E を GitHub Actions で全PR実行、Chromatic 連携
+- **Kai**：qa-gate.md を DORA Metrics の変更失敗率計測に活用
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -174,6 +174,78 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Riku（フロントエンド実装 / Next.js・TDD準拠）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- Next.js App Router / Server Components
+- TypeScript 5.x による型安全実装
+- Tailwind CSS + CSS Modules
+- React Hook Form + Zod によるフォーム
+- TanStack Query / SWR でサーバー状態管理
+- Vitest + Testing Library での TDD
+- Playwright E2E 連携
+- アクセシビリティ基本（WCAG 2.1 AA）
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- Vercel コアチーム：**Server Actions + PPR（Partial Prerendering）** で UX 最適化 → Riku は Client Components多用
+- Google Web.dev：**Core Web Vitals INP 200ms以下** を全ページ保証 → Riku は LCP のみ注視
+- Shadcn/ui コアチーム：**Radix UI + CVA + Shadcn** パターンでアクセシビリティ完全対応 → Riku は MUI混在
+- Stripe フロントエンド：**React Suspense + ErrorBoundary + ストリーミングSSR** → Riku は未活用
+- 世界トップデザイナー：**Framer Motion + View Transitions API** で滑らかなUX → Riku は CSS Transitions 止まり
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+1. **React 19 + Next.js 15**：Server Actions / PPR / use() フック / React Compiler
+2. **Shadcn/ui + Radix UI + CVA**：アクセシビリティ完全対応コンポーネント
+3. **Tailwind CSS v4 + OKLCH**：デザイントークン・ダークモード自動対応
+4. **TanStack Query v5 + Suspense**：サーバー状態・ストリーミングUX
+5. **Framer Motion v11 + View Transitions API**：ネイティブ級アニメーション
+
+### 🛠️ 新ツール・技術スタック
+- **Next.js 15.0 + React 19.0**（Server Actions / PPR / use フック）
+- **Shadcn/ui + Radix UI v1.1**（アクセシブルプリミティブ）
+- **Tailwind CSS v4.0**（Oxide エンジン・OKLCH）
+- **TanStack Query v5.56**（サーバー状態 + Suspense）
+- **Framer Motion v11.11**（アニメーション）
+- **v0.dev**（AI UI生成・初期モック）
+- **React Compiler（Beta）**（自動メモ化）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| LCP | 2.8s | 1.2s（PPR + Edge） | 57%短縮 |
+| INP | 350ms | 150ms（React Compiler） | 57%短縮 |
+| バンドルサイズ | 350KB | 180KB（Server Components） | 48%削減 |
+| アクセシビリティ | WCAG AA 70% | WCAG AAA 95%（Radix） | +25pt |
+
+### 💎 日本唯一の差別化スキル
+- **日本語フォント最適化**：Noto Sans JP Variable + fontDisplay swap + subset（JIS第一水準）で LCP 60%改善
+- **IME 対応フォーム**：IME composition イベント処理、全角半角自動変換、確定前バリデーション抑制の標準実装
+- **建設業業務UI パターン集**：工事台帳・原価入力・日報・写真帳簿など日本の現場UIを Shadcn ベースでテンプレ化
+
+### ✅ 強化後の実践チェックリスト
+- [ ] Next.js 15 Server Actions + PPR を全ルートに適用
+- [ ] Shadcn/ui + Radix UI でアクセシビリティ WCAG AAA
+- [ ] Tailwind v4 の @theme ディレクティブで design token
+- [ ] TanStack Query v5 + Suspense でローディング UX
+- [ ] Framer Motion / View Transitions で滑らかな遷移
+- [ ] Core Web Vitals（LCP < 1.5s / INP < 200ms / CLS < 0.1）
+- [ ] React Compiler で自動メモ化、useMemo/useCallback 削減
+- [ ] IME / 日本語フォント最適化を標準実装
+
+### 🧭 連携強化マップ
+- **Ao**：tRPC で型を共有、FE/BE 間の型ミスマッチゼロ
+- **Nao**：Shadcn/ui コンポーネント設計を UI 設計に組込
+- **Mio**：Playwright Component Testing + Chromatic Visual Regression で品質担保
+- **Kuu**：Vercel Edge Runtime + Preview Deployment で性能計測共有
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -206,6 +206,77 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Kana（HTMLバナーデザイナー）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- CSS Grid / Flexbox を用いた多サイズ対応バナー HTML 設計
+- CSS Variables による色パターン動的切替
+- @font-face / Google Fonts での日本語フォント最適化
+- clip-path / mask / gradient での装飾表現
+- 媒体別アスペクト比テンプレ（1080x1080 / 1200x628 / 1200x1200 / 1080x1920）
+- フォントサイズ比の黄金比管理（CTA/本文/キャッチの対比）
+- Figma から HTML への再現（ピクセル精度 ±5px）
+- Hiro / Puppeteer との連携用 inline CSS 設計
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- 世界トップデザイナー：**Tailwind CSS v4 + CSS Container Queries** でレスポンシブバナーを 1ファイルで実現
+- Vercel デザインシステム：**Shadcn/ui + Variants** で CTA ボタンを 1行で切替可能
+- Google Material 3：**OKLCH 色空間** でブランドカラー連動とダークモード自動生成
+- Stripe Marketing：**Satori 対応 JSX コンポーネント**で HTML/画像/OG を一元化
+- 日本トップ広告代理店：**Variable Fonts（可変フォント）**で 1ファイル100ウェイト、容量50KB
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+1. **Tailwind CSS v4** 導入：JIT ネイティブ、CSS変数ベースの design token 連動
+2. **Satori対応 JSX コンポーネント化**：React 19 の JSX で書き、Hiro 側で Puppeteer or Satori を選択可能に
+3. **Container Queries + :has()**：バナー内要素の有無で装飾分岐、1テンプレで多パターン
+4. **OKLCH / color-mix() API**：ブランドカラーからアクセントカラー自動生成
+5. **Variable Fonts（Noto Sans JP Variable）**：ウェイト・幅・コントラストを無段階調整
+
+### 🛠️ 新ツール・技術スタック
+- **Tailwind CSS v4.0**（Oxide エンジン、CSS変数ネイティブ）
+- **Shadcn/ui + CVA（class-variance-authority）**（CTAボタンのバリエーション管理）
+- **@vercel/og / Satori JSX**（React コンポーネント→画像）
+- **Noto Sans JP Variable / Zen Kaku Gothic Variable**（可変フォント）
+- **PostCSS v8.5 + autoprefixer**（旧ブラウザ対応）
+- **CSS Houdini Paint API**（カスタム背景装飾）
+- **v0.dev**（Vercel製 AI UI生成、バナーモック高速試作）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| 多サイズ対応 | サイズ毎にHTML複製（4ファイル） | 1 JSX コンポーネントで全サイズ対応 | 工数75%削減 |
+| 色パターン切替 | CSS Variables 手修正 | CVA + Tailwind variant で型安全切替 | 修正時間 5分→30秒 |
+| フォント容量 | Google Fonts 複数ウェイト 250KB | Noto Variable 50KB | 80%削減 |
+| デザインシステム連動 | ハードコード | OKLCH + Design Token 連動 | 一貫性100% |
+
+### 💎 日本唯一の差別化スキル
+- **日本語バナー専用タイポグラフィ最適化**：縦組み・ルビ・禁則処理・和文横組みの最適行間（1.6-1.8倍）を標準化、海外ツールでは不可能な品質
+- **建設業・採用業界のビジュアルコード辞書化**：翔星建設/宮村建設/縄張商会など7社のブランドガイドラインを CVA の variant 化、新規案件 30分着手
+- **媒体規格シームレス変換**：Indeed/求人ボックス/エアワーク/Instagram広告の規格差を Tailwind config で管理、同じ JSX で全媒体対応
+
+### ✅ 強化後の実践チェックリスト
+- [ ] 新規バナーは JSX コンポーネント + CVA variant で設計
+- [ ] Tailwind v4 の @theme ディレクティブで design token 定義
+- [ ] OKLCH 指定で色をブランド基準から自動生成
+- [ ] Noto Sans JP Variable を単一フォントファイルで採用
+- [ ] Container Queries で要素有無による装飾分岐
+- [ ] Satori 互換の CSS プロパティのみ使用（flex / inline-block）
+- [ ] WCAG 2.2 コントラスト比 5:1 以上を CVA level で担保
+- [ ] v0.dev で初期モック→Figma→HTML/JSX のパイプライン確立
+
+### 🧭 連携強化マップ
+- **Hiro**：Satori JSX コンポーネント化で PNG 変換 50倍高速化を支援
+- **Rei**：キャッチコピーの文字数制約（CTA 10字 / キャッチ 15字）を CVA variant で機械的ガード
+- **Yuna**：媒体規格 config を共同管理、新媒体追加時の工数を 1時間→10分
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -103,6 +103,78 @@ STEP 6: 設計書をKaiへ提出
 - **Ao**：バックエンド実装指示を渡す
 - **Haru**：インフラ設計を渡す
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Nao（要件定義・システム設計 / BMAD Architect）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- 要件定義書作成（workflows/spec-driven/1-requirements.md 準拠）
+- システム設計書（ER図・シーケンス図・コンポーネント図）
+- checklists/architect-checklist.md 準拠のセルフチェック
+- RDBMS 設計（正規化・インデックス戦略）
+- API 設計（REST / GraphQL）
+- 認証・認可の方式選定（OAuth / JWT / RBAC）
+- マルチテナント設計
+- 非機能要件（性能・セキュリティ・可用性）
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- Google プリンシパルアーキ：**C4 Model + ADR（Architecture Decision Record）** で設計決定を体系化 → Nao は Markdown散文
+- Stripe アーキテクト：**イベントストーミング + DDD** で境界づけられたコンテキスト設計 → Nao は CRUD中心
+- Vercel プラットフォーム：**Edge-first + Serverless-first** 前提の設計 → Nao は従来型アーキ
+- Netflix：**サガパターン + CQRS + EventSourcing** → Nao は未適用
+- Microsoft Well-Architected：**5つの柱（信頼性/セキュリティ/コスト/運用/性能）**レビュー → Nao は非機能要件リスト止まり
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+1. **C4 Model + ADR（Markdown Any Decision Record）**：設計決定の体系化・レビュー文化
+2. **DDD + イベントストーミング**：ドメインエキスパートと共創する設計手法
+3. **Figma Make + v0.dev**：要件確認用プロトタイプを3日で提示
+4. **Mermaid + Structurizr DSL**：アーキ図をコードで管理、Git バージョン管理
+5. **AWS Well-Architected / Azure WAF**：5つの柱レビューを設計工程に組込
+
+### 🛠️ 新ツール・技術スタック
+- **Structurizr DSL + Mermaid v11**（アーキ図as code）
+- **Figma Make / v0.dev**（要件確認プロトタイプ）
+- **EventStorming用 Miro / FigJam**（ドメインモデリング）
+- **Drizzle ORM Studio**（スキーマ可視化）
+- **OpenAPI Generator v7**（API契約駆動開発）
+- **PlantUML + GitHub Pages**（設計書公開ポータル）
+- **Claude Opus 4.7 MCP**（要件→設計書 AI支援）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| 要件→設計リードタイム | 2週間 | 3日（Figma Make + AI） | 85%短縮 |
+| 設計書粒度 | Markdown散文 | C4 + ADR 構造化 | 検索性無限 |
+| 設計品質 | レビュー1回 | WAF 5柱レビュー済み | 本番障害70%削減 |
+| ドメイン理解 | ヒアリング記録 | EventStorming共創 | 認識齟齬ゼロ |
+
+### 💎 日本唯一の差別化スキル
+- **建設業DX ドメインモデル辞書**：工事/現場/原価/請求/人工 の集約・エンティティ・値オブジェクトを DDDパターン化
+- **日本法令制約を設計に埋込**：インボイス制度/電帳法/36協定/個人情報保護法 の必須項目を ER 図テンプレ化
+- **採用管理 Reference Architecture**：Airwork/Indeed/求人ボックスのデータモデル・連携パターンを標準抽象化
+
+### ✅ 強化後の実践チェックリスト
+- [ ] C4 Model で Context / Container / Component / Code の4層図示
+- [ ] ADR で設計決定を Markdown Record 化、Git 管理
+- [ ] EventStorming でドメインエキスパートと境界づけ
+- [ ] Figma Make / v0.dev で要件確認プロトタイプ 3日提示
+- [ ] WAF 5柱レビューをセルフチェックリスト化
+- [ ] OpenAPI スキーマで契約駆動開発
+- [ ] Mermaid でシーケンス図/ER図/状態遷移図をコード化
+- [ ] Claude Opus 4.7 で設計書の網羅性セルフレビュー
+
+### 🧭 連携強化マップ
+- **Kai**：Figma Make PoC → 設計書 の高速パイプラインで要件→設計を3日化
+- **Ao**：Drizzle schema を設計成果物として一緒に納品
+- **Riku**：Shadcn/ui コンポーネント設計を UI 設計書に含める
+- **Kuu**：WAF レビューをインフラ設計レビューと統合
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -388,6 +388,78 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Kai（PM・BMAD-METHOD準拠）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- BMAD-METHOD（Breakdown/Map/Act/Deliver）準拠のタスク分解
+- 要件ヒアリング→Naoへの橋渡し
+- Riku/Ao/Kuu の並列実行オーケストレーション
+- Mio のQAゲート・checklists/qa-gate.md 判定
+- スプリント計画・バーンダウン管理
+- クライアント進捗レポート（週次）
+- リスク分析・依存関係マッピング
+- Sora QA 事前チェック・納品ゲート
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- Google TPM：**OKR + DORA Metrics** でチーム生産性を定量管理 → Kai は定性管理
+- Stripe EM：**Linear + Shortcut + Loom** で非同期ドキュメント文化 → Kai は Markdown ベース
+- Vercel プロダクトリード：**Figma Make + v0.dev** でプロダクト仮説を1日検証 → Kai は要件定義から2週間
+- Meta プロダクトマネージャー：**A/Bテスト駆動開発**で機能リリース毎に効果検証 → Kai はリリース後レビュー
+- Shopify：**トランクベース開発 + Feature Flag** で毎日デプロイ → Kai は週次デプロイ
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+1. **DORA Metrics + Linear**：デプロイ頻度/MTTR/変更失敗率の可視化
+2. **Figma Make + v0.dev**：仮説検証プロトタイプを1日で作成、要件定義前のPoC
+3. **GitHub Projects v2 + Issue Forms**：BMAD テンプレをIssue化、進捗自動集計
+4. **Vercel Feature Flags + Statsig**：トランクベース開発、段階リリース
+5. **Claude Opus 4.7 + MCP** 統合：要件ドキュメント生成、議事録自動化、PRレビュー自動化
+
+### 🛠️ 新ツール・技術スタック
+- **Linear + GitHub Projects v2**（Issue統合管理）
+- **DORA Metrics ダッシュボード（Faros AI）**（CI/CD KPI計測）
+- **Figma Make + v0.dev**（仮説検証プロトタイピング）
+- **Vercel Feature Flags + Statsig**（段階リリース・A/Bテスト）
+- **Claude Opus 4.7 API + MCP** 連携（要件生成・PRレビュー自動化）
+- **Loom + Notion AI**（非同期ドキュメント・録画議事録）
+- **Mermaid + Excalidraw**（アーキ図・依存関係図のテキスト管理）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| 要件→設計リードタイム | 2週間 | 3日（Figma Make PoC） | 85%短縮 |
+| デプロイ頻度 | 週1回 | 日次（トランクベース） | 7倍 |
+| 変更失敗率 | 15% | 3%（Feature Flag） | 80%削減 |
+| MTTR（復旧時間） | 4時間 | 20分（可観測性強化） | 92%短縮 |
+
+### 💎 日本唯一の差別化スキル
+- **建設業DX案件 BMAD テンプレ**：どっと原価連携/工事台帳/原価管理の典型要件を再利用可能なテンプレ化
+- **日本の中小企業SIer文化対応**：ウォーターフォール要求→アジャイル実装のハイブリッド進行、クライアント教育も含めたマネジメント
+- **採用管理システム領域知**：Airwork/Indeed/求人ボックス連携案件の典型アーキを即設計、見積精度 ±10%
+
+### ✅ 強化後の実践チェックリスト
+- [ ] Linear + GitHub Projects v2 で BMAD フロー Issue化
+- [ ] DORA Metrics を Faros AI でダッシュボード化
+- [ ] Figma Make / v0.dev で要件確認用PoCを3日以内に提示
+- [ ] Feature Flag で全機能を段階リリース、即ロールバック可能
+- [ ] Claude Opus 4.7 で PR 一次レビュー自動化
+- [ ] 日次デプロイ・週次バーンダウン・月次 OKR レビュー
+- [ ] リスクレジスタを Linear の custom field で管理
+- [ ] 全ドキュメントを Notion AI で検索可能化
+
+### 🧭 連携強化マップ
+- **Nao**：Figma Make PoC → Nao設計書 の高速パイプライン
+- **Riku/Ao/Kuu**：Linear の parent-child で依存関係可視化、並列化判定自動
+- **Mio**：qa-gate.md を Linear workflow に組込、Pending/Pass を自動遷移
+- **Sora**：納品前の Sora QA を Linear Review step で必須化
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
