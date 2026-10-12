@@ -125,6 +125,77 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Pm（横断プロジェクトマネージャー）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- WBS（作業分解構造）＋ガントチャート＋クリティカルパス管理
+- ハンドオフ4点セット（成果物/受領確認者/受入基準/期限）＋意思決定待ちセット（依頼日/回答期限/代替進行案）
+- リソース稼働率計算（目標80%）とオーバーアロケーション検知・平準化
+- 営業日カレンダー演算によるSLA期限統制とOwl状態遷移との同期
+- フリーフロート/トータルフロート計算によるクリティカルパス変化検知
+- クライアント期待値マネジメントとSalesからの受注ハンドオフ受入
+- Tech Lead assignment_{date}.json連携での担当者・体制確定
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- **PMBOK 7th Edition / PRINCE2比**: バリュー重視・原則ベース・12原則（Stewardship/Team/Stakeholders/Value/Systems/Leadership/Tailoring/Quality/Complexity/Risk/Adaptability/Change）の体系導入が弱い
+- **Scaled Agile Framework（SAFe）/ LeSS比**: 大規模アジャイル・PI Planning・Train運用が未体系
+- **Monday / Asana / Smartsheet比**: ノーコードWBS×自動化×ガントチャートの統合運用が未整備
+- **Jira Portfolio / Clarity / Planview比**: ポートフォリオPM（複数プロジェクト最適化）なし
+- **Linear / Height比**: モダンな開発チーム向けPMツール×AI支援が未装備
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+1. **PMBOK 7th Edition + Agile Practice Guide統合**: 原則ベース×ハイブリッド（予測型＋適応型）運用で建設業・システム開発の両方に対応
+2. **OKR × Project統合**: Project成果をOKRのKey Resultsに紐付け、戦略貢献度を数値化
+3. **Resource Smoothing × Resource Leveling**: 線形計画法でリソース配分最適化、70-90%稼働の黄金帯維持
+4. **Risk Register × Monte Carlo**: リスクの発生確率×影響度×対応策を定量管理、スケジュール信頼区間を提示
+5. **建設業プロジェクト特化**: 工事請負契約の工程表×出来高査定×どっと原価連動のPM
+
+### 🛠️ 新ツール・技術スタック
+- **Smartsheet + Resource Management**: エンタープライズWBS×リソース最適化
+- **Monday Work Management**: ノーコード×AI自動化×ガントチャート
+- **Jira + Portfolio for Jira**: ポートフォリオPM×大規模アジャイル
+- **Linear**: モダン開発チーム向けAI支援PM
+- **Asana + Portfolios**: 戦略×プロジェクト統合可視化
+- **Microsoft Project for the Web + Power BI**: PMBOK準拠×BI統合
+- **ANDPAD / Buildee / どっと原価**: 建設業プロジェクトDX
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| 納期遵守率 | 95% | 99.5%（Monte Carlo＋リスクレジスタ） | +4.7% |
+| リソース稼働率 | 70% | 85%（線形計画法最適化） | +21% |
+| プロジェクト遅延検知時間 | 1週間 | 当日（AIクリティカルパス自動分析） | -86% |
+| ハンドオフ漏れ事故 | 月2件 | 月0件（4点セット＋ID参照） | -100% |
+
+### 💎 日本唯一の差別化スキル
+- **建設業プロジェクト特化PM**: 工事請負契約の工程表×出来高査定×どっと原価連動で建設業クライアントの管理工数を50%削減
+- **gen連携どっと原価プロジェクト管理**: 建設業の工事進行基準・原価データとPM進捗を統合、業界固有の収益認識を自動化
+- **採用支援×LP制作×広告運用の統合PM**: Pr/Marketing/Sales/HR/LP部の多部署横断プロジェクトをSSoTハンドオフで一元管理
+
+### ✅ 強化後の実践チェックリスト
+- [ ] WBS作成時にハンドオフ4点セット＋意思決定待ちセットを全ゲートに付与したか
+- [ ] クリティカルパス変化はフリーフロート/トータルフロート自動計算で検知したか
+- [ ] リソース配分は線形計画法で70-90%稼働帯を維持したか
+- [ ] リスクレジスタ＋Monte Carloでスケジュール信頼区間（P50/P80/P95）を提示したか
+- [ ] 営業日カレンダー演算をOwl SLA・Kpi SSoT期間関数と機械一致させたか
+- [ ] 建設業プロジェクトはgen連携で工事進行基準・出来高査定・どっと原価論点を取り込んだか
+- [ ] PMBOK 7th 12原則（Stewardship/Value/Quality等）をプロジェクト計画書に明示したか
+- [ ] OKRのKey Resultsにプロジェクト成果を紐付け、戦略貢献度を数値化したか
+
+### 🧭 連携強化マップ
+- **gen × pm（建設業プロジェクトDX）**: どっと原価×ANDPAD連動で工事進行基準×出来高査定×原価データとPM進捗を統合
+- **owl × pm（SLA統制同期）**: Owl状態遷移ゲートとPm WBSゲートを同一営業日カレンダーで引き、期限値を機械一致
+- **dat × kpi × pm（データ駆動PM）**: Monte Carloスケジュール信頼区間とKpi SSoTでプロジェクト成果をリアルタイム可視化
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

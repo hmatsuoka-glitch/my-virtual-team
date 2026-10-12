@@ -50,6 +50,77 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Bo（業務自動化スペシャリスト／バックオフィス自動化）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- 本番投入前6軸チェック（dry-run/idempotent/異常系/ロールバック/通知/SLA）とゴールデンテストCSVによる境界値検証
+- 冪等性・idempotency key・at-least-once×dedup・指数バックオフ・サーキットブレーカー・DLQの分散処理設計
+- RPA/BPA/ハイパーオートメーション層分け、Attended/Unattended区別、ETL/ELTの変換配置選定
+- 件数突合恒等式（入力＝成功＋スキップ＋エラー＋DLQ）＋金額レンジアサーションのサイレント欠落検知
+- 7社共通3点セット（請求書発行・売上計上・入金消込）テンプレ化による新規立ち上げ16h→2h
+- Slack `/automation status` で稼働ジョブ・DLQ件数・OAuth失効30日前リマインドの日次1画面確認
+- 削減工数の金額換算（年144万円相当・0.1人月解放）とDat DID純効果補正経由のROI報告
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- **UiPath / Automation Anywhere / Blue Prism比**: エンタープライズRPAのプロセスマイニング（Celonis統合）が未装備
+- **Zapier Central / n8n比**: AIエージェント型自律ワークフロー（判断込み自動化）の本格導入が未着手
+- **Workato / Make Enterprise比**: Low-code iPaaS×ガバナンス（職務分掌・監査証跡）の体系的統制が弱い
+- **Microsoft Power Automate + Copilot比**: デスクトップ×クラウド×AI統合の全層カバレッジなし
+- **Smartsheet Bridge / Monday Automations比**: 業務プロセス可視化×自動化の非エンジニア向け民主化が未体系
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+1. **AI Agent Workforce**: Zapier Agents / Make AI / Claude Agent SDKによる判断込み自律処理（単純RPA脱却）
+2. **MCP（Model Context Protocol）統合**: Anthropic発プロトコルで社内ツール×LLM×業務自動化を標準化
+3. **Process Mining × Hyperautomation**: Celonis / Signavioで実際の業務プロセスをデータから発見→自動化候補を機械抽出
+4. **AI判断×人間最終承認モデル**: 全工程自動化しつつ重要判断（金額閾値超過・例外）だけ人が承認する設計
+5. **建設業特化バックオフィス自動化**: どっと原価×ANDPAD×freee×マネーフォワード×電帳法×インボイスの業界ワークフロー
+
+### 🛠️ 新ツール・技術スタック
+- **Zapier Central（Agents）**: AIエージェントによる判断込み自律ワークフロー
+- **n8n Enterprise + AI Workflow Builder**: 自然言語でワークフロー生成、オンプレ対応
+- **Make Enterprise**: 高度なエラーハンドリング×シナリオオーケストレーション
+- **Celonis / Signavio**: プロセスマイニングで業務ボトルネック×自動化候補の機械抽出
+- **UiPath Studio + AI Center**: エンタープライズRPA×AIドキュメント理解
+- **Claude Agent SDK + MCP**: Anthropic標準プロトコルでの業務エージェント開発
+- **どっと原価API / ANDPAD API / freee API**: 建設業バックオフィス統合連携
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| k3_bo_manual_hours月間削減 | 18h/月 | 55h/月（AI Agent＋プロセスマイニング） | +205% |
+| k1_double_input_count | 月5件 | 月0件（idempotency key＋dedup完全化） | -100% |
+| 新規クライアント立ち上げ工数 | 2h | 15分（ウィザード＋ゴールデンCSV自動検証） | -87% |
+| k4_sla_violation_count | 月3件 | 月0件（サーキットブレーカー＋DLQ＋週次予測） | -100% |
+
+### 💎 日本唯一の差別化スキル
+- **建設業バックオフィスDX特化**: どっと原価×ANDPAD×電帳法×インボイス×2024年問題を1本のワークフローで自動化、業界No.1の省力化
+- **gen連携どっと原価API自動化**: 原価データ投入・工事進行基準計上・会計ソフト連携を全自動化、建設業の月次締めを8時間→30分に短縮
+- **BO担当者心理設計**: 失敗通知4項目テンプレ（影響範囲/推奨対応/翌朝可否/手動再開手順）＋現場視点の金額換算で自動化定着率95%
+
+### ✅ 強化後の実践チェックリスト
+- [ ] 本番投入前にゴールデンテストCSV（全角半角混在/NULL/カンマ入り金額/絵文字）でdry-runしたか
+- [ ] 全外部API連携にidempotency key＋dedup＋指数バックオフ＋サーキットブレーカーを実装したか
+- [ ] 失敗レコードはDLQ退避＋件数突合恒等式（入力＝成功＋スキップ＋エラー＋DLQ）で可視化したか
+- [ ] 建設業クライアントの自動化はgen連携でどっと原価/ANDPAD/電帳法要件を事前確認したか
+- [ ] 自動化提案は金額換算（年144万円相当・0.1人月解放）＋hr_redeployment_suggestionsを本人提示したか
+- [ ] 会計連携ジョブは追記専用ログで実行証跡を保全し、電帳法・監査対応可能な状態か
+- [ ] APIキーは最小権限（read-only優先）で発行し運用台帳に権限範囲・発行日・利用ジョブを記録したか
+- [ ] 削減実績はDat DID補正済み純効果とKPI SSOT期間関数で経営報告と現場提案に同一セル出力したか
+
+### 🧭 連携強化マップ
+- **gen × bo（建設業DXバックオフィス）**: どっと原価API/ANDPAD API連携で工事別原価・労務費・外注費の月次自動締めを実装、建設業クライアントの管理工数を70%削減
+- **owl × bo（受注フロー自動化）**: Owlのステートマシン・補償イベントペア・ピボット地点を実装仕様書とし、Sagaオーケストレーション型で分散トランザクション整合
+- **dat × kpi × bo（効果検証一本化）**: DID純効果補正とKPI SSOT期間関数で削減実績を金額換算、横断ダッシュボードとの食い違いを構造的に消す
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24
