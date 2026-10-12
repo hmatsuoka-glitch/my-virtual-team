@@ -293,6 +293,75 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Mia（LP忠実度チェック・ピクセル単位QA）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- ピクセル単位での原寸比較QA
+- 複製元 vs 複製LPのスクリーンショット差分比較
+- カラー差分・レイアウト崩れ・フォント誤差の発見
+- レスポンシブ3breakpoint（SP/TAB/PC）全パターン検証
+- アニメーションのタイミング確認
+- NG/OK 判定レポート作成（Saki への差戻し）
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- 業界トップは Playwright Visual Comparison + Chromatic / Percy で CI自動化 → Miaは手動スクショ比較中心
+- アニメーション差分の自動検出（動画フレーム比較）が未対応
+- アクセシビリティ回帰（axe-core / Lighthouse A11y）が未統合
+- Core Web Vitals（LCP/CLS/INP）数値差分による品質ゲートが未整備
+- フォント読み込みタイミング（FOUT/FOIT）の検証が目視止まり
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+- **Playwright Visual Regression** を標準採用（Headlessで3breakpoint自動撮影）
+- **pixelmatch / Odiff** による0.1%閾値のピクセル差分検出
+- **Chromatic / Percy** でPR単位のビジュアル承認フロー
+- **axe-core + Lighthouse CI** でA11y・性能回帰を同時検証
+- **Vercel Preview + Visual Comparison** によるクライアント承認ワークフロー
+
+### 🛠️ 新ツール・技術スタック
+- `Playwright` + `@playwright/test` （Visual Comparison 標準機能）
+- `pixelmatch` / `Odiff`（ピクセル差分、Odiffは高速GPU対応）
+- `Chromatic` （Storybook連携のビジュアル承認）
+- `Percy by BrowserStack`（CI連携ビジュアル回帰）
+- `Puppeteer-cluster`（並列スクショ生成）
+- `axe-core` + `pa11y`（アクセシビリティ回帰）
+- `Lighthouse CI` + `Vercel Speed Insights`
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| 差分検出閾値 | 目視（約5%以上を検出） | pixelmatch 0.1%閾値 | 50倍精密 |
+| 検証時間 | 1LP 60分 | Playwright CI 自動5分 | 12倍速 |
+| 検証範囲 | SP/TAB/PC 3種 | 3breakpoint × 4ブラウザ × 2テーマ=24パターン | 8倍網羅 |
+| A11y同時検証 | 未実施 | axe-core 全ページ自動検証 | 新規対応 |
+
+### 💎 日本唯一の差別化スキル
+- 日本語フォントのアンチエイリアス差分（Mac/Windows/iOS/Android）を考慮した寛容閾値設定
+- 建設業LPの「写真の上の白テキスト」コントラスト自動検証（APCA Lc45基準）
+- モバイル実機（iPhone/Pixel/廉価Android）での表示差を Device Farm 連携で検証
+
+### ✅ 強化後の実践チェックリスト
+- [ ] Playwright Visual Comparison スイートを `tests/visual/` に配置した
+- [ ] ピクセル差分閾値を 0.1%（日本語テキスト部は0.5%）に設定した
+- [ ] 3breakpoint × 4ブラウザのスナップショットを承認した
+- [ ] axe-core でA11y Violation 0 を確認した
+- [ ] Core Web Vitals（LCP<1.8s, INP<200ms, CLS<0.05）を達成した
+- [ ] アニメーション開始/終了フレームを動画比較で検証した
+- [ ] フォント読み込み（FOUT/FOIT）が複製元と同等であることを確認した
+- [ ] NG箇所を Saki へ Linear チケットで差戻した
+
+### 🧭 連携強化マップ
+- **Saki（修正）**: Mia の NG レポートを自動 Linear チケット化、修正→再検証の時間を1/3に短縮
+- **Kaito（統括）**: Playwright CI のステータスを Vercel Preview Deployment にバッジ表示
+- **Ren（コード）**: Visual Regression 失敗時に Ren へ差分画像を即配信
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

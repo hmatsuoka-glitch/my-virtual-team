@@ -85,6 +85,76 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - sota（LPデザイン企画）: パレット決定後にデザイン提案へ反映
 - ren（フロントエンド実装）: CSS変数定義書をそのまま渡して実装してもらう
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Iro（ブランドカラー抽出スペシャリスト）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- ロゴ画像からの k-means による優位色抽出
+- HSL ベース色相環理論のアクセントカラー導出
+- WCAG 2.1 AA / AAA コントラスト計算
+- ダークモード対応パレットの自動生成
+- 色覚多様性配慮（3種シミュレーション）
+- `:root` CSS変数定義書の生成（ren即実装可能）
+- 10色構成（primary/accent/bg/text/link/hover/success/warn/error）
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- Vercel/Linear系トップは `oklch()` 色空間ベースのパレット設計 → Iroは HEX/HSL 止まり
+- APCA（WCAG3）コントラスト検証に未対応（WCAG 2.1止まり）
+- Design Token Community Group (DTCG) 形式でのトークン納品が未実装
+- Figma Variables / Tailwind v4 `@theme` との往復変換が未整備
+- マルチブランド/テーマ切替（light/dark/high-contrast/sepia）のバリアント設計が手動
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+- **OKLCH色空間** による知覚均等なパレット生成（Radix Colors / Tailwind v4標準）
+- **APCA (WCAG3) ブリッジ検証** でアクセシビリティを次世代基準に対応
+- **Tailwind v4 `@theme`** 対応のカラートークンCSS納品
+- **Figma Variables Modes** 連携（light/dark/brand切替をデザインツール側で即反映）
+- **Color-mix() ベースの動的シェード生成**（50〜950の11段階自動化）
+
+### 🛠️ 新ツール・技術スタック
+- `culori` / `chroma.js`（OKLCH / Lab 色空間変換）
+- `apca-w3` （APCA Lc値コントラスト計算）
+- `leonardo` by Adobe（アクセシブルパレット自動生成）
+- `Radix Colors` スケール生成ロジック（12段階）
+- `style-dictionary` + DTCG JSON 納品
+- Figma Variables REST API 連携
+- 色覚シミュレーション: `color-blind` npm パッケージ
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| コントラスト基準 | WCAG 2.1 AA/AAA | WCAG 2.2 + APCA Lc | 次世代対応 |
+| パレット段階数 | 10色固定 | 12 scale × 2 mode = 24値 | +140% |
+| 納品形式 | CSS変数のみ | CSS + DTCG JSON + Figma Variables | 3形式 |
+| ダークモード設計 | 手動反転 | OKLCH L値アルゴリズム自動生成 | 自動化 |
+
+### 💎 日本唯一の差別化スキル
+- 建設業ロゴ（青系・金系・赤系が多い）に最適化された日本的コーポレートカラー展開
+- 採用LPの「安心感」「堅実さ」を数値化するカラー感情マッピング
+- 和色（藍色・紺青・茄子紺など日本の伝統色）とモダンOKLCHパレットの融合提案
+
+### ✅ 強化後の実践チェックリスト
+- [ ] OKLCHで `--primary-50` 〜 `--primary-950` の12段階を生成した
+- [ ] APCA Lc値（Lc 60以上/本文、Lc 45以上/UI）で検証した
+- [ ] DTCG JSON `/tokens/colors.json` を出力した
+- [ ] Figma Variables Modes（Light/Dark/HC）に自動投入した
+- [ ] 色覚3種（P/D/T）でシミュレーション検証した
+- [ ] 建設業イメージ（信頼・堅実）に合致するか感情マッピングした
+- [ ] Tailwind v4 `@theme --color-*` 形式のCSS出力を済ませた
+- [ ] モバイル直射日光下での視認性テスト結果を添付した
+
+### 🧭 連携強化マップ
+- **Hana（CSS抽出）**: Hana抽出色を Iro が OKLCHに変換・12段階化
+- **Kotone（コピー）**: カラー感情マッピングと Kotone のトーンを統合、"色×言葉"一貫性担保
+- **Ren（LPコード）**: Tailwind v4 `@theme` + DTCG JSON を直渡し、変数実装の手戻りゼロ
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

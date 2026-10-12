@@ -509,6 +509,76 @@ JS ソースから以下のパターンを検出する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Sota（LPデザイン企画・参考LP分析）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- 参考LP分析（デザイン言語・レイアウト・配色・訴求構造）
+- オリジナルLPのデザインコンセプト策定
+- セクション構成設計（ヒーロー/USP/実績/CTA）
+- ワイヤーフレーム・ビジュアルラフ提案
+- ブランドトーン&マナー設計
+- 競合LP比較レポート
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- Framer / Webflow / Figma 系トップデザイナーは Figma Make + v0.dev で即プロトタイプ化 → Sota はラフ止まり
+- Core Web Vitals / INP を デザイン段階で担保する設計手法が未体系化
+- モーションデザイン（scroll-driven / view transition）の計画が未標準化
+- A/Bテストで試す UIバリアントの事前設計が未着手
+- Design Token / Figma Variables ベースのマルチテーマ設計が未対応
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+- **Figma Make** によるコード直書き出し前提のデザイン企画
+- **v0.dev プロンプト設計** を企画書に同梱（Ren即実装）
+- **Scroll-driven Animations ネイティブAPI** による軽量モーション計画
+- **View Transitions API** を活用したページ内遷移演出
+- **A/Bテスト前提のバリアント設計**（Hero A/B、CTA文言A/B/C 事前計画）
+
+### 🛠️ 新ツール・技術スタック
+- `Figma` + `Figma Make` + `Figma Variables`
+- `v0.dev` （企画→初期コード）
+- `Framer` / `Webflow`（高速プロトタイプ）
+- `Readymag` / `Cargo`（インスピレーション収集）
+- `Lookbook` / `Awwwards` / `Siteinspire`（トレンドソース）
+- `Rive` / `Lottie`（インタラクティブアニメーション企画）
+- `Spline` （3D要素企画）
+- `Vercel Edge Config` + `Statsig`（A/Bテスト企画連携）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| 企画書形式 | ラフスケッチ+Markdown | Figma Make + v0.dev プロンプト同梱 | 実装直結 |
+| 競合分析 | 感覚 | Awwwards / SOTD + Core Web Vitals比較 | 定量化 |
+| モーション計画 | 口頭イメージ | Rive/Lottie + scroll-timeline明記 | 標準化 |
+| A/Bバリアント | 1案提案 | A/B/C 3バリアント+仮説CVR | +200% |
+
+### 💎 日本唯一の差別化スキル
+- 建設業の「堅実さ×モダン」バランスを両立する日本的エディトリアルデザイン言語
+- 採用LP特化：若手求職者のZ世代感覚（短尺動画・縦長スクロール・インタラクション）を導入
+- 日本語の縦書き・ルビ・ふりがなを使った建設業の職人感・伝統表現の活用
+
+### ✅ 強化後の実践チェックリスト
+- [ ] 競合LP 3社を Awwwards / SOTD 基準で定量比較した
+- [ ] 競合のCore Web Vitals / INP / LCP も記録した
+- [ ] Figma Variables で light/dark/brand モードを設計した
+- [ ] Figma Make / v0.dev プロンプトを企画書に同梱した
+- [ ] Scroll-driven / View Transitions の使い所を明記した
+- [ ] A/B/C 3バリアントを仮説CVR付きで提示した
+- [ ] モバイルファースト（SP: 375px）でヒーロー構成を検証した
+- [ ] 日本の建設業の文脈に沿う写真・配色・言葉を特定した
+
+### 🧭 連携強化マップ
+- **Nao（LP設計）**: Figma Variables / Make出力を直接受け渡し、再設計コスト削減
+- **Iro（カラー）** / **Kotone（コピー）**: 企画段階からブランドカラー＋コピー案を含めてワンパッケージ化
+- **Kaito（統括）**: v0.devプロンプトを Ren に同梱でき、企画→実装の時間を1/3に短縮
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

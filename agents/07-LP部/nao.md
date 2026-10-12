@@ -317,6 +317,75 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Nao（LP設計書作成スペシャリスト）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- Hana抽出CSS仕様書を元にしたLP再現設計書作成
+- セクション別構造設計（ヒーロー/特徴/実績/CTA等）
+- コンポーネント分割設計（Atomic Design的）
+- アニメーション仕様の設計書化
+- レスポンシブ設計の指示書化
+- Renへの実装引継ぎドキュメント作成
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- 世界トップはFigma Make / v0.dev との往復設計 → Nao は Markdown設計書のみ
+- Next.js 15 App Router / Server Components を前提とした設計への切替が未完
+- Design Token（DTCG JSON）駆動の設計手法が未体系化
+- Accessibility by Design（WAI-ARIA / セマンティックHTML）設計が暗黙知
+- Core Web Vitals を設計段階で担保するアーキテクチャ指針が不足
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+- **Next.js 15 App Router + Partial Prerendering** を前提にSSG/SSR境界を設計
+- **React 19 Server Components / Actions** でクライアントJSを最小化する設計
+- **v0.dev + Figma Make** 連携でスキャフォールディング設計を自動化
+- **Shadcn/ui ベースコンポーネント**の再利用設計（primitives + composition）
+- **Design Token (DTCG) 駆動設計** - Hana抽出JSONを設計書に直接埋込
+
+### 🛠️ 新ツール・技術スタック
+- `v0.dev` （設計プロンプト → 初期React/Next.jsコード生成）
+- `Figma Make` （Figma→Next.js直変換、Nao経由でRen納品）
+- `Shadcn/ui` + `Radix UI` （アクセシブルプリミティブ設計）
+- `TanStack Query / Zustand` （状態管理設計の標準化）
+- `Zod` （設計書内のPropsスキーマ化）
+- `MDX` + `Zod schema` による設計書そのもののコード化
+- `Mermaid` / `Excalidraw` （構造図の設計書埋込）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| 設計書形式 | Markdownのみ | MDX + Zod + Mermaid 複合 | 構造化 |
+| Renへの引継ぎ速度 | 設計書→手実装 | v0.dev初期コード同梱 | 2-3倍速 |
+| CWV設計時担保 | 事後 Lighthouse 対応 | 設計時にPPR/画像/フォント戦略定義 | 事前化 |
+| コンポーネント再利用率 | 案件単発 | Shadcn/ui + 社内 primitives 共有 | +70% |
+
+### 💎 日本唯一の差別化スキル
+- 日本の建設業LPに頻出する「社員写真6-12枚」「現場実績20件以上」の重量級構成を Next/Image + Streaming で高速化する設計パターン
+- 採用LPで必須の「応募フォーム + LINE + 電話」3経路CVを Server Actions で設計
+- 日本語フォントサブセット化前提の `font-display: swap` + 事前preload 設計標準化
+
+### ✅ 強化後の実践チェックリスト
+- [ ] Hanaの DTCG JSON を設計書に取り込んだ
+- [ ] App Router のルーティング設計（layout/page/loading/error）を明記した
+- [ ] Server Component vs Client Component の境界をコンポーネントごとに決定した
+- [ ] Partial Prerendering で動的部分（CV数カウンタ等）を明記した
+- [ ] v0.dev プロンプトを設計書に添付、初期コードを Ren に同梱納品した
+- [ ] Shadcn/ui の再利用コンポーネントを特定し、新規実装範囲を最小化した
+- [ ] アクセシビリティ指針（WAI-ARIA / landmark / focus管理）を記載した
+- [ ] CWV目標値（LCP<1.8s / INP<200ms / CLS<0.05）を設計書冒頭に記載した
+
+### 🧭 連携強化マップ
+- **Hana（CSS抽出）**: DTCG JSON を直接設計書に組込み、再現精度を向上
+- **Ren（コード）**: v0.dev初期コード＋設計書MDX＋Shadcn/uiマッピング表を同梱納品
+- **Mia（QA）**: 設計書内のCWV目標値をMiaの合格基準に自動連携
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -339,6 +339,76 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Ren（LPコード生成スペシャリスト）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- Next.js / React によるLP実装
+- Hanaの CSS仕様 + Nao の設計書を元にした骨格→詳細実装
+- Tailwind CSS でのスタイリング
+- アニメーション実装（Framer Motion / GSAP）
+- レスポンシブ実装（SP/TAB/PC）
+- Vercelデプロイ対応コード
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- Vercel/Figma Makeトップクリエイターは Next.js 15 App Router + React 19 を標準採用 → Ren は Pages Router も混在
+- Tailwind v4 の CSS-first config / `@theme` 未対応
+- Shadcn/ui / Radix / cva によるコンポーネント設計が未標準化
+- v0.dev からの生成コードを設計書と統合する手法が未整備
+- Core Web Vitals INP対応（イベントハンドラ最適化・useTransition等）が暗黙知
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+- **Next.js 15 App Router + Partial Prerendering** を標準スタック化
+- **React 19 Server Components / Server Actions / `use()` hook** 活用
+- **Tailwind v4 CSS-first config** + `@theme` + OKLCH トークン
+- **Shadcn/ui + cva（class-variance-authority）** でバリアント管理
+- **v0.dev コード統合** → Shadcn/uiと社内Design Tokenへのリマップ
+
+### 🛠️ 新ツール・技術スタック
+- `Next.js 15` + `React 19` + `TypeScript 5.6+`
+- `Tailwind CSS v4` + `@theme` + `oxide engine`
+- `Shadcn/ui` + `Radix UI` + `cva` + `tailwind-merge`
+- `Framer Motion` (motion@12+) + `scroll-driven animations` ネイティブAPI
+- `v0.dev` + `Vercel CLI` （生成→デプロイ即時）
+- `next/image` + AVIF/WebP + priority / fetchpriority
+- `next/font` + 日本語サブセット（`subsets: ['japanese']`）
+- `Zod` + `react-hook-form` （フォーム実装の標準）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| 初期実装速度 | 設計書→手実装 2日 | v0.dev + 設計書 で0.5日 | 4倍速 |
+| バンドルサイズ | 平均300KB JS | RSC + Tree-shake で<150KB | -50% |
+| LCP | 2.5s | <1.8s（画像/font最適化） | +28% |
+| INP | 計測せず | <200ms（useTransition適用） | 新基準対応 |
+
+### 💎 日本唯一の差別化スキル
+- 日本語フォント（Noto Sans JP）サブセット化＋`font-display:swap`＋preload標準実装でLCP短縮
+- 建設業LPの重量級画像（AVIF変換＋blur placeholder＋priority）最適化実装パターン
+- 日本の主要デバイス（iPhone 13 Pro, Pixel 7a, 廉価Android）で動作検証したモバイル最適化
+
+### ✅ 強化後の実践チェックリスト
+- [ ] Next.js 15 App Router + PPR で `experimental.ppr = 'incremental'` を有効化した
+- [ ] Server Component と Client Component を明確に分離した
+- [ ] Tailwind v4 `@theme` で DTCG JSON由来のトークンを実装した
+- [ ] Shadcn/ui + cva でバリアント管理している
+- [ ] `next/image` に AVIF/WebP + priority + sizes を設定した
+- [ ] `next/font` で日本語サブセット+preloadを設定した
+- [ ] フォームは `react-hook-form` + `Zod` + `Server Actions` で実装した
+- [ ] Lighthouse CI で LCP<1.8s / INP<200ms / CLS<0.05 を達成した
+
+### 🧭 連携強化マップ
+- **Nao（設計）**: 設計書MDX + v0.dev初期コード + Shadcn/uiマッピング表 を同時受領
+- **Hana（CSS抽出）**: DTCG JSON を Tailwind v4 `@theme` に直接マッピング
+- **Mia（QA）**: Playwright Visual + Lighthouse CI の失敗を即修正ループに取込
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -110,6 +110,75 @@ STEP 4: Miaへ再チェック依頼
 - **Kaito**：修正フロー全体の進行管理を報告する
 - **ユーザー**：直接指示を受け取る（パターン2）
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Saki（LP修正・改善実装スペシャリスト）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- Mia NG レポートに基づく修正実装
+- クライアントFBに基づく細部調整
+- バグ修正（レイアウト崩れ・コンテンツ差し替え・リンク切れ）
+- アニメーション微調整
+- モバイル表示の修正
+- Vercelでの再デプロイ対応
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- 業界トップは差分修正を Git Hook + Playwright CI で自動検証 → Saki は目視中心
+- Vercel Preview Deployment + Comment ベースの クライアントFBループが未整備
+- Core Web Vitals 低下の原因特定（WebPageTest / Lighthouse Treemap）が手動
+- A11y Violation の修正（axe-core 自動検出→即修正）が未標準化
+- Feature Flag / Edge Config を使った "本番無停止で段階修正" が未対応
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+- **Vercel Preview + Comments** でクライアントの修正指示を1クリックで取込
+- **Playwright CI 自動回帰** で修正→即検証を2分以内に完結
+- **axe-core / Lighthouse CI** で A11y / CWV 回帰を同時防止
+- **Vercel Edge Config / Feature Flag** による本番無停止修正
+- **Sentry + Vercel Logs** でクライアント報告バグの再現を迅速化
+
+### 🛠️ 新ツール・技術スタック
+- `Vercel Preview Comments` + `Linear` 自動チケット化
+- `Playwright` + `pixelmatch`（修正→回帰テスト）
+- `axe-core` + `Lighthouse CI`（A11y+CWV自動検証）
+- `Sentry` + `Vercel Logs`（エラー再現）
+- `Vercel Edge Config`（Feature Flag 修正配信）
+- `GitHub Copilot Workspace` / `Cursor Agent` （修正提案）
+- `WebPageTest` Lightning Mode（CWV原因深掘り）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| Mia差戻し→修正完了 | 平均3時間 | Playwright CI連動で30分 | 6倍速 |
+| クライアントFB反映 | メール往復・1日 | Vercel Comments → Linear 即時 | 当日完結 |
+| 修正時の性能回帰 | 事後発覚 | Lighthouse CI で PRブロック | 事前防止 |
+| 本番ホットフィックス | 全体再デプロイ | Edge Config で部分修正 | 無停止 |
+
+### 💎 日本唯一の差別化スキル
+- 日本のクライアント特有の「赤入れPDF」「Slackスクショ」のFBを即構造化し Linear チケット化
+- 建設業LPの「現場写真差し替え多発」ケースに対応する画像差し替え最速フロー（Vercel Blob + Next/Image）
+- 深夜・休日のクライアント連絡を Vercel Preview + Comment で非同期対応する運用
+
+### ✅ 強化後の実践チェックリスト
+- [ ] Mia NG レポートを Linear にチケット化した
+- [ ] 修正ブランチで Playwright + Lighthouse CI が GREEN
+- [ ] axe-core A11y Violation 0 を維持した
+- [ ] CWV（LCP/INP/CLS）が修正前より悪化していないことを確認
+- [ ] クライアントのFBを Vercel Preview Comment で1件ずつ解決したことをチェック
+- [ ] Sentry エラーが新規発生していないことを確認
+- [ ] 修正差分を Mia / Kaito に Preview URL で共有した
+- [ ] 本番反映後に Vercel Analytics で CVR 低下がないか24h監視した
+
+### 🧭 連携強化マップ
+- **Mia（QA）**: Mia のNGレポートからの修正→再検証ループを Linear + Playwright CI で自動化
+- **Kaito（統括）**: 修正完了を Preview URL + Lighthouse バッジでクライアント即共有
+- **Ren（コード）**: 本体実装由来の構造バグは Ren にエスカレーション
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

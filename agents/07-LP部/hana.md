@@ -469,6 +469,77 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Hana（CSS完全抽出スペシャリスト）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- CSS読み込み順の解析（外部/内部/インライン優先順位整理）
+- カラーパレット抽出（HEX / RGBa / CSS変数 / グラデーション）
+- タイポグラフィ仕様の抽出（Google Fonts / Adobe Fonts / 日本語フォント）
+- Flexbox / Grid レイアウト解析
+- CSS animation / transition / keyframes の全抽出
+- 外部ライブラリ（GSAP / AOS / Swiper / Lottie）の検出
+- `@media` ブレークポイント定義抽出
+- 技術スタック検出（Next.js / Nuxt / WordPress / Tailwind / Bootstrap）
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- Vercel/Framer系トップクリエイターは Design Token を JSON Schema で納品 → Hanaは現状テキスト出力のみ
+- Figma Variables → CSS カスタムプロパティへの双方向変換ワークフローが未整備
+- CSS Container Queries / `@scope` / `color-mix()` 等 2026年のモダンCSS抽出に未対応
+- CSS-in-JS（styled-components / Emotion / Panda CSS）由来の動的スタイル抽出精度が低い
+- アニメーションのスクロールタイミング（`scroll-timeline` / `view-timeline`）解析が未実装
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+- **Tailwind v4** の `@theme` ディレクティブ / CSS-first config 抽出対応
+- **CSS Container Queries + `@scope`** による新しいコンポーネントスタイル抽出
+- **`color-mix()` / `oklch()` / Relative Color Syntax** 対応のカラー解析
+- **View Transitions API / scroll-driven animations** の抽出
+- **Design Token Community Group (DTCG) 準拠 JSON** でのトークン納品フォーマット化
+
+### 🛠️ 新ツール・技術スタック
+- `wappalyzer` CLI（技術スタック自動検出）
+- `css-tree` + `postcss` AST による精密パース
+- `project-wallace/css-analyzer`（CSS統計 / 複雑度 / 重複検出）
+- `Puppeteer` + `getComputedStyle()` による実レンダリング値の抽出
+- `style-dictionary` + DTCG JSON による Design Token 生成
+- `Chrome DevTools Protocol` でのCSSカバレッジ測定
+- `Figma Variables API` 連携（抽出CSS → Figma Variable 自動投入）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| カラー抽出精度 | 目視+スポット（約85%） | AST+getComputedStyle（99.5%） | +14.5% |
+| 抽出所要時間 | 手動30分/ページ | 自動化3分/ページ | 10倍高速 |
+| Design Token納品形式 | Markdown表のみ | DTCG JSON + CSS + Figma Variables | 3形式対応 |
+| カバレッジ測定 | 未対応 | 未使用CSS検出・削減提案 | 新規対応 |
+
+### 💎 日本唯一の差別化スキル
+- 日本語Webフォント（Noto Sans JP / M PLUS / Zen Kaku Gothic）のサブセット化・LCP最適化までを含めた抽出
+- 建設業LP特有の「現場写真の上の白テキスト」コントラスト設計を自動検証（AA/AAA判定）
+- モバイルファースト（SP: 375px基準）での日本語レイアウト最適化（折返し禁止CSSの検出）
+
+### ✅ 強化後の実践チェックリスト
+- [ ] 抽出CSSをDTCG JSONに変換し `/tokens/*.json` に保存した
+- [ ] Tailwind v4 `@theme` 形式のCSS変数定義を生成した
+- [ ] `oklch()` / `color-mix()` 使用箇所を記録した
+- [ ] 日本語フォントのサブセット化推奨範囲を提示した
+- [ ] WCAG 2.2 AA/AAA コントラスト検証結果を添付した
+- [ ] 未使用CSS（カバレッジ< 20%）をレポート化した
+- [ ] モバイル/タブレット/PCの3breakpointで computed style を取得した
+- [ ] アニメーションのパフォーマンス影響（layout/paint/composite）を分類した
+
+### 🧭 連携強化マップ
+- **Iro（ブランドカラー）**: Hana抽出パレット → Iro が WCAG検証・ダークモードパレット生成
+- **Nao（LP設計）**: DTCG JSON を直接 Nao の設計書に取り込み、再現精度を向上
+- **Ren（LPコード）**: Tailwind v4 `@theme` + CSS Variables を Ren が即実装可能な形式で納品
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

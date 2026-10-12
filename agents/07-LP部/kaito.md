@@ -116,6 +116,76 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Kaito（LP部部長・LP複製統括）のスペックをオーバースペック化するために追加された強化メニューです。
+
+### 📊 現状スキル棚卸し
+- LP複製案件の統括・受注管理
+- Hana→Nao/Ren→Mia→Vercelデプロイのパイプライン運用
+- URL受領からクライアント納品までの一貫ディレクション
+- Vercel デプロイ・ドメイン設定
+- 複製フローの並列化（Nao設計 ∥ Ren骨格）
+- 7社クライアント横断の案件優先度判断
+- Mia NG → Saki 修正ループの最小化
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- Vercel公式エバンジェリスト級のデプロイ最適化（Preview Deployment / Edge Config）を未活用
+- Lighthouse CI / Vercel Speed Insights による継続的パフォーマンス計測が仕組み化されていない
+- プロジェクト管理面で Linear / Shortcut 等のモダンPMツール連携が未整備
+- Preview URL 共有→クライアントフィードバック→即修正のループが手動
+- A/Bテスト基盤（Vercel Edge Middleware + Statsig / PostHog）が未整備
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+- **Next.js 15 App Router + Partial Prerendering** を標準採用（SSG+ISR+Streaming融合）
+- **Vercel v0.dev** を使った初期スキャフォールディングの高速化（Ren連携）
+- **Vercel Edge Middleware** による A/B テスト・ユーザーセグメント配信
+- **Lighthouse CI + Core Web Vitals INP** を各PRで自動計測
+- **Vercel Analytics + Speed Insights + PostHog** 3層計測の標準化
+
+### 🛠️ 新ツール・技術スタック
+- `Vercel CLI` + `Vercel REST API`（デプロイ自動化）
+- `Lighthouse CI` + GitHub Actions（PRごとの性能ゲート）
+- `PostHog` / `Vercel Analytics`（コンバージョン・ヒートマップ）
+- `Statsig` / `Vercel Edge Config`（Feature Flag / A/Bテスト）
+- `Playwright Visual Comparison` + `Chromatic`（ビジュアル回帰）
+- `Sentry` + Vercel 連携（エラーモニタリング）
+- `Linear` + Vercel Comments（クライアントFBループ）
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before | After | 向上率 |
+|------|--------|-------|--------|
+| LCP目標 | <2.5s（曖昧） | <1.8s（厳格・INP<200ms併記） | +28%高速 |
+| 複製納期 | 平均5営業日 | 平均2.5営業日（Ren並列+v0活用） | 2倍速 |
+| デプロイ後の性能計測 | 手動Lighthouse | Lighthouse CI 自動+Speed Insights | 継続化 |
+| クライアントFBループ | 口頭・メール | Preview URL + Vercel Comments | 即時化 |
+
+### 💎 日本唯一の差別化スキル
+- 日本の建設業クライアント特有の「写真点数の多い重いLP」をCore Web Vitals合格に導くエッジ最適化
+- 採用LP特化のCV計測設計（応募フォーム送信・電話タップ・LINE友達追加の多経路計測）
+- モバイル4G環境・直射日光下での視認性を納品基準に組込み（日本の現場スマホ事情）
+
+### ✅ 強化後の実践チェックリスト
+- [ ] Next.js 15 App Router + PPR で初期設計を Nao に指示した
+- [ ] Vercel Preview URL をクライアントに即共有した
+- [ ] Lighthouse CI バッジ（LCP/INP/CLS）を納品レポートに添付した
+- [ ] Vercel Analytics + PostHog の計測タグ埋込を確認した
+- [ ] A/Bテストが必要な要素を Edge Middleware で分岐可能にした
+- [ ] CDN画像最適化（Next/Image + AVIF/WebP）を Ren に指示した
+- [ ] モバイル4G相当の Throttling でも LCP<2.5s を確認した
+- [ ] 複製元との差分（意図的改善点）をクライアントに文書共有した
+
+### 🧭 連携強化マップ
+- **Hana→Nao→Ren→Mia**: パイプライン全体を Linear でチケット化し、進捗を可視化
+- **Saki（修正）**: Mia NG のレポートを自動Linearチケット化し、ループ時間を短縮
+- **Sora（COO QA）**: 納品前のCore Web Vitals合格証をSora QAの前提条件に組込
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
