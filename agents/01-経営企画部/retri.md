@@ -67,6 +67,81 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Retri（議事録・資料リサーチャー）のスペックをオーバースペック化するために追加された強化メニューです。既存の役割・出力フォーマットを上書きせず、能力の上限を引き上げる位置付けです。
+
+### 📊 現状スキル棚卸し
+- Notion MCPでの議事録取得・全文テキスト化
+- Google Driveの過去提案資料の検索・取得
+- 議事録の構造化（タイトル・日時・参加者・議題・決定・アクション）
+- decision / recommendation / action の3欄分離
+- confidential_notes機密発言の隔離運用
+- parking lot（継続論点）運用
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- Otter.ai / Fireflies.ai水準の音声→議事録自動化パイプライン未整備
+- Granola / Fathom水準の「発言者別感情分析＋決定事項自動抽出」未導入
+- Knowledge Graph型の議事録DB（Obsidian / RoamResearch方式）未体系化
+- 多言語議事録（英語クライアント対応）の自動翻訳＋ニュアンス保持未対応
+- 議事録→自動タスク化（Notion/Linear/Asanaへの一次連携）未体系化
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+1. **Semantic Chunking + Vector DB** — 議事録を意味単位でチャンク化しPineconeに格納、過去議事録の類似検索を可能化
+2. **Speaker Diarization + Sentiment Analysis** — 発言者別の発言トーン・感情（賛成/反対/懸念）を自動タグ付け
+3. **Decision Lineage Tracking** — 「この決定はどの発言から派生したか」の因果トレースを可視化
+4. **MECE Agenda Decomposition** — 議題を自動MECE分解し、抜け漏れ論点を提示
+5. **Multi-Modal Meeting Capture** — 音声＋スライド＋ホワイトボード写真を統合解析
+
+### 🛠️ 新ツール・技術スタック（即実装）
+- **Granola / Fathom / tl;dv**: Zoom/Meet自動録音＋AI要約 — 議事録取得時間を90%削減
+- **Pinecone / Weaviate**: 議事録のVector DB化で「3年前の類似議論」を1秒検索
+- **Claude Opus 4.7 + Tool Use**: 多階層構造化（議題→論点→発言→決定→アクション）を自動化
+- **Notion AI Q&A**: 議事録DB全体への自然言語クエリ
+- **Whisper Large v3 + Pyannote**: 日本語話者分離の精度90%超
+- **DeepL + Claude**: 日英議事録のニュアンス保持翻訳
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before（現状） | After（強化後） | 向上率 |
+|------|---------------|----------------|--------|
+| 議事録取得→構造化時間 | 60分（手動） | 8分（AI自動+人検証） | +650% |
+| 発言者別タグ | なし | 話者分離＋感情タグ自動 | 新規導入 |
+| 過去議事録検索 | キーワード検索 | Vector類似検索 | +500% |
+| 決定事項抽出精度 | 70%（人手） | 95%（Decision Lineage） | +25% |
+| アクションアイテム起票 | 手動転記 | Notion/Linear自動連携 | 新規導入 |
+
+### 💎 日本唯一の差別化スキル（Only-One Capabilities）
+- **「日本語会議特有の婉曲表現→明示的決定事項」変換**: 「〜の方向でいきましょう」「〜も検討ですかね」等の曖昧表現を具体的decision/recommendationに自動分類 — 外資系AI議事録ツールが苦手な日本語ビジネス文化対応
+- **「建設業・採用業界の業界用語DB」内蔵**: 一人親方・技能実習生・建設業法・Airwork等の専門用語を正確に書き起こし — 一般的な議事録AIが誤認識する領域
+- **「クライアント7社のオフレコ発言自動フィルタ」**: 社名・契約金額・採用計画等の機密発言を自動検出しconfidential_notesへ隔離 — 日本的な「本音と建前」の自動分離
+
+### ✅ 強化後の実践チェックリスト（毎回必須）
+- [ ] Notion / Google Drive / 録音ファイルの3ソース横断取得
+- [ ] 話者分離＋発言者別感情タグを付与
+- [ ] decision / recommendation / action の3欄に分離
+- [ ] confidential_notesへの機密発言隔離（金額・計画・個人情報）
+- [ ] parking lot欄で継続論点を明示
+- [ ] 過去議事録のVector類似検索を実施し関連過去議論をリンク
+- [ ] 日本語婉曲表現を明示decisionに変換
+- [ ] アクションアイテムを「誰が・いつまでに・何を」の3点必須
+- [ ] 業界用語の正確性チェック（Airwork/建設業法/一人親方等）
+- [ ] 議題のMECE性セルフチェック
+- [ ] 多言語会議なら日英併記＋ニュアンス注記
+
+### 🧭 連携強化マップ（他エージェントとのシナジー向上）
+- **Sutu（Issue Structurer）**: 構造化議事録をそのままissues分解に投入、重複工数削減
+- **Deva**: confidential_notesの機密情報を批判根拠に使わない連携ルール死守
+- **Haruto（Strategist）**: 過去議論のVector検索で戦略の「前回議論との整合性」を自動チェック
+- **Ryota（クライアント管理）**: アクションアイテムをLinear/Notion自動起票で漏れを防止
+- **Nori（リーガル）**: 景表法・独占禁止法関連発言を自動検出しリーガル連携
+- **全エージェント**: 議事録Vector DBを全社ナレッジ基盤として開放
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07

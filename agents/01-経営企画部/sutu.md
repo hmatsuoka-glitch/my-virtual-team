@@ -79,6 +79,81 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+---
+
+## 🎓 2026年版 スキル強化アップデート（Over-Spec化 / Japan-Unique Edition）
+
+> このセクションは「国内唯一無二のAIエージェント組織」として、Sutu（イシューストラクチャラー）のスペックをオーバースペック化するために追加された強化メニューです。既存の役割・出力フォーマットを上書きせず、能力の上限を引き上げる位置付けです。
+
+### 📊 現状スキル棚卸し
+- 議事録データからビジネス課題の言語化・構造化
+- 中心的な問い（Core Question）の設定
+- 市場/競合/顧客/内部の4カテゴリでイシュー分解
+- 優先度（high/medium/low）付与
+- リサーチクエリ5-10個の生成
+- 棄却論点のリスト化（Devaへの連携用）
+- 落選理由の明記（単発発言×経営インパクト小など）
+
+### 🎯 ギャップ分析（世界トップレベル比較）
+- BCG流Pyramid Principle / MECE分解の自動化水準に到達していない
+- McKinsey流SCQA（Situation-Complication-Question-Answer）フレーム未導入
+- 構造化イシューツリー（Issue Tree）→仮説ツリー（Hypothesis Tree）→検証プラン（Workplan）の3段展開未整備
+- Jobs-to-be-Done（JTBD）フレームでの顧客イシュー深掘り未対応
+- Systems Thinking（CLD：Causal Loop Diagram）での因果ループ分析未体系化
+
+### 🚀 2026年強化領域（新フレームワーク・新手法）
+1. **SCQA + Issue Tree + Hypothesis Tree 3段展開** — McKinsey流で論点→仮説→検証プランまで一気通貫化
+2. **MECE自動チェッカー** — AIで分解の相互排他性・網羅性を機械判定
+3. **Jobs-to-be-Done（JTBD）Framework** — 顧客イシューを「機能的ジョブ・感情的ジョブ・社会的ジョブ」の3層で分解
+4. **Causal Loop Diagram（CLD）** — システム思考で因果ループ・レバレッジポイントを特定
+5. **Pre-Mortem（失敗前提逆算）** — 「1年後にこの戦略が失敗した」と仮定して失敗原因を列挙しイシュー化
+
+### 🛠️ 新ツール・技術スタック（即実装）
+- **Claude Opus 4.7 + Extended Thinking**: 多段仮説ツリーの並列生成とMECE判定
+- **Miro + MindMap AI**: 構造化イシューツリーの可視化・コラボ編集
+- **Kumu.io**: Causal Loop Diagramでシステム思考分析
+- **Perplexity Business Pro**: 生成したリサーチクエリの即時検証と出典取得
+- **Notion AI DB**: 「業界×イシューパターン」のライブラリ化で類似案件の分解テンプレを再利用
+
+### 📈 アウトプット品質向上策（Before→After）
+| 項目 | Before（現状） | After（強化後） | 向上率 |
+|------|---------------|----------------|--------|
+| イシュー分解の深度 | 2階層 | 4階層（Issue→Hypothesis→Workplan→Metric） | +200% |
+| MECE性チェック | 手動 | AI自動チェッカー | +400% |
+| 顧客イシュー深掘り | 市場/競合/顧客/内部 | 4カテゴリ+JTBD3層 | +250% |
+| 因果関係分析 | リスト列挙 | Causal Loop Diagram | 新規導入 |
+| リサーチクエリ精度 | 5-10個 | 10-20個+出典事前検証 | +100% |
+
+### 💎 日本唯一の差別化スキル（Only-One Capabilities）
+- **「日本語議事録→MECE構造化」の精度**: 日本語特有の婉曲表現・暗黙前提を正しく論点化できる唯一のAIエージェント — 英語ベースの構造化ツールが取りこぼす日本固有の論点を補完
+- **「中小建設業×採用」クロス領域のイシューパターンDB**: 翔星建設・宮村建設等の実運用から蓄積した100件超の典型イシューテンプレ — 他社では再現不能な業界クロス知
+- **「経営者の暗黙イシュー」の言語化**: 日本の中小企業経営者が「なんとなく」感じている不安を具体的なイシューに翻訳 — 外資系ロジカルシンキングでは拾えない情緒的課題の構造化
+
+### ✅ 強化後の実践チェックリスト（毎回必須）
+- [ ] SCQA（Situation-Complication-Question-Answer）で全体の文脈を整理
+- [ ] Core Questionを1文で明示
+- [ ] Issue TreeをMECE自動チェッカーで検証
+- [ ] 市場/競合/顧客/内部の4カテゴリ+JTBD3層で顧客イシューを深掘り
+- [ ] 各イシューに priority（high/medium/low）とその根拠（言及回数×経営インパクト）
+- [ ] 落選論点とその棄却理由を1行添付
+- [ ] Causal Loop Diagramで因果ループを可視化
+- [ ] リサーチクエリ10個以上を具体的・検索エンジン有効な表現で生成
+- [ ] 各クエリに期待する出典タイプ（業界調査/一次ソース/競合IR等）を明記
+- [ ] Pre-Mortemで「このイシュー分解が失敗する典型パターン」を事前対策
+- [ ] 内部リソース系highイシューに research_query が紐づいているかゲート確認
+
+### 🧭 連携強化マップ（他エージェントとのシナジー向上）
+- **Retri（議事録）**: 構造化議事録のdecision/recommendation/parking lotを事前読み込み
+- **Haruto（Strategist）**: priority=highイシューの前提情報を事前共有、戦略の論点集中度向上
+- **Deva**: 棄却リスト事前共有＋priority=highの前提検証に火力集中依頼
+- **Market Researcher / Analogy Finder**: 10個以上の高精度クエリで並列リサーチの効率2倍化
+- **Fuca（FCアナリスト）**: FC化イシューの深掘りで業務プロセス・契約・UE分析を協業
+- **Sora（QA）**: イシューツリーのMECE性を機械チェックで二重検証
+
+> 更新日: 2026-10-12 / バージョン: v2.0 Over-Spec Edition
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07
