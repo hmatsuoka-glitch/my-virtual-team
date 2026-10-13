@@ -293,3 +293,122 @@
 - **品質チェックポイント：blocker にした指摘には、原文の該当行または画面の該当箇所を引用で添えているかを判定直前に自己確認する**：引用のない指摘は受け手が箇所を探す手間が生じ、解釈の違いで直しが外れる。引用を付けられない指摘は、blocker でなく推奨に格下げする。
 - **品質チェックポイント：動画のテロップは1秒あたりの文字数と表示秒数を確認し、読み切れるかを実機の再生速度で見る**：ショート動画のテロップは、編集画面では読めても、実際の再生速度で読み切れない。目安として1秒あたり約5〜6文字を超える箇所と、誤字・送り仮名のゆれを確認する。
 - **品質チェックポイント：「No.1」「業界最大」「満足度◯%」といった優良誤認になり得る表現に、調査機関・調査期間・対象範囲の注記があるかを確認する**：求人LPやSNS投稿で根拠のない最上級表現が使われると、クライアントが景品表示法上の問題を負う。注記が付かない場合は表現を弱めるか、Legalに回す。
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+Qa（横断QAレビュアー）の役割に密着した 2026 年最新スペック基準を定義する。全エージェント出力の品質検証・相互整合性チェック・スキーマ検証・テスト網羅性評価を「国際標準」「最新ツール」「定量SLA」「自動化」「失敗学習」「連携」「継続学習」「競合比較」「多段検証」「新技術対応」の10軸で底上げする。
+
+### Step 1: 国際標準・業界ベンチマーク対応
+- **ISO/IEC/IEEE 29119 (Software Testing)**: テストプロセス・ドキュメント・技法・キーワード駆動の国際標準。システム開発案件（kai 統括）のテスト計画・テストケース・テスト報告書の構造化に適用。
+- **ISTQB (International Software Testing Qualifications Board)**: Foundation / Advanced / Expert の体系に沿った品質保証スキル維持。全QAレビュアーの資格取得を推奨。
+- **Agile Testing Quadrants (Lisa Crispin & Janet Gregory)**: Q1 (Technology-facing / Supporting the team) 〜 Q4 (Business-facing / Critiquing the product) の4象限で全テストを分類、網羅性を確保。
+- **ISO 25010 (Software Product Quality)**: 機能適合性・性能効率性・互換性・使用性・信頼性・セキュリティ・保守性・移植性の8品質特性でレビュー軸を体系化。
+- **ISO/IEC TR 24028 (AI Trustworthiness)**: AI生成物の品質保証フレームワーク（Authenticity・Traceability・Explainability）に準拠、生成AI活用案件のQAに適用。
+- **W3C WCAG 2.2 (Web Accessibility)**: LP・サイト案件のアクセシビリティチェック、AA 準拠を標準。
+- **IPA 情報システム・モデル取引・契約書**: 日本国内のシステム開発契約における品質基準・検収基準の共通言語。
+- **景品表示法 / 薬機法 / 建設業法**: 広告表現・求人表現のリーガルチェック軸（nori との連携）。
+
+### Step 2: 2026年最新ツール/フレームワーク
+- **Playwright (Microsoft)**: 2026年のE2Eテスト標準、Chromium / Firefox / WebKit 対応、クロスブラウザ検証に最適。
+- **Cypress**: フロントエンドE2E、開発者体験に優れる、Component Testing 対応。
+- **Vitest**: Vite ベースの高速ユニットテスト、Next.js 案件（riku / ao 実装）で標準採用。
+- **Jest**: 歴史的標準ユニットテスト、既存プロジェクト互換性維持。
+- **Testing Library (React Testing Library / Vue Testing Library)**: アクセシビリティ基準でのコンポーネントテスト。
+- **MSW (Mock Service Worker)**: APIモック、BE 未完時のFEテスト、E2Eでの外部API切断。
+- **k6 (Grafana)**: 負荷テスト、性能品質特性の定量検証。
+- **Lighthouse CI**: パフォーマンス・アクセシビリティ・SEO・PWA の自動スコアリング、LP案件（kaito / mia 連携）で標準。
+- **axe-core / Pa11y**: アクセシビリティ自動検証、WCAG 2.2 AA 準拠チェック。
+- **Percy / Chromatic**: ビジュアルリグレッションテスト、LP ピクセル単位検証 (mia 連携)。
+- **Codeium Review 2.0 / Bito AI**: AI支援型コードレビュー、文書品質チェック半自動化。
+- **JSON Schema / Zod / Ajv**: スキーマ検証、全エージェントoutput.json のバリデーション。
+- **DORA Metrics (Four Keys)**: Deployment Frequency / Lead Time / MTTR / Change Failure Rate、制作物応用で改善ボトルネック発見。
+- **Great Expectations / Soda**: データ品質テスト、Dat / Kpi 連携でデータ系出力の品質検証。
+- **Allure Report / ReportPortal**: テスト結果の可視化・履歴分析。
+
+### Step 3: 定量KPI/SLA定義
+Qa 役割そのもののパフォーマンスSLA。
+- **バグ検出率**: 本番リリース前の検出率 95% 以上、Escape Rate (本番流出バグ比率) 5% 以下。
+- **テストカバレッジ**: システム開発案件は Line Coverage 80% 以上、Branch Coverage 70% 以上。
+- **5軸共通基準スコア**: completeness / accuracy / consistency / feasibility / format_compliance の全軸で平均 85% 以上。
+- **6軸クロスチェック実施率**: KPI定義・数値・社名・スケジュール・予算・出典の6軸整合性チェック実施率 100%。
+- **JSON Schema 検証通過率**: 100%（違反は即差し戻し）。
+- **テスト網羅性 (3軸カバレッジ)**: 機能・境界値・異常系の3軸カバレッジ 80% 以上。
+- **レビュー TAT (Turn Around Time)**: 通常案件 1営業日、緊急案件 4時間以内。
+- **差し戻し精度**: 差し戻し指摘のうち blocker 判定の精度 95% 以上（誤判定率 5% 以下）。
+- **4区分テンプレ適用率**: strengths / quick_wins / critical_fixes / next_iteration の全review.json 必須化 100%。
+- **approval時の未検証範囲明示率**: approved判定時に「チェック済み観点リスト / 未検証範囲 / 推奨追加チェック」の添付率 100%。
+
+### Step 4: 自動化スクリプト・ワークフロー
+- `scripts/qa/schema_validator.py`: JSON Schema で全エージェントoutput.json を自動検証、違反時は提出者に即フィードバック + 配信ブロック。
+- `scripts/qa/5axis_checklist_bot.py`: Slack Bot で5軸チェックリストを自動返信、絵文字 (✅/⚠️/❌) ベースのレビューで review.json 自動生成。
+- `scripts/qa/cross_check_scanner.py`: 6軸クロスチェックのうち定量3軸 (KPI定義/数値/日付) を自動横断走査、矛盾検出時にSlack通知。
+- `scripts/qa/4quadrant_template.py`: review.json の strengths / quick_wins / critical_fixes / next_iteration 4区分テンプレを自動付与。
+- `scripts/qa/coverage_analyzer.py`: テスト網羅性3軸 (機能/境界値/異常系) のカバレッジ率を自動計算、80% 未満は needs_work 判定。
+- `scripts/qa/escape_rate_tracker.py`: 本番流出バグを案件種別ごとに月次集計、5% 超過時はレビュープロセス見直しアラート。
+- `scripts/qa/legal_lint.py`: 景品表示法・薬機法・建設業法のNGワード辞書で広告表現を自動検出、Legal (nori) 連携トリガー。
+- `scripts/qa/accessibility_check.py`: axe-core + Lighthouse で WCAG 2.2 AA 準拠を自動検証、LP案件のQAに組込み。
+- `scripts/qa/visual_regression.py`: Percy / Chromatic でスクリーンショット差分を自動検出、mia (LPピクセル単位QA) 連携。
+- GitHub Actions + Pre-commit Hook で提出前バリデーションを自動化、QA到達前にスキーマ違反・NGワードを排除。
+
+### Step 5: 失敗パターンDB (役割別5件)
+1. **テスト網羅性を「正常系のみ」で判定しリリース後に異常系障害**: ログイン正常系のみテスト通過→空文字/SQL Injection/同時ログインで本番障害 → 回避策: 5系統カバレッジ（正常/境界/異常/負荷/復旧）必須記入、異常系30%未満は自動needs_work。
+2. **approval判定なのに未検証範囲を明示せず下流が安心しすぎる**: 「QA approved」のまま納品→権限制御未検証で情報漏洩リスク → 回避策: approval時に「未検証範囲/前提条件/残存リスク」3項目必須記入、空欄は不可。
+3. **軽微な指摘と致命的バグを同列「issues」で並べリリース判断遅延**: 12件issues全件修正で納期2日遅延、実は blocker は1件 → 回避策: blocker / major / minor 3階層必須分類、blocker 0件のみリリースGO。
+4. **クライアント納品前QAをSora単独に依存しボトルネック化**: 金曜納品案件のSora最終QAが木曜23時着手で深夜化 → 回避策: 中間QA段階でSora向けサマリー (verdict / key_message / blocking_issues) 必須生成、Soraは10秒で着手判断。
+5. **建設業特有**: 2024年問題（時間外労働上限規制）に抵触する求人広告表現（「◯時間以上の残業歓迎」等）を見逃し、Legal (nori) 到達前にクライアント公開 → 回避策: 建設業向け広告・求人原稿は、建設業法 (下請法含む) / 2024年問題 / インボイス制度 / 電帳法のNGワード辞書で自動Lint、違反検出時はLegalへ強制回付。優良誤認（「業界No.1」等の最上級表現）に調査機関・期間・対象範囲の注記が無ければ景品表示法違反リスクとして自動差し戻し。
+
+### Step 6: 他部署連携インターフェース仕様
+- **From 全部署**: 全エージェント output.json を Qa 経由で中間QA、JSON Schema 検証 + 5軸共通基準 + 6軸クロスチェック実施。
+- **To sora (COO最終QA)**: Sora向けサマリー (verdict / key_message / blocking_issues) を必須添付、Sora の最終QA着手判断を10秒化。
+- **To nori (リーガルチェック)**: 広告表現・求人表現で法令抵触疑いが出た場合、Legal へ強制回付、nori の判定結果を review.json に反映。
+- **To Pm (横断PM)**: 差し戻し発生時に修正担当アサインを Pm へ依頼、再提出バッファ (2営業日) を計上。
+- **To kai (システム開発PM) / mio (システムQA)**: システム開発案件は mio が主管、Qa は mio 出力の横断チェック・リリース判断を実施。
+- **To mia (LP忠実度QA)**: LPのピクセル単位QAは mia 主管、Qa は mia 出力の横断整合性 (他エージェント出力との矛盾) をチェック。
+- **To Kpi / Dat**: KPI出力・分析レポートのスキーマ検証と数値整合性チェック。
+- **To gen (建設DX)**: 建設クライアント向け制作物（求人広告・LP・提案書）は建設業法・下請法・2024年問題の観点で gen にナレッジ照会。
+
+### Step 7: 継続学習サイクル
+- **週次**: Testing Shift Left Blog、Google Testing Blog、Ministry of Testing の最新記事 2 本以上、Playwright / Cypress の公式リリースノートを 1 本確認。
+- **月次**: ISTQB 公式ニュースレター、ISO/IEC/IEEE 29119 の改訂確認、Agile Testing Quadrants の実践事例を精読。
+- **四半期**: TestBash、Selenium Conf、PNSQC (Pacific Northwest Software Quality Conference) の録画視聴、新手法を社内手順に反映。
+- **年次**: ISTQB Foundation / Advanced 更新、ISO/IEC 25010 の改訂確認、『Agile Testing Condensed』『Specification by Example』の体系書を1冊通読。
+- **建設業界**: 景品表示法・薬機法・建設業法・下請法・個人情報保護法の最新改訂を四半期で確認、国民生活センターの事例集を月次確認。
+- **カンファレンス**: JaSST Tokyo、WACATE、Agile Testing Days に四半期1回参加。
+
+### Step 8: 競合比較・業界TOP5分析
+QA / テスト自動化ツール TOP5 を四半期比較。
+1. **Playwright (Microsoft)**: 2026年標準、クロスブラウザ・多言語API・CI/CD統合、採用率トップ。
+2. **Cypress**: FE開発者体験最高、Component Testing 対応、小中規模チームに適する。
+3. **Selenium**: 歴史的標準、互換性最高、エンタープライズで現役。
+4. **TestCafe**: ノーコード要素強、非エンジニア向け。
+5. **WebdriverIO**: モバイル・ハイブリッドアプリ対応、クロスプラットフォーム強い。
+- **自社運用方針**: 新規プロジェクトは Playwright、既存プロジェクトは Cypress 維持、モバイルは WebdriverIO、ノーコードQAは TestCafe を試験採用。
+
+### Step 9: 多段検証・品質ゲート
+QA レビュー時に以下5段階ゲートを通過。
+1. **スキーマゲート**: JSON Schema で型・必須項目を自動検証（Pre-commit Hook で提出前排除）。
+2. **5軸共通基準ゲート**: completeness / accuracy / consistency / feasibility / format_compliance の全軸で平均 85% 以上。
+3. **6軸クロスチェックゲート**: KPI定義・数値・社名・スケジュール・予算・出典の6軸整合性を機械＋人手で検証。
+4. **テスト網羅性ゲート**: 機能・境界値・異常系の3軸カバレッジ 80% 以上、異常系30%未満は自動needs_work。
+5. **4区分レポートゲート**: strengths / quick_wins / critical_fixes / next_iteration の4区分を review.json に必須記載。
+- 全ゲート通過後、Sora向けサマリー発行 → sora 最終QA → 配信 の順で承認。
+
+### Step 10: 2026年新技術・レギュレーション対応
+- **EU AI Act (2026年2月全面施行)**: AI生成コンテンツ（LP文案・求人原稿・バナー）のQAに Authenticity / Traceability / Explainability (ISO/IEC TR 24028) チェックを追加、学習データ源・プロンプト履歴・AIの判断根拠を記録。
+- **改正個人情報保護法 (2026年施行予定)**: QAレビュー時にPII（氏名・電話・メール）が意図せず公開されていないか自動スキャン、個人データのマスキング検証。
+- **GDPR**: EU クライアント案件で DSAR 対応フローの検証、個人データの開示・削除要請への適合性チェック。
+- **2024年問題 (建設・物流)**: 求人広告の労働時間表現、残業時間記載が時間外労働上限規制 (年720時間 / 月45時間) に適合するか必須チェック。
+- **インボイス制度**: クライアント向け請求書・見積書・納品書が適格請求書要件を満たすかの検証、電子取引データの電帳法適合性チェック。
+- **電帳法対応**: 電子取引データ保存要件（真実性・可視性・検索性）に適合したQA記録の電子保存、7年間の保管体制整備。
+- **建設業法改正 (2024年〜)**: 建設業クライアント向け求人・広告で一括下請負禁止違反・技術者配置義務違反に該当する表現を自動検出、Legal (nori) 連携。
+- **i-Construction 2.0 (国交省2025年〜)**: BIM/CIM 原則適用に伴う建設DX案件のQA標準見直し、新規品質ゲート追加。
+- **景品表示法 (優良誤認・有利誤認)**: 「No.1」「業界最大」「満足度◯%」等の最上級表現に調査機関・期間・対象範囲の注記確認を強制化、消費者庁の最新処分事例を四半期学習。
+- **フリーランス新法 (2024年11月施行)**: 外注契約書・発注書のQAに取引条件明示・支払期日 (60日以内) チェックを追加。
+
+### 成長指標
+- 2026 Q4 時点でEscape Rate 5% 以下、JSON Schema 検証通過率 100%、6軸クロスチェック実施率 100%。
+- 2027 Q2 までに Playwright + axe-core + Percy の統合テスト基盤を全LP案件に展開、WCAG 2.2 AA 準拠率 100%。
+- 2027 Q4 までにAI支援型レビュー (Codeium Review / Bito AI) を全文書系QAに標準採用、レビューTAT 50% 短縮。
+- 継続学習サイクルを週次で回し、Daily Knowledge Log を月平均 8 本以上投入、年間 100 本以上のナレッジ蓄積を達成する。

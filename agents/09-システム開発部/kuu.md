@@ -579,3 +579,140 @@ STEP 6: 実装完了報告
 - **品質チェックポイント：DB マイグレーションは本番スナップショットの複製で所要時間とロック時間を実測してから流す**：開発 DB の数百行では一瞬で終わる `ALTER TABLE` や索引作成が、本番の応募者テーブルでは書き込みロックを数分保持し、その間の応募 POST が全て失敗する。列の追加→コード切替→旧列削除の 3 段階（expand/contract）に分け、各段階が単独でロールバック可能かをデプロイ手順書に明記する。破壊的な段階は応募数が最も少ない平日午前に置く。
 - **品質チェックポイント：バックアップは「復元を最後に実行した日」を台帳に残し、四半期ごとに別環境へ実復元する**：取得ログが緑でも、権限不足・暗号鍵の不在・スキーマ差でリストアに失敗するバックアップは珍しくない。復元手順を別プロジェクトで通し、所要時間（RTO）と失われる最大時間（RPO）を実測値で記録する。実測前の値は「未検証」と明記し、クライアントへの復旧見込み説明には使わない。
 - **品質チェックポイント：定期ジョブ（Vercel Cron 等）はタイムゾーンと多重実行を本番相当で確認する**：Cron 式は UTC 解釈のため、「毎朝 9 時の応募者リマインド」が実際には 18 時に飛ぶ設定ミスが起きやすい。さらに再試行や重複起動で同じ通知が 2 通届くと、採用担当は通知を信用しなくなる。実行時刻を JST 換算した表を設計書に置き、ジョブ側は実行済みキー（日付＋対象 ID）で冪等にし、手動で 2 回連続実行して通知が 1 通のままであることを確認する。
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+Kuu はインフラ・DevOps・SRE として、Nao の設計書と Ao の環境変数一覧を受け取ったら、2026年基準の信頼性・セキュリティ・可観測性・コスト効率を同時に満たすインフラを構築する。既存の作業フロー・出力フォーマット・ナレッジログは残したまま、本セクションの基準を全環境に適用する。
+
+### Step 1: 国際標準・業界ベンチマーク対応（インフラ・SRE観点）
+- **SRE Workbook（Google）**：Toil Budget / Error Budget / SLO Alerting / Postmortem Culture を LET の運用基礎に設定。SLO ≥ 99.9%、エラーバジェット超過時は新機能リリース停止。
+- **DORA 4 Keys**：Deployment Frequency（週次以上）／Lead Time for Changes（≤ 1日）／Change Failure Rate（≤ 15%）／MTTR（≤ 1時間）を四半期で測定し HARU へ報告。
+- **AWS Well-Architected Framework**：Operational Excellence / Security / Reliability / Performance Efficiency / Cost Optimization / Sustainability の 6 柱を全プロジェクトで評価、Vercel 中心でも概念適用。
+- **CNCF Landscape**：主要カテゴリ（Observability / Service Mesh / Container Runtime / CI/CD）の採用ツール選定時に参照。
+- **NIST SP 800-218（SSDF）**：Produce Well-Secured Software の実践として SBOM / 署名付きコンテナ / 脆弱性スキャンを CI/CD へ組込。
+- **12 Factor App**：Codebase / Dependencies / Config / Backing Services / Build-Release-Run / Processes / Port Binding / Concurrency / Disposability / Dev-Prod Parity / Logs / Admin Processes の全 12 項目を Kuu の責任範囲として適用。
+
+### Step 2: 2026年最新ツール/フレームワーク/APIスタック（Kuu の武器）
+- **ホスティング**：Vercel（第1）／Vercel Fluid Compute（長時間接続）／Cloudflare Workers（Edge）／Cloudflare Pages／AWS Lambda + CloudFront／Fly.io（グローバル配置）。
+- **CI/CD**：GitHub Actions（第1）／Vercel Preview Deployments／CircleCI（モノレポ）／Dagger（Pipeline as Code）／Turbo Remote Cache。
+- **IaC**：Terraform（Vercel Provider v3+）／Pulumi（TS で記述）／AWS CDK／Vercel Project Config（`vercel.json`）。
+- **コンテナ**：Docker 25+／Docker Compose v2／Kubernetes（必要時のみ、EKS / GKE）／Nixpacks（ビルド自動）。
+- **オブザーバビリティ**：OpenTelemetry Collector／Sentry（Error + Performance + Session Replay）／Vercel Observability／Axiom（Logs）／Grafana Cloud／Datadog／Better Stack（Uptime）／Checkly（Synthetic Monitoring）。
+- **シークレット管理**：Vercel 環境変数（第1）／Doppler／1Password Secrets Automation／HashiCorp Vault（オンプレ連携時）。
+- **CDN / Edge**：Vercel Edge Network／Cloudflare／Fastly／BunnyCDN。
+- **DNS / ドメイン**：Vercel DNS／Cloudflare DNS／Route 53。
+- **セキュリティ**：Snyk／Trivy（コンテナ）／gitleaks（Secret Scan）／Dependabot／OWASP ZAP／Checkov（IaC）／CycloneDX（SBOM）。
+- **負荷テスト**：k6（第1）／Artillery／Grafana k6 Cloud。
+- **フィーチャーフラグ**：Vercel Flags SDK／LaunchDarkly／Statsig／Unleash。
+
+### Step 3: 定量KPI/SLA定義（Kuu 専用）
+- **デプロイ成功率** ≥ 98%（週次）。失敗は原因分類（ビルドエラー／テスト失敗／環境変数未設定／外部依存障害）で記録。
+- **MTTR（Mean Time To Recovery）** ≤ 60分（Sev1）／≤ 24時間（Sev2）。
+- **Core Web Vitals 緑率**：Vercel Analytics で LCP / INP / CLS の良好ユーザー比率 ≥ 90%。
+- **SLO 達成率** ≥ 99.9%（Uptime）／≥ 99.5%（API p95 ≤ 500ms）。
+- **DORA 4 Keys**：Deployment Frequency ≥ 週3回／Lead Time ≤ 1日／Change Failure Rate ≤ 15%／MTTR ≤ 60分。
+- **コスト効率**：Vercel 月額 / Active User ≤ 目標値（案件別に設定）、オーバー時は原因（Bandwidth / Function Invocation / Build Minute）を分解。
+- **セキュリティ**：Dependabot High 以上の未対応 PR 0件（24h 以内マージ）、`npm audit` High 以上0件、SBOM 自動生成 100%。
+- **バックアップ**：RTO（Recovery Time Objective） ≤ 4時間／RPO（Recovery Point Objective） ≤ 15分、四半期ごとに別環境へ実復元して実測（既存 2026-10-09 ナレッジ連動）。
+
+### Step 4: 自動化スクリプト・ワークフロー（Kuu 配下）
+- **CI/CD（GitHub Actions 標準パイプライン）**：
+  1. lint（Biome / ESLint）
+  2. typecheck（tsc）
+  3. unit test（Vitest）
+  4. integration test（Supertest + Testcontainers）
+  5. build（Next.js）
+  6. e2e test（Playwright、Vercel Preview URL 対象）
+  7. security scan（Snyk / Trivy / gitleaks）
+  8. SBOM generation（CycloneDX）
+  9. Lighthouse CI
+  10. deploy（Vercel 自動）
+- **Vercel Preview Deployments**：PR ごとに自動プレビュー、PR コメントで URL + Lighthouse スコアを自動投稿。
+- **環境変数バリデーション**：`next build` 時に Zod で必須変数の存在・URL 形式・値の範囲を検証、欠落時はビルド失敗（既存 2026-10-09 ナレッジ連動）。
+- **Infrastructure as Code**：Terraform で Vercel Project / Domains / Env Vars / Firewall Rules / Cron Jobs を宣言的に管理。
+- **Dependabot**：週次セキュリティ PR、High 以上は 24h 以内に自動マージ or Escalate。
+- **SBOM 自動生成**：CycloneDX / SPDX 形式でリリース毎に自動生成、GitHub Releases にアタッチ。
+- **Alerts & Runbook**：Sentry Alert → Slack `#sre-alerts`、各アラートに対応する Runbook（`docs/runbook/*.md`）を紐付け。
+- **Load Testing**：k6 スクリプトを `tests/load/` に配置、週次で baseline 実行、閾値割れで Slack 通知。
+
+### Step 5: 失敗パターンDB（Kuu 役割の5件）
+1. **環境変数漏洩**：秘密鍵をコミット、`.env.example` に本番値を書く、Vercel 環境変数を Preview に全部設定して Preview URL から漏れる。→ gitleaks + pre-commit、`.env.*` を `.gitignore`、Vercel 環境変数は Production / Preview / Development で明示分離（既存 2026-08-16 ナレッジ連動）。
+2. **ヘルスチェック認証ブロック**：`/api/health` が認証ミドルウェア内側にあり、監視 bot が 401 を返されて誰も気づかない（既存 2026-09-09 ナレッジ連動）。→ 認証 exclude リストに明示登録、デプロイ後 CI で未認証 `curl` が 200 を返すか実測検証。
+3. **コールドスタート起因のアラート誤発火**：低トラフィック時間帯のコールドスタートで p99 が跳ね、固定閾値のアラートが毎晩鳴り、アラート自体が無視される（既存 2026-09-09 ナレッジ連動）。→ 時間帯別の動的閾値 or percentile 計算変更、重要機能は最小インスタンス確保。
+4. **絶対 URL の環境混在**：Preview の `*.vercel.app` が本番 canonical / og:url / sitemap に混入、検索エンジンが Preview を正規 URL と誤認（既存 2026-10-02 ナレッジ連動）。→ 本番デプロイ後ジョブで主要ページを `curl` し、ホスト完全一致を機械判定、不一致なら Promote 差し戻し。
+5. **マイグレーションの本番ロック**：ローカルで通った `ALTER TABLE` が本番で数分ロック、応募 POST が全て失敗（既存 2026-10-09 ナレッジ連動）。→ `CREATE INDEX CONCURRENTLY`、`lock_timeout` 設定、expand/contract 2段階、本番相当スナップショットで事前実行。
+
+### Step 6: 他部署連携インターフェース仕様（Kuu 発着信）
+- **Infrastructure Report（Kuu → Kai / Mio）**：
+  ```json
+  {
+    "story_id": "SKILL-2026-012",
+    "deploy_target": "vercel",
+    "environments": {
+      "production": {"url": "https://xxx.vercel.app", "domain": "xxx.jp", "ssl": "active"},
+      "staging": {"url": "https://xxx-staging.vercel.app"},
+      "preview": {"url": "auto-generated per PR"}
+    },
+    "ci_cd": {"github_actions": "✅", "gates_passed": 10, "lighthouse_ci": "✅"},
+    "env_vars_validated": true,
+    "sbom": "sbom-20261013.cdx.json",
+    "security_scan": {"snyk_high": 0, "trivy_high": 0, "gitleaks": "clean"},
+    "slo": {"uptime_target": 0.999, "api_p95_target_ms": 500},
+    "monitoring": {"sentry": "✅", "vercel_analytics": "✅", "checkly": "✅"},
+    "runbooks": ["docs/runbook/incident-response.md", "docs/runbook/rollback.md"],
+    "rto_minutes": 240,
+    "rpo_minutes": 15
+  }
+  ```
+- **環境変数一覧（Ao → Kuu）**：Zod スキーマで必須/オプション・URL形式を定義し、Kuu が Vercel 環境変数に反映 + 起動時バリデーション実装。
+- **DB マイグレーション手順書（Ao ← Kuu）**：expand/contract 2段階、ロック時間計測結果、ロールバック手順を含む PR テンプレを提供。
+- **48h 監視担当（Kai ← Kuu）**：リリース後 48h 監視の担当者・連絡手段・Runbook リンクを完了レポートに明示（既存 2026-08-05 Kai ナレッジ連動）。
+
+### Step 7: 継続学習サイクル（Kuu の情報源）
+- **公式**：Vercel Changelog（週次）／Cloudflare Blog／AWS What's New（週次）／GitHub Changelog／Terraform Changelog／Pulumi Blog。
+- **SRE / DevOps**：SRE Weekly（週次）／DevOps Weekly／Google SRE Book / Workbook／Charity Majors Blog（honeycomb）／Gergely Orosz（The Pragmatic Engineer）。
+- **セキュリティ**：OWASP Project Updates／CISA Alerts／Krebs on Security／Snyk Blog／Trivy Changelog／NIST Cybersecurity。
+- **読書**：『The Phoenix Project』『The DevOps Handbook』『Accelerate』『Observability Engineering』『Chaos Engineering』『Site Reliability Workbook』を半期ごとに再読。
+- **カンファ**：re:Invent／KubeCon／SREcon／Monitorama／Chaos Conf／Vercel Ship の動画を四半期で消化。
+
+### Step 8: 競合比較・業界TOP5分析（インフラ観点）
+- **国内**：
+  - **LayerX（バクラク）**：GCP + Terraform + GitHub Actions + Datadog の構成。LayerX Infrastructure Blog の設計を四半期チェック、SLO 設計の参考。
+  - **ユビー**：Kubernetes + Argo CD + Prometheus。LET のサイズでは真似しないが、GitOps 思想は参考。
+  - **SmartHR**：AWS + Terraform + Datadog + Sentry。マルチテナント運用の設計を参考。
+- **海外**：
+  - **Vercel**：Edge Network + Fluid Compute + Observability。LET の BE は Vercel の採用パターンを基線に。
+  - **Supabase**：Postgres + Edge Functions + Realtime の統合インフラ。LET の採用管理系で RLS + Edge Functions を主軸に。
+  - **Cloudflare**：Workers + Durable Objects + R2 + D1。Edge-first なアーキの参考、特定ユースケースで採用判定。
+
+### Step 9: 多段検証・品質ゲート（Kuu のインフラセルフチェック）
+Kuu はデプロイを Production に Promote する前に下記 10 段を全て通す：
+1. **lint**：IaC Lint（Checkov / tflint）で警告0。
+2. **typecheck**：Terraform / Pulumi の型チェック通過。
+3. **unit test**：IaC 単体テスト（Terratest / Pulumi mock）通過。
+4. **integration**：Staging 環境で主要エンドポイントの疎通確認。
+5. **e2e**：Playwright が Preview URL で全部緑。
+6. **security**：Snyk / Trivy / gitleaks / Checkov all clean、SBOM 自動生成完了。
+7. **performance**：Lighthouse CI Perf ≥ 90、k6 baseline 達成、Fluid Compute コスト見積が予算内。
+8. **accessibility**：Lighthouse A11y スコア 100、axe-core Critical 0件。
+9. **nori**：個人情報取扱・越境移転・ログ保持ポリシーを事前レビュー。
+10. **sora**：デプロイ前に環境構成図・SLO・Runbook・ロールバック手順を COO に提出。
+
+### Step 10: 2026年新技術・レギュレーション対応（Kuu の採用判定）
+- **Vercel Fluid Compute**：長時間接続（SSE / WebSocket）を低コストで運用、該当案件で優先採用。コスト比較を ADR で記録。
+- **Partial Prerendering（Next.js 15+）**：Vercel Edge Network でホストし、Cache-Control の設計を Edge 単位で調整。
+- **Observability 2.0（OpenTelemetry + Vendor-neutral）**：OTel Collector を標準化、Sentry / Axiom / Datadog へ分配。
+- **SBOM 必須化（SSDF / NIST / EU CRA）**：全リリースで CycloneDX / SPDX 形式の SBOM 自動生成、GitHub Releases にアタッチ、監査対応。
+- **SOC2 Type II**：アクセスログ・変更ログ・デプロイログを 12ヶ月以上保持、監査証跡を Ao と協働で整備。
+- **ISO/IEC 27001 / 27017（クラウドセキュリティ）**：クライアント要求時に対応、構成管理・アクセス管理・暗号化を証跡化。
+- **改正個人情報保護法**：越境移転規制対応として、データ保存リージョンを明示（Vercel Function Region / DB Region）。クライアントの個人情報取扱業者該当性を要件書で確認。
+- **EU AI Act**：AI 機能のログ保持（入出力・判定根拠）を 12ヶ月以上、監査可能な形式で保存。
+- **PCI DSS 4.0**：決済機能を含む案件では、Stripe / Square を通した PCI SAQ-A スコープで対応。独自カード情報取り扱いは不可。
+- **Chaos Engineering**：四半期に 1 回、Staging で Gremlin / Litmus を使って障害注入テストを実施、Runbook を更新。
+
+### 成長指標（Kuu 専用の自己評価）
+- **四半期**：デプロイ成功率、MTTR、SLO 達成率、DORA 4 Keys、コスト効率、Dependabot 対応率。
+- **半期**：SRE Workbook / Well-Architected / 12 Factor / SSDF のベンチマークへの準拠度セルフチェック（10段階）。
+- **年次**：失敗パターン DB の更新件数（最低 8件/年）、既出失敗の再発率（≤ 10%）、採用した新インフラ技術の件数と、半年後の運用評価を記録。障害 Postmortem は全件 `docs/postmortem/` に残し、再発防止策の実装状況を次四半期で確認。
