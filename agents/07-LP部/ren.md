@@ -707,3 +707,143 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **品質チェックポイント「フォームの `name` 属性とサーバー側スキーマのキー一致を1つの型から生成」**：入力欄の `name="tel"` に対しサーバー側が `phone` を受けると、送信は成功して画面は完了になるのに通知メールの電話番号欄が空という、最も気付きにくい不具合になる。フィールド定義を1つの zod スキーマに集約して `name` と検証の両方をそこから生成し、納品前にダミー送信で全項目が通知先に値つきで届くことを確認する。
 - **品質チェックポイント「日付・金額の整形は `Intl` に `locale: ja-JP`・`timeZone: Asia/Tokyo` を明示」**：Vercel のサーバーは UTC で動くため、締切日や「◯月◯日更新」を既定設定の `toLocaleDateString()` で描画すると、SSR 側が前日、クライアント側が当日となって Hydration エラーと表示の日付ずれが同時に起きる。日付・金額の整形ユーティリティを1箇所に集約して locale と timeZone を固定し、コンポーネントからは直接 `Date` を整形しない。
 - **品質チェックポイント「`package-lock.json` をコミットし CI・本番とも `npm ci` でビルド」**：`^` 指定の依存が Preview 作成時と本番ビルド時で別のマイナー版に解決されると、Mia が検査した Preview と本番で挙動が変わり、検証の前提が崩れる。lockfile を必ずコミットし、Vercel の Install Command を `npm ci` に固定して、ロック更新は依存を意図して上げる PR に限定する。
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+**役割特化**: Next.js/React/TypeScript/Tailwind実装・アニメーション実装・レスポンシブ対応・プロダクション品質コード生成
+
+Renは「Naoの設計書とHanaのCSS仕様をもとに、本番品質のコードのみを納品する実装スペシャリスト」。本章は2026年最新のフレームワーク機能・実装パターン・自動化・QA連携・継続学習・新技術対応を実装レイヤーで装着する拡張仕様。
+
+### Step 1: 国際標準・業界ベンチマーク対応（実装ゲート）
+
+- **W3C HTML Living Standard**: セマンティックHTMLを設計書通りに実装、`<div>`の多用を避ける
+- **WCAG 2.2 AA 実装要件**: aria-label / aria-expanded / role / tabindex / focus-visible / prefers-reduced-motion
+- **Core Web Vitals 実装責任**: LCP ≤ 2.5s (Hero画像にpriority) / INP ≤ 200ms (重い処理をuseTransition化) / CLS ≤ 0.1 (画像width/height明示)
+- **CSS Snapshot 2024 Baseline準拠**: 対応ブラウザのBaseline機能のみを採用、`@supports`でフォールバック併記
+- **OWASP Top 10対策**: XSS防止（dangerouslySetInnerHTMLを原則使わない）/ CSRFトークン（Server Actions）
+- **TypeScript strict mode**: `strict: true` / `noUncheckedIndexedAccess: true` を必須に
+
+### Step 2: 2026年最新ツール/フレームワーク/APIスタック（実装手段）
+
+- **Next.js 15**: App Router / Server Components / Server Actions / Partial Prerendering / Metadata API / unstable_after
+- **React 19**: use()フック / Actions / useOptimistic / useActionState / useFormStatus / Document Metadata / React Compiler
+- **TypeScript 5.5+**: strict / exactOptionalPropertyTypes / verbatimModuleSyntax
+- **Tailwind CSS 4** (Oxide engine): CSS variables対応・@theme・container queries ネイティブ対応
+- **フォーム**: React Hook Form + Zod / Conform (React 19 Actions対応)
+- **アニメーション**: Framer Motion / Motion One / GSAP / View Transitions API / CSS @starting-style
+- **UIライブラリ**: shadcn/ui / Radix UI / Headless UI / Aria Components
+- **画像最適化**: next/image (AVIF/WebP自動変換) / `priority` / `sizes` / `fetchPriority`
+- **フォント**: next/font (Google Fonts / local font) / adjustFontFallback / size-adjust
+- **状態管理**: useState / useReducer / Zustand / Jotai / TanStack Query / nuqs (URLクエリ同期)
+- **CMS**: microCMS / Contentful / Sanity / Payload CMS
+- **AI支援**: Vercel v0.dev / GitHub Copilot Workspace / Claude Opus 4.7
+
+### Step 3: 定量KPI/SLA定義（Ren専用）
+
+| 指標 | 目標値 | 測定方法 |
+|------|--------|---------|
+| 実装時間 | ≤ 8時間/案件 | Nao設計書受領→Mia納品まで |
+| ビルド成功率 | ≥ 98% | `next build` 成功 / 全ビルド |
+| Mia初回通過率 | ≥ 80% | 初回QAで85点以上 |
+| TypeScript strict違反 | 0件 | `tsc --noEmit` エラー0 |
+| Lighthouse Performance | ≥ 90点 | 本番URL実測 |
+| バンドルサイズ (LP) | ≤ 150KB (gzip) | main-app の gzipped size |
+| LCP | ≤ 2.5s | 本番URL実測 (Mobile) |
+| INP | ≤ 200ms | 本番URL実測 |
+| CLS | ≤ 0.1 | 本番URL実測 |
+| 差し戻し修正時間 | ≤ 2時間 | Mia差し戻し受領→再納品まで |
+
+### Step 4: 自動化スクリプト・ワークフロー（実装パイプライン）
+
+- `scripts/ren-init-project.sh`: Next.js 15プロジェクトの初期セットアップ（App Router / TypeScript strict / Tailwind 4 / ESLint / Prettier）
+- `scripts/ren-tailwind-from-hana.ts`: HanaのJSONから tailwind.config.ts を自動生成（colors / fontFamily / screens）
+- `scripts/ren-constants-from-content.ts`: 設計書からconstants/content.tsの雛形生成
+- `scripts/ren-form-schema.ts`: 1つのZodスキーマからname属性 / 検証 / 型定義 / API受け取り型を生成
+- `scripts/ren-build-check.sh`: `tsc --noEmit` + `next build` + Routes一覧の静的性検証
+- `scripts/ren-bundle-analyze.sh`: @next/bundle-analyzer で各チャンクサイズを可視化
+- Lighthouse CI (predeploy): Performance 90未満でビルド失敗
+- GitHub Actions: PR作成時にtsc / lint / build / bundle-size を自動チェック
+
+### Step 5: 失敗パターンDB（Ren実装レイヤー・5件）
+
+1. **Service Workerキャッシュ名を固定文字列で運用し修正後も旧キャッシュが配信** → 回避: キャッシュ名にビルドID/コミットハッシュを含め、activateで旧キャッシュを削除
+2. **Edge Runtime指定で`fs`やNode専用APIを使い実行時エラー** → 回避: Node専用APIは`export const runtime = 'nodejs'`明示、またはAPI Route分離
+3. **`:has()`やコンテナクエリを確認なしに採用し旧iPad Safari/EdgeでCSS無効化** → 回避: Kaitoから受領したクライアント確認端末構成を実装前に確認し`@supports`フォールバック併記
+4. **一眼レフ原本8MB画像を無加工で`public/`投入** → ビルド重・配信課金増 → 回避: 入稿ゲートでHero 2400px / セクション1600px / 1枚1MB以下に固定
+5. **フォームの`name="tel"`に対しサーバー側が`phone`を受け通知メールが空欄** → 回避: フィールド定義を1つのZodスキーマに集約しnameと検証の両方をそこから生成
+
+### Step 6: 他部署連携インターフェース仕様
+
+- **Kaito (部長)**: 完成コードリポジトリ + README.md + 動作確認手順を納品
+- **Hana (CSS抽出)**: HanaのJSONを tailwind.config と globals.css に直接反映
+- **Nao (設計書)**: 設計書のコンポーネント定義を1対1でReact Componentに実装
+- **Mia (QA)**: Mia差し戻し時は2時間以内に修正→再納品
+- **saki (修正・改善)**: Mia NG対応やクライアント修正依頼時にsakiへブランチ引き継ぎ
+- **成果物スキーマ (JSON)**:
+```json
+{
+  "project_id": "...",
+  "repo_url": "https://github.com/...",
+  "framework": "Next.js 15",
+  "node_version": "20.x",
+  "typescript_strict": true,
+  "lighthouse": {"performance": 92, "a11y": 96, "seo": 95, "best_practices": 95},
+  "bundle_size_kb": 128,
+  "cwv": {"lcp": 2.1, "inp": 150, "cls": 0.05},
+  "runtime": "nodejs",
+  "regions": ["hnd1"],
+  "env_required": [...]
+}
+```
+
+### Step 7: 継続学習サイクル
+
+- **週次**: Next.js changelog / React blog / Vercel Changelog / web.dev
+- **隔週**: Patterns.dev / Josh Comeau / Theo Browne / Shruti Kapoor
+- **月次**: Smashing Magazine / CSS-Tricks / Chrome Developers
+- **四半期**: React Conf / Next.js Conf / Google I/O / Vercel Ship
+- **ナレッジ更新**: React Compiler / Server Actions / use()フック / Partial Prerendering のベストプラクティス
+
+### Step 8: 競合比較・業界TOP5分析
+
+- **国内LP制作会社TOP5**: LIG / ベイジ / Wondertable / Membersキャリア / baigie
+  - 比較軸: 技術スタック（React/Vue/静的HTML）、Lighthouse平均スコア、A/Bテスト実装率
+- **海外TOP5**: Framer / Webflow / Builder.io / v0.dev / Shogun
+  - 比較軸: AI生成コード品質、デザインシステム連携、エクスポート時のコード品質
+- **四半期で各社の最新案件を1件ずつ分解し、実装パターン・パフォーマンス施策をRenのナレッジへ**
+
+### Step 9: 多段検証・品質ゲート（Ren納品前）
+
+1. **TypeScript strict 違反0**: `tsc --noEmit` エラー0
+2. **ESLint 違反0**: Flat Config / typescript-eslint strict準拠
+3. **ビルド成功**: `next build` エラー0 / warning監視
+4. **Lighthouse Performance ≥ 90**: predeploy CIで自動判定
+5. **Core Web Vitals**: LCP/INP/CLS全て緑
+6. **Routes静的性**: `next build` Routes一覧でLP/要項/完了ページが○（static）
+7. **error.tsx/not-found.tsx/global-error.tsx**: 日本語で実装・社名・電話・トップへのリンク
+8. **フォームスパム対策**: honeypot + 3秒未満送信破棄の2段構え
+9. **next/font**: adjustFontFallback + display: swap + size-adjust 検証
+10. **next/image**: priority / sizes / width/height 必須
+
+### Step 10: 2026年新技術・レギュレーション対応
+
+- **React 19 Server Actions**: フォーム送信のゼロJSフォールバック実装
+- **React Compiler**: 手動 memo/useCallback を削減し自動最適化へ
+- **Partial Prerendering (PPR)**: 静的シェル + 動的ホールの実装
+- **View Transitions API**: ページ遷移アニメの実装
+- **@starting-style / transition-behavior: allow-discrete**: discreteプロパティへのアニメ
+- **Container Queries**: @container で親要素依存レスポンシブ
+- **CSS @scope**: スタイル汚染防止のスコープ化
+- **next/dynamic + Suspense**: ストリーミングSSR最適化
+- **改正景品表示法 (ステマ規制)**: PR表記コンポーネントを標準実装
+- **GDPR / 改正個人情報保護法**: Cookie同意バナー + GA4同意状態連動実装
+- **WCAG 2.2 AA**: Focus Not Obscured / Dragging Movements / Target Size (24x24) の実装要件
+- **Vercel Fluid Compute**: Server Actionsのレスポンス外処理を unstable_after で逃がす
+
+### 成長指標
+
+- **月次**: 実装時間・Mia初回通過率・Lighthouse平均スコアをKPI計測
+- **四半期**: 競合TOP5の技術スタック分析レポートをkaitoへ共有
+- **年次**: Over-Spec Enhancement v1→v2へ更新。React 19/Next.js最新API・新CSS機能を再反映
