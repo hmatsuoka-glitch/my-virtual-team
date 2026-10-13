@@ -351,3 +351,151 @@
 - **品質チェックポイント：JOINを含むmodelは結合前後の行数比較を恒久テストに入れ、1:多への意図しない膨張を検出する**：応募者テーブルに面接テーブルを結合する際、1応募に複数面接があると行が増えて応募数が水増しされるが、構文エラーも出ずunique以外のテストでは見つからない。結合キーの粒度を事前にコメントで明記し、結合後の件数が左テーブル件数と一致する`expression_is_true`テストをfact層に追加する
 - **品質チェックポイント：日付・時刻列はUTC／JSTのどちらで保持しているかをカラム名または説明に明記し、日付境界のずれを0時台の応募でテストする**：GA4のタイムスタンプはUTCで入るため、JSTの0〜9時の応募は前日扱いに集計される。『23:30と翌00:30の2件を入れて日別集計が正しく分かれるか』というテストデータを用意し、タイムゾーン変換を一箇所（staging層）に集約して、mart層以降で`DATE()`を直接呼ばない規約にする
 - **品質チェックポイント：通貨・率・件数など単位が違う列は同一の汎用集計クエリに流さず、列名に単位（_yen／_rate／_cnt）を持たせる**：応募率（0.032）と応募数（32）を同じ型のまま平均してしまう事故は、型エラーにならず値だけが無意味になる。命名規約に単位接尾辞を必須化し、`_rate`列は0〜1の範囲を超えたら失敗する`accepted_range`テストを付けて、パーセント表記の100倍混入も同時に検出する
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+データパイプライン・ETL/ELT・クローラー基盤を国際標準レベルで刷新し、分析・AI活用の土台を「無停止・無改ざん・完全再現可能」にする。
+7社のクライアントデータが日次で自動更新され、品質メトリクスが可視化され、障害時の復旧RTOが1時間以内の状態を標準にする。
+
+### Step 1: 国際標準・業界ベンチマーク対応
+- **DAMA-DMBOK v2**: データマネジメント11領域（データガバナンス・データアーキテクチャ・データ品質・メタデータ・マスタ/参照データ等）を部門内チェックリスト化、四半期セルフアセスメント実施
+- **ISO/IEC 27001 (ISMS)**: BigQuery / Cloud Storage / Secret Manager のアクセスログを月次監査、クライアント別IAMロール分離、個人情報格納テーブルの暗号化キー管理（CMEK）
+- **ISO/IEC 25012 (データ品質)**: 15品質特性（正確性・完全性・一貫性・信頼性・現在性・アクセシビリティ等）を各テーブルに対して評価値を割り当て、品質カタログに記録
+- **GDPR / 改正個人情報保護法**: 応募者データの保有期間（原則3年）・削除リクエスト対応SOP・越境転送制限（EU圏データは国内転送時に適切な保護措置）を規定
+- **統計検定 2級相当**: スキーマドリフト検知で統計的検定（Kolmogorov-Smirnov検定・χ²検定）を実装、分布変化を定量的に検知
+- **SOC2 Type II**: ETLパイプラインのログ90日保持、変更管理（CI/CDログ）、インシデント対応記録、第三者監査可能性を担保
+- **Great Expectations公式ベストプラクティス**: Expectationの命名規約・バージョン管理・docs自動生成を標準化
+
+### Step 2: 2026年最新ツール/フレームワーク
+- **BigQuery**: 中核データウェアハウス。クライアント別データセットでIAM分離、スロット予約で安定稼働、Partitioning + Clusteringでクエリコスト最適化
+- **Snowflake / Databricks**: 他社事例の学習対象として評価、将来の移行候補として検証環境を四半期更新
+- **dbt Cloud / dbt Core**: ELT の T（Transform）層を完全dbt化、models/tests/docs/snapshots/exposures を Git 管理、PR時に `dbt build` が走る CI/CD を Cloud Build で構築
+- **Fivetran / Airbyte**: Airwork以外の媒体（Indeed, 求人ボックス, リクナビ, マイナビ等）とGA4, GoogleAdsをノーコード統合、1クライアント追加の工数を1日→2時間に短縮
+- **Dagster / Prefect**: Airflow代替。アセットベースの依存関係管理、UI上での再実行、センサー駆動（上流ファイル到着で起動）を活用
+- **Great Expectations / Soda Core**: データ品質テストを宣言的に記述、CIで実行、ドキュメント自動生成でクライアントへの説明責任を可視化
+- **Monte Carlo / Metaplane**: データオブザーバビリティSaaS。スキーマ変更・鮮度低下・分布異常を自動検知、Slack通知
+- **Playwright + crawlee**: Airworkのような動的サイトのスクレイピングを堅牢化、ヘッドレスブラウザ運用、retry/backoff/proxy rotation標準装備
+- **Python 2026スタック**: pandas 2.x (PyArrow), Polars (大規模データ), DuckDB (ローカル検証), Pydantic v2 (スキーマ検証), SQLAlchemy 2.x, Pandera (DataFrameスキーマ)
+- **Terraform / Pulumi**: BigQuery データセット・IAM・Cloud Scheduler・Cloud Run をIaC化、環境差分を Git で管理
+
+### Step 3: 定量KPI/SLA定義
+| KPI | 目標 | 計測方法 |
+|-----|------|---------|
+| パイプライン成功率 | 99.5%以上 | Dagsterの実行ログから月次集計 |
+| データ鮮度（Airwork→mart） | 24時間以内 | dbt source freshness テスト |
+| スキーマドリフト検知時間 | 1時間以内 | Monte Carlo / 自作監視で検知 |
+| 障害復旧RTO | 60分以内 | インシデント発生から復旧完了までの中央値 |
+| 障害復旧RPO | 24時間以内 | 日次バックアップ＋トランザクションログ |
+| データ品質テスト合格率 | 100%（severity: error） | dbt test / Great Expectations |
+| クローラー稼働率 | 99%以上 | 日次成功回数/計画実行回数 |
+| 新媒体データ連携リードタイム | 3営業日以内 | 要件確定→本番稼働 |
+| コスト（BigQuery月額） | クライアント数×¥5,000以内 | Cloud Billing で月次確認 |
+| セキュリティインシデント | 0件 | 四半期監査 |
+
+### Step 4: 自動化スクリプト・ワークフロー
+- **Airwork → BigQuery 日次ETL**: Playwright + Cloud Run Jobs + Cloud Scheduler。02:00 JST起動、Secret Manager認証、取得→検証→BigQuery staging挿入→dbt build→mart更新までを完全自動化
+- **GA4 → BigQuery Export**: BigQuery Linking を全クライアントで有効化、events_YYYYMMDD テーブルをstaging層で日次整形
+- **Google Ads / Indeed / 求人ボックス**: Fivetran or Airbyte で定期取り込み、追加媒体は Terraform で1クライアントあたり2時間以内に本番化
+- **dbt build CI/CD**: GitHub Actions で PR 時に `dbt build --select state:modified+` を実行、本番マージで Cloud Build が本番 BigQuery へ適用
+- **Great Expectations 自動実行**: dbt run 後に Expectation Suite が走り、違反時は Slack #data-alert へ通知、重大度に応じてAkari納品を自動停止
+- **Monte Carlo / 自作オブザーバビリティ**: BigQuery INFORMATION_SCHEMA を監視、スキーマ変更・テーブル鮮度・行数変動を自動検知
+- **スキーマドリフト対応**: AirworkのHTMLセレクタ変化を事前検知するため、週次でセレクタ差分レポートを生成、変更検知時は Rui/Shun へ通知
+- **バックアップ**: BigQuery データセットを Cloud Storage へ日次エクスポート（Parquet形式）、クライアント別に90日分保持
+- **コスト最適化**: BigQuery クエリログを週次解析、¥1,000超のクエリを自動フラグし Partitioning / Clustering 推奨をPR化
+
+### Step 5: 失敗パターンDB
+- **欠損値見落とし**: 空文字・プレースホルダ（「-」「応相談」）がnullチェックをすり抜ける → プレースホルダ辞書管理 + 空文字＋プレースホルダ合計率監視、前回比+10pt超でクロール停止
+- **集計粒度ミス**: JOIN後の1:多膨張、timezone境界ズレ → 結合後行数テスト + staging層にTZ変換集約 + mart層での `DATE()` 直接呼び出し禁止
+- **因果混同**: パイプライン成功=データ正常と誤認 → 「成功ステータス」ではなく「出力テーブルのMAX(更新日時)」を監視
+- **計測期間ズレ**: UTC/JST混在 → 列名に `_utc` / `_jst` を必須付記、staging層で単一TZに正規化
+- **クライアント情報漏洩**: IAM誤設定で別クライアントのデータが見える → データセット単位の権限分離、月次IAM監査、Shared VPC + VPC Service Controls でネットワーク越境禁止
+- **スクレイピング禁止違反**: robots.txt / 利用規約の変更追随漏れ → 月次で全対象サイトの規約差分レポート、変更時はRyota/noriへエスカレーション
+- **再取込の二重投入**: バッチ再実行で重複行発生 → 業務主キー（応募ID×業務日）のuniqueテスト必須、取込側は MERGE / UPSERT パターン厳守
+- **コスト暴走**: フルスキャン・Cartesian JOIN → BigQuery `maximum_bytes_billed` を全スケジュールクエリに設定、超過時は失敗
+- **資格情報漏洩**: Secret Manager未使用・環境変数ハードコード → Secret Manager必須、Git履歴の秘匿情報スキャン（gitleaks）をCIに組込
+
+### Step 6: 他部署連携インターフェース仕様
+```json
+{
+  "deng_output_contract_v1": {
+    "to_shun_analysis": {
+      "mart_tables": [{"name": "fct_apply_daily", "freshness": "2026-11-01T02:30+09:00", "row_count": 15234, "quality_score": 99}],
+      "schema_version": "v1.2.0",
+      "known_issues": [],
+      "sla_status": "GREEN"
+    },
+    "to_rui_research": {
+      "crawled_sources": [{"name": "Indeed建設", "last_run": "2026-11-01T03:00+09:00", "rows": 850, "parser_health": "OK"}],
+      "monitoring_targets": ["競合3社の求人掲載数日次推移"]
+    },
+    "to_ao_backend": {
+      "api_contract": "fct_apply_daily, dim_client, dim_media",
+      "throughput_sla": "p95 < 500ms",
+      "versioning": "semver"
+    },
+    "to_haruto_strategy": {"infra_cost_breakdown": "...", "capacity_forecast": "..."},
+    "to_sora_qa": {"all_tests_passed": true, "freshness_sla_met": true, "security_audit_date": "2026-10-15"}
+  }
+}
+```
+
+### Step 7: 継続学習サイクル
+- **週次**: Data Engineering Weekly、dbt Blog、Google Cloud Blog (BigQuery/Dataflow)、Databricks Blog、Snowflake Medium、Airbyte Blog を5本以上レビュー
+- **月次**: BigQuery リリースノート精読、dbt Core / Cloud のchangelog確認、Fivetran/Airbyteの新コネクタ評価、Monte Carlo /Metaplane のベストプラクティス追従
+- **四半期**: Great Expectations / Soda Core の新機能評価、Dagster / Prefect の運用事例研究、BigQuery / Snowflake / Databricks の TCO 比較更新
+- **年次**: DAMA-DMBOK 改訂追従、ISO/IEC 27001 / 25012 の改訂確認、Google Cloud Next / dbt Coalesce / Data+AI Summit 視聴
+- **資格**: Google Cloud Professional Data Engineer / dbt Analytics Engineering Certification / Snowflake SnowPro Core を2年以内に全取得
+- **外部勉強会**: 「dbt Tokyo Meetup」「DataOps Night」「JAWS-UG Data」等に四半期で1回以上参加
+
+### Step 8: 競合比較・業界TOP5分析
+- **国内データエンジニアリング企業**:
+  - primeNumber (trocco): 国内発ETL SaaS、建設業中小向けプランの価格優位性
+  - BrainPad: 製造業・金融業のデータ基盤実績、BigQuery / Snowflake 両対応
+  - DATUM STUDIO: 中小企業向けデータ基盤、Looker / dbt / Fivetran の国内導入支援
+  - DATA Insight: dbt専門コンサル、小規模チーム向けの運用自動化
+  - Hakali / Nextbeat: スクレイピング特化、Playwright/Puppeteer運用知見
+- **海外ベンチマーク**:
+  - Databricks: Lakehouse / Delta Lake / Unity Catalog、オープンソース技術のリーダーシップ
+  - Snowflake: データクラウド、クロスアカウントデータ共有、Native Appsによる業種特化
+  - dbt Labs: Analytics Engineering ムーブメントのリーダー、Semantic Layer / Mesh
+  - Fivetran: ELT SaaSの最大手、500+コネクタ、Metadata API
+  - Monte Carlo: データオブザーバビリティの先駆者、Field-level lineage
+- **ベンチマーク手法**: 四半期ごとに1社の公開事例・GitHub repository を精読、自社パイプラインへの転用策を1件以上PR化
+
+### Step 9: 多段検証・品質ゲート
+1. **スキーマ検証**: Pydantic v2 / Pandera で取り込み時点のスキーマを機械検証、違反時は staging 層へ格納しない
+2. **件数テスト**: 下限・上限の両側バンド（前週同曜日比±30%、小規模社は絶対数±5件）
+3. **業務主キーuniqueテスト**: 全ファクトテーブル必須、違反時は該当日のパイプラインを失敗扱い
+4. **参照整合テスト**: `relationships` テストでディメンション参照の破綻を検出
+5. **フレッシュネステスト**: `dbt source freshness` を全ソースに設定、超過時は後続処理を停止
+6. **ゴールデン値突合**: 月初に管理画面値をスクリーンショット付きで記録、集計値と差分0確認
+7. **noriリーガルチェック**: robots.txt / 利用規約準拠、個人情報取扱い、海外クライアントのデータ越境
+8. **sora QA**: パイプライン変更PR時にsoraが「テスト合格・ドキュメント更新・ロールバック手順」3項目を機械確認
+9. **DRテスト**: 四半期ごとに「主要パイプラインを意図的に落として復旧できるか」のDRドリル実施
+
+### Step 10: 2026年新技術・レギュレーション対応
+- **改正個人情報保護法（2026年改正版）**: 保有個人データの開示請求フロー整備、仮名加工情報の運用規程、第三者提供同意管理DB
+- **仮名加工情報・匿名加工情報**: 分析用途は仮名加工情報、外部共有・公開は匿名加工情報の二層構造を標準化
+- **EU AI Act**: 高リスクAI判定のための自動意思決定フラグ機能を実装、人の判断を介在させるワークフローを強制
+- **CCPA/CPRA**: 米国居住者データ区分、オプトアウト要求への対応SOP
+- **個人関連情報取り扱い指針**: GA4 Consent Mode v2 対応、Cookie同意状況のBigQuery反映、同意拒否ユーザー行の分析除外ロジック
+- **生成AI活用の透明性開示**: ETLドキュメント・リリースノートでAI生成部分を明示、AI生成コードは人のレビュー必須
+- **データサブジェクト・リクエスト**: 削除要求が来た場合に該当レコードを全テーブルから48時間以内に消去する GDPR/APPI 対応ワークフロー
+- **サプライチェーンセキュリティ**: Fivetran / Airbyte / dbt Cloud のSOC2レポート年次更新確認、サードパーティSaaSのリスクレジスタ管理
+- **データ主権**: すべてのクライアントデータは原則 asia-northeast1 (東京) または asia-northeast2 (大阪) に格納、海外リージョン利用は事前承認制
+
+### 成長指標
+- **12ヶ月後の到達点**:
+  - 7クライアント全社でAirwork→BigQuery→mart の自動ETLが99.5%以上の成功率で稼働
+  - dbt / Great Expectations / Monte Carlo を本番適用、データ品質テストの網羅率90%以上
+  - 新媒体連携のリードタイムが要件確定→本番3営業日以内
+  - 年次セキュリティ監査・DRドリル・ISO/IEC 27001ベースの自己評価を完了
+  - Google Cloud Professional Data Engineer / dbt Analytics Engineering Certification 取得
+- **24ヶ月後の到達点**:
+  - Semantic Layer（dbt Semantic Layer / Cube.dev）で指標の一元管理、全部署が同じ数値を参照
+  - リアルタイム処理（Pub/Sub + Dataflow）で応募発生から5分以内のAkariレポート即時更新
+  - 複数クライアント横断ベンチマーク基盤がHaruto戦略の中核データとして稼働
+  - データカタログ（DataHub / Atlan）でメタデータ・リネージ・オーナーシップが可視化
+  - 社外発表（dbt Coalesce / Google Cloud Next 日本）で建設業採用データ基盤の事例を公開

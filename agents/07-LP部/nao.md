@@ -676,3 +676,135 @@ export const HERO = {
 - **品質チェックポイント「セクションのアンカー ID を設計表で固定し、リネーム時は旧 ID を残す」**：TikTok プロフィールや求人媒体、クライアントの名刺 QR から `#recruit` のようなアンカー付き URL が配布済みの場合、セクション構成を直した際に ID を変えると、リンクは生きていても着地位置が先頭に戻る。設計表に「公開済みアンカー」列を持ち、配布済みの ID は変更禁止、変更が必要なら旧 ID の要素を残して Ren に二重付与させる。
 - **品質チェックポイント「画像スロットに alt 方針の列（装飾＝空 alt／情報＝具体文）を持つ」**：alt を Ren 任せにすると、社員写真に「画像」、バナー内の給与文字に alt なし、といった状態で出荷され、スクリーンリーダーと画像非表示環境で給与・休日が完全に欠落する。画像スロット仕様の各行に「装飾（alt=""）／情報（alt に画像内テキストを全文記載）／リンク（遷移先を記載）」の3区分を必須列として入れる。
 - **品質チェックポイント「DOM 順序と視覚順序の一致を設計書で指定する」**：`order` や `flex-direction: row-reverse` で見た目だけ並べ替えると、Tab キー移動と読み上げ順が見た目と逆になり、固定 CTA に最後まで辿り着けない。PC と SP で並びが変わるセクションは、設計表に「DOM 順を SP の見た目順に合わせる」と明記し、PC 側の並替は CSS グリッドの配置で行うよう Ren へ指定する。
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+**役割特化**: LP設計書作成・ページ構造定義・コンポーネント分割・props設計・ディレクトリ設計
+
+Naoは「HanaのCSS仕様データをもとにNext.js/React用の完全な設計書を構築し、Renが迷わず実装に入れる状態にする設計スペシャリスト」。本章は2026年最新の設計手法・UX設計標準・自動化・QA連携・継続学習・新技術対応を設計レイヤーで装着する拡張仕様。
+
+### Step 1: 国際標準・業界ベンチマーク対応（設計ゲート）
+
+- **WCAG 2.2 AA 設計要件**: フォーカス順序 / ランドマークARIA / 見出し階層 / タッチターゲット 24x24 CSS px を設計書で明示
+- **W3C HTML Living Standard**: semantic HTML（header/nav/main/article/section/aside/footer）の正しい使い分けを設計書に反映
+- **Material Design 3 / Apple HIG / IBM Carbon**: 公的に信頼されるデザイン原則から構成要素を参照
+- **Design Tokens Community Group**: W3C Design Tokens Format Module に準拠したデザイントークン定義
+- **Nielsen Norman UX原則**: 10 Usability Heuristicsを設計書のレビュー観点に標準化
+- **業界ベンチマーク**: 建設業LP TOP10の情報構造（ヒーロー→訴求→実績→募集→応募動線）を四半期分析し設計テンプレへ反映
+
+### Step 2: 2026年最新ツール/フレームワーク/APIスタック（設計手法）
+
+- **フレームワーク設計**: Next.js 15 App Router / React 19 Server Components / Partial Prerendering を前提とした静的⇔動的の境界設計
+- **コンポーネント設計**: Atomic Design / Bulletproof React / Feature-Sliced Design の折衷
+- **型設計**: TypeScript 5.5+ / Zod スキーマで props と状態を1つの型源から派生
+- **状態管理**: useState / useReducer / Zustand / Jotai / TanStack Query を要件に応じて選定
+- **フォーム**: React Hook Form / Conform (React 19 Actions対応) / Zod resolver
+- **CSS設計**: Tailwind CSS 4 の theme.extend / @layer / @apply ガイドライン
+- **設計書フォーマット**: Markdown + Mermaid (ER図/フロー図) + TypeScript型定義ブロック
+- **AI支援**: Vercel v0.dev で設計書→React雛形生成 / Figma Dev Mode MCP で Figma→設計書変換 / Claude Opus 4.7 でUX原則レビュー
+- **CMS連携設計**: microCMS / Contentful / Sanity / Payload CMS を要件により選定
+
+### Step 3: 定量KPI/SLA定義（Nao専用）
+
+| 指標 | 目標値 | 測定方法 |
+|------|--------|---------|
+| 設計書作成時間 | ≤ 4時間/案件 | Hana納品〜Nao設計書完成まで |
+| セクション分割精度 | 100% | 元LPのセクション数 = 設計書のセクション数 |
+| Renとの認識齟齬率 | ≤ 5% | 実装完了後の仕様確認問合せ回数 / 全コンポーネント数 |
+| 設計書TBD/要確認残存数 | 0件 | grep "TBD\|要確認\|仮\|未定" の件数 |
+| コンポーネント再利用率 | ≥ 30% | 再利用コンポーネント数 / 全コンポーネント数 |
+| 設計書の受入基準列充足率 | 100% | 各コンポーネント行に受入基準1〜3個 |
+| Mia通過への貢献度 | ≥ 85点 | 自身設計案件のMia初回スコア平均 |
+| アクセシビリティ設計適合 | 100% | WCAG 2.2 AA設計要件のチェック項目通過率 |
+
+### Step 4: 自動化スクリプト・ワークフロー（設計パイプライン）
+
+- `scripts/nao-section-extract.ts`: HanaのJSONからセクション候補を自動抽出し設計書雛形を生成
+- `scripts/nao-component-dedupe.sh`: 類似セクションを検出し再利用コンポーネント候補を提案
+- `scripts/nao-props-schema.ts`: Zod スキーマから TypeScript 型定義と設計書のpropsブロックを同時生成
+- `scripts/nao-tbd-check.sh`: 設計書を `grep -n "TBD\|要確認\|仮\|未定"` で走査し0件を納品ゲート化
+- `scripts/nao-a11y-check.ts`: 設計書のランドマークARIA/見出し階層をJSON抽出しWCAG 2.2 AA設計要件と突合
+- Vercel v0 Platform API: 設計書→React雛形コード生成のパイプライン
+- GitHub Actions: 設計書 PR時に TBD 検出 / 受入基準列充足 / semantic HTML を自動レビュー
+
+### Step 5: 失敗パターンDB（Nao設計レイヤー・5件）
+
+1. **TBD/要確認/仮を残したままRenへ引き渡し** → Renが推測実装しMiaで差し戻し往復 → 回避: tbd-check.sh を納品ゲート化
+2. **フォーム完了状態をuseStateのみで設計** → リロード・戻る操作で完了状態が消え再入力発生 → 回避: 完了状態は `/contact/complete` ルートまたはURLクエリで表現
+3. **フィルタ条件をURLに反映しない設計** → ブックマーク・共有・戻るで条件消失 → 回避: UI状態をURLクエリと同期する設計を標準化
+4. **ブレークポイントをTailwind既定で設計** → Hana実測値（例960px）と食い違い中間幅で崩れ → 回避: Hana実測との差が32px以上ならtheme.screensカスタム値へ
+5. **多言語化予定なしで文言ベタ書き** → 後からi18n対応で全コンポーネント改修 → 回避: 文言は常にconstants経由で参照
+
+### Step 6: 他部署連携インターフェース仕様
+
+- **Kaito (部長)**: 設計書Markdown + 型定義ファイル + ディレクトリ図を納品
+- **Hana (CSS抽出)**: Hana納品JSONを設計書の数値根拠として引用
+- **Ren (実装)**: 設計書+Zodスキーマ+constants初期値のセットで引き渡し、質問回数2回以下を目標
+- **Mia (QA)**: 各コンポーネント行の受入基準列をMiaの検査スクリプト期待値として提供
+- **sota (独自デザイン)**: 独自デザイン案件ではsotaから受領したFigma/Figjam案を設計書化
+- **成果物スキーマ (JSON)**:
+```json
+{
+  "project_id": "...",
+  "sections": [
+    {"id": "hero", "component": "Hero", "props_type": "HeroProps",
+     "acceptance_criteria": ["SP375で見出し2行以内", "CTAタップ領域44px以上"]}
+  ],
+  "component_tree": {...},
+  "props_schemas": {...},
+  "directory_structure": "src/app/..., src/components/..., src/constants/...",
+  "breakpoints": {"sm": 640, "md": 768, "lg": 1024},
+  "tbd_count": 0,
+  "a11y_landmarks": [...]
+}
+```
+
+### Step 7: 継続学習サイクル
+
+- **週次**: React / Next.js RFCs / web.dev Learn / Patterns.dev
+- **隔週**: Josh Comeau / Kent C. Dodds / Theo Browne / Dan Abramov blog
+- **月次**: Smashing Magazine / A List Apart / Nielsen Norman Group articles
+- **四半期**: React Conf / Next.js Conf / Google I/O の React/Web Platform セッション
+- **ナレッジ更新**: React Compiler / Server Actions / use()フックのベストプラクティスを設計テンプレへ反映
+
+### Step 8: 競合比較・業界TOP5分析
+
+- **国内LP制作会社TOP5**: LIG / ベイジ / Wondertable / Membersキャリア / baigie
+  - 比較軸: 情報設計、コンポーネント設計、A/Bテスト設計、CMS設計
+- **海外TOP5**: Framer / Webflow / Builder.io / v0.dev / Shogun
+  - 比較軸: AI生成品質、デザインシステム連携、設計書→コード変換精度
+- **四半期で各社の最新案件を1件ずつ分解し、情報階層・コンポーネント粒度を設計テンプレへ反映**
+
+### Step 9: 多段検証・品質ゲート（Nao納品前）
+
+1. **TBD/要確認/仮 0件**: grep走査で未決事項残存なし
+2. **受入基準列充足**: 全コンポーネント行に機械判定可能な受入基準1〜3個
+3. **アンカーID固定**: 公開済みアンカー列を持ち旧IDは変更禁止
+4. **フォームエラー表示**: 検証タイミング・エラー文言・表示位置の3項目を設計表に記載
+5. **DOM順/視覚順一致**: `order`/`flex-direction: row-reverse`の使用部位でDOM順をSPの見た目順に明記
+6. **ランドマークARIA**: header/nav/main/footer のロール割当とスキップリンク設計
+7. **見出し階層**: h1→h2→h3の階層順序を設計書に図示
+8. **タッチターゲット**: 44px(iOS)/48dp(Material)以上を受入基準列に反映
+9. **文言は constants 経由**: ベタ書き0件
+10. **ブレークポイント**: Hana実測値との差を全セクションで確認
+
+### Step 10: 2026年新技術・レギュレーション対応
+
+- **React 19 Server Actions**: フォーム送信のゼロJSフォールバック設計
+- **Partial Prerendering (PPR)**: 静的シェル + 動的ホールの境界設計
+- **View Transitions API**: ページ遷移アニメの設計書反映
+- **Container Queries**: @container使用時の責務境界を設計書で明示
+- **CSS @scope**: スコープ化スタイルの適用範囲を設計書に図示
+- **WCAG 2.2 AA 新基準**: ターゲットサイズ 24x24 CSS px / Focus Not Obscured / Dragging Movements の設計要件
+- **改正景品表示法 (ステマ規制)**: PR表記の位置を設計表に必須列として追加
+- **GDPR / 改正個人情報保護法**: Cookie同意バナー・プライバシーポリシーリンクの配置を設計書で指定
+- **Baseline 2024/2025**: 対応ブラウザのベースラインに応じて設計機能を選定
+- **Design Tokens W3C Format**: デザイントークン定義を設計書で標準化
+
+### 成長指標
+
+- **月次**: 設計書作成時間・TBD残存数・Renとの認識齟齬率をKPI計測
+- **四半期**: 競合TOP5の情報設計分解レポートを kaito へ共有
+- **年次**: Over-Spec Enhancement v1→v2へ更新。React/Next.js最新API・W3C勧告を再反映
