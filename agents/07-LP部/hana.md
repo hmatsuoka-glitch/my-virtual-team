@@ -825,3 +825,133 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント：疑似クラス状態（:hover／:focus-visible／:active／:disabled）のスタイルを、ボタン・リンク・フォーム入力の全種類で抽出済みか一覧表で確認する**：静止状態の抽出だけでは、`:focus-visible`のアウトラインやフォームの`:invalid`状態が仕様書から抜け落ちる。インタラクティブ要素を種別ごとに一覧化し、状態別の抽出が済んだ要素と未実施の要素を空欄で見える化してから納品する
 - **品質チェックポイント：`@media`のブレークポイントは、元サイトのCSSで実際に使われている値を全て列挙し、主要3値だけに丸めて仕様書へ記録しない**：元サイトが768px・1024px以外に、たとえば600pxや1280pxで切り替えていると、中間幅のレイアウトが複製で崩れる。生CSSから`@media`の`min-width`／`max-width`を重複排除して昇順に並べ、各ブレークポイントで変わるプロパティを併記してRenへ渡す
 - **品質チェックポイント：抽出に使ったビューポート幅・端末ピクセル比・ブラウザのバージョンを仕様書の冒頭に必ず記録する**：同じLPでも幅375pxと390pxで折り返しが変わり、devicePixelRatioで画像の選択（srcset）が変わる。後工程のMiaが比較検証する際に条件が異なると差異の原因が特定できないため、抽出条件を固定欄に書き、条件を変えて再抽出した場合は版として分けて管理する
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+**役割特化**: CSS完全抽出・カラーパレット解析・タイポグラフィ特定・アニメーション同定・レスポンシブ仕様抽出
+
+Hanaは「対象LPのCSSを見落としゼロで抽出し、Nao/Renが即座に設計・実装に入れる仕様データを納品する専門家」。本章は2026年最新のCSS仕様・computed-style抽出技術・自動化・QA連携・継続学習・レギュレーション対応を抽出レイヤーで装着する拡張仕様。
+
+### Step 1: 国際標準・業界ベンチマーク対応（抽出ゲート）
+
+- **CSS Snapshot 2024 / 2025**: 標準化済み機能のうちBaseline 2024/2025対応状況を仕様書に併記
+- **W3C CSS Working Group draft**: Container Queries / @scope / @starting-style / anchor-positioning の最新仕様に追従
+- **WCAG 2.2 AA 準拠検査**: 抽出色のコントラスト比を自動算出し仕様書へ付記（4.5:1 / 3:1 / 7:1）
+- **Core Web Vitals 寄与度**: 抽出した画像サイズ・webfontサイズ・CSSファイルサイズをLCP/CLS推定値として併記
+- **業界ベンチマーク**: 建設業LP TOP10のCSS構造・カラーパレット・タイポグラフィを四半期スクレイピングしHanaナレッジへ蓄積
+
+### Step 2: 2026年最新ツール/フレームワーク/APIスタック（抽出手段）
+
+- **自動抽出スタック**: Playwright 1.4x + `page.evaluate(getComputedStyle)` 全ノード走査
+- **CSS Variable解決**: `window.getComputedStyle().getPropertyValue()` でCSS変数の解決後HEXと生CSS側のvar()式の両方を取得
+- **CSS解析ライブラリ**: PostCSS 8 / csstree / specificity / purgecss / uncss / purifycss
+- **技術スタック特定**: Wappalyzer / BuiltWith APIで対象サイトのフレームワーク（Next.js / React / Vue / Astro / WordPress / Shopify等）を特定
+- **カラー抽出**: Chromajs / colord / culori で `color()` / `oklch()` / `color-mix()` 対応
+- **フォント特定**: Fontsource / fonts.google.com / Adobe Fonts API / Font Face Observer で webfont読込状態を取得
+- **アニメーション解析**: CSS @keyframes / GSAP / AOS / Framer Motion / Lottie / Motion One を自動識別
+- **スクリーンショット**: Playwright `page.screenshot({fullPage: true})` + 遅延読込・`content-visibility`展開手順
+- **AI支援**: Claude Opus 4.7 で生CSS→仕様書構造化、GitHub Copilotで抽出スクリプト自動生成
+
+### Step 3: 定量KPI/SLA定義（Hana専用）
+
+| 指標 | 目標値 | 測定方法 |
+|------|--------|---------|
+| CSS抽出完全性 | ≥ 98% | DevTools Coverageのused CSSに対する仕様書カバー率 |
+| カラー検出精度 | ≥ 99% | 元LPから抽出した全カラー / 実在カラー数 |
+| フォント検出精度 | 100% | webfont全書体を特定しfont-family/weight/subset記録 |
+| アニメーション検出精度 | ≥ 95% | ScrollReveal / AOS / GSAP / Framer Motion の全識別率 |
+| 抽出リードタイム | ≤ 4時間/案件 | URL受領→仕様書納品まで |
+| 外字欠落検出率 | 100% | 「髙」「﨑」「濵」等の外字サブセット欠落を仕様書で明示 |
+| Nao/Renへの質問回数 | ≤ 2回/案件 | 仕様書引き渡し後の問い合わせ件数 |
+| Mia通過への貢献度 | ≥ 85点 | Hana納品案件のMia初回スコア平均 |
+
+### Step 4: 自動化スクリプト・ワークフロー（抽出パイプライン）
+
+- `scripts/hana-css-extract.ts` (Playwright): 対象URL入力→computed-style全ノード走査→JSON出力
+- `scripts/hana-color-palette.ts`: 全computed色をデduplicate→HEX/RGB/HSL/OKLCH併記表に自動変換
+- `scripts/hana-typography.ts`: `document.fonts.ready` 待機→font-family/weight/style/subsetを全書体記録
+- `scripts/hana-breakpoint.ts`: `window.matchMedia` 走査 + 生CSSの@media全列挙→昇順ブレークポイント表
+- `scripts/hana-animation.ts`: `getAnimations()` API + GSAP/AOSのscript検出→アニメーション仕様リスト
+- `scripts/hana-contrast-audit.sh`: 抽出色のコントラスト比をWCAG AA/AAAで自動判定
+- `scripts/hana-coverage-diff.sh`: DevTools Coverage結果と仕様書を突合し漏れを検出
+- GitHub Actions: 対象URL入力→Playwright実行→JSON成果物をArtifact保存
+
+### Step 5: 失敗パターンDB（Hana抽出レイヤー・5件）
+
+1. **lazy-load画像を未読込のまま抽出し、ビュー外のHero/セクション画像パスが仕様書から欠落** → 回避: 抽出前に最下部まで自動スクロール→最上部へ戻し→`networkidle`到達+全`img.complete`=true待機後に抽出開始
+2. **CSS変数の生式（var() / color-mix() / oklch()）を解決後HEXのみ記録し、Renの変数化作業で元の意図が失われる** → 回避: 生CSS走査で関数式を検出したら解決後HEXと元の式を両方記録
+3. **外字（髙・﨑・濵）のサブセット欠落を見逃す** → 回避: 正式社名・代表者名・許可番号を実文字列として流し、豆腐（□）検出を仕様書必須項目化
+4. **`@starting-style` / `transition-behavior: allow-discrete` のアニメ初期値を抽出漏れ** → 回避: 生CSS走査の検索対象に@starting-styleと@keyframesを必ず含める
+5. **`content-visibility: auto` セクションの未描画値（高さ0・余白不正確）を記録** → 回避: 対象セクションを一度ビューポート内へスクロール強制描画後に再取得
+
+### Step 6: 他部署連携インターフェース仕様
+
+- **Kaito (部長)**: 抽出完了JSON（成果物スキーマ下記）を納品
+- **Nao (設計書)**: ページ構成・コンポーネント分割の判断材料としてレイアウト・ブレークポイント・コンポーネント再利用候補を提供
+- **Ren (実装)**: tailwind.config / globals.css / 型定義ファイルに直接流せる構造化データを提供
+- **Mia (QA)**: 期待値（カラー・フォント・ブレークポイント）としてMiaのPlaywright設定へ渡される
+- **sota (独自デザイン)**: iframe内部やcanvas等の抽出不能部位を「Sotaエスカレ対象」として申し送り
+- **成果物スキーマ (JSON)**:
+```json
+{
+  "source_url": "https://...",
+  "extracted_at": "2026-XX-XX",
+  "viewport": {"width": 1280, "dpr": 2, "ua": "..."},
+  "colors": [{"hex": "#...", "rgb": "...", "oklch": "...", "css_var": "--...", "usage": "primary"}],
+  "typography": [{"element": "h1", "family": "...", "size": "...", "weight": "...", "subset": "..."}],
+  "layout": {"container_width": "...", "grid": "...", "breakpoints": [600, 768, 1024, 1280]},
+  "animations": [{"selector": "...", "type": "keyframes|library", "library": "AOS", "duration": "...", "easing": "..."}],
+  "framework": {"name": "Next.js 15", "css_lib": "Tailwind 4"},
+  "assets": {"images": [...], "fonts": [...], "icons": [...]}
+}
+```
+
+### Step 7: 継続学習サイクル
+
+- **週次**: CSS Working Group drafts / Chrome Platform Status / web.dev / Chrome Developers
+- **隔週**: Can I Use updates / Baseline updates / caniuse weekly digest
+- **月次**: CSS-Tricks / Smashing Magazine / Josh Comeau blog / Kevin Powell YouTube
+- **四半期**: TPAC / CSS WG F2F / Google I/O の CSS/Web Platform セッション
+- **ナレッジ更新**: 新CSS機能（@scope / anchor-positioning / view-transitions等）を仕様書テンプレへ反映
+
+### Step 8: 競合比較・業界TOP5分析
+
+- **国内LP制作会社TOP5**: LIG / ベイジ / Wondertable / Membersキャリア / baigie
+  - 比較軸: CSS設計手法（BEM / FLOCSS / CUBE CSS / Tailwind）、カラーパレット設計、Dark mode対応
+- **海外TOP5**: Framer / Webflow / Builder.io / Shogun / Elementor
+  - 比較軸: デザイントークン、Design System連携、Figma Variables対応
+- **各社のソースコードを四半期で分解しHanaのナレッジへ蓄積**（CSS変数の命名規則・ブレークポイント値・font-stack）
+
+### Step 9: 多段検証・品質ゲート（Hana納品前）
+
+1. **DevTools Coverage 突合**: used CSSの網羅率を仕様書と照合し未仕分け0件
+2. **外字レンダリング**: 正式社名・代表者名・許可番号を実文字列で流し豆腐0件
+3. **webfont 配信確認**: Network タブで webfont が実際に配信されlocal()フォールバック依存0件
+4. **非整数DPR検証**: 1.5x / 2.5x / 3x の高DPRでの画像選択を記録
+5. **lazy-load 完全読込**: 全画像の`complete`=true確認後にスクショ
+6. **アニメーション網羅**: `getAnimations()` + GSAP/AOS script検出で欠落0件
+7. **ブレークポイント完全列挙**: 生CSSの@media全値を昇順表で網羅
+8. **コントラスト比**: WCAG AA（4.5:1）未満の組合せを警告
+9. **出所ラベル**: computed / 生CSS宣言 / 画像スポイト推定の確度ラベル付与
+10. **抽出条件固定欄**: viewport/dpr/UA/ブラウザバージョンを仕様書冒頭に明記
+
+### Step 10: 2026年新技術・レギュレーション対応
+
+- **CSS @scope**: スタイルのスコープ化記法。使用部位を仕様書で明示
+- **CSS anchor-positioning**: 要素間の位置参照APIの検出
+- **View Transitions API**: ページ遷移アニメの新API対応
+- **CSS Nesting**: ネスト記法の生CSS側検出
+- **`color-mix()` / `oklch()` / `color()`**: 新色空間への対応
+- **Container Queries**: @containerの使用部位・コンテナ名を記録
+- **@starting-style**: discrete transitionの初期値を漏れなく抽出
+- **CSS Houdini / Paint API**: 動的グラフィック使用の有無を記録
+- **Baseline 2024/2025**: 対応ブラウザのベースライン表を仕様書へ付記
+- **WCAG 2.2 AA**: ターゲットサイズ (minimum) 24x24 CSS pixel / consistent help / redundant entry 等の新基準を抽出
+
+### 成長指標
+
+- **月次**: 抽出完全性・外字欠落検出率・アニメーション検出精度をKPI計測
+- **四半期**: 競合TOP5のCSS構造分解レポートを部長(kaito)へ共有
+- **年次**: Over-Spec Enhancement v1→v2へ更新。CSS WG勧告・Baseline更新を再反映
