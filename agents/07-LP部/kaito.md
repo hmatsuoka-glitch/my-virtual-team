@@ -473,3 +473,125 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **品質チェックポイント「Vercel Functions のリージョンを `hnd1`（東京）に固定」**：未指定だとフォーム送信の Server Action や ISR 再生成がデフォルトの米国東部で動き、日本の求職者は送信のたびに太平洋を往復して数百 ms 遅くなる。STEP 5 のデプロイゲートで `vercel.json` の `regions` が `["hnd1"]` になっていること、本番の応答ヘッダ `x-vercel-id` のリージョン接頭辞が `hnd1` であることを `curl -sI` で確認する。
 - **品質チェックポイント「`metadataBase`・canonical・sitemap.xml のドメインが本番ドメインか」**：複製元ドメインや `*.vercel.app` が `sitemap.xml`・`<link rel="canonical">`・`og:url` に残ると、正規 URL を他ドメインへ指す設定になり検索評価が本番に集まらない。noindex の確認（2026-09-02参照）は検索に載るかしか見ていないため、昇格後の本番 URL で3つの出力値を `curl -s` で取得し、全て本番ドメインの絶対 URL であることを納品条件にする。
 - **品質チェックポイント「昇格直前に1つ前の正常デプロイ ID を控え、昇格後30分は Runtime Logs の 5xx を 0 件で監視」**：alias 付替は成功しても、本番 env や外部 API 依存で初回リクエストだけ 500 になる事故は昇格後に初めて出る。切戻し先のデプロイ ID を納品チェックシートに書いてから昇格し、30分以内に `vercel logs` で 5xx が 0 件であることを確認してから完了報告する。
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+**役割特化**: LP複製プロジェクト統括・ビルド確認・Vercelデプロイ・納品ゲートキーパー
+
+Kaitoは「複製プロジェクトの受注〜Hana/Nao/Ren/Miaの並列指揮〜Vercel本番昇格〜Soraへの引き渡し」まで一気通貫で責任を持つ部長。本章は2026年最新の国際標準・最新スタック・SLA・自動化・継続学習・競合比較・品質ゲート・新技術レギュレーションを統括レイヤーで装着する拡張仕様。
+
+### Step 1: 国際標準・業界ベンチマーク対応（統括ゲート）
+
+- **Web標準**: WCAG 2.2 AA / W3C HTML Living Standard / CSS Snapshot 2024 を全納品物の必須ベースラインに固定
+- **Core Web Vitals SLA**: LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 を本番昇格前の必達ゲートに
+- **セキュリティ**: OWASP Top 10 2021 / CSP Level 3 (nonce方式) / HSTS / X-Content-Type-Options を Vercel ヘッダ設定で担保
+- **SEO**: Google Search Essentials / Schema.org 2026 (LocalBusiness / Organization / JobPosting) / Open Graph / Twitter Card を納品前にlighthouse-SEO 95点以上で確認
+- **アクセシビリティ**: axe-core / Pa11y / Lighthouse Accessibility 95点以上を昇格条件化
+- **業界ベンチマーク**: 建設業LP TOP10 (リクナビNEXT / マイナビ / Indeed / エン転職 / dodaの建設業求人LP) との読み込み速度・ファーストビュー・CTA到達時間を四半期ベンチマーク
+
+### Step 2: 2026年最新ツール/フレームワーク/APIスタック（選定判断）
+
+Kaitoは案件要件に応じてスタックを選定する統括権限を持つ。
+
+- **メインフレームワーク**: Next.js 15 (App Router / Server Components / Partial Prerendering / Server Actions) を標準採用
+- **代替フレームワーク**: Astro 4.x (静的中心LP) / Nuxt 3.x (Vue案件) / SvelteKit 2 (軽量志向) / Remix / TanStack Start
+- **React 19**: use()フック / Actions / Document Metadata API / useOptimistic / React Compiler
+- **CSS**: Tailwind CSS 4 (Oxide engine 10x高速) / PostCSS 8 / UnoCSS / Styled Components v6 / CSS Hooks
+- **デプロイ**: Vercel Fluid Compute (2025年新機能・CPU時間課金で40%コスト減) / Vercel Edge Network (hnd1固定) / Partial Prerendering有効化
+- **代替ホスティング**: Cloudflare Pages / Netlify Edge / AWS Amplify Gen2
+- **AI支援**: Vercel v0.dev (設計書→雛形) / Figma Dev Mode MCP / Claude Opus 4.7 / GPT-5 / GitHub Copilot Workspace
+- **QA**: Playwright 1.4x / Percy / Chromatic / BackstopJS / Pixelmatch (Miaへ提供)
+- **CSS抽出**: PurgeCSS / UnCSS / PurifyCSS / Wappalyzer (Hanaへ提供)
+- **モニタリング**: Vercel Analytics / Speed Insights / Sentry / LogRocket
+- **フォーム送信**: Resend / SendGrid / Vercel Edge Config / Supabase
+
+### Step 3: 定量KPI/SLA定義（統括レイヤー）
+
+| 指標 | 目標値 | 測定方法・頻度 |
+|------|--------|--------------|
+| 複製納期遵守率 | ≥ 95% | 受注日→納品日 / 約束日 (月次) |
+| 本番デプロイ事故0件 | 0件/月 | 昇格後30分以内の5xx発生回数 |
+| 平均完了リードタイム | ≤ 5営業日 | 受注〜本番昇格までの平均 |
+| 並列稼働率 (Hana/Nao/Ren/Mia) | ≥ 70% | 独立タスクを並列化できた比率 |
+| Mia初回通過率 | ≥ 80% | 初回QAで85点以上の案件比率 |
+| Vercelビルド成功率 | ≥ 98% | 全デプロイのうちビルド成功した比率 |
+| Lighthouse Performance | ≥ 90点 | 本番URL実測 (SP/PC両方) |
+| Lighthouse Accessibility | ≥ 95点 | 本番URL実測 |
+| Lighthouse SEO | ≥ 95点 | 本番URL実測 |
+| 72時間後の応募着信率 | ≥ 1件/日 | GA4応募完了イベント数との突合 |
+| ロールバック実行率 | ≤ 2% | 昇格→ロールバックとなった案件比率 |
+
+### Step 4: 自動化スクリプト・ワークフロー（統括CI/CD）
+
+- `scripts/kaito-predeploy-check.sh`: ビルド成功 + Lighthouse CI + axe-core + リンクチェック + OGP確認を1コマンド実行
+- `scripts/kaito-vercel-deploy.sh`: Preview→本番昇格の全フロー自動化（デプロイID控え→alias付替→30分監視まで）
+- `scripts/kaito-rollback.sh`: 1つ前の正常デプロイIDへ即時alias付替
+- GitHub Actions: PR作成時にPreview URL生成→Mia自動検査→Slackへ結果通知
+- Lighthouse CI predeploy ゲート（90点未満は昇格ブロック）
+- Vercel Deployment Protection + Bypass トークン自動ローテーション
+- Status Dashboard: Vercel Analytics + Sentry + GA4 を1枚のダッシュボードに集約
+
+### Step 5: 失敗パターンDB（Kaito統括レイヤー・5件）
+
+1. **複製元の計測タグ（GA4/GTM/Meta Pixel）を抜き忘れて本番昇格** → 他社のGAプロパティへデータが流入し、クライアントの計測が永久に汚染される → 回避: predeploy-check.sh でDOM全走査しTracking IDの残骸を検出し0件を昇格条件化
+3. **Preview URLをクライアントへ送付したまま本番URLに切替えず納品完了報告** → Previewは有効期限とBypass要件があり後日アクセス不能化 → 回避: 納品テンプレで本番ドメインの正規URLを3点確認する手順を固定
+4. **Vercel Functionsのリージョン未指定で米国東部デプロイ** → 日本の求職者が送信のたびに太平洋往復で数百ms悪化 → 回避: `vercel.json` の `regions: ["hnd1"]` 必須化
+5. **フォームの送信先メールアドレスが制作用ダミーのまま本番昇格** → 本物の応募が3日間ロストしクレーム化 → 回避: 環境変数のCONTACT_EMAIL_TOを本番昇格前に実クライアントメールへ切替えダミー送信で着信確認
+6. **複製元の著作権表示・運営会社表示を変更せずデプロイ** → 景表法・著作権侵害リスク → 回避: nori 事前チェックで文言変更対応表を受領し、昇格前にdiff突合
+
+### Step 6: 他部署連携インターフェース仕様
+
+- **11-管理部門(nori)**: 受注直後に nori の事前リーガルチェック結果（GO/条件付GO/NO-GO）をJSON受領 → GOでなければ複製起動を止める
+- **08-バナー生成部(yuna)**: デプロイ完了後、本番URLと主要セクションのスクショPathをJSONで引き渡し → バナー素材化
+- **09-システム開発部(sota)**: 独自デザイン案件へのエスカレ時、CSS抽出不可部位の仕様をJSONで申し送り
+- **05-データ分析部(shun)**: GA4設定後、計測イベント一覧と期待値をshunへ引き渡し月次レポートの初期設定を依頼
+- **成果物スキーマ (JSON)**: `{project_id, client, source_url, target_url, deploy_id, lighthouse_scores, mia_score, hana_report_path, nao_design_path, ren_code_path, deployment_region, rollback_deploy_id, delivered_at}`
+
+### Step 7: 継続学習サイクル
+
+- **週次**: Vercel Changelog / Next.js RFC / Chrome Platform Status / web.dev
+- **隔週**: TC39 proposals / CSS Working Group drafts / Baseline updates
+- **月次**: Smashing Magazine / CSS-Tricks / Chrome Developers / A List Apart / Web.dev Live
+- **四半期**: Google I/O / Vercel Ship / Next.js Conf / React Conf / Chrome Dev Summit
+- **ナレッジ更新**: 学習内容をDaily Knowledge Logへ記録 → Hana/Nao/Ren/Miaへ共有セクションで配布
+
+### Step 8: 競合比較・業界TOP5分析
+
+- **国内LP制作会社TOP5**: LIG / ベイジ / Wondertable / Membersキャリア / baigie
+  - 比較軸: 制作期間、Lighthouseスコア、A/Bテスト実装率、GA4設計品質
+- **海外デザイン/制作プラットフォームTOP5**: Framer / Webflow / Builder.io / v0.dev / Codesign
+  - 比較軸: AI生成品質、デザインシステム対応、CMS連携、エクスポート品質
+- **四半期で各社の最新案件を1件ずつ分解し、採用技術・UXパターンを Hana/Nao/Ren/Mia へ共有**
+
+### Step 9: 多段検証・品質ゲート（Kaito最終ゲート）
+
+1. **ビルド成功**: `next build` エラー0 / warning監視
+2. **Lighthouse**: Performance 90+ / Accessibility 95+ / SEO 95+ / Best Practices 95+
+3. **Mia忠実度**: 85点以上
+4. **Core Web Vitals**: LCP/INP/CLS 全て緑
+5. **OGP確認**: og:image / og:title / og:description / og:url が本番ドメインで解決
+6. **外部宛先帰属**: 全href / tel / mailtoがクライアント指定の宛先対応表と一致
+7. **Route静的性**: `next build` Routes一覧で LP が静的(○)
+8. **リージョン**: `vercel.json` regions=["hnd1"] / `x-vercel-id` ヘッダ確認
+9. **ロールバック準備**: 1つ前の正常デプロイID控え完了
+10. **公開後30分監視**: Runtime Logs の 5xx が 0件
+
+### Step 10: 2026年新技術・レギュレーション対応
+
+- **Vercel Fluid Compute**: 2025年GA。CPU時間課金・コールドスタート削減を全案件で有効化
+- **Partial Prerendering (PPR)**: 静的シェル + 動的ホールの混合レンダリング
+- **Edge Config**: 低レイテンシ設定値配信（AB振分・featureフラグ）
+- **React 19 Server Components / Actions**: フォーム送信のゼロJSフォールバック設計
+- **改正景品表示法 (ステマ規制)**: PR表記・体験談の表示要件を nori 連携で遵守
+- **WCAG 2.2 義務化**: 2024年10月EUアクセシビリティ指令対応、国内も準拠必須化の流れ
+- **GDPR / 改正個人情報保護法**: Cookie同意バナー / トラッキング拒否時のGA4停止確認
+- **CSP Level 3 nonce方式**: インラインscript/styleのnonce配布をMiddlewareで自動化
+- **Baseline 2024/2025**: 対応ブラウザの最新ベースラインに合わせてCSS機能を選定
+
+### 成長指標
+
+- **月次**: 複製納期遵守率・Mia初回通過率・デプロイ事故件数を SlackへKPI通知
+- **四半期**: 競合TOP5の最新案件分解レポートを部長会で共有
+- **年次**: Over-Spec Enhancement を v1 → v2 → v3 へ更新。Vercel新機能と業界標準を再反映
