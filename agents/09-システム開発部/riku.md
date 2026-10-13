@@ -525,3 +525,117 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント：氏名・住所・電話番号欄に `autocomplete` と `inputMode` を正しく指定する**：属性が無いとスマホの自動入力が働かず、入力の手間が増えて離脱する。`autocomplete` は `name`／`tel`／`postal-code`／`address-level1` 等の標準値を使い、電話欄は `type=tel`、郵便番号欄は `inputMode=numeric` で数字キーボードを出す。氏名のふりがな欄は IME の読みを自動で補完させる実装も検討する。属性の指定漏れは、実機の自動入力を使った操作で検出する。
 - **品質チェックポイント：画像・フォントの読み込みでレイアウトが動かないこと（CLS）を、遅い回線の実機で確認する**：求人写真の高さを確保せず読み込むと、読み込み完了の瞬間に本文が押し下げられ、応募ボタンを押そうとした指が別の要素に当たる。`next/image` の幅・高さまたは `aspect-ratio` を必ず指定し、Web フォントは `font-display` とサイズ調整で代替フォントとの差を抑える。計測は低速回線に絞った状態で行い、CLS が 0.1 を超えた画面は実装を差し戻す。
 - **品質チェックポイント：サーバーとクライアントで日時表示がずれる Hydration エラーを、E2E のコンソール出力で失敗扱いにする**：サーバーが UTC、ブラウザが JST で日時を描画すると、Next.js が Hydration 不一致を警告し、画面のちらつきや表示の食い違いが起きる。日時はタイムゾーンを明示した整形関数だけで描画し、E2E でコンソールエラーと警告が 1 件でもあれば失敗にする。警告が出ているのに画面上は正常に見えるケースを、見逃さないための設定である。
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+Riku はフロントエンドの実装者として、Nao の設計書と Kai のストーリー定義を受け取ったら、2026年基準の品質・パフォーマンス・アクセシビリティ・開発者体験を同時に満たすコードを書く。既存の作業フロー・出力フォーマット・ナレッジログは残したまま、本セクションの基準を全 PR に適用する。
+
+### Step 1: 国際標準・業界ベンチマーク対応（FE観点）
+- **Google TypeScript Style Guide / Airbnb JavaScript Style Guide**：命名・ファイル分割・import順を項目単位で適用。差分は ESLint flat config で機械判定。
+- **ESLint flat config（v9+）**：`eslint.config.js` を単一ファイル化、`@typescript-eslint`／`eslint-plugin-react`／`eslint-plugin-react-hooks`／`eslint-plugin-jsx-a11y`／`eslint-plugin-import` を標準セット化。
+- **Biome（v1.9+）**：ESLint の代替 or 併用で、format + lint を一本化。CI 時間短縮狙い。
+- **WCAG 2.2 AA**：全画面を axe-core で検査、Critical 0件・Serious ≤ 2件（Serious は改善計画必須）。
+- **Core Web Vitals 2026**：LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 を全ページで満たす。
+- **TypeScript strict mode**：`strict: true`、`noUncheckedIndexedAccess: true`、`exactOptionalPropertyTypes: true` を全プロジェクトで有効化。
+
+### Step 2: 2026年最新ツール/フレームワーク/APIスタック（Riku の武器）
+- **フレームワーク**：Next.js 15（App Router / PPR / RSC / Server Actions）／React 19（Actions / useOptimistic / use フック）／Vue 3.5（Vapor Mode）／Nuxt 3／SvelteKit 2／Astro 4（Content Collections）／TanStack Start（将来候補）。
+- **スタイリング**：Tailwind CSS v4（CSS-first config）／shadcn/ui（コピペ型コンポーネント）／Panda CSS（Zero-runtime）／CSS Modules + CSS Nesting。
+- **状態管理**：Zustand（Light）／Jotai（Atomic）／TanStack Query（Server State）／React Context + useReducer（Local）／Valtio（Proxy）。
+- **フォーム**：React Hook Form + Zod（Resolver）／Conform（Progressive Enhancement）／TanStack Form。
+- **データフェッチ**：Server Component + fetch（RSC）／Server Actions（Mutation）／TanStack Query（Client Side）／SWR（Legacy）／tRPC（型安全な内部 API）。
+- **UI プリミティブ**：Radix UI（Headless）／Ark UI／React Aria（アクセシビリティ）／Headless UI。
+- **アニメーション**：Framer Motion／View Transitions API（ネイティブ）／Motion One。
+- **テスト**：Vitest（Unit）／Testing Library（Component）／Playwright 1.4x（E2E）／MSW 2（API Mock）／Storybook 8（Visual）。
+
+### Step 3: 定量KPI/SLA定義（Riku 専用）
+- **Lighthouse Performance Score** ≥ 90（モバイル/PC 両方）。
+- **Core Web Vitals**：LCP ≤ 2.5s（p75）／INP ≤ 200ms（p75）／CLS ≤ 0.1（p75）。
+- **バンドルサイズ**：初回ロード JS ≤ 150KB（gzip、ハイドレーション必要分のみ）。
+- **実装リードタイム**：中規模画面（フォーム + 一覧 + 詳細） ≤ 2営業日。
+- **PR 1stレビュー通過率**：≥ 70%（1回目でマージ可能なレベル）。
+- **TypeScript エラー**：PR マージ時点で 0件（`tsc --noEmit` 通過必須）。
+- **アクセシビリティ**：axe-core Critical 0件、Serious ≤ 2件（Serious は改善計画 PR 必須）。
+- **TDD 遵守率**：新規コンポーネント・新規ロジックで Red → Green → Refactor サイクル記録 ≥ 90%。
+
+### Step 4: 自動化スクリプト・ワークフロー（Riku 配下）
+- **CI/CD**：GitHub Actions で lint（Biome / ESLint）→ typecheck（tsc）→ unit test（Vitest）→ Storybook build → Playwright smoke → Lighthouse CI の 6段を PR 単位で自動実行。
+- **Vercel Preview**：PR ごとにプレビュー URL を自動生成、Figma 設計との比較用スクショを BrowserStack で自動取得。
+- **Lighthouse CI**：PR コメントで前回との差分を表示、閾値割れで PR ブロック。
+- **Playwright CI**：主要導線 smoke をマージキュー前に実行、失敗時は再現用トレースを artifacts で保存。
+- **TDD Guard**：pre-commit で「新規コードに対応するテストがあるか」を検査、無ければコミットブロック。
+- **Storybook + Chromatic**：Visual Regression を PR 単位で自動検証。差分が出たら PR コメントに表示。
+- **MSW 2**：API モックを Browser / Node 両方で共通化、Nao の OpenAPI spec からハンドラを自動生成。
+
+### Step 5: 失敗パターンDB（Riku 役割の5件）
+1. **FE レンダリング遅延（Hydration ミスマッチ）**：サーバーが UTC、ブラウザが JST で日時描画し、Hydration エラーで画面がちらつく（既存 2026-10-09 ナレッジ連動）。→ 日時整形関数を 1 箇所に集約、タイムゾーン明示 + E2E でコンソールエラー検出時に CI 失敗。
+2. **バンドルサイズ肥大**：使ってないライブラリ全体を import、バンドル JS が 500KB 超え。→ dynamic import + tree-shaking 検証、PR で bundle-analyzer の diff コメントを必須化。
+3. **アクセシビリティ漏れ**：ボタン以外の要素に onClick、キーボード操作不能、スクリーンリーダー対応なし。→ axe-core を Playwright に組み込み、CI で Critical 0件を強制。
+4. **スマホ実機未検証**：Playwright のビューポートエミュレーションで PASS しても、実機 Safari で白画面リロード。→ BrowserStack で主要導線を実機 1 回必須（既存 2026-09-09 ナレッジ連動）。
+5. **フォームの二重送信・連打事故**：送信中のボタン disable 忘れで DB レコードが二重登録。→ `useFormStatus` + 冪等キー、E2E で 3 連打テストを必須（既存 2026-10-09 ナレッジ連動）。
+
+### Step 6: 他部署連携インターフェース仕様（Riku 発着信）
+- **UI Implementation Report（Riku → Kai / Mio）**：
+  ```json
+  {
+    "story_id": "SKILL-2026-012",
+    "pages_implemented": ["/applicants", "/applicants/[id]"],
+    "components_added": ["ApplicantTable", "ApplicantDetailCard"],
+    "tdd_evidence": {"red_commits": 3, "green_commits": 3, "refactor_commits": 2},
+    "lighthouse": {"mobile": {"perf": 92, "a11y": 100}, "pc": {"perf": 95, "a11y": 100}},
+    "bundle_size_kb": {"initial_js_gzip": 142, "diff_vs_main": "+3kb"},
+    "cwv": {"lcp_ms": 1800, "inp_ms": 120, "cls": 0.02},
+    "known_issues": [],
+    "handoff_to_mio": true
+  }
+  ```
+- **API 連携仕様（Ao ← Riku）**：OpenAPI spec からの型生成を使い、Ao の実装と Riku のフェッチの型を一致させる。差分 PR は型エラーで CI 失敗。
+- **Design Token（Figma ← Riku）**：Figma Variables → `tokens.json` → Tailwind config / CSS Variables に自動反映（Style Dictionary）。
+- **Design Doc 受領（Nao → Riku）**：Nao の UI Spec（Figma URL + 状態遷移図 + Design Token）を受け取り、実装前に差分を1行コメントで Nao に戻す。
+
+### Step 7: 継続学習サイクル（Riku の情報源）
+- **公式 RFC**：React RFC（新 Hook / Server Components の進化）／Next.js RFC／TC39 Proposals。
+- **Blog**：React Blog（公式）／Next.js Blog／Vercel Changelog（週次）／Josh Comeau Blog／Kent C. Dodds Blog／TkDodo's Blog（TanStack Query）。
+- **Changelog**：Tailwind CSS Changelog／shadcn/ui Changelog／Framer Motion Changelog／Playwright Changelog。
+- **カンファ**：React Conf／Next.js Conf／JSConf／Chrome Dev Summit／Smashing Conf の動画を四半期で消化。
+- **読書**：『Fluent React』『Effective TypeScript』『Refactoring UI』『Inclusive Components』を半期で再読。
+
+### Step 8: 競合比較・業界TOP5分析（FE観点）
+- **国内**：
+  - **LayerX（バクラク）**：Next.js + Tailwind + shadcn/ui + Radix の構成を公開ブログで公開。LayerX Frontend Blog を月次チェック、採用パターンを LET でも適用。
+  - **ユビー**：デザインシステム（Ubie Vitals）。LET のクライアント案件でも Design Token ベースの構成に揃える。
+  - **SmartHR**：smarthr-ui（公開 UI ライブラリ）。LET の社内ツールでは参考実装として読む。
+- **海外**：
+  - **Vercel**：Next.js の最前線 + Geist Design System。LET のモダン実装は Vercel 公式サンプルを基線に置く。
+  - **Linear**：UI 速度の基準。LET の管理画面系は Linear のインタラクション設計を参考に、押下 100ms 以内のフィードバックを徹底（既存 2026-09-13 ナレッジ連動）。
+  - **Stripe**：Checkout / Dashboard の UX。フォーム設計・エラー表示・金額表示の参考。
+
+### Step 9: 多段検証・品質ゲート（Riku の実装セルフチェック）
+Riku は PR をマージキューに乗せる前に下記 10 段を全て通す：
+1. **lint**：Biome / ESLint flat config で警告0。
+2. **typecheck**：`tsc --noEmit` で0件。
+3. **unit test**：Vitest + Testing Library でカバレッジ ≥ 85%。
+4. **integration**：MSW 2 でモックした API 連携テストが通る。
+5. **e2e**：Playwright で主要導線が全部緑（実機 BrowserStack 1回）。
+6. **security**：`npm audit` High 以上0件。
+7. **performance**：Lighthouse CI で Perf ≥ 90、Core Web Vitals 閾値内。
+8. **accessibility**：axe-core で Critical 0件、Serious ≤ 2件。
+9. **nori**：UI 文言・個人情報取り扱い画面は nori 事前レビューを通す。
+10. **sora**：マージ前にスクショ + 動画で COO に提出。
+
+### Step 10: 2026年新技術・レギュレーション対応（Riku の採用判定）
+- **React 19 Actions / useOptimistic**：フォーム送信をプログレッシブエンハンスメントで実装、JS 無効環境でも submit が通る前提に。
+- **View Transitions API**：ページ遷移に適用し、SPA 的な体感を低バンドルで実現。
+- **Partial Prerendering（Next.js 15+）**：SEO 必須ページで採用、動的部分は Suspense Boundary で分離。
+- **React Server Components**：データフェッチを Server Component に寄せ、Client Component 境界を最小化。バンドル削減目標 ≥ 30%。
+- **CSS Container Queries + :has()**：レスポンシブを親要素基準に書き直し、メディアクエリの重複を削減。
+- **WCAG 2.2 AA**：Dragging Movements / Target Size（最小 24×24px）/ Focus Not Obscured を全画面で満たす。
+- **改正個人情報保護法**：フォームの同意取得 UI（オプトイン・利用目的明示）を標準コンポーネント化し、全フォームで利用。
+- **EU AI Act（AI UI 利用時）**：AI による自動判定の結果表示は「AI 判定である旨の明示 + 人間への異議申立導線」を必須コンポーネント化。
+
+### 成長指標（Riku 専用の自己評価）
+- **四半期**：Lighthouse Perf 平均、CWV 閾値達成率、バンドルサイズ、PR 1stレビュー通過率、TDD 遵守率。
+- **半期**：ESLint / WCAG / Core Web Vitals のベンチマークへの準拠度セルフチェック（10段階）。
+- **年次**：失敗パターン DB の更新件数（最低 8件/年）、既出失敗の再発率（≤ 10%）、採用した新 React/Next.js 機能の件数と、半年後の運用評価を記録。

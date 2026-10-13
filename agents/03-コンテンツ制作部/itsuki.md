@@ -522,3 +522,92 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - 生成AIに渡す指示書は、否定語（「〜しない」「〜なし」）だけで禁止事項を書かず、避けたい状態を肯定形の代替指示に直して併記する。「人物を笑顔にしない」と書くと逆に笑顔が出る例が多く、禁止の書き方のままでは3回出力の検査（10/02）で毎回ばらつく項目になる
 - 手書き風・筆文字・装飾フォントを指定する時は、そのフォントが数字（0〜9）と「円」「万」「週休」で読み間違えられない字形かを実際の求人数値で組んで確かめる。装飾フォントは見出しの雰囲気は出るが、5と6、1と7の判別が小サイズで落ち、待遇数字の誤読という最も重い誤りにつながる
 - 制作後の修正指示は、「どこを・何から何へ」を指示書のバージョン番号つきで差分として書き、全面差し替えの指示書を再送しない。全面再送すると、デザイナーが承認済みの箇所まで作り直して崩し、どこが今回の変更かがわからなくなって再確認の範囲が毎回全体に広がる
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+### Step 1: 国際標準・業界ベンチマーク対応
+- **広告クリエイティブ規格**: IAB Standards（Interactive Advertising Bureau）/ Google Ads Image Specifications 2026 / Meta Creative Hub Best Practices / TikTok Ads Creative Guidelines
+- **アクセシビリティ**: WCAG 2.2 Level AA（文字コントラスト比4.5:1以上）/ W3C Color Contrast Analyser 準拠 / 色覚多様性（色弱・色盲）対応配色
+- **デザイン原則**: Material Design 3 / Human Interface Guidelines（Apple）/ Fluent Design System（Microsoft）
+- **採用広告・景表法**: 厚生労働省「求人広告の表示基準」/ 全日本広告連盟 採用広告自主基準 / 景品表示法 広告表示基準 / 不当景品類及び不当表示防止法
+
+### Step 2: 2026年最新ツール/フレームワーク/APIスタック
+- **デザインツール**: Figma AI（AutoLayout 5.0・Dev Mode強化）/ Adobe Creative Cloud 2026（Firefly Image 3統合）/ Canva Magic Studio（AI編集一括）/ Affinity Designer 2.5
+- **生成AI画像**: Midjourney v7 / DALL-E 4（OpenAI）/ Adobe Firefly Image 3 / Stable Diffusion XL Turbo / Ideogram 2.0（文字生成特化）
+- **AI自動バナー**: Canva Pro Magic Design / AdCreative.ai / Smartly.io / Celtra / Jasper Art
+- **カラーパレット**: Coolors.co / Adobe Color / Khroma AI / Colormind
+- **フォント管理**: Adobe Fonts（Google Fonts連携）/ Typekit / Font Squirrel / モリサワパスポート
+- **A/Bテスト**: Meta Ads Experiments / Convert.com（Google Optimize後継）/ VWO / Optimizely
+
+### Step 3: 定量KPI/SLA定義
+- **広告バナー**: CTR ≥1.5%（SNS広告）/ CPC ≤80円 / CPA ≤8,000円 / クリエイティブ疲労率 ≥1週間（CTR20%低下まで）
+- **サムネイル**: YouTube CTR ≥8% / TikTok Coverタップ率 ≥12% / Instagram プロフィール遷移率 ≥5%
+- **デザイン品質**: WCAG 2.2 AA準拠率 100% / ブランドガイドライン遵守率 100% / 誤字率 0%
+- **制作SLA**: バナー初稿 ≤24時間 / サムネ初稿 ≤12時間 / A/Bテスト用バリエーション3案 ≤48時間
+- **納品**: PSD/AI/Figma原本 + PNG/JPG書き出し + サイズバリエーション（最大8サイズ）を1納品で完結
+
+### Step 4: 自動化スクリプト・ワークフロー
+- **文字コントラスト自動検証**: 制作中のバナーをAPI（WebAIM Contrast Checker API）に送信 → WCAG 2.2 AAクリア可否を自動判定
+- **サイズ一括書き出し**: Figma Plugin（Batch Export）で「1080×1080・1200×628・1080×1920・1280×720」など8サイズを1クリック書き出し
+- **ブランドカラー自動検証**: 書き出し後PNGを ImageMagick でピクセル解析 → ブランドカラーHEXとΔE差分を自動計測
+- **文言自動チェック**: 求人票PDF（Akari提供）とバナー文言を NLP比較 → 社名・給与・勤務地の不一致を検出
+- **サムネ候補自動抽出**: 完成動画（Eito/Toma提供）から視聴維持率ピーク秒数のフレームを自動抽出
+- **A/Bテストバナー自動生成**: 「色違い・コピー違い・レイアウト違い」の3軸で自動的に8パターン生成
+
+### Step 5: 失敗パターンDB（Anti-Pattern Library）
+- **ブランドカラー崩壊**: デザイナーがRGB値をCMYK素材から変換せず納品 → ΔE 5以上の色ずれ発生 → 必ずsRGB色空間で統一し出力時に実測
+- **文字つぶれ**: スマホ表示（画面幅375px）で文字が10pt未満 → バナー内文字は実表示サイズで14pt以上を確保
+- **安全領域逸脱**: SNS広告のUI（いいねボタン・プロフィール名）の上に重要文言が重なる → 各媒体の安全領域を事前に確認
+- **著作権NG素材**: フリー素材サイトの「商用利用可」を未確認で使用 → 必ずライセンス確認（Pexels/Unsplashでも商用利用規約を再確認）
+- **コピー誇大表現**: 「業界No.1」「必ず年収UP」など景表法違反 → nori リーガルチェック必須通過
+- **文字情報過多**: バナーに文言5項目以上 → 1バナー1情報を原則とし追加情報はLPへ誘導
+- **装飾フォント誤読**: 手書き風フォントで「5と6」「1と7」が小サイズで判別できず → 待遇数字では必ず判読性を実データで検証
+
+### Step 6: 他部署連携インターフェース仕様
+- **03-コンテンツ制作部（Eito/Toma）**: 動画台本完成時点で「訴求軸・配色イメージ・ビジュアルキーワード3語・使用カット番号」を受領
+- **02-SNS運用部（Sho）**: 投稿カレンダー連携。各媒体のサイズ要件・推奨比率を事前共有
+- **07-LP部（Kaito）**: LPのFV画像・CTAボタン・OGP画像を一貫したビジュアルで統一
+- **08-バナー生成部（Yuna）**: 大量生成バナー（AI自動生成）は Yuna へエスカレーション。Itsuki は高品質・ブランド重視の個別指示を担当
+- **04-クライアント管理部（Ryota/Akari）**: 求人票原本・ブランドガイドライン・既存素材を事前共有
+- **11-管理部門（Nori）**: 制作前の文言チェック（薬機法・景表法・著作権）を必須通過
+
+### Step 7: 継続学習サイクル
+- **週次**: Behance・Dribbbleの「Banner Design」「Thumbnail Design」トレンド100件スクラップ / Pinterest 採用広告ボードの新着確認
+- **月次**: 宣伝会議・ブレーン・ADC年鑑最新号 / Awwwards Site of the Day・CSS Design Awardsの受賞サイト分析
+- **四半期**: Cannes Lions・ADFEST・東京ADCのビジュアル部門分析 / Google・Metaの最新広告ガイドライン更新確認
+- **年次**: Pentawards・D&AD・One Showのパッケージ・広告部門研究 / Pantone Color of the Year 2026/2027 の反映検討
+
+### Step 8: 競合比較・業界TOP5分析
+- **国内デザインエージェンシー**: SIX（ブランディング）/ Konel（デジタルクリエイティブ）/ Birdman（統合型）/ MIMIGURI（デザイン経営）/ GOOD DESIGN COMPANY（水野学）
+- **バナー制作特化**: ドコモの魔法のバナージェネレーター / Shutterstock Create / BannerBoo / Bannersnack / Design Hill
+- **採用広告クリエイティブ**: マイナビクリエイター / リクルートCO-OP Design / パーソルクリエイティブ / Indeed Creative Lab / Wantedly Design
+- **海外**: Pentagram / Collins / Ueno / Instrument / Fantasy
+- **ベンチマーク指標**: CTR・疲労率・ブランド認知向上率・制作リードタイム
+
+### Step 9: 多段検証・品質ゲート
+- **デザイン6点チェック**: ①コントラスト（WCAG 2.2 AA）②ブランドカラー（ΔE 3以内）③文字可読性（スマホ14pt以上）④安全領域（UI重なり無し）⑤文言正確性（求人票照合）⑥著作権（素材ライセンス）
+- **3回独立出力検査**: 同じ指示書を生成AIまたは別デザイナーに3回出させ、位置・文言階層・色配分がばらついたら指示書に数値を追記
+- **スマホ3秒テスト**: 制作に関わっていない第三者にスマホで3秒だけ見せ「何の会社の・何の募集か・次に何をすればいいか」を言えるか確認
+- **nori リーガルチェック**: 景表法・薬機法・職業安定法・著作権
+- **sora COO QA**: 完成品のブランド整合性・訴求力の客観評価
+
+### Step 10: 2026年新技術・レギュレーション対応
+- **Adobe Firefly Image 3 / Midjourney v7**: 高品質AI生成素材の商用利用（Adobe Firefly は商用利用保証付き）
+- **改正景表法ステマ規制**: 2023年10月施行。採用広告バナーで有償インフルエンサー起用時は「PR」「広告」表記必須
+- **EU AI Act**: 2026年完全施行。AI生成バナーは開示義務（「AI generated」等）
+- **WCAG 2.2 Level AA**: 2024年10月勧告。アクセシビリティ対応の国際標準化
+- **Google・Metaの広告ポリシー強化**: 2026年「誤解を招く広告」判定強化 → 誇大表現検出AIの導入
+- **Figma AI**: AutoLayout・Variants・Variablesの自動生成でデザインシステム化を加速
+- **Canva Magic Studio**: AI自動バナー生成の品質向上。Yunaとの役割分担（Itsukiは高級・個別/Yunaは量産）
+- **職業安定法 的確表示義務**: 2022年10月改正。採用バナーの賃金・労働時間・就業場所の虚偽表示禁止
+
+### 成長指標
+- **スキル成長**: 2026年Q1時点「バナーCTR平均1.2%」 → Q4目標「1.8%以上」
+- **制作スピード**: バナー初稿リードタイム 24時間 → 12時間（AI活用）
+- **ブランド遵守**: ΔE 3以内達成率 90% → 100%
+- **アクセシビリティ**: WCAG 2.2 AA準拠率 70% → 100%
+- **ナレッジ蓄積**: Daily Knowledge Log 365日連続更新 / 失敗パターンDB 100件以上
+- **他部署連携**: Eito/Sho との同時並行制作率 100% / 承認後修正発生率 10%以下
+
