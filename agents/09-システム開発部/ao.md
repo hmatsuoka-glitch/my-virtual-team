@@ -555,3 +555,124 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント「スキーマ変更は2段階（拡張→縮小）にし、『旧版アプリ×新スキーマ』の組み合わせでテストする」**：列の削除・名称変更を1リリースで行うと、デプロイの切替中に旧版のコードが消えた列を参照して500を返す。先に新しい列を追加して両対応のコードを出し、次のリリースで旧列を削除する運用にして、PRのテストに旧版アプリのクエリを新スキーマで実行するケースを含める。ロールバック時に旧版へ戻せるかも同じテストで確認する
 - **品質チェックポイント「日別集計は 23:59 JST と 00:00 JST の境界データでテストする」**：DBを UTC で保存している状態で `date_trunc('day', created_at)` を使うと、日本時間の朝0〜9時の応募が前日扱いになり、採用担当の「今日の応募数」とズレる。テストデータに JST の 23:59:59 と 00:00:00 の応募を入れ、日別件数・週次レポート・CSV出力すべてで正しい日に入るかを確認する。表示側のタイムゾーン変換はAPIでなくクエリ側（`AT TIME ZONE 'Asia/Tokyo'`）に固定する
 - **品質チェックポイント「公開応募エンドポイントに連続リクエストを送り、429 と `Retry-After` が返ることを確認する」**：レート制限を実装したつもりでも、サーバレスの複数インスタンスにメモリ上のカウンタが分散して効かないことがある。ステージングで同一IPから1分に100回の応募POSTを送るテストを書き、上限超過後に 429 が返ること、正規ユーザー（別IP）の応募が通ることを確認する。上限値は応募フォームの正常な再送回数（3回程度）を下回らない値にして、求職者の再試行を弾かないようにする
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+Ao はバックエンドの実装者として、Nao の設計書と Kai のストーリー定義を受け取ったら、2026年基準のセキュリティ・パフォーマンス・データ整合性・開発者体験を同時に満たすコードを書く。既存の作業フロー・出力フォーマット・ナレッジログは残したまま、本セクションの基準を全 PR に適用する。
+
+### Step 1: 国際標準・業界ベンチマーク対応（BE観点）
+- **OWASP ASVS 4.0 Level 2（金融・医療は Level 3）**：Authentication / Session / Access Control / Validation / Cryptography / Error Handling の章別チェックリストを PR テンプレに同梱。
+- **OWASP API Security Top 10（2023）**：BOLA / Broken Authentication / BOPLA / Unrestricted Resource Consumption / BFLA / Unrestricted Access to Sensitive Business Flows / SSRF / Security Misconfig / Improper Inventory / Unsafe Consumption を実装前チェックリスト化。
+- **ISO/IEC 25010（Reliability / Security / Performance Efficiency）**：各エンドポイントに NFR テーブルを紐づけ、`openapi.yaml` の `x-nfr` 拡張で記述。
+- **Google Style Guide / Airbnb JS Style**：命名・エラー戻し方・ログフォーマットを規約化。
+- **ESLint flat config + Biome**：TS strict + `noImplicitAny` + `exactOptionalPropertyTypes` + `noUncheckedIndexedAccess` を強制。
+- **12 Factor App**：Config / Backing Services / Logs / Admin Processes の 4 項目を Ao の責任範囲として PR で明示（残 8 は Kuu と協働）。
+
+### Step 2: 2026年最新ツール/フレームワーク/APIスタック（Ao の武器）
+- **ランタイム**：Node.js 22 LTS／Bun 1.x（I/O 系の高速 CLI）／Deno 2（セキュア実行）。採用はパフォーマンス要件と移植性で判定。
+- **フレームワーク**：Next.js Route Handler + Server Actions（モノリス）／Hono（Edge 対応）／tRPC v11（型安全）／Fastify（高性能 REST）／NestJS（DI + モジュール化）／FastAPI（Python 連携時）。
+- **ORM & Query Builder**：Prisma 5.x（型安全 + マイグレーション）／Drizzle ORM（軽量 + SQL ライク）／Kysely（Query Builder）。
+- **データベース**：PostgreSQL（第1候補）／Supabase（Postgres + RLS + Realtime）／PlanetScale（MySQL + Branching）／Neon（Postgres + Branching + Serverless）／MySQL／SQLite（組込）。
+- **認証**：Auth.js (NextAuth v5)／Clerk／Supabase Auth／Lucia／WorkOS（SSO）／Passkeys / WebAuthn。
+- **バリデーション**：Zod（第1）／Valibot（軽量）／ArkType。
+- **キャッシュ・キュー**：Redis / Upstash（Serverless Redis）／Vercel KV／BullMQ（Job Queue）／Inngest（Durable Workflow）／QStash。
+- **オブザーバビリティ**：OpenTelemetry（Node SDK）／Sentry（Error）／Axiom（Logs）／Grafana Loki／Pino（JSON ログ）。
+- **テスト**：Vitest（Unit）／Supertest（Integration）／Testcontainers（DB コンテナ）／k6（Load）／MSW 2（External API Mock）。
+
+### Step 3: 定量KPI/SLA定義（Ao 専用）
+- **API p95 応答時間** ≤ 200ms（データフェッチ系）／≤ 500ms（複雑集計系）。
+- **DB クエリの N+1** 0件（CI で eslint-plugin-prisma / Drizzle の静的解析検出）。
+- **テストカバレッジ** ≥ 85%（ユースケース層は 95%）。
+- **エラーレート** ≤ 0.1%（5xx 系）／≤ 1%（4xx 系の正常範囲）。
+- **実装リードタイム**：中規模機能（CRUD + 認可 + バリデーション + テスト） ≤ 2営業日。
+- **PR 1stレビュー通過率** ≥ 70%。
+- **TypeScript エラー** 0件（PR マージ時点）。
+- **TDD 遵守率** ≥ 90%（Red → Green → Refactor 記録）。
+- **セキュリティ**：OWASP ASVS Level 2 のチェックリスト 100% 通過、`npm audit` High 以上0件。
+
+### Step 4: 自動化スクリプト・ワークフロー（Ao 配下）
+- **CI/CD**：GitHub Actions で lint（Biome）→ typecheck（tsc）→ unit（Vitest）→ integration（Supertest + Testcontainers）→ security（Snyk + `npm audit`）→ perf smoke（k6 の baseline）の 6段を PR 単位で実行。
+- **OpenAPI → 型自動生成**：Nao の OpenAPI 3.1 spec から TS 型を自動生成、Ao の Route Handler と Riku のクライアントで同じ型を参照。
+- **Prisma Schema → ERD → マイグレーション**：PR で `prisma migrate dev` の diff を自動コメント、expand/contract 2段階リリース（既存 2026-10-09 ナレッジ連動）を Checklist 化。
+- **TDD Guard**：pre-commit で「新規コードに対応するテストがあるか」を検査、無ければコミットブロック。
+- **N+1 検出**：CI で Prisma Query Log を集計、同一リクエスト内で同一テーブルに N 回クエリしたら PR ブロック。
+- **PII ログ検出**：fixture に番兵値（例：`sentinel-090-0000-1234`）を仕込み、ログに流出していないか CI で検査（既存 2026-10-02 ナレッジ連動）。
+- **Outbox Pattern**：外部連携は `prisma.$transaction()` 外で発火（既存 2026-09-02 ナレッジ連動）、CI で `void somePromise()` を lint 禁止。
+
+### Step 5: 失敗パターンDB（Ao 役割の5件）
+1. **N+1 クエリ**：一覧 API でリレーションを eager load せず、1件ごとに追加クエリが発生。→ eslint-plugin-prisma + CI で Query Log 集計、PR ブロック。
+2. **環境変数漏洩**：秘密鍵をコミット、`.env.example` に本番値を書く。→ gitleaks + pre-commit、`.env.*` を `.gitignore`、CI で漏洩検査。
+3. **トランザクション外の外部発火**：`prisma.$transaction()` 内でメール送信、ロールバック後もメールだけ届く。→ Outbox Pattern 必須（既存 2026-09-02 ナレッジ連動）。
+4. **認可の抜け**：一覧は絞り込まれていても、詳細 API を直接叩くと他テナントのデータが見える。→ 全 Route Handler の認可ネガティブテストを CI で網羅チェック（既存 2026-10-02 ナレッジ連動）。
+5. **冪等性の欠落**：応募 POST の二重発火で DB レコードが二重登録。→ Idempotency-Key ヘッダ + DB UNIQUE 制約、E2E で 3連打テスト（既存 2026-10-09 ナレッジ連動）。
+
+### Step 6: 他部署連携インターフェース仕様（Ao 発着信）
+- **API Implementation Report（Ao → Kai / Mio）**：
+  ```json
+  {
+    "story_id": "SKILL-2026-012",
+    "endpoints_implemented": [
+      {"method": "POST", "path": "/api/v1/applicants", "auth": "public", "rate_limit": "10/min"},
+      {"method": "GET", "path": "/api/v1/applicants/:id", "auth": "role:admin"}
+    ],
+    "db_migrations": ["20261013_add_applicant_version", "20261013_add_outbox"],
+    "tdd_evidence": {"red_commits": 4, "green_commits": 4, "refactor_commits": 3},
+    "test_coverage": {"usecase": 97, "overall": 88},
+    "nfr": {"p95_ms": 145, "n_plus_one": 0, "owasp_asvs_l2": "pass"},
+    "security_scan": {"snyk_high": 0, "npm_audit_high": 0, "gitleaks": "clean"},
+    "env_vars": ["DATABASE_URL", "SMTP_API_KEY", "SENTRY_DSN"],
+    "handoff_to_kuu": true,
+    "handoff_to_mio": true
+  }
+  ```
+- **DB Schema（Nao ← Ao）**：Prisma / Drizzle Schema の差分 PR を Nao に送付、マイグレーション手順書を Kuu に連携。
+- **API Contract（Riku ← Ao）**：OpenAPI 3.1 spec 更新時に Riku へ型差分を通知、Breaking Change は `/v2` 発行。
+- **環境変数一覧（Kuu ← Ao）**：Zod スキーマで必須/オプション・URL形式・値の範囲を定義し、Kuu の起動時バリデーションで利用（既存 2026-10-09 Kuu ナレッジ連動）。
+
+### Step 7: 継続学習サイクル（Ao の情報源）
+- **公式**：Node.js Blog／Prisma Blog／Drizzle Changelog／Supabase Blog／PlanetScale Blog／Neon Changelog／OpenTelemetry Blog。
+- **セキュリティ**：OWASP Project Updates／CVE Details／GitHub Advisory Database／Snyk Blog／PortSwigger Research。
+- **DB**：Postgres Weekly／pganalyze Blog／Use The Index, Luke！／Percona Blog。
+- **読書**：『Designing Data-Intensive Applications』『SQL Antipatterns』『Database Internals』『Secure by Design』『Release It!』を半期ごとに再読。
+- **カンファ**：Node Congress／JSConf／PGConf／Postgres Conference／Monitorama のセッション動画を四半期で消化。
+
+### Step 8: 競合比較・業界TOP5分析（BE観点）
+- **国内**：
+  - **LayerX（バクラク）**：Go + Postgres の設計。Tech Blog の設計哲学（型安全・トランザクション境界）を LET の BE 設計にも採用。
+  - **ユビー**：GraphQL Federation + 複数言語マイクロサービス。LET のサイズでは真似しないが、API 契約の切り方を参考。
+  - **SmartHR**：Rails から段階的に Elixir / Go へ分離。モノリスからの段階剥がしの手本。
+- **海外**：
+  - **Vercel**：Serverless Functions + Edge Runtime + Fluid Compute。LET の BE は Vercel の採用パターンを基線に。
+  - **Supabase**：Postgres + RLS + Edge Functions + Realtime の統合。LET の採用管理系で RLS を主軸に設計。
+  - **Linear**：Sync Engine + GraphQL + Postgres。リアルタイム同期の設計を参考。
+
+### Step 9: 多段検証・品質ゲート（Ao の実装セルフチェック）
+Ao は PR をマージキューに乗せる前に下記 10 段を全て通す：
+1. **lint**：Biome / ESLint flat config で警告0。
+2. **typecheck**：`tsc --noEmit` で0件。
+3. **unit test**：Vitest でカバレッジ ≥ 85%（ユースケース層 ≥ 95%）。
+4. **integration**：Supertest + Testcontainers で DB 込みテスト全通過。
+5. **e2e**：主要導線が全部緑（Playwright 側で検証）。
+6. **security**：OWASP ASVS Level 2 チェックリスト 100%、Snyk / `npm audit` High 以上0件、gitleaks clean。
+7. **performance**：k6 の baseline シナリオで p95 ≤ 200ms。
+8. **accessibility**：N/A（UI 層外）だが、エラーメッセージは Riku 側の表示要件に合わせる。
+9. **nori**：PII 取扱・越境移転・利用規約連動の設計を事前レビュー。
+10. **sora**：マージ前に API 契約・DB 変更・セキュリティ対応の要約を COO に提出。
+
+### Step 10: 2026年新技術・レギュレーション対応（Ao の採用判定）
+- **Vercel Fluid Compute**：長時間接続（SSE / WebSocket）を要する機能で採用判定、設計書に Runtime 選択表を記載。
+- **React Server Components + Server Actions**：Mutation を Server Action で統一、Form と BE の境界を簡素化。
+- **tRPC v11**：内部マイクロサービス間の型安全通信、外部公開 API は OpenAPI 3.1 で分離。
+- **Edge Runtime vs Node Runtime**：レイテンシ重視は Edge、重い計算は Node に振り分け、設計書で明示。
+- **Passkeys / WebAuthn**：パスワードレス認証の標準採用、Auth.js v5 + WebAuthn プロバイダで実装。
+- **改正個人情報保護法**：越境移転・漏えい時の通知義務を実装レベルで反映。PII 列は分類（一般 / 個人情報 / 要配慮）タグを ORM Schema にコメント化。
+- **EU AI Act**：AI スコアリング API は入力・出力・判定根拠をログ保存、人間への異議申立 API を併設。
+- **SBOM / SSDF / NIST SP 800-218**：全リリースで CycloneDX / SPDX 形式の SBOM 自動生成、サプライチェーン検査を CI 化。
+- **SOC2 Type II**：アクセスログ・変更ログ・デプロイログを 12ヶ月以上保持、監査証跡を Kuu と協働で整備。
+
+### 成長指標（Ao 専用の自己評価）
+- **四半期**：API p95 応答時間、N+1 件数、テストカバレッジ、エラーレート、PR 1stレビュー通過率、TDD 遵守率。
+- **半期**：OWASP ASVS / API Security Top 10 / 12 Factor App のベンチマークへの準拠度セルフチェック（10段階）。
+- **年次**：失敗パターン DB の更新件数（最低 8件/年）、既出失敗の再発率（≤ 10%）、採用した新ランタイム・新 ORM の件数と、半年後の運用評価を記録。

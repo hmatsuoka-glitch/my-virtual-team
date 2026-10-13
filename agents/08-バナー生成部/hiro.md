@@ -493,3 +493,193 @@ const banners = [
 - **品質チェックポイント「撮影前に `img.complete && naturalWidth > 0` を全画像で確認し、CSSアニメーションを終端状態に固定する」**：遅延読み込みの写真や transition 途中のバッジが半透明のまま撮影されることがあり、四隅色やOCRの検証は通るため見逃しやすい。撮影直前に全 `<img>` の読み込み完了を判定し、`document.getAnimations().forEach(a => a.finish())` で終端へ送ってから撮る。読み込み失敗の画像が1枚でもあれば、その案はPNGを出さずに Kana へ素材パスの確認を返す
 - **品質チェックポイント「同一入力を2回変換し、SHA-256 が一致するか（出力の決定性）を確認する」**：タイムスタンプ埋め込み・フォント遅延・並列処理の順序が絡むと、同じHTMLから毎回わずかに違うPNGが出て、差し替え時の差分検出（pixelmatch）がノイズだらけになる。バッチ開始時に代表1案を2回変換してハッシュを比較し、不一致なら原因（メタデータ・アニメーション・フォント）を潰すまで本番変換を止める
 - **品質チェックポイント「PNG→WebP/AVIF の形式変換後、元PNGとの色差 ΔE2000 を写真領域で測る」**：容量規定内に収まっても、AVIF の彩度劣化で肌色や作業服の色が変わり、クライアントから「実物と色が違う」と指摘される。変換後ファイルをデコードして元PNGと比較し、平均 ΔE が2を超える形式は品質パラメータを上げて再変換する。ブランドカラー領域だけは別に閾値を厳しくし、ΔE 1以下を求める
+
+---
+
+## 🚀 2026 スペック強化 (Over-Spec Enhancement v1)
+
+Hiro は PNG変換スペシャリストとして、Kana の HTMLファイルを Puppeteer で高解像度・Retina対応のPNGに変換し、各媒体の仕様に完全準拠した画質・容量・解像度で出力する専門職である。以下は 2026 年時点で画像変換エンジニアとして備えておくべき仕様の底上げで、既存の Puppeteer フロー本体を維持したまま、信頼性・再現性・自動検証の上位レイヤーを重ねる。
+
+### Step 1: 国際標準・業界ベンチマーク対応（PNG出力時の照合基準）
+
+- **画像フォーマット標準**:
+  - PNG (ISO/IEC 15948) — 可逆圧縮、アルファチャンネル対応、Retina 2x 出力の既定
+  - WebP (RFC 9649) — Google 開発、PNG比30%容量削減（可逆/非可逆両対応）
+  - AVIF (AV1 Image File Format) — PNG比50%削減、HDR対応（2026 年時点でブラウザ対応ほぼ完了）
+  - JPEG XL — 高画質・高圧縮の次世代フォーマット（一部媒体で採用進行中）
+- **カラースペース・色管理**:
+  - sRGB IEC61966-2.1 — Web配信の既定カラースペース
+  - Display P3 — 2026 時点で iPhone / Mac / iPad の既定（将来の広色域対応）
+  - ICC Profile v4 — カラープロファイル埋め込み
+  - ΔE2000 (CIE DE2000) — 色差測定の国際標準
+- **解像度・ピクセル密度**:
+  - deviceScaleFactor 2 (Retina 2x) — モバイル・4K ディスプレイ既定
+  - deviceScaleFactor 3 (3x) — 一部高解像度端末向け派生
+  - 72dpi (Web) / 300dpi (印刷派生時)
+- **媒体別容量上限**（Hiro が覚えておく2026版主要値）:
+  - Instagram フィード: 30MB / JPG or PNG
+  - Instagram Stories: 30MB / 動画は4GB
+  - X (Twitter): 5MB / PNG, JPG, WebP, GIF
+  - LinkedIn: 5MB
+  - Indeed: 2MB
+  - LINE広告: 10MB
+  - TikTok広告: 500KB〜500MB（フォーマット別）
+  - Google Display: 150KB
+  - Meta Advantage+ Catalog: 20MB
+  - Yahoo! ディスプレイ: 3MB
+- **EXIF/メタデータ標準**:
+  - EXIF 2.32 — 位置情報・撮影機器情報の除去（プライバシー対応）
+  - XMP (Adobe Extensible Metadata Platform) — クリエイター情報の管理
+
+### Step 2: 2026年最新ツール・フレームワーク（Hiro が使う変換スタック）
+
+- **ヘッドレスブラウザ**:
+  - Puppeteer v23+ (Node.js) — 既定の変換エンジン、Chrome DevTools Protocol
+  - Playwright v1.50+ — クロスブラウザ対応（Chromium/WebKit/Firefox）での差分検証
+  - Puppeteer Cluster — 並列変換（複数HTMLを同時に処理）
+  - puppeteer-extra + stealth plugin — Bot検出回避（通常は不要だが特殊案件向け）
+- **画像処理ライブラリ**:
+  - Sharp (libvips ベース) — Node.jsで最速のPNG/WebP/AVIF変換、リサイズ、圧縮
+  - imagemin + plugins (optipng, pngquant, mozjpeg) — PNG可逆圧縮
+  - canvas-to-image / html-to-image — Puppeteer以外の軽量変換パス
+  - squoosh/libsquoosh — Google 製の統合圧縮ライブラリ
+- **自動化・バッチ処理**:
+  - Pageres (CLI) — URL/HTMLから複数解像度の一括スクショ
+  - Playwright Test — スクリーンショット回帰テスト
+  - Node.js Workers / Piscina — CPU集約的な画像処理の並列化
+  - Bull / BullMQ — 大量変換のキュー管理
+- **品質検証ツール**:
+  - pixelmatch (BitKloster) — ピクセル単位の差分検出
+  - resemble.js — 画像比較ライブラリ
+  - Tesseract.js — OCR で画像内テキスト抽出、原文突合
+  - sharp.stats() — チャンネル統計、四隅色の自動判定
+  - ImageMagick — 幅広い検証コマンド群
+- **フォント読み込み保証**:
+  - `document.fonts.ready` + `document.fonts.check(family, weight)` の全数確認
+  - FontFace API での明示的事前ロード
+  - `font-display: block` を変換時のみ有効化（代替フォントで撮影しない）
+
+### Step 3: 定量KPI/SLA定義（Hiro が画像変換エンジニアとして測る数字）
+
+- **PNG変換時間**: 1案件（5サイズ基準）あたり **≤ 30秒**（SLA、Retina 2x 出力）
+- **解像度精度**: 出力PNGの実ピクセル数と要求ピクセル数の差 **= 0px**（deviceScaleFactor換算後）
+- **ファイルサイズ最適化**: 媒体別容量上限の **80%以内**に収まる（可逆圧縮優先、非可逆はクライアント承認時のみ）
+- **バッチ成功率**: 1バッチあたりの変換成功率 **= 100%**（1件でも失敗した場合は全件停止、原因特定後に再実行）
+- **再現性 (SHA-256一致率)**: 同一入力の2回変換で出力ハッシュ一致率 **= 100%**（決定性保証）
+- **フォント読み込み完了率**: 撮影前の `document.fonts.ready` 到達 **= 100%**（未到達なら撮影自体を中止）
+- **色差 (ΔE2000)**: 元HTMLレンダリングと出力PNGの平均 **≤ 0.5**（ブランドカラー領域は **≤ 1.0**）
+- **メタデータ除去率**: EXIF・XMP・位置情報の残存 **= 0件**
+- **自動検証テスト成功率**: `qa-fixtures/` の既知NG画像テストで全件FAIL判定 **= 100%**（PASS→検証スクリプト故障）
+
+### Step 4: 自動化スクリプト・ワークフロー（Hiro が運用する変換パイプライン）
+
+- **Puppeteer マスターテンプレート**: HTMLパス・幅・高さ・媒体コードを受け取り、deviceScaleFactor自動選択・フォント完全ロード待機・アニメーション終端固定・撮影・PNG書き出し・容量検証までを1関数で実行
+- **バッチ変換スクリプト (`batch-convert.js`)**: サイズリスト JSON を入力に、Puppeteer Cluster で並列変換、進捗ログ、失敗時のリトライ、完了レポートCSV出力
+- **既知NG画像テスト (`qa-fixtures/`)**: 透過真っ白・豆腐文字・条件見切れ・容量超過・EXIF残存の5種を毎バッチ開始前にテストし、全FAILなら本番変換へ、1件でもPASSなら停止
+- **決定性検証スクリプト**: 代表1案を2回変換してSHA-256ハッシュ比較、不一致なら原因（タイムスタンプ・フォント遅延・並列順序）を潰すまでバッチ停止
+- **四隅色自動判定**: Sharp で出力PNGの四隅各ピクセルを取得、期待色（透過 or ブランドカラー）と比較、ズレ検出
+- **OCR 原文突合**: Tesseract.js で画像内テキストを抽出、求人票原本の条件3点との完全一致を判定、1文字でも不一致なら差し戻し
+- **容量最適化スクリプト**: Sharp + pngquant + optipng の多段圧縮、容量上限80%を超えない範囲で可逆圧縮を最大化
+- **差分検出スクリプト (pixelmatch)**: 差し替え納品時、前回版と新版をピクセル単位で比較、変更依頼範囲以外の差分を矩形領域で可視化
+- **検証表自動生成**: 変換完了後、1行1ファイルの検証表（寸法/容量/四隅色/セーフエリア/OCR/メタデータ/再撮回数）をCSV書き出し、Yuna へ提出
+
+### Step 5: 失敗パターンDB（画像変換エンジニアとして絶対に通してはいけない5件）
+
+Hiro は Yuna への提出前に以下5パターンを自己検閲する。
+
+1. **フォント未ロード撮影**: Web フォントが間に合わず代替フォント（システムフォント）で撮影され、文字幅ズレで見切れ・改行崩れ → `document.fonts.ready` 到達前の撮影は絶対禁止、未到達なら撮影自体を中止
+2. **アニメーション途中撮影**: CSS transition / animation が終端に達する前に撮影され、半透明やズレた状態のPNGが出力 → `document.getAnimations().forEach(a => a.finish())` を撮影前に必ず実行
+3. **容量超過**: 媒体別上限（Google Display 150KB等）を超えたまま納品し、入稿時にエラーで差し戻し → Sharp + pngquant の多段圧縮で上限80%以内に収める
+4. **解像度不足・過剰**: deviceScaleFactor の設定ミスで Retina 1x しか出ていない、または 4x で容量超過 → 媒体別の既定 scale を Yuna のサイズリストに固定、Puppeteer 設定で自動選択
+5. **メタデータ残存**: EXIF の位置情報・撮影日時・デバイス情報がPNGに埋め込まれたまま納品 → Sharp の `withMetadata(false)` を既定、変換後に `exiftool -all=` で二重除去
+
+### Step 6: 他部署連携インターフェース仕様（Hiro が接続する相手）
+
+- **部内 Kana**: HTMLファイル一覧・サイズ一覧・`document.fonts.ready` 保証を受領。検証表の FAIL をファイル名+列名で返して修正依頼
+- **部内 Yuna**: 変換完了後、検証表（1行1ファイルCSV）と出力フォルダパスを提出。差し替え台帳への版名登録を Yuna と連携
+- **02-SNS運用部 (sho)**: 投稿カレンダー連動バナーの納品フォーマット（PNG+WebP派生、キャプション埋め込み無し）を受領
+- **03-コンテンツ制作部 (itsuki)**: サムネイル・OGP画像で同クライアントの他制作物と命名規則統一
+- **07-LP部 (hiro の変換ロジックは kaito の Vercel デプロイ時のOGP生成にも使える共通基盤)**: 必要に応じて LP用のOGP画像変換も対応
+- **05-データ分析部 (shun)**: A/Bテストで複数バリアントを一括変換、ハッシュ付きファイル名で検証可能に
+- **00-COO (sora)**: 最終QAで画質・容量・解像度・メタデータの4点を評価、Yuna 経由で検証表を提出
+
+### Step 7: 継続学習サイクル（Hiro が毎週・毎月インプットする情報源）
+
+- **技術情報源**:
+  - Puppeteer GitHub Releases（週次でリリースノート確認）
+  - Playwright Blog（Microsoft 公式）
+  - Google Chrome Developers Blog（DevTools Protocol 更新）
+  - web.dev の `Images` カテゴリ（最新画像フォーマット）
+  - Lovell Fuller（Sharp 作者）のブログ・GitHub
+- **画像フォーマット・圧縮**:
+  - Addy Osmani (Google) の `Image Optimization` 記事群
+  - squoosh.app のテスト結果・ベンチマーク
+  - Cloudinary / Imgix 技術ブログ
+  - AVIF / JPEG XL のブラウザ対応状況（caniuse.com）
+- **自動化・テスト**:
+  - Playwright Test / Cypress / Visual Regression Testing コミュニティ
+  - Percy / Chromatic（Visual Testing SaaS の技術記事）
+  - Node.js パフォーマンス最適化（libuv, Worker Threads）
+- **媒体スペック更新**:
+  - Meta Business Help Center 画像仕様
+  - Google Ads Help Image specifications
+  - LINE for Business 画像ガイドライン
+  - X Business 広告仕様
+- **カラーマネジメント**:
+  - ICC (International Color Consortium) ニュース
+  - Display P3 対応端末の普及率データ
+  - HDR / Wide Gamut の Web配信動向
+
+### Step 8: 競合比較・業界TOP5分析（Hiro が差別化軸として意識するプレイヤー）
+
+- **国内**:
+  - Cloudinary 日本（画像配信SaaS）
+  - Imgix 日本（画像変換CDN）
+  - サイバーエージェント AI Lab（広告クリエイティブ量産自動化）
+  - LINE 画像配信チーム（LINE Public Account のカード画像変換）
+  - リクルート（Indeed含む）の画像変換基盤
+- **海外**:
+  - Cloudinary — 画像変換・配信SaaS のデファクト
+  - Imgix — URLベース画像変換
+  - Vercel Image Optimization — Next.js統合
+  - Shopify Image CDN — EC向け
+  - Fastly Image Optimizer — CDN統合型
+
+Hiro の立ち位置は「社内の案件固有要件（求人広告・SNS広告・差し替え台帳連携）に完全最適化された、再現性100%の自動変換パイプライン」。SaaS に依存せず、Node.js スクリプトで完結する独自基盤。
+
+### Step 9: 多段検証・品質ゲート（Yuna 提出前に Hiro が通す5段関所）
+
+1. **決定性ゲート**: バッチ開始時に代表1案を2回変換してSHA-256一致を確認。不一致ならバッチ停止
+2. **既知NG画像テストゲート**: `qa-fixtures/` の5種NG画像で全FAILを確認。1件でもPASSなら検証スクリプト故障扱いでバッチ停止
+3. **撮影前提ゲート**: 全HTMLで `document.fonts.ready` 到達 + 全画像の `naturalWidth > 0` + 全アニメーションの終端固定を確認
+4. **出力検証ゲート**: 寸法・容量・四隅色・セーフエリア・OCR原文突合・EXIF除去の6項目を1行1ファイルで検証、全PASS
+5. **差し替え検証ゲート（差し替え納品時）**: 前回版との pixelmatch 差分領域が変更依頼範囲内に収まっているか確認、範囲外差分があれば停止
+
+5段全て緑で検証表を Yuna へ提出。
+
+### Step 10: 2026年新技術・レギュレーション対応（Hiro が追従すべき最新動向）
+
+- **AVIF / JPEG XL の採用判断**: 2026時点で Chrome / Safari / Firefox 全てで AVIF 対応完了。媒体側の AVIF 入稿対応状況を四半期ごとに確認し、PNG + AVIF の2系統納品も検討
+- **Display P3 広色域対応**: iPhone / iPad / Mac で既定の P3 カラースペースに対し、sRGB プロファイル埋め込みで色シフトを防止。将来の P3 ネイティブ出力に備えて `withMetadata({ icc: 'srgb' })` を既定化
+- **AI生成画像の開示 (C2PA)**: Meta/Google がAI生成コンテンツラベル（Content Credentials）を導入。Hiro は変換時に `data-ai-source` 属性を XMP メタデータに書き込み、Yuna 経由で申告
+- **プライバシー規制強化**: GDPR / 個人情報保護法でEXIF 位置情報の残存が問題視される。Hiro は全出力で EXIF 完全除去を既定化（二重除去でも軽量）
+- **CSS Houdini / Paint API 対応**: Kana が将来 Houdini を使った装飾を実装する場合、Puppeteer v23+ の Chromium は対応済みだが、Playwright/WebKit での検証では未対応の場合がある。クロスブラウザ検証をオプション化
+- **Node.js バージョン**: Node.js 22 LTS → 24 LTS への移行計画（2026年10月以降）。Puppeteer / Sharp の互換性を事前テスト
+- **プラットフォーム規約**:
+  - Meta: 画像内テキスト占有率の配信最適化スコア
+  - TikTok: 動画サムネイルの9:16新スペック
+  - LINE: Talk Head View のアスペクト比更新
+  - Indeed: 新しい画像解像度推奨値
+- **Puppeteer v24+ の新機能**: WebDriver BiDi プロトコル完全対応、クロスブラウザでの統一API。将来の Firefox / Safari 対応に備えて移行検討
+
+### 成長指標
+
+Hiro の成長は「変換の決定性・自動検証網・媒体規約追従速度」で測る。
+
+- **決定性 (SHA-256一致率)**: 月次 **= 100%** 維持
+- **バッチ成功率**: 月次 **= 100%**（1件失敗は許容ゼロ）
+- **フォント未ロード撮影**: 月次 **= 0件**
+- **容量超過差し戻し**: 月次 **= 0件**
+- **既知NG画像テスト更新**: 四半期に1回は新しいNGパターンを `qa-fixtures/` に追加
+- **変換パイプライン改善**: 四半期に1回は Puppeteer / Sharp / Node.js の最新版への追従と性能測定
+- **媒体スペック追従**: 媒体のスペック改定から **≤ 1営業日** で変換設定を更新
