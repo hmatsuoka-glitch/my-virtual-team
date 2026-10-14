@@ -498,3 +498,74 @@ const banners = [
 - **効率化テクニック「ブラウザは1回だけ起動し、サイズごとに `setViewport` を切り替えて同じ page で撮影する」**：HTMLごとに `puppeteer.launch()` し直すと1回あたり1〜2秒の起動時間が枚数分かかる。1つのブラウザを使い回して `page.setViewport({width, height, deviceScaleFactor:2})` と `goto` だけを繰り返せば、20枚規模のバッチで30秒前後の短縮になる。バッチの最後に `browser.close()` を `finally` で必ず呼ぶ。
 - **効率化テクニック「入力HTMLと参照画像のハッシュを保存し、変わっていないファイルは再撮影しない」**：1枚のコピー差し替えで全サイズを撮り直すと、変更のない枚数分の時間が無駄になる。HTML本体と読み込む画像のSHA-256を `.hash.json` に残し、前回と同じものはスキップ、変わったものだけ撮影する。出力の決定性確認（2026-10-09）とは別に、入力側の変更検知として使う。
 - **効率化テクニック「撮影は並列数3〜4に制限して回し、検証（寸法・容量）を同じループ内で流して失敗した枚だけ再撮リストに載せる」**：全部撮ってから検証すると、1枚の失敗で全体をやり直しがちになる。`p-limit(3)` で並列撮影し、`sharp(file).metadata()` と `fs.statSync().size` を撮影直後に実行して、NGの枚だけ `retry.json` に出す。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14</p>）
+
+### Step 1: 現状スキル棚卸し
+- Puppeteer, Node.js, 画像処理, Retina対応PNG, 高解像度スクショ
+- 弱点: 動画バナー出力, WebP/AVIF 対応, バッチ最適化, SVG 直接出力
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| 出力形式 | PNG / WebP / AVIF / SVG / MP4 / GIF | PNG のみ | 多形式化 |
+| バッチ処理 | 100 枚 /10 min | 遅延 | 並列化 |
+| 動画 | HTML + Puppeteer-screencast | 要獲得 | 新規領域 |
+| 自動命名 | kebab-case / timestamp / client | 一部 | 標準化 |
+
+### Step 3: 世界水準のベンチマーク
+- Playwright / Puppeteer 公式最適化
+- sharp / @squoosh/lib 画像処理
+- ffmpeg コマンド習熟
+
+### Step 4: 新規追加スキル
+1. **複数形式一括出力** — PNG / WebP / AVIF / SVG / MP4 / GIF
+2. **並列処理最適化** — Promise.all + Worker Pool
+3. **動画バナー出力** — Puppeteer screencast + ffmpeg
+4. **sharp 画像圧縮** — Quality 85 で容量半減
+5. **自動命名規則** — {client}-{size}-{variant}-{timestamp}.png
+6. **メタデータ埋込** — EXIF / IPTC で著作情報
+7. **Lottie → MP4 / GIF 変換** — rendering ツール
+8. **GitHub Actions 自動ビルド** — PR 毎に出力
+9. **ファイルサイズ監視** — 制限超えアラート
+10. **ビジュアル差分検証** — Playwright toHaveScreenshot
+
+### Step 5: 必須ツール・フレームワーク
+- Puppeteer / Playwright
+- sharp / @squoosh/lib
+- ffmpeg
+- Node.js 20 / TypeScript
+- GitHub Actions
+
+### Step 6: 出力品質KPI
+- 1 案件 20 枚を 15 分以内
+- PNG 容量: Retina 300KB 以下 / 標準 100KB 以下
+- 変換失敗率: 0.5% 以下
+- ビジュアル差分: ≤ 1px
+
+### Step 7: 失敗パターン
+- ❌ 直列処理 → ✅ 並列化
+- ❌ PNG のみ → ✅ WebP/AVIF 併用
+- ❌ 命名ばらばら → ✅ 命名規則徹底
+- ❌ 容量無視 → ✅ 媒体制限内に収める
+
+### Step 8: 署名技
+- **⚡ "Parallel 10x Pipeline"** — Worker Pool で高速化
+- **🖼️ "Multi-Format Export"** — PNG+WebP+AVIF 同時
+- **🎞️ "Puppeteer Screencast"** — 動画バナー
+- **✅ "Visual Diff Guard"** — 出力検証自動化
+
+### Step 9: 継続学習ループ
+- 月次でPuppeteer / Playwright 新機能
+- 四半期で画像圧縮ベンチマーク（sharp vs squoosh）
+- 各媒体の最新ファイルサイズ制限追跡
+
+### Step 10: 連携強化
+- **Kana**: HTML 入力の最適化依頼
+- **Yuna**: 納品形式を確認
+- **Rei**: バリエーション指示連動
+- **Marketing**: 広告配信先の制限情報
+- **Deng**: 画像パイプライン共通化
+

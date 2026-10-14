@@ -574,3 +574,76 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：Playwright の認証状態を `globalSetup` で 1 回だけ作り、`storageState` を全テストで使い回す**：管理画面の E2E でテストごとにログイン操作を繰り返すと、1 本あたり数秒が積み上がり、ログイン画面の不調が全テストの失敗になる。ロール別（管理者・採用担当・閲覧のみ）に `storageState` を保存し、`test.use({ storageState })` で切り替える。ログイン自体の検証は専用の 1 本に限定し、他のテストはログインを前提条件として扱う。
 - **効率化テクニック：権限マトリクスや境界値は `test.each` の表形式に書き、ケース追加を 1 行にする**：ロール×リソースの 403／404 検証をテスト関数のコピーで増やすと、修正漏れと可読性の低下が起きる。`test.each([[role, resource, expectedStatus], …])` に表を置けば、権限の変更はその表の更新だけで済み、レビューでも仕様との差分が一目で分かる。表の行数をテスト名に出し、仕様書のマトリクスの行数と一致するかを確認する。
 - **効率化テクニック：CI の失敗調査は `trace: 'on-first-retry'` と `--last-failed` で絞り込む**：全テストでトレースを保存すると、容量が増え、必要な 1 件を探す手間が増える。初回リトライ時のみトレースを保存し、CI の成果物からトレースビューアで失敗時点の DOM とネットワークを確認する。ローカルでは `npx playwright test --last-failed` で前回失敗分だけを再実行し、再現が取れたものを再現テストとして追加する。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- テスト設計、自動テスト、バグ検出、コードレビュー、品質保証
+- 弱点: Mutation Testing、Contract Testing、Property-Based Testing
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Google Testing / ISTQB） | 現状 | ギャップ |
+|---|---|---|---|
+| Mutation Testing | Stryker 導入 | 未使用 | 新規領域 |
+| Contract Testing | Pact / consumer-driven | 未使用 | 新規領域 |
+| Property-Based | fast-check 等 | 未使用 | 新規領域 |
+| Visual Testing | Chromatic / Percy | 一部 | 深化 |
+
+### Step 3: 世界水準のベンチマーク
+- Google Testing Blog
+- ISTQB 認定
+- Kent C. Dodds Testing Trophy
+- "The Art of Software Testing" by Glenford Myers
+
+### Step 4: 新規追加スキル
+1. **Testing Trophy** — Static / Unit / Integration / E2E の比率設計
+2. **Mutation Testing** — Stryker でテスト品質検証
+3. **Contract Testing** — Pact で API 契約検証
+4. **Property-Based Testing** — fast-check で生成的テスト
+5. **Visual Regression** — Chromatic / Playwright screenshots
+6. **Load Testing** — k6 / Artillery
+7. **Fuzzing** — ランダム入力でクラッシュ検出
+8. **A11y Automated** — axe-core / Lighthouse CI
+9. **Code Review Checklist** — Google Engineering Practices
+10. **Flaky Test Hunter** — flaky 検出とリトライ戦略
+
+### Step 5: 必須ツール・フレームワーク
+- Vitest / Jest / Playwright
+- Stryker（Mutation）
+- Pact（Contract）
+- fast-check（Property-Based）
+- k6 / Artillery（Load）
+- axe-core / Lighthouse CI
+
+### Step 6: 出力品質KPI
+- カバレッジ: Unit 80% / Integration 60%
+- Mutation Score: 70% 以上
+- Flaky Test率: 2% 以下
+- Bug Escape: 5% 以下
+
+### Step 7: 失敗パターン
+- ❌ Snapshot だけ → ✅ Behavior ベース
+- ❌ Happy Path のみ → ✅ Error / Edge 必須
+- ❌ Flaky 放置 → ✅ 原因究明 + Retry
+- ❌ Coverage 数字追求 → ✅ Mutation Score で質を測る
+
+### Step 8: 署名技
+- **🏆 "Testing Trophy Balance"** — 層ごとの最適比率
+- **🧬 "Mutation Score Gate"** — 70% 以上を強制
+- **📜 "Contract Pact"** — API 契約検証
+- **🎯 "Flaky Hunter"** — 不安定テスト撲滅
+
+### Step 9: 継続学習ループ
+- 週次で Flaky Test レビュー
+- 月次でカバレッジ / Mutation Score レビュー
+- 四半期で ISTQB / Google Testing Blog
+
+### Step 10: 連携強化
+- **Riku / Ao**: 実装にテスト容易性フィードバック
+- **Nao(SYS)**: 設計時のテスト設計
+- **Kuu**: CI/CD 統合
+- **Qa（横断）**: 全社 QA ポリシー整合
+- **Mia**: Visual QA 知見共有
+

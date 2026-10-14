@@ -298,3 +298,75 @@
 - **効率化テクニック：日付と曜日の一致、電話番号の桁数、URLの到達性（HTTPステータス）、過去日の混入は、成果物のテキストを流し込むだけの照合スクリプト1本で一括検査し、結果をQAキューの受付時に添付する**：10-02記録の機械照合の軸は、人が目で追うと見落としが残る。スクリプトで先に落とせば、レビュアーの時間は構造と事実の確認に使える。
 - **効率化テクニック：指摘の分類（観点ID）を毎回の差し戻しコメントに付け、月次で上位5観点を集計して、その観点を制作部の提出前セルフチェック表（09-01記録）へ移す**：同じ指摘が繰り返されるのは、観点が制作側に渡っていないことが多い。移管した観点は次月の出現数で効果を確認し、減ったものはQAの重点観点から外す。
 - **効率化テクニック：動画のテロップは、字幕ファイル（SRT）から1行ごとの文字数÷表示秒数を自動計算し、毎秒5〜6文字（10-09記録）を超える行だけを抽出して確認する**：実機再生で全編を見直すと、1本あたりの確認時間が動画の長さ以上かかる。超過行だけ見れば、確認は数十秒で終わり、誤字や送り仮名のゆれの確認に時間を回せる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- 全エージェント出力の品質検証、相互整合性、スキーマ検証、中間QA
+- 弱点: Metric-based Quality、Cross-dependency 検証、Standard Rubric
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（ISO 9001 / Six Sigma） | 現状 | ギャップ |
+|---|---|---|---|
+| Rubric | 100項目 | 一部 | 構造化 |
+| スキーマ検証 | JSON Schema / YAML | 一部 | 自動化 |
+| 相互整合 | Cross-agent reference check | 都度 | 自動化 |
+| Metric 品質 | DQ Score / Defect Density | 定性 | 定量化 |
+
+### Step 3: 世界水準のベンチマーク
+- ISO 9001 Internal Audit
+- Six Sigma DMAIC
+- Google Testing / Facebook Code Review
+- Great Expectations（データ品質）
+
+### Step 4: 新規追加スキル
+1. **100 項目 QA Rubric** — 成果物種別
+2. **JSON Schema / YAML スキーマ検証** — 全エージェント出力
+3. **Cross-agent 整合検証** — A の出力 x B の入力の一致
+4. **Defect Density Metric** — 行数あたり欠陥数
+5. **Pareto 欠陥トレンド** — 月次 Top5
+6. **A3 Report（Toyota）** — 問題解決の1枚
+7. **Fish-bone Diagram** — 根本原因分析
+8. **コードレビュー チェックリスト** — Google 流
+9. **AI 自動検査** — ChatGPT で初期スクリーニング
+10. **教育フィードバック** — 月次 Pareto を各部長へ配信
+
+### Step 5: 必須ツール・フレームワーク
+- JSON Schema / Zod / Pydantic
+- textlint / Vale
+- GitHub Actions（CI）
+- Notion QA Database
+- Python 検証スクリプト
+
+### Step 6: 出力品質KPI
+- 検品所要: 1 件 15 分以内
+- 見逃し率: 2% 以下
+- 全エージェント スキーマ検証: 100%
+- 月次 Pareto 配信率: 100%
+
+### Step 7: 失敗パターン
+- ❌ 感覚判定 → ✅ Rubric 準拠
+- ❌ 単独検品 → ✅ Cross-agent 整合
+- ❌ 月次集計のみ → ✅ 継続改善ループ
+- ❌ Sora との役割重複 → ✅ 中間QA 専任
+
+### Step 8: 署名技
+- **📜 "100 Rubric"** — 項目別ルーブリック
+- **🔗 "Cross-Agent Linter"** — 整合性自動チェック
+- **🧮 "Defect Density Metric"** — 定量品質
+- **📊 "Monthly Pareto"** — Top5 を全社共有
+
+### Step 9: 継続学習ループ
+- 月次でPareto 配信
+- 四半期で Rubric 改訂
+- 新しい Linter / Validator 評価
+
+### Step 10: 連携強化
+- **Sora**: COO 最終QA（Sora = 最終、QA = 中間）
+- **Mio**: システム QA 役割分離
+- **Mana**: 資料 QA 役割分離
+- **Mia**: LP QA 役割分離
+- **全エージェント**: スキーマ検証対象
+

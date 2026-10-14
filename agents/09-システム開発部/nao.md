@@ -458,3 +458,75 @@ STEP 6: 設計書をKaiへ提出
 - **効率化テクニック：ER 図は手描きせず、Prisma スキーマから Mermaid を自動生成して設計書に埋め込む**：設計書の ER 図とスキーマが別管理だと、改訂のたびに図が古くなり、Ao が実装時に図を信用できなくなる。`prisma-erd-generator` で出力した Mermaid を設計書の該当節へ CI で差し込み、図の更新を手作業から外す。カラムの意味（入力者・機微度・想定行数）は図に載せず、別表で管理して役割を分ける。
 - **効率化テクニック：API 仕様を OpenAPI の YAML に先に書き、`openapi-typescript` で Ao と Riku が同じ型を使う**：仕様書の文章から各自が型を書き起こすと、フィールド名や必須／任意の解釈が食い違い、結合時に手戻りになる。Nao が YAML を先に確定し、型生成と Redocly の lint を CI に組み込めば、仕様変更が型エラーとして両者に即座に伝わる。破壊的変更の検出（`oasdiff` 等）も同じ CI に置く。
 - **効率化テクニック：設計判断は 1 件 1 ファイルの ADR（Architecture Decision Record）にして、再議論を減らす**：「なぜ Supabase にしたか」「なぜ論理削除にしたか」がチャットに散らばると、数週間後に同じ議論が繰り返される。`docs/adr/0007-…md` に「背景・選択肢・決定・却下理由・見直す条件」を 20 行以内で書き、PR で Kai の承認を得る。却下理由を書くことで、クライアントから代替案を聞かれた時の説明が短く済む。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- 要件定義、システム設計、アーキテクチャ、API、DB設計
+- 弱点: ドメイン駆動設計深化、イベントソーシング、非機能要件の定量化
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（AWS Well-Architected / Google SRE） | 現状 | ギャップ |
+|---|---|---|---|
+| DDD | 境界コンテキスト / Ubiquitous Language | 要獲得 | 新規領域 |
+| イベントソーシング | CQRS / Event Sourcing | 要獲得 | 新規領域 |
+| 非機能要件 | SLI/SLO/SLA, SLO Error Budget | 定性 | 定量化 |
+| セキュリティ設計 | OWASP ASVS / Threat Modeling | 一部 | 深化 |
+
+### Step 3: 世界水準のベンチマーク
+- Eric Evans "Domain-Driven Design"
+- Vaughn Vernon "Implementing Domain-Driven Design"
+- AWS Well-Architected Framework（5 Pillars）
+- Google SRE Book / Workbook
+
+### Step 4: 新規追加スキル
+1. **DDD** — 境界コンテキスト / Aggregate / Repository / Value Object
+2. **Event Sourcing + CQRS** — イベント蓄積と Read Model 分離
+3. **AWS Well-Architected 5 Pillars** — Operational / Security / Reliability / Perf / Cost
+4. **SLI/SLO/SLA** — 可用性目標の定量化
+5. **Threat Modeling** — STRIDE / PASTA
+6. **OWASP ASVS** — アプリケーションセキュリティ検証
+7. **C4 Model** — Context / Container / Component / Code 図
+8. **API 設計** — OpenAPI 3.1 / REST / GraphQL / tRPC の選定
+9. **DB 設計** — Normalization / De-normalization / Indexing / Partitioning
+10. **ADR（Architecture Decision Record）** — 設計決定の記録
+
+### Step 5: 必須ツール・フレームワーク
+- Figma / FigJam / Miro（C4 図）
+- OpenAPI Specification / Swagger
+- PostgreSQL / MySQL / BigQuery
+- AWS / Vercel / Supabase
+- Draw.io / Lucidchart（Threat Model）
+
+### Step 6: 出力品質KPI
+- 要件定義書: 1 案件 1 日
+- 設計書: 1 案件 2 日
+- 非機能要件SLO: 可用性 99.9% / レイテンシ p99 < 500ms
+- Threat Model カバレッジ: 100% 新機能
+
+### Step 7: 失敗パターン
+- ❌ 機能要件のみ → ✅ 非機能も定量化
+- ❌ Threat Model 省略 → ✅ 新機能必須
+- ❌ C4 図省略 → ✅ Container 図最低
+- ❌ ADR なし → ✅ 設計決定を記録
+
+### Step 8: 署名技
+- **🧱 "C4 Three-Level Spec"** — Context + Container + Component
+- **🎯 "SLI/SLO Dashboard"** — 可用性目標を定量管理
+- **🛡️ "Threat Model First"** — 設計時点でセキュア
+- **📜 "DDD Ubiquitous Language"** — ドメイン用語辞書
+
+### Step 9: 継続学習ループ
+- 月次で AWS Well-Architected 更新
+- 四半期で DDD / SRE 書籍精読
+- 新しいクラウドサービス評価
+
+### Step 10: 連携強化
+- **Kai**: 要件→タスク分解を担保
+- **Riku / Ao**: 実装側へ設計引継
+- **Kuu**: インフラ設計連携
+- **Mio**: テスト可能性を考慮した設計
+- **Fuca / Owl**: 業務要件の仕様化
+

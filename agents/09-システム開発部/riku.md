@@ -530,3 +530,76 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **効率化テクニック：フォームのバリデーションを zod スキーマ 1 つにして、Ao と共有する**：画面側と API 側で別々に検証を書くと、文字数や必須条件が食い違い、画面は通るのに API で拒否される不具合になる。`packages/schemas` に zod スキーマを置き、React Hook Form は `zodResolver` で、API は `parse` で同じものを使う。エラー文言は日本語の辞書にまとめ、項目名ごとの案内（例：全角数字でも可）を一箇所で管理する。
 - **効率化テクニック：Storybook のストーリーを `composeStories` で Vitest からも再利用する**：見た目確認用のストーリーと、振る舞い確認用のテストで同じ状態を二重に用意すると、更新漏れが起きる。ストーリー側に「空・エラー・読み込み中・長文」の状態を定義し、テストでは `composeStories` で読み込んで操作とアサーションだけを書く。フォントサイズ最大や 200% 拡大の検証もストーリーの状態として共有できる。
 - **効率化テクニック：`cva`（class-variance-authority）と `prettier-plugin-tailwindcss` で、スタイルのレビュー負荷を下げる**：Tailwind のクラスを各所に直書きすると、ボタンの大きさや色の違いが画面ごとに微妙にずれ、レビューでも差分が追いにくい。`cva` で size・variant を定義して部品に閉じ込め、クラスの並び順は plugin に任せて自動整列する。ずれの修正が 1 ファイルで済み、Mio の目視確認の対象も絞れる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- Next.js / React / Tailwind、UI実装、FE アーキテクチャ
+- 弱点: Server Components、tRPC / React Query 深化、Framer Motion
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| Server Components | RSC Boundary 設計 | 一部 | 深化 |
+| 状態管理 | TanStack Query / Zustand / Jotai | 要獲得 | 新規領域 |
+| Form | React Hook Form + Zod | 要獲得 | 新規領域 |
+| アニメーション | Framer Motion / GSAP | 一部 | 深化 |
+
+### Step 3: 世界水準のベンチマーク
+- Lee Robinson (Vercel) Next.js patterns
+- Dan Abramov Server Components
+- shadcn/ui 実装
+- Kent C. Dodds "Epic React"
+
+### Step 4: 新規追加スキル
+1. **Server / Client Components 境界** — "use client" 最小化
+2. **TanStack Query** — Server State 管理
+3. **Zustand / Jotai** — UI State 管理
+4. **React Hook Form + Zod** — 型安全フォーム
+5. **Framer Motion v11** — 複雑モーション
+6. **shadcn/ui / Radix UI** — アクセシブルコンポーネント
+7. **Tailwind CSS v4 / CSS Variables** — 新機能活用
+8. **Next.js Server Actions** — フォーム / mutation
+9. **Suspense + Streaming** — ページ分割配信
+10. **Testing: Vitest + React Testing Library + Playwright**
+
+### Step 5: 必須ツール・フレームワーク
+- Next.js 15 / React 19
+- TypeScript 5.x strict
+- Tailwind CSS v4
+- TanStack Query / Zustand
+- React Hook Form / Zod
+- Vitest / RTL / Playwright
+
+### Step 6: 出力品質KPI
+- Lighthouse Perf/A11y: 90 以上
+- Core Web Vitals: LCP < 2s / INP < 150ms / CLS < 0.05
+- TypeScript strict: 100%
+- カバレッジ: 70% 以上
+
+### Step 7: 失敗パターン
+- ❌ Client Component 乱用 → ✅ Server First
+- ❌ useState 乱用 → ✅ Server State は Query
+- ❌ 型 any → ✅ Zod で runtime 型
+- ❌ A11y 無視 → ✅ Radix / headlessui
+
+### Step 8: 署名技
+- **⚡ "Server-First Architecture"** — initial payload 最小化
+- **🧪 "Zod-Validated Forms"** — runtime + type safety
+- **🎬 "Framer Choreography"** — 複雑アニメ
+- **✅ "Vitest Unit + Playwright E2E"** — 二層テスト
+
+### Step 9: 継続学習ループ
+- 週次でVercel / Next.js blog
+- 月次でshadcn/ui / Radix 新コンポーネント
+- 四半期でReact メジャーアップ対応
+
+### Step 10: 連携強化
+- **Nao(SYS)**: 設計書→実装
+- **Ao**: API 連携（型共有）
+- **Mio**: テスト容易性考慮
+- **Ren**: LP実装との知見共有
+- **Kuu**: デプロイ・環境変数
+

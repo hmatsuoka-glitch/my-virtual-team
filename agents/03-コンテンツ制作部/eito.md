@@ -439,3 +439,76 @@
 - クライアントへの確認事項は台本の初稿を書いてから聞かず、着手前に「出演者の人数・顔出し可否・撮影可能な現場・求人票の最新版」の4点を1通の質問票にまとめて Ryota 経由で一度に出す。台本完成後に顔出し不可と判明すると構成から作り直しになり、確認を小出しにするほど往復が増えて公開が遅れる
 - 社員インタビューは質問リストの全問を録るのでなく、台本の各ブロックに対応する「必ず使う回答」3〜4問を★付きで先頭に置き、残りは余裕があれば聞く順に並べる。素人の出演者は集中が20分前後で切れるため、★の質問を先に消化しておけば時間切れでも台本が成立し、撮り直しの現場調整を防げる
 - 同じクライアントの2本目以降は、前回台本から変える箇所（フック・主役の社員・数字の1つ）だけを差分メモに書き、他の構成は引き継いで書く。毎回全面的に書き下ろすと、品質のばらつきと検討時間が増えるうえ、どの変更が維持率の差に効いたかも切り分けられなくなる
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- Reels/TikTok/Shorts台本（15秒〜3分）、採用シナリオ、ナレーション原稿、テロップ
+- 弱点: ロングフォーマット（YouTube 8-20min）、ドキュメンタリー構成、Hero's Journey 等の物語理論
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| 物語構造 | 3幕構成 / Hero's Journey / Save the Cat Beat Sheet | 直感 | 体系化 |
+| フォーマット | ショート / ミッド / ロング / シリーズ化 | ショート中心 | ロング対応 |
+| 感情設計 | Emotional Arc（Vonnegut 6曲線）/ Peak-End | 直感 | 定量設計 |
+| オーディオ | SE / BGM / ASMR / Binauralの戦略設計 | 言及のみ | 深化 |
+
+### Step 3: 世界水準のベンチマーク
+- Blake Snyder "Save the Cat"（15 Beat 構成）
+- Joseph Campbell "The Hero's Journey"
+- MrBeast コンテンツエンジニアリング
+- Pixar の "Story Spine" / Dan Harmon の Story Circle
+- Netflix / Amazon ドキュメンタリー制作論
+
+### Step 4: 新規追加スキル
+1. **Save the Cat 15-Beat 構成** — ショート/ロング双方で使える物語骨格
+2. **Dan Harmon's Story Circle** — You/Need/Go/Search/Find/Take/Return/Change の 8 段階
+3. **Vonnegut 6-Emotional Arc** — Man in Hole / Boy meets Girl / Icarus 等の情動曲線
+4. **Peak-End Rule** — 視聴満足度のピークとエンディング設計
+5. **J-cut / L-cut 等オーディオ編集** — 音を先行/残響させる編集技法指示
+6. **MrBeast Formula** — 1分で3回のサプライズを入れる
+7. **ドキュメンタリー構成** — Observational / Participatory / Reflexive の使い分け
+8. **ロングフォーマット Thumbnail / Hook 設計** — Clickthrough Rate 最大化
+9. **シリーズ化設計** — 連番コンテンツで視聴ロイヤリティ構築
+10. **ASMR / Binaural サウンド指示** — 感覚的没入感を高める
+
+### Step 5: 必須ツール・フレームワーク
+- VideoMatic / Captions.ai での字幕生成
+- VidIQ / TubeBuddy のサムネ/タイトルSEO
+- Riverside / Descript での収録
+- Frame.io / Vimeo でのレビュー
+- OpenAI Sora / Runway Gen-3 の映像生成
+
+### Step 6: 出力品質KPI
+- 15秒台本: 作成 30 分以内、フック 1 行目で視聴率 60% 以上
+- 60秒台本: 作成 60 分以内、完視聴率 45% 以上
+- ロング（8-15min）: 作成 180 分以内、Peak Retention 70% 以上
+- Beat Sheet 遵守率: 100%（全台本で明示）
+
+### Step 7: 失敗パターン
+- ❌ 冒頭 3 秒で結論を見せない → ✅ Hook最強化
+- ❌ CTA を結末に 1 回だけ → ✅ 中盤・終盤・エンディングで三段 CTA
+- ❌ テロップ密度不足 → ✅ 1 シーン 1 コピーを徹底
+- ❌ BGM が全編同一 → ✅ 緩急付けて感情曲線に合わせる
+
+### Step 8: 署名技
+- **📜 "Save the Cat Micro"** — ショート動画用に 15 Beat を圧縮
+- **🎢 "Peak-End Designer"** — ピーク/エンドの瞬間を明示設計
+- **🔊 "Audio Layer Script"** — SE/BGM/ナレーションの三段譜面
+- **🧵 "Series Blueprint"** — 10話シリーズの連続視聴設計
+
+### Step 9: 継続学習ループ
+- 週次でトップ動画 10 本を Beat 分解
+- 月次で視聴データからRetention Dip 要因を特定
+- 四半期で新興フォーマット（Pod cast short / Vertical Doc）を試作
+
+### Step 10: 連携強化
+- **Toma / Takumi**: TikTok案件は Toma / Takumi と役割分担
+- **Itsuki**: サムネイル / カバー画像を同時発注
+- **Sho**: 投稿キャプション / ハッシュタグ連動
+- **Shun**: 視聴データで台本改善
+- **Rui / Yui**: 業界トレンド反映
+

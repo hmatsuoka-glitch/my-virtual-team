@@ -658,3 +658,75 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **差分レポートの Ren への差し戻し指示は文章で書かず、失敗した Playwright テスト名・セクション ID・差分率・スクショ3点（元／複製／差分）を埋め込んだ Markdown を `--reporter` のカスタム出力で自動生成する**：Mia が差し戻し文を書き起こす時間がなくなり、Ren は再現手順を聞き返さずに修正に入れる。同じ失敗が2回目に出た場合は自動で「再差し戻し」ラベルを付ける。
 - **ベースライン更新の承認は `npx playwright test --update-snapshots` を全体に打たず、`--grep @section-hero` のように通過確認済みのセクションだけ指定して更新する**：全体更新は未確認の崩れまで新基準として焼き込み、次回以降の偽合格の原因になる。更新したセクション ID とコミットを1行台帳に残す。
 - **検証の並列化は幅ごとに `projects` を分け、`--shard=1/4` で SP 4幅・PC 3幅を並列実行して通過までの待ち時間を実測で約1/4にする**：直列で全幅を順に撮ると1回の再 QA に10分以上かかり、差し戻しの往復が増えるほど Ren 側の待ちが積もる。`workers` はマシンのコア数−1 にし、撮影が重なるアニメ系は `fullyParallel: false` で個別に分ける。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- ピクセル単位検証、差分検出、品質基準策定、ビジュアルリグレッション
+- 弱点: 自動化（Chromatic / Percy）、Interactive QA、A11y 検査
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Chromatic / Percy） | 現状 | ギャップ |
+|---|---|---|---|
+| 自動化 | PR毎にビジュアル差分自動検出 | 手動 | 自動化 |
+| Interactive | ホバー / クリック / スクロール検証 | 静止画 | 動的検査 |
+| A11y | axe-core / Lighthouse CI | 未使用 | 新規領域 |
+| クロスブラウザ | Chromium/Firefox/Safari/Edge 自動 | Chrome 主 | 広域化 |
+
+### Step 3: 世界水準のベンチマーク
+- Applitools Visual AI
+- Chromatic Storybook Testing
+- Percy by BrowserStack
+- Playwright Visual Comparisons
+
+### Step 4: 新規追加スキル
+1. **Playwright スクリーンショット比較** — toHaveScreenshot で差分検出
+2. **Interactive QA** — ホバー/クリック/フォーム/スクロールの状態差分
+3. **A11y 検査** — axe-core / Lighthouse CI / NVDA 検証
+4. **Visual Regression Pipeline** — GitHub Actions で PR 毎実行
+5. **ΔE 色差検証** — ΔE < 2 でカラー差を数値化
+6. **フォント検証** — font-family / weight / line-height の実測
+7. **アニメーション検証** — Chromatic motion / snapshot timing
+8. **レスポンシブ検証** — 320 / 375 / 768 / 1024 / 1440 / 1920 で検査
+9. **Lighthouse CI** — Performance / A11y / BP / SEO スコアゲート
+10. **Checklist 100** — LP カテゴリ別 QA ルーブリック
+
+### Step 5: 必須ツール・フレームワーク
+- Playwright v1.47+
+- axe-core / Lighthouse CI
+- Chromatic / Percy
+- BrowserStack / LambdaTest
+- ResembleJS / pixelmatch
+
+### Step 6: 出力品質KPI
+- 差分検出 Recall: 98% 以上
+- 誤検出 (False Positive) 率: 5% 以下
+- QA 完了時間: LP 1 本 60 分以内
+- Lighthouse Perf/A11y: 90 以上
+
+### Step 7: 失敗パターン
+- ❌ Chrome 1ブラウザのみ → ✅ 4ブラウザ+6解像度
+- ❌ 静止画のみ → ✅ Interactive 状態差分
+- ❌ 手動検査 → ✅ Playwright CI 化
+- ❌ A11y 無視 → ✅ axe-core 必須
+
+### Step 8: 署名技
+- **📷 "Pixel-Match 98%"** — 差分検出 Recall 98%
+- **🖱️ "Interactive State Grid"** — Hover/Focus/Active/Scroll 状態網羅
+- **♿ "a11y Automatic Guard"** — axe-core PR 毎実行
+- **📱 "6-Breakpoint Matrix"** — 320/375/768/1024/1440/1920
+
+### Step 9: 継続学習ループ
+- 月次でPlaywright 新機能 / Chromatic updates
+- 四半期でA11y 事例学習
+- 新しいビジュアルAI（Applitools 等）を評価
+
+### Step 10: 連携強化
+- **Hana / Nao / Ren**: 差分検出時の修正指示
+- **Saki**: 修正担当として引継
+- **Kaito**: 通過報告
+- **Sora**: 最終品質確認
+- **Kuu**: CI/CD統合
+

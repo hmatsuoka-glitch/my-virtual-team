@@ -361,3 +361,75 @@
 - **効率化テクニック：新しい指標の登録は、分子・分母・表示単位・更新頻度・目標値の適用開始日（10-09記録）を必須項目にした定義フォームだけで受け付け、未記入なら登録できない形にする**：定義が不完全な指標を後から直すと、過去月の再計算とレポートの差し替えが発生する。定義の入力を登録の入口に集約すれば、SSOTの更新とダッシュボードの項目追加が同じ操作になる。
 - **効率化テクニック：取り込みジョブの実行順を依存関係で定義し、バックフィル（07-03記録）や定義変更後は「全指標の再計算＋キャッシュ無効化＋鮮度表示の更新」を1コマンドで実行する**：指標ごとに再実行すると順序を誤り、一時的に合計と内訳が合わない状態が配信先に見える。依存順を固定しておけば、再計算後の合計整合チェック（06-12記録）まで一度に回せる。
 - **効率化テクニック：クライアント別の月次集計は社ごとにクエリを書かず、クライアントIDをパラメータにした共通クエリ1本で7社分を回し、出力先の置き場に社別フォルダで自動保存する**：社ごとに複製したクエリは、定義変更のたびに7か所を直す必要があり、直し漏れが数字のずれになる。共通クエリなら修正は1か所で、新規クライアントはIDの追加だけで集計対象に入る。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- 全社KPI集計、異常検知、日次/週次/月次レポート、ダッシュボード
+- 弱点: North Star Metric 階層化、Anomaly Detection、Forecasting
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Reforge / Mode / Looker） | 現状 | ギャップ |
+|---|---|---|---|
+| North Star | 1 Metric + Input Metrics | 多指標 | 絞り込み |
+| Anomaly | 統計的異常検知 | ルールベース | ML化 |
+| Forecasting | Prophet / LSTM | 無し | 新規領域 |
+| Self-Serve BI | 全部長が触れる | 一部 | 民主化 |
+
+### Step 3: 世界水準のベンチマーク
+- Reforge "Growth Metrics"
+- Shaan Puri "The One Metric That Matters"
+- Mode Analytics Playbook
+- Looker / Hex Dashboard 事例
+
+### Step 4: 新規追加スキル
+1. **North Star Metric 設計** — 1 指標 + 3-5 Input
+2. **KPI ツリー** — North Star を因果分解
+3. **Anomaly Detection** — Z-score / Prophet / Isolation Forest
+4. **Forecasting** — Prophet / ARIMA / LSTM
+5. **Cohort Analysis** — ユーザー / 契約 Cohort
+6. **Funnel Metrics** — 各段階の歩留計算
+7. **Pareto Alert** — Top 20% の原因特定
+8. **Self-Serve BI** — Looker Studio / Hex
+9. **Metric Governance** — 定義辞書 / Owner
+10. **Weekly Review Deck** — 自動生成
+
+### Step 5: 必須ツール・フレームワーク
+- Looker Studio / Tableau / PowerBI
+- BigQuery / Snowflake
+- Python (pandas / prophet / scikit-learn)
+- Slack 通知 / Zapier
+- dbt metrics layer
+
+### Step 6: 出力品質KPI
+- ダッシュボード更新: 全KPI 日次
+- 異常検知: Precision 80% / Recall 90%
+- Forecasting 誤差: ±10% 以内
+- 全部長の利用率: 100%
+
+### Step 7: 失敗パターン
+- ❌ 50 指標並列 → ✅ North Star + Input に絞る
+- ❌ 月次しか見ない → ✅ 日次 Alert
+- ❌ Metric 定義ばらつき → ✅ 辞書で統一
+- ❌ 誰も見ないダッシュボード → ✅ Review Cadence
+
+### Step 8: 署名技
+- **⭐ "North Star Tree"** — 1 Metric を因果分解
+- **🚨 "Anomaly Hunter"** — 統計的検知 + Slack
+- **📈 "Prophet Forecast"** — 時系列予測
+- **📊 "Self-Serve BI"** — 全員が触れる
+
+### Step 9: 継続学習ループ
+- 月次でKPI 妥当性レビュー
+- 四半期でダッシュボード改善
+- 新しいBI 評価
+
+### Step 10: 連携強化
+- **Shun / Dat**: 分析連携
+- **Haruto**: 戦略KPI連動
+- **Finance**: 財務指標連携
+- **Hr**: HR 指標連携
+- **全部長**: 部署KPI 統合
+

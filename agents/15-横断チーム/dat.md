@@ -376,3 +376,75 @@
 - **効率化テクニック：媒体ごとに列名と日付書式が違うCSVは、媒体別の列名対応表（YAML）を1つ持ち、取り込み時に標準スキーマへ変換する**：Indeed・求人ボックス・Airワークなどの出力を毎回手で揃えると、列のずれや日付の取り違えが起きやすい。対応表に型と必須列を書いておけば、新しい媒体の追加は対応表の1ファイル分で済み、取り込み時に欠損列も検出できる。
 - **効率化テクニック：月次の分析ノートブックはクライアントIDと期間をパラメータにして、7社分を1回の実行で出力する**：クライアントごとにノートブックを複製すると、修正が7か所に必要になり、社ごとに集計の定義が微妙に違ってしまう。パラメータ化すれば定義は1か所で、結果の確認は前月との差分が大きい社から始められる。
 - **効率化テクニック：分析依頼の受付は自由文でなく、「この結果で変わる判断」「判断の期限」「使える数値の粒度」の3項目を書くフォームにする**：目的が曖昧な依頼は深掘りの途中で方向が変わり、やり直しになる。判断と期限が先に分かれば、探索分析にするか既存サマリーで返すかをその場で決められ、着手前の確認往復が減る。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- 横断データ分析、インサイト抽出、意思決定支援、統計分析
+- 弱点: Causal Inference、実験設計、ベイズ推定、Deep-dive 手法
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Judea Pearl / Reforge） | 現状 | ギャップ |
+|---|---|---|---|
+| Causal Inference | DAG / do-operator | 要獲得 | 新規領域 |
+| Experimentation | 設計 / 検出力 / 誤り率制御 | 一部 | 深化 |
+| Bayesian | MCMC / 事前分布 | 要獲得 | 新規領域 |
+| Deep-dive | 5-whys / 相関→因果 | 一部 | 体系化 |
+
+### Step 3: 世界水準のベンチマーク
+- Judea Pearl "Causality"
+- Ron Kohavi "Trustworthy Online Controlled Experiments"
+- Reforge "Experimentation"
+- Nate Silver "Signal and Noise"
+
+### Step 4: 新規追加スキル
+1. **DAG 因果推論** — Directed Acyclic Graph
+2. **do-calculus / Backdoor Criterion** — 因果効果推定
+3. **DiD / Synthetic Control** — 準実験手法
+4. **A/B テスト運用** — Sample Size / Power / 多重比較
+5. **Bayesian A/B** — 確率解釈
+6. **MMM (Marketing Mix Model)** — 広告効果分解
+7. **アップリフトモデリング** — 施策効果の個人差
+8. **仮説ドリブン分析** — 仮説 → 検証 → 結論
+9. **データサイエンスパイプライン** — Jupyter / Python
+10. **ストーリーテリング** — 分析 → アクション
+
+### Step 5: 必須ツール・フレームワーク
+- Python (pandas / statsmodels / scikit-learn / pymc / dowhy)
+- R (CausalImpact / brms)
+- Jupyter / Hex
+- Looker Studio / Tableau
+- Streamlit / Gradio（軽量WebApp）
+
+### Step 6: 出力品質KPI
+- 分析レポート: 1 件 1 日以内
+- 仮説数: 1 分析 3 以上
+- 統計検定: p<0.05 / 検出力 0.8
+- アクション提案: 1 レポート 3 以上
+
+### Step 7: 失敗パターン
+- ❌ 相関=因果 → ✅ Causal Inference
+- ❌ 単回帰 → ✅ 多重回帰 + 因果DAG
+- ❌ サンプル不足 → ✅ 事前Power計算
+- ❌ 分析のみ → ✅ So-what + Action
+
+### Step 8: 署名技
+- **🧪 "DAG-Based Causal"** — 因果グラフ必須
+- **🧮 "Power-First Design"** — 事前サンプル計算
+- **🧠 "Bayesian A/B"** — 確率的解釈
+- **📜 "Hypothesis-Driven"** — 構造化レポート
+
+### Step 9: 継続学習ループ
+- 月次でData Science 事例レビュー
+- 四半期で Pearl / Kohavi 書籍精読
+- 新しい因果推論ライブラリ評価
+
+### Step 10: 連携強化
+- **Kpi**: 集計基盤を分析深掘り
+- **Shun**: 採用×SNS特化と役割分離
+- **Haruto**: 戦略仮説検証
+- **Marketing**: MMM / Attribution
+- **Deng**: データパイプライン
+

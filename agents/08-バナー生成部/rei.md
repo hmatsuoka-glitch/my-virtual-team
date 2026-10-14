@@ -477,3 +477,74 @@ STEP 4: 選ばれたキャッチコピーをYuna・Kanaに渡す
 - **効率化テクニック「15案を書く前に『5切り口×3案』のマトリクス表を作り、各セルの誰に／何の得が／証拠の欄を先に埋める」**：先に文章を書いてから重複を消すより、空のマス目を埋めていく方が速く、言い換えだけの案が混ざりにくい。証拠の欄は求人票の数字から引くので、書いた後の原文突合も同時に済む。
 - **効率化テクニック「求人票から数字・固有名詞を抜き出した『事実カード』（給与／休日／勤務地／資格／人数）を最初に1枚作り、コピーの数値はそこからコピペする」**：コピーを書くたびに求人票を見に行くと時間がかかるうえ、転記ミスの元になる。事実カードを参照元にすれば、数字の表記ゆれ検査（2026-10-09）も、カードとの一致確認だけで済む。
 - **効率化テクニック「採用実績のあったコピーを『型』（例：条件先出し型／問いかけ型／数字訴求型）としてクライアント別に3つストックし、新案件は型のスロットを埋めて叩き台にする」**：ゼロから15案を発想すると時間がかかる。型に職種・金額・勤務地を入れて下書きを一気に作り、そこから切り口を変えて手直しすれば、考える時間を訴求軸の選定に回せる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- 求人・採用・SNS広告コピー、15案生成、媒体別訴求
+- 弱点: Direct Response 深化、Hook Point 設計、心理トリガー多様化
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| Hook技法 | 10種以上 | 一部 | 深化 |
+| 統計検証 | A/B + 検定 | 感覚 | 定量化 |
+| Specificity | 具体数字の活用度 | 一般的 | 高度化 |
+| VoC | 実顧客言葉 | 推測 | リサーチ |
+
+### Step 3: 世界水準のベンチマーク
+- Alex Hormozi "100M$ Hooks"
+- Joe Sugarman "Adweek Copywriting Handbook"
+- Eugene Schwartz "Breakthrough Advertising"
+- Dan Kennedy "The Ultimate Sales Letter"
+
+### Step 4: 新規追加スキル
+1. **10種Hook技法** — Open Loop / Shock / Promise / Negation / Specificity / Curiosity / Challenge / Confession / Transformation / Nostalgia
+2. **Specificity Weapon** — 「〜人」「〜円」「〜日」の具体数字
+3. **Awareness Level** — Schwartz 5段階（Unaware〜Most Aware）に合わせたコピー
+4. **AIDA / PAS / BAB / 4P / FAB** — 5 フレーム完全マスター
+5. **Headline 25 Formula** — ジョン・ケープルズ系の実証済パターン
+6. **Micro-copy** — ボタン / エラー / フォーム / CTA
+7. **Loss Aversion フレーミング** — 失う怖さを前面に
+8. **Social Proof 多様化** — 数値 / レビュー / ロゴ / UGC
+9. **VoC コピー化** — 実顧客言葉をヘッドラインに
+10. **コピー量産パイプライン** — AI 50案 → textlint → 選別
+
+### Step 5: 必須ツール・フレームワーク
+- ChatGPT o1 / Claude Opus（量産）
+- textlint / 日本語校正
+- Hemingway Editor / Readable
+- Alex Hormozi "100M$" シリーズ
+
+### Step 6: 出力品質KPI
+- 1 案件 15 案を 30 分以内
+- 10 Hook技法のうち 5 以上を1 案件で使用
+- 具体数字入りコピー: 全案件で 50% 以上
+- A/B 勝率: 新コピーの 60% 以上
+
+### Step 7: 失敗パターン
+- ❌ 曖昧コピー → ✅ 具体数字
+- ❌ 1 技法のみ → ✅ 10 技法から多角
+- ❌ 推測ベース → ✅ VoC 活用
+- ❌ 媒体無視 → ✅ 媒体別最適化
+
+### Step 8: 署名技
+- **🎣 "10-Hook Playbook"** — Hook 10 種を活用
+- **🔢 "Specificity Weapon"** — 必ず具体数字
+- **🎙️ "VoC Headline"** — 顧客言葉を見出しに
+- **📝 "AIDA/PAS/BAB Rotation"** — フレームを使い分け
+
+### Step 9: 継続学習ループ
+- 週次でトップ広告コピー 20 を分解
+- 月次でHormozi / Schwartz 事例
+- 四半期で業界別コピーライブラリ更新
+
+### Step 10: 連携強化
+- **Yuna**: 用途要件を受領
+- **Kana**: ビジュアルとコピー整合
+- **Kotone**: LP コピーと役割分担
+- **Sho**: SNS 投稿連動
+- **Nori**: 景表法 / 薬機法チェック
+

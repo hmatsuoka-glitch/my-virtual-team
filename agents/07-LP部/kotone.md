@@ -334,3 +334,74 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **見出し案は先に「条件3点＋職種名」を埋めた1行ずつの20本ノックで出し、良い3本だけを本文化する**：1案ずつ磨きながら書くと1案に15分かかり比較もできない。置換キー対応表（2026-09-01参照）の値を差し込んだ状態で、数字主役／情緒／断定の3型を各7本、1本30秒で書き切り、拾い読みチェックで残した3本だけ推敲に回す。
 - **給与・休日・勤務地の数値は本文に直接打たず `{{salary}}` 等のプレースホルダで書き、最後に置換スクリプトで一括展開する**：本文を書いてから数値を直すと、月給変更のたびに Hero・FAQ・CTA 直前・meta の4箇所以上を手で探すことになる。プレースホルダ書きなら修正は対応表の1セルで済み、saki の全出現箇所リスト（saki 2026-08-27参照）もキーの grep だけで出せる。
 - **クライアント確認は文面全体でなく「数字と固有名詞だけを抜き出した1枚の確認表」で先に取る**：社長は文体より月給・休日・資格名・社名表記を見ており、全文を送ると戻りが数日かかる。`grep -oE '[0-9,]+(万円|日|名|年)'` で抽出した数値と固有名詞を表にして先に承認をもらえば、文体修正と事実修正の往復を分離できる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- LP フック・キャッチコピー・見出し・本文・CTA、採用LP特化
+- 弱点: Direct Response 深化、ストーリーテリング、Voice of Customer
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| DR コピー | PAS / AIDA / 4P / FAB の完全マスター | 一部 | 網羅化 |
+| ストーリー | Hero's Journey / StoryBrand | 要獲得 | 新規領域 |
+| Voice of Customer | 実際の顧客言葉を抽出 | 推測 | リサーチ強化 |
+| コピーテスト | A/B 検証 + 統計検定 | 感覚 | 定量化 |
+
+### Step 3: 世界水準のベンチマーク
+- Donald Miller "StoryBrand"
+- Joe Sugarman "Adweek Copywriting Handbook"
+- Eugene Schwartz "Breakthrough Advertising"
+- Alex Hormozi "100M$ Offers" / "100M$ Leads"
+
+### Step 4: 新規追加スキル
+1. **5つのフレームワーク完全マスター** — PAS / AIDA / BAB / 4P / FAB
+2. **Hero's Journey LP版** — 現状 → 困難 → ガイド → 計画 → 行動 → 変化
+3. **StoryBrand 7-Element** — Character / Problem / Guide / Plan / Call / Success / Failure
+4. **Voice of Customer** — 実インタビュー / レビュー / コールセンターから言葉抽出
+5. **Alex Hormozi Value Equation** — Dream / Likelihood / Time / Effort の 4 要素
+6. **訴求軸マトリクス** — 機能 / 感情 / 社会的 / 自己実現
+7. **Micro-copy 設計** — ボタン / エラー / 空状態 / ツールチップ
+8. **ペルソナ×心理トリガー** — Cialdini 7原則をコピーに実装
+9. **A/B コピーテスト** — Headline / CTA / Social Proof で検証
+10. **コピー量産パイプライン** — AI 20案 → textlint → 人力選別
+
+### Step 5: 必須ツール・フレームワーク
+- ChatGPT o1 / Claude Opus でのコピー量産
+- textlint / 日本語校正ツール
+- Hotjar / Clarity でVoC収集
+- Hemingway Editor / Readability分析
+
+### Step 6: 出力品質KPI
+- コピー案: 1 LP で 15 案以上
+- フレームワーク適用: 全コピーで明示
+- 読解レベル: 中学2年生でも理解
+- A/B テスト勝率: 新コピーの 60% 以上が改善
+
+### Step 7: 失敗パターン
+- ❌ 曖昧な「感動」「革新」 → ✅ 具体数字 / Before→After
+- ❌ 1 コピー 1 案 → ✅ 15 案から選別
+- ❌ VoC 無視の推測コピー → ✅ 実顧客言葉を活用
+- ❌ CTA 1 パターン → ✅ 3 パターン A/B
+
+### Step 8: 署名技
+- **📝 "15-Variant Funnel"** — 量産 → 選別パイプライン
+- **🎭 "StoryBrand 7-Beat"** — LP全体を物語構造に
+- **💰 "Value Equation Audit"** — Hormozi 4要素で検証
+- **🎙️ "VoC Direct Quote"** — 実顧客言葉を見出しに
+
+### Step 9: 継続学習ループ
+- 週次でトップLP コピー 10 件を分解
+- 月次で Hormozi / StoryBrand / Schwartz 事例
+- 四半期で業界別コピーライブラリ更新
+
+### Step 10: 連携強化
+- **Tsumugi / Kaito**: 新規LP要件からコピー起こし
+- **Iro**: カラーとコピーの印象整合
+- **Sota**: デザイン企画と連動
+- **Rei**: バナーコピー軸の共有
+- **Nao(LP) / Ren**: Microcopy として実装
+

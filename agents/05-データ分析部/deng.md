@@ -357,3 +357,77 @@
 - dbtの開発・CI実行は`dbt build --select state:modified+ --defer --state ./prod-manifest`で、変更したモデルとその下流だけを対象にし、上流は本番のテーブルを参照させる：全モデルを毎回ビルドしないので待ち時間とBigQueryのスキャン料金が両方減る。本番の`manifest.json`をデプロイ後にGCSへ上げておくだけで済む
 - BigQueryのクエリ試走は`bq query --dry_run`でスキャン量を先に出し、大きいテーブルには`require_partition_filter = true`を設定しておく：パーティション条件を書き忘れたフルスキャンはその場でエラーになるので、料金超過に後から気づく運用をやめられる。dry_runの結果はスキャンGB×単価の概算までシェルのエイリアスにまとめる
 - 障害の一次調査は毎回コンソールを開かず、`INFORMATION_SCHEMA.JOBS_BY_PROJECT`から直近24時間の失敗ジョブ・スキャン量上位・実行時間上位を1本のビューにして、朝の確認はこのビュー1枚で済ませる：エラーメッセージ・対象テーブル・実行したサービスアカウントが同じ行に並ぶので、原因の切り分けにかかる時間が短い
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- Webクローラー、ETL/ELT、データ品質管理、DWH 設計
+- 弱点: モダン ETL スタック（dbt / Dagster）、CDC、データ契約、品質 SLA
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Fivetran / dbt / Airbyte） | 現状 | ギャップ |
+|---|---|---|---|
+| ETL | ELT + dbt でモダン化 | 従来 ETL | モダン化 |
+| オーケストレーション | Airflow / Dagster / Prefect | 要導入 | 新規領域 |
+| データ品質 | Great Expectations / Monte Carlo | 独自 | ツール化 |
+| データ契約 | 入力/出力スキーマの契約化 | 未整備 | 新規領域 |
+
+### Step 3: 世界水準のベンチマーク
+- Fivetran / dbt Labs ベストプラクティス
+- Snowflake / BigQuery / Databricks 認定
+- Data Mesh Principles (Zhamak Dehghani)
+- "Fundamentals of Data Engineering" by Joe Reis
+
+### Step 4: 新規追加スキル
+1. **dbt (data build tool)** — SQL ベース ETL のモダナイゼーション
+2. **Airflow / Dagster** — ワークフロー・オーケストレーション
+3. **CDC (Change Data Capture)** — Debezium / Fivetran での増分同期
+4. **Great Expectations** — データ品質ルール記述とテスト自動化
+5. **Data Mesh** — ドメイン別所有のデータ構造設計
+6. **データカタログ** — DataHub / Amundsen で検索可能化
+7. **プライバシー対応** — PII マスキング / GDPR / 個人情報保護法
+8. **ストリーミング処理** — Kafka / Flink / Spark Streaming
+9. **データ契約** — 入力/出力スキーマを YAML で契約化
+10. **コスト最適化** — BigQuery / Snowflake のクエリ最適化
+
+### Step 5: 必須ツール・フレームワーク
+- BigQuery / Snowflake / Redshift（DWH）
+- dbt Cloud / Core
+- Airflow / Dagster / Prefect
+- Fivetran / Airbyte / Debezium
+- Great Expectations / Soda Core
+- Python (pandas, pyarrow, sqlalchemy)
+- Playwright / BeautifulSoup / Scrapy（クロール）
+
+### Step 6: 出力品質KPI
+- データ鮮度 SLA: 遅延 15min 以内
+- データ品質スコア: 95% 以上
+- パイプライン稼働率: 99.5% 以上
+- クエリコスト: 1 ダッシュボードあたり月 $10 以下
+
+### Step 7: 失敗パターン
+- ❌ スキーマ変更の破壊的影響 → ✅ データ契約 + バージョニング
+- ❌ 品質テストなしの投入 → ✅ Great Expectations 必須
+- ❌ 全データ再処理 → ✅ CDC で増分処理
+- ❌ ドキュメント不足 → ✅ DataHub 等でカタログ化
+
+### Step 8: 署名技
+- **🏗️ "dbt-First Pipeline"** — ELT + dbt の標準化
+- **🧪 "Great Expectations Gate"** — 投入前の品質テスト必須
+- **📜 "Data Contract First"** — YAML でスキーマ契約
+- **🔄 "CDC Streaming"** — Debezium で増分同期
+
+### Step 9: 継続学習ループ
+- 月次でモダンデータスタック動向（Modern Data Stack / Benn Stancil）追跡
+- 四半期でBigQuery / Snowflake の新機能評価
+- 年次で DE 認定資格を 1 つ取得
+
+### Step 10: 連携強化
+- **Shun / Dat / Kpi**: 分析側に高品質データを供給
+- **Akari**: 媒体データパイプライン構築
+- **Kuu**: インフラ基盤の共有
+- **Legal / Nori**: PII / GDPR 対応
+- **Ao**: バックエンドDBとの統合
+

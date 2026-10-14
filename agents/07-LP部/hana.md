@@ -831,3 +831,75 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - フォントの実使用範囲は`document.fonts`をループして『実際にロードされたフォントファイルのfamily・weight・style・unicode-range』だけを列挙する：ソースの`@font-face`を全て仕様書に書き出す作業が不要になり、使われていないweightの追加ダウンロードを仕様に混ぜない。ライセンス判定表（2026-09-01参照）への突き合わせも実使用分だけで済む
 - `:root`のカスタムプロパティは`getComputedStyle(document.documentElement)`で一括取得し、値の完全一致でtokens.jsonの色・余白キーを逆引きして候補マッピングを自動生成する：元サイトがCSS変数を使っている場合、手で『この16進はどのトークンか』を対応づける作業が消える。一致しない値だけを人が判断するので、例外処理に時間を使える
 - レスポンシブの確認は375/768/1280pxの3幅で目視往復せず、Playwrightで元サイトと実装の両方のフルページスクリーンショットを1コマンドで撮り、pixelmatchで差分率と差分箇所の画像を出す：差分率が閾値内なら通過、超えた箇所だけをRen/Kaitoへ戻す。ブレークポイントごとの見比べを全ページで繰り返さなくてよい
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- CSS抽出、カラーパレット、フォント設計、アニメーション解析、レスポンシブ
+- 弱点: CSS-in-JS解析、CSS Variables / 新CSS機能、デザイントークン化
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| 新CSS機能 | @container / :has / @scope / subgrid | 要獲得 | 深化 |
+| トークン化 | Design Tokens Studio / Style Dictionary | 未使用 | 新規領域 |
+| CSS-in-JS | styled-components / emotion / vanilla-extract | 要対応 | 深化 |
+| OKLCH | 新色空間での抽出 | HEX/HSL | 深化 |
+
+### Step 3: 世界水準のベンチマーク
+- Josh Comeau "CSS for JavaScript Developers"
+- Adam Argyle (web.dev) CSS記事
+- CSS Working Draft 最新
+- Design Tokens Community Group
+
+### Step 4: 新規追加スキル
+1. **OKLCH / P3 色空間抽出** — 新色空間を使った正確な色再現
+2. **@container Queries** — コンポーネント単位のレスポンシブ
+3. **:has() セレクタ** — 親要素制御パターン
+4. **subgrid / masonry** — 高度なグリッド
+5. **Design Tokens 変換** — Figma Tokens → CSS Variables
+6. **CSS Scoped (@scope)** — スタイル汚染防止
+7. **Scroll-Driven Animations** — scroll-timeline / view-timeline
+8. **Houdini Worklets** — ペイント / レイアウト API
+9. **CSS-in-JS 抽出** — styled-components の computed classes 解析
+10. **Font Metrics** — font-size-adjust / line-height / letter-spacing 完全抽出
+
+### Step 5: 必須ツール・フレームワーク
+- Chrome DevTools / Firefox DevTools
+- Figma / Figma Tokens
+- Style Dictionary / Design Tokens Studio
+- Playwright スクリーンショット差分
+- cssbeautify / specificity graph
+
+### Step 6: 出力品質KPI
+- CSS抽出完全率: 99% 以上
+- フォント完全再現率: 100%
+- カラー差分: ΔE < 2（人の目で判別不可）
+- アニメーション抽出: 全keyframes/duration/easing
+
+### Step 7: 失敗パターン
+- ❌ Chrome DevTools のComputed のみ → ✅ Source + Computed 両方
+- ❌ 平均色のみ抽出 → ✅ グラデーション点 / 透明度まで
+- ❌ CSS-in-JS を無視 → ✅ runtime classes を解析
+- ❌ Font-face を無視 → ✅ src / unicode-range まで取得
+
+### Step 8: 署名技
+- **🎨 "ΔE<2 Color Precision"** — 色差2以下で再現
+- **🧬 "Tokens-First Export"** — Design Tokens 形式で出力
+- **📐 "@container Layout"** — コンポーネント単位レスポンシブ
+- **🎭 "Scroll-Timeline Decoder"** — スクロール連動アニメ抽出
+
+### Step 9: 継続学習ループ
+- 週次でCSS WD / Can I Use 更新を追跡
+- 月次でAwwwards 受賞LPを解析
+- 四半期で Chrome DevTools 新機能評価
+
+### Step 10: 連携強化
+- **Nao(LP)**: 設計書への仕様データ提供
+- **Ren**: 実装時のCSS精度を保証
+- **Mia**: ピクセル差分QAの基盤
+- **Itsuki**: ビジュアル指示との整合
+- **Iro**: カラーパレット整合
+

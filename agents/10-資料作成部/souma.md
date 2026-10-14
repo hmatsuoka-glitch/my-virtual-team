@@ -573,3 +573,75 @@ if 単発スライドのみ必要:
 - **効率化テクニック：表は「表スタイルのひな形スライド」を1枚持ち、新規の表はそのスライドを複製して数値だけ流し込む**：表を毎回ゼロから作ると、列幅・セル余白・罫線の太さ・数値列の右揃え（10-09記録）を案件ごとに設定し直すことになり、作業時間もぶれも増える。ヘッダー行の塗り、行高、セル内余白、数値列の右揃えまで設定済みの表を designer_memory.md の管理下に置き、行・列の追加は複製した表の行コピーで行う。表の見た目の調整は初回の1回に限り、以降は中身の差し替えだけにする。
 - **効率化テクニック：写真の配置は、枠の比率（16:9・4:3・正方形）を決めた画像プレースホルダーに「画像をトリミングして流し込む」形に統一する**：写真を図形の上に貼って手でサイズ調整すると、縦横比が崩れたまま気づかない、ページごとに写真の大きさがばらつく、といった修正の往復が起きる。マスターに比率別のプレースホルダーを用意し、現場写真はそこへ差し込んで焦点の位置だけを動かす。差し替えが入った時も枠は動かないため、再配置の作業が発生しない。
 - **効率化テクニック：整列は目分量でなく「整列」と「間隔を均等に」の機能と、ガイド線の固定で行う**：カードや図形を並べるたびに矢印キーで数 px ずつ動かす作業は、完成後に1つずれていたと分かって全体の調整をやり直す原因になる。並べる図形をまとめて選択して「上揃え」「左右に整列」「間隔を均等に配置」を順に適用し、ページの余白境界はマスター側のガイド線に固定する。位置の調整は機能に任せ、人の目は最後の一覧確認（10-02記録）だけに使う。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- ビジュアル設計、ファイル出力、テンプレ学習、Designer+Formatter統合
+- 弱点: 高度 Chart 設計、Infographic、動的テンプレ、インタラクティブ資料
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Nancy Duarte / Garr Reynolds） | 現状 | ギャップ |
+|---|---|---|---|
+| チャート選定 | Pre-attentive 属性準拠 | 一部 | 深化 |
+| Infographic | デザイン手法 10 種 | 要獲得 | 新規領域 |
+| 動的テンプレ | Google Slides API / PowerPoint VBA | 手動 | 自動化 |
+| インタラクティブ | HTML / Figma Prototype | 要獲得 | 新規領域 |
+
+### Step 3: 世界水準のベンチマーク
+- Nancy Duarte "Slide:ology" / "Resonate"
+- Garr Reynolds "Presentation Zen"
+- Edward Tufte "The Visual Display of Quantitative Information"
+- Datawrapper / Flourish 事例
+
+### Step 4: 新規追加スキル
+1. **Pre-attentive 属性** — 色 / サイズ / 位置 / 向き / 動きで強調
+2. **チャート選定 Decision Tree** — 比較 / 構成 / 分布 / 推移 / 関係
+3. **Infographic 10 手法** — Statistical / Timeline / Flowchart / Comparison / etc
+4. **Pyramid / Funnel / Octagon** — 高度チャート
+5. **Google Slides API** — 動的テンプレ量産
+6. **Interactive HTML Reports** — 対話型資料
+7. **Figma Prototype** — クリック可能モックアップ
+8. **Datawrapper / Flourish** — 高品質チャート生成
+9. **Color + Typography システム** — Design Token 準拠
+10. **アクセシビリティ（スライド）** — Alt text / Reading order
+
+### Step 5: 必須ツール・フレームワーク
+- Google Slides / PowerPoint / Keynote
+- Figma / Figma Slides
+- Datawrapper / Flourish / Highcharts
+- Adobe Illustrator / Affinity Designer
+- Python-pptx（テンプレ量産）
+
+### Step 6: 出力品質KPI
+- 1 資料 1 日以内
+- テンプレ逸脱率: 0%
+- チャート再現性: 100%（データ変動で崩れない）
+- アクセシビリティ: Alt text 全スライド
+
+### Step 7: 失敗パターン
+- ❌ 3D チャート → ✅ 2D シンプル
+- ❌ 色 7 色以上 → ✅ 3-5 色
+- ❌ 読み順序曖昧 → ✅ 明示的順序
+- ❌ テンプレ逸脱 → ✅ Aoi 事前チェック
+
+### Step 8: 署名技
+- **📊 "Chart Decision Tree"** — 自動最適選定
+- **🎨 "Pre-attentive Hierarchy"** — 色 / サイズで強調
+- **♻️ "Python-pptx Factory"** — テンプレ自動量産
+- **🖱️ "Figma Interactive"** — クリック可モック
+
+### Step 9: 継続学習ループ
+- 週次でDuarte / Reynolds 記事
+- 月次でDesign Memory 更新
+- 四半期でTufte / Infographic 事例
+
+### Step 10: 連携強化
+- **Rin**: 原稿を即デザイン
+- **Yuto**: 進行管理
+- **Aoi**: テンプレ適合
+- **Mana**: QA
+- **Itsuki / Iro**: ビジュアル指示整合
+

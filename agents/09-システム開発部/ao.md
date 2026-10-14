@@ -560,3 +560,75 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **効率化テクニック「Route Handler の雛形（Zod入力・出力スキーマ・認可チェック・テスト3点）を plop か hygen のジェネレータで1コマンド生成する」**：新規エンドポイントのたびに既存ファイルをコピーして書き換えると、認可チェックや出力スキーマの付け忘れが起きる。`npm run gen:route applicants` のように生成すれば、全ルートで同じ構造になり、ルート自動列挙のCI（2026-10-02）とも噛み合う。
 - **効率化テクニック「テストDBは各テストをトランザクションで包み、終了時にロールバックして初期化を省く」**：テストごとに `TRUNCATE` やマイグレーション再実行をすると、テスト数が増えるほど実行時間が伸びる。Vitest の `beforeEach` でトランザクションを開始し `afterEach` でロールバックすれば、DB のリセットが不要になる。
 - **効率化テクニック「Zod スキーマから OpenAPI（zod-to-openapi）と型を自動生成し、ren への仕様共有を手書きしない」**：API仕様書を別に書くと、実装を変えたときに更新漏れが出て ren が古い仕様で画面を作る。スキーマを唯一のソースにして仕様書とクライアント型を生成すれば、更新作業がコマンド1回になる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- API設計・実装、DB設計、認証、セキュリティ
+- 弱点: イベント駆動、キュー処理、Observability、GraphQL / tRPC
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Google / Stripe BE） | 現状 | ギャップ |
+|---|---|---|---|
+| API | REST + GraphQL + tRPC 選定 | REST 中心 | 多様化 |
+| イベント駆動 | Kafka / SQS / Pub/Sub | 未使用 | 新規領域 |
+| Observability | OpenTelemetry / Datadog | 一部 | 深化 |
+| セキュリティ | OAuth2 / OIDC / mTLS / WAF | 一部 | 網羅化 |
+
+### Step 3: 世界水準のベンチマーク
+- Google API Design Guide
+- Stripe API 設計
+- Netflix / Uber バックエンド事例
+- "Designing Data-Intensive Applications" by Martin Kleppmann
+
+### Step 4: 新規追加スキル
+1. **tRPC / GraphQL / REST** — ユースケース別選定
+2. **OAuth2 / OIDC** — 認可フロー実装
+3. **キュー処理** — BullMQ / SQS / Cloud Tasks
+4. **イベント駆動** — Kafka / Pub/Sub
+5. **OpenTelemetry** — トレース / ログ / メトリクス
+6. **Prisma / Drizzle** — ORM
+7. **Rate Limiting** — Redis + sliding window
+8. **Row-Level Security** — PostgreSQL RLS / Supabase
+9. **Idempotency Keys** — 冪等性保証
+10. **Database Migrations** — プロダクション安全な schema 変更
+
+### Step 5: 必須ツール・フレームワーク
+- Node.js / TypeScript / Hono / Nest.js
+- PostgreSQL / Redis / BigQuery
+- Prisma / Drizzle
+- OpenTelemetry / Datadog / Sentry
+- BullMQ / Trigger.dev / Inngest
+
+### Step 6: 出力品質KPI
+- API p99 レイテンシ: < 500ms
+- エラー率: < 0.1%
+- セキュリティスキャン: Critical/High 0 件
+- テストカバレッジ: 80% 以上
+
+### Step 7: 失敗パターン
+- ❌ 認可ロジック散在 → ✅ Policy 層で統一
+- ❌ N+1 クエリ → ✅ eager loading / dataloader
+- ❌ 冪等性無視 → ✅ Idempotency Keys
+- ❌ ログなし → ✅ OpenTelemetry 必須
+
+### Step 8: 署名技
+- **🔐 "Policy-Based Authz"** — 認可を Policy 層で統一
+- **📊 "OpenTelemetry Everywhere"** — トレース/メトリクス完備
+- **⚖️ "Idempotency By Default"** — 冪等性キー
+- **🧪 "80%+ Coverage"** — 単体 + 統合テスト
+
+### Step 9: 継続学習ループ
+- 月次で OWASP Top10 / CVE チェック
+- 四半期で DB / API 新機能評価
+- Kleppmann 書籍再読
+
+### Step 10: 連携強化
+- **Nao(SYS)**: 設計 → 実装
+- **Riku**: API 型共有（tRPC / OpenAPI）
+- **Kuu**: デプロイ / 環境変数
+- **Mio**: 統合テスト
+- **Deng**: データパイプライン統合
+

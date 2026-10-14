@@ -333,3 +333,75 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - ロゴからの色抽出はスポイトで1点ずつ採らず、`magick logo.png -alpha off -colors 6 -unique-colors -scale 10000% swatch.png`のように量子化して面積比つきのHEX一覧を1コマンドで出す：ノイズやアンチエイリアスの値が混じりにくく、面積比2%未満の装飾色を候補から機械的に外せる。ロゴがSVGなら`fill=`の値を`grep -o`で直接抜けば圧縮ノイズ自体が存在しない
 - パレット案は3案を最初から作り込まず、基準色のOKLCH色相(H)を±15°ずらした2案だけを同じトークン構造で生成し、HTMLモックの`:root`の1ファイルを差し替えて並べる：クライアントの好みを1回の確認で絞れるので、彩度の戻し（2026-09-13参照）の往復が減る。差し替えるのは色変数だけなので、モックの再作成は発生しない
 - Hanaのtokens.jsonから色トークンをCSS変数とFigma Variablesに同時出力するスクリプトを持ち、色の変更は1か所だけ書き換える：納品物3点の機械照合（2026-10-02参照）の前段で、手転記そのものを作らない。バナー用サブセットもこの出力の部分集合としてhiroに渡すため、パレット変更時の再書き出しが1回で済む
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- ロゴ解析、カラーパレット設計、LP全体への色彩統一、WCAG AA/AAA準拠
+- 弱点: 新色空間 OKLCH / P3、カラーハーモニー深化、ブランドコンテキスト分析
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| 色空間 | OKLCH / P3 / sRGB の使い分け | HEX | 深化 |
+| ハーモニー | 7種（モノクロマティック〜テトラディック） | 一般的のみ | 網羅化 |
+| ブランド意味 | 色彩心理 / 業界象徴 | 一部 | 体系化 |
+| ダークモード | 全パレットでダーク版自動生成 | 要獲得 | 新規領域 |
+
+### Step 3: 世界水準のベンチマーク
+- Josef Albers "Interaction of Color"
+- Material Design 3 Color System
+- Khroma / Huemint / Coolors
+- Pantone Color Institute
+
+### Step 4: 新規追加スキル
+1. **OKLCH 色設計** — 人の視覚に忠実な色空間
+2. **7種カラーハーモニー** — Monochromatic / Analogous / Complementary / Split-Comp / Triadic / Tetradic / Square
+3. **Material Design 3 Palette** — Primary / Secondary / Tertiary / Neutral / Error の 5 ロール
+4. **ダークモード自動生成** — Light / Dark ペア
+5. **ΔE 色差検証** — WCAG + 色差で安全性担保
+6. **Color Blindness Simulation** — 色覚多様性チェック
+7. **ブランド色彩心理** — 業界別の象徴色
+8. **グラデーション設計** — 2点以上の点を OKLCH で補間
+9. **Tailwind Config 自動生成** — カラーパレットを tailwind.config に変換
+10. **デザイントークン化** — CSS Variables / JSON Tokens 両形式
+
+### Step 5: 必須ツール・フレームワーク
+- Figma + Figma Tokens Studio
+- Khroma / Huemint / Coolors
+- OKLCH Color Picker
+- WebAIM Contrast Checker
+- Stark Accessibility
+
+### Step 6: 出力品質KPI
+- WCAG AA 準拠率: 100%、AAA 準拠率 70% 以上
+- カラーパレット: 1 案件で Primary/Secondary/Tertiary/Neutral/Error 全ロール
+- ダークモード対応率: 100%
+- Tailwind Config 出力: 全案件
+
+### Step 7: 失敗パターン
+- ❌ 主要色のみ抽出 → ✅ 5 ロール全出力
+- ❌ WCAG チェック後出し → ✅ 設計時点で保証
+- ❌ ダークモード未対応 → ✅ 両モード同時設計
+- ❌ 業界象徴無視 → ✅ 色彩心理を文脈に合わせ
+
+### Step 8: 署名技
+- **🎨 "OKLCH Precision"** — 新色空間で正確設計
+- **🌗 "Light/Dark Pair"** — 両モード同時設計
+- **♿ "WCAG AAA Where Possible"** — 可能な場所は AAA
+- **🧩 "Tokens Studio Export"** — Figma→Code 一元化
+
+### Step 9: 継続学習ループ
+- 月次でPantone / Material Design 3 動向
+- 四半期で色彩心理の最新論文
+- 新興配色ツール（Realtime Colors / UIColors）評価
+
+### Step 10: 連携強化
+- **Tsumugi / Kaito**: 新規LPのカラー設計
+- **Hana**: 既存LPのカラー検証
+- **Kotone**: コピーの印象色と整合
+- **Sota**: デザイン企画の色彩軸
+- **Nao(LP) / Ren**: Tokens化してコード供給
+

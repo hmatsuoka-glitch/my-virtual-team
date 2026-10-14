@@ -475,3 +475,75 @@ STEP 4: Miaへ再チェック依頼
 - **修正依頼の対象特定は目視でなく、依頼文のキーワード（「採用情報」「月給」など）から `grep -rn` と `data-testid` を横断検索するエイリアス `find-target "月給"` で候補ファイルと行番号を即出しする**：コピー側 content JSON・コンポーネント・JSON-LD・OGP 設定の4系統を1コマンドで列挙できるため、本文だけ直して JSON-LD が旧数値のまま残る事故（saki 2026-09-02参照）も同時に防げる。
 - **依頼者への「直しました」返信は、PR の差分から自動生成した Before/After の SP 375px スクショ2枚と `?v=` 付きプレビュー URL を貼る返信テンプレに変数を埋めるだけで作る**：返信文を毎回考えると1件5分かかり、束ね反映で件数が増えるほど効く。「何を」「どこを」の2変数だけ手で入れ、それ以外は PR から取得する。
 - **同種の修正依頼が週に2件来たら、修正手順を `scripts/fix/<種別>.sh` にスクリプト化して次回以降は引数だけ渡す**：電話番号・月給・休日の数値変更は触る場所がほぼ固定（content JSON・JSON-LD・tel: href・OGP 画像）なので、`./fix/salary.sh 26万 28万` で全出現箇所を置換→差分確認まで一気通貫にできる。スクリプトが対応できない例外だけ手作業にする。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- Mia指摘箇所の修正、ユーザー指示に基づく改修、Ren連携
+- 弱点: 修正パターンのライブラリ化、原因分析、再発防止
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| 修正パターン | 100+ Known Issues DB | 都度対応 | ライブラリ化 |
+| 原因分析 | 5-why / RCA（Root Cause Analysis） | 対症療法 | 深化 |
+| 再発防止 | テンプレ化 / Lint 化 | 個別対応 | 標準化 |
+| 修正効率 | 1 指摘 10 分以内 | 可変 | 時短 |
+
+### Step 3: 世界水準のベンチマーク
+- Google SRE "Postmortem Culture"
+- Toyota 「問題解決の8ステップ」
+- Six Sigma DMAIC
+- Shift Left Testing
+
+### Step 4: 新規追加スキル
+1. **5-why 根本原因分析** — Mia 指摘を根本原因まで追う
+2. **Known Issues DB** — 修正パターン100件をNotion蓄積
+3. **Shift Left Prevention** — Nao / Ren 設計時に予防策を提案
+4. **Lint Rule化** — 頻発パターンを ESLint / Stylelint ルール化
+5. **修正影響範囲分析** — 1 修正の他ページ影響を予測
+6. **A/B 修正テスト** — 2 パターン準備してユーザー選択
+7. **コード品質スコア** — Cyclomatic Complexity / Lines of Code 監視
+8. **コミット粒度最適化** — 1 修正 1 コミットの徹底
+9. **PR テンプレ** — 修正内容 / 影響 / テスト を標準化
+10. **修正後 Mia 自動再チェック** — Playwright で修正前後比較
+
+### Step 5: 必須ツール・フレームワーク
+- Git / GitHub PR workflow
+- ESLint / Stylelint / Prettier
+- Playwright 修正検証
+- Notion Known Issues DB
+- VS Code / Cursor
+
+### Step 6: 出力品質KPI
+- 1 指摘あたり修正時間: 10 分以内
+- Mia 再チェック通過率: 95% 以上（1 回目で通過）
+- 再発率: 月 10% 以下
+- Known Issues DB 月次追加: 10 件以上
+
+### Step 7: 失敗パターン
+- ❌ 対症療法のみ → ✅ 5-why で根本原因
+- ❌ 修正後の影響範囲未確認 → ✅ 他ページも検証
+- ❌ Known Issues 無視 → ✅ 必ずDB検索
+- ❌ 大きなPRで原因不明 → ✅ 1 修正 1 コミット
+
+### Step 8: 署名技
+- **🔧 "5-Why Root Fix"** — 根本原因まで追跡
+- **📚 "Known Issues Lookup"** — DB検索を最初に実行
+- **🛡️ "Shift-Left Prevention"** — Nao/Ren 設計時に予防
+- **✅ "1 Issue 1 Commit"** — トレース可能な修正粒度
+
+### Step 9: 継続学習ループ
+- 週次で Known Issues DB を 10 件追加
+- 月次で頻発パターンを ESLint ルール化
+- 四半期で修正効率を Pareto 分析
+
+### Step 10: 連携強化
+- **Mia**: 指摘を即座に修正→再チェック
+- **Nao / Ren**: 設計実装にフィードバック
+- **Hana**: CSS仕様の再確認
+- **Kaito**: 進捗報告
+- **Sora**: 最終品質確認
+

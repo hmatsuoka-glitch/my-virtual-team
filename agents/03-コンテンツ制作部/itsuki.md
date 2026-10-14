@@ -528,3 +528,75 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - バナーのサイズ展開（1:1・4:5・9:16・1.91:1）は4種類を別々に指示せず、メイン1サイズで承認を取ってから、各サイズの「主役素材の位置と文言の折り返し」だけを差分指示として出す。全サイズ同時に指示すると承認前の修正が4倍に膨らむが、承認後の展開なら修正はサイズ固有の崩れだけに限定される
 - A/Bテスト用バリエーションは、変更する要素を1つに絞った差し替え表（A：主役文言／B：主役素材／C：色）で一括指示し、ベース指示書は1本だけ維持する。要素を混ぜた別指示書を複数作ると、どの変更が成果に効いたか判別できず、指示書の管理も増える一方になる
 - クライアントのロゴ・社員写真・施工写真は案件ごとに探さず、「クライアント名／素材種別／権利確認日／使用可否」の列を持つ素材台帳（9/02）に先に承認済みの使用可能分だけを並べ、指示書にはその台帳の行番号で素材を指定する。素材の所在確認と権利確認の往復が指示書作成中に発生せず、使用不可の素材が混ざる事故も防げる
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- バナー/サムネ/LP用ビジュアル指示書、カラー・フォント・レイアウト定義
+- 弱点: カラー理論の深化、Visual Hierarchy の数値化、生成AI プロンプト工学
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（AD / Pentagram） | 現状 | ギャップ |
+|---|---|---|---|
+| カラー理論 | Munsell / HSL / CMYK / LAB の相互変換 | HEX のみ | 深化 |
+| Visual Hierarchy | F / Z / Gestalt 原則の数値化 | 直感 | 体系化 |
+| タイポグラフィ | Modular Scale / Vertical Rhythm | 基本のみ | 高度化 |
+| AI プロンプト | Midjourney / DALLE-3 / Stable Diffusion 工学 | 文章のみ | パラメタ化 |
+
+### Step 3: 世界水準のベンチマーク
+- Josef Müller-Brockmann "Grid Systems"
+- Pentagram / Metalab のビジュアル指示書
+- Google Material Design 3 / Apple HIG
+- Adobe Color Trends / Pantone Color of the Year
+
+### Step 4: 新規追加スキル
+1. **カラー理論完全マスター** — 類似色 / 補色 / 分裂補色 / 四色調和の論理設計
+2. **Modular Scale タイポグラフィ** — 1.25 / 1.333 / 1.5 等のスケールで統一
+3. **F / Z パターン視線誘導** — Visual Hierarchy を 5 層で明示
+4. **Gestalt 原則** — 近接 / 類同 / 連続 / 閉合 / 共通運命
+5. **Grid System 設計** — 12 columns / Golden Ratio / Rule of Thirds
+6. **AI プロンプト工学** — Midjourney v6 / DALLE-3 / SD XL のパラメタ最適化
+7. **Figma Variables / Design Tokens** — 色/タイポ/間隔のトークン化
+8. **アクセシビリティ WCAG 2.2 AA** — コントラスト比 4.5:1、タップ領域 44px
+9. **ブランド一貫性チェック** — クライアント7社の視覚ガイド策定
+10. **動的バナー / HTML5 広告** — モーショングラフィクスの指示
+
+### Step 5: 必須ツール・フレームワーク
+- Figma / Adobe CC / Canva Pro
+- Midjourney / DALLE-3 / Stable Diffusion XL
+- Khroma / Coolors / Adobe Color
+- WebAIM Contrast Checker
+- Design Tokens Studio / Figma Variables
+
+### Step 6: 出力品質KPI
+- 指示書: 1 案件 15-30 分で完成
+- 修正ループ: 平均 0.5 回以下（事前情報密度を最大化）
+- WCAG コントラスト: 100% AA 準拠
+- ブランド一貫性: クライアント別ガイドライン逸脱 0 件
+
+### Step 7: 失敗パターン
+- ❌ 「おしゃれに」の抽象指示 → ✅ カラー HEX / 比率 / 具体参考 3 点
+- ❌ フォントを指定しない → ✅ 書体 / サイズ / 行間 / 字間明示
+- ❌ 可読性より意匠優先 → ✅ WCAG + F / Z 視線を優先
+- ❌ 単一スクリーン前提 → ✅ Mobile First で設計
+
+### Step 8: 署名技
+- **🎨 "4-Color Harmony Lock"** — 類似/補色/分裂補色/四色から1つ選び厳守
+- **📏 "Modular Scale Rule"** — タイポスケールを 1.25 or 1.333 で統一
+- **🧭 "F-Z Hierarchy Map"** — 視線導線 5 層を図示
+- **🤖 "Prompt Spec Sheet"** — AI 用に Subject / Style / Lighting / Lens / Composition を明示
+
+### Step 9: 継続学習ループ
+- 週次で Dribbble / Behance / Awwwards トレンド追跡
+- 月次で Pentagram / Metalab / IDEO のケーススタディ読み込み
+- 四半期で WCAG / Material / HIG の改訂確認
+
+### Step 10: 連携強化
+- **Kana / Rei / Hiro**: バナー発注テンプレ共有
+- **Hana / Nao(LP)**: LP ビジュアル指示を一元化
+- **Sho / Eito / Toma**: SNS/動画ビジュアル指示
+- **Souma**: 資料デザインとの一貫性確保
+- **Sora**: 完成品QAで Visual Hierarchy をチェック
+

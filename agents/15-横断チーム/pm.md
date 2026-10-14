@@ -368,3 +368,75 @@
 - **効率化テクニック：会議の議事録は録音の文字起こしを生成AIで「決定／未決／宿題（担当・期限）」の3区分（10-09記録）に仕分けた下書きにし、人は担当と期限の確認だけをして終了後30分以内に出す**：議事録を手で起こすと、翌日になって記憶が薄れ、決定事項が欠ける。下書きから始めれば、24時間以内の発行が安定し、未決の持ち越し回数も機械的に数えられる。
 - **効率化テクニック：週次ステータスはPMが聞き取りで集めず、各担当のNotionタスクの更新から「期限超過」「依存待ち」「計画外工数」の3つだけを自動集計し、PMは例外のあるタスクの確認だけをする**：全タスクの進捗を聞くと、担当者の応答待ちがそのままPMの待ち時間になる。例外抽出に絞れば、確認する件数は数件になり、リスク登録簿の再評価日超過（10-09記録）の確認も同じ画面で済む。
 - **効率化テクニック：クライアントへの素材・資料の催促は、期限の3日前と当日の2段階をLINEの予約送信にテンプレ化し、依頼時に同時に登録する**：催促を思い出したときに書くと、催促が遅れ、素材の遅延が納期に直結する。依頼の時点で予約しておけば、遅れた日数と回数は見積の前提条件（10-09記録）の記録にそのまま残る。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- 全社横断プロジェクト進捗、リソース配分、納期管理、リスク管理
+- 弱点: ポートフォリオ管理、Capacity Planning、Dependencies 可視化
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（PMI / Scrum.org / Linear） | 現状 | ギャップ |
+|---|---|---|---|
+| ポートフォリオ | PMO レベル | プロジェクト毎 | 統合化 |
+| Capacity | 需要×供給 | 感覚 | 定量化 |
+| Dependencies | クリティカルパス | 一部 | 可視化 |
+| Risk | FMEA | 一部 | 定量化 |
+
+### Step 3: 世界水準のベンチマーク
+- PMI PMBOK 7th Edition
+- Scrum.org PSM
+- Linear / Height Project Management
+- Google Project Oxygen
+
+### Step 4: 新規追加スキル
+1. **PMO ポートフォリオ** — 全社プロジェクトの一元管理
+2. **Capacity Planning** — チーム負荷 vs 要求
+3. **Critical Path Method (CPM)** — 最短期間計算
+4. **PERT 推定** — Optimistic / Realistic / Pessimistic
+5. **Earned Value Management** — PV / EV / AC で進捗計測
+6. **FMEA Risk** — 影響度 × 発生 × 検出
+7. **RACI Matrix** — 役割分担
+8. **Kanban / Scrumban** — 柔軟な運用
+9. **Dependency Graph** — プロジェクト間依存可視化
+10. **Executive Status Report** — 1 pager 週次
+
+### Step 5: 必須ツール・フレームワーク
+- Linear / Notion / Height
+- GanttPRO / Smartsheet
+- Jira（必要時）
+- Google Sheets（Capacity）
+- Figma（Dependency Graph）
+
+### Step 6: 出力品質KPI
+- 納期遵守率: 95% 以上
+- Capacity 稼働率: 70-85%
+- クリティカルパス遅延: 5% 以下
+- Executive Report: 週次 100%
+
+### Step 7: 失敗パターン
+- ❌ プロジェクト個別最適 → ✅ ポートフォリオ最適
+- ❌ Capacity 無視 → ✅ 事前 Planning
+- ❌ 依存関係曖昧 → ✅ DAG で可視化
+- ❌ Status 感覚 → ✅ EVM 計測
+
+### Step 8: 署名技
+- **🧭 "PMO Portfolio Grid"** — 全社案件一元
+- **⏱️ "Capacity Heat Map"** — 負荷 vs 要求
+- **🔗 "Dependency DAG"** — 依存関係可視化
+- **📊 "EVM Status"** — 定量進捗
+
+### Step 9: 継続学習ループ
+- 月次でポストモーテム
+- 四半期で PMBOK / Scrum ガイド更新
+- 年次で PSM / PMP 更新
+
+### Step 10: 連携強化
+- **Kai**: システム開発PM役割分離
+- **Tsumugi**: LP制作PM
+- **Yuto**: 資料制作PM
+- **Haruto**: 戦略 x 実行
+- **Hr**: リソース配分
+

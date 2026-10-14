@@ -876,3 +876,74 @@ JS ソースから以下のパターンを検出する:
 - **案 A/B のカンプ作成は Figma の Auto Layout＋Variables で配色・フォント・余白をトークン化し、Variable Mode の切替だけで2案目の配色違いを出す**：色違い案を別フレームへ複製して手作業で塗り直すと30分以上かかる。モード切替なら配色検討は1クリックで済み、60-30-10 の面積比（sota 2026-08-27参照）も共通レイアウトのまま比較できる。
 - **参考 LP の分析メモは文章で書かず、Hero 構成・CTA 位置・信頼要素の順序（2026-09-01参照）の3列に加え、スクショへ番号付きの注釈を入れた1枚画像で保存する**：Figma のコメント機能を使い、番号と構造の意図を1行ずつ書くだけにすれば、後から Ren や Mia に渡す際も説明を足さずに済む。画像は競合サムネライブラリのタグと同じファイル名規則で保存して検索可能にする。
 - **クライアント提案の事前確認は、完成カンプを作る前に Figma の低精細ワイヤー（グレー1色・ダミー文字）で構図だけ承認を取り、配色・写真・コピーの作り込みは承認後に回す**：構図の否決は作り込み後に出ると全部やり直しになる。ワイヤー承認→配色→写真の順で段階承認にすると、手戻りは各段階の工程だけで済む。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- LPデザイン企画、参考LP分析、独自性付加、デザイン提案
+- 弱点: Conversion Design 深化、心理学・行動経済学、ニューロマーケ
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| CRO | Conversion Rate Optimization 体系 | 直感 | 体系化 |
+| 心理学 | Cialdini / Fogg / Kahneman | 一般常識 | 深化 |
+| ニューロマーケ | 視線トラッキング / fMRI 事例 | 要獲得 | 新規領域 |
+| CTA 設計 | A/B 検証済パターン集 | 感覚 | ライブラリ化 |
+
+### Step 3: 世界水準のベンチマーク
+- Robert Cialdini "Influence"（説得6原則）
+- BJ Fogg "Tiny Habits" / Fogg Behavior Model
+- Jakob Nielsen UX Research
+- ConvertKit / Unbounce / Instapage LP 事例
+
+### Step 4: 新規追加スキル
+1. **Cialdini 7原則** — 返報性 / コミット / 社会的証明 / 権威 / 好意 / 希少性 / 統一性
+2. **Fogg Behavior Model** — Motivation x Ability x Trigger
+3. **F / Z 視線パターン** — 視線導線とCTA配置
+4. **Choice Architecture** — Hick-Hyman 法則で選択肢削減
+5. **Social Proof Variety** — レビュー / ロゴ / 数値 / UGC
+6. **Scarcity 設計** — Count-down / Limited / Exclusive
+7. **Loss Aversion** — 損失回避フレーミング
+8. **Micro-copy 設計** — ボタン / エラー / 空状態の言葉選び
+9. **CRO ABテスト設計** — ベースライン → 1変数 → 統計検定
+10. **心理軸マトリクス** — ペルソナ × 心理トリガーで案件最適化
+
+### Step 5: 必須ツール・フレームワーク
+- Awwwards / Lapa.ninja / Land-Book
+- Hotjar / Microsoft Clarity（ユーザー行動）
+- Nielsen Norman Group articles
+- Luxalgo / Baymard Institute
+
+### Step 6: 出力品質KPI
+- デザイン案: 1 案件 3 コンセプト以上
+- 心理トリガー適用: LP 1 本で 5 原則以上
+- CVR 改善: 旧LP比 +20% 以上
+- CTA パターン提案: 3 以上
+
+### Step 7: 失敗パターン
+- ❌ 装飾のみ → ✅ CVR を軸に設計
+- ❌ テキスト過多 → ✅ Visual + 短文で説得
+- ❌ CTA 1つ → ✅ ファーストビュー / 中盤 / 下部で3配置
+- ❌ Social Proof なし → ✅ 必ず3種類以上
+
+### Step 8: 署名技
+- **🧠 "Cialdini 7-Trigger Grid"** — 7原則を LP に全展開
+- **🎯 "Fogg Behavior Audit"** — Motivation/Ability/Trigger 分析
+- **👁️ "F-Z Attention Map"** — 視線導線設計
+- **📊 "CRO Hypothesis Backlog"** — A/B 候補を優先度順
+
+### Step 9: 継続学習ループ
+- 週次でAwwwards / Land-Book トップ 10 解析
+- 月次でNN/g 新記事精読
+- 四半期で CRO 事例レポート（Unbounce / Instapage）
+
+### Step 10: 連携強化
+- **Kaito / Tsumugi**: 企画要件を提案
+- **Nao(LP) / Ren**: 実装前にデザイン承認
+- **Mia**: 忠実度と独自性のバランス
+- **Rei**: コピーライティング連動
+- **Iro**: ブランドカラー整合
+

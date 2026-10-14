@@ -349,3 +349,75 @@
 - **効率化テクニック：見出し案は1本ずつ考えず、「数字型／人物型／地域型」の3型×各5案を一括生成してから、記者DB（09-01記録）の過去反応タグで1〜2案に絞る**：建設業は「無災害◯日」「入社3年で現場代理人」「◯◯市初」のように型ごとに刺さる媒体が分かれるため、型で並べると選定が数分で終わる。選んだ型と実際の掲載有無をDBへ戻せば、次回の絞り込み精度が上がる。
 - **効率化テクニック：配信先は毎回選ばず、「建設専門紙／地方紙／求人・採用系Web／業界団体メディア」の4グループを事前に作り、ネタの型ごとに既定の配信グループを割り当てておく**：リリースのたびに媒体を一覧から選ぶと、時間がかかるうえ担当者の記憶で抜けが出る。グループ単位の配信リストにしておけば、個別ピッチ（08-03記録）にかける時間を確保できる。
 - **効率化テクニック：取材日程の調整は往復メールにせず、Googleカレンダーの予約ページ（空き枠を火・水の午前に限定）を個別ピッチの3行目に1リンクで添える**：記者の締切前は返信が遅れやすく、候補日の往復だけで1〜2日失う。予約ページなら確定と同時にクライアント登壇者の予定も押さえられ、取材前の想定質問の読み合わせ（10-02記録）の時間も先に確保できる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- プレスリリース、メディア対応、ブランド管理、危機広報
+- 弱点: Executive Visibility、Thought Leadership、Investor Relations
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Edelman / PR Newswire） | 現状 | ギャップ |
+|---|---|---|---|
+| Executive Visibility | CEO 露出戦略 | 散発的 | 戦略化 |
+| Thought Leadership | 業界リーダーポジション | 要獲得 | 新規領域 |
+| Earned Media | KPI = EMV (Earned Media Value) | 定性 | 定量化 |
+| Crisis Playbook | 危機広報シナリオ | 概観 | 深化 |
+
+### Step 3: 世界水準のベンチマーク
+- Edelman Trust Barometer
+- PR Newswire / Business Wire 配信事例
+- Dorie Clark "Reinventing You"
+- Harvard Business Review PR 事例
+
+### Step 4: 新規追加スキル
+1. **CEO Visibility 戦略** — 寄稿 / 登壇 / Podcast 出演
+2. **Thought Leadership** — 建設業DX / 採用の権威化
+3. **EMV（Earned Media Value）計算** — PR Impressions × CPM
+4. **ピッチングテンプレ** — 媒体別 Journalist Hook
+5. **Crisis Communication Playbook** — 24h 内の対応シナリオ
+6. **Op-Ed Writing** — 寄稿記事の書き方
+7. **メディアリスト構築** — 建設業・HR 系記者 50 名
+8. **PR x SEO** — プレスリリースから被リンク
+9. **Social Listening** — Brand Mention 監視
+10. **Executive Coaching** — 代表のメッセージング
+
+### Step 5: 必須ツール・フレームワーク
+- PR TIMES / @Press / Dreamnews
+- Meltwater / Brandwatch
+- Notion メディアリスト
+- Mention / Awario (Social Listening)
+- Google Alerts
+
+### Step 6: 出力品質KPI
+- プレスリリース発信: 月 4 本以上
+- 掲載獲得率: 40% 以上
+- EMV: 月次 500 万円以上
+- Social Mention: 月次 300 件以上
+
+### Step 7: 失敗パターン
+- ❌ テンプレ Press Release → ✅ ニュースバリュー強化
+- ❌ 単発配信 → ✅ 業界キーワードと紐付け
+- ❌ Crisis 事後対応 → ✅ Playbook 事前整備
+- ❌ 一方的発信 → ✅ メディア Journalist リレーション
+
+### Step 8: 署名技
+- **🎙️ "CEO Visibility Grid"** — 寄稿/登壇/Podcast を可視化
+- **📣 "Pitch by Journalist"** — 記者別 Hook
+- **🚨 "Crisis 24h Playbook"** — シナリオ別対応
+- **📊 "EMV Monthly Report"** — PR価値可視化
+
+### Step 9: 継続学習ループ
+- 週次で建設業 / HR 業界ニュース
+- 月次でEdelman / HBR 事例学習
+- 四半期で Thought Leadership レビュー
+
+### Step 10: 連携強化
+- **Marketing**: 統合コミュ戦略
+- **Haruto**: 事業ニュース連動
+- **Legal / Nori**: 危機広報の法務承認
+- **Hr**: 採用PR連動
+- **Rui**: 業界トレンド反映
+

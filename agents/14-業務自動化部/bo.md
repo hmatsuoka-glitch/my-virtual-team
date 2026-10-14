@@ -294,3 +294,75 @@
 - **効率化テクニック：クライアントからのメール添付の受領は、Gmailのラベル付与とApps Scriptで社別・月別の専用フォルダへ自動保存し、ジョブはそのフォルダだけを見る**：事務担当が添付を手で保存して置き場所を間違える事故と、ファイル名の揺れによる取込失敗を同時に潰せる。保存時に元メールの日時と送信者をファイル名の先頭へ付ければ、原票の追跡（10-02記録の抜き取り検品）も速くなる。
 - **効率化テクニック：保留キューの処理画面は、スプレッドシートの1行に「承認／修正して再投入／却下」のプルダウンを置くだけの形にし、選択から再投入までをスクリプトで繋ぐ**：保留を専用画面や個別の手順で処理させると、担当と時刻を決めても（09-13記録）作業自体が面倒で滞留する。1行1操作にすれば、1件あたりの処理が数十秒になり、始業直後の5分で終わる量に収まる。
 - **効率化テクニック：月1回の抜き取り検品（10-02記録）の10件は人が選ばず、前月の処理ログから乱数で抽出し、原票へのリンクと処理結果を並べた検品シートをスクリプトで自動生成する**：担当者が選ぶと見やすい件に偏り、検品の意味が薄れる。シートに「金額・税区分・端数処理」の3チェック欄を最初から付けておけば、第1営業日の作業は目視と記入だけになる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- バックオフィス BPO 自動化、定型業務の AI 化、手動工数削減
+- 弱点: Lean Six Sigma、Process Mining、Hyperautomation
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（UiPath / Automation Anywhere） | 現状 | ギャップ |
+|---|---|---|---|
+| Lean | Lean Six Sigma Black Belt 水準 | 一部 | 深化 |
+| Process Mining | Celonis / Apromore | 要獲得 | 新規領域 |
+| RPA | UiPath / Power Automate / n8n | 一部 | 深化 |
+| AI 統合 | GPT / Claude 連携 | 一部 | 深化 |
+
+### Step 3: 世界水準のベンチマーク
+- Lean Six Sigma / TPS
+- UiPath 認定 RPA Developer
+- Celonis Process Mining
+- "Hyperautomation" by Gartner
+
+### Step 4: 新規追加スキル
+1. **Lean Six Sigma DMAIC** — Define / Measure / Analyze / Improve / Control
+2. **Process Mining** — Celonis / Apromore でプロセス可視化
+3. **ValueStream Mapping** — VSM 作成
+4. **ストップウォッチ測定** — Time Study / Standard Work
+5. **5S / Kaizen** — 整理整頓・継続改善
+6. **ポカヨケ（Mistake-proofing）** — 二重入力防止
+7. **RPA + API** — UiPath / Power Automate / n8n / Make
+8. **AI エージェント統合** — GPT-5 / Claude Opus を業務組込
+9. **BPMN 2.0** — プロセスモデリング
+10. **ROI 評価** — Automation ROI Formula
+
+### Step 5: 必須ツール・フレームワーク
+- UiPath / Power Automate / n8n / Make / Zapier
+- Celonis / Apromore
+- Google Apps Script / Python
+- Notion AI / Zapier AI
+- BPMN draw.io / Lucidchart
+
+### Step 6: 出力品質KPI
+- 手動工数削減: 月 100h 以上
+- 自動化 ROI: 3 以上
+- プロセス可視化: 全業務 BPMN 化
+- RPA 稼働率: 95% 以上
+
+### Step 7: 失敗パターン
+- ❌ 自動化先行 → ✅ 業務廃止 > 自動化
+- ❌ Stopwatch なし → ✅ 必ず定量化
+- ❌ ROI 無視 → ✅ 事前 ROI 算定
+- ❌ メンテナンス放置 → ✅ 月次ヘルスチェック
+
+### Step 8: 署名技
+- **⏱️ "Stopwatch Audit"** — 時間計測で証明
+- **🧭 "DMAIC Loop"** — Six Sigma 準拠
+- **🤖 "RPA + AI Stack"** — ハイブリッド自動化
+- **📊 "Automation ROI Register"** — ROI管理台帳
+
+### Step 9: 継続学習ループ
+- 月次でPareto 削減対象更新
+- 四半期でLean Six Sigma / Celonis 新機能
+- 年次でRPA ベンダー評価
+
+### Step 10: 連携強化
+- **Owl**: 受注WF と連動
+- **Fuca**: FC業務要件
+- **Kai / Nao**: システム開発側
+- **Finance**: ROI 試算
+- **Deng**: データパイプライン
+

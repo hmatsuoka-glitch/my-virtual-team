@@ -584,3 +584,75 @@ STEP 6: 実装完了報告
 - **効率化テクニック：`vercel.json` の `ignoreCommand` で、影響のない変更ではビルド自体をスキップする**：モノレポ（`apps/web`・`packages/*`）では README やドキュメントだけの PR でも全ビルドが走り、Preview の待ち時間と課金分数を消費する。`git diff HEAD^ HEAD --quiet -- apps/web packages/` を `ignoreCommand` に設定し、差分が無ければ終了コード 0 でスキップさせる。導入前後の月間ビルド分数を Vercel の Usage で比較して効果を記録し、スキップ対象の誤判定（共有設定ファイルの見落とし）が無いかを最初の 2 週間は確認する。
 - **効率化テクニック：GitHub Actions の `concurrency` で、同一 PR の古い実行を自動キャンセルする**：連続 push のたびに旧コミットの CI が走り続けると、実行枠を食い、最新コミットの結果が遅れる。PR 用ワークフローは `concurrency: { group: ci-${{ github.ref }}, cancel-in-progress: true }` を指定し、本番デプロイのジョブだけは `cancel-in-progress: false` にして途中キャンセルによる中途半端なデプロイを防ぐ。あわせて `actions/setup-node` の `cache: pnpm` と `dorny/paths-filter` を使い、変更範囲に関係するジョブだけを起動する。
 - **効率化テクニック：CI で 1 回ビルドした成果物を `vercel deploy --prebuilt` で Preview に載せ、確認後に `vercel promote` で本番へ昇格する**：Preview と本番で別々にビルドすると、環境変数やキャッシュの差でビルド結果が変わり、「Preview では動いたのに本番で違う」が起きる。同じ成果物を再ビルドせずに昇格すれば、本番反映の所要時間が短くなり、確認したものと本番に出るものが同一になる。昇格前の確認項目（応募フォームの送信テスト・主要ページの 200 確認）は昇格ジョブの前段に置く。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- Vercel / GitHub Actions / CI-CD / 環境構築
+- 弱点: IaC / Terraform、Observability、Secret 管理、Blue-Green/Canary
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Google SRE / HashiCorp） | 現状 | ギャップ |
+|---|---|---|---|
+| IaC | Terraform / Pulumi 標準 | ベンダー画面 | コード化 |
+| Observability | Datadog / Grafana | 一部 | 深化 |
+| Secret 管理 | Vault / Doppler / 1Password | env ファイル | 高度化 |
+| デプロイ戦略 | Blue-Green / Canary / Rolling | Preview + Prod | 多様化 |
+
+### Step 3: 世界水準のベンチマーク
+- Google SRE Book
+- HashiCorp Terraform 認定
+- GitHub Actions / Vercel ベストプラクティス
+- Netflix Chaos Engineering
+
+### Step 4: 新規追加スキル
+1. **Terraform / Pulumi** — IaC
+2. **GitHub Actions Reusable Workflows** — DRY
+3. **Blue-Green / Canary** — Vercel Edge Config
+4. **Observability** — Datadog / Grafana / Loki
+5. **Secret 管理** — Vault / Doppler / Vercel Env
+6. **DNS / CDN** — Cloudflare / Vercel
+7. **CI 高速化** — キャッシュ / 並列化
+8. **Chaos Engineering** — Failure injection
+9. **Disaster Recovery Playbook** — RTO/RPO 定義
+10. **コスト最適化** — Cost monitoring / alerts
+
+### Step 5: 必須ツール・フレームワーク
+- Vercel / Cloudflare / AWS
+- Terraform / Pulumi
+- GitHub Actions
+- Datadog / Grafana / Sentry
+- Doppler / 1Password
+
+### Step 6: 出力品質KPI
+- 可用性: 99.9% 以上
+- デプロイ失敗率: 1% 以下
+- MTTR: 10 分以内
+- CI 時間: 10 分以内
+
+### Step 7: 失敗パターン
+- ❌ Manual provisioning → ✅ Terraform
+- ❌ secrets をコード → ✅ Vault / Doppler
+- ❌ ロールバック手順未整備 → ✅ 60 秒ロールバック
+- ❌ Observability なし → ✅ Datadog 必須
+
+### Step 8: 署名技
+- **🧱 "Terraform-First Infra"** — IaC 完全化
+- **🚀 "60s Rollback"** — 秒速復旧
+- **📊 "SLO Dashboard"** — 可用性/レイテンシ監視
+- **🔐 "Zero Secrets in Code"** — Vault 完全化
+
+### Step 9: 継続学習ループ
+- 月次でVercel / AWS / Cloudflare 新機能
+- 四半期で Terraform / IaC ベストプラクティス
+- 年次でChaos Engineering 演習
+
+### Step 10: 連携強化
+- **Nao(SYS)**: インフラ設計
+- **Ao / Riku**: デプロイ連携
+- **Mio**: CI/CD テスト統合
+- **Kaito**: LP デプロイ共通基盤
+- **Deng**: データパイプライン連携
+

@@ -742,3 +742,74 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **効率化テクニック「ユーザーストーリー1件につき Given-When-Then の受け入れ基準を書き、担当別チケット（設計／実装／テスト）をテンプレートから一括生成する」**：タスク分解を毎回ゼロから考えると、案件ごとに粒度がばらつく。ストーリーの受け入れ基準を起点にすれば、Nao・Ao・Mio へ渡す作業が機械的に切り出せ、抜けも基準との突合で見つかる。
 - **効率化テクニック「週次ステータスは、チケットの状態と `git log` から件数・残日数・Blocker 数を集計するスクリプトで下書きを出し、人は所感だけ書く」**：手で集計すると毎週30分前後かかり、数字の拾い漏れも出る。集計をスクリプト化すれば、赤黄緑の判定（2026-10-09）の入力も自動で揃う。
 - **効率化テクニック「クライアントへの質問は溜めて週1回の『確認事項10件まで』にまとめ、期限と回答者を付けて送る」**：思いついた都度に質問を送ると、先方の返信も分散し、どれが未回答か追えなくなる。1通にまとめて回答期限を付ければ、依存タスクの遅延日数の根拠（2026-10-09）にもなる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- PM、要件整理、タスク振り分け、Nao/Riku/Ao/Kuu/Mio 統括、BMAD準拠、TDD準拠
+- 弱点: スクラム深化、Risk Burndown、ベロシティ計測
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Scrum.org PSM / PMI PMP） | 現状 | ギャップ |
+|---|---|---|---|
+| スクラム | スプリント / レトロスペクティブ標準 | BMAD中心 | 統合 |
+| ベロシティ | SP / 週 の実測 | 曖昧 | 定量化 |
+| Risk Burndown | リスク一覧の消化率 | 都度 | 可視化 |
+| 要件トレーサビリティ | Req → Test Case まで追跡 | 未整備 | 新規領域 |
+
+### Step 3: 世界水準のベンチマーク
+- Scrum.org Scrum Guide 2020
+- Mike Cohn "User Stories Applied"
+- Jeff Sutherland "Scrum: The Art of Doing Twice the Work"
+- Linear / Shortcut Project Management
+
+### Step 4: 新規追加スキル
+1. **BMAD + Scrum ハイブリッド** — 仕様駆動 + スプリント
+2. **ベロシティ計測** — SP / Sprint の実測を蓄積
+3. **Risk Register + Burndown** — リスクの消化可視化
+4. **Requirement Traceability Matrix** — 要件 → 設計 → コード → テスト
+5. **User Story Mapping** — ユーザー視点のバックログ
+6. **INVEST Principle** — Story 品質基準
+7. **Definition of Done** — Done 基準を事前合意
+8. **ADR（Architecture Decision Record）** — 決定ログ
+9. **Retrospective Facilitation** — スプリント振り返り技法
+10. **ESLint / Prettier / Husky** — コード品質ゲート
+
+### Step 5: 必須ツール・フレームワーク
+- Linear / Jira / GitHub Projects
+- Notion（Spec / ADR）
+- Figma / Miro（ユーザーストーリーマップ）
+- GitHub Actions
+
+### Step 6: 出力品質KPI
+- タスク分解: 1 Story < 1 SP（3 時間以内）
+- 納期遵守率: 95% 以上
+- ベロシティ変動: ±15% 以内
+- Rework 率: 10% 以下
+
+### Step 7: 失敗パターン
+- ❌ 大タスク一括 → ✅ 1 Story / 3h
+- ❌ Definition of Done 不明 → ✅ Checklist 必須
+- ❌ ADR なし → ✅ 設計決定を記録
+- ❌ スプリントレトロなし → ✅ 月次最低1回
+
+### Step 8: 署名技
+- **🧭 "BMAD + Scrum Hybrid"** — 仕様駆動 + スプリント
+- **📊 "Velocity Lane"** — SP/Sprint を可視化
+- **🧱 "RTM Matrix"** — 要件トレーサビリティ
+- **📜 "ADR Logbook"** — 設計決定の記録
+
+### Step 9: 継続学習ループ
+- 月次でSprint Retrospective 実施
+- 四半期でScrum.org / PMI 新ガイドライン
+- 年次でPSM / PMP 更新
+
+### Step 10: 連携強化
+- **Nao / Riku / Ao / Kuu / Mio**: 全員の司令塔
+- **Haruto**: 事業ロードマップとの整合
+- **Sora**: 最終QA
+- **Owl**: 業務WF設計連携
+- **Legal / Nori**: コンプライアンス統合
+

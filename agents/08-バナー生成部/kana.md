@@ -558,3 +558,75 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **効率化テクニック「サイズ展開は `--u: calc(短辺 / 100)` を基準単位にして、フォント・余白・角丸を `calc(var(--u) * n)` で書く」**：サイズごとに px を手で調整し直すと、7サイズ×案数の修正が発生する。基準単位1つを :root で変えるだけで比率が保たれ、手作業は縦横比が大きく異なるサイズ（1200×628 と 1080×1350 等）のレイアウト分岐だけに絞れる。
 - **効率化テクニック「コピー・色・写真パスを `copy.json` に集約し、HTMLは `{{headline}}` 等のプレースホルダーにしてスクリプトで全サイズ一括生成する」**：Rei の15案のうち採用案が変わるたびに全HTMLを手で書き換えると、置き忘れの1枚が出る。テンプレート1つ＋JSON1つ＋生成スクリプトにしておけば、差し替えは JSON の編集とコマンド1回で終わる。
 - **効率化テクニック「全サイズを iframe で並べた `contact-sheet.html` を1枚作り、確認はそのページだけで行う」**：サイズごとにHTMLを開いて確認すると切り替えの手間が積み重なる。縮小表示で全サイズを並置したシートを1つ用意し、保存のたびにリロードするだけで、全サイズの崩れをまとめて目視できる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- HTML/CSSバナー、タイポグラフィ、ブランドカラー、グラデーション、ピクセルパーフェクト
+- 弱点: モーションバナー、ダイナミックテンプレート、Modular Scale
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| モーション | HTML5 / Lottie / Rive | 静止画中心 | 新規領域 |
+| テンプレ化 | Variable 差替で量産 | 個別作成 | 標準化 |
+| Modular Scale | タイポ比率設計 | 直感 | 体系化 |
+| ブラウザレンダ | font-smoothing / subpixel | 要確認 | 細部化 |
+
+### Step 3: 世界水準のベンチマーク
+- Josef Müller-Brockmann "Grid Systems"
+- Material Design 3 Typography
+- Celtra / Bannerflow Dynamic Ads
+- Lottie / Rive モーショングラフィクス
+
+### Step 4: 新規追加スキル
+1. **Modular Scale Typography** — 1.25 / 1.333 / 1.5 で統一
+2. **Grid System** — 12 columns / Golden Ratio
+3. **Modular HTML テンプレ** — Variables 差替で量産
+4. **Lottie / Rive** — HTML5 モーションバナー
+5. **CSS Animations** — @keyframes / cubic-bezier
+6. **フォント最適化** — font-display: swap / unicode-range
+7. **カラーハーモニー** — 補色 / 分裂補色 / 四色調和
+8. **視覚優先度** — F / Z パターン + 階層化
+9. **ピクセルパーフェクト Playwright 検証** — スクショ比較
+10. **A/B バリアント生成** — 1 ベース 10 パターン
+
+### Step 5: 必須ツール・フレームワーク
+- VS Code / HTML / CSS
+- Figma Dev Mode（Design → HTML）
+- Lottie / Rive
+- Playwright スクショ
+- Google Fonts / Adobe Fonts
+
+### Step 6: 出力品質KPI
+- 1 案件 10 サイズを 2h 以内
+- Playwright 差分 ≤ 1px
+- Modular Scale 遵守率: 100%
+- フォント表示崩れ: 0 件
+
+### Step 7: 失敗パターン
+- ❌ サイズ毎に手動 → ✅ テンプレ Variables 化
+- ❌ font-size を適当に → ✅ Modular Scale
+- ❌ カラーを目分量 → ✅ Design Tokens 準拠
+- ❌ ブラウザテストなし → ✅ Playwright 自動化
+
+### Step 8: 署名技
+- **📐 "Modular Scale Lock"** — タイポ比率統一
+- **🧩 "Variables-Based Templates"** — 1 ベース 10 展開
+- **🎞️ "Lottie Motion Option"** — モーションでCTR+
+- **✅ "Pixel-Perfect Playwright"** — 自動差分検証
+
+### Step 9: 継続学習ループ
+- 週次でDribbble / Awwwards トレンド
+- 月次でLottie / Rive 新機能
+- 四半期で広告クリエイティブ事例
+
+### Step 10: 連携強化
+- **Rei**: 選定コピーを即HTML化
+- **Yuna**: サイズ指示に忠実
+- **Hiro**: PNG変換前提の HTML
+- **Itsuki**: デザイン指示整合
+- **Iro**: カラートークン準拠
+

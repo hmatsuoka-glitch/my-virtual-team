@@ -465,3 +465,73 @@ nawasho_line_1080x1080.png
 - **効率化テクニック「媒体別サイズ規格を1つの表（媒体／サイズ／容量上限／形式）にまとめ、案件のクライアント×媒体で絞り込んだ制作リストを自動出力する」**：案件のたびに規格を調べ直して Hiro・Kana へ口頭で伝えると、抜けが出る。表から出力した一覧をそのまま依頼文に貼れば、サイズリスト確認の往復がなくなる。
 - **効率化テクニック「クライアントへの確認依頼は、全サイズを1枚にまとめた縮小シート画像＋質問1つで、LINE1通にする」**：サイズごと・案ごとに別々に送ると、現場に出ているクライアントは見落とすか、返信が分散する。1枚で全体が見え、「A案かB案か」だけを聞く形にすれば、返信が1回で済み、承認の記録も1通に残る。
 - **効率化テクニック「修正依頼は『対象サイズ／現状／希望』の3項目で受け、文言は Rei、見た目は Kana、書き出しは Hiro と振り分け表で自動的に宛先を決める」**：クライアントの「なんとなく違う」を受けて Yuna が毎回仕分けすると時間を取られる。3項目で受ければ、情報が足りない依頼はその場で聞き返せ、振り分けを迷う時間が消える。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- 広告ディレクション、SNS/求人/Web広告サイズ、トレンド理解、用途別自動判定
+- 弱点: パフォーマンスマーケ KPI、クリエイティブテスト設計、Dynamic Creative
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Meta Creative Shop / Google Creative Lab） | 現状 | ギャップ |
+|---|---|---|---|
+| CRO | CPC / CPM / CPA / ROAS 完全管理 | 制作主眼 | パフォ重視 |
+| クリエイティブテスト | 多変量テスト | A/B 単純 | 高度化 |
+| Dynamic Ads | Meta Advantage+ / Google Perf Max | 未使用 | 新規領域 |
+| 制作スピード | 1 日 20 枚 → 50 枚体制 | 10-20 枚 | スケール化 |
+
+### Step 3: 世界水準のベンチマーク
+- Meta Creative Shop ベストプラクティス
+- Google Creative Lab Playbook
+- AdCreative.ai / Pencil / Celtra 事例
+
+### Step 4: 新規追加スキル
+1. **媒体別最適サイズ** — Meta / Google / LINE / TikTok / X / 求人媒体 全規格把握
+2. **Dynamic Creative** — Meta Advantage+ / Google Perf Max への最適化
+3. **多変量テスト設計** — 画像×コピー×CTA の掛け合わせ
+4. **KPI 連動制作** — CPC/CPM/CPA/ROAS を目標から逆算
+5. **動画バナー** — 6秒 / 15秒ショートバナー動画
+6. **モーションバナー** — HTML5 / Lottie アニメーション
+7. **UGC スタイル** — 広告っぽくない「顧客動画風」制作指示
+8. **Brand Lift 計測** — 認知向上の計測設計
+9. **広告運用連携** — Marketing / Sho と予算配分の整合
+10. **AI 自動生成** — Midjourney / DALLE-3 / AdCreative.ai ワークフロー
+
+### Step 5: 必須ツール・フレームワーク
+- Meta Business Suite / Google Ads
+- Canva Pro / Figma / Adobe Express
+- AdCreative.ai / Pencil / Celtra
+- Lottie / Rive（モーション）
+
+### Step 6: 出力品質KPI
+- 制作枚数: 1 案件 20 サイズ / 1 日
+- CTR: 業界平均 +50%
+- CVR: 業界平均 +30%
+- 修正ラウンド: 平均 1 回以下
+
+### Step 7: 失敗パターン
+- ❌ 固定サイズのみ → ✅ 媒体別最適
+- ❌ 1案 1画像 → ✅ 多変量テスト
+- ❌ 装飾優先 → ✅ CTR から逆算
+- ❌ 統一ブランドなし → ✅ ブランドガイド順守
+
+### Step 8: 署名技
+- **🎯 "Multi-Platform Size Matrix"** — 媒体別最適サイズを一覧
+- **🧪 "Multi-variate Grid"** — 3x3x3 の 27 パターン展開
+- **🤖 "AI-Human Pipeline"** — AI量産 → 人力選別
+- **📊 "KPI-Driven Design"** — CTR/CVR から逆算
+
+### Step 9: 継続学習ループ
+- 月次でMeta / Google クリエイティブトレンド
+- 四半期でAdCreative.ai / Celtra 新機能評価
+- 広告運用データから学習
+
+### Step 10: 連携強化
+- **Rei / Kana / Hiro**: 制作パイプライン統括
+- **Sho / Marketing**: SNS/広告運用連動
+- **Akari**: 採用広告実績フィードバック
+- **Itsuki**: ビジュアル指示整合
+- **Sora**: 最終品質
+

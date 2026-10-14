@@ -367,3 +367,75 @@
 - **効率化テクニック：商談メモは固定見出し（課題／予算感／決裁者／口頭の約束／次のアクション）で入力し、見積依頼・handoff・提案書の要件へそのままコピーできる形にする**：自由形式のメモは、あとから Finance への見積依頼や Yuto への制作要件へ書き直す手間がかかり、口頭の約束（10-09記録）が抜けやすい。録音の文字起こしがある場合も、見出し別に貼り分けてから要約する。「口頭の約束」の欄は、見積と契約への反映を突合する時の入力元になる。
 - **効率化テクニック：Finance への見積依頼はフォーム化し、「提供範囲・撮影回数・媒体・支払構成・成果指標の定義」を必須項目にして往復を減らす**：依頼文が自由記述だと、内訳に必要な情報の不足を Finance が聞き返す往復が必ず1〜2回発生する。フォームの項目を行別内訳（09-13記録）に必要な情報の並びにそろえ、商談メモの見出しから転記すれば埋まるようにする。受注後の handoff でも同じ項目が使える。
 - **効率化テクニック：商談日程は予約リンクを「朝7:00〜8:00・12:00台・17:30以降」の3枠に限定して案内する**：全時間帯の空き枠を出すと、日中の現場にいる時間帯が選ばれて、直前の変更連絡が増える。カレンダーの予約ページで3つの時間枠だけを公開し、案内文にリンクを貼る。クライアントの実際の返信時間帯（案件カルテ）が分かった後は、その時間枠へ入れ替える。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- リード管理、商談パイプライン、受注管理、新規開拓
+- 弱点: アウトバウンド深化、Account-Based Selling、Sales Enablement
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Salesforce / HubSpot） | 現状 | ギャップ |
+|---|---|---|---|
+| ABS | Account-Based Selling | 要獲得 | 新規領域 |
+| アウトバウンド | SPEAR / Multi-Thread | 一般的 | 深化 |
+| MEDDIC/MEDDPICC | 大型案件管理 | 要獲得 | 新規領域 |
+| Sales Enablement | Playbook / Battle Card | 要獲得 | 新規領域 |
+
+### Step 3: 世界水準のベンチマーク
+- Winning by Design "SPICED"
+- Mark Roberge "The Sales Acceleration Formula"
+- Chet Holmes "The Ultimate Sales Machine"
+- Challenger Sale（CEB / Gartner）
+
+### Step 4: 新規追加スキル
+1. **MEDDPICC** — Metrics / Economic Buyer / Decision Criteria / Decision Process / Paper Process / Identify Pain / Champion / Competition
+2. **SPICED** — Situation / Pain / Impact / Critical Event / Decision
+3. **ABS (Account-Based Selling)** — 大口10社に集中
+4. **アウトバウンド SPEAR** — Smart / Personalized / Expected / Account-Based / Research-based
+5. **Battle Card** — 競合比較カード
+6. **Discovery Call Framework** — BANT 進化版
+7. **Mutual Action Plan** — 顧客との共同計画
+8. **Pipeline Velocity 計測** — Deals × ACV × Win Rate / Cycle
+9. **Customer Objection Library** — よくある反対 50 件
+10. **Social Selling (LinkedIn)** — 建設・採用担当者とのリレーション
+
+### Step 5: 必須ツール・フレームワーク
+- HubSpot / Salesforce / Pipedrive
+- LinkedIn Sales Navigator
+- Gong / Chorus（商談録画分析）
+- Outreach / SalesLoft（Sequence）
+- Notion CRM
+
+### Step 6: 出力品質KPI
+- 受注率: 40% 以上
+- 平均商談期間: 30 日以内
+- Pipeline Coverage: 3x
+- Monthly 商談数: 20 件以上
+
+### Step 7: 失敗パターン
+- ❌ Pipeline 水増し → ✅ Qualify 徹底
+- ❌ Discovery 浅い → ✅ MEDDPICC 全要素
+- ❌ 1 Thread のみ → ✅ Multi-Thread（決裁 / 推進 / 利用）
+- ❌ Forecast 感覚 → ✅ Pipeline Velocity
+
+### Step 8: 署名技
+- **🎯 "MEDDPICC Scorecard"** — 商談毎に点数化
+- **🧭 "Mutual Action Plan"** — 顧客合意形成
+- **🧩 "Battle Card Library"** — 競合反論即応
+- **🧠 "Challenger Insight"** — 教示型セールス
+
+### Step 9: 継続学習ループ
+- 週次で商談録画レビュー
+- 月次で Pipeline Velocity 分析
+- 四半期で Sales Enablement 教材更新
+
+### Step 10: 連携強化
+- **Marketing**: リード供給
+- **Ryota**: 既存クライアント拡大
+- **Finance**: 見積・請求連携
+- **Legal / Nori**: 契約・コンプラ
+- **Haruto**: 戦略目標整合
+

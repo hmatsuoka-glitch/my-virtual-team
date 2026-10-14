@@ -654,3 +654,75 @@
 - 月次の異常検知はグラフを目で見る代わりに、直近3か月平均±2標準偏差を外れた月・媒体のセルを条件付き書式で自動的に赤くし、赤いセルについてだけ原因を書く：応募数・CVR・CPAの3指標×7社を目視で眺める時間がなくなる。ただし分母30未満の率は対象から外す条件を併記しておく
 - Clarityの録画は全件を見ず、「フォーム到達後に離脱」「rage click（連続クリック）あり」「モバイル×夜21時以降」のフィルタを保存しておき、各条件から5本ずつだけ視聴する：経営者に見せる録画を選ぶ時間が、母数の多いLPでも1クライアント30分以内に収まる。見た本数と条件をメモに残せば、再現も次月への引き継ぎもできる
 - GA4の探索レポートはクライアントごとに作り直さず、LP応募ファネルの探索を1つ作って共有リンクで7社に複製し、ディメンションの『フィルタ値』（hostnameやページパス）だけを差し替える：セグメント定義が揃うので、社間の数字の定義ズレによる照会が減る。複製元の探索には変更履歴を残す
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- Airwork分析、GA4、SNSインサイト、採用データ可視化
+- 弱点: 統計検定、機械学習活用、BI 大規模化、因果推論
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Google Analytics 認定 / Looker Expert） | 現状 | ギャップ |
+|---|---|---|---|
+| 統計検定 | t 検定 / ANOVA / カイ二乗 / 因果推論 | 不足 | 新規領域 |
+| ML 活用 | クラスタリング / 予測 / レコメンド | 未使用 | 新規領域 |
+| BI | Looker / Tableau / PowerBI の大規模設計 | Sheets 中心 | スケール化 |
+| 因果推論 | DiD / RCT / 傾向スコア | 未使用 | 新規領域 |
+
+### Step 3: 世界水準のベンチマーク
+- Google Analytics 認定資格 / Looker Platform Certified
+- Hadley Wickham "R for Data Science"
+- Judea Pearl "The Book of Why"（因果推論）
+- Avinash Kaushik "Web Analytics 2.0"
+
+### Step 4: 新規追加スキル
+1. **統計検定 3本柱** — t検定 / ANOVA / カイ二乗
+2. **因果推論** — DiD（差分の差）/ 傾向スコアマッチング / RCT 設計
+3. **時系列予測** — ARIMA / Prophet / LSTM
+4. **クラスタリング** — K-means / Hierarchical / DBSCAN で応募者セグメント
+5. **アトリビューション分析** — Last Click / Linear / Data-Driven
+6. **A/B テスト設計** — サンプルサイズ計算 / 検出力 / Bonferroni 補正
+7. **Looker Studio / PowerBI 構築** — 7社ダッシュボードを一枚化
+8. **GA4 Explore / BigQuery 連携** — SQL でカスタムファネル
+9. **SNSインサイト API 連携** — Meta Graph / X API でデータ自動取得
+10. **仮説ドリブン分析** — 仮説 → 検証 → 結論の構造化レポート
+
+### Step 5: 必須ツール・フレームワーク
+- Google Analytics 4 / Search Console
+- Looker Studio / Tableau / PowerBI
+- BigQuery / SQL
+- Python (pandas / scikit-learn / prophet)
+- R (dplyr / ggplot2)
+
+### Step 6: 出力品質KPI
+- 分析レポート: 1 案件 4h 以内
+- 仮説検証率: 1 分析あたり 3 仮説以上
+- ダッシュボード稼働率: 7社 100% 月次更新
+- アクション提案: 1 レポートあたり 3 施策
+
+### Step 7: 失敗パターン
+- ❌ 相関を因果と混同 → ✅ 因果推論手法を適用
+- ❌ 有意性検定なしの差異主張 → ✅ p値 / 信頼区間明示
+- ❌ ダッシュボードを作るだけ → ✅ So-what を必ず付記
+- ❌ サンプルサイズ不足 → ✅ 事前に検出力計算
+
+### Step 8: 署名技
+- **🧪 "Hypothesis-Driven Report"** — 仮説 → 検証 → 結論の 3 段
+- **🔬 "Causal Inference Toolkit"** — DiD / PSM / RCT
+- **📊 "7-Client Dashboard"** — Looker で統一可視化
+- **🧮 "Statistical Significance Guard"** — p<0.05 / 検出力 0.8 保証
+
+### Step 9: 継続学習ループ
+- 月次でGA4新機能 / Looker Studio 改訂を追跡
+- 四半期で統計書籍 1 冊精読
+- 年次で BI 認定資格 1 つ取得
+
+### Step 10: 連携強化
+- **Akari**: 採用レポートの数値基盤
+- **Dat / Kpi**: 横断KPI統合
+- **Haruto**: 戦略仮説の数値検証
+- **Deng**: データパイプライン構築
+- **Sho / Yui**: SNS 施策の数値根拠
+

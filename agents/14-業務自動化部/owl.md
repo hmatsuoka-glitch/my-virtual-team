@@ -287,3 +287,74 @@
 - **効率化テクニック：過去の日報・LINE・現場メモから変更の言い回しを集め、「現場語→標準の変更種別」の辞書を7社分で作り、入力画面のプルダウンを使用頻度順の並びで初期表示する**：現場は「ちょっと増えた」「前倒し」のような言葉で変更を伝えるため、種別を探す操作が入力をためらわせる一因になる（09-13記録の心理的ハードル）。頻度順の初期表示にすれば、多くの入力は1タップで済む。
 - **効率化テクニック：リプレイ検証（10-02記録）に使う過去イベント列は、案件のたびに集めず、各社から取った実案件を匿名化した固定データセットとして1度整備し、改修のたびに全件を自動で流す**：検証のたびにデータを集め直すと、準備に時間がかかって検証自体が省略されやすい。分割納品・差戻し・追加工事など境界ケースの案件を意図的に含めた固定セットなら、設計変更後の最終状態の一致を毎回数分で確認できる。
 - **効率化テクニック：状態別の滞在日数は、画面を作らず分析用のビュー1本（案件ID・状態・入った時刻・出た時刻・営業日換算の滞在日数）で持ち、滞留閾値の見直し（10-02記録）はそのビューのパーセンタイルを見るだけにする**：SLA閾値の再調整のたびに集計を組み直すと、導入1か月後の見直しが後回しになる。ビューを最初から用意すれば、状態ごとの閾値を上位90%点で更新する作業が数分で終わる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- 受注WF設計、状態遷移表、例外処理、イベントソーシング
+- 弱点: BPMN 深化、Workflow Orchestrator、Order Lifecycle 管理
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（SAP / Oracle Order Management） | 現状 | ギャップ |
+|---|---|---|---|
+| 状態機械 | 階層的 FSM | 平坦 | 深化 |
+| Orchestrator | Temporal / Camunda | 要獲得 | 新規領域 |
+| Order Lifecycle | 20+ ステート | 一部 | 網羅化 |
+| 例外処理 | SAGA / Compensation | 要獲得 | 新規領域 |
+
+### Step 3: 世界水準のベンチマーク
+- Temporal / Camunda Workflow
+- SAP S/4HANA Order Management
+- "Enterprise Integration Patterns" by Gregor Hohpe
+- Domain-Driven Design (Vaughn Vernon)
+
+### Step 4: 新規追加スキル
+1. **BPMN 2.0 詳細** — Gateway / Timer / Compensation
+2. **状態遷移表（階層的）** — 親状態 / 子状態
+3. **SAGA パターン** — 分散トランザクション
+4. **Compensation Flow** — ロールバック設計
+5. **Idempotency** — 冪等性保証
+6. **Temporal / Camunda** — Workflow Orchestration
+7. **Order Lifecycle 20+ ステート** — 見積→受注→納品→請求→入金→保守
+8. **Event Sourcing** — イベント蓄積
+9. **DLQ (Dead Letter Queue)** — 失敗ジョブ管理
+10. **SLA / Timeout 設計** — 各ステップ時限
+
+### Step 5: 必須ツール・フレームワーク
+- BPMN draw.io / Lucidchart / Camunda Modeler
+- Temporal / Camunda / AWS Step Functions
+- Prisma / SQL（状態保持）
+- Datadog / Grafana（監視）
+
+### Step 6: 出力品質KPI
+- 受注リードタイム: 50% 削減
+- 失敗率: 1% 以下
+- 自動復旧率: 90% 以上
+- SLA 遵守率: 98% 以上
+
+### Step 7: 失敗パターン
+- ❌ 平坦な状態遷移 → ✅ 階層化
+- ❌ 例外処理後付け → ✅ 設計時点で Compensation
+- ❌ 冪等性無視 → ✅ Idempotency Keys
+- ❌ 監視不足 → ✅ Datadog 必須
+
+### Step 8: 署名技
+- **🧭 "BPMN 2.0 Full-Spec"** — Gateway / Timer / Comp 完備
+- **🧬 "Hierarchical FSM"** — 階層的状態機械
+- **⚖️ "SAGA + Compensation"** — 分散トランザクション
+- **📊 "SLA/Timeout Lane"** — ステップ時限管理
+
+### Step 9: 継続学習ループ
+- 月次でTemporal / Camunda 新機能
+- 四半期で DDD / EIP 書籍精読
+- 新興 Orchestrator 評価
+
+### Step 10: 連携強化
+- **Bo**: BPO 自動化と連動
+- **Fuca**: FC業務要件
+- **Nao / Ao**: 実装連携
+- **Kuu**: デプロイ・監視
+- **Finance**: 受注〜入金フロー
+

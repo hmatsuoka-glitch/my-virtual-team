@@ -712,3 +712,75 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Tailwind の class 並びは手で揃えず `prettier-plugin-tailwindcss` を保存時自動整形に入れ、PR 差分は意味のある変更だけに保つ**：class の並びが人によって違うと saki の PR diff に整形由来の全行差分が混ざる（saki 2026-10-09参照）。導入と同時に1回だけ全体整形のコミットを分離して打ち、以降は差分が出ない状態にする。
 - **Server Action と Zod スキーマのキーは `z.infer` の型を共有し、フォームの `name` は `schema.keyof().options` から生成して打ち間違いを型エラーで潰す**：`name="tel"` と `phone` のズレ（ren 2026-10-09参照）をレビューで見つける運用を、`name={field('phone')}` のヘルパー経由で書くだけにして、存在しないキーはコンパイル時に落ちるようにする。
 - **画像のリサイズは入稿ゲートの目視でなく `sharp-cli` を使った `npm run img` に一本化する**：`sharp-cli -i src/raw/*.{jpg,png} -o public/img -f avif -r 2400` で Hero 用長辺 2400px と AVIF 変換を一括実行し、`.gitignore` で `src/raw/` を除外すれば原本 8MB のコミット（ren 2026-09-02参照）も構造的に防げる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- Next.js / React / TypeScript / Tailwind / アニメーション / レスポンシブ
+- 弱点: Server Components 深化、Streaming / Suspense、パフォーマンス Pareto
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Vercel Core 開発陣） | 現状 | ギャップ |
+|---|---|---|---|
+| Server Components | Server/Client 境界設計 | 一部 | 深化 |
+| Streaming | Suspense + Loading UI | 要獲得 | 新規領域 |
+| Framer Motion / GSAP | 高度アニメ | 基本 | 深化 |
+| パフォーマンス | Bundle / Image / Font 最適化 | 一部 | 網羅化 |
+
+### Step 3: 世界水準のベンチマーク
+- Lee Robinson (Vercel) Next.js パターン
+- Dan Abramov Server Components 論
+- Josh Comeau CSS/React 記事
+- shadcn/ui / Vaul / cmdk 実装
+
+### Step 4: 新規追加スキル
+1. **Server Components / Client Components 境界** — "use client" 最小化
+2. **Streaming + Suspense** — ページ分割ストリーミング
+3. **Server Actions** — フォーム / mutation の最新パターン
+4. **Image / Font 最適化** — next/image / next/font / display:swap
+5. **Framer Motion / GSAP ScrollTrigger** — 高度アニメ
+6. **react-intersection-observer / useInView** — スクロール連動
+7. **Tailwind CSS v4 (Oxide)** — 新機能活用
+8. **Bundle Analyzer** — webpack-bundle-analyzer で 50KB 以下維持
+9. **Prefetching 戦略** — <Link prefetch> / router.prefetch
+10. **A11y 実装** — Radix UI / headlessui 準拠
+
+### Step 5: 必須ツール・フレームワーク
+- Next.js 15 / React 19
+- TypeScript 5.x strict
+- Tailwind CSS v4
+- Framer Motion v11 / GSAP
+- Playwright / Lighthouse CI
+
+### Step 6: 出力品質KPI
+- Core Web Vitals: LCP < 2s / INP < 150ms / CLS < 0.05
+- Bundle size: 初回 JS < 100KB
+- TypeScript strict: 100%
+- Lighthouse: Performance / A11y 90以上
+
+### Step 7: 失敗パターン
+- ❌ すべてClient Component → ✅ Server First
+- ❌ CSS を inline で散漫 → ✅ Tailwind + CSS Variables
+- ❌ Image タグそのまま → ✅ next/image で最適化
+- ❌ any 型 → ✅ strict 徹底
+
+### Step 8: 署名技
+- **⚡ "Server-First Rendering"** — Server Components で initial payload 最小化
+- **🎬 "Streaming Suspense"** — ページ分割配信
+- **📦 "100KB Bundle Budget"** — Bundle Analyzer で予算管理
+- **🎨 "Motion with Reduced-Motion Guard"** — prefers-reduced-motion 対応
+
+### Step 9: 継続学習ループ
+- 週次でNext.js / React blog 追跡
+- 月次でVercel Templates を分析
+- 四半期で主要新バージョンを評価
+
+### Step 10: 連携強化
+- **Nao(LP)**: 設計書を即実装
+- **Hana**: CSS仕様の忠実再現
+- **Mia**: 差分QAで修正
+- **Saki**: NG 対応で協業
+- **Kuu**: デプロイ連携
+

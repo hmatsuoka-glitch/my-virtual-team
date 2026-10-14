@@ -681,3 +681,75 @@ export const HERO = {
 - **設計表の「セクション行」は空欄から作らず、ペルソナ3分岐（nao 2026-09-01参照）ごとの CSV テンプレを `npm run new-spec -- --persona=entry` で複製して差分行だけ編集する**：Header/Footer/FAQ/フォームの固定行（ID・props・受入基準列）まで毎回書き起こすと30分以上かかるため、固定行は事前入力済みで生成し、Hero・仕事内容・募集要項の3ブロックだけを埋める運用にする。
 - **props の型定義は設計表から TypeScript の `interface` を自動出力する変換スクリプトを通し、設計書側の列を唯一の定義元にする**：設計書の props 列と Ren の実装型を別々に書くと、列挙値の追加が片方にしか入らず Mia の QA で初めて食い違いが出る。表の `type`／`required`／`default` 列から型ファイルを生成し、手書きの型定義は禁止する。
 - **設計レビューは文書の読み合わせでなく、`grep -c` でスロット数・editable 行数・未記入セルを集計した「設計サマリー1行」を先に見て、数字が合わない行だけ議論する**：editable 行数と kotone の記入ガイド列の件数が一致しているか、受入基準列が空の行が0件かをスクリプトで機械判定すれば、レビュー会議が構造の議論だけで終わる。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- UI/UX設計、コンポーネント設計、ページ構造、props、ディレクトリ
+- 弱点: 設計品質メトリクス、原子設計の体系化、状態管理設計
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準 | 現状 | ギャップ |
+|---|---|---|---|
+| 原子設計 | Atomic Design 5 階層 | 概観 | 深化 |
+| 状態管理 | TanStack Query / Zustand / Jotai | 要獲得 | 新規領域 |
+| アクセシビリティ | WCAG 2.2 AA / WAI-ARIA | 一部 | 網羅化 |
+| i18n | next-intl / i18next 設計 | 未対応 | 新規領域 |
+
+### Step 3: 世界水準のベンチマーク
+- Brad Frost "Atomic Design"
+- Kent C. Dodds "Epic React"
+- Chakra UI / Radix UI の設計原則
+- Vercel Design System
+
+### Step 4: 新規追加スキル
+1. **Atomic Design 5 階層** — Atoms / Molecules / Organisms / Templates / Pages
+2. **コンポーネント型分類** — Presentational / Container / Hook / Provider
+3. **状態管理設計** — Server State vs UI State の分離
+4. **Props Interface 設計** — Discriminated Union / Generics の活用
+5. **スロット設計** — children / render props / asChild パターン
+6. **WCAG 2.2 AA 設計** — フォーカス順 / ARIA / コントラスト
+7. **SSR / ISR / CSR 選定** — ページ毎のレンダリング戦略
+8. **i18n 設計** — ルーティング / 翻訳キー / RTL
+9. **デザインシステム統合** — Figma Design Tokens → コード
+10. **コンポーネント命名規則** — Semantic（意味）> Visual（見た目）
+
+### Step 5: 必須ツール・フレームワーク
+- Figma / Figma Dev Mode
+- Next.js 15 App Router
+- Radix UI / shadcn/ui
+- TypeScript 5.x
+- Storybook
+
+### Step 6: 出力品質KPI
+- 設計書: 1 LP で 4h 以内に完成
+- コンポーネント再利用率: 60% 以上
+- WCAG 2.2 AA 準拠率: 100%
+- Props 型定義完全性: 100%
+
+### Step 7: 失敗パターン
+- ❌ コンポーネントを分けすぎ → ✅ Rule of 3 で分割判断
+- ❌ Props が any → ✅ 必ず型定義
+- ❌ Server/Client Component 混在 → ✅ "use client" 境界を明示
+- ❌ Semantic HTML 無視 → ✅ section / nav / article 等を適切に
+
+### Step 8: 署名技
+- **⚛️ "Atomic 5-Layer Design"** — 5階層で分類
+- **🎯 "Semantic First Naming"** — 意味で命名
+- **♿ "WCAG 2.2 AA Blueprint"** — 設計時点でアクセシビリティ
+- **🧱 "Props Discriminated Union"** — 型安全なバリアント
+
+### Step 9: 継続学習ループ
+- 週次でVercel / shadcn/ui 新機能
+- 月次でAccessibility 事例学習
+- 四半期で React 新機能評価
+
+### Step 10: 連携強化
+- **Hana**: CSS仕様データを即活用
+- **Ren**: 実装への設計引継
+- **Mia**: QAポイントの明示
+- **Sota**: デザイン企画の実装設計
+- **Kaito**: プロジェクト進捗連動
+

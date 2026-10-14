@@ -478,3 +478,76 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **モノレポ運用の案件は Vercel の Ignored Build Step で「自案件のフォルダに差分がある時だけビルド」にする**：`git diff --quiet HEAD^ HEAD -- lps/<案件名>/ ../../packages/` を Ignored Build Step に設定すると、別案件のコピー修正や共通パッケージ無関係の push でビルドが走らず、ビルド使用量の 70% 閾値管理（2026-09-09参照）を週次の目視でなく設定で抑えられる。共通パッケージ更新時だけ全案件が再ビルドされるので、packages 配下を差分判定に含めるのを忘れない。
 - **複製元の残存文字列検査は、Hana の抽出データから `forbidden.txt`（複製元の社名・ドメイン・電話番号・住所を1行1語）を着手時に自動生成し、`grep -rFf forbidden.txt .next out public` を1コマンドで回す**：案件ごとに grep の語を手で考えると毎回抜けが出る。社名の旧字体・全角ハイフン入り電話番号の揺れも forbidden.txt に併記して生成元を1つにする。
 - **Preview の確認依頼は Slack に URL を貼る手作業をやめ、`vercel deploy` の出力 URL を使う GitHub Actions のコメント投稿に任せ、Kaito は Deployment Protection の bypass 共有だけを担当する**：デプロイ完了→URL 取得→貼り付けの3手が案件本数分発生し、旧 URL を貼る誤爆も起きる。PR コメントは最新 Preview の1件だけを上書き更新させ、常に最新版が1箇所に残る形にする。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- LP複製統括、Vercelデプロイ、品質確認、Hana/Nao/Ren/Mia 指揮
+- 弱点: 大規模並列案件管理、Edge 最適化、A/B 配信、Analytics 計装
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（Vercel 認定 / Cloudflare Pages） | 現状 | ギャップ |
+|---|---|---|---|
+| デプロイ戦略 | Preview / Prod / Rollback の 3 段運用 | Prod 中心 | 構造化 |
+| Edge | ISR / SSG / Edge Middleware | SSG 中心 | 深化 |
+| Analytics | Vercel Analytics / GA4 / Hotjar | 単発設定 | 標準化 |
+| A/B | Vercel Edge Config / Statsig | 未使用 | 新規領域 |
+
+### Step 3: 世界水準のベンチマーク
+- Vercel Platform Playbook
+- Guillermo Rauch "Make the Web Faster"
+- CoreWebVitals / Web.dev / Lighthouse
+- Linear / Framer / Resend LP 事例
+
+### Step 4: 新規追加スキル
+1. **Core Web Vitals** — LCP < 2.5s / INP < 200ms / CLS < 0.1 を全LPで達成
+2. **ISR + Edge Middleware** — Vercel の Edge で高速化
+3. **A/B テスト基盤** — Vercel Edge Config / Statsig / Vercel Flags
+4. **Vercel Analytics + Speed Insights** — 全LPに標準装備
+5. **Preview Deployments 運用** — PR 毎のプレビュー URL
+6. **Rollback Playbook** — 問題発生時の秒速ロールバック
+7. **Image Optimization** — next/image / WebP / AVIF
+8. **SEO 最適化** — metadata API / sitemap / robots / OG 画像
+9. **Analytics 計装** — GA4 / Hotjar / Microsoft Clarity 統合
+10. **プロジェクト進捗ダッシュボード** — Notion DB で複数案件並列管理
+
+### Step 5: 必須ツール・フレームワーク
+- Vercel / Next.js 15
+- Vercel MCP（本セッション利用可）
+- GitHub Actions
+- Lighthouse CI
+- Playwright E2E
+- Hotjar / Microsoft Clarity
+
+### Step 6: 出力品質KPI
+- Core Web Vitals: 全LP green（LCP/INP/CLS 基準達成率 100%）
+- デプロイ成功率: 99.5%
+- 初回デプロイ時間: 2h 以内
+- Mia 忠実度スコア: 95% 以上
+
+### Step 7: 失敗パターン
+- ❌ Prod 直接デプロイ → ✅ Preview URL でレビュー後本番
+- ❌ ロールバック手順未整備 → ✅ Playbook 準備
+- ❌ Analytics 未計装 → ✅ 全LP標準装備
+- ❌ Mia 不合格でも強行 → ✅ 必ずOK後にデプロイ
+
+### Step 8: 署名技
+- **🚀 "3-Stage Deployment"** — Preview → Staging → Prod
+- **📊 "Vitals Dashboard"** — 全LPのCore Web Vitals一覧
+- **🔄 "60s Rollback"** — 問題発生時60秒以内に復旧
+- **🧪 "A/B at Edge"** — Vercel Edge Config で高速A/B
+
+### Step 9: 継続学習ループ
+- 月次でVercel 新機能 / Next.js メジャーアップ追跡
+- 四半期でCore Web Vitals スコア全LPレビュー
+- Linear / Framer 等のトップLPを週次参考
+
+### Step 10: 連携強化
+- **Hana / Nao / Ren / Mia / Saki**: チーム統括
+- **Sota**: デザイン企画要件を受領
+- **Kuu**: インフラ共通基盤
+- **Sora**: 最終品質承認
+- **Vercel MCP**: デプロイ・分析自動化
+

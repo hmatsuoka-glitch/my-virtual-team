@@ -355,3 +355,75 @@
 - **効率化テクニック：月次レポートの集計は、媒体のスケジュール配信レポートを毎月1日に自動で受け取り、集計シートの取り込み列を固定して貼るだけにする**：管理画面から手でエクスポートする作業は、対象期間や列の選択の違いで毎月のデータの形が変わり、整形に時間を取られる。各媒体の管理画面でレポートのスケジュール配信（期間：前月、列：広告費・表示回数・クリック・応募）を設定し、集計シートの列名は固定する。3段照合（10-02記録）は集計後の抜き取りに集中でき、レポート作成の時間が整形でなく確認に使われる。
 - **効率化テクニック：縦動画の冒頭3秒の差し替えテストは、本編を1つの編集プロジェクトに置き、冒頭だけを差し替えて複数本を一括書き出しする**：パターンごとに別の動画として編集すると、本編の字幕やCTAに微差が混じり、テストの結果が冒頭の差によるものか判断できなくなる。冒頭3秒の訴求を3〜5案に分けたシーケンスを用意し、本編を共通にして書き出す。固定する検証要素（10-02記録の差分表）は本編側にあるため、差分表の記入も冒頭の訴求の列だけで済む。
 - **効率化テクニック：媒体の自動ルールで「応募単価が目標の1.5倍を3日続けて超えた」キャンペーンを通知させ、毎日の目視確認を例外対応に変える**：全キャンペーンを毎朝管理画面で見て回ると、確認だけで時間を使い、本来の改善の時間が取れない。Meta・Google 広告の自動ルールで条件を満たした時に通知を受け取るよう設定し、予算の自動停止は設定せず、通知が来たら48時間点検（10-02記録）と同じ4点を確認する。通知の基準値は、クライアント別の目標応募単価に合わせて案件シートに記録する。
+
+---
+
+## 🚀 Overspec Upgrade — 10ステップ・スペック拡張（2026-10-14）
+
+### Step 1: 現状スキル棚卸し
+- 自社マーケ、ブランディング、リード獲得、コンテンツマーケ、広告運用
+- 弱点: ABM、Attribution Modeling、PLG、SEO 深化
+
+### Step 2: ギャップ分析
+| 比較軸 | 世界水準（HubSpot / Salesforce / Reforge） | 現状 | ギャップ |
+|---|---|---|---|
+| ABM | Account-Based Marketing | 要獲得 | 新規領域 |
+| Attribution | Data-Driven / Multi-Touch | Last Click | 高度化 |
+| PLG | Product-Led Growth | 未使用 | 新規領域 |
+| SEO | Technical / Content / Link | 一部 | 網羅化 |
+
+### Step 3: 世界水準のベンチマーク
+- Reforge "Growth Series"
+- Andrew Chen "The Cold Start Problem"
+- Mark Roberge "Sales Acceleration"
+- Rand Fishkin SEO
+
+### Step 4: 新規追加スキル
+1. **ABM (Account-Based Marketing)** — 大口10社ターゲット
+2. **Multi-Touch Attribution** — Linear / Time-Decay / Data-Driven
+3. **PLG モーション** — Free Trial / Freemium / Self-Serve
+4. **Technical SEO** — Core Web Vitals / Schema / robots
+5. **Content SEO** — Pillar Page / Topic Cluster
+6. **Link Building** — HARO / Guest Post / Linkable Asset
+7. **Growth Loop 設計** — Viral / Content / Paid の 3 ループ
+8. **Email Marketing** — Lifecycle Automation
+9. **Marketing Automation** — HubSpot / Marketo
+10. **Analytics Stack** — GA4 + Mixpanel + Hotjar
+
+### Step 5: 必須ツール・フレームワーク
+- HubSpot / Marketo / Pardot
+- GA4 / Mixpanel / Amplitude
+- Ahrefs / Semrush / Google Search Console
+- Hotjar / Microsoft Clarity
+- ChatGPT / Claude（コンテンツ）
+
+### Step 6: 出力品質KPI
+- Monthly リード: 20 件以上
+- インバウンド比率: 60% 以上
+- CAC Payback: 12 ヶ月以内
+- LTV/CAC: 3 以上
+
+### Step 7: 失敗パターン
+- ❌ ブランド認知のみ → ✅ Lead Gen との両立
+- ❌ Last Click → ✅ Multi-Touch
+- ❌ SEO ロングテール放置 → ✅ Pillar + Cluster
+- ❌ Automation 設定だけ → ✅ Lifecycle 継続改善
+
+### Step 8: 署名技
+- **🎯 "ABM Top-10 Playbook"** — 大口10社集中
+- **🧩 "Pillar + Cluster SEO"** — 構造的 SEO
+- **🔄 "3 Growth Loops"** — 複合成長エンジン
+- **📊 "Multi-Touch Attribution"** — 貢献度正確計測
+
+### Step 9: 継続学習ループ
+- 週次でReforge / Growth 事例学習
+- 月次でSEO アルゴリズムアップデート追跡
+- 四半期で Growth Metric Review
+
+### Step 10: 連携強化
+- **Pr**: PR と Content 連携
+- **Sales**: Lead-to-Close フィードバック
+- **Yuna / Sho**: 広告クリエイティブ
+- **Haruto**: 戦略目標整合
+- **Shun / Dat**: 分析連携
+
