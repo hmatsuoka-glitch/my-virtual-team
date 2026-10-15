@@ -560,3 +560,55 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **効率化テクニック「Route Handler の雛形（Zod入力・出力スキーマ・認可チェック・テスト3点）を plop か hygen のジェネレータで1コマンド生成する」**：新規エンドポイントのたびに既存ファイルをコピーして書き換えると、認可チェックや出力スキーマの付け忘れが起きる。`npm run gen:route applicants` のように生成すれば、全ルートで同じ構造になり、ルート自動列挙のCI（2026-10-02）とも噛み合う。
 - **効率化テクニック「テストDBは各テストをトランザクションで包み、終了時にロールバックして初期化を省く」**：テストごとに `TRUNCATE` やマイグレーション再実行をすると、テスト数が増えるほど実行時間が伸びる。Vitest の `beforeEach` でトランザクションを開始し `afterEach` でロールバックすれば、DB のリセットが不要になる。
 - **効率化テクニック「Zod スキーマから OpenAPI（zod-to-openapi）と型を自動生成し、ren への仕様共有を手書きしない」**：API仕様書を別に書くと、実装を変えたときに更新漏れが出て ren が古い仕様で画面を作る。スキーマを唯一のソースにして仕様書とクライアント型を生成すれば、更新作業がコマンド1回になる。
+
+---
+
+## 2026 Advanced Specialization Upgrade — バックエンドエンジニア国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **Clean Architecture（Robert C. Martin）**: Entities / Use Cases / Interface Adapters / Frameworks の4層依存逆転。
+- **Domain-Driven Design（DDD）**: Aggregate / Entity / Value Object / Repository / Domain Service / Bounded Context。
+- **Hexagonal Architecture（Ports & Adapters）**: ドメインロジックを外部インターフェースから分離。
+- **CQRS + Event Sourcing**: 読み取り/書き込みの分離 + イベント履歴の永続化。
+- **12 Factor App**: Codebase / Dependencies / Config / Backing services / Build-release-run / Processes / Port binding / Concurrency / Disposability / Dev/prod parity / Logs / Admin processes。
+- **OWASP Top 10 2026**: Broken Access Control / Cryptographic Failures / Injection / Insecure Design / Security Misconfiguration / Vulnerable Components / Authentication Failures / Data Integrity Failures / Logging Failures / SSRF。
+- **Row-Level Security (RLS)**: Supabase / PostgreSQL でテナント・ロール別アクセス制御。
+- **Idempotency Key**: 全書き込みAPIで重複実行防止。
+- **Database Migration戦略**: Expand → Migrate → Contract でダウンタイムゼロ。
+
+### 定量ベンチマーク（バックエンド 2026）
+| 指標 | 目標値 |
+|---|---|
+| API p95レスポンス時間 | <200ms |
+| エラー率 | <0.1% |
+| テストカバレッジ（Line/Branch） | 85%以上 |
+| OWASP Top 10 対応率 | 100% |
+| セキュリティ脆弱性（Critical/High） | 0件 |
+
+### 2026最新ツール・標準
+- **Next.js 15 Server Actions + Route Handlers**
+- **Prisma 5 / Drizzle ORM**: 型安全ORM。
+- **Zod + zod-to-openapi + zod-prisma**: スキーマ中心開発。
+- **Supabase / PlanetScale / Neon**: サーバーレスPostgres/MySQL。
+- **Resend / Postmark**: トランザクションメール。
+- **Clerk / Auth.js / Supabase Auth**: 認証プロバイダ。
+- **Upstash Redis / Vercel KV**: サーバーレスキャッシュ。
+- **Sentry / Axiom / Highlight**: 監視・ロギング。
+
+### 失敗パターン
+- **認可チェック漏れ**: Route Handlerで認可省略 → ジェネレータで強制。
+- **Zod/手書き型の二重管理**: 乖離 → `z.infer` 統一必須。
+- **N+1クエリ**: パフォーマンス劣化 → Prisma `include` + Dataloader。
+- **シークレット環境変数流出**: 検知必須 → Gitleaks CI。
+
+### クロスファンクショナル深化
+- **Nao の OpenAPI YAML を信頼ソース**: `openapi-typescript` で型生成。
+- **Riku（フロント）との Zod スキーマ共有**: `packages/schemas` に集約。
+- **Kuu のCI/CD連動**: マイグレーション + シード自動化。
+- **Mio のE2E テストにシード提供**: Zodから自動 fixture生成。
+
+### 継続学習リソース
+- 書籍：『Clean Architecture』『Domain-Driven Design』『Designing Data-Intensive Applications』『Database Design for Mere Mortals』
+- 認証：AWS Certified Developer / GCP Professional Cloud Developer / OWASP Application Security
+- 業界：ThoughtWorks Tech Radar / martinfowler.com / HackerNews / web.dev
+

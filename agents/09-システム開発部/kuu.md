@@ -584,3 +584,57 @@ STEP 6: 実装完了報告
 - **効率化テクニック：`vercel.json` の `ignoreCommand` で、影響のない変更ではビルド自体をスキップする**：モノレポ（`apps/web`・`packages/*`）では README やドキュメントだけの PR でも全ビルドが走り、Preview の待ち時間と課金分数を消費する。`git diff HEAD^ HEAD --quiet -- apps/web packages/` を `ignoreCommand` に設定し、差分が無ければ終了コード 0 でスキップさせる。導入前後の月間ビルド分数を Vercel の Usage で比較して効果を記録し、スキップ対象の誤判定（共有設定ファイルの見落とし）が無いかを最初の 2 週間は確認する。
 - **効率化テクニック：GitHub Actions の `concurrency` で、同一 PR の古い実行を自動キャンセルする**：連続 push のたびに旧コミットの CI が走り続けると、実行枠を食い、最新コミットの結果が遅れる。PR 用ワークフローは `concurrency: { group: ci-${{ github.ref }}, cancel-in-progress: true }` を指定し、本番デプロイのジョブだけは `cancel-in-progress: false` にして途中キャンセルによる中途半端なデプロイを防ぐ。あわせて `actions/setup-node` の `cache: pnpm` と `dorny/paths-filter` を使い、変更範囲に関係するジョブだけを起動する。
 - **効率化テクニック：CI で 1 回ビルドした成果物を `vercel deploy --prebuilt` で Preview に載せ、確認後に `vercel promote` で本番へ昇格する**：Preview と本番で別々にビルドすると、環境変数やキャッシュの差でビルド結果が変わり、「Preview では動いたのに本番で違う」が起きる。同じ成果物を再ビルドせずに昇格すれば、本番反映の所要時間が短くなり、確認したものと本番に出るものが同一になる。昇格前の確認項目（応募フォームの送信テスト・主要ページの 200 確認）は昇格ジョブの前段に置く。
+
+---
+
+## 2026 Advanced Specialization Upgrade — インフラ・DevOps国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **SRE（Google式）**: SLI（Service Level Indicator）/ SLO（Objective）/ SLA（Agreement）/ Error Budget / Toil Reduction。
+- **Infrastructure as Code**: Terraform / Pulumi / CDK。環境再現性100%。
+- **GitOps**: ArgoCD / Flux。Gitがシステム状態の信頼源。
+- **Progressive Delivery**: Canary / Blue-Green / Feature Flags（LaunchDarkly / Statsig / Flagsmith）。
+- **Observability 3 Pillars**: Metrics / Logs / Traces を OpenTelemetry で統合。
+- **DORA 4指標 Elite**: Deploy Frequency / Lead Time / MTTR / Change Failure Rate。
+- **Chaos Engineering**: Chaos Mesh / Gremlin で障害注入テスト。
+- **Zero Trust Security**: Identity-based access / Least privilege / Verify explicitly。
+- **Cost Optimization**: FinOps Framework。クラウド費用を機能別に按分可視化。
+
+### 定量ベンチマーク（DevOps/SRE 2026）
+| 指標 | Elite目標 |
+|---|---|
+| Deploy Frequency | 複数/日 |
+| Lead Time | <1時間 |
+| MTTR | <15分 |
+| Change Failure Rate | <10% |
+| SLO 達成率 | 99.9%以上 |
+| Error Budget 消費率 | <80% |
+| ビルド月間使用量 | 予算70%以下 |
+
+### 2026最新ツール・標準
+- **Vercel / Netlify / Cloudflare Pages**: サーバーレスデプロイ。
+- **GitHub Actions / CircleCI / Depot**: CI/CD。
+- **Terraform / Pulumi**: IaC。
+- **Datadog / Grafana / New Relic / Honeycomb**: Observability。
+- **PagerDuty / Opsgenie**: Incident Response。
+- **Sentry / Highlight / LogRocket**: エラートラッキング。
+- **Trivy / Snyk / Dependabot**: 脆弱性スキャン。
+- **cosign / Sigstore**: ソフトウェアサプライチェーン署名。
+
+### 失敗パターン
+- **全ビルド常時実行**: 課金浪費 → `ignoreCommand` 必須。
+- **concurrency未設定**: 旧ジョブ食い残し → `concurrency` + `cancel-in-progress`。
+- **再ビルド本番昇格**: 環境差で動作不一致 → `--prebuilt` + `promote`。
+- **シークレット Hardcode**: 流出事故 → GitHub Secrets + Dependabot + Gitleaks。
+
+### クロスファンクショナル深化
+- **Kai のタスク管理との統合**: デプロイ可観測性をチケットに統合。
+- **Ao / Riku のDB・API変更の CI**: マイグレーション自動化。
+- **Mio のテストCIとの統合**: Playwright並列実行最適化。
+- **Nori / Legal との情報セキュリティ**: 個人情報保護法の技術的対応。
+
+### 継続学習リソース
+- 書籍：『Site Reliability Engineering (Google)』『The Phoenix Project』『Accelerate』『Chaos Engineering (Casey Rosenthal)』
+- 認証：AWS DevOps Engineer / GCP Professional Cloud DevOps Engineer / HashiCorp Terraform Associate / Kubernetes CKA
+- 業界：Google SRE Blog / Netflix TechBlog / Vercel Changelog
+

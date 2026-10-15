@@ -558,3 +558,50 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **効率化テクニック「サイズ展開は `--u: calc(短辺 / 100)` を基準単位にして、フォント・余白・角丸を `calc(var(--u) * n)` で書く」**：サイズごとに px を手で調整し直すと、7サイズ×案数の修正が発生する。基準単位1つを :root で変えるだけで比率が保たれ、手作業は縦横比が大きく異なるサイズ（1200×628 と 1080×1350 等）のレイアウト分岐だけに絞れる。
 - **効率化テクニック「コピー・色・写真パスを `copy.json` に集約し、HTMLは `{{headline}}` 等のプレースホルダーにしてスクリプトで全サイズ一括生成する」**：Rei の15案のうち採用案が変わるたびに全HTMLを手で書き換えると、置き忘れの1枚が出る。テンプレート1つ＋JSON1つ＋生成スクリプトにしておけば、差し替えは JSON の編集とコマンド1回で終わる。
 - **効率化テクニック「全サイズを iframe で並べた `contact-sheet.html` を1枚作り、確認はそのページだけで行う」**：サイズごとにHTMLを開いて確認すると切り替えの手間が積み重なる。縮小表示で全サイズを並置したシートを1つ用意し、保存のたびにリロードするだけで、全サイズの崩れをまとめて目視できる。
+
+---
+
+## 2026 Advanced Specialization Upgrade — HTMLバナーデザイン国内最高精度へ
+
+### 高度専門フレームワーク（運用必須）
+- **Fluid Typography（clamp関数）**: `clamp(min, preferred, max)` で全サイズ連動フォント設計。
+- **CSS Container Queries**: `@container` でサイズ別レイアウト分岐。親容器基準。
+- **Grid + Subgrid**: 複雑バナー構造の整合。
+- **CSS Variables × calc()**: 基準単位1つで全比率連動（`--u: calc(短辺/100)`）。
+- **Golden Ratio / Rule of Thirds**: 構図の黄金比・三分割法で視線誘導。
+- **ビジュアルヒエラルキー5原則**: Size / Color / Contrast / Position / Whitespace。
+- **媒体別サイズ規格2026**: Meta広告（1080×1080, 1200×628, 1080×1350, 1080×1920）/ Google（300×250, 728×90, 320×50, 160×600）/ YouTube（1920×1080）/ TikTok（1080×1920）。
+- **プレースホルダ運用**: `{{headline}}` 等でcopy.json集約。採用コピー変更が1箇所。
+
+### 定量ベンチマーク（HTMLバナー 2026）
+| 指標 | 目標値 |
+|---|---|
+| 7サイズ展開リードタイム | 1時間以内 |
+| ピクセルパーフェクト精度 | 差分率1%以下 |
+| コピー差替え時間（15案→採用） | 5分以内 |
+| 全サイズ崩れ発見率 | 100% |
+
+### 2026最新ツール・標準
+- **CSS @container / @scope / @starting-style**: モダンCSS。
+- **Open Props**: Design Token 既製セット。
+- **PostCSS + Autoprefixer**: 互換性担保。
+- **Figma Variables → CSS Variables**: デザインとコード同期。
+- **Chrome DevTools Device Mode**: マルチサイズ即確認。
+
+### 失敗パターン
+- **サイズ毎HTML個別作成**: 保守不能 → テンプレ+copy.json。
+- **px手調整**: 7サイズ×15案で破綻 → calc + 基準単位。
+- **文字詰込み**: 読まれない → Max 3要素 + Max 7文字。
+- **低コントラスト**: WCAG違反 → 4.5:1以上必須。
+
+### クロスファンクショナル深化
+- **Rei のcopy.jsonとの統合**: コピー採用変更がHTML側ゼロ修正で反映。
+- **Hiro のPuppeteer撮影との連動**: `contact-sheet.html` を Hiro バッチ入力。
+- **Iro のブランドカラー遵守**: tokens.json 色トークン参照。
+- **Yuna のサイズ規格表に準拠**: 媒体ごとの寸法を1表管理。
+
+### 継続学習リソース
+- 書籍：『CSS: The Definitive Guide』『Thinking with Type』『Every Layout』
+- 認証：Adobe Certified Expert / Google Ads Display Certification
+- 業界：Smashing Magazine / CSS Tricks / web.dev
+

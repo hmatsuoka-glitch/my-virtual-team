@@ -574,3 +574,58 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：Playwright の認証状態を `globalSetup` で 1 回だけ作り、`storageState` を全テストで使い回す**：管理画面の E2E でテストごとにログイン操作を繰り返すと、1 本あたり数秒が積み上がり、ログイン画面の不調が全テストの失敗になる。ロール別（管理者・採用担当・閲覧のみ）に `storageState` を保存し、`test.use({ storageState })` で切り替える。ログイン自体の検証は専用の 1 本に限定し、他のテストはログインを前提条件として扱う。
 - **効率化テクニック：権限マトリクスや境界値は `test.each` の表形式に書き、ケース追加を 1 行にする**：ロール×リソースの 403／404 検証をテスト関数のコピーで増やすと、修正漏れと可読性の低下が起きる。`test.each([[role, resource, expectedStatus], …])` に表を置けば、権限の変更はその表の更新だけで済み、レビューでも仕様との差分が一目で分かる。表の行数をテスト名に出し、仕様書のマトリクスの行数と一致するかを確認する。
 - **効率化テクニック：CI の失敗調査は `trace: 'on-first-retry'` と `--last-failed` で絞り込む**：全テストでトレースを保存すると、容量が増え、必要な 1 件を探す手間が増える。初回リトライ時のみトレースを保存し、CI の成果物からトレースビューアで失敗時点の DOM とネットワークを確認する。ローカルでは `npx playwright test --last-failed` で前回失敗分だけを再実行し、再現が取れたものを再現テストとして追加する。
+
+---
+
+## 2026 Advanced Specialization Upgrade — QA国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **Test Pyramid（Mike Cohn）+ Test Trophy（Kent C. Dodds）**: Unit / Integration / E2E の比率。Trophy型は Integration重視。
+- **TDD (Red-Green-Refactor)**: 全実装前にテスト先行。TDD Guard でCI強制。
+- **BDD + Given-When-Then**: 全テストの意図明示。
+- **Property-Based Testing**: fast-check / jsverify で境界値を自動発見。
+- **Mutation Testing**: Stryker Mutator でテストの穴検出。
+- **Visual Regression + Component Testing**: Playwright + Storybook + Chromatic。
+- **E2E Test Design**: Page Object Model + Component Object Model。
+- **Test Data Management**: Fixture / Factory / Faker.js で再現性確保。
+- **アクセシビリティQA**: axe-core / Pa11y / Lighthouse A11y / WAVE。
+- **Security Testing**: OWASP ZAP / Burp Suite / Snyk。
+- **カバレッジ指標**: Line / Branch / Function / Mutation Score の4軸。
+
+### 定量ベンチマーク（QA 2026）
+| 指標 | 目標値 |
+|---|---|
+| Unit テストカバレッジ | 85%以上 |
+| Integration カバレッジ | 70%以上 |
+| E2E カバレッジ（主要ユーザーフロー） | 100% |
+| Mutation Score | 80%以上 |
+| Flaky Test率 | 2%以下 |
+| バグ流出率（本番） | 0.5%以下 |
+
+### 2026最新ツール・標準
+- **Playwright v1.50+**: E2E標準。
+- **Vitest 2+ / Jest**: Unit/Integration。
+- **Storybook 8 + Interaction Testing**: Component Testing。
+- **Chromatic / Percy / Applitools**: Visual Regression。
+- **axe-core / Pa11y**: A11y。
+- **Lighthouse CI**: Performance Regression。
+- **MSW（Mock Service Worker）**: API Mock。
+- **Testcontainers**: 統合テスト用DB/Redis。
+
+### 失敗パターン
+- **E2E偏重**: 遅く不安定 → Test Trophy型でIntegration重視。
+- **Flaky許容**: 信頼失墜 → 原因特定 + 修正 or Skip。
+- **カバレッジ数値だけ追う**: Mutation Scoreで本質評価。
+- **テストログイン操作毎回**: `storageState` 使い回し。
+
+### クロスファンクショナル深化
+- **Ao の Zod スキーマからテストデータ自動生成**: 型安全な fixture。
+- **Riku の Storybook から E2E連携**: `composeStories` 共有。
+- **Nao の OpenAPI から Contract Test**: スキーマ違反を事前検知。
+- **Kuu のCI/CDとの統合**: 並列・シャード最適化。
+
+### 継続学習リソース
+- 書籍：『The Art of Software Testing』『Specification by Example』『Testing JavaScript Applications (Lucas da Costa)』『xUnit Test Patterns』
+- 認証：ISTQB Advanced / Playwright Advanced / Google TestingonTheToilet
+- 業界：Kent C. Dodds Blog / Playwright Blog / Testing Library
+

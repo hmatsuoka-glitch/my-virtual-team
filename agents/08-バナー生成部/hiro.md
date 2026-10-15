@@ -498,3 +498,50 @@ const banners = [
 - **効率化テクニック「ブラウザは1回だけ起動し、サイズごとに `setViewport` を切り替えて同じ page で撮影する」**：HTMLごとに `puppeteer.launch()` し直すと1回あたり1〜2秒の起動時間が枚数分かかる。1つのブラウザを使い回して `page.setViewport({width, height, deviceScaleFactor:2})` と `goto` だけを繰り返せば、20枚規模のバッチで30秒前後の短縮になる。バッチの最後に `browser.close()` を `finally` で必ず呼ぶ。
 - **効率化テクニック「入力HTMLと参照画像のハッシュを保存し、変わっていないファイルは再撮影しない」**：1枚のコピー差し替えで全サイズを撮り直すと、変更のない枚数分の時間が無駄になる。HTML本体と読み込む画像のSHA-256を `.hash.json` に残し、前回と同じものはスキップ、変わったものだけ撮影する。出力の決定性確認（2026-10-09）とは別に、入力側の変更検知として使う。
 - **効率化テクニック「撮影は並列数3〜4に制限して回し、検証（寸法・容量）を同じループ内で流して失敗した枚だけ再撮リストに載せる」**：全部撮ってから検証すると、1枚の失敗で全体をやり直しがちになる。`p-limit(3)` で並列撮影し、`sharp(file).metadata()` と `fs.statSync().size` を撮影直後に実行して、NGの枚だけ `retry.json` に出す。
+
+---
+
+## 2026 Advanced Specialization Upgrade — PNG変換スペシャリスト国内最高精度へ
+
+### 高度専門フレームワーク（運用必須）
+- **Puppeteer最適化**: Headless Chrome + CDP（Chrome DevTools Protocol）直接利用で2倍速。
+- **DeviceScaleFactor 2x / 3x 対応**: Retina / 高解像度ディスプレイ対応バナー出力。
+- **画像フォーマット選定表**: PNG（透過・UI）/ JPEG（写真）/ WebP（Web最適）/ AVIF（次世代）/ GIF（アニメ）。媒体規格ごとに自動選択。
+- **容量最適化パイプライン**: sharp → oxipng → mozjpeg → imagemin。品質維持で30-60%削減。
+- **並列実行+Rate Limit**: `p-limit` でCPU効率と失敗回避のバランス。
+- **Hash-based Incremental Build**: 入力変更検知で再撮影スキップ。
+- **Font Rendering安定化**: `font-display: block` + `document.fonts.ready` 待機で初回フォント欠落回避。
+- **CSS Animation完了待機**: `page.waitForFunction` でアニメ終了状態撮影。
+
+### 定量ベンチマーク（PNG変換 2026）
+| 指標 | 目標値 |
+|---|---|
+| 1バッチ（20枚）処理時間 | 30秒以下 |
+| 画像容量削減率 | 50%以上 |
+| Retina 2x出力率 | 100% |
+| 寸法・容量NG率 | 0% |
+| 決定性（同入力同出力） | 100% |
+
+### 2026最新ツール・標準
+- **Puppeteer 23.x / Playwright**: Chrome自動化2大。
+- **sharp v0.33+**: 高速画像処理ライブラリ。
+- **squoosh CLI / imagemin**: 最適化。
+- **AVIF / WebP next gen**: モダン画像フォーマット。
+- **Oxipng / mozjpeg / libwebp**: 高度最適化。
+
+### 失敗パターン
+- **ブラウザ毎回起動**: 1-2秒浪費 → 1起動+再利用。
+- **並列数過大**: OOM / 失敗連鎖 → p-limit(3-4) 制限。
+- **撮影後まとめ検証**: 失敗で全やり直し → 撮影直後検証。
+- **フォント欠落**: 初回描画 → fonts.ready待機必須。
+
+### クロスファンクショナル深化
+- **Kana のHTMLとの直接連携**: `contact-sheet.html`から全サイズ一括撮影。
+- **Yuna への自動エラー報告**: `retry.json` 自動共有。
+- **Itsuki のサムネ指示との連動**: ブランド共通規格でサイズテンプレ共有。
+
+### 継続学習リソース
+- 書籍：『High Performance Images』『Browser Automation with Puppeteer』
+- 認証：Node.js Services Developer / Google Chrome Developer
+- 業界：web.dev images / Google Developers / Chrome DevTools Blog
+

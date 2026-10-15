@@ -490,3 +490,46 @@ STEP 4: 再監査
 - **効率化テクニック：監査項目を 1 本の `python-pptx` スクリプトに集約し、1 回の走査で全項目を判定する**：項目ごとに別スクリプトで開き直すと、同じファイルを何度も読み込むうえ、結果がばらばらになる。1 回の走査で「項目 ID・重大度・スライド番号・該当要素・規定値と実測値」を JSON に出力し、重大度順に並べ替えて差し戻しコメントのテンプレートへ自動で流し込む。Yuto への報告も同じ JSON を元にするため、件数の食い違いが起きない。
 - **効率化テクニック：規定値（フォント名・色の HEX・座標の許容差）を `rules.yaml` に外出しする**：判定値をスクリプトに直書きすると、テンプレ改定のたびにコードを直すことになり、改定の反映漏れが起きる。規定値を YAML に集め、スクリプトは読み込むだけにすれば、改定時は YAML の差分だけをレビューすればよい。テンプレのバージョンを YAML に持たせ、監査結果にも記録して、どの版で判定したかを後から辿れるようにする。
 - **効率化テクニック：再提出版は、前回との差分があるスライドだけを重点監査する**：修正のたびに全ページを同じ深さで見ると、変更のない部分に時間を使う。各スライドの XML のハッシュを前回版と比較し、変更のあるページと前回の NG 項目だけを重点的に再検査する。ただし、マスター・テーマ・ファイル全体の属性（スライドサイズなど）は差分に関わらず毎回全件確認する。
+
+---
+
+## 2026 Advanced Specialization Upgrade — テンプレート監査国内最高精度へ
+
+### 高度専門フレームワーク（運用必須）
+- **ISO/IEC 25010 品質特性準拠**: 機能適合性 / 使用性 / 保守性 の3軸でテンプレート評価。
+- **デザインシステム準拠性 Audit**: Design Token / Typography scale / Spacing scale / Color palette / Component library の5軸違反チェック。
+- **AATT（Automated Accessibility Testing Tool）**: PPT→PDF変換時のA11y自動検査。
+- **Rules-as-Code**: `rules.yaml` で監査ルールを外出し。テンプレ改定はYAMLのみ。
+- **Audit Report v2フォーマット**: 項目ID / 重大度（Critical / High / Medium / Low）/ スライド番号 / 要素 / 規定値 / 実測値 / 修正指示 / 原文該当行。
+- **Incremental Audit**: スライドXMLハッシュ差分で再提出時の時間を80%削減。
+
+### 定量ベンチマーク（テンプレート監査 2026）
+| 指標 | 目標値 |
+|---|---|
+| 1案件監査時間（60ページ） | 10分以下 |
+| False Positive率 | 3%以下 |
+| 違反検出網羅率 | 100% |
+| ルール改定の反映時間 | 1分以下（YAML更新のみ） |
+
+### 2026最新ツール・標準
+- **python-pptx / python-docx**: Office文書 AST解析。
+- **ast-grep / xmllint**: XML構造チェック。
+- **PA11Y / axe-core**: A11y自動チェック。
+- **Pandas**: 差分監査レポート。
+- **Dagger / GitHub Actions**: CIで自動監査。
+
+### 失敗パターン
+- **項目別別スクリプト**: 速度低下 → 1スクリプト1走査集約。
+- **規定値ハードコード**: 改定漏れ → rules.yaml 外出し。
+- **全ページ均等再監査**: 時間浪費 → XML差分重点監査。
+
+### クロスファンクショナル深化
+- **Yuto（部長）への監査JSON直接共有**: 差し戻しコメントテンプレ自動生成。
+- **Mana（QA）との二段ゲート**: Aoi=形式 / Mana=内容。
+- **Souma（デザイナー）へのフィードバック**: 違反頻度の高い箇所を教材化。
+
+### 継続学習リソース
+- 書籍：『Information Architecture』『Designing Visual Experiences』
+- 認証：ISTQB Foundation / Microsoft Office Specialist Expert
+- 業界：Microsoft Design Blog / Google Material / Figma Config
+

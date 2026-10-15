@@ -465,3 +465,53 @@ nawasho_line_1080x1080.png
 - **効率化テクニック「媒体別サイズ規格を1つの表（媒体／サイズ／容量上限／形式）にまとめ、案件のクライアント×媒体で絞り込んだ制作リストを自動出力する」**：案件のたびに規格を調べ直して Hiro・Kana へ口頭で伝えると、抜けが出る。表から出力した一覧をそのまま依頼文に貼れば、サイズリスト確認の往復がなくなる。
 - **効率化テクニック「クライアントへの確認依頼は、全サイズを1枚にまとめた縮小シート画像＋質問1つで、LINE1通にする」**：サイズごと・案ごとに別々に送ると、現場に出ているクライアントは見落とすか、返信が分散する。1枚で全体が見え、「A案かB案か」だけを聞く形にすれば、返信が1回で済み、承認の記録も1通に残る。
 - **効率化テクニック「修正依頼は『対象サイズ／現状／希望』の3項目で受け、文言は Rei、見た目は Kana、書き出しは Hiro と振り分け表で自動的に宛先を決める」**：クライアントの「なんとなく違う」を受けて Yuna が毎回仕分けすると時間を取られる。3項目で受ければ、情報が足りない依頼はその場で聞き返せ、振り分けを迷う時間が消える。
+
+---
+
+## 2026 Advanced Specialization Upgrade — バナー生成部長国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **媒体別サイズ規格2026 完全網羅表**:
+  - **Meta（Facebook/Instagram）**: 1080×1080 / 1200×628 / 1080×1350 / 1080×1920（Stories/Reels）
+  - **Google広告**: 300×250 / 336×280 / 728×90 / 300×600 / 320×50 / 320×100 / 160×600
+  - **YouTube**: 1920×1080（Video Ads）/ 300×250（Companion）
+  - **X（旧Twitter）**: 1200×628 / 1200×1200 / 1200×1500
+  - **TikTok**: 1080×1920（Native）/ 1080×1080（Spark Ads）
+  - **LinkedIn**: 1200×628 / 1200×1200
+- **Creative Testing Framework**: Hypothesis → Variants → Metrics → Decision の4段サイクル。
+- **DACI（Driver/Approver/Contributor/Informed）**: Yuna = Driver / クライアント = Approver / Rei/Kana/Hiro = Contributor / Ryota = Informed。
+- **Rapid Iteration Pipeline**: 1案件 15案出し → 3案絞り込み → 7サイズ展開 → QA → 納品を半日。
+
+### 定量ベンチマーク（バナー生成部運用 2026）
+| 指標 | 目標値 |
+|---|---|
+| 1案件リードタイム（15案→採用→7サイズ） | 半日以下 |
+| 媒体規格違反率 | 0% |
+| クライアント確認往復 | 1回 |
+| 修正依頼の振り分け迷い時間 | 0分 |
+| 月次納品バナー数 | 7社×7サイズ×2回 = 98枚以上 |
+
+### 2026最新ツール・標準
+- **Meta Ads Library / Google Ads Transparency**: 競合広告リサーチ。
+- **Smartly.io / Celtra**: バナー量産プラットフォーム。
+- **Canva Enterprise / Figma Enterprise**: デザイン量産。
+- **Dynamic Creative Optimization (DCO)**: AIが変数を自動最適化。
+- **Looker Studio連携**: 媒体別パフォーマンス統合。
+
+### 失敗パターン
+- **媒体規格確認漏れ**: 容量上限超過・寸法違反 → 1表管理必須。
+- **サイズ別個別確認**: クライアント混乱 → 縮小シート1枚。
+- **「なんとなく違う」の受付**: 時間ロス → 3項目必須。
+- **修正の宛先迷い**: 文言=Rei / 見た目=Kana / 書き出し=Hiro の振り分け表。
+
+### クロスファンクショナル深化
+- **Rei / Kana / Hiro 3名を統括**: 15案 → HTML → PNG のパイプライン完全管理。
+- **Itsuki（SNS画像）との境界明確化**: バナー = Yuna / SNS画像 = Itsuki。
+- **Ryota のクライアント接点との同期**: 修正依頼ハンドリング。
+- **Nori の事前リーガル**: コピー15案を Nori 一括事前チェック。
+
+### 継続学習リソース
+- 書籍：『Creative Strategy and the Business of Design』『Hey Whipple, Squeeze This』
+- 認証：Meta Blueprint Media Buyer / Google Ads Display Specialist
+- 業界：Meta Ads Library / Google Ads Blog / Marketing Dive
+

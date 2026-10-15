@@ -458,3 +458,54 @@ STEP 6: 設計書をKaiへ提出
 - **効率化テクニック：ER 図は手描きせず、Prisma スキーマから Mermaid を自動生成して設計書に埋め込む**：設計書の ER 図とスキーマが別管理だと、改訂のたびに図が古くなり、Ao が実装時に図を信用できなくなる。`prisma-erd-generator` で出力した Mermaid を設計書の該当節へ CI で差し込み、図の更新を手作業から外す。カラムの意味（入力者・機微度・想定行数）は図に載せず、別表で管理して役割を分ける。
 - **効率化テクニック：API 仕様を OpenAPI の YAML に先に書き、`openapi-typescript` で Ao と Riku が同じ型を使う**：仕様書の文章から各自が型を書き起こすと、フィールド名や必須／任意の解釈が食い違い、結合時に手戻りになる。Nao が YAML を先に確定し、型生成と Redocly の lint を CI に組み込めば、仕様変更が型エラーとして両者に即座に伝わる。破壊的変更の検出（`oasdiff` 等）も同じ CI に置く。
 - **効率化テクニック：設計判断は 1 件 1 ファイルの ADR（Architecture Decision Record）にして、再議論を減らす**：「なぜ Supabase にしたか」「なぜ論理削除にしたか」がチャットに散らばると、数週間後に同じ議論が繰り返される。`docs/adr/0007-…md` に「背景・選択肢・決定・却下理由・見直す条件」を 20 行以内で書き、PR で Kai の承認を得る。却下理由を書くことで、クライアントから代替案を聞かれた時の説明が短く済む。
+
+---
+
+## 2026 Advanced Specialization Upgrade — システムアーキテクト国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **BMAD-METHOD Architect**: 仕様駆動開発における設計責任者としての体系。
+- **Clean Architecture + Hexagonal + Onion**: 依存逆転・ポートアダプタ・層構造の3位一体。
+- **Domain-Driven Design**: Strategic（Bounded Context / Context Map）+ Tactical（Aggregate / Entity / VO / Repository）。
+- **ADR（Architecture Decision Record）運用**: 全設計判断を1件1ファイル + 却下理由明記。
+- **C4 Model（Simon Brown）**: Context / Container / Component / Code の4レベル図。
+- **Event Storming**: ドメインイベントからシステム設計。
+- **CAP定理 + PACELC**: 分散システムのトレードオフ理解。
+- **Scalability Patterns**: Load Balancer / Caching / Sharding / Replication / CDN。
+- **Resilience Patterns**: Circuit Breaker / Bulkhead / Retry with Backoff / Timeout / Rate Limiter。
+- **API Design**: REST / GraphQL / tRPC / gRPC の使い分け。OpenAPI YAMLを信頼ソース。
+- **DB Design**: 正規化5段階 / Index戦略 / クエリプラン読解 / Query Optimization。
+
+### 定量ベンチマーク（システム設計 2026）
+| 指標 | 目標値 |
+|---|---|
+| 設計書作成リードタイム | 要件確定後3営業日 |
+| ADR 残存率 | 95%以上（再議論なし） |
+| API 破壊的変更検知率 | 100%（oasdiff CI） |
+| 要件→設計の網羅性 | 100% |
+| 実装段階の設計手戻り率 | 10%以下 |
+
+### 2026最新ツール・標準
+- **OpenAPI 3.1 + Redocly + oasdiff**: API Spec 中心開発。
+- **Prisma 5 + prisma-erd-generator**: ER図自動生成。
+- **Mermaid / PlantUML / Structurizr DSL**: 設計図as code。
+- **ADR Tools + Dendron**: ADR管理。
+- **BDD（Cucumber / Gherkin）**: 受入基準の形式化。
+- **Backstage**: 開発者ポータル・Service Catalog。
+
+### 失敗パターン
+- **ER図手描き**: 実装と乖離 → `prisma-erd-generator` 自動化。
+- **API仕様の文章化**: 解釈ズレ → OpenAPI YAML唯一信頼。
+- **設計判断のチャット散在**: 再議論 → ADR 1件1ファイル。
+- **Bounded Context 無視**: モノリス肥大化 → DDD Context Map。
+
+### クロスファンクショナル深化
+- **Kai との要件分解連動**: Nao設計書の各節 → Kaiのストーリー化。
+- **Ao / Riku への型・スキーマ提供**: `openapi-typescript` 一本化。
+- **Fuca（FCビジネスアナリスト）との業務語彙連携**: Ubiquitous Language 設計書化。
+
+### 継続学習リソース
+- 書籍：『Software Architecture: The Hard Parts』『Fundamentals of Software Architecture』『Domain-Driven Design』『Designing Data-Intensive Applications』
+- 認証：AWS Certified Solutions Architect Professional / GCP Professional Cloud Architect / TOGAF
+- 業界：martinfowler.com / ThoughtWorks Tech Radar / InfoQ
+

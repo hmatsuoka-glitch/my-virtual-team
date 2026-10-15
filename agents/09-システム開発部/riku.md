@@ -530,3 +530,57 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **効率化テクニック：フォームのバリデーションを zod スキーマ 1 つにして、Ao と共有する**：画面側と API 側で別々に検証を書くと、文字数や必須条件が食い違い、画面は通るのに API で拒否される不具合になる。`packages/schemas` に zod スキーマを置き、React Hook Form は `zodResolver` で、API は `parse` で同じものを使う。エラー文言は日本語の辞書にまとめ、項目名ごとの案内（例：全角数字でも可）を一箇所で管理する。
 - **効率化テクニック：Storybook のストーリーを `composeStories` で Vitest からも再利用する**：見た目確認用のストーリーと、振る舞い確認用のテストで同じ状態を二重に用意すると、更新漏れが起きる。ストーリー側に「空・エラー・読み込み中・長文」の状態を定義し、テストでは `composeStories` で読み込んで操作とアサーションだけを書く。フォントサイズ最大や 200% 拡大の検証もストーリーの状態として共有できる。
 - **効率化テクニック：`cva`（class-variance-authority）と `prettier-plugin-tailwindcss` で、スタイルのレビュー負荷を下げる**：Tailwind のクラスを各所に直書きすると、ボタンの大きさや色の違いが画面ごとに微妙にずれ、レビューでも差分が追いにくい。`cva` で size・variant を定義して部品に閉じ込め、クラスの並び順は plugin に任せて自動整列する。ずれの修正が 1 ファイルで済み、Mio の目視確認の対象も絞れる。
+
+---
+
+## 2026 Advanced Specialization Upgrade — フロントエンドエンジニア国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **Next.js 15 App Router + React 19**: Server Components / Server Actions / Partial Prerendering / `use()` hook / React Compiler。
+- **TypeScript 5.x 高度型**: Discriminated Union / Template Literal / Branded Types / `satisfies` / Conditional。
+- **State Management階層**: URL（searchParams）→ Server State（TanStack Query / SWR）→ Form State（RHF）→ Client State（Zustand/Jotai）。
+- **Form設計**: React Hook Form + Zod + zodResolver。`z.infer` で型統一。
+- **Component Design**: Compound Component / Headless UI / Render Props / Hooks Composition。
+- **Testing**: Vitest + React Testing Library + Playwright + Storybook `composeStories`。
+- **Accessibility**: ARIA Authoring Practices Guide / WCAG 2.2 AA 必須。
+- **Performance**: Code Splitting / Dynamic Import / `useMemo`/`useCallback` 適切利用 / React.lazy + Suspense。
+- **Tailwind組織化**: `cva` + `tw-merge` + `prettier-plugin-tailwindcss`。
+- **i18n**: next-intl / next-i18next でローカライズ。
+
+### 定量ベンチマーク（フロントエンド 2026）
+| 指標 | 目標値 |
+|---|---|
+| Lighthouse Performance | 95以上 |
+| LCP | <2.0s |
+| INP | <150ms |
+| CLS | <0.05 |
+| Bundle Size（route） | <150KB gzipped |
+| Component Testカバレッジ | 85%以上 |
+| WCAG 2.2 AA 準拠 | 100% |
+
+### 2026最新ツール・標準
+- **Next.js 15 / React 19 / TypeScript 5.5+**
+- **TanStack Query / SWR**: Server State。
+- **Zustand / Jotai**: Client State。
+- **shadcn/ui / Radix UI**: 高品質コンポーネント基盤。
+- **Framer Motion / View Transitions API**: Animation。
+- **Storybook 8 + Chromatic**: Component Workbench。
+- **Playwright + MSW**: E2E + API Mock。
+
+### 失敗パターン
+- **型二重定義**: 画面側と API 側で検証不一致 → `packages/schemas` 統一。
+- **ストーリー/テストの状態重複**: 更新漏れ → `composeStories` 共有。
+- **直書きTailwind**: スタイル散在 → `cva` 集約。
+- **アクセシビリティ無視**: 法的リスク → axe-core CI。
+
+### クロスファンクショナル深化
+- **Ao の Zod スキーマ共有**: `packages/schemas` に集約。
+- **Nao の OpenAPI 型自動生成を信頼ソース**: 手書き型禁止。
+- **Mio の Visual Regression連動**: Storybookから自動Visual Diff。
+- **Hana / Iro（LP部）のdesign token共有**: Tailwind config 自動投入。
+
+### 継続学習リソース
+- 書籍：『Fullstack React with Next.js』『Effective TypeScript』『Refactoring UI』『Testing JavaScript Applications』
+- 認証：Next.js Certified Expert / Vercel Expert / Google UX Design
+- 業界：React Blog / Next.js Blog / Josh Comeau / Kent C. Dodds
+

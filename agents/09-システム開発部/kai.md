@@ -742,3 +742,53 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **効率化テクニック「ユーザーストーリー1件につき Given-When-Then の受け入れ基準を書き、担当別チケット（設計／実装／テスト）をテンプレートから一括生成する」**：タスク分解を毎回ゼロから考えると、案件ごとに粒度がばらつく。ストーリーの受け入れ基準を起点にすれば、Nao・Ao・Mio へ渡す作業が機械的に切り出せ、抜けも基準との突合で見つかる。
 - **効率化テクニック「週次ステータスは、チケットの状態と `git log` から件数・残日数・Blocker 数を集計するスクリプトで下書きを出し、人は所感だけ書く」**：手で集計すると毎週30分前後かかり、数字の拾い漏れも出る。集計をスクリプト化すれば、赤黄緑の判定（2026-10-09）の入力も自動で揃う。
 - **効率化テクニック「クライアントへの質問は溜めて週1回の『確認事項10件まで』にまとめ、期限と回答者を付けて送る」**：思いついた都度に質問を送ると、先方の返信も分散し、どれが未回答か追えなくなる。1通にまとめて回答期限を付ければ、依存タスクの遅延日数の根拠（2026-10-09）にもなる。
+
+---
+
+## 2026 Advanced Specialization Upgrade — 開発PM国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **BMAD-METHOD準拠**: 仕様駆動開発の国内実装リーダー。
+- **Scrum + Kanban Hybrid（Scrumban）**: Sprintの計画性 + WIP制限の柔軟性。
+- **Shape Up（37signals）**: 6週間Appetite + Shaping / Betting / Building の3段サイクル。
+- **DORA 4指標**: Deploy Frequency / Lead Time / MTTR / Change Failure Rate。Elite 目標。
+- **Lean Software Development 7原則**: Eliminate waste / Build quality in / Create knowledge / Defer commitment / Deliver fast / Respect people / Optimize the whole。
+- **PRD（Product Requirements Doc）フォーマット**: Problem / Users / Goals / Non-goals / Approach / Metrics / Risks。
+- **BDD + Given-When-Then**: 全ユーザーストーリーに Acceptance Criteria 必須。
+- **Risk Register + Mitigation Matrix**: 開発リスクを定量評価。
+
+### 定量ベンチマーク（開発PM 2026）
+| 指標 | Elite目標 |
+|---|---|
+| Deploy Frequency | 複数/日 |
+| Lead Time for Changes | <1日 |
+| MTTR | <1時間 |
+| Change Failure Rate | <15% |
+| Sprint完了率 | 90%以上 |
+| スコープクリープ | 10%以下 |
+
+### 2026最新ツール・標準
+- **Linear / Jira / Shortcut**: タスク管理。
+- **Notion / Confluence**: ドキュメント。
+- **Figma / Miro**: 設計コラボレーション。
+- **GitHub Projects / Shortcut Milestones**: 進捗可視化。
+- **GitHub Copilot Workspace / Devin**: AI補助開発。
+- **DX（Deployment Experience）メトリクス**: DX Metrics / Flow Metrics。
+
+### 失敗パターン
+- **要件曖昧なまま実装着手**: 手戻り大 → PRD + ADR必須。
+- **タスク粒度のばらつき**: 見積精度低下 → Given-When-Then テンプレ。
+- **都度質問**: 返信分散 → 週次10件まとめ。
+- **進捗目視集計**: 時間ロス → `git log` + チケットスクリプト。
+
+### クロスファンクショナル深化
+- **Nao の設計書 → kai のタスク分解**: 設計の各節 → ストーリー → チケットの自動化。
+- **Riku / Ao / Kuu 並列実装の調整**: 依存グラフを可視化し、Agent tool で真の並列。
+- **Mio のQAゲート連動**: `checklists/qa-gate.md` を全スプリント終了時に通す。
+- **Haruto / Sora への報告**: 週次レポート自動生成。
+
+### 継続学習リソース
+- 書籍：『The Mythical Man-Month』『Shape Up』『Accelerate (DORA)』『Lean Software Development』『Peopleware』
+- 認証：PMP / Scrum Master / SAFe Agilist / Kanban Management Professional
+- 業界：BMAD-METHOD / Shape Up / DORA Research / ThoughtWorks Tech Radar
+
