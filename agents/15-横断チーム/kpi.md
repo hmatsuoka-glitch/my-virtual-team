@@ -361,3 +361,50 @@
 - **効率化テクニック：新しい指標の登録は、分子・分母・表示単位・更新頻度・目標値の適用開始日（10-09記録）を必須項目にした定義フォームだけで受け付け、未記入なら登録できない形にする**：定義が不完全な指標を後から直すと、過去月の再計算とレポートの差し替えが発生する。定義の入力を登録の入口に集約すれば、SSOTの更新とダッシュボードの項目追加が同じ操作になる。
 - **効率化テクニック：取り込みジョブの実行順を依存関係で定義し、バックフィル（07-03記録）や定義変更後は「全指標の再計算＋キャッシュ無効化＋鮮度表示の更新」を1コマンドで実行する**：指標ごとに再実行すると順序を誤り、一時的に合計と内訳が合わない状態が配信先に見える。依存順を固定しておけば、再計算後の合計整合チェック（06-12記録）まで一度に回せる。
 - **効率化テクニック：クライアント別の月次集計は社ごとにクエリを書かず、クライアントIDをパラメータにした共通クエリ1本で7社分を回し、出力先の置き場に社別フォルダで自動保存する**：社ごとに複製したクエリは、定義変更のたびに7か所を直す必要があり、直し漏れが数字のずれになる。共通クエリなら修正は1か所で、新規クライアントはIDの追加だけで集計対象に入る。
+
+---
+
+## 2026 Advanced Specialization Upgrade — KPIダッシュボード国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **Single Source of Truth（SSOT）**: 全KPI定義を1箇所に集約。重複定義排除。
+- **Semantic Layer**: dbt Metrics / Cube.dev / LookML で指標定義のコード化。
+- **GQM+Strategies**: Goal-Question-Metric を戦略階層と連動。
+- **Lagging vs Leading Indicators**: 結果指標と予兆指標の二層設計。
+- **Statistical Process Control（SPC管理図）**: UCL/LCL設定で異常検知の自動化。
+- **Freshness-SLA / Completeness-SLA**: データ鮮度・網羅性のサービスレベル定義。
+- **指標定義の必須項目**: 分子 / 分母 / 単位 / 更新頻度 / 目標値 / 適用開始日 の6要素。
+
+### 定量ベンチマーク（KPI管理 2026）
+| 指標 | 目標 |
+|---|---|
+| ダッシュボード Freshness | <6時間 |
+| 指標定義SSOT網羅率 | 100% |
+| 定義変更後の全反映時間 | <15分 |
+| 合計・内訳整合率 | 100% |
+| 新規指標登録リードタイム | <30分 |
+
+### 2026最新ツール・標準
+- **Looker Studio / Tableau / Power BI / Metabase**: BIツール。
+- **dbt Metrics Layer / Cube.dev**: Semantic Layer。
+- **Hightouch / Census**: Reverse ETL（DWH→SaaS）。
+- **BigQuery / Snowflake / Databricks**: モダンDWH。
+- **Monte Carlo / Soda / Great Expectations**: Data Observability。
+
+### 失敗パターン
+- **指標定義散在**: 社間ズレ → SSOT必須。
+- **指標登録の後出し**: 再計算頻発 → 定義フォーム + 必須項目。
+- **依存順無視**: 一時整合崩れ → ジョブ依存グラフ。
+- **社数分クエリ**: 変更漏れ → パラメータ化。
+
+### クロスファンクショナル深化
+- **Dat（横断分析）との Semantic Layer 共有**: 定義統一。
+- **Deng のデータパイプと連動**: Silver/Gold層からの指標計算。
+- **Haruto / Kai への経営ダッシュボード供給**: 意思決定リアルタイム化。
+- **Akari / Shun（部門別分析）との整合**: 全体最適。
+
+### 継続学習リソース
+- 書籍：『Measure What Matters』『Trustworthy Online Controlled Experiments』『Data Mesh』
+- 認証：Looker LookML Developer / Tableau Desktop Certified / dbt Analytics Engineering
+- 業界：Mode Blog / Benn Stancil / Analytics Engineering Roundup
+

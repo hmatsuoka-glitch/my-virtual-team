@@ -287,3 +287,49 @@
 - **効率化テクニック：過去の日報・LINE・現場メモから変更の言い回しを集め、「現場語→標準の変更種別」の辞書を7社分で作り、入力画面のプルダウンを使用頻度順の並びで初期表示する**：現場は「ちょっと増えた」「前倒し」のような言葉で変更を伝えるため、種別を探す操作が入力をためらわせる一因になる（09-13記録の心理的ハードル）。頻度順の初期表示にすれば、多くの入力は1タップで済む。
 - **効率化テクニック：リプレイ検証（10-02記録）に使う過去イベント列は、案件のたびに集めず、各社から取った実案件を匿名化した固定データセットとして1度整備し、改修のたびに全件を自動で流す**：検証のたびにデータを集め直すと、準備に時間がかかって検証自体が省略されやすい。分割納品・差戻し・追加工事など境界ケースの案件を意図的に含めた固定セットなら、設計変更後の最終状態の一致を毎回数分で確認できる。
 - **効率化テクニック：状態別の滞在日数は、画面を作らず分析用のビュー1本（案件ID・状態・入った時刻・出た時刻・営業日換算の滞在日数）で持ち、滞留閾値の見直し（10-02記録）はそのビューのパーセンタイルを見るだけにする**：SLA閾値の再調整のたびに集計を組み直すと、導入1か月後の見直しが後回しになる。ビューを最初から用意すれば、状態ごとの閾値を上位90%点で更新する作業が数分で終わる。
+
+---
+
+## 2026 Advanced Specialization Upgrade — 受注ワークフロー設計国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **State Machine Design**: 状態遷移の形式的設計（XState / Temporal Workflow準拠）。
+- **BPMN 2.0 + CMMN**: Business Process Model and Notation / Case Management Model and Notation。
+- **Event Sourcing + CQRS**: 全状態変化をイベント履歴として永続化。
+- **Lead Time 分解**: Processing / Waiting / Rework / Transit の4要素分解。
+- **Theory of Constraints（制約理論）**: ボトルネック発見→改善→連鎖の継続改善。
+- **Value Stream Mapping**: 価値付加時間 vs 非付加時間の比率可視化。
+- **Little's Law**: WIP = Throughput × Lead Time。流量制御の数学。
+- **SLA/SLO設計**: 90/95/99パーセンタイル閾値での運用。
+
+### 定量ベンチマーク（受注フロー 2026）
+| 指標 | 目標 |
+|---|---|
+| 受注→納品 Lead Time | 30%短縮 |
+| 状態間平均滞留日数（p90） | 業界比50% |
+| 差戻し率 | 10%以下 |
+| 境界ケース処理成功率 | 100% |
+| SLA違反発生率 | 1%以下 |
+
+### 2026最新ツール・標準
+- **Temporal.io / Camunda / Airflow**: Workflow Engine。
+- **Notion Database / Monday.com / Smartsheet**: ノーコード業務管理。
+- **Lucidchart / Miro**: BPMN図作成。
+- **XState**: Finite State Machine ライブラリ。
+- **Google Looker Studio**: 滞在日数パーセンタイル可視化。
+
+### 失敗パターン
+- **自由テキスト変更**: 現場語彙とのズレ → 辞書 + プルダウン。
+- **リプレイ検証都度**: 検証省略化 → 固定データセット。
+- **閾値見直し画面作成**: 工数負担 → ビュー1本で済む。
+
+### クロスファンクショナル深化
+- **Bo の自動化と連携**: フロー設計 → RPA実装の分担。
+- **Ryota の案件管理との整合**: 状態遷移の可視化統合。
+- **PM（横断）のリソース配分**: ボトルネック情報を提供。
+
+### 継続学習リソース
+- 書籍：『The Goal (Theory of Constraints)』『The Phoenix Project』『Lean Startup』『Workflow Engines for Grid Computing』
+- 認証：Lean Six Sigma Black Belt / BPMN 2.0 Fundamentals / Temporal Workflow Developer
+- 業界：Camunda Blog / Temporal Blog / BPMN.org
+

@@ -368,3 +368,49 @@
 - **効率化テクニック：会議の議事録は録音の文字起こしを生成AIで「決定／未決／宿題（担当・期限）」の3区分（10-09記録）に仕分けた下書きにし、人は担当と期限の確認だけをして終了後30分以内に出す**：議事録を手で起こすと、翌日になって記憶が薄れ、決定事項が欠ける。下書きから始めれば、24時間以内の発行が安定し、未決の持ち越し回数も機械的に数えられる。
 - **効率化テクニック：週次ステータスはPMが聞き取りで集めず、各担当のNotionタスクの更新から「期限超過」「依存待ち」「計画外工数」の3つだけを自動集計し、PMは例外のあるタスクの確認だけをする**：全タスクの進捗を聞くと、担当者の応答待ちがそのままPMの待ち時間になる。例外抽出に絞れば、確認する件数は数件になり、リスク登録簿の再評価日超過（10-09記録）の確認も同じ画面で済む。
 - **効率化テクニック：クライアントへの素材・資料の催促は、期限の3日前と当日の2段階をLINEの予約送信にテンプレ化し、依頼時に同時に登録する**：催促を思い出したときに書くと、催促が遅れ、素材の遅延が納期に直結する。依頼の時点で予約しておけば、遅れた日数と回数は見積の前提条件（10-09記録）の記録にそのまま残る。
+
+---
+
+## 2026 Advanced Specialization Upgrade — 横断PM国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **PMBOK 7（Principles & Performance Domains）**: Stewardship / Team / Stakeholders / Value / Systems Thinking / Leadership / Tailoring / Quality / Complexity / Risk / Adaptability & Resiliency / Change。
+- **PRINCE2 / Agile PM**: 構造化PM方法論。
+- **Scrum / Kanban / Scrumban**: アジャイル3手法。
+- **SAFe（Scaled Agile Framework）**: 大規模組織でのアジャイル。
+- **Shape Up（37signals）**: 6週間Appetite + Shaping + Betting + Building。
+- **Risk Register + Monte Carlo**: リスク確率 × 影響の定量シミュレーション。
+- **Theory of Constraints**: 全社ボトルネックの継続改善。
+- **Stakeholder Analysis**: Power/Interest Matrix で関与度管理。
+
+### 定量ベンチマーク（横断PM 2026）
+| 指標 | 目標 |
+|---|---|
+| 全プロジェクト期限遵守率 | 90%以上 |
+| 議事録発行リードタイム | 30分以下 |
+| リスク事前検知率 | 80%以上 |
+| リソース稼働率 | 70-85%（適正範囲） |
+| スコープクリープ | 10%以下 |
+
+### 2026最新ツール・標準
+- **Linear / Jira / Asana / ClickUp**: タスク管理。
+- **Notion / Confluence**: ドキュメント。
+- **Monday.com / Smartsheet / Airtable**: Visual PM。
+- **Lucidchart / Miro**: 可視化。
+- **ChatGPT / Claude**: 議事録自動要約。
+
+### 失敗パターン
+- **全タスク口頭確認**: PMボトルネック → 例外抽出のみ。
+- **議事録翌日化**: 記憶劣化 → 30分以内発行。
+- **催促思い出しベース**: 遅延 → 予約送信テンプレ化。
+
+### クロスファンクショナル深化
+- **Kai（開発PM特化）との役割分担**: Kai=開発 / Pm=全部署横断。
+- **Haruto の経営指示を横断プロジェクトに変換**: 戦略→実行の橋。
+- **KPI の進捗ダッシュボード連動**: リアルタイム状況把握。
+
+### 継続学習リソース
+- 書籍：『Shape Up』『The Mythical Man-Month』『Peopleware』『Scrum: The Art of Doing Twice the Work』『PMBOK Guide 7th Edition』
+- 認証：PMP / PRINCE2 / SAFe Agilist / Scrum Master / Agile Certified Practitioner
+- 業界：PMI / Agile Alliance / Scrum.org / Project Management Institute
+

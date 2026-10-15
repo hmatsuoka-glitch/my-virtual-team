@@ -367,3 +367,53 @@
 - **効率化テクニック：商談メモは固定見出し（課題／予算感／決裁者／口頭の約束／次のアクション）で入力し、見積依頼・handoff・提案書の要件へそのままコピーできる形にする**：自由形式のメモは、あとから Finance への見積依頼や Yuto への制作要件へ書き直す手間がかかり、口頭の約束（10-09記録）が抜けやすい。録音の文字起こしがある場合も、見出し別に貼り分けてから要約する。「口頭の約束」の欄は、見積と契約への反映を突合する時の入力元になる。
 - **効率化テクニック：Finance への見積依頼はフォーム化し、「提供範囲・撮影回数・媒体・支払構成・成果指標の定義」を必須項目にして往復を減らす**：依頼文が自由記述だと、内訳に必要な情報の不足を Finance が聞き返す往復が必ず1〜2回発生する。フォームの項目を行別内訳（09-13記録）に必要な情報の並びにそろえ、商談メモの見出しから転記すれば埋まるようにする。受注後の handoff でも同じ項目が使える。
 - **効率化テクニック：商談日程は予約リンクを「朝7:00〜8:00・12:00台・17:30以降」の3枠に限定して案内する**：全時間帯の空き枠を出すと、日中の現場にいる時間帯が選ばれて、直前の変更連絡が増える。カレンダーの予約ページで3つの時間枠だけを公開し、案内文にリンクを貼る。クライアントの実際の返信時間帯（案件カルテ）が分かった後は、その時間枠へ入れ替える。
+
+---
+
+## 2026 Advanced Specialization Upgrade — 営業国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **MEDDIC + MEDDPICC**: Metrics / Economic Buyer / Decision Criteria / Decision Process / Identify Pain / Champion（+ Paper Process / Competition）。
+- **SPIN Selling（Neil Rackham）**: Situation / Problem / Implication / Need-Payoff の4質問階層。
+- **Challenger Sale（CEB/Gartner）**: Teach / Tailor / Take Control の3要素。
+- **Account-Based Selling (ABS)**: ターゲット企業を事前選定し、深くリサーチ→個別提案。
+- **BANT評価**: Budget / Authority / Need / Timeline。但しMEDDICがより高精度。
+- **営業パイプライン7段階**: Lead → MQL → SQL → 商談化 → 提案 → 内諾 → 受注 → オンボ。
+- **商談ステージコンバージョン率追跡**: 各段のCVRと平均滞留日数の継続測定。
+- **Sales Enablement**: Playbook / Battle Card / Objection Handling Script の整備。
+- **商談メモ構造化**: 課題 / 予算感 / 決裁者 / 口頭約束 / 次のアクション の5見出し。
+
+### 定量ベンチマーク（B2B営業 2026）
+| 指標 | 業界中央値 | 目標 |
+|---|---|---|
+| 商談化率（Lead→SQL） | 15% | 30%以上 |
+| 受注率（SQL→受注） | 20% | 40%以上 |
+| 平均商談期間 | 60日 | 30日以下 |
+| 顧客LTV:CAC | 3.0 | 5.0以上 |
+| Pipeline Coverage | 3x | 4x以上 |
+
+### 2026最新ツール・標準
+- **HubSpot / Salesforce / Pipedrive**: CRM。
+- **Gong / Chorus / Fathom**: 商談録音AI解析（SPIN質問頻度等）。
+- **Apollo / ZoomInfo / Lusha**: Lead Generation。
+- **Outreach / Salesloft**: Sales Engagement。
+- **Loom + Vidyard**: 非同期動画セールス。
+- **ChatGPT-5 / Claude**: 商談メール・提案資料自動生成。
+
+### 失敗パターン
+- **BANTのみ**: 詳細不足 → MEDDIC併用。
+- **自由記述メモ**: handoff困難 → 5見出し構造化。
+- **全時間帯予約**: 直前変更 → 3枠限定。
+- **自由記述見積依頼**: Finance往復 → フォーム化。
+
+### クロスファンクショナル深化
+- **Ryota（CS）とのhandoff**: 口頭約束を Ryota に完全移管。
+- **Finance の見積フォーム連動**: 項目順を揃える。
+- **Haruto のパイプライン可視化**: 事業計画に反映。
+- **Marketing の MQL→SQL 連携**: Lead Scoring 整合。
+
+### 継続学習リソース
+- 書籍：『The Challenger Sale』『SPIN Selling』『Predictable Revenue』『Never Split the Difference』
+- 認証：Salesforce Sales Cloud Consultant / HubSpot Inbound Sales / Gartner Sales Research
+- 業界：Gong Research / CSO Insights / Salesforce State of Sales
+

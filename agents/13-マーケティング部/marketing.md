@@ -355,3 +355,53 @@
 - **効率化テクニック：月次レポートの集計は、媒体のスケジュール配信レポートを毎月1日に自動で受け取り、集計シートの取り込み列を固定して貼るだけにする**：管理画面から手でエクスポートする作業は、対象期間や列の選択の違いで毎月のデータの形が変わり、整形に時間を取られる。各媒体の管理画面でレポートのスケジュール配信（期間：前月、列：広告費・表示回数・クリック・応募）を設定し、集計シートの列名は固定する。3段照合（10-02記録）は集計後の抜き取りに集中でき、レポート作成の時間が整形でなく確認に使われる。
 - **効率化テクニック：縦動画の冒頭3秒の差し替えテストは、本編を1つの編集プロジェクトに置き、冒頭だけを差し替えて複数本を一括書き出しする**：パターンごとに別の動画として編集すると、本編の字幕やCTAに微差が混じり、テストの結果が冒頭の差によるものか判断できなくなる。冒頭3秒の訴求を3〜5案に分けたシーケンスを用意し、本編を共通にして書き出す。固定する検証要素（10-02記録の差分表）は本編側にあるため、差分表の記入も冒頭の訴求の列だけで済む。
 - **効率化テクニック：媒体の自動ルールで「応募単価が目標の1.5倍を3日続けて超えた」キャンペーンを通知させ、毎日の目視確認を例外対応に変える**：全キャンペーンを毎朝管理画面で見て回ると、確認だけで時間を使い、本来の改善の時間が取れない。Meta・Google 広告の自動ルールで条件を満たした時に通知を受け取るよう設定し、予算の自動停止は設定せず、通知が来たら48時間点検（10-02記録）と同じ4点を確認する。通知の基準値は、クライアント別の目標応募単価に合わせて案件シートに記録する。
+
+---
+
+## 2026 Advanced Specialization Upgrade — マーケティング国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **STP + 4P/4C**: Segmentation / Targeting / Positioning + Product/Price/Place/Promotion（or Customer value/Cost/Convenience/Communication）。
+- **AARRR / RARRA / Growth Loop**: Acquisition / Activation / Retention / Referral / Revenue。モダンSaaSはRetention優先のRARRA。
+- **North Star Metric + Input Metrics**: 単一指標+影響入力指標のツリー。
+- **CAC / LTV / Payback / Burn Multiple**: Unit Economics 完全追跡。
+- **MMM（Media Mix Modeling）**: 媒体別ROIの統計モデリング。
+- **Creative Testing Framework**: Hypothesis → Variants → Metrics → Decisions。
+- **Attribution Modeling**: Last/First-click / Linear / Time-decay / Position-based / Data-driven。
+- **Hook Model（Nir Eyal）**: Trigger → Action → Variable Reward → Investment の習慣化。
+- **Jobs-to-be-Done + Value Proposition Canvas**: 顧客ジョブとペインベースの訴求。
+
+### 定量ベンチマーク（B2Bマーケ 2026）
+| 指標 | 目標 |
+|---|---|
+| MQL→SQL CVR | 25%以上 |
+| ブランド検索数（月次） | 前年比150% |
+| 月次オーガニック流入 | 継続30%成長 |
+| 広告ROAS | 400%以上 |
+| 動画広告3秒維持率 | 80%以上 |
+
+### 2026最新ツール・標準
+- **GA4 + BigQuery + Looker Studio**: アトリビューション。
+- **HubSpot / Marketo / Pardot**: Marketing Automation。
+- **Meta Ads / Google Ads / TikTok Ads**: 主要媒体。
+- **AppsFlyer / Branch**: Mobile Attribution。
+- **Statsig / LaunchDarkly**: Feature Flag + A/B。
+- **ChatGPT / Claude**: コンテンツ量産。
+
+### 失敗パターン
+- **バニティメトリクス**: PV・いいね数偏重 → NSM設計。
+- **媒体独立評価**: Multi-touch Attribution必須。
+- **冒頭3秒無視**: 動画離脱 → A/B差替えテスト。
+- **全キャンペーン目視**: 時間ロス → 自動通知。
+
+### クロスファンクショナル深化
+- **Sales との SLA**: MQL品質閾値合意。
+- **Yui / Sho / Toma / Eito（SNS/動画）との連携**: オーガニック×広告の統合。
+- **Shun との アトリビューション共同設計**: 統計的厳密性担保。
+- **PR との統合コミュニケーション**: Earned Mediaとの相乗。
+
+### 継続学習リソース
+- 書籍：『Traction (Gabriel Weinberg)』『Hooked』『Hacking Growth』『Positioning』『Growth Marketing Playbook』
+- 認証：Google Ads / Meta Blueprint / HubSpot Marketing / GA4 Certification
+- 業界：Reforge / Growth.Design / Marketing Examples / HubSpot Blog
+

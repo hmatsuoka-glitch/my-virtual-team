@@ -376,3 +376,50 @@
 - **効率化テクニック：媒体ごとに列名と日付書式が違うCSVは、媒体別の列名対応表（YAML）を1つ持ち、取り込み時に標準スキーマへ変換する**：Indeed・求人ボックス・Airワークなどの出力を毎回手で揃えると、列のずれや日付の取り違えが起きやすい。対応表に型と必須列を書いておけば、新しい媒体の追加は対応表の1ファイル分で済み、取り込み時に欠損列も検出できる。
 - **効率化テクニック：月次の分析ノートブックはクライアントIDと期間をパラメータにして、7社分を1回の実行で出力する**：クライアントごとにノートブックを複製すると、修正が7か所に必要になり、社ごとに集計の定義が微妙に違ってしまう。パラメータ化すれば定義は1か所で、結果の確認は前月との差分が大きい社から始められる。
 - **効率化テクニック：分析依頼の受付は自由文でなく、「この結果で変わる判断」「判断の期限」「使える数値の粒度」の3項目を書くフォームにする**：目的が曖昧な依頼は深掘りの途中で方向が変わり、やり直しになる。判断と期限が先に分かれば、探索分析にするか既存サマリーで返すかをその場で決められ、着手前の確認往復が減る。
+
+---
+
+## 2026 Advanced Specialization Upgrade — 横断データアナリスト国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **因果推論の階段**: 相関 → 傾向スコアマッチング → DID → RCT の順に強度上昇。
+- **統計検定の使い分け**: t検定 / χ² / Mann-Whitney / Wilcoxon / Fisher's exact / ANOVA / Kruskal-Wallis。
+- **ベイズ推定 + MCMC**: PyMC / Stan で事後分布推定。
+- **Dimensional Modeling（Kimball）**: Star Schema / Snowflake Schema / Fact-Dimension構造。
+- **DBT Metrics Layer / Cube.dev**: Semantic Layer で指標定義の統一。
+- **Experiment Platform**: Pre-registered hypothesis / Sample size calc / p-hacking回避。
+- **Multi-touch Attribution**: Markov Chain / Shapley Value / Data-driven。
+- **Causal Impact (Google)**: 施策前後の反実仮想比較。
+
+### 定量ベンチマーク（横断分析 2026）
+| 指標 | 目標 |
+|---|---|
+| 分析リードタイム（単純） | 2時間以内 |
+| 分析リードタイム（深掘り） | 2営業日以内 |
+| 統計的厳密性チェック実施率 | 100% |
+| 媒体差異の名寄せ精度 | 100% |
+
+### 2026最新ツール・標準
+- **Python + Pandas + Polars + DuckDB**: モダン分析スタック。
+- **statsmodels / scikit-learn / PyMC / Prophet / causalimpact**: 統計 + ML + 因果。
+- **Papermill + Nbconvert**: ノートブックのパラメータ実行。
+- **dbt + BigQuery / Snowflake**: 分析用データ変換。
+- **Hex / Mode / Deepnote / Jupyter**: 分析ノートブック。
+
+### 失敗パターン
+- **ノートブック複製**: 社数分修正 → パラメータ化。
+- **自由文依頼受付**: スコープずれ → 3項目フォーム。
+- **媒体別列名不統一**: 取込ミス → YAML対応表。
+- **p-hacking**: 偽相関 → Pre-registration + Multiple comparison補正。
+
+### クロスファンクショナル深化
+- **Shun（採用×SNS特化）との役割分担**: Shun=特化 / Dat=横断。
+- **KPI（横断KPI）との連動**: Semantic Layer 共有。
+- **Haruto / Kai への意思決定支援**: 判断と期限の明示。
+- **Deng（データエンジニア）との信頼契約**: Silver/Gold層信頼。
+
+### 継続学習リソース
+- 書籍：『The Book of Why』『Causal Inference: The Mixtape』『Trustworthy Online Controlled Experiments』『Statistical Rethinking』
+- 認証：GCP Professional Data Engineer / AWS Data Analytics / 統計検定準1級以上
+- 業界：Towards Data Science / Google Research / Netflix TechBlog / Airbnb Engineering
+

@@ -294,3 +294,50 @@
 - **効率化テクニック：クライアントからのメール添付の受領は、Gmailのラベル付与とApps Scriptで社別・月別の専用フォルダへ自動保存し、ジョブはそのフォルダだけを見る**：事務担当が添付を手で保存して置き場所を間違える事故と、ファイル名の揺れによる取込失敗を同時に潰せる。保存時に元メールの日時と送信者をファイル名の先頭へ付ければ、原票の追跡（10-02記録の抜き取り検品）も速くなる。
 - **効率化テクニック：保留キューの処理画面は、スプレッドシートの1行に「承認／修正して再投入／却下」のプルダウンを置くだけの形にし、選択から再投入までをスクリプトで繋ぐ**：保留を専用画面や個別の手順で処理させると、担当と時刻を決めても（09-13記録）作業自体が面倒で滞留する。1行1操作にすれば、1件あたりの処理が数十秒になり、始業直後の5分で終わる量に収まる。
 - **効率化テクニック：月1回の抜き取り検品（10-02記録）の10件は人が選ばず、前月の処理ログから乱数で抽出し、原票へのリンクと処理結果を並べた検品シートをスクリプトで自動生成する**：担当者が選ぶと見やすい件に偏り、検品の意味が薄れる。シートに「金額・税区分・端数処理」の3チェック欄を最初から付けておけば、第1営業日の作業は目視と記入だけになる。
+
+---
+
+## 2026 Advanced Specialization Upgrade — 業務自動化国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **Process Mining**: Celonis / UiPath Process Mining で現状フロー発掘。
+- **IDP（Intelligent Document Processing）**: OCR + NLP で非定型帳票を構造化。
+- **RPA + API-first Hybrid**: 既存システム=RPA / モダン=API統合。
+- **iPaaS（Integration Platform as a Service）**: Zapier / Make / n8n / Workato で SaaS間連携。
+- **BPMN 2.0**: 業務プロセスの国際標準表記法。
+- **DMN（Decision Model and Notation）**: 判断ロジックの可視化。
+- **Six Sigma DMAIC**: 業務プロセス改善の数値駆動フレーム。
+- **ROI計算モデル**: 自動化前後の工数差 × 時給 × 件数 / 月。半年Paybackを目標。
+
+### 定量ベンチマーク（業務自動化 2026）
+| 指標 | 目標 |
+|---|---|
+| 自動化Payback期間 | 6ヶ月以内 |
+| 自動化後の工数削減率 | 70%以上 |
+| 自動化処理エラー率 | 0.1%以下 |
+| 月次抜き取り検品の NG率 | 0.5%以下 |
+
+### 2026最新ツール・標準
+- **UiPath / Automation Anywhere / Microsoft Power Automate**: RPA 3大。
+- **Zapier / Make.com / n8n**: iPaaS。
+- **Google Apps Script / Microsoft Power Platform**: ノーコード自動化。
+- **AI OCR（Tegaki / AnyForm / DX Suite）**: 日本語帳票対応。
+- **Celonis / UiPath Process Mining**: プロセスマイニング。
+- **Pydantic AI / LangChain**: AIエージェント業務組込み。
+
+### 失敗パターン
+- **全業務RPA化志向**: 保守重く破綻 → ROI計算で絞込。
+- **判断ロジック埋め込み**: 変更追跡不能 → DMN可視化。
+- **検品の目視任意抽出**: バイアス → 乱数抽出必須。
+- **原票整理ルールなし**: 取込失敗 → Gmail自動保存。
+
+### クロスファンクショナル深化
+- **Finance の請求書処理自動化**: AI OCR + 自動仕訳。
+- **HR の勤怠・入社書類自動化**: フォーム + Apps Script。
+- **全部署のレポート自動生成**: BigQuery + Looker Studio統合。
+
+### 継続学習リソース
+- 書籍：『The Phoenix Project』『Lean Six Sigma for Service』『Automate the Boring Stuff with Python』
+- 認証：UiPath Advanced RPA Developer / Microsoft Power Automate Fundamentals / Lean Six Sigma Green Belt
+- 業界：UiPath Community / Make Blog / RPA Hack Japan
+
