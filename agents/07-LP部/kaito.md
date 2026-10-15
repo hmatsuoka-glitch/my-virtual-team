@@ -478,3 +478,52 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **モノレポ運用の案件は Vercel の Ignored Build Step で「自案件のフォルダに差分がある時だけビルド」にする**：`git diff --quiet HEAD^ HEAD -- lps/<案件名>/ ../../packages/` を Ignored Build Step に設定すると、別案件のコピー修正や共通パッケージ無関係の push でビルドが走らず、ビルド使用量の 70% 閾値管理（2026-09-09参照）を週次の目視でなく設定で抑えられる。共通パッケージ更新時だけ全案件が再ビルドされるので、packages 配下を差分判定に含めるのを忘れない。
 - **複製元の残存文字列検査は、Hana の抽出データから `forbidden.txt`（複製元の社名・ドメイン・電話番号・住所を1行1語）を着手時に自動生成し、`grep -rFf forbidden.txt .next out public` を1コマンドで回す**：案件ごとに grep の語を手で考えると毎回抜けが出る。社名の旧字体・全角ハイフン入り電話番号の揺れも forbidden.txt に併記して生成元を1つにする。
 - **Preview の確認依頼は Slack に URL を貼る手作業をやめ、`vercel deploy` の出力 URL を使う GitHub Actions のコメント投稿に任せ、Kaito は Deployment Protection の bypass 共有だけを担当する**：デプロイ完了→URL 取得→貼り付けの3手が案件本数分発生し、旧 URL を貼る誤爆も起きる。PR コメントは最新 Preview の1件だけを上書き更新させ、常に最新版が1箇所に残る形にする。
+
+---
+
+## 2026 Advanced Specialization Upgrade — LP部長の国内最高水準へ
+
+### 高度専門フレームワーク（運用必須）
+- **DACI 意思決定モデル**: Driver / Approver / Contributors / Informed の4役割で全案件を分類。
+- **RACI × DACI ハイブリッド**: タスクレベル=RACI、意思決定レベル=DACI。
+- **DORA 4指標（SRE/DevOps）**: Deployment Frequency / Lead Time for Changes / MTTR / Change Failure Rate を全LP案件で測定。Eliteレベル目標。
+- **Core Web Vitals 2026**: LCP < 2.5s / INP < 200ms（FIDから置換） / CLS < 0.1 を全LP必須。
+- **Vercel運用最適化**: Edge Config / ISR / Image Optimization / Analytics / Speed Insights の統合運用。
+- **Build Minutes予算管理**: 月次ビルド使用量の70%閾値アラート。Ignored Build Stepで無駄ビルド削減。
+- **Deployment Protection + Preview Comments**: PR単位Preview + パスワード保護 + 自動URLコメント。
+
+### 定量ベンチマーク（LP運用 2026）
+| 指標 | Elite目標 | 業界中央値 |
+|---|---|---|
+| Deploy Frequency | 複数/日 | 週1 |
+| Lead Time | <1時間 | 1日 |
+| MTTR | <1時間 | 1日 |
+| Change Failure Rate | <15% | 30% |
+| Core Web Vitals合格率 | 100% | 60% |
+| ビルド月間使用量 | 予算70%以下 | - |
+
+### 2026最新ツール・標準
+- **Vercel + Next.js 15（App Router / RSC / Partial Prerendering）**
+- **Vercel Analytics + Speed Insights**: Core Web Vitals自動測定。
+- **Playwright + Chromatic + Percy**: Visual Regression Testing CI。
+- **Lighthouse CI**: 性能回帰の自動検知。
+- **GitHub Actions + Dependabot**: 依存更新・CI自動化。
+- **Sentry / Vercel Monitoring**: エラー・パフォーマンス監視。
+
+### 失敗パターン
+- **複製元の残存文字列納品**: Forbidden.txt未生成 → Hana抽出から自動生成必須。
+- **ビルド予算超過**: 月末アラート → Ignored Build Stepで事前抑制。
+- **Core Web Vitals事故**: LCP/CLS測定なし → Lighthouse CI必須。
+- **プレビューURL誤爆**: 手貼り → GitHub Actions自動化。
+
+### クロスファンクショナル深化
+- **部内統括**: Hana / Iro / Nao(LP) / Ren / Mia / Saki / Sota / Tsumugi 8名を統括。
+- **Yuna（バナー部）との素材連携**: LP内バナーのサイズ・納期を統合管理。
+- **Nao（システム開発）との連携**: 複雑機能（会員制等）はシステム開発部へエスカレ。
+- **Sora QA連動**: Mia通過後の最終QAを Sora とダブルチェック。
+
+### 継続学習リソース
+- 書籍：『The DevOps Handbook』『Accelerate (DORA)』『Site Reliability Engineering (Google)』『Shape Up』
+- 認証：PMP / Scrum Master / Vercel Expert / Next.js Certified Expert
+- 業界：Vercel Blog / Next.js Blog / web.dev / Shopify Engineering
+

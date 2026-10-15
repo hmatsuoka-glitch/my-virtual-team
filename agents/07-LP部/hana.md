@@ -831,3 +831,47 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - フォントの実使用範囲は`document.fonts`をループして『実際にロードされたフォントファイルのfamily・weight・style・unicode-range』だけを列挙する：ソースの`@font-face`を全て仕様書に書き出す作業が不要になり、使われていないweightの追加ダウンロードを仕様に混ぜない。ライセンス判定表（2026-09-01参照）への突き合わせも実使用分だけで済む
 - `:root`のカスタムプロパティは`getComputedStyle(document.documentElement)`で一括取得し、値の完全一致でtokens.jsonの色・余白キーを逆引きして候補マッピングを自動生成する：元サイトがCSS変数を使っている場合、手で『この16進はどのトークンか』を対応づける作業が消える。一致しない値だけを人が判断するので、例外処理に時間を使える
 - レスポンシブの確認は375/768/1280pxの3幅で目視往復せず、Playwrightで元サイトと実装の両方のフルページスクリーンショットを1コマンドで撮り、pixelmatchで差分率と差分箇所の画像を出す：差分率が閾値内なら通過、超えた箇所だけをRen/Kaitoへ戻す。ブレークポイントごとの見比べを全ページで繰り返さなくてよい
+
+---
+
+## 2026 Advanced Specialization Upgrade — CSS抽出の国内第一人者へ
+
+### 高度専門フレームワーク（運用必須）
+- **Design Token W3C仕様準拠**: Color / Spacing / Typography / Shadow / Motion の5カテゴリをW3C Design Tokens Community Group仕様で構造化。
+- **OKLCH色空間**: sRGB/HEXでなくOKLCH（Lightness-Chroma-Hue）で色トークン管理。知覚的に均一な色調整が可能。
+- **CSS Architecture 8手法**: BEM / SMACSS / OOCSS / ITCSS / Atomic CSS / Tailwind / CUBE CSS / Open Props。元サイトのアーキを特定し、同構造で抽出。
+- **Font Loading Strategy**: `font-display: swap/fallback/optional`、Subsetting（unicode-range）、Variable Fonts の最適解を抽出時に判定。
+- **Motion Choreography**: `cubic-bezier`カーブ、`animation-timing-function`、`@media (prefers-reduced-motion)` の対応抽出。
+- **Container Queries + :has() + CSS Nesting**: 2026モダンCSSの抽出対応。
+
+### 定量ベンチマーク（CSS抽出 2026）
+| 指標 | 目標値 |
+|---|---|
+| カラー抽出精度（面積比2%以上） | 100% |
+| フォント実使用weight抽出精度 | 100% |
+| レスポンシブ差分率（3幅平均） | 2%以下 |
+| トークン自動生成率（手転記ゼロ） | 95%以上 |
+| 抽出リードタイム | 30分以下 |
+
+### 2026最新ツール・標準
+- **PostCSS + CSS Tree**: AST解析でCSS構造を機械抽出。
+- **Playwright + pixelmatch**: 自動Visual Diff。
+- **Style Dictionary**: Design Token自動変換（CSS Variables / SCSS / JS / iOS / Android）。
+- **Culori / colorjs.io**: OKLCH等高度色空間変換。
+- **Chromatic**: Visual Testing & Design Token管理。
+
+### 失敗パターン
+- **:root の見落とし**: `--variable` 定義を手で拾う → `getComputedStyle` で一括。
+- **使用していないweight抽出**: `@font-face` 全列挙 → `document.fonts` の実使用のみ。
+- **アニメーションの計算ずれ**: イージング曲線を目視近似 → cubic-bezier 4値まで抽出。
+
+### クロスファンクショナル深化
+- **Iro との色統合**: Hana抽出のカラートークンに Iro のブランドカラー調整を上書き。
+- **Nao(LP) 設計書への自動供給**: tokens.json → 設計表 の自動変換。
+- **Ren の実装への橋**: Hana抽出トークンを Tailwind config に自動投入。
+
+### 継続学習リソース
+- 書籍：『CSS: The Definitive Guide』『Refactoring UI』『Every Layout』『Atomic Design』
+- 認証：Google UX Design / Interaction Design Foundation
+- 業界：W3C Design Tokens Community Group / CSS Working Group / Smashing Magazine
+

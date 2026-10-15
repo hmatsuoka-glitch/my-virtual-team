@@ -681,3 +681,50 @@ export const HERO = {
 - **設計表の「セクション行」は空欄から作らず、ペルソナ3分岐（nao 2026-09-01参照）ごとの CSV テンプレを `npm run new-spec -- --persona=entry` で複製して差分行だけ編集する**：Header/Footer/FAQ/フォームの固定行（ID・props・受入基準列）まで毎回書き起こすと30分以上かかるため、固定行は事前入力済みで生成し、Hero・仕事内容・募集要項の3ブロックだけを埋める運用にする。
 - **props の型定義は設計表から TypeScript の `interface` を自動出力する変換スクリプトを通し、設計書側の列を唯一の定義元にする**：設計書の props 列と Ren の実装型を別々に書くと、列挙値の追加が片方にしか入らず Mia の QA で初めて食い違いが出る。表の `type`／`required`／`default` 列から型ファイルを生成し、手書きの型定義は禁止する。
 - **設計レビューは文書の読み合わせでなく、`grep -c` でスロット数・editable 行数・未記入セルを集計した「設計サマリー1行」を先に見て、数字が合わない行だけ議論する**：editable 行数と kotone の記入ガイド列の件数が一致しているか、受入基準列が空の行が0件かをスクリプトで機械判定すれば、レビュー会議が構造の議論だけで終わる。
+
+---
+
+## 2026 Advanced Specialization Upgrade — LP設計書国内最高精度へ
+
+### 高度専門フレームワーク（運用必須）
+- **Atomic Design（Brad Frost）**: Atoms / Molecules / Organisms / Templates / Pages の5階層でコンポーネント設計。
+- **Compound Component Pattern**: `<Card>`, `<Card.Header>`, `<Card.Body>` 形式で柔軟な組立。
+- **Headless UI Pattern**: ロジックとUIを分離（Radix UI / Headless UI準拠）。
+- **props設計**: Primitive props / Composition props / Children props / Render props の使い分け。
+- **TypeScript 型駆動設計**: `type` + `interface` + Discriminated Union + Generic Constraintで型安全。
+- **Design Token → Component → Page の3層**: Token（Hana）→ Component（Nao）→ Page（Ren）。
+- **ARIA Pattern準拠**: WAI-ARIA Authoring Practices Guide の全パターン準拠設計。
+- **ペルソナ別LP分岐**: 新卒 / 中途 / 女性 / シニア / 外国人 の5ペルソナのレイアウトモジュール化。
+
+### 定量ベンチマーク（設計書 2026）
+| 指標 | 目標値 |
+|---|---|
+| 設計書作成リードタイム | 1時間以内 |
+| 設計書→実装型の自動生成率 | 100% |
+| 受入基準列の記入完全性 | 100% |
+| 設計書と実装の乖離発生率 | 2%以下 |
+| 設計レビュー時間 | 10分以下 |
+
+### 2026最新ツール・標準
+- **Figma + Figma Variables + Code Connect**: 設計とコード同期。
+- **TypeScript 5.x + Zod**: 型安全性のUltimate。
+- **Storybook 8**: コンポーネントカタログ + Interaction Testing。
+- **Chromatic**: Storybook連動 Visual Testing。
+- **CVA（class-variance-authority）**: Tailwindバリアント管理。
+
+### 失敗パターン
+- **props設計の後出し**: 実装中に項目追加 → 事前のeditable列定義必須。
+- **型の二重定義**: 設計表と実装型 → 設計表から自動生成。
+- **受入基準列の空欄**: QAゲート不能 → 空欄0件が機械チェック対象。
+- **ペルソナ3分岐無視**: 画一的LP → 必ずペルソナ別テンプレ分岐。
+
+### クロスファンクショナル深化
+- **Hana → Nao → Ren → Mia の線形パイプ**: Tokens → 設計表 → 実装 → QA。
+- **Kotone との editable列マッピング**: コピー位置と設計行の1:1対応。
+- **Mia QA基準との整合**: 受入基準列を Mia のテスト仕様に流用。
+
+### 継続学習リソース
+- 書籍：『Atomic Design』『Design Systems』『Refactoring UI』『Thinking in React』
+- 認証：Figma Design Professional / Interaction Design Foundation
+- 業界：Component Driven / Design Systems Repo / Storybook Blog
+

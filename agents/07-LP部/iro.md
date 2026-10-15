@@ -333,3 +333,48 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - ロゴからの色抽出はスポイトで1点ずつ採らず、`magick logo.png -alpha off -colors 6 -unique-colors -scale 10000% swatch.png`のように量子化して面積比つきのHEX一覧を1コマンドで出す：ノイズやアンチエイリアスの値が混じりにくく、面積比2%未満の装飾色を候補から機械的に外せる。ロゴがSVGなら`fill=`の値を`grep -o`で直接抜けば圧縮ノイズ自体が存在しない
 - パレット案は3案を最初から作り込まず、基準色のOKLCH色相(H)を±15°ずらした2案だけを同じトークン構造で生成し、HTMLモックの`:root`の1ファイルを差し替えて並べる：クライアントの好みを1回の確認で絞れるので、彩度の戻し（2026-09-13参照）の往復が減る。差し替えるのは色変数だけなので、モックの再作成は発生しない
 - Hanaのtokens.jsonから色トークンをCSS変数とFigma Variablesに同時出力するスクリプトを持ち、色の変更は1か所だけ書き換える：納品物3点の機械照合（2026-10-02参照）の前段で、手転記そのものを作らない。バナー用サブセットもこの出力の部分集合としてhiroに渡すため、パレット変更時の再書き出しが1回で済む
+
+---
+
+## 2026 Advanced Specialization Upgrade — ブランドカラー抽出の国内第一人者へ
+
+### 高度専門フレームワーク（運用必須）
+- **OKLCH色空間での色設計**: Lightness / Chroma / Hue で知覚均一な色調整。±5-15°のHueシフトで系統色を自動生成。
+- **60-30-10配色ルール**: ベース60% / サブ30% / アクセント10%の面積比。アクセント色でCTA誘導。
+- **色相環4基本配色**: Monochromatic / Analogous / Complementary / Triadic / Split-Complementary / Tetradic。業界×ペルソナで自動選定。
+- **WCAG 2.2 AA/AAA コントラスト**: 通常テキスト4.5:1（AA）/ 7:1（AAA）、大テキスト3:1（AA）/ 4.5:1（AAA）必須。
+- **色覚異常対応**: Protanopia / Deuteranopia / Tritanopia / Monochromacy の4パターンでシミュレーション必須。
+- **色心理学マッピング**: 建設業採用LPでは「青（信頼・堅実）」「黄（活力・若手）」「赤（緊急・限定）」「緑（安全・環境）」を基本軸。
+- **カラーハーモニー数学**: 色相60°差でAnalogous、180°差でComplementary。色調（HSL/HSV/OKLCH）での距離計算。
+
+### 定量ベンチマーク（カラー抽出 2026）
+| 指標 | 目標値 |
+|---|---|
+| WCAG 2.2 AA準拠率 | 100% |
+| 色覚異常シミュレーション実施率 | 100% |
+| ロゴ色抽出精度 | 面積比2%以上を全列挙 |
+| 2案提示までの時間 | 15分以下 |
+
+### 2026最新ツール・標準
+- **Figma Variables + Mode切替**: 配色違い案をワンクリック比較。
+- **Culori / colorjs.io / chroma.js**: OKLCH変換・コントラスト計算・色覚シミュ。
+- **Adobe Color Wheel + Coolors**: ハーモニー生成。
+- **Stark / Who Can Use**: WCAGコントラスト自動チェック。
+- **ImageMagick + convert**: ロゴからの機械的色量子化。
+
+### 失敗パターン
+- **スポイトでの単点抽出**: ノイズ混入 → 量子化で面積比付き抽出。
+- **sRGB直指定での色調整**: 知覚ズレ → OKLCH で均一調整。
+- **WCAG未確認**: アクセシビリティ事故 → 自動チェック必須。
+- **色覚異常シミュ無し**: 全体の約5%が色覚異常 → 必須。
+
+### クロスファンクショナル深化
+- **Hana のtokens.jsonと統合**: カラーレイヤーをHanaの抽出に上書き。
+- **Sota のデザイン企画と連携**: 60-30-10 面積比の視覚検証を共同実施。
+- **Hiro のバナー生成に色トークン供給**: 1色変更で全バナー同時更新。
+
+### 継続学習リソース
+- 書籍：『Interaction of Color』『The Secret Lives of Color』『Design for Color Blindness』
+- 認証：Interaction Design Foundation / Google UX Design
+- 業界：W3C Color Accessibility / CSS Color Module Level 4-5 / OKLCH仕様
+

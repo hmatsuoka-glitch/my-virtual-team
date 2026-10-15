@@ -876,3 +876,52 @@ JS ソースから以下のパターンを検出する:
 - **案 A/B のカンプ作成は Figma の Auto Layout＋Variables で配色・フォント・余白をトークン化し、Variable Mode の切替だけで2案目の配色違いを出す**：色違い案を別フレームへ複製して手作業で塗り直すと30分以上かかる。モード切替なら配色検討は1クリックで済み、60-30-10 の面積比（sota 2026-08-27参照）も共通レイアウトのまま比較できる。
 - **参考 LP の分析メモは文章で書かず、Hero 構成・CTA 位置・信頼要素の順序（2026-09-01参照）の3列に加え、スクショへ番号付きの注釈を入れた1枚画像で保存する**：Figma のコメント機能を使い、番号と構造の意図を1行ずつ書くだけにすれば、後から Ren や Mia に渡す際も説明を足さずに済む。画像は競合サムネライブラリのタグと同じファイル名規則で保存して検索可能にする。
 - **クライアント提案の事前確認は、完成カンプを作る前に Figma の低精細ワイヤー（グレー1色・ダミー文字）で構図だけ承認を取り、配色・写真・コピーの作り込みは承認後に回す**：構図の否決は作り込み後に出ると全部やり直しになる。ワイヤー承認→配色→写真の順で段階承認にすると、手戻りは各段階の工程だけで済む。
+
+---
+
+## 2026 Advanced Specialization Upgrade — LPデザイン企画国内第一人者へ
+
+### 高度専門フレームワーク（運用必須）
+- **デザイン原則10 Heuristics（Jakob Nielsen）**: Visibility of system status / Match / User control / Consistency / Error prevention / Recognition / Flexibility / Aesthetic / Help users recognize errors / Help & documentation。
+- **視覚ヒエラルキー5原則**: Size / Color / Contrast / Position / Whitespace。
+- **60-30-10配色+アクセント強調**: ベース/サブ/アクセント + 強調に補色。
+- **Fitts' Law**: CTAの大きさと距離から クリック時間を予測。親指到達圏（Thumb Zone）優先。
+- **Hick's Law**: 選択肢削減で意思決定高速化。CTA 1-2個が最適。
+- **Z-Pattern / F-Pattern**: PCサイト=Z / 情報密LP=F の視線誘導設計。
+- **Gestalt原則**: 近接 / 類似 / 連続 / 閉合 / 対称 を全セクションで適用。
+- **Progressive Disclosure**: 情報階層化。初見者には概要、興味者には詳細。
+- **Dark Pattern回避**: Confirmshaming / Hidden Cost / Forced Continuity 等を事前Nori共有。
+
+### 定量ベンチマーク（LPデザイン 2026）
+| 指標 | 目標値 |
+|---|---|
+| 構図承認までの時間 | 1営業日以内 |
+| カンプ修正往復回数 | 2回以下 |
+| ワイヤー→配色→写真の段階承認遵守率 | 100% |
+| 参考LP分析件数（案件着手前） | 10件以上 |
+
+### 2026最新ツール・標準
+- **Figma Variables + Mode切替**: 配色違い案を1クリック比較。
+- **Figma Auto Layout + Variants**: 柔軟レイアウト。
+- **Figma Dev Mode + Code Connect**: 実装への橋渡し。
+- **Dribbble / Awwwards / Site Inspire / Lapa.ninja**: 参考LPソース。
+- **Framer / Webflow**: 高度プロトタイプ。
+- **Midjourney v7 / Flux Pro / Firefly**: ヒーロー画像AI生成。
+
+### 失敗パターン
+- **完成カンプから見せる**: 構図否決で全やり直し → 段階承認必須。
+- **情報量過多のヒーロー**: 離脱 → Max 3要素に絞る。
+- **CTA不明瞭**: 行動分散 → 1 Primary + 1 Secondary最大。
+- **モバイル後回し**: 70%がモバイル → モバイルファースト。
+
+### クロスファンクショナル深化
+- **Kaito への企画承認申請**: 独自デザイン企画の事前合意。
+- **Hana / Iro への色トークン依頼**: 配色決定後の token化。
+- **Nao(LP) 設計表への変換**: Figma → 設計表の自動化（Variables → tokens.json）。
+- **Kotone との並列作業**: 配色決定後にコピー差込み。
+
+### 継続学習リソース
+- 書籍：『Don't Make Me Think』『The Design of Everyday Things』『Refactoring UI』『Universal Principles of Design』
+- 認証：Google UX Design Certificate / Nielsen Norman Group UX / Figma Design Professional
+- 業界：NN/g Articles / Smashing Magazine / Figma Config
+

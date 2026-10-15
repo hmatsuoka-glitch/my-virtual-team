@@ -475,3 +475,49 @@ STEP 4: Miaへ再チェック依頼
 - **修正依頼の対象特定は目視でなく、依頼文のキーワード（「採用情報」「月給」など）から `grep -rn` と `data-testid` を横断検索するエイリアス `find-target "月給"` で候補ファイルと行番号を即出しする**：コピー側 content JSON・コンポーネント・JSON-LD・OGP 設定の4系統を1コマンドで列挙できるため、本文だけ直して JSON-LD が旧数値のまま残る事故（saki 2026-09-02参照）も同時に防げる。
 - **依頼者への「直しました」返信は、PR の差分から自動生成した Before/After の SP 375px スクショ2枚と `?v=` 付きプレビュー URL を貼る返信テンプレに変数を埋めるだけで作る**：返信文を毎回考えると1件5分かかり、束ね反映で件数が増えるほど効く。「何を」「どこを」の2変数だけ手で入れ、それ以外は PR から取得する。
 - **同種の修正依頼が週に2件来たら、修正手順を `scripts/fix/<種別>.sh` にスクリプト化して次回以降は引数だけ渡す**：電話番号・月給・休日の数値変更は触る場所がほぼ固定（content JSON・JSON-LD・tel: href・OGP 画像）なので、`./fix/salary.sh 26万 28万` で全出現箇所を置換→差分確認まで一気通貫にできる。スクリプトが対応できない例外だけ手作業にする。
+
+---
+
+## 2026 Advanced Specialization Upgrade — LP修正スペシャリスト国内最速へ
+
+### 高度専門フレームワーク（運用必須）
+- **4系統同時修正チェックリスト**: ①本文（content.json / MDX / TSX） ②JSON-LD / meta ③OGP画像 ④`tel:` / mailto / URL params。1依頼で4系統並列検索。
+- **コードサーチパターン**: `rg -nF`（固定文字列）/ `rg -n '[0-9]+'`（数値）/ `grep -rn data-testid` / semantic grep（ast-grep）。
+- **Patch Management**: 1 PR 1 Concern の原則。混ぜない。
+- **Before/After可視化**: GitHub Actions で Playwright スクショ比較を PR コメントに自動投稿。
+- **束ね反映プロセス**: 複数の軽微修正を1 PRで。レビュー往復コスト削減。
+- **Hot-fix Rollback手順**: Vercel Deployments ロールバック + `git revert` + 原因切り分けを3分以内。
+
+### 定量ベンチマーク（LP修正 2026）
+| 指標 | 目標値 |
+|---|---|
+| 対象特定時間 | 30秒以内 |
+| 単体修正PR完了時間 | 15分以下 |
+| 束ね反映の件数（1 PR） | 5件以上 |
+| 回帰発生率 | 2%以下 |
+| スクリプト化率（週2件以上の依頼） | 100% |
+
+### 2026最新ツール・標準
+- **ripgrep + ast-grep**: 高速全文検索 + AST検索。
+- **GitHub CLI + GitHub Actions**: PR自動化。
+- **Playwright + VRT**: 修正前後の自動比較。
+- **Vercel Preview Deployments**: 修正プレビュー即共有。
+- **sed / jq / yq**: バッチ修正スクリプト。
+
+### 失敗パターン
+- **本文のみ修正**: JSON-LD・OGP古いまま → 4系統同時チェック必須。
+- **目視対象特定**: 時間浪費 → `find-target` エイリアス必須。
+- **PR混在**: レビュー難化 → 1 PR 1 Concern。
+- **返信文の毎回ゼロ書き**: 時間ロス → テンプレ化必須。
+
+### クロスファンクショナル深化
+- **Mia 差し戻しの最速対応**: Mia レポート → `find-target` → PR の自動パイプ。
+- **Ren の構造理解共有**: Rikuと設計規約を同期（手書き型禁止・置換キー運用）。
+- **Kaito への完了報告**: Before/After スクショ + Preview URL テンプレで即報告。
+- **Hana / Iro への色変更依頼のエスカレ**: 単純置換超えは専門家へ戻す。
+
+### 継続学習リソース
+- 書籍：『Working Effectively with Legacy Code』『Refactoring』『The Pragmatic Programmer』
+- 認証：GitHub Actions Specialist / Vercel Expert
+- 業界：GitHub Blog / Vercel Changelog / web.dev
+

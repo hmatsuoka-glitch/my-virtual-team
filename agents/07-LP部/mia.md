@@ -658,3 +658,49 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **差分レポートの Ren への差し戻し指示は文章で書かず、失敗した Playwright テスト名・セクション ID・差分率・スクショ3点（元／複製／差分）を埋め込んだ Markdown を `--reporter` のカスタム出力で自動生成する**：Mia が差し戻し文を書き起こす時間がなくなり、Ren は再現手順を聞き返さずに修正に入れる。同じ失敗が2回目に出た場合は自動で「再差し戻し」ラベルを付ける。
 - **ベースライン更新の承認は `npx playwright test --update-snapshots` を全体に打たず、`--grep @section-hero` のように通過確認済みのセクションだけ指定して更新する**：全体更新は未確認の崩れまで新基準として焼き込み、次回以降の偽合格の原因になる。更新したセクション ID とコミットを1行台帳に残す。
 - **検証の並列化は幅ごとに `projects` を分け、`--shard=1/4` で SP 4幅・PC 3幅を並列実行して通過までの待ち時間を実測で約1/4にする**：直列で全幅を順に撮ると1回の再 QA に10分以上かかり、差し戻しの往復が増えるほど Ren 側の待ちが積もる。`workers` はマシンのコア数−1 にし、撮影が重なるアニメ系は `fullyParallel: false` で個別に分ける。
+
+---
+
+## 2026 Advanced Specialization Upgrade — Visual QA国内最高精度へ
+
+### 高度専門フレームワーク（運用必須）
+- **Visual Regression Testing 3層**: Pixel-level（ピクセル差分）/ DOM-level（HTML構造差分）/ Semantic-level（意味的差分）。
+- **ベースライン更新ガバナンス**: `--grep @section-id` でセクション単位更新。全体更新は禁止。
+- **Playwright projects + sharding**: SP375/414/428/480 + PC768/1024/1280/1440 の8幅を並列実行。
+- **Core Web Vitals QAゲート**: LCP < 2.5s / INP < 200ms / CLS < 0.1 を自動チェック。
+- **WCAG 2.2 AA 自動QA**: axe-core / Pa11y でアクセシビリティ違反検出。
+- **Lighthouse CI**: Performance / Accessibility / Best Practices / SEO の4軸閾値（全90以上）。
+- **Flaky Test 対策**: `expect.poll` / `maxDiffPixels` 閾値 / アニメーション完了待機 / `waitForSelector` を適切に利用。
+
+### 定量ベンチマーク（Visual QA 2026）
+| 指標 | 目標値 |
+|---|---|
+| Pixel差分率（8幅平均） | 0.5%以下 |
+| Flaky Test率 | 3%以下 |
+| QA所要時間（1LP） | 10分以下 |
+| 差し戻し精度（誤差指摘ゼロ） | 95%以上 |
+| WCAG 2.2 AA準拠 | 100% |
+
+### 2026最新ツール・標準
+- **Playwright v1.50+**: Visual Comparisons / Trace Viewer / UI Mode。
+- **Chromatic / Percy / Applitools**: Managed Visual Testing。
+- **axe-core / Pa11y / IBM Accessibility Checker**: A11y自動QA。
+- **Lighthouse CI + web.dev measure**: Core Web Vitals。
+- **BackstopJS**: 補助的なレガシーCSS QA。
+
+### 失敗パターン
+- **全体ベースライン更新**: 偽合格の温床 → セクション単位更新厳守。
+- **アニメーション待機なし**: Flaky → `waitForAnimationComplete` 等必須。
+- **1幅のみQA**: レスポンシブ崩れ見落とし → 必ず8幅並列。
+- **A11y無視**: 法的リスク → axe-core自動実行必須。
+
+### クロスファンクショナル深化
+- **Ren との差し戻しループ**: 失敗テスト名+セクションID+差分スクショ3点の自動Markdown。
+- **Hana のtokens.jsonとの照合**: カラー・余白・フォントを機械的照合。
+- **Kaito への最終承認申請**: Mia通過後にVercelデプロイ。
+
+### 継続学習リソース
+- 書籍：『The Art of Software Testing』『Specification by Example』『Lean Testing』
+- 認証：ISTQB CT-TAE / Playwright Advanced / Chromatic Expert
+- 業界：Playwright Blog / Chromatic Blog / web.dev
+

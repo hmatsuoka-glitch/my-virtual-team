@@ -334,3 +334,50 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **見出し案は先に「条件3点＋職種名」を埋めた1行ずつの20本ノックで出し、良い3本だけを本文化する**：1案ずつ磨きながら書くと1案に15分かかり比較もできない。置換キー対応表（2026-09-01参照）の値を差し込んだ状態で、数字主役／情緒／断定の3型を各7本、1本30秒で書き切り、拾い読みチェックで残した3本だけ推敲に回す。
 - **給与・休日・勤務地の数値は本文に直接打たず `{{salary}}` 等のプレースホルダで書き、最後に置換スクリプトで一括展開する**：本文を書いてから数値を直すと、月給変更のたびに Hero・FAQ・CTA 直前・meta の4箇所以上を手で探すことになる。プレースホルダ書きなら修正は対応表の1セルで済み、saki の全出現箇所リスト（saki 2026-08-27参照）もキーの grep だけで出せる。
 - **クライアント確認は文面全体でなく「数字と固有名詞だけを抜き出した1枚の確認表」で先に取る**：社長は文体より月給・休日・資格名・社名表記を見ており、全文を送ると戻りが数日かかる。`grep -oE '[0-9,]+(万円|日|名|年)'` で抽出した数値と固有名詞を表にして先に承認をもらえば、文体修正と事実修正の往復を分離できる。
+
+---
+
+## 2026 Advanced Specialization Upgrade — LPコピーライター国内最高峰へ
+
+### 高度専門フレームワーク（運用必須）
+- **LPコピー8大型**: AIDA / PASONA / 新PASONA / QUEST / 4U / Problem-Agitation-Solution / Before-After-Bridge / The 4 Ps（Picture-Promise-Prove-Push）。
+- **採用LP特化：FABE+V**: Feature（特徴）/ Advantage（優位性）/ Benefit（便益）/ Evidence（証拠）/ Vision（将来像）の5層構造。
+- **フック設計の7パターン**: Pattern Interrupt / Curiosity Gap / Direct Promise / Shocking Statistic / Direct Question / Story Opener / Problem-Awareness。
+- **読み手のレベル感知5段階（Eugene Schwartz）**: Unaware / Problem-Aware / Solution-Aware / Product-Aware / Most Aware。段階別にメッセージを変える。
+- **求職者Awareness別LP最適化**: Awareness=高 → 待遇数字先行 / Awareness=低 → ストーリー先行。
+- **CTA最適化5原則**: Action Verb / Benefit-driven / Urgency / Friction-reduction / First-person。「応募する」より「3分で応募する」。
+- **プレースホルダ運用**: `{{salary}}` 等でデータ分離。更新は1セルで全同期。
+
+### 定量ベンチマーク（採用LPコピー 2026）
+| 指標 | 業界中央値 | Kotone目標 |
+|---|---|---|
+| CVR（LP→応募） | 2% | 7%以上 |
+| CTAクリック率 | 5% | 15%以上 |
+| スクロール深度（最下部到達） | 30% | 60%以上 |
+| 直帰率 | 60% | 35%以下 |
+| 見出し20案出し時間 | 2時間 | 30分 |
+
+### 2026最新ツール・標準
+- **Microsoft Clarity**: ヒートマップ+録画でコピー別反応分析。
+- **Google Optimize後継（GA4 + Optimize X 等）**: A/Bテスト。
+- **Hotjar / Mouseflow**: スクロール深度・クリック分析。
+- **Hemingway Editor / Grammarly**: 可読性スコア（Flesch-Kincaid）。
+- **ChatGPT-5 / Claude 4.7**: コピー大量試作。
+
+### 失敗パターン
+- **自社主語**: 「弊社は」で始まる → 「あなたは」の読み手主語に。
+- **数字抽象化**: 「給与良い」→ 「月給35万+賞与4ヶ月」必須。
+- **CTA複数競合**: 1LP複数CTA → 1LP1 Primary CTA + 1 Secondary CTA。
+- **プレースホルダ無視**: 直書きで更新時に探索ロス → 必ずテンプレ化。
+
+### クロスファンクショナル深化
+- **Nao(LP) 設計表との同期**: editable列をコピー適用箇所と1:1マッピング。
+- **Ren の実装への橋**: content.jsonを統一フォーマットで納品。
+- **Sora のQA連携**: 数字・固有名詞チェックリスト。
+- **Nori の事前リーガル**: 「No.1」等の表現は必ず Nori 通過。
+
+### 継続学習リソース
+- 書籍：『Breakthrough Advertising』『The Copywriter's Handbook』『Ogilvy on Advertising』『Hooked』
+- 認証：Copy School by Copyhackers / HubSpot Content Marketing
+- 業界：Copyhackers Blog / Marketing Examples / ConversionXL
+

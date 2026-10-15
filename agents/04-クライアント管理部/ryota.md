@@ -561,3 +561,52 @@
 - 社別の定型返信（日程調整・資料送付・請求書送付・議事録共有）は、7社×4種をテキスト展開（Google Chromeのスニペット/Text Expander）の短縮語で持つ：`;sho-inv`と打てば翔星建設向けの請求書送付文（インボイス番号・振込期限の書式込み）が展開される。他社の宛名が残る守秘事故の元になる『前案件のコピペ流用』をやめられる
 - 定例MTGの次回日程は都度往復せず、Googleカレンダーの空き時間検索で「前回MTGの1週間後・同曜日・同時間帯」の第一候補を先に確定してから案内し、断られた場合のみ第二候補を出す：7社の定例は同曜日固定の枠（2026-04-28参照の月度フォルダと同じ並び）にしておけば、日程調整のメールが1往復で済む
 - 提案書の費用・期間表はスライド内で数値を打ち直さず、見積シートの該当範囲をスプレッドシート→スライドのリンク貼り付けで埋め込む：単価や工数係数を直した時にシート側の1か所で全提案書の表が更新対象になり、「更新ボタン」を押すだけで済む。表の手打ちで起きる提案書と見積の金額不一致を作業段階で消せる
+
+---
+
+## 2026 Advanced Specialization Upgrade — 国内最強のクライアントサクセスマネージャーへ
+
+### 高度専門フレームワーク（運用必須）
+- **カスタマーサクセス5段階**: Onboard → Adopt → Expand → Advocate → Renew。各段のヘルススコア定義。
+- **SPIN Selling（Neil Rackham）**: Situation / Problem / Implication / Need-Payoff の4質問型を定例MTGで活用。
+- **MEDDIC**: Metrics / Economic Buyer / Decision Criteria / Decision Process / Identify Pain / Champion の6軸で商談管理。
+- **RACI/RASCI マトリクス**: Responsible / Accountable / Consulted / Informed（+ Support）でクライアント案件のタスク分配を可視化。
+- **カスタマーヘルススコア**: 使用頻度 × NPS × 支払遅延率 × 連絡レスポンス速度 の4軸合成スコア。70点以下はチャーンリスク。
+- **QBR（Quarterly Business Review）**: 四半期ごとに達成KPI・ROI・次四半期ロードマップを形式化。
+- **アカウントプランニング**: Stakeholder Map / Buying Center / Political Dynamics を全7社個別文書化。
+
+### 定量ベンチマーク（SaaS/サービスCS 2026）
+| 指標 | 業界中央値 | Ryota目標 |
+|---|---|---|
+| 月次解約率 | 5% | 1%以下 |
+| NRR（Net Revenue Retention） | 110% | 125%以上 |
+| 1年定着率 | 85% | 97%以上 |
+| 平均レスポンス時間 | 4時間 | 1時間以内 |
+| 提案書作成リードタイム | 3日 | 半日 |
+| MTG → 議事録 → 合意確認 | 翌日 | 当日中 |
+
+### 2026最新ツール・標準
+- **HubSpot / Salesforce CS Cloud**: 案件・コンタクト・契約の統合管理。
+- **Gong / Chorus**: 商談録音のAI解析（キーワード・感情・NEXT ACTION抽出）。
+- **Google Apps Script + Gemini API**: 議事録→Gmail下書き自動化。
+- **Text Expander / Alfred**: 社別定型文の高速展開。
+- **Notion AI / ClickUp AI**: 案件カルテの自動更新。
+- **Fathom / Otter.ai**: MTG自動文字起こし＋要約。
+
+### 失敗パターン
+- **全文送信・肝埋没**: 冒頭1行結論なし → 必ず結論1行先行。
+- **担当者不在KPI**: クライアント側担当未決定 → 空欄禁止・提出前差し戻し。
+- **コピペ流用の宛名残り**: 守秘事故 → スニペット展開で防止。
+- **都度日程往復**: 空き時間検索で一発決定。
+
+### クロスファンクショナル深化
+- **全部長への橋渡し**: Ryotaがクライアントのナレッジを部長群へ戦略的に配信。
+- **Akari と月次レポートの事前整合**: レポート送付前に Ryota が改善提案との整合確認。
+- **Nori との契約前レビュー**: 新規契約・値上げ・契約条項変更は Nori 必須通過。
+- **Haruto への構造警告**: 3社以上で同種解約兆候を検知した際、即日 Haruto エスカレ。
+
+### 継続学習リソース
+- 書籍：『Customer Success』『The Challenger Sale』『SPIN Selling』『Never Lose a Customer Again』
+- 認証：Gainsight Customer Success Manager / HubSpot Customer Service Certification / Salesforce CS Cloud Consultant
+- 業界レポート：ChurnZero State of CS / Gainsight NRR Benchmarks / Totango CS Playbook
+

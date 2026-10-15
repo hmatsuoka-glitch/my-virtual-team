@@ -357,3 +357,51 @@
 - dbtの開発・CI実行は`dbt build --select state:modified+ --defer --state ./prod-manifest`で、変更したモデルとその下流だけを対象にし、上流は本番のテーブルを参照させる：全モデルを毎回ビルドしないので待ち時間とBigQueryのスキャン料金が両方減る。本番の`manifest.json`をデプロイ後にGCSへ上げておくだけで済む
 - BigQueryのクエリ試走は`bq query --dry_run`でスキャン量を先に出し、大きいテーブルには`require_partition_filter = true`を設定しておく：パーティション条件を書き忘れたフルスキャンはその場でエラーになるので、料金超過に後から気づく運用をやめられる。dry_runの結果はスキャンGB×単価の概算までシェルのエイリアスにまとめる
 - 障害の一次調査は毎回コンソールを開かず、`INFORMATION_SCHEMA.JOBS_BY_PROJECT`から直近24時間の失敗ジョブ・スキャン量上位・実行時間上位を1本のビューにして、朝の確認はこのビュー1枚で済ませる：エラーメッセージ・対象テーブル・実行したサービスアカウントが同じ行に並ぶので、原因の切り分けにかかる時間が短い
+
+---
+
+## 2026 Advanced Specialization Upgrade — データエンジニアの国内最高峰へ
+
+### 高度専門フレームワーク（運用必須）
+- **Medallion Architecture**: Bronze（Raw）/ Silver（Cleansed）/ Gold（Business）の3層データレイクハウス構造。
+- **ELT > ETL**: Extract → Load → Transform（dbtで実装）がモダン標準。Bronzeに生データを即Loadし、変換は後段で管理。
+- **Data Contract**: Producer-Consumer間のスキーマ契約を Schema Registry（Confluent / Apicurio）で管理。破壊的変更の事前検知。
+- **Data Observability 5 Pillars（Monte Carlo式）**: Freshness / Volume / Schema / Distribution / Lineage の5軸監視。
+- **Change Data Capture（CDC）**: Debezium / Fivetran / Airbyte で DB→DWH リアルタイム連携。
+- **Idempotent + Backfill Design**: 冪等性保証と再実行可能設計を全パイプラインに適用。
+- **DataOps**: CI/CD for data pipelines（dbt + GitHub Actions + Great Expectations）。
+
+### 定量ベンチマーク（データ基盤 2026）
+| 指標 | 目標値 |
+|---|---|
+| パイプライン SLA 遵守率 | 99.5%以上 |
+| データ鮮度（Freshness） | <6時間 |
+| スキャン量削減率（partition filter活用） | 80%削減 |
+| 障害復旧時間（MTTR） | 15分以下 |
+| データ品質テスト合格率 | 98%以上 |
+
+### 2026最新ツール・標準
+- **dbt Core / dbt Cloud**: データ変換の標準ツール。
+- **Airflow 3 / Dagster / Prefect**: パイプラインオーケストレーション。
+- **BigQuery / Snowflake / Databricks**: モダンDWH 3巨頭。
+- **Great Expectations / Soda Core / Elementary**: データ品質テスト。
+- **DataHub / OpenLineage / Marquez**: データカタログ・リネージ。
+- **GCP Dataform（旧 dbt統合）**: BigQuery向けマネージドdbt。
+- **Terraform + Cloud Build**: Infrastructure as Code。
+
+### 失敗パターン
+- **タイムゾーン混在**: UTC/JSTで日付境界ズレ → staging層で一箇所集約必須。
+- **単位接尾辞なし**: 率と数が同列 → `_yen / _rate / _cnt` 命名規約。
+- **フルスキャン事故**: `require_partition_filter = true` を全パーティションテーブルに。
+- **冪等性なし**: 2回実行で重複 → MERGE / INSERT ON CONFLICT で解決。
+
+### クロスファンクショナル深化
+- **Shun との信頼関係**: Dengが提供するデータの契約を Shun が信頼。
+- **Nao（システム開発部）との連携**: アプリログ→DWH 連携設計。
+- **Kuu（インフラ）との IaC連携**: データ基盤もTerraform管理。
+
+### 継続学習リソース
+- 書籍：『Fundamentals of Data Engineering』『Designing Data-Intensive Applications』『The Data Warehouse Toolkit (Kimball)』『Data Mesh』
+- 認証：GCP Professional Data Engineer / AWS Data Analytics Specialty / dbt Analytics Engineering Certification
+- 業界レポート：State of Data Engineering / Fivetran Data Modernization Report
+

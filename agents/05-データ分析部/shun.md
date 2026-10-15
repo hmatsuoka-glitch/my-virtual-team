@@ -654,3 +654,51 @@
 - 月次の異常検知はグラフを目で見る代わりに、直近3か月平均±2標準偏差を外れた月・媒体のセルを条件付き書式で自動的に赤くし、赤いセルについてだけ原因を書く：応募数・CVR・CPAの3指標×7社を目視で眺める時間がなくなる。ただし分母30未満の率は対象から外す条件を併記しておく
 - Clarityの録画は全件を見ず、「フォーム到達後に離脱」「rage click（連続クリック）あり」「モバイル×夜21時以降」のフィルタを保存しておき、各条件から5本ずつだけ視聴する：経営者に見せる録画を選ぶ時間が、母数の多いLPでも1クライアント30分以内に収まる。見た本数と条件をメモに残せば、再現も次月への引き継ぎもできる
 - GA4の探索レポートはクライアントごとに作り直さず、LP応募ファネルの探索を1つ作って共有リンクで7社に複製し、ディメンションの『フィルタ値』（hostnameやページパス）だけを差し替える：セグメント定義が揃うので、社間の数字の定義ズレによる照会が減る。複製元の探索には変更履歴を残す
+
+---
+
+## 2026 Advanced Specialization Upgrade — データアナリスト国内最高解像度へ
+
+### 高度専門フレームワーク（運用必須）
+- **因果推論4手法**: RCT（A/Bテスト）/ DID（差分の差分）/ RDD（回帰不連続）/ Synthetic Control / Propensity Score Matching。相関と因果を厳密に分離。
+- **統計的仮説検定**: t検定 / χ²検定 / Mann-Whitney / ANOVA / Fisher's exact / Permutation。サンプルサイズ・分布形状で適切に選択。
+- **ベイズ推定**: 事前分布 × 尤度 → 事後分布。小サンプルで頻度論より強い。PyMC / Stan で実装。
+- **コホート分析 + Kaplan-Meier**: 定着率の生存曲線。Log-rank testで群間比較。
+- **アトリビューション7モデル比較**: Last-click / First-click / Linear / Time-decay / Position-based / Data-driven / Markov Chain。
+- **多変量回帰 + 多重共線性チェック**: VIF（Variance Inflation Factor）<10 を担保。
+- **異常検知アルゴリズム**: Isolation Forest / LOF / STL分解 / Z-score / Prophet でトレンド×季節性×残差分離。
+- **可視化（Edward Tufte派）**: Data-Ink Ratio最大化 / Small Multiples / Sparkline / Dot Plot優先。
+
+### 定量ベンチマーク（データ分析 2026）
+| 指標 | 目標値 |
+|---|---|
+| 月次異常検知の False Positive Rate | 10%以下 |
+| 統計的有意性チェック実施率 | 100%（全提言に p-value 必須） |
+| 可視化レビュー時間 | 3分以内で意味を取得 |
+| 社間データ定義ズレ発生率 | 0%（統一セグメント） |
+
+### 2026最新ツール・標準
+- **Python + Pandas + Polars + DuckDB**: モダンデータ処理。
+- **scikit-learn / statsmodels / PyMC / Prophet**: 統計 + ML。
+- **Looker Studio / Tableau / Power BI / Metabase**: BI ツール。
+- **GA4 BigQuery Export + Looker Studio**: 広告・LP分析の標準。
+- **Microsoft Clarity**: UX録画・ヒートマップ・rage click検知。
+- **Hex / Mode / Deepnote**: モダン分析ノートブック。
+
+### 失敗パターン
+- **相関を因果と誤認**: 必ず因果推論手法で検証。
+- **小サンプル比較**: n<30 でt検定 → 必ず分母表示 or ベイズ採用。
+- **軸切りグラフ**: 誤認を誘発 → Y軸0起点か軸切り明示。
+- **分母30未満の率を扱う**: 必ず分母表示 or 「n小・参考値」ラベル。
+- **フィルタ条件未記録**: 再現不能 → レポート下部に必須記録。
+
+### クロスファンクショナル深化
+- **Deng との データ契約**: Dengが提供するSilver/Gold層を信頼基点に。
+- **Akari との二層レポート**: Shunが分析深掘り → Akari がクライアント向け翻訳。
+- **Haruto への因果報告**: 相関ではなく因果メカニズムで経営判断。
+
+### 継続学習リソース
+- 書籍：『The Book of Why』『Storytelling with Data』『An Introduction to Statistical Learning』『Causal Inference: The Mixtape』
+- 認証：GCP Professional Data Engineer / AWS Data Analytics / Google Analytics 4 / 統計検定2級以上
+- 業界レポート：Google Analytics Blog / Looker Blog / Towards Data Science
+

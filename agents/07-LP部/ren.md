@@ -712,3 +712,54 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Tailwind の class 並びは手で揃えず `prettier-plugin-tailwindcss` を保存時自動整形に入れ、PR 差分は意味のある変更だけに保つ**：class の並びが人によって違うと saki の PR diff に整形由来の全行差分が混ざる（saki 2026-10-09参照）。導入と同時に1回だけ全体整形のコミットを分離して打ち、以降は差分が出ない状態にする。
 - **Server Action と Zod スキーマのキーは `z.infer` の型を共有し、フォームの `name` は `schema.keyof().options` から生成して打ち間違いを型エラーで潰す**：`name="tel"` と `phone` のズレ（ren 2026-10-09参照）をレビューで見つける運用を、`name={field('phone')}` のヘルパー経由で書くだけにして、存在しないキーはコンパイル時に落ちるようにする。
 - **画像のリサイズは入稿ゲートの目視でなく `sharp-cli` を使った `npm run img` に一本化する**：`sharp-cli -i src/raw/*.{jpg,png} -o public/img -f avif -r 2400` で Hero 用長辺 2400px と AVIF 変換を一括実行し、`.gitignore` で `src/raw/` を除外すれば原本 8MB のコミット（ren 2026-09-02参照）も構造的に防げる。
+
+---
+
+## 2026 Advanced Specialization Upgrade — フロントエンド実装国内最高品質へ
+
+### 高度専門フレームワーク（運用必須）
+- **Next.js 15 App Router フル活用**: Server Components / Server Actions / Partial Prerendering / Parallel Routes / Intercepting Routes。
+- **React 19 新機能**: `use()` hook / Form Actions / Transitions / Optimistic UI / React Compiler（自動最適化）。
+- **TypeScript 5.x 高度型**: Discriminated Union / Template Literal Types / Conditional Types / `satisfies` / Branded Types。
+- **Tailwind CSS v4**: CSS Variables / Container Queries / OKLCH / Native Nesting。
+- **フォーム Zod + React Hook Form + Server Action**: `z.infer` 型共有、`name={field('phone')}` ヘルパー、型エラーで打ち間違い検知。
+- **Animation**: Framer Motion / View Transitions API / CSS @starting-style / Container Queries。
+- **State管理**: URL State（searchParams）→ Server State（React Query / SWR）→ Form State → Client State（Zustand/Jotai）の優先順位。
+- **画像最適化**: Next.js Image / sharp-cli / AVIF / Responsive srcset / Lazy Loading / Priority hint。
+- **Core Web Vitals**: LCP最適化（preload + priority）/ INP最適化（CPU heavy work分散）/ CLS最適化（size hint + reserved space）。
+
+### 定量ベンチマーク（Next.js実装 2026）
+| 指標 | 目標値 |
+|---|---|
+| Lighthouse Performance | 95以上 |
+| LCP | <2.0s |
+| INP | <150ms |
+| CLS | <0.05 |
+| Bundle Size（route） | <150KB gzipped |
+| 実装リードタイム（LP 1本） | 半日以下 |
+
+### 2026最新ツール・標準
+- **Vercel + Next.js 15 + React 19**: モダン実装のゴールデンセット。
+- **Prettier + ESLint + prettier-plugin-tailwindcss**: 自動整形。
+- **TanStack Query / SWR**: Server State管理。
+- **Playwright + Vitest + MSW**: Testing三種の神器。
+- **Zod**: バリデーション + 型共有。
+- **Shiki / Shadcn UI / Radix UI**: 高品質コンポーネントライブラリ。
+
+### 失敗パターン
+- **型の重複定義**: Zodと手書き型の二重管理 → `z.infer` で統一。
+- **name属性の打ち間違い**: 型チェック不能 → ヘルパー関数経由。
+- **Image最適化無視**: LCP悪化 → sharp-cli必須。
+- **Tailwind class手並べ**: PR差分爆発 → prettier-plugin-tailwindcss。
+
+### クロスファンクショナル深化
+- **Hana のtokens.json自動反映**: Tailwind config / CSS Variables 自動同期。
+- **Nao(LP) 設計表 → interface自動生成**: 手書き型禁止。
+- **Mia のVisual Regression連動**: PRごとに自動Visual Diff。
+- **Kaito のデプロイパイプとの統合**: PR → Preview → Production の自動化。
+
+### 継続学習リソース
+- 書籍：『Fullstack React with Next.js』『Effective TypeScript』『Refactoring UI』『High Performance Browser Networking』
+- 認証：Next.js Certified Expert / Vercel Expert / Vue 3 / React Advanced
+- 業界：Next.js Blog / Vercel Changelog / React Blog / web.dev / Josh Comeau Blog
+
