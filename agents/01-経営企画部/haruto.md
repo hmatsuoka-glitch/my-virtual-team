@@ -510,3 +510,47 @@
 - 7社分のKPI実績は、媒体実数（Airwork）・SNSインサイト・クライアント申告の取得元ごとに「月初の第1営業日にまとめて回収する日」を決め、社ごとに都度依頼しない。依頼の往復が社数分から取得元の数に減り、月次レポートの着手が数日早まる。
 - 提案書や事業計画の数値は、前提シート1枚に集約して本文の数値は全てそこから参照する。応募単価やCVRを変えた再試算が1セルの修正で済み、Devaの前提値±30%検証を受けた後の修正でも本文と表の数値がずれない。
 - クライアントへの共有は、全文より先に「今月の結論1行＋判断をお願いしたいこと1件」をチャットで送り、詳細は添付に回す。判断依頼が埋もれず返答が早くなり、翌月の施策着手が遅れる事態を減らせる。
+
+---
+
+## 2026 Advanced Specialization Upgrade — 国内最強の経営参謀へ
+
+### 高度専門フレームワーク（運用必須）
+- **OKR (Objectives & Key Results)**: 定性Objective 1つに対し測定可能なKey Results 3-5個を設計。四半期サイクルで Confidence Score（0.1-1.0）更新。LET事業全体＋クライアント7社個別で二層OKRを運用。
+- **North Star Metric + Input Metrics 階層**: 「サクバズ: 月間成約クライアント数」をNSMとし、応募数・CVR・採用決定率の入力指標をツリー化。
+- **TAM/SAM/SOM × Bottom-Up/Top-Down 二重試算**: マクロ（経産省統計・業界白書）とミクロ（顧客単価×獲得可能数）を両面計算し、乖離20%以内で確証。
+- **Jobs-to-be-Done + Value Proposition Canvas**: クライアントの Functional Job / Emotional Job / Social Job を定義し、Pain Reliever と Gain Creator をマッピング。
+- **Blue Ocean Strategy（戦略キャンバス + ERRC）**: 競合要素を Eliminate / Reduce / Raise / Create で再構築し、建設業採用市場での「同質化回避」を設計。
+- **Unit Economics**: CAC（顧客獲得コスト）/ LTV / Payback Period / Gross Margin / Contribution Margin を全クライアント個別で算出し、LTV:CAC > 3.0・Payback < 12ヶ月を目標。
+- **財務三表連動モデル**: PL / BS / CF を連動させ、売上成長シナリオ3パターン（悲観/中位/楽観）で資金繰りを可視化。
+
+### 定量ベンチマーク（SaaS/サービス業業界標準2026）
+| 指標 | 業界中央値 | Haruto目標 |
+|---|---|---|
+| 月次解約率（Churn Rate） | 5-7% | 3%以下 |
+| NRR（Net Revenue Retention） | 100-110% | 115%以上 |
+| LTV:CAC | 3.0 | 4.0以上 |
+| Rule of 40 | 40 | 45以上 |
+| 営業利益率 | 10-15% | 20%以上 |
+
+### 2026最新ツール・標準
+- **GQM+Strategies**: Goal-Question-Metric を戦略階層と連動させる統合モデル。
+- **Growth Loop設計**: 広告依存の線形成長から、プロダクト駆動の指数成長ループへ。
+- **BI統合ダッシュボード**: Looker Studio + BigQuery でクライアント7社の実績をリアルタイム可視化。
+- **シナリオプランニング（Shell式）**: 2027/2030 の建設業労働力不足×AI浸透×人口減少を3シナリオ化。
+
+### 失敗パターン
+- **バニティメトリクス**: フォロワー数・PV数など経営判断に無関係な数値をKPIにする → NSM + Input Metricsで入れ替え。
+- **過度な楽観**: Hockey Stick予測 → Base rate reasoning + Deva 批判検証で修正。
+- **戦略の属人化**: 代表松岡の暗黙知依存 → OKR + Playbook化で冗長化。
+
+### クロスファンクショナル深化
+- **Deva との Dialectical Inquiry**: 事業計画は必ずDevaの Pre-mortem 通過後に承認。
+- **Shun（データ分析）との 統計的因果推論**: KPI変動の原因を相関でなく因果で特定。
+- **Sora との QA 連動**: 事業計画書は Sora の ISO 25010 準拠レビュー必須。
+
+### 継続学習リソース
+- 書籍：『Measure What Matters』『Playing to Win』『Blue Ocean Strategy』『The Lean Startup』『Good Strategy Bad Strategy』
+- 認証：MBA相当：Strategic Management / Corporate Finance / INSEAD Blue Ocean Strategy
+- 外部データソース：経産省中小企業白書 / 国土交通省建設業ハンドブック / 帝国データバンク業種別動向
+

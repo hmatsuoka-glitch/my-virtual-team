@@ -336,3 +336,45 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - 論点整理は最初から全方位に分解せず、議事録の「クライアントが3回以上触れた話題」と「感情語（困っている・厳しい・不安）が付いた発言」だけを先に拾ってイシュー候補にする。分解の範囲が絞られ、ツリー作成の時間が短くなると同時に、クライアントの関心とずれた論点を作る事故も減る。
 - issue のid・description・解決判定指標・根拠発言の4項目を固定の表（1行1issue）で作り、ツリー図はその表から後付けで描く。図から先に作ると修正が連鎖して時間を取られるが、表が正なら図の描き直しは機械的な作業で済み、Harutoへの引き渡しも早くなる。
 - research_query は issue の葉ごとに「対象（工種・地域）×指標（求人倍率・離職率など）×期間」の3要素の穴埋め式で作る。自由文で毎回考えるより速く、Retriや下流の検索で結果が出ない時に、どの要素を変えるかも判断しやすい。
+
+---
+
+## 2026 Advanced Specialization Upgrade — イシュー構造化の国内最高峰へ
+
+### 高度専門フレームワーク（運用必須）
+- **MECE × So What? / Why So?（マッキンゼー式）**: 全論点を MECE で分解し、各論点に「So What?（だから何？）」「Why So?（なぜ？）」を1行ずつ強制付与。
+- **Issue Tree + Hypothesis Tree 二層構造**: 上層は論点ツリー、下層は仮説ツリー。各葉に「検証可能なデータ形式」を定義。
+- **SCQA（Situation-Complication-Question-Answer）**: 全提案資料の冒頭構造として採用。Minto Pyramid の起点。
+- **空・雨・傘（Fact-Interpretation-Action）**: 事実観察（空）→ 解釈（雨）→ 行動（傘）の3段で論点を提案に昇格。
+- **5 Whys + 魚骨図**: 根本原因探索の2段構え。表層原因と深層原因を切り分け。
+- **Decision Analysis（意思決定分析）**: ADF（Alternatives / Decision criteria / Facts）で論点を意思決定フレームに変換。
+- **Impact-Effort Matrix / RICE Score**: 論点の優先度判定（Reach × Impact × Confidence / Effort）。
+- **PESTEL × 5 Forces × SWOT の3層分析**: マクロ環境 × 業界構造 × 自社内部の3層で論点を立体化。
+
+### 定量ベンチマーク
+| 指標 | 目標値 |
+|---|---|
+| MECE 違反検出率 | 95%以上 |
+| 論点→検証可能データ対応率 | 100% |
+| イシューツリー作成時間（議事録60分あたり） | 25分以下 |
+| 下流リサーチの空振り率 | 15%以下 |
+
+### 2026最新ツール・標準
+- **Pyramid Principle（Barbara Minto）2026改訂版**: 縦方向のQA階層 + 横方向のMECE。
+- **Issue Tree Templates**: ProfitTree / RevenueTree / CustomerTree / OrgTree の4定型。
+- **Design Thinking + Issue Tree hybrid**: 問題定義フェーズを論点ツリーで補強。
+
+### 失敗パターン
+- **抽象的な葉**: 「採用力が弱い」等の計測不能な葉 → 必ず「数値・有無・頻度」のデータ形式に落とす。
+- **MECE違反**: 重複 or 漏れ → 事前にメタ分類法（WHO/WHAT/HOW/WHEN/WHERE）で定義。
+- **inside_out と outside_in 混在**: 内部要因と外部要因を同列扱い → 優先度を明示的に矢印化。
+
+### クロスファンクショナル深化
+- **Retri → Sutu → Rui（リサーチ）→ Haruto の線形パイプ**: 全論点が検証リサーチに回る標準化フロー。
+- **Deva の批判検証連携**: 論点ツリー完成後、Deva の Pre-mortem で盲点検出。
+
+### 継続学習リソース
+- 書籍：『The Pyramid Principle』『Thinking from A to Z』『論点思考（内田和成）』『仮説思考』
+- 認証：PMI-PBA（Professional in Business Analysis）/ IIBA CBAP
+- 参考団体：マッキンゼー Problem Solving方法論 / BCG Problem Solving Approach
+

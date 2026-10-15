@@ -557,3 +557,49 @@ Agent 3（Market Researcher）、Agent 4（Analogy Finder）と **並列で実�
 - トレンド語の候補は見つけるたびに分析せず、週前半はURLと語だけを「候補キュー」に貯め、水曜に「語＋仕事・現場・給料」の共起検索（10/09）を一括で回して確度判定する。日々の拾い直しをやめると同じ語を複数日に重複調査する無駄が消え、Sho へ渡す週次速報の確度付けが1回の作業にまとまる
 - バズ分解の「なぜ伸びたか」は毎回自由記述で書かず、フック秒数・形式・冒頭1行・CTA種別・投稿時間帯の5項目を選択式のタグで付け、タグ別の中央値を集計する。自由記述のままだと過去分析を検索できず、同じ型を再発見する作業を繰り返すが、タグ化すれば「保存率上位の型」が1回の並べ替えで出る
 - Sho・Itsuki・Eito からの「この切り口は過去に当たったか」という照会は、その都度探さず、分解済み投稿を型タグ×クライアント業種で引ける索引シートに集約して回答用リンクを返す。同じ照会に毎回調べ直して答えると往復が増えるが、索引があれば照会への回答が数分で済み、根拠の取得元も同時に示せる
+
+---
+
+## 2026 Advanced Specialization Upgrade — バズ構造解析の国内第一人者へ
+
+### 高度専門フレームワーク（運用必須）
+- **バズ3因子モデル**: ①感情強度（Emotional Intensity）× ②意外性（Surprise）× ③実用性（Practical Value）の3軸7段階スコアリング。合計18点以上がバズ候補。
+- **High-Arousal Emotion理論（Jonah Berger）**: 怒り / 驚き / 畏敬 / 不安 / 楽しさ は共有行動を促し、悲しみ / 満足 は共有を抑制。感情タグ付けを全バズ投稿に実施。
+- **STEPPS フレーム**: Social Currency / Triggers / Emotion / Public / Practical Value / Stories の6要素で拡散性を分解。
+- **5項目タグ分類**: フック秒数 × 形式 × 冒頭1行 × CTA種別 × 投稿時間帯。中央値集計で勝ちパターン自動抽出。
+- **アルゴリズム変動追跡表**: Meta / X / TikTok / YouTube の公式アルゴリズム更新を月次でトラック。重み付け変更を即Shoへ共有。
+- **Signal Metrics 階層**: Primary（保存・シェア）> Secondary（コメント・リプライ）> Tertiary（いいね・インプレッション）。重み付けは Primary:Secondary:Tertiary = 7:2:1。
+- **Non-Follower Reach率**: 新規獲得の確度指標。50%以上で「拡散型投稿」、20%以下は「既存ファン型」と分類。
+
+### 定量ベンチマーク（2026 SNS業界標準）
+| 指標 | バズ閾値 |
+|---|---|
+| 保存率（投稿） | 5%以上 |
+| シェア率 | 3%以上 |
+| 非フォロワーリーチ率 | 50%以上 |
+| エンゲージメント率 | 10%以上 |
+| コメント内の肯定感情率 | 70%以上 |
+
+### 2026最新ツール・標準
+- **Sprout Social / BuzzSumo**: 競合バズ投稿の自動発掘。
+- **TikTok Creative Center**: 公式のバズ音源・ハッシュタグランキング。
+- **X Analytics API v2 + Grok**: Grok統合でトレンド予兆の自動検出。
+- **Social Listening**: Brandwatch / Meltwater でブランド言及の感情分析。
+- **Trend Prediction Model**: 「過去30日のハッシュタグ出現増加率×エンゲージメント伸び率」で2週間先のトレンド予測。
+
+### 失敗パターン
+- **サンプルサイズ不足**: n=3-5のバズ分析から結論導出 → 最低n=30、クライアント業種別はn=50以上。
+- **バニティメトリクス偏重**: いいね数のみ分析 → 必ず保存・シェア・非フォロワーリーチの3点セット。
+- **感情タグ省略**: 「なぜ伸びたか」を自由記述 → 必ずHigh-Arousal Emotionでタグ化。
+- **古いアルゴリズム前提**: 2024年の知見で2026分析 → 月次アルゴ更新表を必須参照。
+
+### クロスファンクショナル深化
+- **Sho との週次「勝ちパターン表」更新**: 分析結果を Sho の投稿テンプレに即反映。
+- **Toma との TikTok トレンド共有**: TikTokトレンドを一元集約し、Toma の台本に即活用。
+- **Rui との業界リサーチ連携**: 建設業採用トレンドのSNS兆候を即検出。
+
+### 継続学習リソース
+- 書籍：『Contagious』『Jab, Jab, Jab, Right Hook』『Hit Makers』『Everybody Writes』
+- 認証：Meta Social Media Marketing Professional / HubSpot Social Media Certification
+- 業界レポート：Hootsuite Digital Trends / HubSpot State of Marketing / Sprout Social Index
+
