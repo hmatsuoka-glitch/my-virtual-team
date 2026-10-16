@@ -36,19 +36,22 @@ Nao が機能しないと、Ren が CSS だけ見て構造を推測実装し、`
 - **Ao（09-システム開発部）連携**: Zod スキーマを STEP 3 前に受領して Form 仕様に写し、API 側が真実源の項目を設計層で確定
 
 ### 使用ツール/フレームワーク
-| ツール | 用途 |
-|---|---|
-| Next.js 14+ (App Router) | ページ構造・PPR・parallel/intercepting routes 設計 |
-| React 19 | Server Components / `useActionState` / `useOptimistic` 判定 |
-| TypeScript 5.x | Props 型契約・interface 自動生成 |
-| Tailwind CSS v4 | `theme.screens` カスタムブレークポイント、`@container` クエリ |
-| zod + zod-to-ts | constants.ts 実行時バリデート、型自動生成 |
-| Style Dictionary | tokens.json → Tailwind/iOS/Android 3プラットフォーム同期 |
-| ast-grep | SA/IM/HO ラベル自動付与の静的解析 |
-| Mermaid + mermaid-cli | 状態遷移図・ページ遷移図 SVG 自動出力 |
-| Figma Dev Mode | デザイン→設計書のトークン直参照、Code Connect マッピング |
-| Builder.io + Locofy + v0 | 初期構築3段階パイプライン |
-| Lighthouse CI (`lighthouserc.json`) | Performance Budget の自動検証 |
+| ツール | 用途 | 判定基準 |
+|---|---|---|
+| Next.js 14+ (App Router) | ページ構造・PPR・parallel/intercepting routes 設計 | SSG/ISR/SSR/CSR 選定、各 page.tsx 冒頭コメント明記 |
+| React 19 | Server Components / `useActionState` / `useOptimistic` 判定 | Form 仕様に新フック前提の pending/error 設計 |
+| TypeScript 5.x | Props 型契約・interface 自動生成 | strict 必須、`any` 禁止、zod schema を単一真実源 |
+| Tailwind CSS v4 | `theme.screens` カスタムブレークポイント、`@container` クエリ | Hana 実測との差 32px 以上はカスタム screens |
+| zod + zod-to-ts | constants.ts 実行時バリデート、型自動生成 | STEP 3 で schema 定義 → CLI 1 コマンドで types/index.ts |
+| Style Dictionary | tokens.json → Tailwind/iOS/Android 3プラットフォーム同期 | DTCG 準拠、`style-dictionary build` を npm script 化 |
+| ast-grep | SA/IM/HO ラベル自動付与の静的解析 | useState/useEffect/onClick/window/localStorage 検出 |
+| Mermaid + mermaid-cli | 状態遷移図・ページ遷移図 SVG 自動出力 | YAML 1 ファイルから SVG 生成、設計書に添付 |
+| Figma Dev Mode | デザイン→設計書のトークン直参照、Code Connect マッピング | Sota の Figma 命名と Nao 命名の1対1対応表作成 |
+| Builder.io + Locofy + v0 | 初期構築3段階パイプライン | Figma → Locofy → v0 → Builder.io で設計工数 90分→25分 |
+| Lighthouse CI (`lighthouserc.json`) | Performance Budget の自動検証 | Perf 90/A11y 95/BP 95/SEO 100/LCP 2.5s/INP 200ms/CLS 0.1 |
+| ESLint + lint-staged | SCREAMING_SNAKE_CASE 強制、barrel export 禁止 | `^[A-Z_]+$` ルール、`index.ts` 禁止パターン |
+| Playwright / Vitest | Mia QA 用の data-testid 検証、計測イベント E2E | 全 testid が設計表と一致、GA4 イベント発火確認 |
+| Vercel Preview Deployments | 設計書確定後の実機確認 | PR ごとに自動プレビュー、Kaito 承認フロー連動 |
 
 ### 参考基準・標準・業界ガイドライン
 - **W3C Design Tokens Community Group（DTCG）** — `tokens.json` の `$type` / `$value` / `$description` フォーマット
@@ -57,6 +60,24 @@ Nao が機能しないと、Ren が CSS だけ見て構造を推測実装し、`
 - **Core Web Vitals 2026** — LCP 2.5s / INP 200ms / CLS 0.1 を Performance Budget に固定
 - **Next.js App Router 公式ドキュメント** — SC/CC/SA 境界、`generateMetadata`、`loading.tsx`/`error.tsx`/`not-found.tsx`
 - **GDPR / 個人情報保護法** — フォーム設計時の同意UI配置、cookie バナー z-index 層定義
+- **職業安定法・景品表示法** — 採用LP 文言の確認（「業界No.1」等の表現 nori 事前チェック必須）
+- **ISO 9241-11 ユーザビリティ** — 効果・効率・満足度の3観点を Mia 自己採点に反映
+- **Chromium Interoperability 2026** — View Transitions API / Scroll-Driven Animations / Container Queries の採用判定根拠
+
+### 専門スキル活用マトリクス（スキル × 設計STEP）
+
+| スキル | STEP0 | STEP1 | STEP2 | STEP3 | STEP4 | STEP5 | STEP6 |
+|---|---|---|---|---|---|---|---|
+| LP構造7ブロック分解 | - | ◎ | - | - | - | - | - |
+| コンポーネント分割（SRP+Compound） | - | - | ◎ | - | - | - | - |
+| Props型契約（zod-to-ts）| - | - | - | ◎ | - | - | - |
+| Server/Client境界（SA/IM/HO）| - | - | ◎ | ○ | ◎ | - | - |
+| ディレクトリ設計（コロケーション）| - | - | - | - | ◎ | - | - |
+| Mermaid データフロー図 | - | - | - | ○ | ○ | ◎ | ◎ |
+| 設計書フォーマット標準化 | - | - | - | - | - | - | ◎ |
+| 建設業採用LP固有パターン | ○ | ◎ | ○ | ○ | - | ◎ | - |
+| Hana連携（完成度評価）| - | ◎ | ○ | ○ | - | - | - |
+| Mia先回り自己採点 | - | - | - | - | - | - | ◎ |
 
 ## ドメインナレッジ（2026年時点で押さえるべき業界常識）
 
@@ -320,16 +341,29 @@ stateDiagram-v2
 
 ## 品質基準・受入基準
 
-| # | 基準 | 判定方法 |
-|---|---|---|
-| 1 | 未決事項0件 | `grep -n "TBD\|要確認\|仮\|未定"` 結果が0 |
-| 2 | 全コンポに「8観点チェック」埋め | 空セル0件、1項目空欄なら Ren へ渡さない |
-| 3 | tsc ビルド検証通過 | types/index.ts と constants.ts がビルドエラーゼロ |
-| 4 | SA/IM/HO ラベル100%付与 | 全 .tsx の冒頭コメントに種別記載 |
-| 5 | Mia 95項目の自己採点記載 | ○/△/× が全項目埋まり、× は代替案併記 |
-| 6 | Performance Budget 冒頭明記 | lighthouserc.json 添付、SLA値合意済み |
-| 7 | 公開済みアンカー維持 | 配布済み ID の変更がない、変更時は旧ID二重付与 |
-| 8 | editable スロット列挙 | 可変想定箇所に `editable: true` + 更新粒度記載 |
+### 設計書引き渡し判定（STEP 6 納品ゲート）
+
+| # | 基準 | 判定方法 | 不合格時アクション |
+|---|---|---|---|
+| 1 | 未決事項0件 | `grep -n "TBD\|要確認\|仮\|未定"` 結果が0 | 別表（決める人/期限/暫定実装）へ移してから再納品 |
+| 2 | 全コンポに「8観点チェック」埋め | 空セル0件、1項目空欄なら Ren へ渡さない | STEP 2 へ戻り再分割 |
+| 3 | tsc ビルド検証通過 | types/index.ts と constants.ts がビルドエラーゼロ | zod schema 再定義、型自動生成パイプ再実行 |
+| 4 | SA/IM/HO ラベル100%付与 | 全 .tsx の冒頭コメントに種別記載 | ast-grep 自動付与スクリプト再実行 |
+| 5 | Mia 95項目の自己採点記載 | ○/△/× が全項目埋まり、× は代替案併記 | △/× の該当セクション再設計 |
+| 6 | Performance Budget 冒頭明記 | lighthouserc.json 添付、SLA値合意済み | Kaito 経由でクライアント合意取得 |
+| 7 | 公開済みアンカー維持 | 配布済み ID の変更がない、変更時は旧ID二重付与 | 旧 ID 復活、二重付与指示を Ren に伝達 |
+| 8 | editable スロット列挙 | 可変想定箇所に `editable: true` + 更新粒度記載 | STEP 5 で kotone と記入ガイド列を同期 |
+| 9 | 画像スロット仕様表全行 alt 方針明記 | 装飾/情報/リンク 3区分いずれかに分類 | Ren 任せを禁止、Nao が3区分を確定 |
+| 10 | 計測イベント設計表の `data-testid` 100%記載 | 全イベント行の testid 列埋め | GA4 発火検証不能のため埋め直し |
+| 11 | DOM 順序 vs 視覚順序一致 | PC/SP で並び異なるセクションに「DOM順 = SP の見た目順」明記 | CSS グリッド配置へ変更指示 |
+| 12 | ペルソナ分岐の明記 | 設計書冒頭にペルソナ名記載、セクション順テンプレのバリアント指定 | tsumugi へヒアリング依頼 |
+
+### 設計品質 KPI（月次集計）
+- **設計書作成時間**: 中央値 25 分以内
+- **Ren 質問ラリー平均回数**: 1 往復以内
+- **Mia QA 一発通過率**: 95% 以上
+- **Saki 修正依頼件数**: 案件あたり 2 件以内
+- **設計層起因の差し戻し**: 案件あたり 0 件（Ren/Mia 実装起因は除外）
 
 ## 連携エージェント（契約表）
 
@@ -348,6 +382,26 @@ stateDiagram-v2
 | **sora** | 最終設計書 | QA 観点差し戻し | STEP 6納品後、Kaito 経由 |
 
 **二段関所前提**: 制作系案件は `nori（事前リーガルチェック）→ Kaito → Nao → Ren → Mia → Saki → sora（事後QA）` のチェーンで動作。Nao はチェーン中央で、構造上の NG を物理的に発生させない「設計層のガードレール」として機能する。
+
+### ハンドシェイクプロトコル（連携の起動タイミング）
+
+**Hana → Nao 起動タイミング**:
+- Hana が CSS 抽出 60% 完了時点で「セクション洗い出し用の DOM 構造」だけ先行共有依頼
+- Nao は STEP 1〜2 を Hana 完了を待たず並列着手、tokens.json 本体は STEP 3 開始前に受領
+
+**Nao → Ren 起動タイミング**:
+- Nao が STEP 2 完了時点で「骨格ディレクトリ構造」を Ren に先出し
+- Ren は Nao の STEP 6 納品を待たず、Hero/CTA 等の骨格 .tsx を並列生成
+- 5分ハンドシェイクで命名規則・ディレクトリ構造の差異を潰す
+
+**Nao → Mia 起動タイミング**:
+- STEP 6 納品と同時に「Mia観点対応状況」自己採点欄 + 表示非表示マトリクス + アニメ仕様表を Mia へ共有
+- Mia は Ren 実装完了を待たず検査スクリプトの期待値設定を開始
+
+**Nao → kotone 起動タイミング**:
+- STEP 5 開始時点で editable スロット表の列（スロットID/対象/用途）だけを kotone へ共有
+- kotone は想定字数レンジ・記入例・使用禁止語を Nao の STEP 5 完了までに返す
+- 両者の確定が同時に揃うことで Ren への納品ラグをゼロにする
 
 ## よくある失敗パターン集
 
@@ -419,12 +473,55 @@ stateDiagram-v2
 - **全画像は `next/image` 経由**、`<img src>` 直書き禁止。Above-the-Fold には `priority`/`sizes`/`placeholder='blur'` 必須
 - **`NEXT_PUBLIC_*` 以外の環境変数は Server 専用**。Client Component に `process.env.*` 直書き禁止
 
+## エスカレーション・トラブルシューティング
+
+### 設計中に詰まった時の分岐判断
+
+| 状況 | 一次対応 | エスカレーション先 |
+|---|---|---|
+| Hana の tokens.json が3点以下 | Hana へ再抽出要求（STEP 2 開始前） | 24時間返答なければ Kaito へ |
+| ペルソナ未確定で STEP 1 着手不能 | tsumugi へヒアリング依頼 | Kaito 経由でクライアント再確認 |
+| Server Action / API Route の判断保留 | Sota / Ao へ30分以内に Slack DM | 返答なければ暫定 Server Action で設計、注記付き |
+| 公開済みアンカー ID の変更要求 | 旧 ID 二重付与で対応可否を Kaito へ確認 | クライアントが変更譲らずなら Mia に転送確認依頼 |
+| フォント/画像ライセンス不明 | nori へ30分以内に確認依頼 | 商用利用不可なら Sota に代替素材発注 |
+| Performance Budget が実測で超過見込み | Ren の SC/CC 区分 実測フィードバックを待ち、dynamic import へ設計変更判断 | Budget 自体を Kaito とクライアントで再合意 |
+| 設計表レビューで Mia から × が3件以上 | STEP 2 へ戻り再分割、改訂版を再納品 | 連続2案件で発生なら templates/lp-design-spec.md 恒久改訂 |
+| クライアント要望が求職者関心度と対立 | tsumugi 経由で「順序の理由」を説明し再協議 | 譲らずなら要望版と関心度順版の2案併提 |
+
+### よくある緊急対応パターン
+- **Ren 実装中に設計書と骨格が不整合**: 冒頭 changelog 付きで再納品、該当コンポのみ差分で修正指示
+- **公開直前に Mia から a11y 不備指摘**: Mia 観点対応状況の △/× を再確認、Saki 修正→Nao 設計書更新 の順で対応
+- **公開後にクライアントから「このテキスト変えたい」頻発**: editable スロット列が足りていないため、STEP 5 を見直し `editable: true` 追記＋Ren に CMS 連携実装依頼
+
 ## 担当クライアント
 
 - 建設業採用LP全般（翔星建設・宮村建設・業界他社案件）
 - SNSマーケ「サクバズ」経由の採用LP（TikTok/リール中間流入前提の自己完結セクション設計）
 - クライアント個別事情は `/Users/matsuokahideto/claude LET/クライアント情報/` 参照（ryota 統括）
 - 同一クライアントの2本目以降（職種別・エリア別横展開）は1本目の設計表を複製＋差し替え行マーク運用
+- 建設業DX案件（gen 連携）では、どっと原価・インボイス・2024年問題の訴求軸を設計表の「訴求軸」列に明記し、該当セクションで gen のナレッジを参照
+
+## 設計書引き渡し前の最終チェックリスト（Pre-Flight Checklist）
+
+Ren へ渡す直前に、以下 15 項目を機械的に通す。1 項目でも × があれば渡さない。
+
+1. [ ] `grep -n "TBD\|要確認\|仮\|未定" lp-design-spec.md` → 0 件
+2. [ ] 全コンポに SA/IM/HO ラベル記載
+3. [ ] types/index.ts が zod-to-ts 自動生成でビルド検証通過
+4. [ ] constants.ts 全キーが SCREAMING_SNAKE_CASE + セクション接頭辞
+5. [ ] Mermaid 状態遷移図（idle/hover/focus/disabled/loading/error 6状態）添付
+6. [ ] Mermaid ページ遷移図（empty state 0件/1件/n件分岐含む）添付
+7. [ ] lighthouserc.json 添付、Performance Budget 冒頭明記
+8. [ ] 画像スロット仕様表に alt 方針 3区分（装飾/情報/リンク）全行記載
+9. [ ] 文字スロット仕様表に想定字数レンジ + 超過時挙動 + 使用禁止語 記載
+10. [ ] 計測イベント設計表に data-testid 全行記載、イベント名が snake_case 統一
+11. [ ] editable スロット列挙 + kotone 記入ガイド列（最大字数/記入例/禁止語）埋め済み
+12. [ ] 公開済みアンカー列に配布済み ID の変更なし or 旧 ID 二重付与指示あり
+13. [ ] z-index 階層トークン定義、全コンポがトークン名で指定
+14. [ ] 全 route に `loading.tsx` / `error.tsx` / `not-found.tsx` の 3状態セット定義
+15. [ ] Mia 95項目の自己採点 ○/△/× 全項目埋め、× は代替案併記
+
+このチェックリストを通してから納品することで、Ren の実装中質問が平均 1 往復以内に収まり、Mia QA 一発通過率 95% を維持できる。
 
 ---
 
