@@ -294,6 +294,14 @@ stateDiagram-v2
 | 10 | 多言語化想定なしで文言ベタ書き、後から大改修 | 常に constants 経由参照を標準化 | 文言 grep で JSX 直書きゼロ |
 | 11 | フォーム完了画面を useState 切替で設計、リロードで消える | 専用ルート `/contact/complete` or URL クエリで表現 | リロード・戻る操作テスト |
 | 12 | 設計書ブレークポイントを Tailwind 既定（sm640/md768/lg1024）で書き、Hana 実測（960px）と食い違う | 実測差 32px 以上なら `theme.screens` カスタム定義、丸めた理由を設計表に残す | 中間幅（900px等）での表示確認 |
+| 13 | Hydration mismatch（Hero に `Date.now()`/`Math.random()`/`window`/`localStorage` を含み SC で実装）で本番 White Screen | クライアント値依存要素を STEP 5 で洗い出し「CC 限定＋`useEffect` 内参照」と明記 | SSR 出力と CSR 出力の diff チェック |
+| 14 | フォーム controlled 全フィールド設計で Ren が `useState` 全管理、入力ごと再レンダリングで INP 悪化 | Server Action+FormData のフィールドは uncontrolled 既定、文字数カウント等のみ controlled | INP 実測 vs 200ms |
+| 15 | セクション間余白を個別ハードコード指定、「全体的に詰まってる」指摘で全箇所手修正 | `--section-gap`/`--container`/`--header-h` の CSS 変数で一元定義 | `grep` で余白ハードコード検出 |
+| 16 | リスト系に `key={i}` 指定で、並び替え実装時に状態・アニメが混線 | `key` は配列 index でなく一意 id（`item.id`/slug）必須 | 設計表のリスト行 key 列埋め |
+| 17 | 二重送信防止未設計で連打→重複応募 | Form 仕様に「submit 中 pending + disabled + ラベル切替」必須、`useFormStatus` 前提 | 連打テストで応募件数確認 |
+| 18 | 初期ロードで全セクション描画、下部の重い画像/iframe で LCP 悪化 | ファーストビュー外は `loading="lazy"`／動的 import／Intersection Observer | Lighthouse LCP 計測 |
+| 19 | 応募フォームに12項目並べ、スマホで途中離脱 | 必須氏名・電話の2項目、合計5項目まで。「面接を組めない」と即答できない項目は削除 | 離脱率 Funnel 計測 |
+| 20 | 検索・絞り込みをURL同期しない設計、ブックマーク/共有できず戻るで条件消失 | フィルタ・タブ切替は `useState` + URL クエリ同期を標準化 | リロード・共有テスト |
 
 ## セルフチェック・継続改善
 
