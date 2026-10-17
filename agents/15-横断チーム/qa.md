@@ -298,3 +298,235 @@
 - **効率化テクニック：日付と曜日の一致、電話番号の桁数、URLの到達性（HTTPステータス）、過去日の混入は、成果物のテキストを流し込むだけの照合スクリプト1本で一括検査し、結果をQAキューの受付時に添付する**：10-02記録の機械照合の軸は、人が目で追うと見落としが残る。スクリプトで先に落とせば、レビュアーの時間は構造と事実の確認に使える。
 - **効率化テクニック：指摘の分類（観点ID）を毎回の差し戻しコメントに付け、月次で上位5観点を集計して、その観点を制作部の提出前セルフチェック表（09-01記録）へ移す**：同じ指摘が繰り返されるのは、観点が制作側に渡っていないことが多い。移管した観点は次月の出現数で効果を確認し、減ったものはQAの重点観点から外す。
 - **効率化テクニック：動画のテロップは、字幕ファイル（SRT）から1行ごとの文字数÷表示秒数を自動計算し、毎秒5〜6文字（10-09記録）を超える行だけを抽出して確認する**：実機再生で全編を見直すと、1本あたりの確認時間が動画の長さ以上かかる。超過行だけ見れば、確認は数十秒で終わり、誤字や送り仮名のゆれの確認に時間を回せる。
+
+---
+
+## 🚀 2026年版 オーバースペック・アップグレード（唯一無二化パッケージ）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、業界最高水準を超える能力を実装。
+> アップグレード実施日: 2026-10-17
+
+### 1. 現状スキル棚卸し（Before）
+
+| カテゴリ | 既存スキル（Daily Knowledge Log からの抽出） | 到達レベル |
+|---|---|---|
+| 共通基準 | 5軸チェック（completeness/accuracy/consistency/feasibility/format_compliance）+ テスト網羅性 | 中〜上級 |
+| 整合性 | 6軸クロスチェック（KPI定義/数値/クライアント情報/スケジュール/予算/出典） | 上級 |
+| 検証技法 | 境界値分析・同値分割・5系統カバレッジ（正常/境界/異常/負荷/復旧） | 中級（技法を暗黙運用） |
+| 判定区分 | pass/conditional/fail + Severity3階層（blocker/major/minor）+ Priority分離 | 上級 |
+| 再検証 | retest / regression の切り分け宣言、差分限定モード | 中〜上級 |
+| オラクル管理 | KPI定義書SSOT・正本マスタ・オラクル版数・断面確認 | 上級 |
+| 承認管理 | review.json正本化、承認後変更凍結、承認失効 | 上級（手運用） |
+| AI品質 | ハルシネーション裏取り、LLM-as-a-Judge合議、OWASP LLM Top 10（部分） | 中級 |
+| 法令・倫理 | 景表法・優良誤認・肖像同意（媒体・期間・二次利用）、noriへの法務ゲート連携 | 中級 |
+| 現場適合 | 実機プリセット（直射日光・手袋・通信断復帰）、現行帳票見比べ | 中〜上級 |
+| 効率化 | リスクベース抽出、受付ゲート、定型合格条件スニペット、Slack絵文字→JSON自動化 | 上級 |
+
+### 2. 業界ベンチマーク比較（Gap分析）
+
+| 国際・国内規格 | 現状との差分 | 補強必要度 |
+|---|---|---|
+| **ISTQB Advanced Level（Test Manager / Technical Test Analyst / Test Analyst）** | Risk-Based Testing・FMEA・リスクレジスタの体系化が未整備 | ★★★ |
+| **ISO/IEC/IEEE 29119-1〜5（ソフトウェアテスト国際規格）** | テスト計画書（29119-3）・テスト文書テンプレ標準化が未整備 | ★★★ |
+| **JSTQB Advanced Test Manager** | テストメトリクスの体系（欠陥密度・DRE・テスト進捗モデル）が未定量化 | ★★ |
+| **ISO/IEC 25010:2023（SQuaRE 製品品質モデル）** | 8品質特性×副特性（機能適合性/性能効率/互換性/使用性/信頼性/セキュリティ/保守性/移植性）での網羅評価が未運用 | ★★★ |
+| **ISO/IEC 42001:2023（AIマネジメントシステム）** | AI生成物のトレーサビリティ・説明可能性の証跡要件が部分運用 | ★★★ |
+| **ISO/IEC TR 24028（AI信頼性）** | Authenticity/Traceability/Explainabilityを形式化した証跡が未定型 | ★★ |
+| **OWASP LLM Top 10（2025版）+ OWASP ASVS 4.0.3** | プロンプトインジェクション・情報漏洩の敵対的テスト観点が部分適用 | ★★★ |
+| **WCAG 2.2 / JIS X 8341-3:2016（アクセシビリティ）** | コントラスト比・alt・キーボード操作の体系チェックが未標準化 | ★★★ |
+| **JIS Q 9000 / 9001（品質マネジメントシステム）** | 是正処置（CAPA）と予防処置（PA）の文書化・PDCA循環が未整備 | ★★ |
+| **CMMI for Services Level 3-5 / IEEE 730（SQAP）** | 継続改善の成熟度モデルによる自己診断が未運用 | ★ |
+| **DORA Metrics / Google TAP (Test Automation Pyramid)** | テスト自動化層構造（Unit/Integration/E2E）の比率監視が未可視化 | ★★ |
+| **景品表示法・特商法・薬機法・労働基準法第15条・職業安定法第5条の3** | NG表現マスタの機械照合までは未到達、クライアント別個別対応止まり | ★★★ |
+
+### 3. 成長余地マトリクス（4軸）
+
+| 軸 | 現状スコア | 目標スコア | 具体的ギャップ |
+|---|---|---|---|
+| **技術深度**（検証技法・テスト設計の深さ） | 70 | 95 | FMEA / Mutation Testing / Property-Based / Chaos観点 / Contract Testing を体系導入 |
+| **横断整合性**（エージェント間・成果物内・時系列） | 85 | 98 | 同型誤り全走査・合計≠内訳縦整合の自動化・オラクル版数イベント逆引き |
+| **法令・倫理・AI品質**（コンプラ・OWASP LLM・ISO 42001） | 65 | 95 | 景表法/薬機法/職安法NG表現マスタ、プロンプトインジェクション検査、AI判定監査可能性 |
+| **継続改善**（escape分析・CAPA・自己診断） | 60 | 92 | DRE・欠陥密度・コスト・1st-pass yield の月次KPIループと四半期チェックリスト棚卸しの定型化 |
+
+### 4. 追加される新スキル群
+
+| 新スキル | 概要 | 根拠規格 |
+|---|---|---|
+| **Risk-Based Testing（RBT）with FMEA** | 故障モード影響解析でリスク値（Severity×Occurrence×Detection=RPN）を算出、RPN上位20%に検証工数を傾斜配分 | ISTQB TM / ISO 31000 |
+| **Property-Based Testing 観点レビュー** | 具体値テストでなく「不変条件（invariant）」を仕様から抽出し、母集合の妥当性（06-20記録）判定を強化 | QuickCheck系理論 |
+| **Mutation Testing によるテスト強度測定** | テスト対象コードに意図的バグ注入→検知率でテストスイート自体の品質を定量評価 | IEEE 730 |
+| **Contract Testing（Pact形式）レビュー** | エージェント間入出力スキーマを契約として双方向検証、6軸クロスチェックの構造化 | OpenAPI / Pact |
+| **Visual Regression Testing 観点** | スクリーンショット差分（Percy/Chromatic系）観点でLP・帳票レイアウト非再現を機械検出 | WCAG 2.2 + 独自 |
+| **Accessibility Audit（axe-core / Lighthouse）** | コントラスト比4.5:1・alt属性・ARIAロール・キーボードフォーカス移動を機械検査 | WCAG 2.2 AA / JIS X 8341-3 |
+| **LLM-Eval フレームワーク活用** | RAGAS（忠実性/関連性/完全性）/ DeepEval（G-Eval）/ promptfoo によるAI生成物の定量評価 | ISO/IEC 42001 |
+| **Observability-Driven QA（シフトライト）** | OpenTelemetry トレース・本番エラー率テレメトリで escape rate を自動計測・還元 | SRE / DORA |
+| **Provenance / Audit Trail（SLSA Level 3相当）** | 成果物の生成元・依存・変更履歴を暗号学的に追跡（承認正本化を監査証跡化） | ISO/IEC 42001 + SLSA |
+| **Chaos / Resilience Engineering 観点レビュー** | 障害注入シナリオ（通信断・権限不足・レート制限・外部API 5xx）での復旧性検証 | SRE Workbook |
+| **Pairwise / Combinatorial Testing** | n因子組合せ爆発をpairwise被覆で圧縮、クライアント×広告面×端末等の網羅効率化 | IEEE 29119-4 |
+| **Decision Table / State Transition テスト設計** | 業務ロジックを決定表・状態遷移図で網羅、建設業システムの承認フロー検証 | ISTQB Foundation |
+| **NG表現マスタ機械照合（景表法/薬機法/職安法）** | クライアント別・業種別NG辞書を正規表現＋意味類似度で全走査、noriへの法務ゲート自動化 | 景表法/薬機法/職安法 |
+
+### 5. 高度化する既存スキル
+
+| 既存スキル | Before | After（オーバースペック化） |
+|---|---|---|
+| 5軸共通基準 | 5軸 pass/conditional/fail | **ISO/IEC 25010:2023 の8品質特性×副特性（計31副特性）** にマッピング、副特性単位でpass実測値を記録 |
+| 6軸クロスチェック | 定量3軸自動＋手動3軸 | **Contract Testing形式** でエージェント間I/Oスキーマを正本化、6軸すべて自動照合＋版ズレ検知 |
+| 5系統カバレッジ | 正常/境界/異常/負荷/復旧 の網羅率 | **Mutation Score** を追加し「母集合が有効に欠陥を捕まえられるか」まで定量化 |
+| Severity3階層 | blocker/major/minor | **FMEA RPN値（1-1000）** を併記、Severity×Priorityの2軸マトリクスで優先度を数値化 |
+| オラクル版数 | KPI定義書ID＋期間境界 | **Semantic Versioning + 署名付きProvenance** で版数を暗号学的に紐付け、承認失効を自動発火 |
+| 承認正本（review.json） | ハッシュ+更新時刻 | **in-toto / SLSA attestation** 形式でAttestation Framework準拠、監査可能性を国際標準化 |
+| AI生成物裏取り | 一次情報突合 | **RAGAS Faithfulness スコア + G-Eval** で定量化、閾値≥0.85未満は blocker |
+| ハルシネーション検出 | 目視＋出典突合 | **複数LLM合議（Gemini+GPT+Claude）** + Chain-of-Verification（CoV）プロンプト適用 |
+| 法令NG表現 | noriへ回送（人手判断） | **クライアント別NG辞書 + 景表法/薬機法/職安法条文照合** を機械化、ヒット時のみnoriへ |
+| アクセシビリティ | 観点として明記のみ | **axe-core自動スキャン＋手動NVDA/VoiceOver検証** で WCAG 2.2 AA 完全準拠を機械判定 |
+| 日付・曜日・URL機械照合 | 自作スクリプト1本 | **CI統合（GitHub Actions）** 化し、Pull Request時点で自動報告、QAキュー到達前に修正ループ |
+| escape rate | 月次手動集計 | **DORA Metrics ダッシュボード** 連携、本番テレメトリ自動取り込み、傾向を観点テンプレへ自動反映 |
+
+### 6. 2026年版ツール・方法論スタック
+
+#### 検証ツール（指定ツール＋補完）
+| ツール | 用途 | 配置 |
+|---|---|---|
+| **Testim** | AI駆動UI自動テスト、セルフヒーリング | LP・業務システムE2E（UI変更追従） |
+| **Mabl** | Low-code E2E＋Visual Regression | 回帰検知・クロスブラウザ |
+| **Jest** | JavaScript/TypeScript 単体テスト | riku/ao の実装レビュー時に実行確認 |
+| **Playwright** | クロスブラウザE2E・API・モバイルエミュ | LP忠実度（mia連携）・求人LP応募導線確認 |
+| **BrowserStack** | 実機（iOS/Android/各OS）クラウド検証 | 現場条件プリセット（直射日光・手袋・通信断復帰） |
+
+#### 補完スタック
+| カテゴリ | ツール |
+|---|---|
+| アクセシビリティ | axe-core / Lighthouse / Pa11y / WAVE |
+| APIテスト | Postman / Newman / Insomnia / Pact |
+| 負荷・性能 | k6 / Locust / Artillery |
+| セキュリティ | OWASP ZAP / Burp Suite / SonarQube / Snyk |
+| LLM評価 | **promptfoo** / **RAGAS** / **DeepEval** / **TruLens** |
+| 可視化・レポート | Allure / ReportPortal / **Grafana + Prometheus** |
+| 証跡・監査 | **in-toto** / **SLSA** / Sigstore / GitHub Attestations |
+| オブザーバビリティ | **OpenTelemetry** / Datadog / New Relic |
+| Mutation Testing | Stryker / PIT / mutmut |
+
+#### 準拠する方法論・規格
+- ISTQB Advanced Level（Test Manager / Technical Test Analyst / Test Analyst）
+- ISO/IEC/IEEE 29119-1〜5（テスト国際規格全体）
+- JSTQB Advanced Test Manager（日本語版）
+- ISO/IEC 25010:2023（SQuaRE 製品品質）
+- ISO/IEC 42001:2023（AIマネジメントシステム）
+- ISO/IEC TR 24028（AI信頼性）
+- OWASP LLM Top 10（2025）/ OWASP ASVS 4.0.3
+- WCAG 2.2 Level AA / JIS X 8341-3:2016
+- JIS Q 9000 / 9001 / 25010
+- IEEE 730（Software Quality Assurance Plan）
+- CMMI for Services Level 3
+
+### 7. オーバースペック品質保証チェックリスト（60項目・階層化）
+
+#### A. 受付ゲート（中身を読む前の機械判定・12項目）
+- [ ] A-01: JSON Schema validation 通過（違反時は即差し戻し）
+- [ ] A-02: 固有名詞マスタ完全一致（宮村建設/清一建設等の表記揺れ検知）
+- [ ] A-03: 出典ファイル名の実在性＋改訂日・版の記載
+- [ ] A-04: 金額の税区分（税抜/税込）明記
+- [ ] A-05: 日付・曜日の整合＋過去日混入なし
+- [ ] A-06: 電話番号桁数・URL到達性（HTTPステータス 2xx）
+- [ ] A-07: 同一指標の内部整合（本文/グラフ/サマリーの数値一致）
+- [ ] A-08: 合計＝内訳の縦整合（構成比総和100%、丸め差明示）
+- [ ] A-09: 使用素材のライセンス種別・人物同意（媒体・期間・二次利用範囲）記録
+- [ ] A-10: 実データ含む場合のマスキング済み確認
+- [ ] A-11: 3点サマリー（verdict/key_message/blocking_issues）添付
+- [ ] A-12: 検証証跡（dry-run/idempotent/クリーン環境再現/5系統カバレッジ表）添付
+
+#### B. ISO/IEC 25010 品質特性レビュー（8特性・16項目）
+- [ ] B-01: 機能適合性（完全性・正確性・適切性）
+- [ ] B-02: 性能効率性（時間効率・資源効率・容量）
+- [ ] B-03: 互換性（共存性・相互運用性）
+- [ ] B-04: 使用性（適切度認識性・習得性・運用操作性・ユーザエラー防止性・UI快適性・アクセシビリティ）
+- [ ] B-05: 信頼性（成熟性・可用性・障害許容性・回復性）
+- [ ] B-06: セキュリティ（機密性・インテグリティ・否認防止性・責任追跡性・真正性）
+- [ ] B-07: 保守性（モジュール性・再利用性・解析性・修正性・試験性）
+- [ ] B-08: 移植性（適応性・設置性・置換性）
+- [ ] B-09〜B-16: 各特性×副特性のpass実測値（カバレッジ%・応答時間ms等）記録
+
+#### C. テスト設計技法網羅（ISTQB準拠・10項目）
+- [ ] C-01: 同値分割（Equivalence Partitioning）
+- [ ] C-02: 境界値分析（Boundary Value Analysis）
+- [ ] C-03: 決定表テスト（Decision Table）
+- [ ] C-04: 状態遷移テスト（State Transition）
+- [ ] C-05: ユースケーステスト（Use Case Testing）
+- [ ] C-06: Pairwise / Combinatorial 被覆
+- [ ] C-07: Property-Based 不変条件抽出
+- [ ] C-08: Mutation Score ≥ 75%
+- [ ] C-09: Risk-Based FMEA RPN値算出・上位20%重点検証
+- [ ] C-10: Chaos / Resilience シナリオ（通信断・5xx・レート制限・権限不足）
+
+#### D. AI生成物QA（OWASP LLM Top 10 + ISO/IEC 42001・10項目）
+- [ ] D-01: LLM01 プロンプトインジェクション耐性テスト
+- [ ] D-02: LLM02 機密情報漏洩チェック（PII・社内用語・顧客情報）
+- [ ] D-03: LLM03 訓練データポイズニング兆候
+- [ ] D-04: LLM04 モデルDoS耐性（長文・無限ループ入力）
+- [ ] D-05: LLM05 サプライチェーン整合性（モデル版数・プロンプト版数）
+- [ ] D-06: LLM06 機密情報開示（出力ログの機密混入）
+- [ ] D-07: LLM07 安全でないプラグイン設計（MCP連携時）
+- [ ] D-08: LLM08 過剰な権限委譲
+- [ ] D-09: LLM09 過度な依存（Chain-of-Verification 実施）
+- [ ] D-10: LLM10 モデル窃取耐性＋RAGAS Faithfulness ≥ 0.85
+
+#### E. 法令・倫理コンプライアンス（6項目）
+- [ ] E-01: 景品表示法（優良誤認・有利誤認・NO.1調査根拠）
+- [ ] E-02: 職業安定法第5条の3（労働条件明示13項目完全性）
+- [ ] E-03: 労働基準法第15条（求人原稿の条件相違防止）
+- [ ] E-04: 薬機法（美容/健康系の暗示表現）
+- [ ] E-05: 特定商取引法（通販系の表示事項）
+- [ ] E-06: 肖像権・著作権（媒体・期間・二次利用範囲）
+
+#### F. アクセシビリティ（WCAG 2.2 AA・6項目）
+- [ ] F-01: コントラスト比 ≥ 4.5:1（通常テキスト）/ 3:1（大テキスト・UI部品）
+- [ ] F-02: alt属性・ARIAロール付与
+- [ ] F-03: キーボード単独操作完結・フォーカス可視
+- [ ] F-04: 動画の字幕・音声解説
+- [ ] F-05: タップターゲット ≥ 44×44 px
+- [ ] F-06: axe-core/Lighthouse スコア ≥ 90
+
+### 8. 唯一無二化を証明するKPI
+
+| KPI | 定義 | 目標値 | 計測頻度 |
+|---|---|---|---|
+| **Escape Rate**（見逃し率） | QA通過後に下流で発覚した不具合 ÷ QA通過件数 | **< 0.5%** | 月次 |
+| **1st-Pass Yield**（初回合格率） | 1往復で通過した案件 ÷ 全案件 | **> 90%** | 月次 |
+| **Mean Time to Review（MTTR）** | 1件あたりの平均レビュー時間 | **< 15分** | 週次 |
+| **Defect Removal Efficiency（DRE）** | QAで検出した欠陥 ÷ 全欠陥（本番+QA） | **> 95%** | 月次 |
+| **Mutation Score** | テストスイートの変異検知率 | **≥ 75%** | 四半期 |
+| **Reviewer Agreement Rate** | QA+Sora独立レビューの判定一致率 | **≥ 85%** | 四半期 |
+| **Oracle Freshness** | オラクル版数の最終更新からの経過日数 | **< 30日** | 月次 |
+| **Severity-Priority Inversion Rate** | 低severity高priority案件の見落とし率 | **< 2%** | 月次 |
+| **Conditional-Approve Ratio** | 全approve中のconditional比率（インフレ監視） | **< 15%** | 月次 |
+| **AI Judge Agreement**（LLM合議一致率） | AI判定3モデルと人手の一致率 | **≥ 80%** | 月次 |
+| **Checklist Hit Rate** | チェックリスト項目の実効指摘率（90日ゼロは廃止検討） | **各項目 > 1件/90日** | 四半期 |
+| **本番Observability Loop時間** | 本番escape検出〜チェックリスト反映までの時間 | **< 7日** | 月次 |
+| **A受付ゲート弾き率** | 受付ゲートで中身読む前に差し戻した比率 | **30-50%**（上流品質底上げ指標） | 月次 |
+
+### 9. 連携強化マップ（越境スキル）
+
+| 連携先 | 強化内容 |
+|---|---|
+| **sora（COO最終QA）** | in-toto Attestation形式での監査証跡を標準化、SoraはAttestation検証のみで判断可能化 |
+| **nori（法務）** | 景表法/薬機法/職安法NG表現マスタの機械照合結果を自動投入、noriは判断のみに集中 |
+| **mio（09システム開発QA）** | 現場条件プリセット + Mutation Score + Chaos シナリオを要件定義段階で先渡し |
+| **kpi（横断KPIマネージャー）** | KPI定義書を Semantic Versioning＋署名付きProvenance でSSOT化、版数イベントで承認失効自動発火 |
+| **dat（横断データアナリスト）** | fan-out集計欠損・合計=内訳縦整合の自動照合スクリプトをDat側CIへ組込み、QA到達前に潰す |
+| **pm（横断PM）** | 定型合格条件スニペット5条件 + ISO 25010副特性チェックをWBSゲート条件に先渡し |
+| **gen（建設業DXナレッジ）** | 参照PDF改訂日・版・税区分を受付条件化、反証チェック・論点分解表を必須添付 |
+| **owl/bo（自動化）** | dry-run・idempotent・クリーン環境再現・dedup＋順序ガードを定型チェック表で統一 |
+| **mia（LP忠実度）** | Playwright + Visual Regression（Percy相当）観点を共通化、ピクセル差分を機械判定 |
+| **ryota（クライアント管理）** | 対外品質報告は「件数非開示＋観点＋残存リスク」テンプレで統一、quality_scoreは内部指標に留める |
+
+### 10. 継続成長プラン
+
+| 期間 | 施策 |
+|---|---|
+| **四半期（90日）** | チェックリスト棚卸し（90日ゼロ項目の統合・降格）、Reviewer Agreement測定、Mutation Score測定、Evalデータセット鮮度棚卸し |
+| **月次** | Escape Rate / 1st-Pass Yield / DRE / Conditional比率を可視化、観点ID別上位5の提出前セルフチェック表移管、本番Observability Loop還元 |
+| **週次** | MTTR測定、受付ゲート弾き率モニタリング、申し送り消込表の期限切れ検知 |
+| **都度** | 新規参画エージェント初回出力のリスクベース優先レビュー、オラクル版数更新時の影響先逆引き自動再レビュー発火 |
+| **半期** | ISO/IEC 25010 副特性×エージェント×クライアントの3次元品質マトリクス棚卸し、ISTQB相当スキル自己診断（CMMI成熟度評価） |
+| **年次** | ISO/IEC 42001 AIマネジメント内部監査、SLSA Attestation準拠レベル格上げ、国際規格の改訂追従（WCAG・OWASP LLM・ISO 29119） |
