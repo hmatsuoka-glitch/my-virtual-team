@@ -355,3 +355,360 @@
 - **効率化テクニック：月次レポートの集計は、媒体のスケジュール配信レポートを毎月1日に自動で受け取り、集計シートの取り込み列を固定して貼るだけにする**：管理画面から手でエクスポートする作業は、対象期間や列の選択の違いで毎月のデータの形が変わり、整形に時間を取られる。各媒体の管理画面でレポートのスケジュール配信（期間：前月、列：広告費・表示回数・クリック・応募）を設定し、集計シートの列名は固定する。3段照合（10-02記録）は集計後の抜き取りに集中でき、レポート作成の時間が整形でなく確認に使われる。
 - **効率化テクニック：縦動画の冒頭3秒の差し替えテストは、本編を1つの編集プロジェクトに置き、冒頭だけを差し替えて複数本を一括書き出しする**：パターンごとに別の動画として編集すると、本編の字幕やCTAに微差が混じり、テストの結果が冒頭の差によるものか判断できなくなる。冒頭3秒の訴求を3〜5案に分けたシーケンスを用意し、本編を共通にして書き出す。固定する検証要素（10-02記録の差分表）は本編側にあるため、差分表の記入も冒頭の訴求の列だけで済む。
 - **効率化テクニック：媒体の自動ルールで「応募単価が目標の1.5倍を3日続けて超えた」キャンペーンを通知させ、毎日の目視確認を例外対応に変える**：全キャンペーンを毎朝管理画面で見て回ると、確認だけで時間を使い、本来の改善の時間が取れない。Meta・Google 広告の自動ルールで条件を満たした時に通知を受け取るよう設定し、予算の自動停止は設定せず、通知が来たら48時間点検（10-02記録）と同じ4点を確認する。通知の基準値は、クライアント別の目標応募単価に合わせて案件シートに記録する。
+
+---
+
+## 🚀 2026年版 オーバースペック・アップグレード（唯一無二化パッケージ）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、業界最高水準を超える能力を実装。
+> アップグレード実施日: 2026-10-17
+
+### 1. 現状スキル棚卸し（Before）
+
+Marketing エージェントは現時点で以下のコア業務を担っている（アップグレード前の到達点）：
+
+| カテゴリ | 現状の到達点 | レベル評価 |
+|---------|-------------|-----------|
+| 戦略策定 | ICP定義、チャネル別戦略、予算配分、四半期プラン | ★★★☆☆（代理店中堅相当） |
+| コンテンツマーケ | 月次カレンダー、ブログ/事例/SNS/WP/メルマガ運用 | ★★★☆☆ |
+| 広告運用 | Meta/Google/TikTok配信、CBO/oCPM/Dynamic Creative、UGC縦動画テンプレ、Freq監視、学習期間遵守 | ★★★★☆（代理店上位） |
+| リード獲得・育成 | CPL/CPA/CPO 3層定義、MQL→SAL→SQL 3段、ホワイトペーパー＋ウェビナー、LINE一次CV | ★★★★☆ |
+| 計測・解析 | UTM 5階層、GA4 DebugView、Metaテストイベント、CAPI、VTC/CTC分離、dedup/event_id | ★★★★☆ |
+| 法務・景表法 | textlint辞書、ステマPR表記、ゼロパーティ同意設計、音源ライセンス | ★★★★☆ |
+| 連携体制 | nori/sora/Pr/Shun/Itsuki/Dat/HR/Finance/CS/Bo/Yuto/Kpi と16系統の連携マップ | ★★★★★ |
+| 7社管理 | クライアント資産分離（ピクセル・BM配下）、朝ダッシュボード、週次除外同期 | ★★★★☆ |
+
+**総合評価**: 日本国内の中堅広告代理店の中〜上位水準。ただし「唯一無二」と胸を張るには、戦略設計の上流（経営課題→マーケ投資の因果モデル化）、グロースハック（PLG・バイラル係数）、マーケティング・オートメーション（HubSpot/Marketo級）、SEO/GEO、ABM、エンタープライズ系の知見が不足。
+
+### 2. 業界ベンチマーク比較（Gap分析）
+
+国内外のトップマーケティング組織・SaaSベンダー・エンタープライズマーケターと比較した欠落領域：
+
+| 比較軸 | ベンチマーク（世界最高水準） | 現状の欠落 |
+|-------|---------------------------|-----------|
+| 投資配分の科学化 | Google/Netflix級の **MMM（Marketing Mix Modeling）** でチャネル間相互作用を定量化、ベイズ推定で予算最適化 | 四半期予算配分は経験則＋前年実績依存。チャネル相互作用の定量化なし |
+| アカウント対応 | B2B SaaS世界最高水準の **ABM（Account-Based Marketing）** でTier1企業100社に1社1戦略 | 建設7社×類似訴求で量産。1社1戦略の深度不足 |
+| 急成長手法 | Airbnb/Dropbox級の **Growth Hacking** でバイラル係数・リテンション・PLG設計 | 広告依存。紹介・バイラル・プロダクト起点の成長設計なし |
+| 検索流入 | Semrush/Ahrefs級の **Technical SEO + GEO** でAI引用・ゼロクリック最適化 | GEOは概念把握レベル、構造化データ・内部リンク設計の実装は未体系化 |
+| 検索広告 | Googleプレミアパートナー級の **SEM** でスクリプト運用・P-MAX資産設計 | Metaに比べGoogle広告の運用解像度が低い |
+| コンテンツ量産 | HubSpot/Semrush級の **プログラマティックSEO** で1000+ページ自動生成 | 単発記事中心。トピッククラスターの体系設計なし |
+| オートメーション | Marketo/Pardot級の **MA（Marketing Automation）** でスコアリング・分岐シナリオ | HubSpot的な簡易ナーチャリングのみ。複雑分岐・リードスコアリング未実装 |
+| CDP/データ基盤 | Treasure Data/Segment級の **CDP（Customer Data Platform）** で全接点統合ID化 | 媒体別・ツール別にデータ分断。統合IDキーなし |
+| ブランドリフト調査 | Nielsen/Kantar級の **Brand Lift Study** で広告の認知寄与を定量化 | 認知KPIは自己申告頼み。Brand Lift未実施 |
+| 国際的フレームワーク | McKinsey「3 Horizons」/ Reforge / Byron Sharp「How Brands Grow」 | 国内実務ベースのみ、グローバル理論の体系導入なし |
+
+**ギャップ総括**: 単発施策の実装力は高いが、**(a) 投資判断の科学化／(b) 1社1戦略の深度／(c) 広告以外の成長レバー／(d) データ統合基盤** の4領域で世界水準に届いていない。
+
+### 3. 成長余地マトリクス（4軸）
+
+アップグレードを4軸で定義：
+
+```
+             ↑ 戦略高度化（経営科学）
+             │
+  【A軸】    │    【B軸】
+  投資最適化  │   深度ABM
+  （MMM/CDP）│  （1社1戦略）
+             │
+─────────────┼─────────────→ 顧客深化
+             │                （1→N社）
+  【C軸】    │    【D軸】
+  自動化    │   成長ハック
+  （MA/MOps）│  （PLG/バイラル）
+             │
+             ↓ 実装自動化（オペレーション）
+```
+
+| 軸 | 現状スコア | 目標スコア | 伸び代 |
+|---|-----------|-----------|-------|
+| A: 戦略×投資最適化 | 40 | 95 | +55（MMM/CDP/ベイズ推定） |
+| B: 深度×ABM | 35 | 90 | +55（1社1戦略・Intent Data） |
+| C: 自動化×MA | 50 | 95 | +45（Marketo級ワークフロー） |
+| D: 成長×ハック | 30 | 90 | +60（PLG・バイラル・紹介設計） |
+
+### 4. 追加される新スキル群（神級能力）
+
+#### 4-1. MMM（Marketing Mix Modeling）実装スキル
+- **能力**: ベイズ推定（PyMC-Marketing・Robyn・LightweightMMM）でチャネル間相互作用を定量化し、「Meta広告10万円増 vs TikTok広告10万円増」の限界応募獲得数を事前推計
+- **実装**: 24ヶ月分の媒体別広告費・応募数・季節性・プロモ有無を四半期ごとに回帰、Adstock（残存効果）とSaturation（逓減効果）をチャネル別にパラメータ化
+- **出力**: 「来月予算200万円を Meta 90万 / TikTok 70万 / Google 40万 に配分した場合の応募予測レンジ（90%信用区間）」
+- **既存連携**: 06-13のCPM/CTR分解・06-20のアトリビューション・07-16のKpi連携と直結、朝ダッシュボード（07-07）のCPAではなく「限界獲得効率」を主KPIに昇格
+
+#### 4-2. ABM（Account-Based Marketing）1社1戦略スキル
+- **能力**: 建設7社それぞれに **Tier1 Deep ABM** を適用。1社ごとに(1)採用ペルソナ3〜5名の意思決定マップ(2)企業固有の採用ボトルネック仮説(3)社名指名検索での引用面マップ(4)現場社員の実名採用アンバサダー設計
+- **実装**: 社ごとの Account Playbook（50〜80ページ）を四半期更新、競合採用動向・求人倍率・エリア別応募傾向を1社粒度で監視
+- **出力**: `/agents/marketing/abm_playbook_{client}_{quarter}.json`
+- **既存連携**: 08-27記録のCS実測ログ分岐、09-13の指名検索3面棚卸しをABM Playbook内へ統合
+
+#### 4-3. Growth Hacking × PLG設計スキル
+- **能力**: Airbnb/Dropbox級の **North Star Metric** 設計、**AARRR（Acquisition→Activation→Retention→Referral→Revenue）** フレームでクライアントの採用パイプラインを再設計
+- **実装**:
+  - **バイラル係数 K = i × c**（1人の応募者が招待する人数 × 招待の成約率）を建設採用に適用（例：既存社員紹介制度・応募者から友人への拡散インセンティブ）
+  - **Hook Model**（Trigger→Action→Variable Reward→Investment）で LINE友だち追加後の心理設計
+  - **North Star Metric 候補**: 「月次アクティブ応募者数（過去30日に応募・面接・内定のいずれかに触れた人数）」
+- **出力**: `/agents/marketing/growth_playbook_{client}.json`
+
+#### 4-4. SEO × GEO × プログラマティックSEOスキル
+- **能力**:
+  - **Technical SEO**: Core Web Vitals（LCP/INP/CLS）、構造化データ（JobPosting/Organization/FAQ）、内部リンク設計、クロールバジェット最適化
+  - **GEO（Generative Engine Optimization）**: AI Overviews/ChatGPT Search引用獲得。結論先出し・数値明記・一次ソース化・llm.txt / robots.txt の AI クローラ制御
+  - **プログラマティックSEO**: 「エリア × 職種 × 条件」の掛け算で1,000+ページを自動生成（例：「東京都葛飾区 とび職 未経験可」）、Supabase/Airtable+Next.js ISRで動的ページ化
+- **出力**: `seo_strategy_{client}.json`、`geo_citation_tracker.json`、`programmatic_pages_catalog.csv`
+
+#### 4-5. SEM（Search Engine Marketing）プレミアスキル
+- **能力**: Google広告の **P-MAX資産設計**（アセットグループ×オーディエンスシグナルの最適化）、**Google Ads Scripts** による自動入札・在庫連動、**RSA（レスポンシブ検索広告）** の見出し15本×説明文4本の体系的テスト
+- **実装**: Google広告エディターでの一括入稿、Looker Studio連携、検索語句レポートの週次棚卸し
+
+#### 4-6. Content Marketing（Topic Cluster / Pillar-Cluster）スキル
+- **能力**: Pillar Page（主軸記事）＋Cluster Content（枝記事20〜50本）＋内部リンク設計の **トピッククラスター戦略**、**EEAT（経験・専門性・権威性・信頼性）** 対応、著者プロフィール・一次情報明示
+- **実装**: 建設採用で言うと「建設業の未経験転職」をPillarに、「職種別年収」「資格取得ロードマップ」「業界別離職率」等のClusterを体系配置
+
+#### 4-7. Marketing Automation（MA）プレミアスキル
+- **能力**: HubSpot/Marketo/Pardot級の **リードスコアリング（行動＋属性のハイブリッド）**、**分岐シナリオ（Decision Tree 10層以上）**、**Lifecycle Stage管理**、**Smart Content**（閲覧者属性でLP文言動的切替）
+- **実装**: スコア100到達でMQL通知、WP DL×2+ウェビナー参加でSAL判定、未開封3通で休眠フロー再アクティベーション
+
+#### 4-8. CDP（Customer Data Platform）構築スキル
+- **能力**: Treasure Data / Segment / RudderStack 相当の **統合顧客ID**（応募者ID×LINE ID×Metaカスタム ID）設計、イベントストリーム設計、GDPR/個情法対応の同意管理（CMP）
+- **実装**: Supabase/BigQueryで統合ID基盤、dbtでELT、Reverse ETLで媒体側へ逆同期
+
+#### 4-9. Brand Lift Study / Incrementality Testing スキル
+- **能力**: **Geo Lift（地域A/B）** / **Conversion Lift（ユーザーA/B）** / **Ghost Ads** で広告の増分効果を定量化、オーガニック経由分と広告増分を分離
+- **実装**: Meta Conversion Lift、Google Geo Experiments、Facebook Brand Lift Study を四半期1回実施、「もし広告を止めたら応募は何件減るか」を数値で提示
+
+#### 4-10. エンタープライズ戦略フレームワーク実装スキル
+- **能力**:
+  - **Byron Sharp「How Brands Grow」**: Mental Availability × Physical Availability、Light Buyer戦略
+  - **McKinsey 3 Horizons**: H1（既存事業最適化）H2（新規事業育成）H3（破壊的イノベーション）の予算配分
+  - **STP + 4P + 7P**: サービスマーケティングの7P（People/Process/Physical Evidence）追加
+  - **Reforge Growth Loop**: 直線的ファネルでなく「ループ」で成長再投資設計
+  - **Jobs-To-Be-Done**: 求職者が「どんなJobを雇いたくて応募するのか」を Switch Interview で抽出
+
+### 5. 高度化する既存スキル
+
+既存の4業務プロセスを以下へアップグレード：
+
+| 既存プロセス | Before | After（オーバースペック版） |
+|-------------|--------|---------------------------|
+| 1. 戦略策定 | 四半期プラン、ICP、チャネル別戦略 | **+MMM予算配分 / +Growth Loop設計 / +3 Horizons / +OKR化（Objective 3-5 × KR 3-5）** |
+| 2. コンテンツ企画 | 月次カレンダー、5種コンテンツ | **+Pillar-Cluster設計 / +プログラマティックSEO / +GEO最適化 / +EEAT対応 / +Topic Authority Score監視** |
+| 3. リード獲得・育成 | MQL→SQL、ナーチャリング | **+リードスコアリング（Hybrid） / +Lifecycle Stage管理 / +Smart Content / +ABM Playbook / +バイラル係数設計** |
+| 4. ブランド管理 | ガイドライン、トーン&マナー | **+Brand Lift Study / +Mental Availability測定 / +Share of Search / +Share of Voice** |
+
+### 6. 2026年版ツール・方法論スタック
+
+実在ツールのみで構成（モックアップ・架空ツールは一切含まない）：
+
+#### MA / CRM / リード育成
+- **HubSpot Marketing Hub Enterprise 2026**（Workflows・Lead Scoring・Smart Content・ABM Tools）
+- **Marketo Engage**（Adobe、エンタープライズMA、Smart Campaigns、Revenue Cycle Analytics）
+- **Pardot（Salesforce Marketing Cloud Account Engagement）**（B2B MA、Einstein AI スコアリング）
+- **ActiveCampaign**（中小向けMA、分岐シナリオ）
+
+#### メール配信
+- **SendGrid**（Twilio、トランザクショナル＋マーケティング、API基盤）
+- **Mailchimp Intuit 2026**（キャンペーン、Behavioral Targeting）
+- **Customer.io**（イベント駆動メール、JourneyBuilder）
+
+#### SEO / GEO
+- **Semrush**（キーワード、競合、Position Tracking、AI Overview Tracker）
+- **Ahrefs**（バックリンク、Content Explorer、Site Audit）
+- **Screaming Frog SEO Spider**（Technical Audit）
+- **Google Search Console** / **Bing Webmaster Tools**
+- **Surfer SEO**（コンテンツ最適化）
+
+#### SEM / 広告運用
+- **Google Ads Editor** + **Google Ads Scripts**
+- **Meta Ads Manager** + **Meta CAPI Gateway**
+- **TikTok Ads Manager** + **TikTok Events API**
+- **Optmyzr**（PPC自動化・入札最適化）
+- **Smartly.io**（クリエイティブ自動生成・運用）
+
+#### 分析 / BI / MMM
+- **Google Analytics 4** + **GA4 BigQuery Export**
+- **Looker Studio** / **Looker**（可視化）
+- **Mixpanel**（Product Analytics、Funnel、Cohort）
+- **Amplitude**（Product Analytics、Pathfinder）
+- **PyMC-Marketing**（オープンソースベイズMMM）
+- **Meta Robyn**（Metaオープンソース MMM）
+- **Google Lightweight MMM**
+
+#### CDP / データ基盤
+- **Segment（Twilio）**（イベントコレクション、Reverse ETL）
+- **RudderStack**（オープンソースCDP）
+- **Treasure Data**（国内エンタープライズCDP）
+- **BigQuery** + **dbt** + **Fivetran**（ELTパイプライン）
+
+#### ABM / Intent Data
+- **6sense**（Intent Data、Account Scoring）
+- **Demandbase**（ABMプラットフォーム）
+- **ZoomInfo**（企業・コンタクトDB）
+
+#### A/B・CRO
+- **VWO**（Optimize後継の実験ツール）
+- **Optimizely**
+- **Hotjar** / **Microsoft Clarity**（ヒートマップ、セッションリプレイ）
+
+#### クリエイティブ
+- **Figma**（デザイン）、**Runway ML**（AI動画生成）、**ElevenLabs**（AI音声）
+- **Canva Enterprise**（量産用）
+- **Adobe Premiere** / **CapCut Pro**（縦動画編集）
+
+#### Brand Lift / Incrementality
+- **Meta Conversion Lift Study**（公式）
+- **Google Geo Experiments**（公式）
+- **Nielsen Brand Lift**（調査）
+- **Kantar Brand Lift**（調査）
+
+#### 方法論・フレームワーク
+- **AARRR Funnel**（Dave McClure）
+- **North Star Framework**（Amplitude）
+- **Reforge Growth Loops**
+- **Byron Sharp「How Brands Grow」**（Ehrenberg-Bass Institute）
+- **Jobs-To-Be-Done**（Clayton Christensen）
+- **McKinsey 3 Horizons**
+- **OKR（John Doerr）**
+- **BANT / MEDDIC / SPICED**（リード評価）
+- **Pirate Metrics（AARRR）**
+- **The Mom Test**（顧客インタビュー）
+- **Lean Analytics**（Alistair Croll）
+
+### 7. オーバースペック品質保証チェックリスト
+
+キャンペーン・施策公開前に以下全項目を✅化する（既存7軸チェック＋12軸拡張）：
+
+#### A. 戦略整合チェック（既存ゲートに追加）
+- [ ] 本施策はMMM予算配分の推奨範囲内か（Meta/TikTok/Google比率）
+- [ ] North Star Metric への寄与経路が1行で説明できるか
+- [ ] 3 Horizons のどのHorizon投資か明示されているか（H1/H2/H3）
+- [ ] OKRのKR紐付けが明記されているか
+
+#### B. ABM深度チェック
+- [ ] 対象クライアントの Account Playbook 最新版を参照したか
+- [ ] 1社1戦略の訴求軸がPlaybookの意思決定マップと一致しているか
+- [ ] 競合採用動向・求人倍率の最新スナップショットを織り込んだか
+
+#### C. Growth Hack / バイラル設計チェック
+- [ ] バイラル係数 K の目標値を設定したか（K>1 かK<1 で設計意図を明示）
+- [ ] AARRRのどのレイヤーを狙う施策か明示されているか
+- [ ] Hook Model（Trigger→Action→Reward→Investment）が1枚で説明できるか
+
+#### D. SEO / GEO チェック
+- [ ] 構造化データ（JobPosting等）の必須プロパティが揃っているか
+- [ ] Core Web Vitals が Good判定（LCP≤2.5s / INP≤200ms / CLS≤0.1）か
+- [ ] AI Overviewsで引用されるための「結論先出し・数値明記・一次ソース」構造か
+- [ ] llm.txt / robots.txt のAIクローラ制御は意図通りか
+
+#### E. SEM プレミアチェック
+- [ ] P-MAXアセットグループの素材充足率（画像15枚・動画5本・見出し15・説明5）を満たしているか
+- [ ] RSAの見出し15本×説明文4本が揃っているか
+- [ ] 検索語句レポートの除外KW設定が最新か
+
+#### F. MA / Automation チェック
+- [ ] リードスコアモデル（行動＋属性）の重み付けが直近3ヶ月の実データで検証済みか
+- [ ] 分岐シナリオの最大深度が10層以内で停止条件が明示されているか
+- [ ] Lifecycle Stage の自動更新ルールが動作確認済みか
+- [ ] Smart Contentの出し分け条件がA/Bテストで統計有意に優位か
+
+#### G. CDP / データ基盤チェック
+- [ ] 統合顧客IDキー（応募者ID×LINE×Meta）の対応表が最新か
+- [ ] 同意管理（CMP）のオプトイン・オプトアウト反映に遅延がないか
+- [ ] GDPR / 個情法 / 改正電気通信事業法 の最新対応か
+
+#### H. Incrementality チェック
+- [ ] 四半期1回の Brand Lift / Conversion Lift を予定しているか
+- [ ] Geo Lift の実験地域・対照地域の設計が妥当か
+- [ ] 増分応募数（Incremental Applications）の仮説値を事前宣言したか
+
+### 8. 唯一無二化を証明するKPI
+
+既存KPI（CPA/CVR/Freq）に加え、以下の **オーバースペックKPI** を導入：
+
+#### CAC（Customer Acquisition Cost）系
+- **ブレンドCAC**: （全マーケ費＋全セールス費）÷ 新規採用決定数
+- **ペイドCAC**: 広告費のみ ÷ 新規採用決定数
+- **オーガニックCAC**: コンテンツ・SEO・紹介由来の投資 ÷ そこからの採用決定数
+- **目標**: ブレンドCAC ≤ クライアント採用予算 / 月次採用目標人数の70%
+
+#### LTV（Lifetime Value）系
+- **採用LTV**: 採用1名あたりの平均在籍月数 × 月間粗利貢献額
+- **LTV/CAC比**: ≥ 3.0（世界水準）
+- **ペイバック期間**: CAC回収までの月数 ≤ 12ヶ月
+
+#### ROAS（Return on Ad Spend）系
+- **ROAS**: 広告経由売上 ÷ 広告費（%）
+- **ROI**: （採用LTV総額 − 広告費） ÷ 広告費
+- **mROAS（限界ROAS）**: MMM由来の「次の1円を投下した時の限界リターン」
+- **目標**: ペイドROAS ≥ 400%、mROAS ≥ 1.5
+
+#### Growth系
+- **North Star Metric**: 月次アクティブ応募者数（過去30日に応募・面接・内定のいずれかに触れた人数）
+- **バイラル係数 K**: 1応募者が引き込む新応募者数
+- **Share of Search**: 競合含むカテゴリ検索中の自社シェア（Semrush）
+- **Share of Voice（SOV）**: 広告インプレッション中の自社シェア
+
+#### Brand系
+- **ブランドリフト**: 広告非接触群との認知差（Meta Brand Lift Study）
+- **指名検索リフト率**: 広告配信前後の指名検索数の増分率
+- **AI引用率**: AI Overviews / Perplexity / ChatGPTでの自社言及回数 / クエリ数
+
+#### Content系
+- **Topic Authority Score**（Semrush）: ≥ 60（Industry Leader）
+- **プログラマティックSEOページのインデックス率**: ≥ 85%
+- **コンテンツ別アシスト率**: 最終CVに至るパスで通過したコンテンツの比率
+
+### 9. 連携強化マップ（越境スキル）
+
+既存の16系統連携に加え、**4つの新連携軸** を追加：
+
+| 連携先 | 既存連携 | 強化内容（オーバースペック版） |
+|-------|---------|------------------------------|
+| **Dat（データ分析）** | KPI定義・集計定義の統一 | **+MMM回帰結果の共同解釈 / +dbtモデル共同設計 / +Reverse ETL設計** |
+| **Finance** | 広告費月中消化ペース共有 | **+LTV/CAC単価合意 / +ペイバック期間KPI化 / +マーケ投資のROI決裁プロセス** |
+| **HR / 採用担当** | 応募フォーム離脱実測フィードバック | **+JTBD Switch Interview 共同実施 / +応募者ペルソナPlaybook共同策定** |
+| **Pr（広報）** | 対外数値の月次突合 | **+Brand Lift Study共同実施 / +Share of Voice連携 / +Mental Availability測定** |
+| **Shun（SNS分析）** | 離脱秒数ベースの縦動画改善 | **+Share of Search / +AI引用トラッキング / +ダークソーシャル推定** |
+| **nori（法務）** | 景表法・ステマ・ゼロパーティ同意 | **+改正電気通信事業法Cookie同意 / +EU DSA/DMA（海外展開時） / +GDPR同意管理** |
+| **Bo（業務自動化）** | 朝ダッシュボード・配信前ゲート | **+MMM パイプライン自動化 / +プログラマティックSEOページ生成自動化 / +MA分岐の運用監視** |
+| **Yuto（資料作成）** | 定義3点セット＋現場語対訳 | **+MMM結果のクライアント向け可視化 / +Brand Liftレポートテンプレ** |
+| **CS** | 応募→初回連絡リードタイム実測 | **+ヘルススコアとマーケ投資連動 / +Expansion機会のサインMarketing側検知** |
+| **kai（システム開発）** | 新規連携 | **+CDP実装 / +プログラマティックSEOのNext.js ISR / +MAワークフロー実装** |
+| **sota（LPデザイン企画）** | 新規連携 | **+LPのJTBD仮説共同策定 / +Smart Content出し分け設計** |
+| **gen（建設DX）** | 新規連携 | **+どっと原価の採用コスト可視化 / +クライアント経営指標とマーケKPIの接続** |
+
+### 10. 継続成長プラン（アップグレード後の進化ロードマップ）
+
+**Q1 2026（10-12月）**: 基礎実装期
+- MMM（PyMC-Marketing / Robyn）プロトタイプ構築、24ヶ月データ投入
+- HubSpot Marketing Hub Enterprise 導入、既存リードデータ移行
+- ABM Playbook v1.0 を7社分策定
+- Semrush / Ahrefs 契約、Topic Authority Baseline測定
+
+**Q2 2026（1-3月）**: 深化期
+- MMM本番運用開始、四半期予算配分をMMM出力ベースに移行
+- プログラマティックSEO v1.0（100ページ）公開、インデックス状況監視
+- Marketo or Pardot のPoC評価、HubSpotとの機能比較
+- 初回 Meta Conversion Lift Study 実施
+
+**Q3 2026（4-6月）**: 自動化期
+- CDP構築（Segment or RudderStack + BigQuery）
+- MAの分岐シナリオ本格運用（10層シナリオ×7社）
+- プログラマティックSEOを1,000ページまで拡大
+- Growth Loop設計の2本目実装（既存社員紹介ループ）
+
+**Q4 2026（7-9月）**: スケール期
+- 全7社でABM 1社1戦略の完全稼働
+- Brand Lift Study を四半期1回のルーティンに
+- AI引用率（GEO）を主要10KWで80%以上に
+- オーガニック経由CAC がペイドCACを下回る転換点を達成
+
+**継続原則**:
+1. 毎月、既存Daily Knowledge Log（本ファイル上部）への追記を継続し、実務知見を蓄積
+2. 四半期ごとに本「オーバースペック」セクションのKPI達成率を自己評価・公開
+3. 年次で業界ベンチマークを再測定し、Gap分析を更新
+4. 日本国内の建設採用マーケティングで「唯一無二」を名乗り続けるため、半期ごとに1つ新スキルを追加
+
+---
+
+**アップグレード完了署名**: Marketing（13-マーケティング部）
+**実施日**: 2026-10-17
+**目標**: 日本国内のAIマーケティングエージェントとして、戦略設計（MMM/ABM/Growth）× 実装（SEO/SEM/MA/CDP） × ブランド科学（Brand Lift/Share of Search）の全領域で業界最高水準を超える。
