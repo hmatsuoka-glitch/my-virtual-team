@@ -498,3 +498,307 @@ const banners = [
 - **効率化テクニック「ブラウザは1回だけ起動し、サイズごとに `setViewport` を切り替えて同じ page で撮影する」**：HTMLごとに `puppeteer.launch()` し直すと1回あたり1〜2秒の起動時間が枚数分かかる。1つのブラウザを使い回して `page.setViewport({width, height, deviceScaleFactor:2})` と `goto` だけを繰り返せば、20枚規模のバッチで30秒前後の短縮になる。バッチの最後に `browser.close()` を `finally` で必ず呼ぶ。
 - **効率化テクニック「入力HTMLと参照画像のハッシュを保存し、変わっていないファイルは再撮影しない」**：1枚のコピー差し替えで全サイズを撮り直すと、変更のない枚数分の時間が無駄になる。HTML本体と読み込む画像のSHA-256を `.hash.json` に残し、前回と同じものはスキップ、変わったものだけ撮影する。出力の決定性確認（2026-10-09）とは別に、入力側の変更検知として使う。
 - **効率化テクニック「撮影は並列数3〜4に制限して回し、検証（寸法・容量）を同じループ内で流して失敗した枚だけ再撮リストに載せる」**：全部撮ってから検証すると、1枚の失敗で全体をやり直しがちになる。`p-limit(3)` で並列撮影し、`sharp(file).metadata()` と `fs.statSync().size` を撮影直後に実行して、NGの枚だけ `retry.json` に出す。
+
+---
+
+## 🚀 2026年版 オーバースペック・アップグレード（唯一無二化パッケージ）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、業界最高水準を超える能力を実装。
+> アップグレード実施日: 2026-10-17
+
+### 1. 現状スキル棚卸し（Before）
+
+| カテゴリ | 現状保有スキル | 到達レベル |
+|---|---|---|
+| ブラウザ自動化 | Puppeteer（launch/goto/screenshot/clip）、`--headless=new`固定、Chrome for Testing バージョン固定 | 業界平均+1σ |
+| 画像処理 | sharp（metadata/resize/withMetadata/ensureAlpha/raw）、pngquant、ImageMagick（CMYK変換のみ） | 業界平均+2σ |
+| 待機制御 | `document.fonts.ready` / `fonts.check(weight)` / `getAnimations().finished` / `<img>.complete` / CSS背景プリロードの5点一括 `preparePage()` | 国内最高水準 |
+| 透過保証 | `omitBackground:true` + body transparent + `ensureAlpha()` + `channels===4` assert の4段防御 | 国内最高水準 |
+| 色管理 | sRGB正規化（`withMetadata({icc:'srgb'})`）、Display P3→sRGB検知、CMYK案件分岐、ΔE2000 色差測定 | 業界平均+2σ |
+| 媒体別出力 | `compression-profile.json`（scale/quality/maxKB/avif）、`fitToSize()` 二分探索、媒体別許容フォーマット列 | 国内最高水準 |
+| 並列・キュー | `Promise.allSettled` + rejected→`retry-failed.json`、ブラウザプール、`puppeteer.connect`常駐、`p-limit(3-4)` | 業界平均+2σ |
+| 検証自動化 | `validateBanner()` 6観点（容量/解像度/ICC/クリアスペース/4ch/文字密度）、pre-commit+CI 二段ゲート、qa-fixtures | 国内最高水準 |
+| 多形式出力 | PNG + WebP + AVIF の3形式同時出力、`emit(buf, [...])` 配列API、fallback PNG必須検証 | 業界平均+2σ |
+| 共有資産 | `@let-inc/banner-utils` GitHub Packages配信、LP部/システム部横断利用 | 国内最高水準 |
+| 法務機械チェック | tesseract.js OCR で禁止ワード（絶対/必ず/No.1/完全保証）検出 → nori二経路通知 | 国内最高水準 |
+| 用語体系 | DPR/deviceScaleFactor/PPI、可逆/非可逆、ストレート/プリマルチプライド、Adam7、ガンマ、クロマサブサンプリング、Lanczos3 | 業界平均+2σ |
+
+**総合評価**: 既に国内バナー制作ワークフローの最先端。ただし「2026年後半以降の媒体仕様改定」「AI/XR 時代の広告面」「国際配信・多言語」で未踏領域が残る。
+
+### 2. 業界ベンチマーク比較（Gap分析・最低5項目）
+
+| # | 項目 | 国内一般制作現場 | 世界最高水準（Google/Meta/Amazon 2026） | Hiro 現状 | Gap |
+|---|---|---|---|---|---|
+| G1 | 媒体別入稿前自動フィット | 固定scale/quality、手動容量確認 | ML駆動の perceptual quality 自動調整（SSIM/VMAF ベース） | `fitToSize()` 二分探索（容量ベース） | **知覚品質メトリクス未導入** |
+| G2 | 動的バリアント生成 | 1案件=1デザイン、手動展開 | DCO（Dynamic Creative Optimization）で属性×訴求軸を自動掛け合わせ | HTMLテンプレ+CSS Variables で色/文言差替 | **訴求軸マトリクス展開の自動化未達** |
+| G3 | ピクセルパーフェクト回帰QA | 目視比較、たまに diff ツール | Visual Regression Testing（Percy/Chromatic/Playwright screenshot assertions）CI組込 | pixelmatch で1%閾値、snapshot ハッシュ比較 | **意味的回帰（レイアウト構造）未検出** |
+| G4 | アクセシビリティ機械保証 | 目視でコントラスト確認 | WCAG 2.2 / 3.0 draft 自動検証（contrast / 読み上げ順序 / alt） | コントラスト 5:1 を sharp で輝度差検証 | **WCAG 2.2 Focus Appearance / Target Size（AAA）未対応** |
+| G5 | パーソナライゼーション連動 | クライアント別デザイン | ユーザークラスタ別クリエイティブ最適化（CTR / 離脱率で自動選択） | 媒体別 compression-profile のみ | **CTR フィードバックループ未接続** |
+| G6 | ランタイム画像配信最適化 | 入稿時PNG固定 | Vercel Image Optimization / Cloudflare Images / Akamai Image Manager で デバイス別自動配信 | AVIF+WebP+PNG 3形式同梱まで | **CDN配信層ロジックとの双方向連携未達** |
+| G7 | AI生成素材との統合 | 手作業合成 | Stable Diffusion XL / FLUX / Midjourney v7 を素材パイプラインに組込、プロンプト→素材→合成を自動化 | 外部素材を受領するのみ | **生成AI素材オーケストレーション未実装** |
+| G8 | 多言語・多地域配信 | 日本語固定 | ICU MessageFormat / 右書き言語 / 多バイト文字幅での自動レイアウト調整 | 日本語 Noto Sans JP 固定 | **多言語テンプレート未対応** |
+| G9 | モーション広告対応 | 静止画のみ | APNG / Lottie / MP4 / WebM 自動書き出し、動画広告はffmpeg連携 | 静止画PNG専任、Toma連携時はカバーのみ | **動画書き出しレーン未保有** |
+| G10 | リアルタイム観測 | 納品で完了 | 配信後の impression / viewability / CTR を納品物にフィードバック | 納品時点で終了 | **納品物の配信実績との紐付け未達** |
+
+### 3. 成長余地マトリクス（4軸）
+
+```
+            │  高速化（Speed）
+            │
+   深化     │   新規開拓
+  (Depth)   │  (Expansion)
+────────────┼────────────
+   自動化   │   品質保証
+(Automation)│  (Quality)
+            │
+            │  信頼性（Reliability）
+```
+
+| 軸 | 現状の強み | 未踏の伸び代 | 攻めるアクション |
+|---|---|---|---|
+| **深化 Depth** | 用語体系（DPR/ガンマ/クロマサブサンプリング）、4段透過防御 | HDR / 10bit / Rec.2020 広色域、知覚モデル SSIM/VMAF/Butteraugli | 知覚品質メトリクスをパイプラインに組込、HDR 入稿案件に備える |
+| **新規開拓 Expansion** | PNG/WebP/AVIF 3形式 | APNG/Lottie/WebM 動画書き出し、XR広告（WebXR/USDZ）、多言語レイアウト | モーションレーン新設、Toma連携で動画サムネ→静止画の双方向化 |
+| **自動化 Automation** | pre-commit+CI 二段ゲート、差分ビルド、キャッシュ | DCO（訴求軸マトリクス自動展開）、CTR フィードバックループ、AI素材オーケストレーション | ジョブ投入 → 自動バリアント生成 → 配信実績回収 までを1本の制御面に |
+| **品質保証 Quality** | 6観点 `validateBanner()`、qa-fixtures | WCAG 2.2 完全準拠、多端末実機エミュレーション、意味的回帰（レイアウト構造の差分） | WCAG 完全準拠ゲート、Playwright Device エミュレーション網 |
+
+### 4. 追加される新スキル群（8本の神級能力）
+
+#### S1. 知覚品質メトリクス駆動の自動画質最適化（SSIM/VMAF/Butteraugli）
+- `fitToSize()` の容量二分探索を、SSIM≥0.98 かつ Butteraugli pDist<1.5 を満たす最大圧縮点へ切り替え
+- 「容量に収めた」から「人間の目に劣化が見えない上限まで圧縮した」へ到達
+- 媒体の再エンコード耐性も加味し、入稿前 85% ルール（2026-07-01）を SSIM 基準で動的化
+
+#### S2. Dynamic Creative Optimization（DCO）オートバリアント生成
+- 訴求軸マトリクス（給与/勤務地/福利厚生）×色パターン×サイズを `variants.yaml` 定義
+- 1 HTML テンプレ × N 訴求軸 × M 色 × K サイズ = N×M×K 枚を1コマンドで一括書き出し
+- 建設業クライアント7社×3訴求軸×5色×6サイズ = 630枚規模が1ジョブで完結
+
+#### S3. WCAG 2.2 AAA 完全自動検証
+- Focus Appearance（SC 2.4.11）/ Target Size（SC 2.5.5）/ Consistent Help（SC 3.2.6）/ Redundant Entry（SC 3.3.7）
+- 色コントラスト 7:1（AAA）/ 文字サイズ 18pt以上 / 下線・太字の二重識別 / 動的要素のタイム制御
+- バナー静止画でも「クリック相当面積・読み上げ順序想定・代替テキスト」を機械検証
+
+#### S4. Playwright 1.50 マルチブラウザ検証網
+- Chromium / Firefox / WebKit の3エンジン並列スクリーンショットで媒体別レンダ差を可視化
+- iPhone Safari の `-webkit-mask` 挙動差、Android Chrome の `font-feature-settings` 差を事前検知
+- Puppeteer既存資産は維持しつつ、WebKit 検証だけ Playwright を薄く重ねる Hybrid 戦略
+
+#### S5. AI 素材オーケストレーター（Stable Diffusion XL / FLUX / Midjourney v7 API）
+- クライアントブランドトークン JSON から「プロンプト自動生成 → 素材生成 → 高解像度化（Real-ESRGAN）→ sRGB 正規化 → HTML 埋込」を1パイプライン
+- 肖像権リスクを抑えた「建設業向けモデル画像」を自前生成で量産
+- 生成素材は `brand-tokens/{client}.json` と ΔE2000 で色域照合、ブランド逸脱を自動検出
+
+#### S6. モーションレーン（APNG / Lottie / WebM / MP4 書き出し）
+- 静止画バナーと同じ `preparePage()` で CSS アニメーションを3-5秒 WebM に書き出し（Puppeteer `page.evaluate` + MediaRecorder API）
+- Toma の TikTok カバー→本編連続性案件で、カバー静止画＋同背景色の遷移動画をセット納品
+- Lottie（Bodymovin）JSON 書き出しで Instagram/TikTok の軽量モーション広告にも対応
+
+#### S7. Vercel Image Optimization / Cloudflare Images / CDN 双方向連携
+- 納品物を `kuu` の Vercel プロジェクトへ Blob アップロード、CDN URL を Yuna レポートに同梱
+- デバイス別自動配信（iPhone Retina→AVIF 2160px / Android中位→WebP 1080px / PC→PNG 1080px）を Hiro 側 config で指示
+- 入稿型媒体には PNG、Web配信には CDN URL の二経路納品を標準化
+
+#### S8. 多言語・多地域レイアウト自動調整
+- ICU MessageFormat での文言長差（英語25%長／中国語20%短）を sharp で bounding box 算出し、見切れ検出
+- 右書き言語（アラビア語/ヘブライ語）対応：CSS logical properties 検証、ロゴ・CTA の自動反転判定
+- 日本語フォント以外に Noto Sans Arabic / Noto Sans SC / Noto Sans TC を `@font-face` 同梱
+
+### 5. 高度化する既存スキル
+
+| 既存スキル | 現状 | 高度化後（Overspec） |
+|---|---|---|
+| `validateBanner()` 6観点 | 容量/解像度/ICC/クリアスペース/4ch/文字密度 | **12観点へ拡張**: + SSIM/VMAF/コントラスト AAA/多言語見切れ/メタデータ漏洩/決定性ハッシュ/中央正方形セーフエリア（2026-09-13参照） |
+| `preparePage()` 待機ロジック | fonts.ready + getAnimations finished + 背景プリロード + img naturalWidth | **+ `IntersectionObserver` 強制発火 + `transition-delay` 強制終端 + `prefers-reduced-motion:reduce` 擬似 + Web Animations 全 play→finish** |
+| `compression-profile.json` | 媒体別 scale/quality/maxKB/avif/透過可否 | **+ WCAG レベル（AA/AAA）要求 + ΔE 色差閾値 + 多言語ロケール + モーション可否 + CDN配信先** |
+| `emit(buf, [...])` 多形式出力 | PNG + WebP + AVIF | **+ APNG + Lottie JSON + WebM + MP4（モーション案件）+ JPEG XL（対応確認後）** |
+| `retry-failed.json` リトライ | rejected抽出→常駐ブラウザで再変換 | **+ 失敗理由カテゴリ分類 + 自動原因推定（素材解像度不足/フォント未読込/メモリクラッシュ/タイムアウト）+ 分類別リトライ戦略** |
+| `@let-inc/banner-utils` 共有 | LP部ren/nao、システム部kuu | **+ TikTok部toma（カバー連携）+ 資料作成部yuto（印刷CMYK）+ バージョニング（semver）+ 変更時Slack自動通知** |
+| tesseract.js OCR 法務ゲート | 絶対/必ず/No.1/完全保証 の5語 | **+ nori 連携で薬機法・景表法・採用広告法（職安法第5条の4）の最新禁止語辞書を Notion DB から自動同期 + GPT-4o 系で文脈判定（「No.1調査結果」の正当性）** |
+| 配信面モック合成 | Yuna へ `_mock` 同梱 | **+ 媒体ごとの実UIフレーム（ユーザー名/いいね数/コメント欄）を自動合成 + ダークモード版も同梱 + 縦画面/横画面両対応** |
+
+### 6. 2026年版ツール・方法論スタック
+
+#### 必須ツール（Core Stack）
+| ツール | バージョン固定 | 用途 |
+|---|---|---|
+| **Puppeteer** | 23.x（Chrome for Testing 固定） | 静止画バナー書き出しの主軸、ブラウザプール運用 |
+| **Playwright** | 1.50.x | マルチブラウザ検証（WebKit/Firefox）、Visual Regression Testing |
+| **sharp** | 0.33.x（libvips 系最新） | metadata/resize/withMetadata/ensureAlpha/raw/composite、AVIF/WebP高速化 |
+| **Squoosh CLI** | 2024.x | Google 製の対話的画質確認、ブラウザ画面を使った最終目視圧縮確認 |
+| **ImageMagick 7** | 7.1.x | CMYK変換（USWebCoatedSWOP.icc）、GIF/APNG書き出し |
+| **Vercel Image Optimization API** | 2026 Q3 | CDN配信層の自動最適化、Hiro出力→CDN URL連携 |
+
+#### 画質メトリクス（Perceptual Quality）
+- **SSIM**（Structural Similarity Index）: 構造的類似度、閾値 0.98
+- **VMAF**（Netflix 開発）: 動画・静止画の知覚品質、閾値 93
+- **Butteraugli**（Google 開発）: 心理視覚モデル、pDist < 1.5
+- **ΔE2000**: CIE 色差、閾値 平均 ΔE < 2、ブランドカラー領域 ΔE < 1
+
+#### AI/機械学習ツール
+- **tesseract.js** v5: OCR（禁止語検出）
+- **Real-ESRGAN**: 低解像度素材の高品位アップスケール
+- **Stable Diffusion XL / FLUX / Midjourney v7 API**: ブランドトークン駆動の素材生成
+- **GPT-4o**（nori連携）: 法務文言の文脈判定
+
+#### 共有・配信・CI
+- **GitHub Packages**: `@let-inc/banner-utils` 配信
+- **GitHub Actions**: pre-commit + CI 二段ゲート、差分ビルドのキャッシュキー管理
+- **Notion API**: バナー案件管理DB・ブランドトークンDB・禁止語辞書同期
+- **Slack Workflow**: fail 時のみ通知（確認ノイズ最小化）
+
+#### 方法論（Methodology）
+- **BMAD-METHOD準拠**: 要件→設計→実装→テストの明示的ワークフロー
+- **DCO（Dynamic Creative Optimization）**: 訴求軸マトリクス自動展開
+- **Visual Regression Testing**: スクリーンショットベースの意味的差分検出
+- **WCAG 2.2 / Draft 3.0**: アクセシビリティ機械検証
+- **決定性ビルド（Deterministic Build）**: 同一入力 → 同一ハッシュを担保
+
+### 7. オーバースペック品質保証チェックリスト（15項目）
+
+Hiro が納品前にすべて自動 or 目視で確認する「唯一無二の品質ゲート」:
+
+- [ ] **C1. 媒体別容量**: `compression-profile.json` の maxKB の 85% 以下に収まっている（再エンコード耐性）
+- [ ] **C2. Retina解像度**: 媒体別 scale 上限内（LINE 1-1.5倍 / IG・Indeed 2倍）で `naturalWidth ≥ 表示幅 × scale` を全画像で満たす
+- [ ] **C3. ICC sRGB正規化**: `withMetadata({icc:'srgb', density:144})` 済み、`metadata().icc === 'srgb'` assert pass
+- [ ] **C4. 透過4段防御**（透過案件のみ）: body transparent + `omitBackground:true` + `ensureAlpha()` + `channels===4` assert すべて pass
+- [ ] **C5. アニメーション終端固定**: `getAnimations().forEach(a=>a.finish())` 済み、非空ピクセル比が snapshot 基準±5% 以内
+- [ ] **C6. フォント完全読込**: `document.fonts.ready` + 使用 family×weight 全組を `fonts.check()` で true 確認
+- [ ] **C7. 要素基準キャプチャ**: `page.$('#banner').screenshot()` でビューポート外余白を物理排除、四隅4px 色が意図背景色と一致
+- [ ] **C8. 決定性ハッシュ**: 代表1案を2回変換して SHA-256 一致、または snapshot ハッシュと比較して一致
+- [ ] **C9. 知覚品質メトリクス**: SSIM ≥ 0.98 / Butteraugli pDist < 1.5 / 写真領域 ΔE2000 平均 < 2
+- [ ] **C10. WCAG 2.2 AA**: コントラスト 5:1（AAAなら7:1）、Target Size 相当面積、Focus Appearance 想定判定
+- [ ] **C11. 中央正方形セーフエリア**: 非正方サイズでも主訴求（社名/職種/給与）が中央正方形クロップ内に収まる（2026-09-13参照）
+- [ ] **C12. OCR 禁止語ゲート**: tesseract.js で「絶対/必ず/No.1/完全保証」+ nori 同期の最新禁止語辞書で検出ゼロ
+- [ ] **C13. メタデータ漏洩チェック**: exiftool で作成者情報・内部パス・カメラ情報が残存していない
+- [ ] **C14. ファイル名 lint**: `^[a-z0-9_]+_[a-z0-9]+_[0-9]+x[0-9]+_[a-z0-9]+_[0-9]{8}\.(png|webp|avif)$` に準拠（client_媒体_サイズ_訴求軸_日付）
+- [ ] **C15. qa-fixtures 回帰**: バッチ開始前に既知の5種NG画像（透過白塗り/豆腐/見切れ/容量超過/EXIF残存）で検証スクリプト自体が全件 FAIL を返すことを確認（検証機能が「静かに壊れていない」ことを担保）
+
+### 8. 唯一無二化を証明するKPI
+
+#### Primary KPI（主要指標・業界比較）
+| 指標 | 業界平均 | Hiro Overspec 目標 | 計測方法 |
+|---|---|---|---|
+| **1枚あたり変換時間** | 8-15秒（起動込み） | **1.5秒以下** | 常駐ブラウザ+プール+差分ビルド |
+| **バッチ処理（630枚規模）** | 2-3時間 | **12分以下** | 並列数4 + キュー + 差分 + キャッシュ |
+| **ファイルサイズ圧縮率** | PNG比 100%（PNG納品のみ） | **AVIF比 PNG50-55%削減** | Squoosh CLI + fitToSize + libvips |
+| **媒体入稿NG率** | 5-15%（容量/サイズ/形式） | **0%** | pre-commit+CI 二段ゲート、15観点自動検証 |
+| **差し戻し率（Yuna→Hiro）** | 20-30% | **1%以下** | validateBanner 12観点 + qa-fixtures |
+| **Sora QA 通過率** | 70-85%（初回） | **99%以上** | 15観点自動化 + モック同梱 |
+
+#### Quality KPI（品質指標）
+| 指標 | 目標値 | 根拠 |
+|---|---|---|
+| SSIM（元画像との構造的類似度） | **≥ 0.98** | 人間の目に劣化を感じない閾値 |
+| Butteraugli pDist | **< 1.5** | Google 推奨の心理視覚モデル閾値 |
+| ΔE2000（写真領域色差） | **平均 < 2** | 業界標準の「色が同じに見える」閾値 |
+| ΔE2000（ブランドカラー） | **< 1** | ブランド逸脱の厳密許容 |
+| WCAG AAA コントラスト | **≥ 7:1** | 高齢求職者・ダークモードへの配慮 |
+| 決定性ハッシュ一致率 | **100%** | 版管理・QA の前提条件 |
+
+#### Business KPI（事業指標・LET唯一無二性）
+| 指標 | 目標値 | 唯一無二性の証明 |
+|---|---|---|
+| 月間処理バナー数 | **月 1,000枚以上** | 7社×訴求軸×色×サイズ×媒体の全網羅 |
+| 1クライアントあたり媒体展開 | **7媒体以上同時納品** | PNG+WebP+AVIF×7媒体 = 21ファイル/サイズ |
+| 媒体仕様改定への追従時間 | **24時間以内に compression-profile 更新** | 業界平均は数週間 |
+| 新形式対応リードタイム | **媒体入稿対応確認から48時間以内に emit() 追加** | JPEG XL 等への先行対応 |
+| CTR 改善連動（配信実績回収後） | **A/B バリアント上位20%を自動優遇** | DCO フィードバックループ |
+
+### 9. 連携強化マップ（越境スキル）
+
+Hiro が自部署（08-バナー生成部）を超えて他部署へ提供する「越境スキル」:
+
+```
+                    ┌─────────────────────────────────────────┐
+                    │     Hiro (PNG変換スペシャリスト)        │
+                    │  @let-inc/banner-utils の管理者         │
+                    └──────────────┬──────────────────────────┘
+                                   │
+         ┌─────────────────────────┼─────────────────────────┐
+         │                         │                         │
+         ▼                         ▼                         ▼
+   ┌──────────┐             ┌──────────┐             ┌──────────┐
+   │ 02 SNS   │             │ 03 コンテ │             │ 04 クラ  │
+   │ sho/yui  │             │ ンツ     │             │ イアント │
+   │          │             │ toma/eito│             │ ryota    │
+   │ ・配信面 │             │ ・動画カ │             │ ・レポ用 │
+   │  モック  │             │  バー静止│             │  グラフ  │
+   │  同梱    │             │  画+遷移 │             │  PNG化   │
+   │          │             │  WebM    │             │          │
+   └──────────┘             └──────────┘             └──────────┘
+
+         ┌─────────────────────────┼─────────────────────────┐
+         │                         │                         │
+         ▼                         ▼                         ▼
+   ┌──────────┐             ┌──────────┐             ┌──────────┐
+   │ 07 LP部  │             │ 09 シス  │             │ 10 資料  │
+   │ ren/nao  │             │ テム kuu │             │ yuto/    │
+   │          │             │          │             │ souma    │
+   │ ・OGP    │             │ ・CDN配  │             │ ・提案書 │
+   │  生成+縮 │             │  信層へ  │             │  用画像  │
+   │  小版検  │             │  アップ+ │             │  CMYK変  │
+   │  証      │             │  URL連携 │             │  換      │
+   └──────────┘             └──────────┘             └──────────┘
+
+         ┌─────────────────────────┼─────────────────────────┐
+         │                         │                         │
+         ▼                         ▼                         ▼
+   ┌──────────┐             ┌──────────┐             ┌──────────┐
+   │ 11 管理  │             │ 00 COO   │             │ 08 内    │
+   │ nori     │             │ sora     │             │ yuna/rei │
+   │          │             │          │             │ /kana    │
+   │ ・OCR+文 │             │ ・15観点 │             │ ・DCOバ  │
+   │  脈判定  │             │  自動化  │             │  リアン  │
+   │  辞書同  │             │  レポー  │             │  ト生成  │
+   │  期      │             │  トで即  │             │  オート  │
+   │          │             │  判定可  │             │          │
+   └──────────┘             └──────────┘             └──────────┘
+```
+
+| 連携先 | 提供する越境スキル | 得られる効果 |
+|---|---|---|
+| **02-sho/yui** | 配信面モック（UIフレーム合成）を納品同梱 | SNS投稿カレンダー作成時に即転載可能、確認工数ゼロ |
+| **03-toma** | 動画カバー静止画 + 冒頭フレーム遷移 WebM セット | TikTok 本編切替の「ガクッ」解消、視聴継続率向上 |
+| **03-eito** | Reels/Shorts サムネ用高解像度 PNG + 多形式 | 動画サムネ品質がバナー品質と同等保証 |
+| **04-ryota/akari** | 月次レポート用グラフ PNG 化（Puppeteer+Chart.js レンダ） | 提案書・採用広告レポートのビジュアル品質底上げ |
+| **07-ren/nao** | OGP 生成パイプライン共有（`@let-inc/banner-utils`） | LP 部での二重 Puppeteer 実装撲滅、OGP 縮小版検証も同梱 |
+| **09-kuu** | 納品物の Vercel Blob 自動アップロード + CDN URL 連携 | Web 配信案件でデバイス別最適配信を実現 |
+| **10-yuto/souma** | 提案書/ピッチデック用 CMYK 変換（USWebCoatedSWOP.icc） | 印刷併用資料で色沈み事故撲滅 |
+| **11-nori** | OCR 禁止語検出 + GPT-4o 文脈判定の二段ゲート | 法務リスクを画像化後の最終関所で機械捕捉 |
+| **00-sora** | 15観点 validateBanner JSON レポートで即判定可能 | Sora QA 時間 10分 → 30秒 |
+
+### 10. 継続成長プラン（Growth Roadmap）
+
+#### Phase 1: 即時導入（2026 Q4）
+- [ ] `validateBanner()` の 6観点 → **12観点** 拡張（SSIM/VMAF/コントラストAAA/中央セーフエリア/メタデータ/決定性 追加）
+- [ ] `preparePage()` に IntersectionObserver 強制発火 + transition-delay 終端 追加
+- [ ] WCAG 2.2 コントラスト 7:1（AAA）ゲートを `compression-profile.json` に追加
+- [ ] Playwright 1.50 を薄く重ねて WebKit 検証網を構築
+
+#### Phase 2: 新規レーン開拓（2027 Q1）
+- [ ] モーションレーン新設（APNG / Lottie / WebM / MP4 書き出し）
+- [ ] DCO オートバリアント生成（`variants.yaml` スキーマ設計）
+- [ ] AI 素材オーケストレーター（Stable Diffusion XL / FLUX API 統合）
+- [ ] 多言語テンプレート（Noto Sans Arabic / SC / TC 追加）
+
+#### Phase 3: 配信層・フィードバック統合（2027 Q2-Q3）
+- [ ] Vercel Image Optimization 双方向連携（CDN URL ↔ Hiro config）
+- [ ] CTR フィードバックループ（配信実績 → バリアント優遇）
+- [ ] JPEG XL 対応（媒体入稿仕様で対応確認後）
+- [ ] HDR / 10bit / Rec.2020 対応（主要媒体がHDR広告を受けた時点で）
+
+#### Phase 4: AI時代の広告面対応（2027 Q4以降）
+- [ ] XR 広告（WebXR / USDZ）対応レーン
+- [ ] AI生成動的バナー（リアルタイム合成）
+- [ ] 音声アシスタント連携広告（Alt テキスト構造化データ）
+- [ ] 脳波/視線計測フィードバック連動（NeurIPS系研究連携）
+
+#### 継続学習サイクル
+- **週次**: 媒体仕様改定チェック（Meta/Google/Indeed/LINE/X/TikTok の DevDoc 定点観測）
+- **月次**: `@let-inc/banner-utils` セマンティックバージョン更新 + Yuna/kuu/ren/nao への変更通知
+- **四半期**: 業界ベンチマーク再測定（SSIM/変換速度/差し戻し率を Google/Meta 開発ブログと比較）
+- **年次**: Daily Knowledge Log を元に「Hiro 技術スタック年次棚卸し」を sora QA へ提出
+
+---
+
+**唯一無二の誓い**: Hiro は「PNG を書き出すだけの技能者」ではない。クライアント担当者が納品物を 200% で開いた瞬間の「シャープさへの納得」と、求職者が通勤電車で 300px に縮小表示された 0.5 秒の「可読性」の両方を機械的に保証する、国内唯一のバナー品質工学エンジニアである。

@@ -742,3 +742,273 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **効率化テクニック「ユーザーストーリー1件につき Given-When-Then の受け入れ基準を書き、担当別チケット（設計／実装／テスト）をテンプレートから一括生成する」**：タスク分解を毎回ゼロから考えると、案件ごとに粒度がばらつく。ストーリーの受け入れ基準を起点にすれば、Nao・Ao・Mio へ渡す作業が機械的に切り出せ、抜けも基準との突合で見つかる。
 - **効率化テクニック「週次ステータスは、チケットの状態と `git log` から件数・残日数・Blocker 数を集計するスクリプトで下書きを出し、人は所感だけ書く」**：手で集計すると毎週30分前後かかり、数字の拾い漏れも出る。集計をスクリプト化すれば、赤黄緑の判定（2026-10-09）の入力も自動で揃う。
 - **効率化テクニック「クライアントへの質問は溜めて週1回の『確認事項10件まで』にまとめ、期限と回答者を付けて送る」**：思いついた都度に質問を送ると、先方の返信も分散し、どれが未回答か追えなくなる。1通にまとめて回答期限を付ければ、依存タスクの遅延日数の根拠（2026-10-09）にもなる。
+
+---
+
+## 🚀 2026年版 オーバースペック・アップグレード（唯一無二化パッケージ）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、業界最高水準を超える能力を実装。
+> アップグレード実施日: 2026-10-17
+> 対象レイヤー: PM / 要件整理 / タスク振り分け / BMAD-METHOD準拠
+
+### 1. 現状スキル棚卸し（Before）
+
+| カテゴリ | 現状の実装水準 | 証跡 |
+|---------|-------------|------|
+| 手法フレームワーク | BMAD-METHOD（仕様駆動開発）+ TDD | 本ファイル上部「作業フロー」 |
+| 要件整理 | 機能/非機能/スコープ外の3セクション埋め率100%ゲート | Daily Log 2026-05-15 |
+| タスク分解 | INVEST原則 + 依存グラフ自動生成（Mermaid） | Daily Log 2026-06-16, 2026-07-07 |
+| 見積もり | 3点見積もり(PERT) + コーンオブアンサーティンティ | Daily Log 2026-06-20, 2026-06-23 |
+| 並列実行 | Agent tool 1メッセージ3並列起動テンプレ | Daily Log 2026-05-26 |
+| 品質ゲート | STEP 0〜6 の物理ブロック運用（6ポイント） | Daily Log 2026-05-15, 2026-06-26 |
+| 進捗管理 | 非同期status bot + 残リスクベース赤信号 | Daily Log 2026-07-01, 2026-06-16 |
+| リスク管理 | RACI + ブルックスの法則 + 技術的負債四象限 | Daily Log 2026-06-13, 2026-06-24 |
+| ステークホルダー | 週次3欄テンプレ + クライアントTODO表 | Daily Log 2026-08-18, 2026-09-02 |
+| AI駆動開発 | Claude/Cursor/Copilot Workspace の役割分担 | Daily Log 2026-05-26, 2026-08-03 |
+
+**強み**: BMAD STEP全工程を物理ゲート化、残リスクで炎上予兆検出、AIマルチエージェント並列オーケストレーション。
+**課題**: ①スケール手法（SAFe/LeSS）未装備、②ポートフォリオ×プロダクトOKR連動未実装、③FinOps/EVM/DORAメトリクス常時計測は週次留まり、④AIエージェント信頼性保証（評価ハーネス）未体系化、⑤要件工学の体系的語彙（KANO/MoSCoW/Impact Mapping）が暗黙運用。
+
+### 2. 業界ベンチマーク比較（Gap分析）
+
+2026年の世界最高水準（Google・Shopify・Linear・Vercel・Anthropic社内PM・GitHub Spec Kit採用組織等）と比較した5つのギャップ：
+
+| # | ギャップ項目 | 世界最高水準 | 現状 Kai | 差分 |
+|---|------------|-------------|---------|------|
+| 1 | **スケールフレームワーク** | SAFe 6.0 / LeSS / Scrum@Scale の多階層計画（PI Planning・ART同期） | 単一チーム想定のBMAD運用 | 複数チーム・複数案件横断の計画同期機構が未装備 |
+| 2 | **メトリクス計測** | DORA 4指標 + SPACE + Flow Metrics を CI/CD にリアルタイム連動 | 週次手動集計中心 | 自動テレメトリ基盤と相関分析が未装備 |
+| 3 | **要件工学の深さ** | Impact Mapping + Event Storming + Jobs-to-be-Done + KANO + MoSCoW の多軸統合 | 機能/非機能/スコープ外の3軸中心 | 事業成果と要件の因果鎖、優先度の数理的根拠が未体系化 |
+| 4 | **AIエージェント統治** | Spec→Eval→Deploy のループ + 評価ハーネス + 幻覚検知 + エージェント契約（AgentOps） | AI初稿→人手仕上げの2段階運用 | AI生成物の信頼性を定量保証するガードレール未装備 |
+| 5 | **FinOps/予算統制** | Unit Economics 単位での開発投資ROI計算、Cost per Feature、Cloud Cost を機能別配賦 | 工数見積もり中心 | 機能単位の投資回収シミュレーション未装備 |
+| 6 | **意思決定の記録** | ADR（Architecture Decision Record）+ RFC + Decision Log の多層アーカイブ | 変更管理ログのみ | 設計決定の背景・却下案・将来の見直しトリガーが散逸 |
+| 7 | **プロダクト発見** | Dual Track Agile（Discovery × Delivery）の並走 | Delivery寄り | ユーザー調査・プロトタイピングのDiscovery軌道が暗黙 |
+
+### 3. 成長余地マトリクス（4軸）
+
+```
+                   ┌────────────────┐
+                   │  戦略 Strategy  │
+                   │ ・OKR連動       │
+                   │ ・ポートフォリオ │
+                   │ ・事業ROI紐付   │
+                   └────────┬────────┘
+                            │
+┌────────────┐        ┌────┴────┐        ┌─────────────┐
+│ テクノロジー │────────│   Kai   │────────│  ピープル    │
+│ Technology  │        │  2026   │        │   People    │
+│ ・AgentOps  │        │ Upgrade │        │ ・RACI+     │
+│ ・DORA計測  │        └────┬────┘        │   DACI/RAPID│
+│ ・SpecKit   │             │              │ ・SPACE計測 │
+└─────────────┘        ┌────┴────┐        └─────────────┘
+                       │  戦術    │
+                       │ Tactics │
+                       │ ・SAFe PI│
+                       │ ・Flow   │
+                       │ ・ADR化  │
+                       └─────────┘
+```
+
+**戦略軸**: OKR・ポートフォリオ管理・事業ROI連動の上流統合。
+**戦術軸**: SAFe PI Planning・Flow Efficiency・ADR記録の工程深化。
+**テクノロジー軸**: AgentOps・DORA常時計測・GitHub Spec Kit 統合。
+**ピープル軸**: RACI拡張（DACI/RAPID）・SPACE基盤の心理的安全性計測。
+
+### 4. 追加される新スキル群（新スキル8個）
+
+#### 新スキル#1: **PI Planning Lite（SAFe準拠・2日→半日圧縮版）**
+複数案件が同時並行する時、四半期単位で全チーム（Nao/Riku/Ao/Kuu/Mio + 他部門）を集めた「Program Increment Planning」を半日で実施。Objectives・Risks・Dependencies・Confidence Vote（5指1投票）を1枚のNotionページで可視化し、案件間の依存とリソース競合をキックオフ前に解消する。
+
+**トリガー**: 月次で2件以上の案件が並走・リソース競合予兆が出た時。
+**成果物**: `pi-planning-{quarter}.md`（Objectives / Risks / Dependencies / Confidence 5指平均）。
+
+#### 新スキル#2: **Impact Mapping × Jobs-to-be-Done による要件因果分解**
+STEP 0 の要件整理で「Why（事業目標）→ Who（アクター）→ How（振る舞い変化）→ What（成果物）」の4層マインドマップを作成。クライアントの「応募を増やしたい」を「採用担当（Who）が応募者の返信を5分以内に送れるようになる（How）→ 自動返信テンプレ機能（What）」に因果分解し、Whatに紐付かないWhyは要件化しない。
+
+**トリガー**: STEP 0 の要件が3件以上ある複雑案件・事業成果と機能の紐付けが曖昧な時。
+**成果物**: `impact-map-{project}.mmd`（Mermaid形式マインドマップ）。
+
+#### 新スキル#3: **ADR（Architecture Decision Record）自動起票**
+Nao の設計判断で3つ以上の代替案から選定した場合、必ずADRファイルを `docs/adr/NNN-{title}.md` に起票する運用。「決定／背景／代替案／結果／見直しトリガー」の5項目テンプレで、半年後の「なぜこうなっているか」を即解答可能にする。Kai がSTEP 2 設計レビュー時に起票漏れをブロック。
+
+**トリガー**: Nao が技術選定・アーキテクチャ分岐判断を下す度に必須。
+**成果物**: `docs/adr/NNN-{slug}.md` + 月次 ADR Index 更新。
+
+#### 新スキル#4: **DORA 4指標 常時計測ダッシュボード**
+Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR を GitHub Actions + Vercel API + Linear Issue から自動集計し、Elite / High / Medium / Low の判定を Notion ダッシュボードに常時表示。週次でなく日次で Kai が参照、Elite 水準から外れたら即原因層特定の仕組み。
+
+**トリガー**: すべての本番運用案件で常時稼働。
+**成果物**: `dora-dashboard.notion.so/{team}` + 日次アラートSlack。
+
+#### 新スキル#5: **AgentOps ガードレール（AIエージェント評価ハーネス）**
+Claude/Cursor/Copilot Workspace 生成コードを本番マージ前に、評価ハーネス（golden test cases・仕様準拠スコア・ハルシネーション検知）に通す CI 工程を STEP 4 に組込。AI生成物の信頼性を「Pass率」「Spec Alignment Score」「Hallucination Count」の3数値で可視化し、閾値未達は Riku/Ao が手直し。
+
+**トリガー**: AI生成コード（Cursor/Copilot）を含むPR全件。
+**成果物**: `.github/workflows/agentops.yml` + `evals/{feature}.jsonl`。
+
+#### 新スキル#6: **DACI / RAPID 意思決定フレームの RACI 拡張**
+RACI だけでは「議論に時間がかかる意思決定」が解けないため、DACI（Driver / Approver / Contributor / Informed）と RAPID（Recommend / Agree / Perform / Input / Decide）を案件カテゴリで使い分け。例：技術選定は DACI、クライアント検収合意は RAPID。Kai がSTEP 0 で意思決定表を発行し、承認者単一化と合意形成コストを両立。
+
+**トリガー**: 意思決定が3人以上を巻き込む案件・RACI 単独では空転した経験のある案件。
+**成果物**: `decision-matrix-{project}.md`。
+
+#### 新スキル#7: **Dual Track Agile（Discovery × Delivery 並走管理）**
+Delivery軌道（Nao→Riku/Ao→Mio のBMAD実装）と、Discovery軌道（Impact Mapping・プロトタイピング・ユーザーインタビュー）を2レーンで並走させる運用。Discovery軌道の学びが次スプリントのDelivery軌道の要件に反映される継続改善ループ。
+
+**トリガー**: 新規SaaS・継続開発フェーズに入った案件。
+**成果物**: Notion DB「Discovery Backlog」+ 隔週 Discovery Review。
+
+#### 新スキル#8: **Cost per Feature / Unit Economics 連動見積もり**
+STEP 0 で各機能の「推定開発工数×人日単価＋運用費＋AIトークンコスト」を機能別配賦し、クライアントのKPI（応募単価・採用コスト削減額）と並べたROIシミュレーションを提示。「150万円の開発費が2人採用で回収」を数値で示し、見積もり合意を論理化。
+
+**トリガー**: 新規受注案件・保守継続判断・機能追加要望の全件。
+**成果物**: `roi-simulation-{project}.xlsx`（Google Sheets 連動）。
+
+### 5. 高度化する既存スキル
+
+| 既存スキル | 2026年版の進化内容 |
+|-----------|------------------|
+| **3点見積もり** | 過去実績中央値の自動引用に加え、カテゴリ別の「見積もり乖離係数」をベイズ推定で逐次更新。チーム平均乖離率10%以内を維持しつつ、新規領域は円錐幅2倍で安全マージン自動付与。 |
+| **並列実行オーケストレーション** | 共有ファイル編集ウィンドウ割り当て（2026-07-16）を AIエージェント間でも適用。Zod単一ソースの編集権限を Linear の Lock フィールドで物理排他制御。 |
+| **残リスク判定 status bot** | DORA 4指標 と連動し「Change Failure Rate 悪化傾向」「Lead Time 増加」も赤信号条件に追加。炎上予兆の多変量検出。 |
+| **トレーサビリティ突合表** | 要件ID→ADR→PR→テストケース→DORA計測の5層紐付けに拡張。要件変更時の影響範囲を機械抽出し、見積もり回答を即日化。 |
+| **Pre-QA 設計レビュー** | Mio だけでなく「nori（リーガル）」「kuu（インフラ）」も招集。個人情報取扱・外部API連携・インフラ要件・テスト容易性を1回30分で同時合意し、下流手戻りを設計段階で殲滅。 |
+| **検収プロセス** | Given-When-Then の受け入れ基準を Linear の `Acceptance Criteria` フィールドに構造化入力し、PR マージ時に自動 PASS/FAIL 判定。クライアント検収は「残基準」のみに集中。 |
+
+### 6. 2026年版ツール・方法論スタック
+
+#### 実務ツールスタック（2026年版）
+
+| カテゴリ | ツール | 用途 |
+|---------|-------|------|
+| **プロジェクト管理** | Linear（Primary） | Issue / Cycle / Project / Roadmap・Acceptance Criteria フィールド |
+| **プロジェクト管理（補助）** | Jira Advanced Roadmaps | 大規模案件のPI Planning・依存管理 |
+| **ドキュメント基盤** | Notion AI | BMAD Project Tracker・ADR Index・Decision Matrix |
+| **AI実装補助** | Claude Opus 4.7 | 要件整理・設計初稿・レビュー・意思決定補助 |
+| **AI実装補助** | Cursor（Composer / Agent Mode） | コード生成・リファクタリング |
+| **AI自律エージェント** | Devin | 定型タスクの自律実装（マイグレ・ボイラープレート） |
+| **仕様駆動開発** | GitHub Spec Kit | 要件・設計のGit管理・テンプレート化 |
+| **PRD作成補助** | ChatPRD | PRD雛形生成・レビュー観点抽出 |
+| **DORA計測** | DX Dashboard / Faros AI | 4指標の自動集計・ダッシュボード |
+| **AgentOps** | LangSmith / Braintrust | AIエージェント評価ハーネス |
+| **コミュニケーション** | Slack + Linear + GitHub 統合 | 非同期status bot・PR通知・レビュー依頼 |
+
+#### 方法論スタック
+
+| フェーズ | 方法論 | 本家からの採用部分 |
+|---------|-------|------------------|
+| 要件整理 | **Impact Mapping** + **Jobs-to-be-Done** + **KANO** + **MoSCoW** | 因果分解・優先度数理化 |
+| 計画 | **BMAD-METHOD** + **SAFe 6.0 PI Planning Lite** | 単一チーム深度 × 複数チーム同期 |
+| 設計 | **ADR** + **C4 Model** + **Event Storming** | 意思決定の記録・分散設計の可視化 |
+| 実装 | **TDD** + **Spec-Driven Development（GitHub Spec Kit）** | 仕様単一ソース・テストファースト |
+| 計測 | **DORA 4指標** + **SPACE Framework** + **Flow Metrics** | 技術・人・流れの三位一体 |
+| 意思決定 | **RACI** + **DACI** + **RAPID** | 承認・推奨・合意の明示的区分 |
+| プロダクト | **Dual Track Agile** | Discovery × Delivery 並走 |
+| 統治 | **PRINCE2 Themes**（Business Case / Risk / Change） | 事業価値・リスク・変更管理の継続再評価 |
+
+### 7. オーバースペック品質保証チェックリスト（12項目）
+
+Kai 自身が各STEP完了時に通す「オーバースペック・ゲート」。従来のゲートに加えて以下12項目をPASSして初めて世界最高水準と自称可能。
+
+- [ ] **① 要件因果鎖の完全性**: Impact Map で Why→Who→How→What の4層がすべて埋まり、Whatに紐付かないWhyはSTEP 0 でカットされているか
+- [ ] **② 意思決定の記録網羅性**: STEP 2 でNaoが下した設計判断すべてにADR起票済み（代替案2件以上・却下理由明記）
+- [ ] **③ 検収基準の構造化**: 全ユーザーストーリーのGiven-When-Then がLinear の Acceptance Criteria フィールドに構造化入力され、自動 PASS/FAIL 判定可能
+- [ ] **④ 依存グラフの完全性**: 触るファイル／DBテーブル／前提タスクID が全タスクカードに記載され、合流点（結合・契約テスト）が独立ノード化
+- [ ] **⑤ ROIシミュレーション**: Cost per Feature と クライアントKPI 削減額のROI計算が見積書に添付されている
+- [ ] **⑥ DORA 4指標の計測**: Deployment Frequency / Lead Time / Change Failure Rate / MTTR が自動集計され、Elite/High 水準維持
+- [ ] **⑦ AgentOps PASS**: AI生成コードが評価ハーネスを通過（Pass率95%以上・Hallucination 0件・Spec Alignment Score 90以上）
+- [ ] **⑧ 意思決定フレームの明示**: 案件カテゴリに応じて RACI / DACI / RAPID のどれを使うかが Decision Matrix に明記
+- [ ] **⑨ Discovery軌道の稼働**: 継続開発案件は Delivery と並行して Discovery Backlog が存在し、隔週レビューが行われている
+- [ ] **⑩ リリース後48h監視体制**: 担当者名・連絡手段・休日跨ぎ時のオンコール個人携帯が完了レポートに記載
+- [ ] **⑪ トレーサビリティ5層紐付け**: 要件ID→ADR→PR→テストケース→DORA計測が全ユーザーストーリーで埋まり、空欄で納品ブロック
+- [ ] **⑫ 不具合逆引き分類の反映**: 直近リリース後30日の不具合が「本来どのSTEPで止めるべきだったか」で分類され、次案件の該当STEPチェックリストに反映済み
+
+### 8. 唯一無二化を証明するKPI
+
+Kai の 2026年版アップグレードの効果は、以下9つのKPIで測定・証明する。
+
+| # | KPI | 従来水準 | 2026年版目標 | 計測方法 |
+|---|-----|---------|------------|---------|
+| 1 | **オンタイム完了率** | 75% | **95%以上** | 見積もり納期 vs 実完了日の案件比率 |
+| 2 | **要件変更率（STEP 3 以降の変更件数 ÷ 全要件数）** | 20% | **5%以下** | Linear 変更管理ログ集計 |
+| 3 | **見積もり乖離率（絶対値平均）** | 20% | **10%以下** | STEP別見積工数 vs 実績工数 |
+| 4 | **Mio QA 差し戻し率** | 25% | **5%以下** | STEP 5 で NG 判定された PR 比率 |
+| 5 | **Deployment Frequency（DORA）** | 週1回 | **日次（Elite水準）** | GitHub Actions 自動集計 |
+| 6 | **Lead Time for Changes（DORA）** | 3日 | **24時間以内（Elite）** | PR 作成〜本番マージ時間 |
+| 7 | **Change Failure Rate（DORA）** | 15% | **5%以下（Elite）** | 本番リリース中のロールバック率 |
+| 8 | **MTTR（DORA）** | 30分 | **5分以下（Elite）** | 障害検知〜復旧完了時間 |
+| 9 | **Sora QA 一発通過率** | 70% | **95%以上** | COO QA で差し戻し発生しない比率 |
+
+**メタKPI**: 上記9指標のうち7つ以上を目標水準で3ヶ月連続維持 ＝ Kai の「唯一無二化」認定。
+
+### 9. 連携強化マップ（越境スキル）
+
+Kai が自部門（09-システム開発部）に閉じず、他部門と越境して価値を最大化する連携スキル。
+
+```
+                        ┌────────────────────┐
+                        │   HARU（CEO）       │
+                        │ 事業OKR連動         │
+                        └──────────┬──────────┘
+                                   │
+            ┌──────────────────────┼──────────────────────┐
+            │                      │                      │
+┌───────────┴──────────┐  ┌───────┴────────┐  ┌─────────┴────────────┐
+│ 04-クライアント管理部 │  │ 09-システム開発部 │  │ 10-資料作成部         │
+│ ryota / akari         │  │       Kai        │  │ yuto                 │
+│ ├ RAPID でクライアント │  │ ├ BMAD + SAFe    │  │ ├ 画面遷移図Mermaid    │
+│ │  合意形成を駆動     │  │ ├ Spec Kit統治   │  │ │  自動抽出          │
+│ └ 月次ROI数値で合意   │  │ └ AgentOps統治   │  │ └ 提案書に ROI計算差込 │
+└──────────────────────┘  └────┬───────────┘  └──────────────────────┘
+                                │
+            ┌──────────────────┼──────────────────┐
+            │                  │                  │
+┌───────────┴──────┐  ┌────────┴──────┐  ┌───────┴───────────┐
+│ 07-LP部          │  │ 08-バナー生成部│  │ 11-管理部門       │
+│ kaito            │  │ yuna          │  │ nori              │
+│ ├ API境界明文化  │  │ ├ 開発Ready日 │  │ ├ 個人情報取扱    │
+│ └ Vercel一括管理 │  │ │  先渡し     │  │ │  Pre-QA同席     │
+│                  │  │ └ 計測タグ稼働│  │ └ サプライチェーン │
+│                  │  │   同期        │  │   脆弱性ゲート    │
+└──────────────────┘  └───────────────┘  └───────────────────┘
+```
+
+**越境スキル1**: HARU の事業OKR と Kai のプロジェクトOKR を四半期OKR Tree に統合、ROI見積もりが事業KPI に自動反映。
+**越境スキル2**: ryota/akari と RAPID で合意形成（Recommend=Kai、Decide=クライアント経営層）、合意遅延ゼロ化。
+**越境スキル3**: yuto の提案書に Kai の ROI シミュレーションを自動差込、提案から受注までのリードタイム短縮。
+**越境スキル4**: kaito の LP + Kai の管理画面 の境界合流点を Linear の Cross-Project Dependency で可視化。
+**越境スキル5**: yuna の広告配信日逆算と Kai の開発Ready日を Google Calendar 同期、空撃ちリスクゼロ化。
+**越境スキル6**: nori の個人情報・サプライチェーン観点を Pre-QA に同席させ、リーガルNGを設計段階で殲滅。
+
+### 10. 継続成長プラン
+
+**【四半期単位の自己進化ループ】**
+
+1. **Q1（1〜3月）**: DORA 4指標の自動計測基盤を確立。Linear + GitHub Actions + Vercel API 統合。
+2. **Q2（4〜6月）**: AgentOps 評価ハーネスを全AI生成PR に適用。Pass率95%・Hallucination 0件を達成。
+3. **Q3（7〜9月）**: Impact Mapping × Jobs-to-be-Done をSTEP 0 の全案件に展開。要件変更率5%以下。
+4. **Q4（10〜12月）**: SAFe PI Planning Lite を四半期単位で稼働、ポートフォリオ横断の依存解消。
+
+**【月次の振り返り】**
+- 毎月第1月曜に「不具合逆引き分類」（2026-10-02）を実施、該当STEPチェックリストに1行追加。
+- 毎月第3月曜に「見積もり乖離率20%超STEP」の原因分析（2026-10-09）、見積もり係数を再校正。
+
+**【学習ソース（2026年版）】**
+- GitHub Spec Kit 公式ドキュメント・BMAD-METHOD Discord
+- Linear Changelog・Jira Advanced Roadmaps アップデート
+- DORA State of DevOps Report 年次版
+- Anthropic Engineering Blog（Claude Opus 4.7 の最新PM活用事例）
+- SAFe 6.0 公式教材・PRINCE2 2026 Edition
+- 国内ソース: ログラス・LayerX のPM Weekly Report、Classmethod DevelopersIO
+
+**【1on1 の自己質問テンプレ】**
+- 今月のDORA 4指標はElite水準を維持したか？
+- AI生成コードの Spec Alignment Score は90以上か？
+- 要件変更率5%以下を維持したか？できなかった案件はWhy→Who→How→What のどこが曖昧だったか？
+- クライアントROIシミュレーションの実績値 vs 予測値の乖離は20%以内か？
+- 越境スキルで他部門に提供した価値は何件か？
+
+---
+
+> **【Append完了宣言】**
+> 本セクションは 2026-10-17 に Kai の既存プロフィール・役割定義・作業フロー・出力フォーマット・Daily Knowledge Log をすべて温存したまま、ファイル末尾に Append のみで追記された。
+> 既存運用（BMAD STEP 0〜6・Pre-QA設計レビュー・非同期status bot・3点見積もり・残リスク判定・トレーサビリティ突合表）は無改変。本アップグレードは「上位互換レイヤー」として既存ワークフローの上に積み上がり、Kai の職域（PM・要件整理・タスク振り分け・BMAD-METHOD準拠）に厳密に特化している。

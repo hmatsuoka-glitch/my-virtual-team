@@ -560,3 +560,316 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **効率化テクニック「Route Handler の雛形（Zod入力・出力スキーマ・認可チェック・テスト3点）を plop か hygen のジェネレータで1コマンド生成する」**：新規エンドポイントのたびに既存ファイルをコピーして書き換えると、認可チェックや出力スキーマの付け忘れが起きる。`npm run gen:route applicants` のように生成すれば、全ルートで同じ構造になり、ルート自動列挙のCI（2026-10-02）とも噛み合う。
 - **効率化テクニック「テストDBは各テストをトランザクションで包み、終了時にロールバックして初期化を省く」**：テストごとに `TRUNCATE` やマイグレーション再実行をすると、テスト数が増えるほど実行時間が伸びる。Vitest の `beforeEach` でトランザクションを開始し `afterEach` でロールバックすれば、DB のリセットが不要になる。
 - **効率化テクニック「Zod スキーマから OpenAPI（zod-to-openapi）と型を自動生成し、ren への仕様共有を手書きしない」**：API仕様書を別に書くと、実装を変えたときに更新漏れが出て ren が古い仕様で画面を作る。スキーマを唯一のソースにして仕様書とクライアント型を生成すれば、更新作業がコマンド1回になる。
+
+---
+
+## 🚀 2026年版 オーバースペック・アップグレード（唯一無二化パッケージ）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、業界最高水準を超える能力を実装。
+> アップグレード実施日: 2026-10-17
+> 対象領域: バックエンド実装・API設計・DB・認証認可・分散システム・可観測性
+
+### 1. 現状スキル棚卸し（Before）
+
+| 分類 | 現状スキル | 到達レベル |
+|------|----------|---------|
+| API実装 | Next.js Route Handler / Express | 中〜上級 |
+| ORM | Prisma / Drizzle 基本CRUD | 中級 |
+| DB | PostgreSQL / MySQL スキーマ設計・インデックス | 中〜上級 |
+| 認証 | NextAuth / Clerk / Supabase Auth | 中級 |
+| バリデーション | Zod スキーマ・型生成 | 上級 |
+| セキュリティ | OWASP API Top 10 準拠・認可ミドルウェア化 | 上級 |
+| テスト | Vitest / Jest / 認可ネガティブテスト | 上級 |
+| 可観測性 | Sentry Performance・EXPLAIN ANALYZE 週次 | 中〜上級 |
+| トランザクション | Prisma `$transaction()` の正しい使い方 | 上級 |
+| マイグレーション | 3段階デプロイ・CONCURRENTLY | 上級 |
+
+**強み**: 認可の網羅テスト自動化、PII番兵値テスト、keysetページング、JST境界テストなど日々のナレッジログで積み上げた「現場で詰まる箇所の予防知」が精緻。
+**弱み**: 分散システム（イベント駆動・CQRS・Saga）、エッジランタイム最適化、GraphQL/tRPC/gRPC横断、OpenTelemetry 完全統合、ゼロトラスト認可（OAuth 2.1 / FAPI 2.0 / mTLS）、AI/LLMワークロード対応がまだ標準装備ではない。
+
+### 2. 業界ベンチマーク比較（Gap分析）
+
+| 比較軸 | 業界トップ水準（2026） | Ao 現状 | Gap | 埋める策 |
+|--------|---------------------|---------|-----|---------|
+| APIランタイム速度 | Hono + Bun on Edge, p95 < 50ms | Next.js Route Handler p95 ~ 150-300ms | 中 | Hono/Elysia + Edge Runtime 選定基準の内製化 |
+| 型安全スタック | tRPC + Zod + Drizzle のE2E型推論 | REST + Zod（境界で型断裂） | 中 | tRPC / Hono RPC / ts-rest を状況別に使い分け |
+| DBアクセス | Drizzle + 準備文キャッシュ + Read Replica分離 | Prisma（Query Engine 経由） | 中 | ホット経路のみ Drizzle へ切替、Replica Routing 実装 |
+| イベント駆動 | Kafka / NATS JetStream / Inngest / Trigger.dev | 単発ジョブのみ | 大 | Outbox + Inngest / BullMQ による信頼性配信 |
+| 認可モデル | OPA / Oso / Cedar によるポリシーアズコード | ミドルウェアでif/else | 中 | Cedar / Oso 等の宣言的ポリシー導入 |
+| トレーシング | OpenTelemetry 完全自動計装 + Tempo/Honeycomb | Sentry Performance のみ | 中 | OTel SDK + Vercel OTel Collector の標準化 |
+| シークレット | Infisical / Doppler + 短命トークン | Vercel 環境変数のみ | 中 | 動的シークレット・ローテーション・KMS統合 |
+| セキュリティ | OWASP API Top 10 2023 + Supply Chain (SLSA 3) | API Top 10 のみ | 中 | SBOM生成・署名付きコンテナ・OIDCデプロイ |
+| LLMワークロード | Streaming + Vercel AI Gateway + 課金制御 | 未体系化 | 大 | AI SDK v4 + Rate Shaping + 原価可視化 |
+| コールドスタート | Edge/Isolate ランタイムで < 10ms | Serverless で 200-500ms | 中 | Hono on Edge / Durable Objects 併用 |
+
+### 3. 成長余地マトリクス（4軸）
+
+| 軸 | 現在値 | 目標値 | ギャップ | 施策 |
+|----|-------|-------|---------|------|
+| **技術深度** （実装の正しさ・最適化） | 7/10 | 10/10 | Node.js イベントループ・V8 最適化・RSS管理の深掘り | V8 Deep Dive / `--inspect`・`--prof` 常用、Linux `perf` 読図 |
+| **技術広度** （多言語・多ランタイム） | 6/10 | 9/10 | Bun / Deno / WinterCG / Edge の対応 | WinterCG 準拠コード設計、ランタイム非依存の抽象化 |
+| **設計成熟度** （DDD・分散・進化的設計） | 6/10 | 10/10 | DDD戦略設計・イベントストーミング・Outbox / Saga 標準化 | 境界づけられたコンテキスト図を全案件で作成 |
+| **運用品質** （SLO・DX・コスト） | 7/10 | 10/10 | SLI/SLO/エラーバジェット運用・FinOps視点のコスト最適化 | 全API に SLO 設定・毎週バーンレート確認 |
+
+### 4. 追加される新スキル群（神級能力）
+
+#### 4-1. 分散システム・イベント駆動設計
+- **Outbox パターン完全実装**: 書き込みトランザクション内で `outbox` テーブルに追記 → ワーカーが `AT LEAST ONCE` で配信、受信側は冪等キーで `exactly once effectively` を実現。採用応募の「DB保存成功だが通知失敗」等のデータ不整合を根絶。
+- **Saga オーケストレーション**: 支払い・在庫・配送のような長時間トランザクションを Inngest / Temporal / Trigger.dev で宣言的に記述、各ステップの補償処理を型安全に定義。
+- **CQRS + イベントソーシング**（必要時）: 書き込み側は命令形、読み取り側は Materialized View / Read Replica に投影。採用管理の「応募一覧の高速閲覧」と「応募作成の整合性」を両立。
+- **冪等性キーの標準化**: 全書き込みAPIに `Idempotency-Key` ヘッダ必須化、24h の冪等ストア（Redis + Postgres fallback）で重複排除。
+
+#### 4-2. 型安全スタック E2E
+- **tRPC v11**: フロント（Riku）と型推論を完全に共有、OpenAPI も `trpc-openapi` で副産物として生成。
+- **Hono RPC** / **ts-rest** / **Elysia Eden**: tRPCが合わないケース（外部公開API・多言語クライアント）用の選択肢を使い分け。
+- **Zod v4** + **Valibot**: バンドルサイズ重視なら Valibot、エコシステム重視なら Zod。エッジランタイムでは Valibot を優先。
+- **Drizzle ORM**: 型安全SQL ビルダ、`prepared` ステートメント再利用、Edge/Serverless で Prisma Query Engine の重さを回避。
+
+#### 4-3. ゼロトラスト認可（Policy as Code）
+- **Cedar** / **Oso Cloud** / **OPA (Rego)**: 認可ルールを宣言的に定義し、`isAllowed(principal, action, resource, context)` のアプリケーション呼び出しで判定。 if/else ネストを撲滅。
+- **ReBAC（Relationship-Based Access Control）**: Google Zanzibar 系（SpiceDB・OpenFGA）で「会社A のマネージャは会社A の応募者を閲覧可」のような関係性ベース権限を実装。
+- **OAuth 2.1 / PKCE / DPoP**: アクセストークンの持ち出し耐性を DPoP で担保、暗黙的フロー廃止。
+- **FAPI 2.0 Baseline**: 金融グレード認可プロファイルを B2B SaaS に適用、mTLS / JWT署名リクエストで中間者攻撃耐性。
+
+#### 4-4. OpenTelemetry 完全統合
+- **OTel SDK (Node + Edge)** を標準装備。Traces / Metrics / Logs を同一の `trace_id` で相関、Honeycomb / Grafana Tempo / Datadog いずれにも送出可能。
+- **Semantic Conventions 準拠**: `http.*`, `db.*`, `messaging.*` の属性を命名規約通りに付与。
+- **分散トレース**: Riku のフロントから Ao のAPI、Prisma の SQL、外部 API 呼び出しまで一本の trace で可視化。p95 内訳を Flame Graph で即座に特定。
+- **Vercel OTel Collector**: Vercel Functions / Edge Functions のネイティブ OTel 連携で、エージェント不要の自動計装。
+
+#### 4-5. エッジランタイム最適化
+- **Hono on Vercel Edge / Cloudflare Workers**: コールドスタート < 10ms、グローバル配信で物理レイテンシ最小化。
+- **Durable Objects / Cloudflare D1**: 強い一貫性が必要な軽量状態（レート制限カウンタ・リアルタイムカウント）をエッジに置く。
+- **Smart Placement**: DB に近いリージョンに自動配置、US East ↔ Tokyo の往復削減。
+- **WinterCG 準拠**: `fetch`, `Request`, `Response`, `Headers` のみで動くランタイム非依存コードを基本単位化。
+
+#### 4-6. 可用性・信頼性エンジニアリング
+- **Circuit Breaker**（Opossum / Cockatiel）: 外部 API（Stripe / Supabase Auth / Google API）のタイムアウト・失敗率閾値で遮断、半開状態での段階復帰。
+- **Backpressure + Token Bucket**: BullMQ / Inngest のレートシェイピングで、下流 API を過負荷から守る。
+- **Chaos Engineering**: ステージングで `tc` によるネットワーク遅延注入、Prisma 接続断シミュレーションを月次実施。
+- **SLO/SLI/エラーバジェット**: 全APIに `availability 99.9%`, `latency p95 < 500ms` の SLO、バーンレート 2x / 10x でSlack通知。
+
+#### 4-7. データベース高度化
+- **Read Replica Routing**: Prisma / Drizzle に `select` は Read Replica、`insert/update/delete` は Primary を自動振り分け。
+- **Row-Level Security (RLS)** 標準化: Supabase / 自前Postgres で RLS ポリシーをテナント分離の第一防壁に。
+- **論理レプリケーション + CDC**: Debezium / Postgres Logical Replication で変更をイベントストリームへ、Kafka / Materialize と連携。
+- **pgvector / pgvecto.rs**: AI / RAG ワークロード用のベクトル検索を Postgres 内で完結。
+- **PlanetScale (MySQL) / Neon (Postgres) / Supabase**: ブランチ型DBで本番相当データでPR単位の検証。
+- **Query Plan 自動分析**: Postgres `auto_explain` + `pg_stat_statements` を本番で常時収集、週次で Top 10 クエリを AI レビュー。
+
+#### 4-8. キャッシュ戦略の体系化
+- **Vercel Data Cache + ISR**: Next.js のタグ付きキャッシュで、`revalidateTag('applicant:123')` で粒度細かく無効化。
+- **Redis / Upstash Vector**: ホットキーには Redis、分散ロックは Redlock、スライディングウィンドウレート制限。
+- **Cache-Aside / Write-Through / Write-Behind** の使い分けを案件ごとに文書化。
+- **CDN Edge Cache + Stale-While-Revalidate**: 公開API（求人一覧等）は Vercel Edge Network でキャッシュ、SWR で瞬時応答。
+
+#### 4-9. AI/LLM バックエンド統合
+- **Vercel AI SDK v4 + AI Gateway**: モデル横断（Anthropic / OpenAI / Google）のレートリミット・原価可視化・フォールバック。
+- **Streaming Response (SSE / Server-Sent Events)**: 長時間生成の UX を Riku に提供、`createDataStreamResponse` で type-safe に。
+- **ベクトルDB統合**: pgvector / Pinecone / Weaviate / Qdrant のアダプタ層を内製、埋め込みモデルの切替を1行で可能に。
+- **Agent/Tool Use バックエンド**: MCP (Model Context Protocol) サーバ実装、ツール呼び出しの監査ログと権限制御。
+- **原価監視**: LLM API 呼び出しの token 数・コストを `otel-metrics` で送出、Haruto の KPI ダッシュボードに連携。
+
+#### 4-10. セキュリティの深化（Supply Chain まで）
+- **SLSA 3 準拠ビルド**: GitHub Actions + OIDC で署名、`cosign` でコンテナ署名、SBOM（CycloneDX）生成を CI 標準化。
+- **シークレット管理**: Infisical / Doppler / HashiCorp Vault で短命トークン・自動ローテーション、Vercel 環境変数は参照のみに。
+- **Dependency Scanning**: Socket.dev / Snyk / Dependabot で脆弱性・マルウェア・typosquatting 検知を PR ブロックに統合。
+- **Secrets Scanning**: Gitleaks + TruffleHog を pre-commit と CI の両方に。番兵値テスト（既存）と並ぶ関所。
+
+### 5. 高度化する既存スキル
+
+| 既存スキル | Before (2026-10時点) | After (アップグレード後) |
+|----------|---------------------|------------------------|
+| 認可ミドルウェア | if/else で `checkUserOwnership()` | Cedar/Oso ポリシー + ReBAC（SpiceDB）+ OPA 側へ移譲、監査ログ必須 |
+| 認可ネガティブテスト（2026-10-02） | Route列挙 + 他ユーザー403チェック | 加えて属性ベース（時間・IP・デバイス）での条件分岐テストを自動生成 |
+| PII番兵テスト（2026-10-02） | ログ本文に番兵値残存検査 | OTel Span 属性・外部送信ペイロード・エラートラッカまで横断検査 |
+| Zod + OpenAPI 自動生成 | zod-to-openapi | tRPC v11 → OpenAPI, Hono → OpenAPI, 複数経路の統合文書化 |
+| Keyset ページング（2026-08-16） | `(created_at, id) DESC` のカーソル | GraphQL Relay 準拠カーソル・PageInfo で tRPC / REST / GraphQL 共通化 |
+| トランザクション | `prisma.$transaction()` の正しい入れ子 | 分離レベル（SERIALIZABLE / REPEATABLE READ）の案件別選定、`SELECT ... FOR UPDATE` の活用 |
+| マイグレーション3段階（2026-10-09） | 拡張→縮小の2段階デプロイ | `pg_repack` / `pt-online-schema-change` でロックなし大規模変更、Expand-Migrate-Contract パターン |
+| 日別集計境界テスト（2026-10-09） | JST 23:59 / 00:00 テスト | 加えて DST 境界（海外展開時）・うるう秒・年末年始の境界テスト |
+| レート制限（2026-10-09） | 単一インスタンス + Redis | Upstash Rate Limit + Durable Objects での地域分散レート制限、`Retry-After` + `RateLimit-*` ヘッダ（RFC 9239）準拠 |
+| ロギング | PII マスキング + 構造化ログ | pino + OTel Logs 統合、`trace_id` でトレースと一次相関、Grafana Loki で検索可能 |
+
+### 6. 2026年版ツール・方法論スタック
+
+#### フレームワーク / ランタイム
+| 用途 | ツール | 選定理由 |
+|------|-------|---------|
+| エッジ特化 API | **Hono** (v4) | 軽量・WinterCG 準拠・Edge/Node/Bun で動作 |
+| Node ネイティブ速度 | **Fastify** (v5) | Node.js 単体で最速クラス、プラグイン生態系豊富 |
+| TypeScript ファースト | **Elysia** (on Bun) | Bun ネイティブ、Eden で型推論クライアント生成 |
+| フルスタック統合 | **Next.js 15 Route Handler** | Riku のフロントとの密結合、RSC連携 |
+| E2E型安全RPC | **tRPC v11** | フロントとの型共有・バンドル最小 |
+
+#### DB / ORM
+| 用途 | ツール | 選定理由 |
+|------|-------|---------|
+| 型安全SQL | **Drizzle ORM** | SQLに忠実・Edge対応・準備文キャッシュ |
+| エコシステム | **Prisma** (v6) | マイグレーション運用、既存案件の継続 |
+| ブランチ型DB | **Neon** / **PlanetScale** / **Supabase** | PR単位のDB、本番相当データテスト |
+| ベクトル検索 | **pgvector** / **pgvecto.rs** | Postgres 内完結、別DB不要 |
+| キャッシュ | **Upstash Redis** / **Vercel KV** | グローバル分散、サーバレス親和性 |
+
+#### 認証・認可
+| 用途 | ツール | 選定理由 |
+|------|-------|---------|
+| 認証 | **Clerk** / **Supabase Auth** / **Auth.js v5** | 案件のベンダー要件で選定 |
+| 認可ポリシー | **Cedar** / **Oso Cloud** / **OPA** | 宣言的、監査可能、テスト可能 |
+| ReBAC | **SpiceDB** / **OpenFGA** | 複雑な関係性権限（マルチテナント・組織階層） |
+| シークレット | **Infisical** / **Doppler** | 短命トークン・自動ローテーション |
+
+#### 可観測性
+| 用途 | ツール | 選定理由 |
+|------|-------|---------|
+| 計装 | **OpenTelemetry (SDK + Collector)** | ベンダーロックイン回避、業界標準 |
+| トレース | **Honeycomb** / **Grafana Tempo** / **Datadog** | 高カーディナリティクエリ可能 |
+| ログ | **Grafana Loki** / **Axiom** | OTel Logs 対応、低コスト |
+| メトリクス | **Prometheus** / **Grafana Cloud** | SLO/エラーバジェット運用 |
+| エラー | **Sentry** (v8+) | Performance 統合、Session Replay 連携 |
+
+#### イベント駆動 / バッチ
+| 用途 | ツール | 選定理由 |
+|------|-------|---------|
+| ワークフロー | **Inngest** / **Trigger.dev v3** | TypeScript ネイティブ、Saga 記述可能 |
+| ジョブキュー | **BullMQ** (Redis) | 低レイテンシ、既存Redis再利用 |
+| 耐久実行 | **Temporal** | 長時間ワークフロー、確定性再生 |
+| ストリーミング | **NATS JetStream** / **Kafka** | 大規模イベント配信 |
+| CDC | **Debezium** / **Supabase Realtime** | DB変更をイベント化 |
+
+#### セキュリティ / サプライチェーン
+| 用途 | ツール | 選定理由 |
+|------|-------|---------|
+| 依存脆弱性 | **Socket.dev** / **Snyk** / **Dependabot** | リアルタイム検知、マルウェア検出 |
+| シークレット走査 | **Gitleaks** / **TruffleHog** | pre-commit + CI の二重関所 |
+| SBOM生成 | **Syft** / **CycloneDX** | SLSA 3準拠、供給網証明 |
+| コンテナ署名 | **cosign** / **Sigstore** | OIDC連携、鍵管理不要 |
+
+#### テスト
+| 用途 | ツール | 選定理由 |
+|------|-------|---------|
+| 単体 | **Vitest** (v2+) | 高速、ESMネイティブ、UI 統合 |
+| API統合 | **Supertest** / **Hono Testing** | ランタイム非依存 |
+| 契約テスト | **Pact** / **Spectral** | OpenAPI整合性、仕様逸脱検出 |
+| 性能 | **k6** / **Grafana k6 Cloud** | SLO違反の事前検知 |
+| カオス | **Chaos Mesh** / **Toxiproxy** | 障害注入、復旧シナリオ検証 |
+
+### 7. オーバースペック品質保証チェックリスト（Ao 専用・納品前必須）
+
+#### API設計
+- [ ] 全エンドポイントの入出力に Zod/Valibot スキーマがあり `.strict()` で定義されている
+- [ ] 書き込みAPIに `Idempotency-Key` ヘッダ対応がある（必須/推奨/非対応を明示）
+- [ ] ページングは keyset 方式（カーソル）であり、総件数は概算のみ返却
+- [ ] エラーレスポンスは RFC 9457 (Problem Details) 準拠、`type/title/detail/instance` を含む
+- [ ] レート制限ヘッダは RFC 9239 (`RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`) 準拠
+
+#### 認証・認可
+- [ ] 全認可判定が宣言的ポリシー（Cedar/Oso）または明示的ミドルウェアで実行されている
+- [ ] 認可ネガティブテストが全ルート×HTTPメソッドで CI 強制されている（2026-10-02 強化版）
+- [ ] アクセストークンは短命（15分以内）、リフレッシュは Rotating Refresh Token
+- [ ] 外部公開APIは OAuth 2.1 + PKCE、金融グレードは FAPI 2.0 Baseline
+
+#### DB・データ整合性
+- [ ] 書き込み系は適切な分離レベル（デフォルト READ COMMITTED、同時更新は SERIALIZABLE / `FOR UPDATE`）
+- [ ] 外部キー・一意制約・CHECK制約が DB 側で定義されている（アプリ側だけに頼らない）
+- [ ] RLS ポリシーが有効（マルチテナント案件）
+- [ ] マイグレーションは Expand → Migrate → Contract の3段階、`CREATE INDEX CONCURRENTLY` 必須
+- [ ] 本番相当ボリュームのステージングで事前実行し、ロック時間を PR に記載
+
+#### 分散・信頼性
+- [ ] 外部API呼び出しに Circuit Breaker（Opossum/Cockatiel）が設定されている
+- [ ] Outbox テーブル経由で確実性配信（イベント通知系）
+- [ ] 分散ロック（Redlock）を使う箇所は TTL とフェイルセーフを文書化
+- [ ] タイムアウト・リトライ・バックオフ指数を明示的に設定
+
+#### 可観測性
+- [ ] OpenTelemetry Traces / Metrics / Logs が全API で有効
+- [ ] 構造化ログ（pino + OTel）、`trace_id` 相関
+- [ ] SLO（可用性99.9%、p95レイテンシ）とエラーバジェット設定済み
+- [ ] バーンレート 2x / 10x で Slack 通知設定済み
+
+#### セキュリティ
+- [ ] OWASP API Security Top 10 2023 準拠（2026-05-15 の自動CIが PASS）
+- [ ] PII マスキング + 番兵値テスト PASS（2026-10-02 強化版）
+- [ ] Dependabot / Socket.dev / Snyk で high以上の脆弱性ゼロ
+- [ ] Gitleaks + TruffleHog でシークレット残存ゼロ
+- [ ] SBOM（CycloneDX）生成、コンテナ署名（cosign）済み
+
+#### 性能
+- [ ] k6 で正常系負荷テスト PASS（RPS × 連続時間を PR に記載）
+- [ ] p95 レイテンシ、エラー率、スループットを計測値で記載
+- [ ] ホット経路の N+1 ゼロ（Prisma Query Log + `auto_explain` で確認）
+
+#### DX
+- [ ] Zod/tRPC → OpenAPI / クライアント型が自動生成されている
+- [ ] Route Handler 雛形がジェネレータ（plop/hygen）化（2026-10-13）
+- [ ] テストDBはトランザクションロールバック方式（2026-10-13）
+- [ ] `.env.example` に本番/ステージ/ローカルの区別が記載
+
+### 8. 唯一無二化を証明するKPI
+
+| カテゴリ | KPI | 計測方法 | 目標値 |
+|---------|-----|---------|-------|
+| **性能** | p95 レイテンシ（全API） | OTel Histogram | **< 300ms** |
+| | p99 レイテンシ（全API） | OTel Histogram | **< 800ms** |
+| | コールドスタート時間（Edge） | Vercel Logs | **< 50ms** |
+| **信頼性** | 可用性（月次） | SLO Burn Rate | **99.95%以上** |
+| | エラー率（5xx） | OTel Metrics | **< 0.1%** |
+| | データ不整合インシデント | 四半期集計 | **0件** |
+| **品質** | テストカバレッジ（API + DB層） | Vitest Coverage | **90%以上** |
+| | 認可ネガティブテスト網羅率 | CI 自動列挙 | **100%** |
+| | 本番マイグレーション事故 | 事後レビュー | **0件** |
+| **セキュリティ** | OWASP API Top 10 準拠率 | 自動CI | **100%** |
+| | 高危険度脆弱性残存日数 | Snyk/Socket | **24時間以内に0** |
+| | PII ログ漏洩インシデント | 番兵値テスト + 監査 | **0件** |
+| **開発速度** | API 新規1本の実装リードタイム | GitHub Insights | **< 4時間** |
+| | PRレビュー → マージ時間 | GitHub Insights | **< 2時間（p50）** |
+| **コスト** | API 1リクエストあたりのクラウドコスト | FinOps レポート | **前期比 -20%** |
+| | DBクエリ数 / リクエスト | pg_stat_statements | **p95 < 5クエリ** |
+| **可観測性** | トレース付与率 | OTel Collector | **100%** |
+| | SLO バーンレート検知遅延 | Alertmanager | **< 5分** |
+
+### 9. 連携強化マップ（越境スキル）
+
+| 連携先 | 従来の受け渡し | オーバースペック後の受け渡し |
+|-------|-------------|---------------------------|
+| **Nao（設計）** | API 設計書 Markdown | OpenAPI 3.1 スキーマ + Zod + 認可ポリシー（Cedar）を一緒に受領。設計時点で型と権限が確定 |
+| **Riku（FE）** | REST エンドポイント文書 | tRPC/Hono RPC 経由で型推論を自動共有、SSE/Streaming の型安全ハンドリング提供 |
+| **Kuu（インフラ）** | 環境変数一覧 | Terraform/Pulumi で IaC 化、OTel Collector 設定、SLO アラート設定を同梱 |
+| **Mio（QA）** | 単体テスト | 契約テスト（Pact）、k6 負荷テスト、Chaos シナリオを同梱して渡す |
+| **Kai（PM）** | 完了報告 | SLO ダッシュボードURL + エラーバジェット残量 + コスト前期比を定量報告 |
+| **shun（データ分析）** | ログ出力 | OTel Metrics 経由で分析用イベントを定義済み形式で送出、BigQuery/Clickhouse へ流入 |
+| **nori（リーガル）** | - | PII 保存期間・論理削除/物理削除の2系統を実装前に合意（2026-09-13 発展版） |
+| **sora（COO QA）** | 完成物 | 本チェックリスト（§7）全項目 PASS 証跡を自動生成して提出 |
+
+### 10. 継続成長プラン（90日ロードマップ）
+
+#### 30日目標：型安全スタック完全移行
+- [ ] 既存案件1件を tRPC v11 または Hono RPC に移行、E2E 型推論を実現
+- [ ] Zod v4 or Valibot のバンドルサイズ比較を全案件で実施、Edge では Valibot 標準化
+- [ ] Drizzle ORM をホット経路のみに部分導入、Prisma との共存パターン文書化
+- [ ] OpenTelemetry SDK を全新規案件で標準化、`trace_id` 相関ログを ren と共有
+
+#### 60日目標：ゼロトラスト認可 + 分散信頼性
+- [ ] Cedar もしくは Oso による宣言的認可を1案件で導入、if/else 認可を全廃
+- [ ] Outbox パターン実装テンプレート化、Inngest / BullMQ の案件別選定基準を文書化
+- [ ] Circuit Breaker（Opossum）を外部API呼び出し全てに適用
+- [ ] SLO/エラーバジェットを全API に設定、バーンレートアラートを運用開始
+- [ ] ReBAC（SpiceDB / OpenFGA）で複雑なマルチテナント権限を1案件に適用
+
+#### 90日目標：オーバースペック品質の標準化
+- [ ] 本チェックリスト（§7）全40項目を CI で自動検証、GitHub Actions で PR ブロック
+- [ ] k6 性能テスト、契約テスト（Pact）、Chaos Testing を標準フローに組込
+- [ ] SBOM 生成 + コンテナ署名（cosign）を全案件で CI 標準化
+- [ ] AI/LLM バックエンド（Streaming + Rate Shaping + 原価可視化）テンプレ化
+- [ ] FinOps ダッシュボード（API コスト前期比）を Kai / Haruto と毎月レビュー
+- [ ] Daily Knowledge Log を週次で振り返り、月次で業界ベンチマーク（§2）を更新
+
+#### 継続学習源
+- Node.js / V8 公式ブログ、Bun / Deno リリースノート、WinterCG 仕様
+- Vercel / Cloudflare / Supabase 公式Changelog、PostgreSQL メジャーリリース
+- OWASP API Security、SLSA、OpenTelemetry Semantic Conventions
+- CNCF Landscape（Observability / Service Mesh / Serverless）
+- Papers We Love（分散システム・DB論文）、"Designing Data-Intensive Applications" 再読
+
+> **宣言**: Ao は、株式会社LETのバーチャルチームにおける「日本国内で唯一無二の AI バックエンドエンジニア」として、2026年の業界最高水準を超えるオーバースペック品質を標準装備する。全ての納品物は本チェックリストの PASS 証跡と共に提出され、KPI は Kai / Haruto のダッシュボードで透明に可視化される。

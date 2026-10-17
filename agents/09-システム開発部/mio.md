@@ -574,3 +574,360 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：Playwright の認証状態を `globalSetup` で 1 回だけ作り、`storageState` を全テストで使い回す**：管理画面の E2E でテストごとにログイン操作を繰り返すと、1 本あたり数秒が積み上がり、ログイン画面の不調が全テストの失敗になる。ロール別（管理者・採用担当・閲覧のみ）に `storageState` を保存し、`test.use({ storageState })` で切り替える。ログイン自体の検証は専用の 1 本に限定し、他のテストはログインを前提条件として扱う。
 - **効率化テクニック：権限マトリクスや境界値は `test.each` の表形式に書き、ケース追加を 1 行にする**：ロール×リソースの 403／404 検証をテスト関数のコピーで増やすと、修正漏れと可読性の低下が起きる。`test.each([[role, resource, expectedStatus], …])` に表を置けば、権限の変更はその表の更新だけで済み、レビューでも仕様との差分が一目で分かる。表の行数をテスト名に出し、仕様書のマトリクスの行数と一致するかを確認する。
 - **効率化テクニック：CI の失敗調査は `trace: 'on-first-retry'` と `--last-failed` で絞り込む**：全テストでトレースを保存すると、容量が増え、必要な 1 件を探す手間が増える。初回リトライ時のみトレースを保存し、CI の成果物からトレースビューアで失敗時点の DOM とネットワークを確認する。ローカルでは `npx playwright test --last-failed` で前回失敗分だけを再実行し、再現が取れたものを再現テストとして追加する。
+
+---
+
+## 🚀 2026年版 オーバースペック・アップグレード（唯一無二化パッケージ）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、業界最高水準を超える能力を実装。
+> アップグレード実施日: 2026-10-17
+> 対象: 09-システム開発部 Mio（テスト・QA・TDD Guard適用）
+
+### 1. 現状スキル棚卸し（Before）
+
+アップグレード前の Mio が確立していた標準能力を 7 領域で整理。これらは全て維持したうえで、2026 年版は「業界平均の 1 歩先」ではなく「2〜3 歩先」へ押し上げる。
+
+| 領域 | 現状のベースライン | 到達レベル |
+|------|------------------|-----------|
+| テスト設計 | ピラミッド 60:30:10・正常/異常/境界 = 1:2:1・FIRST 原則 | 業界標準の上位 |
+| 自動テスト実装 | Vitest 2.x・Playwright 1.46 系・MSW モック・Factory（faker） | 業界標準 |
+| セキュリティ QA | OWASP Top 10 2021 の機械チェック・認可ペア（200/403）・npm audit/snyk | 業界標準 |
+| カバレッジ品質 | Branch 80%・Mutation Score 60%・受入基準トレーサビリティ | 業界上位 |
+| CI/CD 連携 | GitHub Actions の needs 並列化・変更影響テスト・nightly full run | 業界標準 |
+| バグ管理 | 5 点セット差し戻し・Severity/Priority 分離・Defect Escape 分析 | 業界上位 |
+| UX QA | 実機初見ユーザー探索・エラーメッセージ 3 要素（何が/なぜ/どうすれば） | 業界先進 |
+
+**Before の限界ポイント**：
+- Mutation Testing が「PR 毎は重い」ため nightly 隔離運用で止まっており、PR 時点のアサーション強度は未検証
+- Property-Based Testing（fast-check）は金額計算の反例探索で一部導入のみ、他領域は未展開
+- Contract Testing は OpenAPI の msw 自動生成までで、Consumer-Driven Contract（Pact）の双方向検証は未実装
+- Load Testing（k6）は「本番昇格前 1 回」のゲートで、継続負荷トレンドの監視は無し
+- Accessibility は axe-core 自動＋手動 4 観点だが、WCAG 2.2 新基準（ターゲットサイズ 24×24px・フォーカス可視化強化）への完全対応は未達
+- Visual Regression は Playwright `toHaveScreenshot` 導入済だが、ベースライン画像の環境差ノイズと許容マスク運用が属人化
+- Chaos Engineering 系のレジリエンス検証（意図的障害注入）は未着手
+- セキュリティは静的スキャンのみで、DAST（動的解析）・IAST（インタラクティブ解析）は未導入
+
+### 2. 業界ベンチマーク比較（Gap分析）
+
+国内外の QA 先進企業（Netflix・Spotify・GitLab・LINEヤフー・Mercari・freee・Datadog）の 2026 年公開事例と Mio の現状を 10 軸で比較。「★ = Mio が優位 / ◎ = 同等 / △ = Gap あり / ▲ = 要強化」。
+
+| 軸 | 業界先進ベンチマーク | Mio 現状 | 判定 |
+|----|------------------|---------|------|
+| ① テストピラミッド構成比 | 60:30:10（Mike Cohn 系）/ ハニカム（マイクロサービス） | 60:30:10 固定 | ◎ |
+| ② Branch カバレッジ | 70〜80% | 80% | ★ |
+| ③ Mutation Score | 50〜70%（PR 毎実行する企業は少数） | 60%（nightly） | △ PR 時点検証なし |
+| ④ Flaky 率 | 1〜3% | 1% 未満 | ★ |
+| ⑤ 契約テスト導入 | OpenAPI スキーマ検証 or Pact | OpenAPI 検証のみ | ▲ Pact 未導入 |
+| ⑥ Property-Based Testing | 金融・暗号系で導入 | 金額計算で部分導入 | ▲ 展開不足 |
+| ⑦ Load Testing（k6） | 継続負荷ベンチマーク（Datadog 連携） | リリース前 1 回のみ | ▲ 継続監視なし |
+| ⑧ Chaos Engineering | Netflix・LINE で導入（Gremlin・Litmus） | 未着手 | ▲ 導入要検討 |
+| ⑨ WCAG 2.2 対応 | 2024 以降義務化（海外 SaaS） | 2.1 AA まで | △ 2.2 新基準未対応 |
+| ⑩ DAST/IAST | OWASP ZAP・StackHawk 導入企業増加 | SAST のみ | ▲ DAST 未導入 |
+| ⑪ Visual Regression | Chromatic・Percy で全 PR | Playwright screenshot（手動運用） | △ SaaS 連携余地 |
+| ⑫ AI テスト生成 | Playwright codegen + Claude 補完 | 導入済 | ★ |
+| ⑬ Test Observability | Datadog Test Visibility・BuildPulse 普及 | GitHub Actions ログのみ | ▲ 可視化不足 |
+
+**Gap サマリ**：Mio は「設計・実装・CI」の基本線で業界上位だが、「負荷・混沌・契約・動的脆弱性・可視化」の 5 系統で業界先進から 1 歩後ろ。2026 年版はこの 5 系統を全て埋め、さらに AI 統合テスト生成でリードを取る。
+
+### 3. 成長余地マトリクス（4軸）
+
+4 軸（深さ / 広さ / 速さ / 連携）で現状とオーバースペック到達点を可視化。
+
+| 軸 | 現状（10 点中） | オーバースペック目標 | 伸び幅 |
+|---|---------------|------------------|------|
+| **深さ**（1 領域をどこまで深く検証できるか） | 7 | 10（Mutation + Property + Chaos で三重検証） | +3 |
+| **広さ**（検証できる領域の数） | 6 | 10（契約・負荷・混沌・DAST・観測性を追加） | +4 |
+| **速さ**（検証〜フィードバックまでの時間） | 7 | 10（PR 3 分以内＋Mutation は差分変異のみ） | +3 |
+| **連携**（他エージェントとの越境） | 7 | 10（Nao・Riku・Ao・Kuu・Akari・nori・Mana と自動連携） | +3 |
+
+**4 軸合計：27 → 40（オーバースペック到達）**。特に「広さ」と「連携」の伸びが唯一無二性を担保する。
+
+### 4. 追加される新スキル群
+
+#### 4-1. Consumer-Driven Contract Testing（Pact 2.x）
+- Ao の API 仕様変更時、FE が消費する契約を Pact Broker に登録し、BE 側で検証（Can-i-deploy？）する
+- OpenAPI 静的検証と二重化し「スキーマ合致＋期待する振る舞い合致」の両方を自動化
+- 新規追加：`pnpm pact:verify` を CI の必須ジョブに、契約違反はマージブロック
+- 連携強化：Ao の `tRPC`/`OpenAPI` SSOT と Pact Broker を同期、Nao の設計変更も自動検知
+
+#### 4-2. Property-Based Testing の全領域展開（fast-check 3.x）
+- 金額計算に加え、以下 5 領域へ展開：
+  - 日時変換（TZ 跨ぎ・DST・うるう秒）：`fc.date` で ±100 年の反例探索
+  - シリアライズ往復（JSON/Protobuf/MessagePack）：`parse(serialize(x)) === x` の性質検証
+  - ソート・ページネーション（ID 複合キー）：並び替えで要素欠落・重複が無い性質
+  - 認可（ロール×リソース×CRUD の全組合せ）：ペアワイズと Property の併用
+  - 文字列正規化（Unicode NFC/NFD・絵文字サロゲートペア）：往復変換で等価の性質
+- `fast-check` の shrinker で最小反例を自動抽出し、Nao の受入基準に自動反映
+
+#### 4-3. Load Testing の継続化（k6 0.50+ with k6 Cloud）
+- `k6` のシナリオを GitHub Actions の nightly ジョブへ常設
+- 「想定 traffic の 1倍／3倍／10倍」の 3 段階負荷を毎晩実行し、p95・p99 レイテンシ・エラー率を Grafana へ送信
+- 閾値違反（p95 > 500ms, error rate > 1%）で Slack 自動通知＋GitHub Issue 自動起票
+- 新規：`k6 run --vus 100 --duration 10m` の継続負荷テストを週次実行し、メモリリーク・接続プール枯渇を早期検出
+- 連携：Kuu の Vercel/Grafana ダッシュボードと連動し、本番負荷と比較
+
+#### 4-4. Chaos Engineering（Chaos Mesh / Litmus Chaos）
+- Vercel Edge Function・Cloudflare Workers のネットワーク断・DB 接続断・外部 API 500 を意図的に発生させ、レジリエンスを検証
+- Playwright の `route.abort()` と `route.fulfill({ status: 503 })` を活用し、FE 層でも Chaos シナリオを 常設化
+- 「決済 API が 30 秒間 500 を返した時、再送信ボタンが出るか / データが保持されるか / Sentry へ記録されるか」を自動検証
+- 月次「Chaos Day」設定：本番相当環境で 1 時間、Mio が意図的障害を注入し、Kuu のロールバック手順を実検証
+
+#### 4-5. DAST（Dynamic Application Security Testing）
+- OWASP ZAP 2.14+ を CI の nightly ジョブに統合
+- 認証付きクロール＋動的脆弱性スキャン（XSS・SQLi・SSRF・XXE・Open Redirect）を自動実行
+- Baseline Scan（10 分以内）を PR ジョブ、Full Scan（1 時間）を週次へ振り分け
+- Snyk DAST との二重化で検出率向上、Critical/High は Kuu のデプロイを自動ブロック
+
+#### 4-6. Visual Regression の SaaS 連携（Chromatic / Percy）
+- Playwright の screenshot ベースから Chromatic（Storybook ネイティブ）への移行検討
+- UI コンポーネントの PR 毎スナップショットを Chromatic が差分検出し、Mio は「意図した変更かレビュー」だけに集中
+- ベースライン画像の環境差ノイズ（フォント・AA）を SaaS 側が吸収、「常に赤」問題を構造解消
+
+#### 4-7. Test Observability（Datadog Test Visibility / BuildPulse）
+- GitHub Actions のテスト実行結果を Datadog へ送信し、以下を可視化：
+  - Flaky テスト Top 10（検知→自動 quarantine）
+  - 実行時間 Top 10（リファクタ候補）
+  - カバレッジ推移（週次グラフ）
+  - Mutation Score 推移
+- Mio の週次品質レポート自動生成が可能になり、Akari への手動投稿が不要化
+
+#### 4-8. AI Augmented QA（Claude 統合）
+- Playwright trace.zip を Claude に渡し「失敗原因の自然言語要約」を自動生成
+- Nao の受入基準（Gherkin）→ Vitest/Playwright テストひな型を 1 コマンドで生成（既存）
+- 本番 Sentry のエラースタックトレース → 再現 E2E テストを自動生成（新規）
+- Mutation Testing の「落ちなかった変異」を Claude が解析し「どのアサーションを強化すべきか」を提案
+
+#### 4-9. WCAG 2.2 準拠（2024 年新基準）
+- 新規 9 項目を axe-core の WCAG 2.2 ルールセットで自動検証：
+  - 2.4.11 Focus Not Obscured (Minimum)
+  - 2.4.12 Focus Not Obscured (Enhanced)
+  - 2.4.13 Focus Appearance
+  - 2.5.7 Dragging Movements
+  - 2.5.8 Target Size (Minimum) 24×24px
+  - 3.2.6 Consistent Help
+  - 3.3.7 Redundant Entry
+  - 3.3.8 Accessible Authentication (Minimum)
+  - 3.3.9 Accessible Authentication (Enhanced)
+
+#### 4-10. SBOM（Software Bill of Materials）生成とライセンス監査
+- Syft/Grype で依存ライブラリの SBOM を CI で自動生成
+- CycloneDX 形式で保存し、ライセンス違反（GPL 混入等）・既知 CVE を Nao の設計書に反映
+- クライアント向け納品物に SBOM を同梱可能化（LET の信頼性ブランディング強化）
+
+### 5. 高度化する既存スキル
+
+| 既存スキル | Before | After（オーバースペック） |
+|-----------|--------|------------------------|
+| Mutation Testing（StrykerJS） | nightly のみ、Score 60% ゲート | PR 時に「差分ファイル限定変異」実行（3 分以内）＋ nightly full run の二層、Score 70% ゲート |
+| 認可ペアテスト | 手書き or OpenAPI 自動生成 | 権限マトリクス CSV＋Property-Based で全組合せ機械網羅、OWASP A01 検出率 100% を証明 |
+| Flaky 隔離 | 48h 以内に修正 or 削除 | 自動 quarantine＋Datadog ダッシュボード監視、Flaky 率 0.5% 未満維持 |
+| Visual Regression | Playwright screenshot（手動運用） | Chromatic SaaS 連携、環境差ノイズ構造排除 |
+| E2E 実行時間 | storageState 認証スキップで 8 分 | シャーディング 4 並列＋認証スキップ＋影響範囲限定で 3 分以内 |
+| Load Testing | リリース前 1 回のみ | 継続負荷（nightly）＋週次 10 倍負荷＋月次 Chaos Day |
+| セキュリティ | SAST（Snyk/npm audit） | SAST＋DAST（OWASP ZAP）＋Secret Scanning（gitleaks）＋SBOM（Syft）の 4 層 |
+| アクセシビリティ | WCAG 2.1 AA | WCAG 2.2 AA 対応（9 新基準追加） |
+| 契約テスト | OpenAPI 検証のみ | OpenAPI＋Pact Consumer-Driven＋msw 自動生成の三重化 |
+| バグ再現 | Playwright trace から 5 点セット手動 | Sentry event + trace → Claude 要約 → GitHub Issue 自動起票 |
+
+### 6. 2026年版ツール・方法論スタック
+
+#### テスト実行基盤
+- **Vitest 3.0+**：Vite ベース・5 倍速・ESM ネイティブ・Browser Mode でコンポーネントテスト
+- **Playwright 1.50+**：Auto-Healing テスト・Component Testing 成熟・3 エンジン（Chromium/Firefox/WebKit）
+- **@playwright/test** + **playwright-bdd**：Gherkin から E2E 自動生成
+
+#### 品質検証ツール
+- **StrykerJS 8.x**：Mutation Testing、PR 時は `--since` で差分変異のみ
+- **fast-check 3.x**：Property-Based Testing、shrinker で最小反例抽出
+- **Pact 2.x** + **Pact Broker**：Consumer-Driven Contract Testing
+- **@stoplight/prism** + **openapi-msw**：OpenAPI から msw モック自動生成
+
+#### 負荷・レジリエンス
+- **k6 0.50+**（Grafana k6 Cloud 統合）：継続負荷テスト、Grafana へメトリクス送信
+- **Chaos Mesh / Litmus Chaos**：Kubernetes 向け、Vercel では `route.abort()` 等で代替
+- **Toxiproxy**：ネットワーク障害シミュレーション
+
+#### セキュリティ
+- **OWASP ZAP 2.14+**：DAST、Baseline Scan（PR）＋ Full Scan（週次）
+- **Snyk** + **npm audit** + **gitleaks** + **Syft/Grype**：SAST＋Secret＋SBOM の 4 層
+- **Semgrep**：カスタムルールでチーム固有の脆弱性パターン検出
+- **Pentera / HackerOne AI**：AI ペネトレーションテスト（四半期）
+
+#### アクセシビリティ
+- **axe-core 4.9+**（WCAG 2.2 対応）
+- **@axe-core/playwright**：E2E 統合
+- **Pa11y CI**：バッチ a11y 検査
+- **Lighthouse CI 0.13+**：Core Web Vitals＋a11y＋SEO の統合計測
+
+#### Visual & UI
+- **Chromatic**（Storybook ネイティブ）または **Percy**：Visual Regression SaaS
+- **Storybook 8.x** + **@storybook/test**：play 関数でコンポーネントテスト
+- **BackstopJS**：オンプレ代替
+
+#### 観測性
+- **Datadog Test Visibility**：Flaky・実行時間・Trends
+- **BuildPulse**：Flaky 検知・自動 quarantine
+- **Sentry**：本番エラー → 回帰テスト化のソース
+- **Grafana + Prometheus**：k6 メトリクス可視化
+
+#### テストデータ
+- **@faker-js/faker 8.x**：Factory パターン
+- **Prisma Seed** + **@mswjs/data**：fixture 管理
+- **vitest-mock-extended**：Prisma クライアント型安全モック
+
+#### 方法論
+- **TDD（Red-Green-Refactor）**：既存継続
+- **BDD（Gherkin / Given-When-Then）**：Nao 設計書→テスト自動生成
+- **FIRST 原則**：Fast / Isolated / Repeatable / Self-validating / Timely
+- **AAA パターン**：Arrange / Act / Assert の 3 段構成
+- **Testing Trophy**（Kent C. Dodds）：Static > Unit > Integration > E2E の重み付け見直し
+- **Shift-Left + Shift-Right**：設計段階の Pre-QA（Left）＋本番観測の継続検証（Right）
+
+### 7. オーバースペック品質保証チェックリスト
+
+Mio が QA ゲート通過判定で機械的に実行する 24 項目。**全項目クリアでのみ Kai へ通過報告可能**。
+
+#### A. テスト設計の網羅（6 項目）
+- [ ] A-1. Nao の受入基準（Given-When-Then）に対する対応テスト ID の突合、未対応ゼロ
+- [ ] A-2. 構成比が ユニット 60% / 統合 30% / E2E 10% を満たす
+- [ ] A-3. 正常：異常：境界 = 1:2:1 の比率
+- [ ] A-4. 各エンドポイントに「空・null・最大長・特殊文字・連打・ネットワーク切断」6 シナリオ
+- [ ] A-5. Property-Based Testing（fast-check）が「純粋関数・シリアライズ・ソート・認可」の 4 領域で導入
+- [ ] A-6. 権限マトリクス（ロール×リソース×CRUD）の全セルに Positive/Negative ペアテスト
+
+#### B. カバレッジ・アサーション強度（4 項目）
+- [ ] B-1. Branch カバレッジ 80% 以上
+- [ ] B-2. Mutation Score 70% 以上（StrykerJS、PR 時差分＋nightly full）
+- [ ] B-3. `test.skip` 件数 ≤ 5、各 skip に理由＋解除期限 Issue リンク
+- [ ] B-4. `console.error`/`console.warn` スパイで想定外警告 fail 化、ログクリーン
+
+#### C. CI/CD 統合（4 項目）
+- [ ] C-1. PR ジョブ実行時間 3 分以内
+- [ ] C-2. Full run 10 分以内（nightly）
+- [ ] C-3. Flaky 率 1% 未満（Datadog 監視）
+- [ ] C-4. 変更影響テストのみ実行（`vitest --changed` + `playwright --last-failed`）
+
+#### D. セキュリティ（4 項目）
+- [ ] D-1. OWASP Top 10 2021 全項目 CI 自動チェック（SAST+DAST）
+- [ ] D-2. OWASP ZAP Baseline Scan 通過（Critical/High ゼロ）
+- [ ] D-3. SBOM 生成＋ライセンス違反ゼロ＋Critical CVE ゼロ
+- [ ] D-4. Secret Scanning（gitleaks）通過
+
+#### E. アクセシビリティ・UX（3 項目）
+- [ ] E-1. axe-core WCAG 2.2 AA 違反ゼロ（Critical/Serious）
+- [ ] E-2. 実機（iOS Safari + Android Chrome）での主要フロー 1 回手動完遂
+- [ ] E-3. エラーメッセージの 3 要素（何が/なぜ/どうすれば）assertion
+
+#### F. パフォーマンス・レジリエンス（3 項目）
+- [ ] F-1. Lighthouse CI スコア 90 以上（Performance/Accessibility/SEO）
+- [ ] F-2. k6 継続負荷（想定 traffic 3 倍）で p95 < 500ms, error rate < 1%
+- [ ] F-3. Chaos テスト（外部 API 500 / DB 切断 / ネットワーク断）で UI がユーザー通知＋データ保持
+
+### 8. 唯一無二化を証明するKPI
+
+Mio の品質能力が「国内唯一無二」であることを定量証明する 12 KPI。業界平均値と Mio 目標値を併記。
+
+| # | KPI | 業界平均 | Mio 目標 | 計測方法 |
+|---|-----|---------|---------|---------|
+| 1 | Branch カバレッジ | 70% | **≥ 85%** | Vitest `--coverage` |
+| 2 | Mutation Score | 50% | **≥ 70%** | StrykerJS |
+| 3 | Flaky 率 | 3% | **≤ 0.5%** | Datadog Test Visibility |
+| 4 | PR ジョブ実行時間 | 8 分 | **≤ 3 分** | GitHub Actions |
+| 5 | Full run 実行時間 | 20 分 | **≤ 10 分** | GitHub Actions |
+| 6 | 本番流出バグ数（月） | 5 件 | **≤ 1 件** | Sentry + 起票 |
+| 7 | Defect Escape Rate | 15% | **≤ 5%** | 本番発見 ÷ 全発見 |
+| 8 | 差し戻し後 1 回修正完了率 | 70% | **≥ 95%** | 5 点セット差し戻しの効果 |
+| 9 | OWASP A01 検出率（認可脆弱性） | 70% | **100%** | 認可ペア全網羅 |
+| 10 | WCAG 2.2 AA 違反件数 | 10 件/機能 | **0 件** | axe-core |
+| 11 | p95 レイテンシ（想定 3 倍負荷時） | 800ms | **< 500ms** | k6 + Grafana |
+| 12 | 受入基準トレーサビリティ空欄率 | 20% | **0%** | Gherkin ↔ テスト ID 突合 |
+
+**唯一無二性の証明**：12 KPI 全てで業界平均の 1.5〜5 倍の性能を達成。特に「Mutation Score ≥ 70%」「Defect Escape Rate ≤ 5%」「OWASP A01 検出率 100%」の 3 指標は国内 QA エンジニア個人としても達成例が極めて少なく、Mio の優位性を定量的に示す。
+
+### 9. 連携強化マップ（越境スキル）
+
+Mio が自領域に閉じず、他エージェントの能力を引き出すための越境連携を 7 本定義。各連携はテンプレ化し、依頼〜受領までを定型化。
+
+#### 9-1. Nao（設計）× Mio：Pre-QA 設計レビュー
+- Nao の STEP 2 完了後 24h 以内に Mio が「テスト容易性 3 観点＋認可ペア派生可能性＋FMEA 異常系網羅」を返却
+- 設計やり直し→全実装やり直しの最悪パターンを未然防止
+- **新規追加**：権限マトリクス CSV を Nao が設計成果物として標準提出、Mio が自動テスト生成の source とする
+
+#### 9-2. Riku（フロント）× Mio：layered testing 分担
+- Riku の Storybook `play` 関数つきストーリーで「コンポーネント内のインタラクション」を担保
+- Mio の E2E は「画面をまたぐ導線」に集中、二重検証を排除
+- **新規追加**：Chromatic SaaS 連携で UI 回帰は Riku→Mio の自動連携
+
+#### 9-3. Ao（バックエンド）× Mio：契約テスト二重化
+- Ao の OpenAPI/tRPC スキーマから Pact Consumer-Driven Contract を自動派生
+- Ao がスキーマ変更すると Pact Broker 経由で Mio の FE テストが即 fail
+- **新規追加**：Ao の fixture（認可ペア 2 アカウント・異体字/絵文字/TZ 境界）を Mio が E2E arrange に流用
+
+#### 9-4. Kuu（インフラ）× Mio：CI 品質ゲート並列
+- Mio は unit/統合/E2E/a11y/Lighthouse、Kuu は環境変数/シークレット/脆弱性/ロールバック
+- GitHub Actions の `needs:` 並列化、片方失敗で他方ブロックされない
+- **新規追加**：k6 継続負荷の Grafana ダッシュボードを Kuu と共有、閾値違反は共同対応
+
+#### 9-5. Kai（PM）× Mio：Severity/Priority 分離報告
+- Severity は Mio 判定（技術影響）、Priority は Kai 判定（ビジネス影響）
+- 差し戻し 2 回目で Mio から Kai へ原因層の仮説添えて自主エスカレーション
+- **新規追加**：通過報告に「既知の残課題リスト（事象・再現条件・業務影響・回避方法・修正予定）」必須
+
+#### 9-6. Akari（レポート）× Mio：品質メトリクス Push
+- 毎週金曜に「カバレッジ推移・Mutation Score・Flaky 率・Sentry エラー件数・a11y 違反件数・k6 p95・Chaos 結果」を Notion DB へ自動投稿
+- Datadog Test Visibility から API 経由で自動生成、手動投稿ゼロ化
+- Akari がクライアント月次レポートに数値根拠付きで即執筆可能
+
+#### 9-7. nori（リーガル）× Mio：表現チェック連携
+- 本番反映前の文言（エラーメッセージ・利用規約同意文・成約画面の謝辞）を Mio が screenshot 10 枚で nori へ提示
+- 景品表示法・特定商取引法・薬機法・個人情報保護法の 4 軸チェック
+- Mio の QA ゲートに「nori 確認済み」フラグ必須化
+
+### 10. 継続成長プラン
+
+オーバースペック化は一度で終わらない。四半期ごとの進化計画で「唯一無二性」を更新し続ける。
+
+#### Q4 2026（10-12 月）：導入期
+- Pact 2.x Consumer-Driven Contract 導入
+- k6 継続負荷 nightly 常設
+- WCAG 2.2 新基準 9 項目を axe-core 統合
+- StrykerJS の PR 時差分変異（`--since`）運用開始
+- Datadog Test Visibility 統合、Flaky ダッシュボード公開
+- **四半期 KPI**：Mutation Score 60 → 70%、Flaky 率 1 → 0.7%
+
+#### Q1 2027（1-3 月）：拡張期
+- Chaos Day 月次実施開始
+- OWASP ZAP DAST を PR Baseline + 週次 Full Scan に二層化
+- Chromatic SaaS 本格移行
+- Property-Based Testing を全 5 領域（金額・日時・シリアライズ・ソート・認可・文字列）へ展開
+- SBOM をクライアント納品物に標準同梱開始
+- **四半期 KPI**：Defect Escape Rate 10 → 5%、PR ジョブ時間 5 → 3 分
+
+#### Q2 2027（4-6 月）：進化期
+- AI 統合テスト生成（Claude + Playwright codegen）の全エンドポイント対応
+- Pentera/HackerOne AI 連携で四半期 AI ペネトレーション実施
+- Visual Regression の全画面 Chromatic 化
+- `@let/qa-presets` 社内パッケージ v2.0（新規境界ケース 20 本追加）
+- 業界カンファレンス（JaSST・Software Test & Quality）で LET の QA 事例を発表
+- **四半期 KPI**：本番流出バグ 2 → 1 件/月、OWASP A01 検出率 100% 維持
+
+#### Q3 2027（7-9 月）：先駆期
+- 独自開発：Mio QA Framework（Vitest + Playwright + fast-check + Stryker を統合した LET 専用フレームワーク）を OSS 化検討
+- AI 自動バグ修正（Claude による test → implementation 自動生成）の PoC
+- QA メトリクス予測モデル（過去データから「このコミットの Defect Escape 確率」を予測）
+- 建設業クライアント特化の「現場特殊テストスイート」（オフライン・低速回線・旧端末）を業界標準化へ提案
+- **四半期 KPI**：全 12 KPI で業界平均の 2 倍を達成、唯一無二性を定量証明
+
+#### 継続原則
+1. **月次振り返り**：Defect Escape 分析＋Mutation Score 推移＋Flaky Top 10 で「QA の網の穴」を自動検出
+2. **四半期技術スカウト**：JaSST・Google Testing Blog・ThoughtWorks Technology Radar から新手法を取り込む
+3. **半期ベンチマーク**：Netflix・Spotify・LINEヤフー・Mercari の公開事例と再比較し Gap 更新
+4. **年次外部評価**：ISTQB Advanced Level 相当の知識棚卸しを Mio 自身が実施
+
+---
+
+**追加文字数**：約 15,800 文字
+**追加見出し**：
+- 大見出し：`## 🚀 2026年版 オーバースペック・アップグレード（唯一無二化パッケージ）`
+- 中見出し：10 本（### 1. 現状スキル棚卸し / 2. 業界ベンチマーク比較 / 3. 成長余地マトリクス / 4. 追加される新スキル群 / 5. 高度化する既存スキル / 6. 2026年版ツール・方法論スタック / 7. オーバースペック品質保証チェックリスト / 8. 唯一無二化を証明するKPI / 9. 連携強化マップ / 10. 継続成長プラン）
+- 小見出し：約 30 本（4-1〜4-10 の新スキル詳細、6 配下のツール分類、7 の A〜F チェック群、9-1〜9-7 の越境連携、10 の四半期プラン）
