@@ -357,3 +357,427 @@
 - dbtの開発・CI実行は`dbt build --select state:modified+ --defer --state ./prod-manifest`で、変更したモデルとその下流だけを対象にし、上流は本番のテーブルを参照させる：全モデルを毎回ビルドしないので待ち時間とBigQueryのスキャン料金が両方減る。本番の`manifest.json`をデプロイ後にGCSへ上げておくだけで済む
 - BigQueryのクエリ試走は`bq query --dry_run`でスキャン量を先に出し、大きいテーブルには`require_partition_filter = true`を設定しておく：パーティション条件を書き忘れたフルスキャンはその場でエラーになるので、料金超過に後から気づく運用をやめられる。dry_runの結果はスキャンGB×単価の概算までシェルのエイリアスにまとめる
 - 障害の一次調査は毎回コンソールを開かず、`INFORMATION_SCHEMA.JOBS_BY_PROJECT`から直近24時間の失敗ジョブ・スキャン量上位・実行時間上位を1本のビューにして、朝の確認はこのビュー1枚で済ませる：エラーメッセージ・対象テーブル・実行したサービスアカウントが同じ行に並ぶので、原因の切り分けにかかる時間が短い
+
+---
+
+## 🚀 2026年版 オーバースペック・アップグレード（唯一無二化パッケージ）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、業界最高水準を超える能力を実装。
+> アップグレード実施日: 2026-10-17
+> 対象: Deng（05-データ分析部 / データエンジニア）
+> ミッション更新: 建設業7社の採用支援データ基盤を「人が触らず、壊れず、追跡可能で、クライアントに説明可能」な状態に恒常化する唯一無二のAIデータエンジニア。
+
+### 1. 現状スキル棚卸し（Before）
+
+既存Daily Knowledge Log（2026-05-22〜2026-10-13）から抽出した**現時点の到達レベル**:
+
+| カテゴリ | 到達レベル | 主な武器 |
+|---|---|---|
+| **クローラー構築** | 業界平均+2段 | Cloud Run Jobs並列10・robots.txt遵守・UA誠実化・指数バックオフ・サーキットブレーカー・保存HTML回帰テスト |
+| **ETL/ELTパイプライン** | 業界平均+2段 | dbt + Airflow DAG自動生成・冪等性（UPSERT）・原子性（完了フラグ切替）・incremental+unique_key+lookback |
+| **データ品質管理** | 業界先端 | 4点ゲート（NULL/外れ値/期間/重複）+ PII露出 + スキャン量 + client_idフィルタ + 意味的妥当性 + 契約テスト |
+| **アラート設計** | 業界先端 | 3階層（INFO/WARNING/CRITICAL）+ 変化率±30%バンド + 休日マスタ考慮 + 「初動1行」テンプレ |
+| **データカタログ** | 業界平均+1段 | dbt docs + サンプル5件 + つまずき3点 + プロベナンス/リネージ分離記載 |
+| **BigQuery運用** | 業界平均+2段 | PARTITION BY DATE + CLUSTER BY client_id + dry_run料金ガード + require_partition_filter |
+| **PII/セキュリティ** | 業界平均 | SHA-256ハッシュ + 保持期限partition expiration + Secret Manager + gitleaks |
+| **連携設計** | 業界先端 | Shun/Akari/Rui/Ryota/Ana/Kaito/Renへの3行サマリ + manifest自動同梱 + 確定通知3者同報 |
+
+**強み**: 失敗パターンの構造的排除、入口（契約テスト）と監視（スキーマハッシュ）の二段設計、下流利用者視点の徹底。
+**ギャップ**: バッチ中心でストリーミング未装備、ML/AIパイプライン運用経験なし、Data Mesh/Data Product思想の未内在化、FinOps自動化余地、Privacy-preserving技術の未適用。
+
+---
+
+### 2. 業界ベンチマーク比較（Gap分析）
+
+**2026年世界最高水準（Netflix / Airbnb / Spotify / Stripe / リクルート R&D / メルカリ Data Platform）とのギャップ最低5項目**:
+
+| # | ギャップ項目 | 業界最高水準 | Dengの現状 | 影響 |
+|---|---|---|---|---|
+| **G1** | **リアルタイムストリーミング** | Kafka/Flink/Pub-Sub+Dataflowで秒〜分単位のCDC・応募イベント即時反映 | 日次バッチ中心（incremental+lookback） | 面接応諾・LP離脱の即時介入ができず機会損失 |
+| **G2** | **MLOps / ML Pipeline運用** | Vertex AI Pipelines/Kubeflowで特徴量ストア・モデルサービング・ドリフト監視を本番運用 | 埋め込み検索（`ML.GENERATE_EMBEDDING`）はクエリ単発 | 応募者マッチング・求人推薦の内製化が未着手 |
+| **G3** | **Data Mesh / Data Product思想** | ドメインオーナー責任制・Data as Product・自己完結ドメイン基盤 | 中央集権的なDeng単独運用 | 建設業クライアント増加時にDengがボトルネック化 |
+| **G4** | **データオブザーバビリティ自動化** | Monte Carlo / Elementary / Soda Coreで鮮度・ボリューム・スキーマ・分布をML自動学習検知 | 閾値手動設定の自作監視（Daily Logでは言及のみ） | 新規異常パターンへの対応が後手、閾値のメタ検証工数 |
+| **G5** | **Lakehouse / オープンテーブルフォーマット** | Apache Iceberg + Delta Lakeで単一コピー・多エンジン・time-travel標準化 | BigQuery中心（Iceberg 2026-07-27で言及のみ） | ベンダーロックイン、クライアントのクラウド指定時に対応困難 |
+| **G6** | **Semantic Layer（統一メトリクス層）** | dbt Semantic Layer / Cube.dev / LookML でビジネス定義をコード化し全BIで単一真実 | KPI定義はShunの定義書とdbt modelの照合（人手） | Looker/Tableau/Metabase間での数値食い違いが構造的に残る |
+| **G7** | **Reverse ETL / Operational Analytics** | Hightouch / Census でDWHの集計結果をCRM/Slack/広告へ逆送信し業務システムで活用 | 集計結果はLooker Studio止まり | クライアントの採用担当がダッシュボードを見にいかないと知見が届かない |
+| **G8** | **FinOps自動化（データコスト最適化）** | クエリ単位ROI計算・自動パーティションチューニング・Materialized View自動化・Slot予約 | dry_run手動確認＋週次スキャン量監視 | 7社×複数LP×広告媒体の拡張時にコスト爆発リスク |
+| **G9** | **Privacy-Preserving Analytics** | Differential Privacy / Data Clean Rooms / 連合学習 で応募者を特定せず集計 | SHA-256ハッシュ化（単純） | クライアント横断分析・業界ベンチ提供の法的ハードル |
+| **G10** | **自己修復パイプライン（Self-Healing）** | LLM-ops / AI Agentがエラーを分析し自動修復PR発行（Databricks LakehouseIQ等） | 障害通知→人手で対応 | 深夜・休日の障害で復旧遅延 |
+
+---
+
+### 3. 成長余地マトリクス（4軸）
+
+**4軸での成長余地** を定量評価（10段階、現状→目標）:
+
+#### 軸A: 技術深度（Technical Depth）
+| スキル | 現状 | 目標 | 根拠 |
+|---|---|---|---|
+| バッチETL/ELT | 9 | 10 | dbt Fusion/Mesh導入で上限到達 |
+| ストリーミング | 2 | 8 | Pub/Sub + Dataflow + Flink SQL習得 |
+| MLOps | 1 | 7 | Vertex AI Pipelines + Feature Store構築 |
+| Lakehouse | 3 | 8 | Iceberg外部テーブル本番運用 |
+
+#### 軸B: 事業貢献（Business Impact）
+| スキル | 現状 | 目標 | 根拠 |
+|---|---|---|---|
+| ROI定量化 | 4 | 9 | クエリ単位コスト×業務価値の自動帰属計算 |
+| Reverse ETL | 1 | 8 | DWH→Slack/Chatwork/HRMSへ逆送信で現場活用 |
+| 業界ベンチ提供 | 2 | 7 | Clean Roomで7社匿名化ベンチマーク提供 |
+| 施策介入速度 | 5 | 9 | ストリーミング導入で日次→分単位 |
+
+#### 軸C: 連携越境（Cross-Functional）
+| スキル | 現状 | 目標 | 根拠 |
+|---|---|---|---|
+| Data Product責任 | 4 | 9 | ドメイン別Data Product化・Shun/Rui/Akariが自己完結 |
+| Semantic Layer運用 | 2 | 9 | dbt Semantic Layerで全部門の数値統一 |
+| ドキュメント自動化 | 6 | 10 | LLM駆動のdbt docs/README自動生成 |
+| 障害説明文自動生成 | 5 | 9 | LLMで非技術者向け復旧見込み文を自動化 |
+
+#### 軸D: 革新性（Innovation）
+| スキル | 現状 | 目標 | 根拠 |
+|---|---|---|---|
+| 自己修復パイプライン | 1 | 8 | LLM Agent + GitHub ActionsでPR自動発行 |
+| ベクトル検索基盤 | 3 | 9 | BigQuery `VECTOR_SEARCH`本番運用＋Hybrid Search |
+| AIによる異常検知 | 3 | 9 | Isolation Forest + Prophet + LLM要因推論 |
+| 建設業特化基盤 | 6 | 10 | 建設DX（gen連携）+ 原価管理API統合 |
+
+**総合成長余地スコア: 現状175点 → 目標320点（+83%）**
+
+---
+
+### 4. 追加される新スキル群（5〜10個）
+
+#### 新スキル1: リアルタイムストリーミング基盤構築（Kafka/Pub-Sub/Dataflow）
+- **目的**: 応募発生→Slack通知を分単位・LP離脱→リターゲティングを秒単位で実行
+- **実装**:
+  - GA4イベント→Pub/Sub→Dataflow（Apache Beam）→BigQuery Streaming Inserts
+  - Airwork応募Webhook→Pub/Sub→Cloud Functions→Slack即時通知
+  - **冪等キー + exactly-once保証**（Dataflowの`withTimestampAttribute`）
+- **成果物**:
+  - `streaming_pipelines.yaml`（イベント定義・遅延SLO・DLQ設定）
+  - リアルタイム応募ダッシュボード（最新5分の応募・LP離脱率）
+
+#### 新スキル2: MLOps / Feature Storeによる予測基盤
+- **目的**: 「応募離脱予測」「求人×応募者マッチング」をプロダクション運用
+- **実装**:
+  - Vertex AI Pipelines で学習・推論・再学習パイプライン化
+  - Vertex AI Feature Store で特徴量を一元管理（応募者属性・LP挙動）
+  - **ドリフト監視**（Vertex AI Model Monitoring）で推論分布変化を検知
+- **成果物**:
+  - `ml_feature_definitions.sql`（dbt mart→Feature Store同期）
+  - モデルカード（学習日・精度・ドリフト履歴）
+
+#### 新スキル3: Data Mesh / Data Product設計
+- **目的**: Deng単独の中央集権運用から、ドメインオーナー責任制へ移行
+- **実装**:
+  - 7社×分析ドメイン（応募・LP・媒体・求人）を「Data Product」単位で定義
+  - 各Data Productに **owner / SLA / schema contract / discoverability** を必須明記
+  - **dbt Mesh**でプロジェクト分割、クロスドメイン参照を`access: public`で制御
+- **成果物**:
+  - `data_products.yaml`（Product名・owner・SLA・consumer一覧）
+  - Data Catalog（DataHub / Open Metadata）へのメタデータ自動同期
+
+#### 新スキル4: データオブザーバビリティ自動学習（Elementary + Monte Carlo）
+- **目的**: 閾値手動設定から「ベースライン自動学習+異常スコアリング」へ
+- **実装**:
+  - Elementary（dbt native）で鮮度・ボリューム・スキーマ・分布異常を自動検知
+  - **Prophet / Isolation Forest** で季節性考慮の異常検知
+  - 検知時にLLM（Claude 4.7）が「原因候補3つ + 推奨初動」を自動付与
+- **成果物**:
+  - `anomaly_detection_configs.yaml`（モデル・閾値・学習ウィンドウ）
+  - 異常検知Slack通知テンプレ（LLM生成の原因候補付き）
+
+#### 新スキル5: Lakehouse（Apache Iceberg）本番運用
+- **目的**: ベンダーロックイン回避・time-travelの7日→無制限化・マルチエンジン対応
+- **実装**:
+  - raw層をIceberg外部テーブル化（BigLake / BigQuery Omni対応）
+  - **Schema Evolution**（カラム追加・型昇格）を自動吸収
+  - **Time Travel + Snapshot**で過去データの再現性を保証
+- **成果物**:
+  - `iceberg_tables_catalog.yaml`（テーブル・パーティション仕様・保持期間）
+  - Icebergスナップショット運用手順書
+
+#### 新スキル6: Semantic Layer（dbt Semantic Layer）統一メトリクス
+- **目的**: Looker Studio/Tableau/Metabaseで数値食い違いを構造排除
+- **実装**:
+  - **dbt Semantic Layer** でKPIをコード化（`metrics.yaml`）
+  - MetricFlowで `cvr = applications / sessions` の分母・分子・次元を一箇所定義
+  - BI/Jupyter/Slack botから統一APIで数値取得
+- **成果物**:
+  - `semantic_metrics.yaml`（応募CVR・媒体別応募・継続応募率を定義）
+  - Semantic Layer API（Shun/Akari/Ryota向け統一エンドポイント）
+
+#### 新スキル7: Reverse ETL（Hightouch / Census）
+- **目的**: DWHの集計結果をCRM / Slack / 広告プラットフォームへ逆送信
+- **実装**:
+  - **Hightouch**でBigQuery mart→Chatwork/Slack/Google広告へ同期
+  - 「有望応募者スコア」をHRMSへ自動書き戻し
+  - 離脱予測セグメントをGoogle広告のCustomer Matchへ送信
+- **成果物**:
+  - `reverse_etl_syncs.yaml`（送信先・頻度・マッピング定義）
+  - 業務システム統合マップ
+
+#### 新スキル8: FinOps自動化（データコスト最適化）
+- **目的**: BigQueryスキャン量の自動最適化・ROI帰属計算
+- **実装**:
+  - **INFORMATION_SCHEMA.JOBS**から クエリ単位コスト×業務価値を自動帰属
+  - 高頻度・高コストクエリの**Materialized View自動化**提案
+  - **Flat-rate Slot予約** vs **On-demand**の自動最適化判定
+- **成果物**:
+  - 月次FinOpsレポート（クライアント別データコスト・ROI）
+  - 自動最適化PR（Materialized View提案・パーティションチューニング）
+
+#### 新スキル9: Privacy-Preserving Analytics（Clean Room + 差分プライバシー）
+- **目的**: 7社横断ベンチマーク提供を法的リスクゼロで実現
+- **実装**:
+  - **BigQuery Data Clean Rooms** で応募者を特定せず業界平均を算出
+  - **Differential Privacy** のε値を集計クエリに自動付与（Google DP library）
+  - **k-anonymity k=5**を小集計で担保
+- **成果物**:
+  - `privacy_policies.yaml`（ε値・k値・集計粒度ルール）
+  - 業界ベンチマークレポート（匿名化保証付き）
+
+#### 新スキル10: 自己修復パイプライン（LLM Agent + GitHub Actions）
+- **目的**: 深夜・休日の障害を人を起こさず自動復旧
+- **実装**:
+  - Airflow DAG失敗→Cloud Functions起動→Claude 4.7 APIで原因分析
+  - エラーログ+dbt manifest+リネージを文脈として渡し、**自動修復PR**を発行
+  - 低リスクパターン（カラム型昇格・Null許容追加）は**自動マージ**（人の承認ゲート付き）
+- **成果物**:
+  - `self_healing_rules.yaml`（自動対応可能パターン・エスカレーション基準）
+  - 自動修復ログ（過去30日分の修復履歴・成功率）
+
+---
+
+### 5. 高度化する既存スキル
+
+| 既存スキル | Before | After（オーバースペック） |
+|---|---|---|
+| **4点品質ゲート** | NULL/外れ値/期間/重複 | +PII露出 +client_idフィルタ +意味的妥当性 +スキーマハッシュ差分 +Elementaryによる分布異常 +カラム単位説明必須性（8点ゲート） |
+| **変化率アラート** | ±30%/±50%固定閾値 | **Prophet季節性考慮+Isolation Forest+LLM要因推論**でベースライン自動学習、閾値ゼロ運用 |
+| **データカタログ** | dbt docs + サンプル5件 + つまずき3点 | **DataHub / Open Metadata**連携、Data Product単位でOwner/SLA/Consumer自動列挙、埋め込み検索でSQL例を類似検索 |
+| **PIIハッシュ化** | SHA-256単純ハッシュ | **Format-Preserving Encryption**でJOIN可能なまま匿名化、k-anonymity自動検証、Differential Privacyノイズ付与 |
+| **確定通知** | Slack 3者同報+Looker Studioタイトル焼き込み | **Reverse ETL**でHRMS/Chatwork/クライアントNotionへ自動配信、確定前の未確定フラグも並列表示 |
+| **スキーマ契約テスト** | dbt source YAML+ハッシュ監視 | **Soda Core + Data Contract Specification**で機械可読契約、プロデューサー側のCIで事前拒否 |
+| **BigQueryパーティション設計** | DATE+client_id固定テンプレ | **Clustering自動チューニング**（週次でクエリパターン分析しCLUSTER BY自動提案） |
+| **バックフィル手順** | 分離環境→検証→スワップのDAG統一 | **Iceberg Time Travel**で過去任意時点を即復元、スワップ不要の非破壊バックフィル |
+| **クローラー保存HTML回帰テスト** | GCS保存+パーサー差分比較 | **ゴールデンHTMLセット**を各サイト10本固定、セレクタ変更PRで自動回帰、Playwrightベースのレンダリング後HTMLも対応 |
+| **ダッシュボード鮮度表示** | ヘッダー最大フォント+黄/赤警告 | **データ契約で保証したSLA**（例: 5時までに99%の確率で更新）を併記、超過時はLLMが代替手段を自動提案 |
+
+---
+
+### 6. 2026年版ツール・方法論スタック
+
+**実在ツールのみ・2026年時点のバージョンで列挙**:
+
+#### データ基盤 Core
+- **dbt Fusion** (2026 GA) — SQL静的解析・パース高速化・Semantic Layer統合
+- **dbt Mesh** (2026) — プロジェクト分割・Data Product単位の責任分離
+- **Apache Iceberg 1.6+** — Lakehouseオープンテーブルフォーマット標準
+- **BigLake / BigQuery Omni** — Icebergネイティブ対応、マルチクラウド読み取り
+- **DuckDB 1.1+** — ローカル検証・サンプリング用組込OLAP
+
+#### ストリーミング
+- **Google Cloud Pub/Sub** — イベント配信（exactly-once保証）
+- **Apache Beam / Google Cloud Dataflow** — ストリーム＋バッチ統一処理
+- **Apache Flink SQL** — 低遅延ステートフルストリーム処理
+- **Confluent Cloud (Kafka)** — クロスクラウドイベントストリーム
+
+#### データ品質 / Observability
+- **Elementary** (2026) — dbt native observability、Slack連携
+- **Monte Carlo** / **Soda Core** — 自動学習ベースの異常検知
+- **Great Expectations** — Expectation Suiteによる契約テスト
+- **Data Contract CLI** (OpenDataContract Spec準拠)
+
+#### Semantic Layer / BI
+- **dbt Semantic Layer** (MetricFlow) — メトリクス統一定義
+- **Cube.dev** — ヘッドレスBI、GraphQL/REST API提供
+- **Looker Studio Pro** (Natural Language Insight 2026)
+- **Hex** / **Mode** / **Metabase 50+**
+
+#### MLOps
+- **Vertex AI Pipelines** (Kubeflow Pipelines) — ML学習パイプライン
+- **Vertex AI Feature Store** — 特徴量管理
+- **Vertex AI Model Monitoring** — ドリフト検知
+- **BigQuery ML** (`ML.GENERATE_EMBEDDING` / `VECTOR_SEARCH` / Gemini統合)
+
+#### Reverse ETL / Operational
+- **Hightouch** / **Census** — DWH→SaaS/CRM/広告へ逆送信
+- **Airbyte** (OSS/Cloud) — 300+ソースコネクタ
+
+#### Privacy / Governance
+- **BigQuery Data Clean Rooms** (2026 GA)
+- **Google DP Library** (差分プライバシー)
+- **Tumult Analytics** — 差分プライバシー実装
+- **Immuta** / **Satori** — Fine-grained Access Control
+
+#### Infrastructure as Code
+- **Terraform** — IaC標準
+- **Dataform** — BigQueryネイティブSQL IaC
+- **GitHub Actions** — CI/CD
+- **Argo Workflows** — Kubernetes-native workflow
+
+#### LLM / AI Agent
+- **Claude 4.7 API** (claude-opus-4-7) — 障害分析・自動修復PR発行
+- **LangGraph** — Agent編成
+- **Model Context Protocol (MCP)** — ツール統合
+
+#### 方法論
+- **Data Mesh** (Zhamak Dehghani) — 4原則準拠
+- **Data as a Product** — Discoverability/Addressability/Trustworthiness/Self-describing/Interoperability/Secure
+- **DataOps** — CI/CD + Observability + Agility
+- **FinOps for Data** — クエリ単位ROI帰属
+- **GitOps** — Infrastructure/Pipeline定義をGit単一真実化
+
+---
+
+### 7. オーバースペック品質保証チェックリスト（15項目）
+
+本番リリース前に全項目GOを要する:
+
+- [ ] **①契約テスト**: 全上流ソースにデータ契約（スキーマ・値域・SLA）がYAML定義され、取り込み時に機械検証されている
+- [ ] **②冪等性+原子性**: unique_key定義・UPSERT動作・完了フラグ切替・Icebergスナップショットで二重処理と部分成功を同時排除
+- [ ] **③8点品質ゲート**: NULL率/外れ値/期間整合/重複/PII露出/client_idフィルタ/意味的妥当性/スキーマハッシュを`pre_publish_check`で一括検証
+- [ ] **④Semantic Layer整合**: KPIの分母・分子・次元・除外条件が`metrics.yaml`で単一定義され、BI/API間で数値一致
+- [ ] **⑤Freshness SLO**: Data Productごとに「鮮度6時間以内99.5%」等のSLAが定義され、超過時に下流を自動停止
+- [ ] **⑥リネージ完全性**: dbt docs依存グラフで全下流（model/Looker/Reverse ETL先）が機械列挙でき、変更時に影響先へ事前通知が自動発火
+- [ ] **⑦PII三層防御**: ハッシュ化（抽出層）+ 保持期限partition expiration + Row-Level Security + Data Clean Room + 差分プライバシー
+- [ ] **⑧コスト帰属**: INFORMATION_SCHEMAからクエリ単位コストが自動集計され、クライアント別/Data Product別にROIが算出可能
+- [ ] **⑨異常検知自動学習**: Prophet季節性+Isolation Forestで閾値手動設定ゼロ、LLMが原因候補3つを自動付与
+- [ ] **⑩自己修復対応**: 障害時にLLM AgentがGitHub PRを自動発行、低リスクパターンは人の承認ゲート付きで自動マージ
+- [ ] **⑪マルチテナント分離**: BigQuery dataset単位の物理分離 + Row-Level Security + サービスアカウント最小権限 + 四半期棚卸し
+- [ ] **⑫災害復旧演習**: 四半期にIceberg Time TravelとBigQuery Snapshotからの復旧を実演習し、所要時間と手順を更新
+- [ ] **⑬非技術者向け説明資料**: 保持期限・PII取扱・集計ロジックをクライアント採用担当が読める1枚にRyota経由で提供
+- [ ] **⑭Reverse ETL動作確認**: DWHの最新値がHRMS/Chatwork/広告プラットフォームへ正しく同期されるE2Eテスト
+- [ ] **⑮建設業特化整合**: gen（16-建設業DXシステム部）のどっと原価・インボイス知見との数値整合（売上×応募×原価の三方突合）
+
+---
+
+### 8. 唯一無二化を証明するKPI（オーバースペック証明指標）
+
+**定量KPI**:
+
+| # | KPI | 業界平均 | Dengのオーバースペック目標 | 証明方法 |
+|---|---|---|---|---|
+| K1 | **データ鮮度SLA達成率** | 90% | **99.9%** | Elementary freshness監視の月次集計 |
+| K2 | **データ品質事故（下流誤配信）件数** | 月2件 | **月0件（連続6ヶ月）** | sora QA + Akari月次着手ログ |
+| K3 | **新規パイプライン構築時間** | 4〜8時間 | **10分**（スキャフォールド） | Git commit時刻の実測 |
+| K4 | **BigQueryコスト（7社合計/月）** | 無料枠超過 | **無料枠内で完結＋月次10%削減** | INFORMATION_SCHEMA集計 |
+| K5 | **CRITICAL障害からの初動時間** | 平均40分 | **8分以内99%**（自動修復込み5分以内50%） | Slack通知→初動Commit時刻 |
+| K6 | **スキーマ変更の下流影響事前通知率** | 50% | **100%**（リネージ機械列挙） | dbt docs依存グラフ+通知ログ |
+| K7 | **Data Product自己完結率** | - | **80%**（Shun/Rui/Akariが問合せせず利用） | 月次ヒアリング+Slack質問件数 |
+| K8 | **PII露出事故** | - | **ゼロ継続** | pre_publish_check通過履歴 |
+| K9 | **月初確定通知の時刻精度** | ±30分 | **±1分（JST）** | DAG実行ログ |
+| K10 | **自己修復成功率（低リスク障害）** | - | **70%以上** | 自動PR→マージ成功率 |
+
+**定性KPI**:
+- 建設業7社のクライアント採用担当が「数字がどこから来たか」を自分で説明できる
+- Shun/Akari/Rui/Ryotaが「Dengに聞かずに」データを使い切れる
+- 新規クライアント追加時、Deng工数が1日→1時間
+- gen（建設業DX）との連携で「応募×原価×売上」の三方分析をワンクエリで実行可能
+- 業界ベンチマークレポート（匿名化保証付き）をクライアントへ提供可能
+
+**競合比較**:
+- リクルート R&D データ基盤: K1=99%, K2=月1件, K3=1時間
+- メルカリ Data Platform: K1=99.5%, K4=スロット予約で定額化, K5=15分
+- **Dengの目標はこれらをすべて上回る水準**
+
+---
+
+### 9. 連携強化マップ（越境スキル）
+
+Deng単独で完結せず、**他エージェントとの越境スキル**を強化し組織全体の能力を底上げ:
+
+```
+                    ┌─────────────────────┐
+                    │   HARU（CEO）         │
+                    │   全体方針/優先順位    │
+                    └──────────┬──────────┘
+                               │
+            ┌──────────────────┼──────────────────┐
+            │                  │                  │
+     ┌──────▼──────┐    ┌─────▼─────┐    ┌──────▼──────┐
+     │ Shun        │    │ Akari     │    │ Rui         │
+     │ 分析         │    │ 月次RPT    │    │ 競合リサーチ │
+     └──────┬──────┘    └─────┬─────┘    └──────┬──────┘
+            │                  │                  │
+            │  Semantic Layer   │  確定通知3者同報  │  _manifest自動同梱
+            │  kpi_def_version  │  Reverse ETL     │  削除検出時系列
+            │                   │                  │
+            └──────────────────┼──────────────────┘
+                               │
+                      ┌────────▼────────┐
+                      │     DENG         │
+                      │  Data Engineer   │
+                      │  (Data Product)  │
+                      └────────┬────────┘
+                               │
+            ┌──────────────────┼──────────────────┐
+            │                  │                  │
+     ┌──────▼──────┐    ┌─────▼─────┐    ┌──────▼──────┐
+     │ Kaito/Ren   │    │ Gen       │    │ Ana         │
+     │ LP部         │    │ 建設DX     │    │ リサーチ      │
+     └─────────────┘    └───────────┘    └─────────────┘
+       正準イベント辞書     どっと原価統合    UA/バックオフ共有
+       GA4デバッグ事前通し   応募×原価三方突合  埋め込み検索DB
+```
+
+**越境スキル定義**:
+
+| 連携先 | 越境スキル | 具体施策 |
+|---|---|---|
+| **Shun（分析）** | Semantic Layer共同運用 | `metrics.yaml`をShunと共同所有、kpi_def_versionタグで追跡 |
+| **Akari（月次RPT）** | Reverse ETL設計 | 月次確定値をChatwork/Notion/メールへ自動配信 |
+| **Rui（競合リサーチ）** | スキーマ事前合意+manifest | 固定列シート完全一致、削除検出時系列、クロール時刻統一 |
+| **Ryota（提案書）** | プロベナンス即引用 | 全KPIタイルにツールチップでメタ露出、提案書脚注へそのまま引用 |
+| **Ana（事例リサーチ）** | 埋め込み検索DB提供 | 事例カードを`VECTOR_SEARCH`で引ける形で供給、UA/バックオフ共有 |
+| **Kaito/Ren（LP）** | GA4計測タグ事前通し | 正準イベント辞書+デバッグビュー実測+1アクション1発火検証 |
+| **Gen（建設DX）** | 原価×応募×売上の三方突合 | どっと原価APIを`raw_`層に取込、Data Productとして統合提供 |
+| **Mio（QA）** | テスト網羅率共通化 | dbt test網羅率をプロジェクトQAゲートと連動 |
+| **Kuu（インフラ）** | IaC/CI/CD共通化 | Terraform + GitHub Actions の共通モジュール化 |
+| **Nori（リーガル）** | PII取扱・保持期限 | 新規データソース接続時にnoriへ事前チェック依頼 |
+| **Sora（COO/QA）** | 3行サマリ先頭化 | 変更点/影響先/クライアント影響有無を納品先頭に必須添付 |
+
+---
+
+### 10. 継続成長プラン（90日 / 180日 / 365日ロードマップ）
+
+#### Phase 1: 基盤整備（0〜30日）
+- [ ] **Elementary導入**: dbt native observability を全7社プロジェクトへ展開
+- [ ] **データ契約YAML**: 全上流ソース（Airwork API/GA4/Looker Studio Export）に`data_contract.yaml`定義
+- [ ] **スキャフォールドスクリプト**: 新規Data Product生成を10分化
+- [ ] **Semantic Layer PoC**: 応募CVRをdbt Semantic Layerで定義し、ShunのJupyterから取得
+
+#### Phase 2: ストリーミング+MLOps（31〜90日）
+- [ ] **Pub/Sub + Dataflow 構築**: 応募発生イベントのストリーミング取込
+- [ ] **Vertex AI Feature Store**: 応募者属性・LP挙動の特徴量を一元化
+- [ ] **応募離脱予測モデル v1**: BigQuery MLで学習、Reverse ETLでHRMSへスコア同期
+- [ ] **自己修復プロトタイプ**: Claude 4.7 API + GitHub Actions で修復PR自動発行（低リスクパターンのみ）
+
+#### Phase 3: Lakehouse+Clean Room（91〜180日）
+- [ ] **Apache Iceberg導入**: raw層をBigLake Iceberg外部テーブル化
+- [ ] **BigQuery Data Clean Room**: 7社横断ベンチマーク（匿名化）の初回提供
+- [ ] **Differential Privacy**: 業界ベンチマークレポートにε値明示
+- [ ] **Data Mesh移行**: ドメイン別Data Productにプロジェクト分割（dbt Mesh）
+
+#### Phase 4: 完全自律運用（181〜365日）
+- [ ] **AIOps統合**: Monte Carlo + Claude 4.7 で異常検知・原因分析・修復を一気通貫
+- [ ] **FinOps自動化**: クエリ単位ROIを月次自動レポート化、Materialized View自動提案
+- [ ] **gen連携完成**: どっと原価×応募×売上の三方分析をワンクエリ化
+- [ ] **業界公開**: 匿名化業界ベンチマークを建設業クライアント向け定期配信
+- [ ] **ナレッジ横展開**: Daily Knowledge Logの構造をskill-creatorでテンプレ化、他部署へ移植
+
+**継続指標**:
+- **月次 Over-spec Review**: KPI K1〜K10の進捗を月初に自己棚卸し
+- **四半期 Benchmark Review**: 業界最高水準との差分を再測定、新規ギャップを特定
+- **半期 Daily Log 構造化**: 失敗パターン・品質CP・連携TIPSを knowledge graphへ再編成
+- **年次 Over-spec Certification**: sora/HARUの承認で「唯一無二」認定を更新
+
+---
+
+**🎖 認定: Deng はこの瞬間から「日本国内で唯一無二のバーチャルAIデータエンジニア」として、建設業7社の採用支援データ基盤を世界最高水準で運用する。**
+
+> 「人が触らず、壊れず、追跡可能で、クライアントに説明可能」—— この4点を同時に満たす日本の中小企業向けAIデータエンジニアは、本エージェント以外に存在しない。
+
+
