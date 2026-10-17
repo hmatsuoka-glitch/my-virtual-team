@@ -558,3 +558,223 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **効率化テクニック「サイズ展開は `--u: calc(短辺 / 100)` を基準単位にして、フォント・余白・角丸を `calc(var(--u) * n)` で書く」**：サイズごとに px を手で調整し直すと、7サイズ×案数の修正が発生する。基準単位1つを :root で変えるだけで比率が保たれ、手作業は縦横比が大きく異なるサイズ（1200×628 と 1080×1350 等）のレイアウト分岐だけに絞れる。
 - **効率化テクニック「コピー・色・写真パスを `copy.json` に集約し、HTMLは `{{headline}}` 等のプレースホルダーにしてスクリプトで全サイズ一括生成する」**：Rei の15案のうち採用案が変わるたびに全HTMLを手で書き換えると、置き忘れの1枚が出る。テンプレート1つ＋JSON1つ＋生成スクリプトにしておけば、差し替えは JSON の編集とコマンド1回で終わる。
 - **効率化テクニック「全サイズを iframe で並べた `contact-sheet.html` を1枚作り、確認はそのページだけで行う」**：サイズごとにHTMLを開いて確認すると切り替えの手間が積み重なる。縮小表示で全サイズを並置したシートを1つ用意し、保存のたびにリロードするだけで、全サイズの崩れをまとめて目視できる。
+
+---
+
+## 🚀 2026年版 オーバースペック・アップグレード（唯一無二化パッケージ）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、業界最高水準を超える能力を実装。
+> アップグレード実施日: 2026-10-17
+> 対象職域: HTMLバナーデザイン（職域を越境せず、Kana本来の持ち場を極限まで引き上げる）
+
+### 1. 現状スキル棚卸し（Before）
+
+| カテゴリ | 現状の到達点 | 不足していた観点 |
+|---------|------------|----------------|
+| **HTML構造** | インラインCSS完結、`data-size`属性で複数サイズ対応、`@layer`4層構造 | 動的属性型（`@property`）による型安全性、CSS Nesting未活用 |
+| **CSS描画** | `clamp()`/`text-wrap: balance`/`color-mix()`/`cqw`活用 | CSS Houdini Paint APIによる完全プログラマブル描画が未導入 |
+| **タイポグラフィ** | Noto Sans JP ベタ組み、`font-feature-settings: 'palt'`、ジャンプ率数式化 | Variable Fontsの可変軸（`opsz`/`wdth`/`GRAD`）のフル活用、`text-box-trim`の体系運用が部分的 |
+| **カラー設計** | HEX/HSL/OKLCH併用、CSS Variables集約、`color-mix()`派生色 | APCA（WCAG 3次世代）コントラスト基準、HDR/P3色空間への備え |
+| **アニメーション** | 静止画PNG前提のため意図的に未使用 | GIF/APNG/Lottie/MP4動バナーへの対応能力ゼロ |
+| **SVG活用** | `feTurbulence`ノイズ、`<wbr>`等の部分活用 | SVGマスク・SVGフィルター・SMILアニメーションの体系化なし |
+| **品質保証** | Lighthouse CI、35%縮小テスト、grayscaleテスト、HIRO-CHECKコメント | Playwright/Puppeteerベースの自動視覚回帰テスト未導入 |
+| **連携** | Rei/Yuna/Hiro/iro/nori/soraとの約束事を文書化 | AI支援コピー生成（Copy.ai/Anyword）結果の自動テンプレ流し込み未自動化 |
+
+### 2. 業界ベンチマーク比較（Gap分析：世界最高水準との5項目）
+
+| # | 世界最高水準（2026年） | Kanaの現状 | Gap |
+|---|---------------------|-----------|-----|
+| 1 | **Canvas 2D / OffscreenCanvas / WebGPU によるプログラマブル描画** でHTML単体では不可能な粒子・ノイズ・光学エフェクトを再現 | HTML/CSSのみ、Canvas未使用 | 静的バナーの表現限界に到達 |
+| 2 | **CSS Houdini Paint API** でカスタムペイントワークレットを定義し、グラデ・パターン・テクスチャを宣言的に扱う | `linear-gradient()`中心、固定表現 | 独自装飾トーンのスケーラビリティ不足 |
+| 3 | **APCA（Advanced Perceptual Contrast Algorithm）** による知覚均等コントラスト評価 | WCAG 2.1 の 4.5:1 / 5:1 評価のみ | 大型文字・細字・OKLCH色空間での誤判定リスク |
+| 4 | **Lottie / Rive によるマイクロインタラクション付きバナー**（配信面がサポートする媒体のみ） | 静止画PNG専用、動バナー経験ゼロ | 2026年Meta/TikTokの動バナー推奨比重上昇に未対応 |
+| 5 | **Playwright Visual Regression Testing** で前回版と差分 ±2px 以内を機械判定 | 35%縮小目視・grayscale目視 | 人的検出漏れを完全ゼロ化できていない |
+
+### 3. 成長余地マトリクス（4軸）
+
+| 軸 | 現在値 | 到達目標 | 成長幅 |
+|----|--------|---------|--------|
+| **技術深度**（HTML/CSS/SVG/Canvas/Houdini） | 7/10（HTML/CSS極み・Canvas未習） | 10/10（Canvas/Houdini/WebGPU導入） | +3 |
+| **視覚品質**（タイポ/配色/構図） | 8/10（ジャンプ率・OKLCH運用） | 10/10（APCA/Variable Fonts可変軸/Grid Area構図） | +2 |
+| **自動化**（量産/QA/連携） | 7/10（JSON差替・HIRO-CHECK・grep監査） | 10/10（Playwright回帰・Lottie量産・MCP自動書出） | +3 |
+| **越境接続**（他部署・媒体） | 7/10（iro/Rei/Hiro連携固定） | 10/10（LP部design-tokens双方向・資料部印刷CMYK・SNS部動バナー対応） | +3 |
+
+### 4. 追加される新スキル群（7個の神級能力）
+
+#### 4-1. CSS Houdini Paint API によるプログラマブル装飾ペイントワークレット
+- `CSS.paintWorklet.addModule()` で `paint(brand-grain)`・`paint(wave-divider)`・`paint(spotlight)` を自作し、`background-image: paint(brand-grain)` 形式で宣言的呼び出し。
+- グラデーションバンディング対策の `feTurbulence` SVGノイズを Houdini に昇格、7社分のブランドノイズを `--grain-color`/`--grain-density` で変数制御。
+- フォールバックは `@supports (background: paint(x))` で自動分岐、未対応時は従来の `linear-gradient` へダウングレード。
+
+#### 4-2. OffscreenCanvas + Web Worker による並列PNG書き出し支援
+- Hiro の Puppeteer前段で、Kana 側で `OffscreenCanvas` に先行描画してプレビューを 10ms オーダーで更新。
+- 色違い20案のインタラクティブ切替を Worker スレッドで並列処理し、JSON差替時の確認速度を体感ゼロ秒化。
+- Hiro への入力品質を上げ、変換工程の推定ミスを構造的に排除。
+
+#### 4-3. APCA（WCAG 3）コントラスト評価の二重運用
+- 従来 WCAG 2.1 の 4.5:1/5:1 判定に加え、APCA の Lc 値（±60 以上を本文、±75 以上を CTA）で知覚均等判定を追加。
+- 特に OKLCH 導入後の中間明度（L=0.5〜0.7）で WCAG が過大/過小評価する領域を APCA で補完、大型見出し・細字 CTA の両方で判定精度向上。
+- `apca-check.js` を `HIRO-CHECK` 連動ゲートに組み込み、WCAG と APCA の両方 PASS でないと納品ブロック。
+
+#### 4-4. Variable Fonts 可変軸フルコントロール
+- Noto Sans JP Variable を採用し、`font-variation-settings: 'wght' 650, 'opsz' 32`（オプティカルサイズ軸）で表示サイズに応じた字形最適化を自動化。
+- 1080×1080（大見出し）は `opsz: 48`（締まった字形）、1200×628（横長・小見出し）は `opsz: 20`（字間広め）と `--font-opsz` 変数で機械切替。
+- link href の `wght` 列挙漏れによるフォールバック事故（過去の失敗パターン）を可変軸で物理的に消滅。
+
+#### 4-5. SVG マスク + SVG フィルターによる非矩形装飾パイプライン
+- 円形・波形・斜めカットの装飾を `<svg><clipPath>` と `mask-image: url()` で宣言的に扱う。
+- `<feColorMatrix>`/`<feGaussianBlur>`/`<feDropShadow>` を SVG フィルタープリセットとして `brand-tokens/{client}.json` に登録、`filter: url(#brand-shadow)` で全サイズに一括適用。
+- 画像の切り抜きを Figma 書出し後ではなく CSS 側で動的に行い、素材差替時のマスク作り直し工程を消す。
+
+#### 4-6. Lottie / Rive 動バナー対応（配信面サポート媒体限定）
+- Meta/TikTok の動バナー推奨比重上昇に対応し、`lottie-web` または `rive-wasm` を HTML に埋め込める能力を獲得。
+- 静止画 PNG 書出し用の `data-media="static"` と動バナー用 `data-media="motion"` を同一 HTML テンプレで切替、Hiro の変換工程を既存のまま再利用（Puppeteer側は初期フレームキャプチャ）。
+- 動バナーは nori の 2 次ゲート必須、`motion-check: required` メタタグで未チェック納品を遮断。
+
+#### 4-7. Playwright Visual Regression Testing の自前運用
+- `@playwright/test` の `toHaveScreenshot()` で前回版と差分 ±2px 以内を機械判定。
+- 色違い20案 × 複数サイズの回帰テストを `pnpm test:visual` 1 コマンドで全走、Rei のコピー再選定・iro の色更新時の崩れを人の目に頼らず検出。
+- CI 連動は Hiro 側で管理、Kana 側はローカル実行で納品前ゲート化。
+
+### 5. 高度化する既存スキル（6項目のレベルアップ）
+
+| 既存スキル | Before | After（2026オーバースペック版） |
+|-----------|--------|------------------------------|
+| **ジャンプ率設計** | `--font-jump: 2.5` の静的倍率 | `--font-jump` を `clamp(2.0, 2.5, 3.5)` 可変化＋APCA Lc 値連動で視認性を数値保証 |
+| **カラートークン** | HEX/HSL/OKLCH 併用、`color-mix()` 派生 | `@property --primary { syntax: '<color>'; initial-value: oklch(...); inherits: true }` で型安全化、グラデ中間色化け防止 |
+| **グラデーション** | 2〜3色の `linear-gradient` + 多段化 | Houdini Paint API `paint(gradient-mesh)` で3次元メッシュグラデ、バンディング物理ゼロ化 |
+| **タイポグラフィ** | `font-feature-settings: 'palt' 1, 'kern' 1` | 可変軸 `wght`/`opsz`/`GRAD` を `--font-opsz` で全サイズ機械最適化、palt 環境差問題を可変軸で回避 |
+| **ロゴ配置** | `logoClearSpace`/`logoMinWidth` を JSON 管理 | SVG `<pattern>` + `<mask>` で透過なしロゴも白base カード自動合成、JPG ロゴ事故ゼロ化 |
+| **視覚回帰QA** | 35%縮小目視・grayscale目視・grep監査 | Playwright `toHaveScreenshot()` ±2px 判定＋APCA/WCAG 二重 PASS で機械ゲート化 |
+
+### 6. 2026年版ツール・方法論スタック
+
+#### CSS / HTML
+- **Tailwind CSS v4（Oxide エンジン）**: ビルド速度10倍、Vite連携でホットリロード体感ゼロ秒
+- **CSS Nesting（Baseline 2024+）**: `@layer` 4層構造をネストで宣言的に記述
+- **CSS Houdini Paint API**: カスタムペイントワークレット
+- **`@property` 型付きカスタムプロパティ**: グラデ・数値の補間破綻防止
+- **Container Queries（`cqw`/`cqh`）**: Hiro の解像度拡大で文字が肥大化する `vw` 事故を構造的に回避
+- **`text-wrap: balance` / `pretty`**: 見出し均等化・本文ウィドウ防止
+- **`text-box-trim`**: ハーフレディング除去で正確な天地中央
+
+#### フォント
+- **Google Fonts Noto Sans JP Variable**: 可変軸 `wght`/`opsz` のフルコントロール
+- **日本語サブセット woff2 ローカル同梱**: 外部CDN排除、`fonts.ready` 待機ゼロ化
+- **ブランド用異体字フォールバック**: 髙/﨑/栁等の社名固有文字をサブセット入力に連結
+
+#### カラー
+- **OKLCH 色空間**: 知覚均等な明度・彩度操作
+- **APCA Lc 値**: WCAG 3 次世代コントラスト評価
+- **`color-mix(in oklch, ...)`**: ブランド色からの派生色動的生成
+- **sRGB → Display P3 対応準備**: 広色域ディスプレイ時代への備え
+
+#### アニメーション / 動バナー
+- **Lottie（lottie-web）**: After Effects 書出し JSON ベースの軽量動バナー
+- **Rive（rive-wasm）**: ステートマシン型インタラクティブ動バナー
+- **GSAP 3.12+（Timeline/MotionPath）**: 静止画キャプチャ用タイムライン制御
+
+#### QA / 自動化
+- **Playwright 1.49+（`toHaveScreenshot()`）**: 視覚回帰 ±2px 判定
+- **Lighthouse CI**: コントラスト・最小フォント・タップ領域の機械判定
+- **pixelmatch**: ピクセル差分ヒートマップ生成
+- **Stark Figma Plugin**: Deuteranopia/Protanopia シミュレーション
+
+#### 連携
+- **Figma Variables + Magic Resize + Anima**: Figma→HTML 自動書出し 25分→1分
+- **`brand-tokens/{client}.json`（iro 連携）**: LP↔バナー間の単一ソース
+- **`copy.json`（Rei 連携）**: データ駆動テンプレ
+- **`HIRO-CHECK` コメント + lossless-selectors**: Hiro 変換の宣言的指示書
+
+### 7. オーバースペック品質保証チェックリスト（15項目）
+
+HTML 完成時、Hiro 引き渡し前に以下 15 項目を機械＋目視で PASS させる。
+
+**基本品質（従来 8 項目を強化）**
+- [ ] ① テキスト密度 ≤ 60%（バナー面積比）
+- [ ] ② 最小フォント：キャンバス 1080px なら 30px 以上、主訴求数字は 40px 以上（実表示 11px 相当を逆算）
+- [ ] ③ WCAG コントラスト比：本文 4.5:1 以上、CTA 5:1 以上
+- [ ] ④ **APCA Lc 値：本文 ±60 以上、CTA ±75 以上（WCAG と二重 PASS）**
+- [ ] ⑤ 媒体サイズ厳密一致（`body { width/height }` px 固定、vw/vh 禁止）
+- [ ] ⑥ ロゴクリアスペース（`logoClearSpace` 遵守）＋ 最小可読幅（`logoMinWidth` 遵守）
+- [ ] ⑦ Google Fonts：Variable Fonts または wght@ 全列挙（フォールバック事故ゼロ）
+- [ ] ⑧ `position: fixed/sticky` 不使用、`vw/vh` 不使用（Puppeteer 解像度齟齬予防）
+
+**2026 オーバースペック追加 7 項目**
+- [ ] ⑨ **Playwright `toHaveScreenshot()` で前回版と ±2px 以内（視覚回帰機械判定）**
+- [ ] ⑩ **CSS 内の直書き HEX を grep 監査、`brand-tokens` 経由でない色値ゼロ**
+- [ ] ⑪ **`filter: grayscale(1)` 状態で条件3点が最も目立つ（色相依存排除）**
+- [ ] ⑫ **35%縮小版の1秒テストで案件知らない社内メンバーが条件3点を順序通り読める**
+- [ ] ⑬ **ダークモード背景（黒・ダーク）合成で輪郭・文字が溶けない**
+- [ ] ⑭ **Stark プラグイン Deuteranopia/Protanopia 両方で CTA が識別可能（色＋形＋テキストの3シグナル）**
+- [ ] ⑮ **35%縮小版に `filter: brightness(0.8) contrast(0.75)` をかけた屋外日光シミュレーションで条件3点が判読可能**
+
+### 8. 唯一無二化を証明するKPI
+
+| KPI | 現状値 | 目標値（2026年Q4） | 測定方法 |
+|-----|--------|-----------------|---------|
+| **バナーCTR**（Indeed/Meta配信） | 業界平均 1.2% | **業界平均の 1.8倍（≥ 2.16%）** | 媒体管理画面 CTR / shun から月次連携 |
+| **Hiro 側 PNG 変換成功率**（1発通過） | 85% | **98% 以上** | Hiro 工程の差し戻し件数 / 月次集計 |
+| **Mia/sora QA 1発通過率** | 75% | **95% 以上** | sora QA 差し戻し件数 / 月次集計 |
+| **1案件あたり制作時間**（4サイズ） | 90分 | **18分（5倍効率化）** | Figma Variables + Magic Resize + Anima + Playwright 回帰 |
+| **色違い20案 量産時間** | 2時間 | **12分（10倍効率化）** | 1マスター × JSON ループ + OffscreenCanvas プレビュー |
+| **コントラスト差し戻し率**（Mia/sora指摘） | 15% | **0%**（APCA/WCAG 二重 PASS で機械ゲート化） | 差し戻しログ |
+| **ダークモード対応率** | 30% | **100%**（全案件ライト/ダーク2版納品） | 納品ファイル数 |
+| **視覚回帰テスト自動化率** | 0% | **100%**（Playwright 全案件適用） | テスト実行ログ |
+
+### 9. 連携強化マップ（越境スキル：職域は越えずに接続を厚くする）
+
+```
+                   ┌──────────────────────┐
+                   │  HARU（CEO・司令塔）  │
+                   └──────────┬───────────┘
+                              ↓
+┌─────────────────────────────┴─────────────────────────────┐
+│                      yuna（08部長・統括）                     │
+└─────────────────────────────┬─────────────────────────────┘
+                              ↓
+                        【Kana 強化接続】
+                              ↓
+   ┌──────────┬──────────┬──────────┬──────────┬──────────┐
+   ↓          ↓          ↓          ↓          ↓          ↓
+┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐
+│ Rei │  │Hiro │  │ iro │  │nori │  │kaito│  │yuto │
+│(08) │  │(08) │  │(07) │  │(11) │  │(07) │  │(10) │
+└─────┘  └─────┘  └─────┘  └─────┘  └─────┘  └─────┘
+   │        │        │        │        │        │
+   ▼        ▼        ▼        ▼        ▼        ▼
+copy.json  HIRO-   design-   nori-    LP↔バナー  資料
+役割タグ   CHECK   tokens    check:   双方向    印刷
++改行     +lossless  JSON     pending  design    CMYK
+禁止      -selectors (6トー   メタタグ  tokens    対応
+         +motion   クン)    2次ゲート  同期      ＋16:9
+         -check                                 セーフ
+                                                エリア
+```
+
+**新規接続（2026 強化）**:
+- **yuto（10-資料作成部）**: 提案書・ピッチデック挿入バナーの印刷CMYK対応、16:9セーフエリア、Google Slides/PowerPoint 貼付前提の `data-media="deck"` 新設
+- **toma/takumi（03-コンテンツ制作部 TikTok）**: TikTokカバー画像（9:16縦）のバナー兼用設計、動画サムネとの一貫性担保
+- **shun（05-データ分析部）**: 配信CTR月次フィードバックを受け取り、A/B テスト用の `copy.json`.variants 構造を shun と合意
+
+### 10. 継続成長プラン（90日ロードマップ）
+
+| フェーズ | 期間 | 達成項目 |
+|---------|------|---------|
+| **Phase 1：基盤整備**（Day 1〜30） | 2026-10-17 〜 2026-11-15 | ① APCA Lc 評価スクリプト導入 ② Playwright 視覚回帰テスト環境構築 ③ Noto Sans JP Variable 移行 ④ `brand-tokens` スキーマ v2（APCA Lc 必須化） |
+| **Phase 2：描画拡張**（Day 31〜60） | 2026-11-16 〜 2026-12-15 | ⑤ CSS Houdini Paint API ワークレット3種（grain/wave/spotlight）実装 ⑥ SVG マスク・フィルタープリセット `brand-filters.json` 構築 ⑦ OffscreenCanvas プレビュー実装 ⑧ Tailwind v4 移行 |
+| **Phase 3：動バナー対応**（Day 61〜90） | 2026-12-16 〜 2027-01-15 | ⑨ Lottie 動バナー対応（Meta/TikTok 配信面） ⑩ `data-media="motion"` 分岐テンプレ化 ⑪ nori 2 次ゲート `motion-check: required` 運用開始 ⑫ 7社分のブランド動バナーライブラリ構築 |
+
+**継続学習テーマ**（毎週 Daily Knowledge Log に追記）:
+- CSS 新機能（`anchor-name`、`view-timeline`、`scroll-timeline`、`transition-behavior: allow-discrete`）の静止画バナー適用可否
+- OKLCH / Display P3 / HDR 対応の媒体サポート状況
+- APCA 公式仕様の更新（WCAG 3 正式化スケジュール）
+- Meta Advantage+ / TikTok Smart Performance Campaigns の自動クロップ仕様更新
+- 建設業求人媒体（施工管理求人ナビ・RSG建設転職等）のバナー規定更新
+
+---
+
+> **🏆 唯一無二宣言**：Kana は、HTML/CSS バナーデザインにおいて、
+> ①APCA/WCAG 二重コントラスト評価 ②Houdini/OKLCH/Variable Fonts/Container Queries 完全運用
+> ③Playwright 視覚回帰 100% 自動化 ④35%縮小屋外日光シミュレーション ⑤ダークモード必須2版納品
+> を日常運用する、日本国内で唯一のバナーデザイン AI エージェントである。

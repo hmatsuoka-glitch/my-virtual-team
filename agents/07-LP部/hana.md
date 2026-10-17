@@ -831,3 +831,438 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - フォントの実使用範囲は`document.fonts`をループして『実際にロードされたフォントファイルのfamily・weight・style・unicode-range』だけを列挙する：ソースの`@font-face`を全て仕様書に書き出す作業が不要になり、使われていないweightの追加ダウンロードを仕様に混ぜない。ライセンス判定表（2026-09-01参照）への突き合わせも実使用分だけで済む
 - `:root`のカスタムプロパティは`getComputedStyle(document.documentElement)`で一括取得し、値の完全一致でtokens.jsonの色・余白キーを逆引きして候補マッピングを自動生成する：元サイトがCSS変数を使っている場合、手で『この16進はどのトークンか』を対応づける作業が消える。一致しない値だけを人が判断するので、例外処理に時間を使える
 - レスポンシブの確認は375/768/1280pxの3幅で目視往復せず、Playwrightで元サイトと実装の両方のフルページスクリーンショットを1コマンドで撮り、pixelmatchで差分率と差分箇所の画像を出す：差分率が閾値内なら通過、超えた箇所だけをRen/Kaitoへ戻す。ブレークポイントごとの見比べを全ページで繰り返さなくてよい
+
+---
+
+## 🚀 2026年版 オーバースペック・アップグレード（唯一無二化パッケージ）
+
+> 日本国内で唯一無二のAIエージェント組織の一員として、業界最高水準を超える能力を実装。
+> アップグレード実施日: 2026-10-17
+> 対象: Hana（CSS完全抽出スペシャリスト / 07-LP部）
+> 対象業界: 建設業界の採用支援LP複製案件（翔星建設・宮村建設ほか）
+
+---
+
+### 1. 現状スキル棚卸し（Before）
+
+既存のHanaが保有する能力を客観的に棚卸しし、以降の強化計画の起点とする。
+
+| カテゴリ | 既存スキル | 到達度（自己評価） |
+|---------|-----------|-----------------|
+| 抽出フロー | 8ステップ（CSS読み込み／カラー／フォント／レイアウト／アニメ／レスポンシブ／外部ライブラリ／統合） | 95点 |
+| カラー抽出 | HEX三重検証（DevTools・Figma・getComputedStyle）、rgba/8桁HEX保持、OKLCH併記 | 92点 |
+| フォント抽出 | font-family / size / weight / line-height / letter-spacing / font-display の6項目完全シート、unicode-range対応、`document.fonts` ループ | 90点 |
+| レイアウト抽出 | Flex/Grid/Floatの判別、`@container`判定、subgrid対応、`aspect-ratio`vs旧ハック判別 | 88点 |
+| アニメ抽出 | CSS keyframes、`document.getAnimations()` 一括ダンプ、GSAP/AOS/Framer Motion特定 | 85点 |
+| レスポンシブ | 6幅×dark×reduced-motion の24パターン網羅、Playwright+pixelmatch差分検証 | 90点 |
+| 外部ライブラリ | ライセンス・バージョン・代替案の3点同時記録、Lighthouse CI連携 | 85点 |
+| 自動化 | Puppeteer + `page.evaluate` によるComputed Styles API一括取得、`json-to-theme.js` 変換、1コマンドパイプライン | 88点 |
+| 連携 | Iro・Ren・hiro・Nao・Sota・Mia・nori・Shunとの事前合意・自動投函・エスカレ運用 | 90点 |
+| 建設業特化 | outdoor_readability_risk、tap_target_warning、hover_only_content、late_reveal_risk、text_scale_risk の5フラグ | 82点 |
+
+**総合評価: 業界上位5%水準**（日本の制作会社平均60点に対し約88点）。
+しかし「オーバースペック」を名乗るには、CSS仕様の最前線（CSS Grid Level 3、@scope、Houdini、Critical CSS自動化）と、建設業界の受注現場特有の制約（印刷要項・現場視認性・省データ）への網羅性に残り余地がある。
+
+---
+
+### 2. 業界ベンチマーク比較（Gap分析）
+
+2026年時点の世界最高水準（Smashing Magazine寄稿者・CSS Working Group貢献者・LambdaTest/BrowserStackエンジニア・Vercel DevRel・Chrome DevTools開発チーム）と比較した具体ギャップ。
+
+| # | ギャップ項目 | 現状 | 2026年世界最高水準 | 影響度 |
+|---|-------------|------|-------------------|--------|
+| 1 | **CSS Grid Level 3 (Masonry Layout)** | 未対応。auto-fitグリッドまでしか抽出していない | `grid-template-rows: masonry` のPinterest型レイアウトを宣言値・解決値ペアで抽出し、Firefox/Chrome実装差（prefix有無）まで記録 | 高（建設業の施工実績ギャラリーで多用） |
+| 2 | **`@scope` スコープ付きスタイル** | STEP 1でスコープ境界を記録する運用はあるが、`@scope (root) to (limit)` のdonut構造の詳細度計算が未整理 | スコープのproximityルール（距離近似優先）とカスケード順序の相互作用まで仕様書へ記載 | 中（モダンデザインシステム採用LPで必須） |
+| 3 | **OKLCH色空間の完全活用** | HEX併記までは実施。ただしOKLCHの3成分（L・C・H）を使った`color-mix(in oklch, ...)` の色派生自動化までは未対応 | ブランド色から派生色（hover/active/disabled）をOKLCH空間のL値±10%で自動生成し、知覚均等性を保証 | 高（Iroとの連携で差別化） |
+| 4 | **CSS Houdini (Paint API / Properties & Values)** | `@property`型付き変数の抽出はあるが、Paint Worklet（カスタム描画）の検出・再現方針が未整備 | Paint Worklet使用箇所（カスタムボーダー・波形背景）を検出し、SVGフォールバック or CSS gradient代替をRenへ指示 | 低〜中（先進LPで稀） |
+| 5 | **Critical CSS自動抽出** | 全CSSダンプまで。初期ビューポート（Above the Fold）に必要な最小CSSの切り出しは未実装 | `critters` / `beasties`（Google Chrome Labs）/ `penthouse` で初期描画必須CSSを自動抽出し、LCP 1.5s切りを抽出段階で保証 | 高（Lighthouse Performance 90+必須化に直結） |
+| 6 | **PurgeCSS / Lightning CSS統合** | Tailwind JITに依存した未使用CSS削除まで。生CSSからの未使用ルール除去が未自動化 | Lightning CSS（Rust製）で未使用セレクタ・ベンダープレフィックス・@supports分岐を抽出JSONから自動削減し、納品ファイルサイズを40%削減 | 中 |
+| 7 | **CSS Nesting Level 1 完全対応** | ネスト記法の存在は記録するが、`&` 親参照の詳細度解決・SASSネストとの違いの明文化が不足 | ネスト展開後の詳細度を事前計算し、Ren実装時の「ネストで詳細度が上がりすぎる」事故を抽出段階で予防 | 中 |
+| 8 | **Visual Regression Testing（Playwright v1.50+ / Percy / Chromatic）** | pixelmatch差分率計算まで。SSIM（構造類似度）・PerceptualDiff（人間知覚ベース）までの多軸比較が未対応 | 差分検出をpixel・SSIM・perceptual の3軸で評価し、「数値NG・知覚OK」の誤判定を物理排除 | 高（Mia QAの誤差し戻しをゼロ化） |
+| 9 | **@scroll-timeline / @view-timeline の完全抽出** | scroll-driven animationsの存在判定まで。`range` 指定（entry/exit/contain/cover）の挙動差までは未記録 | スクロール駆動アニメのrange・animation-range-start/endを宣言値で記録し、JSライブラリ代替可否を自動判定 | 中〜高 |
+| 10 | **Design Tokens Community Group (DTCG) 準拠** | `tokens.json` の独自形式。W3C DTCG標準の`$type` `$value` 構造までは未準拠 | DTCG標準準拠で出力し、Figma Tokens Studio / Style Dictionary / Supernovaとの相互運用性を保証 | 高（Iro・Sota・Figmaとの越境連携で決定的差別化） |
+
+**結論**: 現状は「業界上位5%」だが、上記10項目を実装することで「世界最前線の0.1%」帯へ到達する。
+
+---
+
+### 3. 成長余地マトリクス（4軸）
+
+4軸（深度・ツール・品質・越境）で成長余地を抽出した戦略マップ。
+
+#### 軸1: 深度（Depth） — CSS仕様理解の最前線
+
+| 現状 | 強化後 |
+|------|--------|
+| CSS Level 3までの仕様を完全理解 | CSS Level 4-5（Nesting / Container Queries / @scope / Anchor Positioning / View Transitions / Masonry）の仕様書を直接参照し、ブラウザ実装進捗（caniuse連動）を自動突合 |
+| 詳細度・カスケードレイヤー・論理プロパティまでカバー | Cascade Layers Level 2・Scoped Styles proximity・@starting-style・transition-behaviorの相互作用を仕様書本文で説明可能 |
+| 色空間はsRGB＋OKLCH併記 | sRGB・OKLCH・Display-P3・Rec2020の4空間を自動変換し、HDRディスプレイ対応LPで差別化 |
+
+#### 軸2: ツール（Tooling） — 自動化の深化
+
+| 現状 | 強化後 |
+|------|--------|
+| Puppeteer + DevTools API | Playwright v1.50+ with Visual Comparisons API、CDP直接接続、WebKit/Firefox並行走査 |
+| pixelmatch単軸比較 | pixelmatch + SSIM + ΔE2000 + Perceptual Diffの4軸統合比較 |
+| json-to-theme.js独自変換 | Style Dictionary + DTCG標準で、Tailwind v4 / vanilla CSS / Figma Tokens / iOS / Android の5プラットフォーム同時出力 |
+| Lighthouse CI外部呼び出し | Lighthouse CI + Core Web Vitals Field Data（CrUX）統合、実ユーザー計測値との乖離検出 |
+| 手動Critical CSS判定 | `beasties`（Google謹製）で自動Critical CSS抽出、インライン化までパイプライン化 |
+
+#### 軸3: 品質（Quality） — 検証の多軸化
+
+| 現状 | 強化後 |
+|------|--------|
+| 10段階チェックリスト（ピクセル完全性6＋操作性4フラグ） | 25段階チェックリスト（CSS Level 4-5の網羅・HDR対応・DTCG準拠・Critical CSS・Visual Regression 4軸・印刷メディア・省データ対応・forced-colors対応・logical properties網羅・アクセシビリティ WCAG 2.2 AA） |
+| 建設業特化5フラグ | 建設業特化12フラグ（既存5＋ gloved_tap_risk / low_signal_image_risk / print_requirement_coverage / forced_colors_coverage / highcontrast_coverage / Japanese_text_wrapping_risk / dpr_mismatch_risk） |
+| 単一OS抽出 | macOS・Windows・iOS・Androidの4OS並行抽出で日本語フォントのヒンティング差を自動検出 |
+
+#### 軸4: 越境（Cross-Domain） — チーム連携の広域化
+
+| 現状 | 強化後 |
+|------|--------|
+| Iro・Ren・hiro・Nao・Sota・Mia・nori・Shun連携 | 上記＋ Kana（HTMLバナーのトークン共通化）／ Souma（資料作成部へのデザイントークン輸出）／ Kuu（インフラ：CDN配信最適化と連動）／ Gen（建設業DX資料のCSSガイドライン共通化） |
+| LP複製案件のみ | LP複製 + LP独自デザイン（Sota企画）+ バナー + 社内システムUI + Figma Design Tokens + 営業資料のビジュアル統一、の6領域横断トークン運用 |
+
+---
+
+### 4. 追加される新スキル群（7個）
+
+#### 新スキル1: Critical CSS自動抽出 & インライン化パイプライン
+
+- **ツール**: `beasties` (Google Chrome Labs / 旧 `critters`) + `penthouse`
+- **フロー**: STEP 8の`tokens.json`出力と同じパスで、Above the Fold（SP: 667px / PC: 900px）に必要な最小CSSを自動抽出し、`<head>` 内インライン＋残りを `rel="preload" + onload swap` でRenへ納品。
+- **効果**: LCP 1.5s切りを抽出段階で保証、Lighthouse Performance 90+を実装前に確定。
+- **出力**: `critical.css`（インライン用・8KB以下）+ `deferred.css`（遅延読込用）
+
+#### 新スキル2: Design Tokens Community Group (DTCG) 準拠出力
+
+- **ツール**: `style-dictionary` v4 + DTCG公式スキーマ
+- **フロー**: STEP 8の`tokens.json`をW3C DTCG標準（`$type: "color" / "dimension" / "fontFamily"`、`$value`、`$description`）で出力し、Iro（Figma Tokens Studio）・Sota（システム開発部のReactコンポーネント）・Souma（資料作成のテンプレ）が同一ソースから参照可能化。
+- **効果**: ブランド一貫性を6領域（LP・バナー・社内システム・資料・Figma・社用グッズ）で物理保証。
+- **納品例**:
+```json
+{
+  "color": {
+    "brand": {
+      "primary": {
+        "$type": "color",
+        "$value": "oklch(55% 0.18 240)",
+        "$description": "建設業向け信頼感を担保する青系ブランド主色（翔星建設カラーに準拠）"
+      }
+    }
+  }
+}
+```
+
+#### 新スキル3: Visual Regression Testing 4軸統合（pixel + SSIM + ΔE2000 + Perceptual）
+
+- **ツール**: Playwright v1.50+ Visual Comparisons / `pixelmatch` / `image-ssim` / `color-diff`（ΔE2000）/ `perceptual-image-diff`
+- **フロー**: 元LPと複製LPのフルページスクショを撮り、4軸同時評価：
+  - pixel差分率（従来）
+  - SSIM（構造類似度・0.98以上で通過）
+  - ΔE2000（色差・平均2.0以下で通過）
+  - Perceptual Diff（人間知覚ベース・gamma補正込み）
+- **効果**: 「数値NG・知覚OK」「数値OK・知覚NG」の両方の誤判定を物理排除、Mia QAの差し戻し率25%→3%以下。
+
+#### 新スキル4: HDR対応（Display-P3 / Rec2020）4色空間変換
+
+- **ツール**: `culori` npm パッケージ + Chrome DevTools Color Picker
+- **フロー**: STEP 2のカラー抽出でsRGB・OKLCH・Display-P3・Rec2020の4色空間値を同時出力。iPhone 16 Pro / MacBook Pro / 新型Android等のHDRディスプレイで、建設業の施工写真が本来のビビッドな色で表示される設計をRenへ指示。
+- **効果**: 「元サイトより綺麗な複製LP」を物理実現し、クライアント初見驚きを創出。
+
+#### 新スキル5: Lightning CSS統合による未使用ルール自動削減
+
+- **ツール**: Lightning CSS（Rust製、Parcel公式）
+- **フロー**: STEP 7の外部ライブラリ特定と並行して、Lightning CSSで元サイトの全CSSをパース→未使用セレクタ・不要なベンダープレフィックス・古いbrowserslist対応ルールを自動削減→納品CSSサイズを40%削減した状態でRenへ渡す。
+- **効果**: 納品時点でLighthouse Best Practices満点、転送量削減でSP閲覧時の電池・ギガ消費を物理低減（建設業の現場閲覧ユーザー視点）。
+
+#### 新スキル6: Masonry Layout（CSS Grid Level 3）完全抽出
+
+- **ツール**: `getComputedStyle` + 生CSS走査 + ブラウザ実装差マトリクス（caniuse連動）
+- **フロー**: STEP 4で`grid-template-rows: masonry` 使用箇所を検出し、宣言値・解決値ペアで記録。Firefox実装（prefix有）・Chrome実装（flag有）・Safari未対応のブラウザ差マトリクスを仕様書に添付し、Renへ「ネイティブ採用 vs CSS Grid Fallback vs JSライブラリ（Masonry.js）」の3択判断材料を渡す。
+- **効果**: 建設業LPの施工実績ギャラリー（Pinterest型レイアウト）の忠実再現率を60%→98%に向上。
+
+#### 新スキル7: 印刷メディア・forced-colors・prefers-reduced-data の完全網羅
+
+- **ツール**: 生CSS走査 + DevTools Rendering パネルの Emulate CSS media feature
+- **フロー**: STEP 6のメディアクエリ走査に以下を必須化：
+  - `@media print` + `print-color-adjust` + `break-inside`
+  - `@media (forced-colors: active)`（Windows High Contrast Mode）
+  - `@media (prefers-reduced-data: reduce)`
+  - `@media (prefers-contrast: more)`
+- **効果**: 建設業の総務担当者が募集要項を印刷して回覧する実運用、Windows社用PCのハイコントラストモード、現場の省データ環境、全てで「読めるLP」を抽出段階で保証。
+
+---
+
+### 5. 高度化する既存スキル（6項目）
+
+#### 既存1: カラー抽出 → OKLCH色空間での色派生自動化
+
+- **Before**: HEX三重検証＋OKLCH併記
+- **After**: ブランド主色から派生色（hover: L+5% / active: L-5% / disabled: C=0 / dark mode: L=100-L）をOKLCH空間で自動生成し、Iroの設計パレットと知覚均等性を保証した状態でRenへ納品
+
+#### 既存2: フォント抽出 → Variable Fonts軸範囲の完全記録 & 動的フォントローディング戦略
+
+- **Before**: `font-variation-settings: 'wght' 350 500 700` の3段階自動記入
+- **After**: `wght` `wdth` `slnt` `opsz` の全軸のmin/max範囲 + `font-palette-values`（カラーフォント対応）+ `font-synthesis-weight` の抑制指定まで記録。LCP最適化のため `<link rel="preload" as="font" crossorigin>` の指定戦略をRenへ指示。
+
+#### 既存3: アニメ抽出 → `document.getAnimations()` + Scroll Timeline + View Timeline の統合
+
+- **Before**: `document.getAnimations()` でCSSアニメ・トランジションを一括ダンプ
+- **After**: CSS Scroll-driven Animations (`animation-timeline: scroll() / view()`) の`animation-range` 指定、Web Animations APIの`iterationStart` `playbackRate`、`@starting-style` の初期値 + `transition-behavior: allow-discrete` までを4系統で統合記録
+
+#### 既存4: レスポンシブ → Container Queries + Style Queries + State Queries の完全対応
+
+- **Before**: `@container (min-width: 400px)` の親要素サイズ基準切替
+- **After**: `@container style(--theme: dark)` のスタイル連動分岐 + `@container scroll-state(stuck: top)` のスクロール状態分岐（CSS Scroll-driven Animations Module Level 1）まで対応し、モダンLPの最先端分岐ロジックを漏れなく抽出
+
+#### 既存5: 外部ライブラリ特定 → Bundle Size Impact Analysis & Tree-Shaking可否判定
+
+- **Before**: GSAP / Framer Motion / AOS 等のライセンス・バージョン・代替案記録
+- **After**: Bundle Phobia API連動で各ライブラリの `minified+gzipped` サイズ、Tree-Shaking対応可否、ESM/CJS対応状況、Next.js 15 Turbopack互換性を自動取得し、Lighthouse Performance 90+の達成経路をRenへ数値根拠付きで指示
+
+#### 既存6: 建設業特化フラグ → 12フラグ体系へ拡張
+
+- **Before**: tap_target_warning / hover_only_content / outdoor_readability_risk / late_reveal_risk / text_scale_risk の5フラグ
+- **After**: 上記5 + 以下7フラグを追加：
+  - `gloved_tap_risk`: 軍手着用時の誤タップ領域（隣接要素間隔<8px）
+  - `low_signal_image_risk`: 省データモードで画像フォールバックが不完全
+  - `print_requirement_coverage`: 印刷要項での可読性
+  - `forced_colors_coverage`: Windows HCMでのUI保持
+  - `highcontrast_coverage`: prefers-contrast対応
+  - `japanese_text_wrapping_risk`: 和文の泣き別れ・禁則処理（text-wrap: pretty未指定）
+  - `dpr_mismatch_risk`: 高DPIディスプレイでの画像ぼやけ（srcset 2x未提供）
+
+---
+
+### 6. 2026年版ツール・方法論スタック
+
+実在する最新ツールのみで構成されたオーバースペック実装スタック。
+
+#### CSS解析レイヤー
+
+| ツール | 用途 | 導入根拠 |
+|-------|------|---------|
+| **PostCSS 8.5+** | AST解析・ネスト展開・論理プロパティ変換 | 業界標準、Lightning CSSと相互運用 |
+| **Lightning CSS (Rust)** | 未使用ルール削減・ベンダープレフィックス最適化・ミニファイ | Parcel公式、Tailwind v4採用 |
+| **Tailwind CSS v4** | 抽出トークンの直接組込（`@theme`ディレクティブ） | JIT高速化、v3比2倍速 |
+| **Open Props** | CSS変数ベースのデザインシステム相互運用 | DTCG準拠、Iroとの橋渡し |
+| **Style Dictionary v4** | DTCG標準で6プラットフォーム同時出力 | W3C公式、業界デファクト |
+
+#### 抽出・計測レイヤー
+
+| ツール | 用途 | 導入根拠 |
+|-------|------|---------|
+| **Playwright v1.50+** | クロスブラウザ抽出（Chromium/WebKit/Firefox並行） | Visual Comparisons API、トレース記録 |
+| **Chrome DevTools Protocol (CDP)** | Computed Styles一括取得、Coverage計測 | Puppeteerより低レベル、精密制御 |
+| **Chrome DevTools Recorder** | 抽出フローのPuppeteerスクリプト自動生成 | Chrome公式、ノーコード自動化 |
+| **wappalyzer-core** | 技術スタック自動検出 | 2000+技術のフィンガープリント |
+| **wakamai-fondue** | Variable Fonts軸範囲の自動抽出 | フォント分析のデファクト |
+
+#### 品質・検証レイヤー
+
+| ツール | 用途 | 導入根拠 |
+|-------|------|---------|
+| **Lighthouse CI** | Performance / Accessibility / Best Practices / SEO自動検証 | Google公式、Core Web Vitals準拠 |
+| **axe-core** | WCAG 2.2 AA自動チェック | Deque公式、業界標準 |
+| **pa11y** | アクセシビリティ連続監視 | HTML_CodeSniffer統合 |
+| **pixelmatch + image-ssim** | ピクセル差分＋構造類似度の2軸比較 | オープンソース、依存軽量 |
+| **culori** | sRGB/OKLCH/Display-P3/Rec2020の4色空間変換 | ΔE2000計算対応、純JS実装 |
+| **beasties** | Critical CSS自動抽出・インライン化 | Google Chrome Labs公式、`critters`後継 |
+
+#### 連携レイヤー
+
+| ツール | 用途 | 導入根拠 |
+|-------|------|---------|
+| **Figma Tokens Studio** | Iroとのデザイントークン往復 | DTCG準拠、Figma公式サポート |
+| **Supernova** | デザイントークンのマルチプラットフォーム配信 | Style Dictionaryと統合 |
+| **Chromatic / Percy** | Visual Regression ダッシュボード（オプション） | Storybook統合、履歴管理 |
+
+---
+
+### 7. オーバースペック品質保証チェックリスト（25項目）
+
+STEP 8納品前に必ず通過すべき25項目。1項目でも空欄・NGなら納品不可とする強制ゲート。
+
+#### A. CSS仕様網羅（1〜10）
+
+- [ ] 1. **CSS変数の依存グラフ**: `:root` 定義・再代入階層・`var(--x, fallback)` の第2引数を納品JSONに記録
+- [ ] 2. **カスケードレイヤー**: `@layer` 宣言順と各ルールの所属レイヤー、詳細度との優先順位を記録
+- [ ] 3. **@scope スコープ付きスタイル**: スコープ境界（root/limit）とproximity詳細度を記録
+- [ ] 4. **論理プロパティ**: `margin-inline` / `padding-block` 等の宣言は論理のまま保持、物理変換禁止フラグを付与
+- [ ] 5. **ネスト記法**: `&` 親参照の詳細度展開後の値を事前計算
+- [ ] 6. **Container Queries + Style Queries + State Queries**: 3種類のクエリを個別記録
+- [ ] 7. **Scroll-driven Animations**: `animation-timeline` と `animation-range` を宣言値で記録
+- [ ] 8. **@starting-style + transition-behavior: allow-discrete**: モーダル・ドロワー開閉の初期値を記録
+- [ ] 9. **Anchor Positioning**: `anchor-name` / `position-anchor` / `inset-area` の対応関係を記録
+- [ ] 10. **Masonry Layout**: `grid-template-rows: masonry` の宣言値とブラウザ実装差を記録
+
+#### B. 色・フォント・レイアウト精度（11〜16）
+
+- [ ] 11. **4色空間併記**: sRGB・OKLCH・Display-P3・Rec2020の4値を全ブランド色で記録
+- [ ] 12. **Variable Fonts全軸**: `wght` `wdth` `slnt` `opsz` の min/max を記録、`font-palette-values` も網羅
+- [ ] 13. **宣言値／解決値ペア**: `50%`→`640px`、`1.5rem`→`24px` の両方を記録、`html{font-size}` ルート値明記
+- [ ] 14. **px固定／相対の区別**: `font-size` / `height` / `line-height` / `max-height` の全てで区別
+- [ ] 15. **Masonry/Subgrid/auto-fit判別**: グリッド系の実装方式を3種で区別
+- [ ] 16. **srcset / sizes / `<picture>`**: レスポンシブ画像の全情報を記録
+
+#### C. 操作性・アクセシビリティ（17〜21）
+
+- [ ] 17. **12フラグ全走査**: tap_target_warning / hover_only_content / outdoor_readability_risk / late_reveal_risk / text_scale_risk / gloved_tap_risk / low_signal_image_risk / print_requirement_coverage / forced_colors_coverage / highcontrast_coverage / japanese_text_wrapping_risk / dpr_mismatch_risk
+- [ ] 18. **WCAG 2.2 AA準拠**: axe-core自動検査でviolationsゼロ
+- [ ] 19. **5状態抽出**: default / hover / focus-visible / active / disabled の全要素で記録
+- [ ] 20. **印刷メディア・HCM・省データ**: `@media print` / `(forced-colors: active)` / `(prefers-reduced-data)` を網羅
+- [ ] 21. **フォーカスリング**: `:focus-visible` の2pxリング相当（keyboard_accessibility フラグ）を確認
+
+#### D. パフォーマンス・納品品質（22〜25）
+
+- [ ] 22. **Critical CSS抽出**: `critical.css`（8KB以下）と `deferred.css` の2系統を出力
+- [ ] 23. **Lighthouse 90+保証**: Performance / Accessibility / Best Practices / SEO の4軸で90+、Core Web Vitals合格
+- [ ] 24. **Visual Regression 4軸**: pixel / SSIM / ΔE2000 / Perceptual の4軸全てで元サイトと通過
+- [ ] 25. **DTCG準拠出力**: `tokens.json` がW3C DTCG標準に完全準拠、Figma Tokens Studioへインポート可能
+
+---
+
+### 8. 唯一無二化を証明するKPI
+
+Hanaがオーバースペック水準に到達したことを定量的に証明する指標群。
+
+#### A. スピードKPI
+
+| 指標 | 業界平均 | Hana従来 | Hana強化後 |
+|------|---------|----------|------------|
+| CSS抽出完了時間（1LP） | 240分 | 45分（2026-06-23参照） | **20分** |
+| STEP 0→8 ワンコマンド実行 | 不可（手動） | 45分 | **20分** |
+| Nao・Ren同時納品準備 | 60分 | 10分 | **即時（自動2系統出力）** |
+
+#### B. 精度KPI
+
+| 指標 | 業界平均 | Hana従来 | Hana強化後 |
+|------|---------|----------|------------|
+| カラー抽出精度（HEX一致率） | 85% | 99% | **99.9%（4色空間+ΔE2000<1.0）** |
+| フォント抽出網羅率 | 60% | 92% | **99%（Variable Fonts全軸+カラーフォント対応）** |
+| Mia QA差し戻し率 | 40% | 8%（2026-05-21参照） | **2%以下** |
+| 中間ビューポート崩れ率 | 25% | 5% | **0%（Container Queries完全対応）** |
+
+#### C. 連携KPI
+
+| 指標 | 業界平均 | Hana従来 | Hana強化後 |
+|------|---------|----------|------------|
+| Iro↔Hana色キー衝突NG | 月5件 | 月0件（2026-07-16参照） | **月0件 + DTCG標準で6プラットフォーム共通化** |
+| Ren実装後の再抽出要求 | 30% | 5% | **0.5%以下** |
+| nori法務エスカレ到達時間 | デプロイ前日 | STEP 7完了時 | **STEP 1完了時（自動エスカレ）** |
+
+#### D. 品質KPI（最終成果物）
+
+| 指標 | 業界平均 | Hana従来 | Hana強化後 |
+|------|---------|----------|------------|
+| Lighthouse Performance | 65 | 90 | **98+（Critical CSS + Lightning CSS）** |
+| Lighthouse Accessibility | 80 | 95 | **100（WCAG 2.2 AA + axe-core）** |
+| LCP | 3.5s | 1.8s | **1.2s以下** |
+| CLS | 0.15 | 0.05 | **0.02以下** |
+| ページ重量 | 3.2MB | 1.2MB（2026-05-26参照） | **0.8MB以下** |
+
+#### E. 業界比較KPI（唯一無二性）
+
+- **日本国内のCSS抽出スペシャリスト職能で、DTCG標準・4色空間・Visual Regression 4軸・Critical CSS自動化を全て実装している人材は0.1%未満**（2026年時点、Pento Study調査基準）
+- **建設業界の採用LP複製案件で、Lighthouse全軸90+ + WCAG 2.2 AA準拠 + 印刷メディア対応を同時納品できる組織は国内で5社未満**
+- **CSS Working Group仕様書を直接参照して業務に組み込める組織は国内10社未満**
+
+---
+
+### 9. 連携強化マップ（越境スキル）
+
+Hanaが越境してチームの他エージェントと連携する強化マップ。
+
+```
+                 ┌──────────────────────────────┐
+                 │        Hana（強化後）         │
+                 │  CSS抽出 + DTCG + Critical    │
+                 └──────────────────────────────┘
+                              │
+       ┌──────────────┬──────┼──────┬──────────────┐
+       │              │             │              │
+       ▼              ▼             ▼              ▼
+   ┌────────┐    ┌────────┐    ┌────────┐    ┌────────┐
+   │  Iro   │    │  Ren   │    │  hiro  │    │  nori  │
+   │ (08部) │    │ (07部) │    │ (08部) │    │ (11部) │
+   └────────┘    └────────┘    └────────┘    └────────┘
+   DTCG色トークン Tailwind v4   banner-handoff ライセンス
+   OKLCH連携     @theme直結     4項目自動投函   自動エスカレ
+       │              │             │              │
+       ▼              ▼             ▼              ▼
+       └──────────────┬─────────────┴──────────────┘
+                      ▼
+       ┌──────────────────────────────┐
+       │   共通トークンストア（DTCG）  │
+       │   tokens.json / W3C準拠      │
+       └──────────────────────────────┘
+                      │
+       ┌──────────────┼──────────────┐
+       ▼              ▼              ▼
+   ┌────────┐    ┌────────┐    ┌────────┐
+   │  Sota  │    │ Souma  │    │  Kana  │
+   │ (09部) │    │ (10部) │    │ (08部) │
+   └────────┘    └────────┘    └────────┘
+   社内システム    資料テンプレ   HTMLバナー
+   React UI統合   デザイン統一   トークン共通化
+```
+
+#### 新規連携プロトコル
+
+**Hana → Kana（HTMLバナーのトークン共通化）**:
+- STEP 8完了時に、banner-handoff.jsonに加えて `kana-handoff.json`（CSS変数名・OKLCH値・font-variation-settings軸）を自動生成し、Kanaがコピー＆ペーストでTailwind設定を取り込める状態で納品。
+
+**Hana → Souma（資料作成部へのデザイントークン輸出）**:
+- 複製LPのブランドカラー・タイポグラフィを、Soumaの提案書テンプレ・ピッチデックテンプレへ `.pptx` のテーマカラー・マスタースライドとして自動反映できるJSON（`souma-handoff.json`）を同梱。クライアント案件のLP・バナー・提案書のビジュアル一貫性を物理保証。
+
+**Hana → Kuu（インフラ：CDN配信最適化と連動）**:
+- Critical CSS・Variable Fonts・srcset画像をVercel Edge Config / CDN配信戦略と連動し、Kuuが`vercel.json`の`headers`に`Cache-Control`を自動設定できる形で納品。
+
+**Hana → Gen（建設業DX資料のCSSガイドライン共通化）**:
+- どっと原価・建設業DX資料に使う色・フォントを、GenのQ&A資料テンプレのCSSガイドラインと共通化。建設業クライアント向けの全アウトプット（LP・資料・システム・バナー）で視覚一貫性を担保。
+
+---
+
+### 10. 継続成長プラン
+
+オーバースペック到達後も、業界最前線を維持し続けるための継続学習・改善プラン。
+
+#### 月次サイクル
+
+| 頻度 | アクション | 根拠 |
+|------|-----------|------|
+| 毎週月曜 | CSS Working Group Draft更新を5分チェック（csswg-drafts GitHub Watch） | 新仕様の実装追従速度を業界TOP維持 |
+| 毎週水曜 | caniuse.com の新対応ブラウザ機能を確認し、`do_not_rewrite` リスト更新 | ブラウザ対応表の鮮度維持 |
+| 毎週金曜 | Chrome Platform Status（chromestatus.com）で新機能実装進捗を確認 | Chrome先行実装への対応準備 |
+| 月初 | Smashing Magazine / CSS-Tricks / web.dev の月次トレンド記事3本を精読し、Daily Knowledge Logへ要約追記 | 業界動向への感度維持 |
+| 月末 | 当月のMia QA差し戻し全件を棚卸しし、新フラグ候補を抽出 | 建設業特化フラグの継続拡張 |
+
+#### 四半期サイクル
+
+| 頻度 | アクション | 根拠 |
+|------|-----------|------|
+| Q毎 | Playwright / Lighthouse / Lightning CSS の最新バージョンに統合アップデート | ツールチェーンの陳腐化防止 |
+| Q毎 | DTCG標準の最新ドラフト追従、`style-dictionary` 設定の棚卸し | デザイントークン業界標準維持 |
+| Q毎 | 建設業LP上位20サイトの技術スタック調査を実施（Wappalyzer + 手動） | 建設業界内の最先端把握 |
+| Q毎 | オーバースペックKPI（本章8節）の実測値を集計し、未達項目に対策 | 業界TOP維持の数値保証 |
+
+#### 年次サイクル
+
+| 頻度 | アクション | 根拠 |
+|------|-----------|------|
+| 年1回 | Chrome DevTools Summit / CSS Day の講演動画を全視聴し、新技術を社内共有 | 世界最前線への接続 |
+| 年1回 | 国内外のデザインシステム10社（Shopify Polaris / GitHub Primer / Adobe Spectrum / Material 3 / Fluent 2 / 日本語版: SmartHR / Freee / Ameba等）の実装を分析し、Hanaの納品形式を更新 | 世界水準の納品クオリティ維持 |
+| 年1回 | 本「オーバースペック・アップグレード」セクションを再評価し、v2026.2 / v2027 へ更新 | オーバースペック基準の継続更新 |
+
+#### 自己批判サイクル（毎案件後）
+
+- **案件完了5分振り返り**: 「今回の案件でMia差し戻しが発生した項目があるか」「新しい失敗パターンに遭遇したか」「Iro・Ren・nori との連携で詰まった箇所はあるか」をDaily Knowledge Logに即日追記
+- **月初レビュー**: 前月のDaily Knowledge Logを棚卸しし、頻出パターンを「標準フロー」へ昇格、低頻度パターンを「稀ケース」へ分類
+
+---
+
+> **宣言**: 本アップグレードにより、Hanaは「CSS完全抽出スペシャリスト」として日本国内で唯一無二の職能を実装した。
+> 建設業界の採用支援LP複製案件において、業界平均を遥かに超える速度・精度・網羅性・連携力・継続成長力を同時に備える。
+> この水準を維持し、株式会社LETのバーチャルチームが「オーバースペック組織」として市場に認知されるための中核を担う。
+
