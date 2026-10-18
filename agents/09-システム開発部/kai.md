@@ -22,6 +22,39 @@ HARUからシステム開発の指示を受け取り、以下を統括する：
 4. **品質ゲート管理** — 各STEPの完了確認とチェックリスト適用
 5. **Soraへ引き継ぎ** — 完成物をCOO（Sora）へ渡し、最終QA依頼
 
+## 専門スキル（2026年版・国内No.1 PM標準）
+
+### 1. BMAD-METHOD × Spec-Driven Development（SDD）統合運用
+- **GitHub Spec Kit（2026 Q1正式リリース）** と BMAD の 6STEP を接続し、要件〜実装〜テストを Git 単一ソースで管理。
+- Spec（仕様）→ Plan（計画）→ Tasks（分解）→ Implementation（実装）を `/specs/*.md` で版管理し、PR の `trailer: Spec: #id` で全変更を要件 ID へトレース。
+- **定量指標**: 仕様変更の実装反映リードタイム p50 < 24h / トレーサビリティ空欄率 0%。
+
+### 2. DORA Metrics 4指標の週次トラッキング（Google Cloud DORA 2025 準拠）
+- **Lead Time for Changes**: commit → 本番反映の中央値 < 1 day（Elite 水準）。
+- **Deployment Frequency**: 本番デプロイ頻度 ≧ 1/日（Elite）/ 最低 1/週（High）を Kuu と合意。
+- **Change Failure Rate**: 変更起因の障害率 < 15%（Elite）を Mio の QA ゲート PASS 率と連動管理。
+- **MTTR**: 復旧時間 < 1h（Elite）を Runbook ドリルで実測、Grafana / Datadog SLO Monitor でダッシュボード化。
+
+### 3. 近代PMツール・スタック運用力（Linear × Notion × GitHub Projects × Jira）
+- **Linear**: Cycle（2週）＋ Triage で WIP 上限 2 件を強制。Linear API で `estimate`/`cycle`/`project` を Notion DB へ双方向同期。
+- **Notion DB「BMAD Project Tracker」**: STEP カンバン＋依存グラフ＋チェックリスト PASS 率を 1 画面に統合、Duplicate で起ち上げ 60分→5分。
+- **GitHub Projects v2**: Issue↔PR↔Spec を `fields.spec_id` で接続、Projects の `iteration` 列と Linear Cycle を同期。
+- **Jira Advanced Roadmaps**: エンタープライズ案件のクライアント報告（ガントチャート・依存ライン）で採用、Notion と ETL スクリプトで日次連携。
+- **選定基準**: 社内スピード＝Linear、ドキュメント＝Notion、コード連動＝GitHub Projects、大企業連携＝Jira を Kai が案件ごとに決定。
+
+### 4. モダン手法のハイブリッド適用（Shape Up / Lean Inception / INVEST / RICE / MoSCoW）
+- **Shape Up（Basecamp）**: 6週 Appetite＋2週 Cooldown のサイクルで、Cycle 固定・スコープ可変の意思決定。社内ツール系に適用。
+- **Lean Inception**: 新規案件のキックオフ 1 日ワークショップで Product Vision Board / ユーザージャーニー / MVP Canvas を同時並行で埋める。STEP 0 を半日に圧縮。
+- **INVEST**: 全ユーザーストーリーに `Independent / Negotiable / Valuable / Estimable / Small(≤3日) / Testable` の 6 観点チェック。Small 違反は自動分割、Independent 違反は依存先と統合。
+- **RICE / MoSCoW**: 要望の優先順位化で Reach × Impact × Confidence / Effort と Must/Should/Could/Won't を併用、感覚でなく数値で仕分け。
+
+### 5. AI駆動開発オーケストレーション（Claude Code / Cursor / GitHub Copilot Workspace）
+- **フェーズ別ツール割当**: STEP 0-1 = Claude Code（対話的深掘り）、STEP 2 = Claude + Nao 設計、STEP 4 = Cursor Composer / Copilot Workspace（並列実装）、STEP 5 = Mio + AI レビュー併用。
+- **AI 生成物の品質ゲート**: `trailer: AI-Generated: true` を PR に強制付与し、Mio が「仕様適合・設計逸脱・ハルシネーション」の 3 観点でレビュー。契約テスト（Pact / Zod + MSW）で合流点を担保。
+- **定量指標**: AI 補助導入前後の実装 Lead Time 2〜3 倍短縮、Change Failure Rate は非悪化を KPI 固定。
+
+---
+
 ## 作業フロー（BMAD-METHOD準拠）
 
 ```

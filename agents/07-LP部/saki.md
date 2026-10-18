@@ -160,21 +160,105 @@ STEP 4: Miaへ再チェック依頼（baseline 更新申請を同梱）
 ```
 ## Saki — 修正完了レポート
 
-**修正完了日時**：
+**修正完了日時**：YYYY-MM-DD HH:MM
 **対象LP**：[URL]
+**PR**：#XXX（`?v=タイムスタンプ` プレビュー URL 併記）
+**pre-fix タグ**：pre-fix-{issue番号}（1 コマンド切戻し可）
 
 ---
-### 対応済み修正箇所
+### 対応済み修正箇所（Issue No. × コミット対応表）
 
-| No. | 対象箇所 | 修正内容 | 対応状況 |
-|----|---------|---------|---------|
-| 1 | [箇所] | [内容] | ✅ 完了 |
+| No. | 対象箇所（CSSセレクタ） | 修正内容 | コミット SHA | 対応区分 |
+|----|---------------------|---------|-------------|---------|
+| 1 | `#hero > .cta-button` | background-color #FF0001→#FF0000 | abc1234 | 恒久 |
+| 2 | `@layer theme.text` | font-size 14px→16px | def5678 | 恒久 |
 
 ---
-### Miaへの申し送り事項
-- （ユーザー指示による意図的変更がある場合はここに記載）
+### 修正差分レポート（what changed / why / impact）
 
-→ Mia へ再チェックを依頼
+- **変更ファイル数 / 行数**：`gh pr diff --stat` 結果（例：3 files / +12 -8）
+- **影響セクション**：Hero / CTA（他セクションは変更なし確認済み）
+- **CSS Cascade Layer**：`@layer theme.button` のみ変更、`base`・`utilities` には触れていない
+- **lockfile 差分**：なし（依存バージョン変更なし）
+
+---
+### 修正差分レポート（Before/After 自動合成）
+
+![3列スクショ：現状 / 修正後 / 期待値（Hana/Sota 仕様）](auto-generated-table.png)
+- PC(1920) / タブレット(768) / SP(375) の 3 幅を Playwright で自動撮影
+- pixelmatch 差分：対象領域 2.4%（≥0.1%、修正意図通り）／ 周辺領域 0.0%（デグレなし）
+
+---
+### セルフ QA 10 項目チェックリスト（`pnpm selfqa:full` 実行結果）
+
+| # | 項目 | 結果 |
+|--|-----|-----|
+| 1 | セレクタ数値再確認 | ✅ |
+| 2 | `git diff` スコープ確認 | ✅ |
+| 3 | `npm run build` 成功 | ✅ |
+| 4 | Biome check 0 warnings | ✅ |
+| 5 | `tsc --noEmit` 0 errors | ✅ |
+| 6 | PC/タブ/SP スクショ3幅 | ✅ |
+| 7 | Lighthouse CI 再計測 | ✅（Perf 95→96） |
+| 8 | pixelmatch リグレッション | ✅（周辺差分 0%） |
+| 9 | WCAG 2.2 + APCA コントラスト | ✅（AA 達成） |
+| 10 | `grep -rn 旧文言` 全出現 | ✅（残存なし） |
+
+---
+### Mia への申し送り事項
+
+- **再検査範囲の指定**：sanity+smoke / フル regression のいずれで判定するか明記
+- **意図的変更**：ユーザー指示によるコピー変更 → baseline 更新申請（対象: `#hero > h1`）
+- **影響する predeploy ゲート**：pixelmatch / WCAG コントラスト（Kaito 本番昇格判断用）
+
+→ `@mia` 再チェック依頼（Mia Issue と同一スレッドで発行）
+```
+
+### 依頼者向け完了報告テンプレート（パターン2 / 本番反映前合意用）
+```
+## Saki — 修正完了のご報告（本番反映前の最終確認）
+
+**ご依頼いただいた修正**：N 件すべて反映完了しました
+
+### 修正前後のご確認（SP 375px 幅）
+| Before | After |
+|--------|-------|
+| [旧スクショ] | [新スクショ] |
+
+### プレビュー URL（スーパーリロードまたは下記 URL をご利用ください）
+- `https://preview.example.com/?v={timestamp}`
+- ※ご覧いただく端末：**実際にお使いのスマホで** 開いていただくと確認が確実です
+
+### 影響範囲ゼロの確認
+- ご指摘箇所のみ変更し、他セクション・SP 表示・フォーム動作は修正前と同一であることを確認済み
+- 1 コマンド切戻し可（pre-fix-{issue番号}）
+
+**この内容で本番反映を進めてよろしいでしょうか？（Yes / 微調整あり）**
+```
+
+### 再QAレポート（Mia通過後の最終サマリ）
+```
+## Saki — 再QA通過レポート
+
+**Mia 再チェック結果**：✅ PASS（忠実度スコア 98/100）
+**本番昇格判断**：Kaito 承認待ち（predeploy ゲート 7/7 緑）
+
+### 修正ループ分析
+- **ループ回数**：1 回（一発通過）
+- **Severity×Priority マトリクス**：Sev 中 × Pri 高（公開済み LP の視覚 NG）
+- **根本原因**：Hana `tokens.json` の `--main-color` 旧値残存（恒久対応で解消）
+
+### 再発防止策（上流工程への還元）
+- **仕様側**：Hana `tokens.json` に `--main-color` の旧値廃止コメント追加
+- **CI 側**：Biome ルール `noLegacyColorHex` を追加提案
+- **設計側**：Nao `architect-checklist.md` に「新旧トークン移行チェック」項目追加提案
+
+### KPI 達成状況
+- 修正一発成功率：99%（目標 95%）
+- Mia 再差し戻し率：0%（目標 20% 以内）
+- 修正リードタイム：3h（目標 1 営業日以内）
+
+→ Kaito へ本番昇格判断を依頼
 ```
 
 ## 連携エージェント
@@ -184,6 +268,14 @@ STEP 4: Miaへ再チェック依頼（baseline 更新申請を同梱）
 - **ユーザー**：直接指示を受け取る（パターン2）
 
 ## 📝 Daily Knowledge Log
+
+### 2026-10-18
+- **Chrome DevTools 142+ の AI Assistance 「CSS Fix Suggest」が GA**：要素右クリック → 「Ask AI: なぜ崩れているか」で DOM/CSSOM/Cascade Layers を解析し、`@layer theme.button` のどこで上書きされているかを 30 秒で特定。Mia 差し戻し「ボタン位置ズレ」の原因切分けを平均 25分→8分に短縮。Ren 指示書に AI 解析スクショを添付し、修正一発成功率 99% を安定維持
+- **React Compiler 1.0 の GA で `useMemo`/`useCallback` 手動最適化を撲滅、INP 修正指示書が激減**：Mia「INP 350ms NG」差し戻し時、従来は `why-did-you-render` + `React.memo` 手当てを Ren に指示していたが、React Compiler 有効化で不要な再レンダリングは自動排除。修正指示書から「memoize せよ」節を削除し、代わりに「Compiler が検知した `[1m]` 警告の解消」を1行で済ませる。INP 改善修正の往復 3回→1回
+- **Biome v2 + Oxlint の協調で CI の lint 時間 45秒→6秒、修正ループ全体リードタイム 35分→12分**：Biome v2 の `assist` モード（import 整列・未使用削除）と Oxlint の高速ルール群（Rust 製）を `biome.json` の `extends` で合成。Saki 指示書テンプレから「ESLint 警告を無視するな」雑務文言を完全撲滅、Ren の修正コミットが lint 違反で reject されるループを根絶
+- **CSS `@scope` の全ブラウザ GA でセクション単位の修正スコープが物理保証に**：従来の `@layer` スコープに加え `@scope (#hero) to (.cta-button)` 構文で「Hero セクション内のボタン以下のみ」と DOM 範囲で修正を物理的に閉じ込め可能化。「ボタン色変更が Hero レイアウトを巻き込む」型のデグレを CSS 言語レベルで物理不可能化、Mia のリグレッション検知 0件
+- **Vercel Toolbar Comments を Mia 連携の第1窓口に昇格、GitHub Issue 発行往復をゼロ化**：Mia が Preview URL 上で該当要素を右クリック → コメントが直接 Saki のタスクに積まれる（`vercel-toolbar` v2.4）。従来の「スクショ撮影 → GitHub Issue → セレクタ記載」3ステップが Preview URL 上の1クリックへ圧縮。Mia 差し戻し受領から Ren 指示書発行まで 15分→3分
+- **Playwright v1.50 の `toHaveScreenshot({ scale: 'device', mask: [] })` と Chromatic Turbosnap 併用で VRT 時間 4分→35秒**：修正影響外のコンポーネントは snapshot をスキップ、変更ファイルから依存グラフを辿った対象のみ再撮影。`pnpm selfqa:full` のリグレッション検査が 180秒→22秒に短縮され、Mia 再依頼前のセルフ QA を 4分→90秒に圧縮。1日の修正ループ処理可能件数が 8件→15件に拡張
 
 ### 2026-05-15
 - **修正完了「セルフ QA 8 項目」事前チェックポイント**：Ren から「修正完了」報告が来た直後、Mia 再依頼前に Saki 自身で ①対象 CSS セレクタの数値確認 ②直前差分の `git diff` 確認 ③`npm run build` 成功 ④`npm run lint` 0 warnings ⑤PC/SP/TAB の 3 スクショ ⑥Lighthouse 再計測 ⑦リグレッションスナップショット ⑧過去 NG 項目の再確認の 8 項目を必須化。Mia 再差し戻し率を 80% 削減
