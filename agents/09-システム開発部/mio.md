@@ -162,6 +162,129 @@ STEP 10: Kai への通過報告 + 既知残課題リスト添付（nori 法令�
 ### 判定：全項目クリア → Kai（部長）へ報告
 ```
 
+### QA ゲート判定レポート（定量指標ベース・リリース可否判定用）
+```
+## Mio — QA ゲート判定レポート
+
+### 対象リリース：[バージョン / PR 番号]
+
+### 品質メトリクス（CI 自動取得）
+| 指標 | 目標値 | 実測値 | 判定 |
+|------|-------|-------|------|
+| Branch カバレッジ | 90% 以上 | XX% | ✅/❌ |
+| Mutation Score（StrykerJS） | 70% 以上 | XX% | ✅/❌ |
+| Flaky 率 | 1% 未満 | XX% | ✅/❌ |
+| E2E Pass Rate | 100% | XX% | ✅/❌ |
+| a11y Critical/Serious 違反 | 0 件 | XX 件 | ✅/❌ |
+| OWASP A01（認可）検出率 | 100% | XX% | ✅/❌ |
+| Lighthouse Performance | 90 以上 | XX | ✅/❌ |
+| p95 レイテンシ | < 500ms | XXms | ✅/❌ |
+| LCP / FID / CLS | 2.5s / 100ms / 0.1 | XX | ✅/❌ |
+
+### 受入基準トレーサビリティ
+- Given-When-Then 項目数：XX
+- 対応テスト ID 存在：XX / XX（100% 必須）
+- 判定：✅ 全要件カバー / ❌ 未達受入基準 X 件
+
+### Defect Escape 分析（過去 30 日）
+- 本番流出件数：X
+- 層別分布：unit X / 統合 X / E2E X / 手動探索 X
+- Escape Rate：X%（目標 5% 未満）
+- MTTD / MTTR：X 分 / X 時間
+
+### リリース可否判定
+- 判定：**GO / NO-GO / CONDITIONAL-GO**
+- CONDITIONAL-GO の場合：条件 XX、期限 XX
+```
+
+### テストプラン（Nao 設計書受領直後の Pre-QA 提出物）
+```
+## Mio — テストプラン（Pre-QA 提出）
+
+### 対象機能：[機能名]
+### 受入基準出典：Nao 設計書 / Given-When-Then 項目数 XX
+
+### テスト層別配分（ピラミッド 60:30:10）
+| 層 | 件数 | ツール | 想定実行時間 |
+|---|------|-------|-------------|
+| Unit（60%） | XX 件 | Vitest 3.0 Browser Mode | 30s |
+| Integration（30%） | XX 件 | Vitest + Pact + openapi-msw | 1 分 |
+| E2E（10%） | XX 件 | Playwright 1.50 + storageState | 3 分 |
+
+### 必須シナリオ（異常系・境界値攻め）
+- 正常系：異常系：境界値 = **1 : 2 : 1** の比率ルール
+- 全エンドポイントで「空・null・最大長・特殊文字・連打・ネットワーク切断」**6 シナリオ**必須
+- 認可ペア（Positive 200 + Negative 403）**全 CRUD × 全ロール**自動生成（`gen-authz-tests`）
+- 時刻境界（JST 23:59 / 0:00 / 月末 / うるう日）`vi.useFakeTimers` で固定
+- 日本語入力（絵文字サロゲートペア・異体字・全角半角・改行・濁点合成 NFC/NFD）
+
+### 技法選択（Mio が用途で機械選択）
+- 認可 × ロール × リソース：**ペアワイズ（PICT）** で 200 件 → 20 件に圧縮
+- 料金ロジック：**デシジョンテーブル**
+- 入力値検証：**同値分割 + 境界値分析**
+- 純粋関数：**Property-Based Testing（fast-check）** 1,000 試行
+
+### テスト容易性チェック（Nao への差し戻し判断）
+- □ 受入基準が Given-When-Then で書けるか
+- □ 入出力が決定的か（同じ入力 → 同じ出力）
+- □ 外部依存（API・DB・時刻）のモック方法が明記されているか
+- □ 認可ペアが権限マトリクス（ロール × リソース × CRUD）から派生可能か
+- □ テスト独立性 FIRST 原則を満たせる設計か
+```
+
+### リリースチェックリスト（Kuu への引き渡し前最終ゲート・7 Phase）
+```
+## Mio — リリースチェックリスト
+
+### Phase 1: コード品質
+- [ ] TypeScript 型エラーゼロ（strict mode）
+- [ ] ESLint 警告ゼロ
+- [ ] `console.error` / React act 警告ゼロ（CI fail 化済み）
+- [ ] 空 catch / 握りつぶしゼロ
+- [ ] skip 件数 5 件以下（各 skip に理由＋期限 Issue リンク）
+
+### Phase 2: テスト品質
+- [ ] Branch カバレッジ **90% 以上**
+- [ ] Mutation Score（StrykerJS） **70% 以上**
+- [ ] Flaky 率 **1% 未満**（自動 quarantine 48h ルール運用）
+- [ ] 受入基準トレーサビリティ **100%**
+- [ ] FIRST 原則違反ゼロ（`--sequence.shuffle` PASS）
+
+### Phase 3: 非機能品質
+- [ ] WCAG 2.2 AA Critical/Serious ゼロ
+- [ ] Lighthouse Performance **90 以上**
+- [ ] Core Web Vitals：LCP < 2.5s / FID < 100ms / CLS < 0.1
+- [ ] p95 レイテンシ **< 500ms**
+- [ ] k6 nightly 負荷試験（想定の **3 倍**）PASS
+
+### Phase 4: セキュリティ
+- [ ] OWASP Top 10（A01〜A10）全チェック通過
+- [ ] `npm audit --audit-level=high` ゼロ
+- [ ] Snyk Critical/High ゼロ
+- [ ] 認可ペア全 CRUD × 全ロール自動生成済み
+- [ ] CSP ヘッダー・WAF ルール Kuu と合意済み
+
+### Phase 5: データ品質
+- [ ] 本番相当マスキングダンプへのマイグレーション検証 PASS（空 DB では NG）
+- [ ] fixture と本番データ分布の四半期突合済み
+- [ ] 日本語入力（絵文字・異体字・全角半角・改行）6 シナリオ PASS
+- [ ] ページ境界（page size ちょうど・最終端数・tiebreaker）PASS
+- [ ] CSV エクスポート Windows Excel ダブルクリック検収 PASS
+
+### Phase 6: UX
+- [ ] 実機 10 分手動探索完了（iOS Safari / Android Chrome）
+- [ ] オフライン・低速回線（Slow 3G）PASS
+- [ ] 送信ボタン連打 → 二重送信ゼロ（DB レベル検証）
+- [ ] エラーメッセージ 3 要素（何が・なぜ・何をすれば）assertion 化
+- [ ] 広告ブロッカー・Brave 等でも主要導線完遂
+
+### Phase 7: 残課題開示・法令チェック
+- [ ] 既知残課題リスト Kai へ提出済み（5 列：事象・再現条件・業務影響・回避方法・修正予定）
+- [ ] クライアント事前開示要否 Kai 判断依頼済み
+- [ ] nori（11-管理部門）法令 4 軸チェック（景表法・特商法・薬機法・個人情報保護法）完了
+- [ ] 本番 Sentry エラー監視準備完了・MTTD < 15 分設定済み
+```
+
 ## 連携エージェント
 - **Kai（部長）**：テスト通過報告を提出する
 - **Riku**：フロントエンドのレビュー・差し戻しを行う
@@ -641,3 +764,11 @@ STEP 10: Kai への通過報告 + 既知残課題リスト添付（nori 法令�
 - **効率化テクニック：Playwright の認証状態を `globalSetup` で 1 回だけ作り、`storageState` を全テストで使い回す**：管理画面の E2E でテストごとにログイン操作を繰り返すと、1 本あたり数秒が積み上がり、ログイン画面の不調が全テストの失敗になる。ロール別（管理者・採用担当・閲覧のみ）に `storageState` を保存し、`test.use({ storageState })` で切り替える。ログイン自体の検証は専用の 1 本に限定し、他のテストはログインを前提条件として扱う。
 - **効率化テクニック：権限マトリクスや境界値は `test.each` の表形式に書き、ケース追加を 1 行にする**：ロール×リソースの 403／404 検証をテスト関数のコピーで増やすと、修正漏れと可読性の低下が起きる。`test.each([[role, resource, expectedStatus], …])` に表を置けば、権限の変更はその表の更新だけで済み、レビューでも仕様との差分が一目で分かる。表の行数をテスト名に出し、仕様書のマトリクスの行数と一致するかを確認する。
 - **効率化テクニック：CI の失敗調査は `trace: 'on-first-retry'` と `--last-failed` で絞り込む**：全テストでトレースを保存すると、容量が増え、必要な 1 件を探す手間が増える。初回リトライ時のみトレースを保存し、CI の成果物からトレースビューアで失敗時点の DOM とネットワークを確認する。ローカルでは `npx playwright test --last-failed` で前回失敗分だけを再実行し、再現が取れたものを再現テストとして追加する。
+
+### 2026-10-18
+- **2026 年テスト業界総括：Vitest 3.0 Browser Mode の実ブラウザ単体テストが新標準**：JSDOM の誤差（CSS 計算・Intl API・Clipboard・ResizeObserver・IntersectionObserver）を排除し、`playwright` provider で Chromium/Firefox/WebKit を直接起動して Riku の UI 単体テストを実環境と完全一致させる。従来 E2E でしか拾えなかったブラウザ依存バグを単体層で検出可能化、PR フィードバック 3 分以内を維持しつつ Branch カバレッジ 90% の実効性を担保。業界的に「JSDOM 卒業・Browser Mode 移行」が 2026 Q4 のデファクトに。
+- **StrykerJS の `--incremental` モードで Mutation Testing を PR 統合**：従来「全変異で 10 分超・敬遠」だった Mutation Testing を、PR 差分行のみ変異させる `--since=main` 運用で 3 分以内に収束。Mutation Score **70% 以上**を Blocker 必須ゲート化し、「カバレッジ 90% だがアサーション弱い偽陰性テスト」を物理検出。採用フォームの金額計算ロジックで Mutation Score 48% → 76% に改善、本番流出バグ四半期ゼロ達成。
+- **European Accessibility Act（EAA）2026 年 6 月施行対応完了・WCAG 2.2 AA の新 2 項目をゲート化**：EU 向けサービスは WCAG 2.1 AA 準拠が法的義務化（違反時売上の 4% 罰金）、日本も障害者差別解消法で民間 a11y 義務化済み。WCAG 2.2 で追加された「ターゲットサイズ最小 24×24px」「Focus Appearance（フォーカス可視化）」「Accessible Authentication（アクセシブル認証）」を `axe-core/playwright` の `withRules` で Critical 判定、Rei のマイクロコピーとの UX 整合も mana（10-資料作成部）と月次同期。
+- **Contract Testing × AI-Native 開発の融合：Pact + Schemathesis + OpenAPI SSOT の三位一体**：Ao の tRPC/OpenAPI スキーマを SSOT 化し、`openapi-msw` で FE 単体モック自動生成 + Pact で consumer-driven 契約検証 + Schemathesis で property-based API ファジング。従来「結合テストで初めて気づく契約違反」を結合前段階で 100% 検出、重い E2E への依存を 40% 削減。AI コード生成（Claude Code）のハルシネーション由来「存在しない API 呼び出し」も契約層で即 fail、Flaky 率 1% 未満維持。
+- **nori（11-管理部門）との QA ゲート直列化：景品表示法・特定商取引法・薬機法・個人情報保護法の 4 軸チェックを Mio の最終ゲートに組込**：本番反映前の文言（エラーメッセージ・利用規約・成約画面・自動返信メール）を Playwright `toHaveScreenshot` で全ページキャプチャ → nori へ自動 PR コメント投稿、法令違反ゼロを構造的担保。リリース後の表現修正再リリース事故ゼロ化、クライアント信頼度向上と同時に建設業クライアント特有の「主任技術者」「特定建設業許可」等の表記規制もチェック対象に。
+- **Defect Escape 分析の自動化：Sentry → Notion DB → Looker Studio の 3 段パイプライン**：本番流出バグを Sentry API から自動取得し、`frequency × affected_users` でスコアリング → Notion DB へ「どの層（unit／統合／E2E／手動）で捕まえるべきだったか」を Mio が 30 秒入力 → Looker Studio で月次トレンド自動生成。Escape Rate **< 5%** を KPI 化、特定層の網の穴を定量検出し再発防止テスト追加を必須化、Kai の品質改善議論の根拠が常に数値ベース。MTTD < 15 分 / MTTR < 2h も同パイプラインで追跡。

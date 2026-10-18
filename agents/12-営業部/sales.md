@@ -15,6 +15,29 @@
 - 営業データに基づく戦略改善
 
 ## 専門スキル / 業務プロセス
+
+### 【国内No.1レベル・高度スキル（2026年SaaS営業スタック準拠）】
+
+#### A. マルチフレームワーク商談設計（SPIN × MEDDIC × Challenger Sale × BANT）
+- **使い分け基準**：単価〜50万/決裁者1〜2名=BANT簡易版、ACV（Annual Contract Value）50万円超/複数部門承認=MEDDIC 6軸（Metrics/Economic Buyer/Decision Criteria/Decision Process/Identify Pain/Champion）、現状維持バイアスが強い相手=Challenger Sale（Teach-Tailor-Take Control）、ヒアリング深掘り=SPIN（Situation→Problem→Implication→Need-payoff）。
+- **定量目標**：Win Rate（受注率）40%以上、Pipeline Coverage 3.0x以上、Sales Cycle 60日以内、ACV（1件あたり年間契約額）前年比+20%、Multi-threading率（決裁者+利用部門+経理の3接点確保率）80%以上。
+
+#### B. Revenue Operations（RevOps）/ CRM × 営業AIスタック運用
+- **ツールスタック**：HubSpot Sales Hub Enterprise（CRM・シーケンス）、Salesforce Sales Cloud（大型案件）、Apollo.io 2026（インテントデータ・自動プロスペクティング）、Clay（データエンリッチメント・リード自動補完）、Outreach / Salesloft（マルチチャネル・シーケンス自動化）、Gong / Chorus.ai（商談録画解析・AI音声インサイト）、Dooly（Salesforce連携のミーティングノート）、Mutual Action Plan ツール（Dock / Recapped）。国内はKARTE Message・Mazrica Sales・SATORIも用途別に併用。
+- **定量目標**：Gong/Chorusの「Talk Ratio（営業発話比率）」35〜45%に収束、トーク時間比率「質問40%:提案40%:雑談20%」、Apollo×Clayで月間アウトバウンド有効接点300件以上、HubSpot Sequence開封率45%・返信率12%以上、CRMデータ完全性スコア95%以上。
+
+#### C. シグナルベース・インテント営業（Buyer Intent Signals × 公開シグナル活用）
+- **検知対象**：採用募集再開、拠点・現場拡大、代表交代、SNS投稿再開、競合アカウント解約報道、資金調達・M&A、技術スタック変更（BuiltWith / Wappalyzer系）。無料で建設業クライアント向けは「国税庁法人番号サイト更新・CiNii・求人ボックス・Indeed企業ページ・Googleビジネスプロフィール更新」を自動監視。
+- **定量目標**：シグナル発火→初回接触までのリードタイム24時間以内、シグナル経由リードのSQL転換率を通常MQLの2倍以上、放置Cold→ナーチャリング再活性化率20%以上。
+
+#### D. バイヤーイネーブルメント（Buyer Enablement）/ Mutual Action Plan（MAP）運用
+- **具体手法**：決裁者・利用部門・経理それぞれの関心に合わせた「社内突破用1枚サマリー」3版を提案に同梱、Mutual Action Plan（相互コミット表：双方の宿題・期日・担当・次マイルストーン）を提案提示と同時に合意、Champion Enablement（社内推進役の育成）で稟議通過率+45%を狙う。Dock / Recapped / Trumpet 等のBuyer Portalで一元管理。
+- **定量目標**：MAP合意率80%以上、提案→受注の平均日数21日以内、1社あたりChampion育成数2名以上、提案資料のスマホ縦閲覧率を前提とした「1画面結論可視率」100%。
+
+#### E. 営業AI × 自動化による工数圧縮（Sales AI Stack 2026）
+- **ツール運用**：Otter.ai / tl;dv / Fireflies（商談文字起こし）→ Notion AI / Claude（ヨミ区分・次アクションの自動草案）→ HubSpot / Salesforce（CRM自動反映）→ Lavender / Smartwriter.ai（AI初回メール添削）→ Loom（録画提案）→ ChatGPT Enterprise / Claude Opus 4.7（提案書初稿・ROI試算・反論スクリプト）。
+- **定量目標**：議事録作成時間45分→5分（89%短縮）、提案書初稿作成5営業日→2営業日、CRM入力時間を1案件あたり15分→3分、営業1人あたり月間商談数+40%、Loom録画フォローの返信率はテキストメール比+60%。
+
 ### 1. リード管理
 ```
 入力: Marketing Agent からのリード情報 / 紹介・問い合わせ

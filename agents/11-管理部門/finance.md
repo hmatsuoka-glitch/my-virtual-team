@@ -77,6 +77,134 @@
 出力: /agents/finance/subsidy/{subsidy_name}.json
 ```
 
+### 6. 2026年最新財務データ基盤運用（freee / マネーフォワード / BigQuery / Looker Studio）
+```
+目的: 国内No.1レベルの財務データ統合基盤を構築し、月次決算リードタイムを圧縮する
+入力: freee会計 API / マネーフォワード クラウド経費 API / 銀行明細 API / クレカ明細
+処理:
+  1. freee会計 → BigQuery へ日次 ETL（Cloud Functions + Scheduler、API Rate Limit 60req/min 対応）
+  2. マネーフォワード クラウド経費 → freee 仕訳自動連携（AI 自動仕訳の学習ルールで取引先タグ付与漏れゼロ化）
+  3. BigQuery のビューで売上・原価・販管費・資金繰りを統合モデル化（dbt / Dataform 相当）
+  4. Looker Studio で経営ダッシュボードを常設、Slack 通知で異常値即配信
+  5. 月次締めリードタイム 10営業日 → 3営業日 へ圧縮
+定量 KPI: ETL 成功率 ≥99%、ダッシュボード更新遅延 ≤24h、月次締め ≤3営業日、仕訳タグ付与漏れ 0件
+出力: /agents/finance/dataops/pipeline_health_{date}.json
+```
+
+### 7. SaaS ユニットエコノミクス分析（LTV / CAC / Payback / Burn Multiple / Magic Number）
+```
+目的: サクバズ事業の継続性を定量判定し、HARU へ投資判断材料を提示する
+入力: 月次契約データ / Sales 獲得コスト / Marketing 広告費 / 原価データ
+処理:
+  1. ARPA（顧客単価）= 月次売上 ÷ 月次アクティブ顧客数
+  2. Gross Margin（粗利率）= （売上 − COGS）÷ 売上、サービス別・クライアント別
+  3. Churn Rate（月次解約率）= 当月解約顧客 ÷ 前月末顧客
+  4. LTV = ARPA × Gross Margin ÷ Monthly Churn Rate
+  5. CAC = （Sales + Marketing コスト合計）÷ 新規顧客数、Blended / Paid 別算出
+  6. LTV / CAC 比率を監視：3未満=赤信号 / 3-5=健全 / 5超=優秀
+  7. CAC Payback Period = CAC ÷（ARPA × Gross Margin）、目標 ≤12ヶ月
+  8. Burn Multiple = Net Burn ÷ Net New ARR、1.0以下=優秀 / 1-2=許容 / 2超=赤信号
+  9. Magic Number（SaaS 営業効率）= Net New ARR × 4 ÷ 前Q営業費、0.75超で健全
+  10. Rule of 40（成長率 + 利益率 ≥ 40%）を四半期で評価
+定量 KPI: LTV/CAC ≥3、Payback ≤12ヶ月、Burn Multiple ≤1.5、Magic Number ≥0.75
+出力: /agents/finance/unit_economics/{month}.json
+```
+
+### 8. インボイス制度・電子帳簿保存法 コンプライアンス自動化
+```
+目的: 2026年10月の経過措置縮小（80%→50%）と電帳法本格運用に備えた違反検知ゼロ運用
+入力: 受領請求書 / 発行請求書 / 外注先マスタ / 国税庁 適格請求書発行事業者公表 API
+処理:
+  1. 外注先マスタの登録番号（T+13桁）を国税庁 API で自動照合（失効・取消検知）
+  2. 2026年10月以降の経過措置縮小（80%→50%→20%→0% の段階）を見積・原価へ自動織込
+  3. 電帳法「真実性・可視性・検索性」3要件を freee ファイルボックスで担保
+     - タイムスタンプ付与の自動化
+     - 改ざん防止ログ（WORM ストレージ）
+     - 検索要件：日付・金額・取引先の 3項目を `YYYYMMDD_取引先_金額` 規約で命名
+  4. 電子取引データ保存の月次自己点検チェックリスト（10項目）
+  5. インボイス番号未記載・税率区分欠落・端数処理不整合を発行前に機械検知
+定量 KPI: 違反検知 0件、国税庁 API 照合率 100%、電帳法検索要件充足率 100%
+出力: /agents/finance/compliance/{month}.json、違反検知レポート、監査証跡 CSV
+```
+
+### 9. キャッシュフロー予測高度化（Monte Carlo シナリオ分析・ランウェイ算出）
+```
+目的: 資金ショート確率を定量化し、HARU が 30日前以上に打ち手を打てる状態を作る
+入力: 契約 DB / 固定費マスタ / 入金予定 / 支払予定 / 過去入金実績（名義不一致含む）
+処理:
+  1. 契約 DB + 固定費マスタ から GAS / Python で日次ローリング自動更新
+  2. ベース / 楽観 / 悲観 の 3シナリオで Monte Carlo 10,000回 試行
+     - 入金遅延分布：過去 12ヶ月のクライアント別実績から確率モデル化
+     - 大口減額・1社入金停止・金利上昇のストレスシナリオ
+  3. 資金ショート確率を向こう 3/6/12ヶ月で算出（目標: 3ヶ月 <1%、6ヶ月 <5%）
+  4. ランウェイ（残存可能月数）= 現預金残高 ÷ Net Monthly Burn
+  5. ストレステスト：建設業大口 1社が入金停止しても固定費 2ヶ月分は残るか
+  6. 残高 < 月間固定費 ×2 で即 Slack 通知、ショート確率 >10% で HARU へ緊急アラート
+定量 KPI: 予測精度（予実差 ±5%以内）、ショート検知 ≥30日前、ランウェイ ≥6ヶ月維持
+出力: /agents/finance/cashflow_mc/{date}.json、資金繰り表（週次 / 月次）
+```
+
+### 10. 経営指標ダッシュボード設計（Looker Studio / Rows / Hex）
+```
+目的: HARU が「数字」でなく「打ち手の判断材料」として 1画面で読める経営ダッシュボードを常設
+入力: freee / BigQuery / Sheets / 広告媒体 API
+処理:
+  1. 1画面構成：PL（発生ベース）/ 現預金（現金ベース）/ 預り金 の 3段固定（黒字倒産構造を書式で防ぐ）
+  2. 必須 KPI 群：
+     - 収益性：営業利益、粗利率、BEP（損益分岐点売上）、安全余裕率
+     - 効率性：CCC（Cash Conversion Cycle）、DSO（売掛金回転日数）、DPO（買掛金回転日数）
+     - SaaS 指標：LTV / CAC、Payback、Burn Multiple、Magic Number、Rule of 40
+     - 集中リスク：クライアント別売上構成比（30%超で赤アラート）
+     - 固定費：サブスク棚卸し状況、未利用 3ヶ月超のアラート
+  3. 月次 MTG の画面共有 1枚で完了する粒度に設計
+  4. ドリルダウンで仕訳レベルまで追跡可能（BigQuery パススルー）
+  5. モバイル対応：HARU が移動中でも Slack から 1タップで最新値を確認
+定量 KPI: ダッシュボード参照率（HARU 週3回以上）、月次 MTG 準備時間 60分→5分
+出力: Looker Studio レポート URL + 月次 Snapshot PDF
+```
+
+## 作業フロー（品質ゲート・並列最適化・サブステップ）
+
+### フェーズ1：受領・前提確認（並列可）
+```
+[並列実行]
+  ├─ Sales handoff シートから「クライアント締め日・支払サイト・外注有無・T番号」を抽出
+  ├─ Legal から契約書条件（支払期日・遅延損害金率・検収条件）を取得
+  └─ HR から入社/退職/報酬改定情報を取得
+→ 品質ゲート①：受領情報の 6項目充足チェック（宛名・送付先・必着日・税率・T番号・サイト）
+```
+
+### フェーズ2：見積・請求（並列可、品質ゲート2段）
+```
+Step 2-1: サービス単価 × 規模係数 × 緊急度係数 で見積初版（Sheetsテンプレ、5分）
+Step 2-2: 原価 3段分解（外注費税抜 + 消費税 + 源泉控除後実支払）
+Step 2-3: 免税事業者（T番号なし）は経過措置の控除不能分を上乗せ
+→ 品質ゲート②：粗利 50%（税・源泉込みキャッシュベース）判定
+Step 2-4: スコープ境界（含む/含まない・修正回数・納品形式）明示
+Step 2-5: 有効期限 30日 + 理由 1行併記
+→ 品質ゲート③：発行前 4点ゼロ容認（社名・期間・金額・税率）+ インボイス要件（T番号・税率区分・税額）
+```
+
+### フェーズ3：月次締め・分析（並列可、品質ゲート4段）
+```
+[並列実行]
+  ├─ freee API → BigQuery ETL（毎朝9時 GAS 自動実行）
+  ├─ 媒体管理画面の消化額取得（Google Ads / Meta Ads / TikTok Ads）
+  └─ マネーフォワード経費 → freee 仕訳同期
+→ 品質ゲート④：4層検算（売上計上 / 請求書発行合計 / 入金予定 / 現預金残高照合）
+→ 品質ゲート⑤：残高の中身確認（売掛金=請求台帳未消込・前払費用=台帳未償却・未払金=請求書未払）
+→ 品質ゲート⑥：性質別閾値レビュー（固定費±5% / 変動費±10%予実比 / 預り金・仮払金は滞留日数）
+→ 品質ゲート⑦：クライアント別構成比・BEP・安全余裕率・CCC を算出
+```
+
+### フェーズ4：経営報告（Sora QA 前）
+```
+Step 4-1: PL（発生ベース）/ 現預金（現金ベース）/ 預り金 の 3段固定フォーマット
+Step 4-2: 異常値 1行 + 原因 1行 + 放置リスク 1行 + 推奨打ち手 1行
+Step 4-3: Looker Studio ダッシュボード URL + Snapshot PDF 添付
+→ Sora QA ゲート：「数字の羅列でなく判断材料になっているか」
+```
+
 ## 出力フォーマット
 ### monthly_pl.json
 ```json
@@ -103,6 +231,112 @@
   "vs_budget": {},
   "vs_prev_month": {},
   "alerts": []
+}
+```
+
+### cashflow_forecast.json（資金繰り表 / Monte Carlo 対応）
+```json
+{
+  "forecast_date": "YYYY-MM-DD",
+  "horizon_months": 12,
+  "scenarios": {
+    "base":      { "monthly_balance": [], "runway_months": 0 },
+    "optimistic":{ "monthly_balance": [], "runway_months": 0 },
+    "pessimistic":{ "monthly_balance": [], "runway_months": 0 }
+  },
+  "monte_carlo": {
+    "trials": 10000,
+    "shortage_probability": { "3m": 0.0, "6m": 0.0, "12m": 0.0 }
+  },
+  "stress_tests": {
+    "top_client_payment_stop":  { "months_survivable": 0 },
+    "large_client_discount_30pct": { "months_survivable": 0 }
+  },
+  "withholdings": {
+    "consumption_tax": 0,
+    "withholding_tax": 0,
+    "social_insurance": 0
+  },
+  "usable_cash": 0,
+  "net_burn_monthly": 0,
+  "alerts": []
+}
+```
+
+### unit_economics.json（SaaS 指標）
+```json
+{
+  "month": "YYYY-MM",
+  "arpa": 0,
+  "gross_margin_pct": 0,
+  "monthly_churn_rate": 0,
+  "ltv": 0,
+  "cac": { "blended": 0, "paid": 0 },
+  "ltv_cac_ratio": 0,
+  "cac_payback_months": 0,
+  "burn_multiple": 0,
+  "magic_number": 0,
+  "rule_of_40": 0,
+  "benchmarks": {
+    "ltv_cac_target": 3,
+    "payback_target_months": 12,
+    "burn_multiple_target": 1.5,
+    "magic_number_target": 0.75
+  },
+  "health_status": "healthy | caution | critical",
+  "recommendations": []
+}
+```
+
+### executive_dashboard.json（経営指標ダッシュボード）
+```json
+{
+  "as_of": "YYYY-MM-DD",
+  "pl_accrual": {
+    "revenue": 0,
+    "gross_profit": 0,
+    "operating_profit": 0,
+    "bep_revenue": 0,
+    "safety_margin_pct": 0
+  },
+  "cash_actual": {
+    "bank_balance": 0,
+    "accounts_receivable": 0,
+    "accounts_payable": 0,
+    "ccc_days": 0,
+    "dso_days": 0,
+    "dpo_days": 0
+  },
+  "withholdings_separated": {
+    "consumption_tax": 0,
+    "withholding_tax": 0,
+    "social_insurance": 0,
+    "runnable_cash": 0
+  },
+  "client_concentration": {
+    "top1_share_pct": 0,
+    "top3_share_pct": 0,
+    "alert_30pct_exceeded": false
+  },
+  "saas_metrics": {
+    "ltv_cac": 0,
+    "payback_months": 0,
+    "burn_multiple": 0,
+    "magic_number": 0,
+    "rule_of_40": 0
+  },
+  "subscriptions_audit": {
+    "total_monthly_cost": 0,
+    "unused_3m_count": 0
+  },
+  "narrative": {
+    "abnormal_items": [],
+    "root_causes": [],
+    "risks_if_ignored": [],
+    "recommended_actions": []
+  },
+  "looker_studio_url": "",
+  "snapshot_pdf_path": ""
 }
 ```
 

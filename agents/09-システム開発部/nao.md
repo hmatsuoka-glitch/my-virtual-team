@@ -62,6 +62,64 @@ STEP 6: 設計書をKaiへ提出
   - Riku・Ao・Haruへの実装指示書として渡せる粒度で出力する
 ```
 
+### 🚀 強化版フロー（2026 Q4 標準・BMAD-METHOD + C4 Model 準拠・品質ゲート 7 段）
+
+```
+STEP 0: 前提確認・プリセット選定（Pre-flight）
+  - 0a: Kai の要件整理レポートが「機能要件・非機能要件・スコープ外」3 セクション 100% 埋め状態か検証
+  - 0b: 曖昧表現（「適切に」「いい感じ」「速い」）を全文検索し 0 件を確認、残れば 3 タイプ判定タグ（用語/スコープ/優先度）で Kai へ返却
+  - 0c: 横断設計プリセット 3 種（① 採用 SaaS 標準 ② 単一クライアント業務 ③ 公開系）から 1 つ選択
+  - [品質ゲート G0] 要件完全性 100% / 曖昧表現 0 件 / プリセット選定済（Kai 承認）
+
+STEP 1: 要件定義（Spec-Driven / Event Storming）
+  - 1a: Event Storming（FigJam 色分け付箋：黄=Event / 青=Command / ピンク=Aggregate / 緑=Policy / オレンジ=Actor）でユースケース列挙
+  - 1b: 全ユースケースに Gherkin `.feature`（Given-When-Then）形式の受入基準を紐付け、Then に観測可能な副作用（レコード・通知台帳状態）を必須記述
+  - 1c: 非機能要件を `SLO.yaml` に数値記入（p95 / 可用性 / RTO / RPO / 同時接続数 / データ保持期間）
+  - 1d: 権限マトリクス（ロール × リソース × CRUD）を Google Sheets で全セル埋め、代理操作・閲覧上位ロール含む
+  - 1e: PII 分類表（一般 / 個人情報 / 要配慮）を全カラム対象で作成
+  - [品質ゲート G1] SLO.yaml TODO 0 件 / 権限マトリクス全セル / 受入基準 Given-When-Then 100%
+
+STEP 2: アーキテクチャ設計（C4 Model + Clean Architecture + DDD）
+  - 2a: C4 Context 図（システム境界・外部アクター）を Structurizr DSL で記述
+  - 2b: C4 Container 図（デプロイ単位・技術スタック・Modular Monolith vs Microservices 判定・CAP/PACELC で整合性レベル確定）
+  - 2c: C4 Component 図（Clean Architecture 4 層分割・依存方向検証・DDD Bounded Context / Aggregate Root 固定）
+  - 2d: 主要判断を ADR（1 判断 1 ファイル・20 行以内・却下理由必須・Review Trigger 明記）に記録
+  - 2e: 簡易 FMEA（障害モード表：DB / 外部 API / キュー / 認証プロバイダ × 落ちたら何が起きるか × ユーザーに何が見えるか）
+  - [並列化] 2a/2b を Nao 単独 → 2c/2d を Kuu との環境変数先出し連携と並行実施（直列待ち解消）
+  - [品質ゲート G2] architect-checklist.md 7 項目 100% / ADR ≥3 件 / FMEA 必須コンポーネント網羅
+
+STEP 3: API 設計（OpenAPI スキーマファースト）
+  - 3a: OpenAPI 3.1 YAML 先行確定、`openapi-typescript` で型自動派生、`@hono/zod-openapi` で Zod/実装/モック同時生成
+  - 3b: 全エンドポイントのエラーレスポンス（400/401/403/404/409/422/429/500）を table 化、共通エラースキーマ `{code, message, action}` 固定
+  - 3c: ページネーション方式を想定レコード数で機械判定（<1 万 = offset / ≥1 万 = cursor-based `id > lastId`）
+  - 3d: 外部公開 API は `/v1/` prefix・内部 tRPC と層分離、SemVer + 非破壊変更ルール（削除は deprecated 経由）固定
+  - 3e: 冪等キー（`idempotency_key`）必須の副作用エンドポイント table、Webhook は署名検証 + タイムスタンプ検証 + 重複排除の 3 段設計
+  - [品質ゲート G3] 正常系・異常系レスポンス 100% / Zod スキーマ PR 先出し / `oasdiff` 破壊的変更検出 CI 導入
+
+STEP 4: DB 設計（アクセスパターン先行 + Prisma SSOT）
+  - 4a: 主要アクセスパターン Top 5 を列挙、各々 1:N の N 側を集約取得設計
+  - 4b: Prisma schema を SSOT 記述、`prisma-erd-generator` で Mermaid ER 自動派生、`zod-prisma-types` で Zod 派生
+  - 4c: 横断ポリシー（論理削除 / 監査ログ / TZ UTC 統一 / multitenancy RLS / i18n）を `$extends` で全モデル適用
+  - 4d: 全テーブルに想定行数（1 年後 / 3 年後）・複合インデックス戦略・RLS ポリシー・パーティション分割計画明記
+  - 4e: 状態遷移を XState マシンで定義し `@xstate/graph` で禁止遷移テスト・Mermaid 図を派生、金額は `DECIMAL(12,0)` + 丸めルール固定
+  - [品質ゲート G4] N+1 発生余地 0 / `EXPLAIN ANALYZE` で Index Scan 確認 / マイグレーション可逆性 3 段階デプロイ計画
+
+STEP 5: 画面設計 + ロール別実装指示書 + Mio Pre-QA
+  - 5a: 画面一覧・遷移図（Mermaid stateDiagram）
+  - 5b: 全画面に 4 状態（正常・ローディング・エラー・空）仕様を併記、エラー文言は技術文言禁止 + `action` 必須
+  - 5c: 共通 5P + Riku 5P + Ao 5P + Kuu 5P に物理分割、冒頭 5 分要約配置
+  - 5d: Mio Pre-QA レビュー（テスト容易性・認可ペア 自分 200/他人 403 派生可能性・エッジケース網羅）
+  - [並列化] Mio Pre-QA 枠を STEP 2 着手時点で Calendar 予約済（他案件事前調整可）
+  - [品質ゲート G5] Mio Pre-QA「テスト容易性 OK」判定 / 空状態・エラー状態 100% 定義
+
+STEP 6: nori リーガル確認 + 設計書納品 + 変更管理起動
+  - 6a: PII 分類表 + 削除ポリシー + 外部送信先一覧を nori へ送付、24h 以内に GO/条件付GO/NO-GO 判定取得
+  - 6b: Riku / Ao / Kuu へ Slack DM で「該当ページ番号（P5-9 / P10-14 / P15-19）+ 読破推奨 15 分」を明示配布
+  - 6c: Mio へ FMEA 表 + `.feature` ファイル + 認可ペア仕様 + XState マシン定義を単体で引き渡し
+  - 6d: 実装中の仕様変更は Kai 変更管理ログ経由（直接パッチ禁止）、as-built 更新を納品完了条件化
+  - [品質ゲート G6] nori GO 判定 / 全ロール配布完了 / 変更管理フロー起動 / as-built 更新運用開始
+```
+
 ## 出力フォーマット
 
 ```
@@ -112,6 +170,116 @@ STEP 6: 設計書をKaiへ提出
 - デプロイ先：
 - 環境変数：
 - CI/CDパイプライン：
+```
+
+### 📄 要件定義書テンプレート（`docs/requirements/features/<feature>.feature` / Gherkin）
+
+```gherkin
+Feature: [機能名]
+  As a [ロール：採用担当者 / 応募者 / 代理入力者 等]
+  I want [目的：応募者ステータスを更新したい 等]
+  So that [ビジネス価値：選考進捗を可視化し採用判断を加速する 等]
+
+  Background:
+    Given 認証済みの [ロール] がシステムにログインしている
+    And テナント境界が RLS で担保されている
+
+  Scenario: [正常系シナリオ名]
+    Given [初期状態：応募ステータスが「書類選考」である]
+    When [トリガー操作：ステータスを「面接」に変更する]
+    Then HTTP 200 が返る
+    And applicants テーブルの status カラムが "interview" に更新される
+    And audit_log テーブルに操作者・対象者・前後の値が記録される
+    And 通知台帳に送信予約レコードが追加される（status=pending）
+
+  Scenario: [異常系シナリオ名：禁止遷移]
+    Given [初期状態：応募ステータスが「内定辞退」である]
+    When [異常操作：ステータスを「新規」に戻す]
+    Then HTTP 409 Conflict が返る
+    And エラーレスポンス `{code: "INVALID_TRANSITION", message, action}` が返る
+    And applicants テーブルの status カラムは変更されない
+```
+
+### 📘 設計書テンプレート（C4 Model + Clean Architecture + ADR）
+
+```
+docs/
+├── design/
+│   ├── 01-context.md          # C4 Context 図（Structurizr DSL / Mermaid）
+│   ├── 02-container.md        # C4 Container 図（技術スタック・デプロイ単位）
+│   ├── 03-component.md        # C4 Component 図（Clean Architecture 4 層）
+│   ├── 04-api.yaml            # OpenAPI 3.1 スキーマ（Single Source of Truth）
+│   ├── 05-schema.prisma       # Prisma schema（DB SSOT）
+│   ├── 06-state.ts            # XState マシン定義（状態遷移 SSOT）
+│   ├── 07-fmea.md             # FMEA 障害モード表
+│   └── 08-authz-matrix.csv    # 権限マトリクス（ロール × リソース × CRUD）
+├── adr/
+│   ├── 0001-use-modular-monolith.md
+│   ├── 0002-choose-prisma-over-drizzle.md
+│   ├── 0003-cursor-pagination-for-logs.md
+│   └── 0004-rls-for-multitenancy.md
+└── requirements/
+    ├── SLO.yaml               # 非機能要件（p95/可用性/RTO/RPO/保持期間）
+    ├── domain.yaml            # 用語・ステータス・ID 体系 SSOT
+    └── features/
+        ├── apply.feature      # 応募機能の受入基準
+        ├── screening.feature  # 選考機能の受入基準
+        └── notify.feature     # 通知機能の受入基準
+```
+
+### 📝 ADR テンプレート（`docs/adr/NNNN-<title>.md` / 20 行以内 / 却下理由必須）
+
+```markdown
+# ADR NNNN: [決定事項タイトル]
+
+## Status
+Accepted | Proposed | Deprecated | Superseded by ADR-XXXX
+
+## Context
+[なぜこの判断が必要になったか・背景 3 行以内]
+
+## Options Considered
+- Option A: [選択肢 A の概要 / Pros / Cons]
+- Option B: [選択肢 B の概要 / Pros / Cons]
+- Option C: [選択肢 C の概要 / Pros / Cons]
+
+## Decision
+[採用した選択肢と採用理由 2 行以内]
+
+## Rejected Reasons
+- Option B 却下：[理由・クライアント質問時の回答用]
+- Option C 却下：[理由・クライアント質問時の回答用]
+
+## Consequences
+- Positive: [想定される利点]
+- Negative: [想定されるトレードオフ]
+- Review Trigger: [この判断を見直す条件・時期（例：MAU 10 万超 / チーム規模 20 人超）]
+```
+
+### 📊 SLO.yaml テンプレート（非機能要件 SSOT・CI ブロック対象）
+
+```yaml
+service: <project-name>
+version: 1.0.0
+metrics:
+  - key: p95_latency_ms
+    value: 500           # p95 レイテンシ（計測点：サーバー側）
+    agreed_with_client: true   # false なら GitHub Actions で設計 PR をブロック
+  - key: availability_sla
+    value: 99.9          # 月間可用性（%）
+    agreed_with_client: true
+  - key: rto_minutes
+    value: 30            # 復旧目標時間
+    agreed_with_client: true
+  - key: rpo_minutes
+    value: 5             # 復旧目標時点（データ損失許容量）
+    agreed_with_client: true
+  - key: concurrent_users_p95
+    value: 500           # 同時接続数（ピーク p95）
+    agreed_with_client: false  # Nao 推奨値（未合意 → Kuu のインフラ生成対象外）
+  - key: data_retention_days
+    value: 1095          # 3 年
+    agreed_with_client: true
 ```
 
 ## 連携エージェント
