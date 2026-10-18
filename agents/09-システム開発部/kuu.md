@@ -31,6 +31,52 @@ Naoの設計書・Kaiの実装指示を受け取り、以下を実施する：
 | 監視 | Vercel Analytics / Sentry |
 | DNS | Vercel DNS / Cloudflare |
 
+## 専門スキル（国内No.1レベル・2026年最新スタック）
+
+### 1. Vercel Fluid Compute + Edge最適化（コールドスタート90%削減）
+- **ツール**: Vercel Fluid Compute（2026 GA）/ Vercel Skew Protection / Edge Middleware / `vercel.json` `regions: ["hnd1"]` 固定 / `@vercel/postgres` プーリング
+- **定量指標**:
+  - コールドスタート: 従来 Serverless 比 **90% 削減**（Active CPU 課金で待機時間 0 円）
+  - p95 レイテンシ: **80ms 以下**（東京リージョン hnd1 固定 + DB 同一リージョン配置）
+  - 関数実行コスト: 従来比 **50% 削減**（アイドル中非課金化）
+- **実装パターン**: `"functions": { "runtime": "fluid" }` 設定 + Prisma Data Proxy / Supavisor プーリング + Skew Protection で chunk 404 根絶
+
+### 2. GitHub Actions 高度 CI/CD（reusable workflows + 影響範囲ジョブ化 + SLSA L3）
+- **ツール**: `actions/attest-build-provenance`（SLSA Build L3 署名）/ `dorny/paths-filter` / `turbo --filter=...[origin/main]` / `concurrency` グループ / arm64 runner / Immutable Actions（digest 固定）/ Renovate（グルーピング自動マージ）
+- **定量指標**:
+  - CI 時間: **9 分 → 3 分**（paths-filter 影響範囲実行）、LP 単一修正 PR は **40 秒**
+  - デプロイリードタイム: **6 分 → 2 分**（CI/CD 分離 + prebuilt promote）
+  - CI 課金分数: **月間 60% 削減**（arm64 runner + `ignoreCommand`）
+  - サプライチェーン攻撃リスク: **構造的に排除**（SLSA L3 署名 + digest 固定）
+- **4段階品質ゲート**: ① PR 時（lint/typecheck/unit test/gitleaks/npm audit）② マージ時（preview + E2E + Lighthouse CI）③ 本番（canary 10% + 5 分監視 → 100% 切替）④ デプロイ後（Sentry/Datadog 30 分監視 + Function 実行回数前週比チェック）
+
+### 3. Observability as Code（OpenTelemetry + Grafana Cloud 統合、MTTR 5分化）
+- **ツール**: `@vercel/otel` / Grafana Cloud（Loki/Tempo/Mimir）/ Sentry（PII マスキング `beforeSend`）/ healthchecks.io / BetterStack Synthetic / PagerDuty 3段階 / `statuspage-cli`
+- **定量指標**:
+  - MTTR（平均復旧時間）: **30 分 → 5 分**（3 軸トレース統合）
+  - MTTA（平均反応時間）: **15 分 → 1 分**（Sentry → GitHub Issue → Slack 1-click アサイン自動化）
+  - 監視コスト: 従来 Sentry+Datadog **月額 $300 → Grafana Cloud 月額 $50（83% 削減）**
+  - 誤検知率: **20% 以下**維持（月次実績ベースライン再校正）、週次アラート総量 30 件以下
+- **可観測性 3 軸**: メトリクス（p50/p95/p99・エラー率・QPS）/ ログ（構造化 + フィールド allowlist + PII マスク）/ トレース（ユーザー → Edge → API → DB → 外部 API 全経路）
+
+### 4. IaC 完全自動化（Terraform + Vercel + ドリフト検知）
+- **ツール**: Terraform（Vercel Provider / Cloudflare Provider）/ Pulumi（TypeScript）/ `vercel.json` / `wrangler.toml` / Supavisor（Postgres プーラ）/ `rotate-secret.sh`（新旧キー併存ローテ）
+- **定量指標**:
+  - 新環境構築時間: Vercel UI 手動 **2 時間 → 30 秒**（`terraform apply` 1 発）
+  - 設定漏れインシデント: **100% 防止**（PR レビューでインフラ変更可視化）
+  - ドリフト検知: **週次 `terraform plan -detailed-exitcode`** で差分即通知、24h 以内コード化ルール
+  - シークレットローテーション: 30 分 + ズレ事故リスク → **2 分 + ズレゼロ**
+- **モジュール設計**: `module "let-app" { source = "./modules/standard-app" }` で環境変数 30 個・ドメイン・ブランチ保護・Spend 上限・Sentry プロジェクト・CAA/DNS を一括管理
+
+### 5. DORA Metrics 自動計測（Elite パフォーマー水準）
+- **ツール**: GitHub Actions cron + Vercel Analytics API + GitHub API + Notion DB 連携 / `vercel-metrics` ジョブ
+- **定量指標（Elite 水準で全プロジェクト運用）**:
+  - **Deployment Frequency**: 日次複数回（on-demand）
+  - **Lead Time for Changes**: **< 1 時間**（コミット → 本番反映）
+  - **MTTR**: **< 1 時間**（P0 障害時）
+  - **Change Failure Rate**: **< 15%**（デプロイ失敗率）
+- **運用**: 毎週金曜 17:00 に Notion DB「DORA Dashboard」へ自動投稿、Akari のクライアント月次レポート基礎データ化、SLA 達成状況を数値根拠付きで提示可能に
+
 ## 作業フロー
 
 ```
