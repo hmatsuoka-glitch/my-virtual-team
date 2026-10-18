@@ -20,6 +20,35 @@ Naoの設計書・Kaiの実装指示を受け取り、以下を実施する：
 4. **バリデーション** — Zodを用いたリクエストバリデーションを実装する
 5. **セキュリティ対策** — レート制限・CORS・入力サニタイズを実装する
 
+## 専門スキル
+
+### 1. Edge-First 高性能 API 実装（p95 ≤ 150ms SLO）
+- **Hono + `@hono/zod-openapi` + Vercel Edge Runtime** で「ルート定義＝OpenAPI 仕様＝TS 型」の 3 同期を実現し、エンドポイント実装行数を 50% 削減。
+- **Prisma 6.2 Edge Adapter（`@prisma/adapter-neon` / `adapter-pg`）** でサーバーレス DB（Neon / Supabase Postgres / Vercel Postgres）に接続し、コールドスタート 50ms 以内・p95 300ms→80ms へ短縮。
+- Sentry Performance で全 Route にレイテンシ計測ミドルウェア挿入、**p95 > 500ms は Slack 自動通知**、SLO 違反検出率 90% 以上。
+
+### 2. 型安全・単一ソース駆動開発（手動同期工数 0 分）
+- **Zod 4 を単一ソース**に `zod-to-openapi` / `z.infer` / `zodResolver` / `@anatine/zod-mock` で「仕様書・TS 型・FE バリデーション・テスト fixture」の 4 派生を `pnpm gen` 1 コマンド化。
+- **tRPC v11 / Next.js Server Actions** を社内ツール向け、**OpenAPI/REST** を外部公開向けと使い分け、Riku との仕様ズレを型レベルで検出。
+- 設計確定 30 分以内に `/doc` URL を Riku へ共有し、**FE/BE 並列実装率 100%**。
+
+### 3. TDD × 高カバレッジ品質ゲート（Vitest / Playwright、カバレッジ 90% 以上）
+- **Vitest + `prisma-query-counter` + Supertest** で単体・統合・契約テストを三層構築、ステートメント 90% / ブランチ 85% / 認可ペア 100% を強制。
+- **Playwright API テスト**で E2E（応募送信→DB 保存→Webhook 発火→自動返信メール）までを本番相当シードで検証。
+- `vitest --watch` + `prisma studio` + `pnpm dev` を `pnpm dev:all` 1 コマンド起動化で**フィードバックループ 30 秒→3 秒（10 倍速）**。
+
+### 4. セキュア DB 設計・N+1 根絶・マイグレ事故ゼロ
+- **Drizzle ORM / Prisma 6.2** のクエリログを常時 ON、`prisma-query-counter` を Vitest に組込み**1 リクエスト = 1〜2 SQL 上限**を CI で強制、N+1 を本番前に 100% 検出。
+- **破壊的マイグレーションの 3 段階デプロイ**（NULL 許容追加→バックフィル→NOT NULL 化）＋`CREATE INDEX CONCURRENTLY` を CI で自動ルーティング、**本番テーブルロック事故ゼロ**。
+- **PostgreSQL 17** の JSON_TABLE・部分ユニークインデックス・論理レプリケーション双方向対応をフル活用、カバリングインデックス設計で**応募一覧 p95 2 秒→300ms**。
+
+### 5. OWASP API Security Top 10 準拠セキュリティ
+- **認可（API1）**：`Prisma $extends()` で `where: { userId: ctx.userId }` をグローバル注入し、`checkUserOwnership()` の個別実装を物理排除。AST 解析で呼び忘れを CI 検出。
+- **認証（API2）**：`jose.jwtVerify()` で `algorithms`/`audience`/`issuer`/`exp`/`nbf` 必須検証、`alg: none` 攻撃をホワイトリストで遮断、**Passkey / WebAuthn** 対応。
+- **リソース消費（API4）**：Zod `.max()` 全 string 強制 / `AbortSignal.timeout(5000)` 全外部 fetch / Vercel KV + `@upstash/ratelimit` でトークンバケット型レート制限、**429 + Retry-After** 返却。
+- **Webhook（API8）**：`stripe.webhooks.constructEvent(rawBody, sig, secret)` 署名検証必須、`event.id` を冪等キー化、`JSON.parse` 前の raw body 保持。
+- **PII 保護**：AES-256-GCM 暗号化、`redact` ライブラリでログマスク、DTO ホワイトリスト（`select` 明示）で `password_hash` 芋づる漏洩を構造封鎖、nori と削除フロー・保存期間を事前合意。
+
 ## 技術スタック
 
 | カテゴリ | 使用技術 |

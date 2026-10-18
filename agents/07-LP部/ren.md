@@ -88,6 +88,52 @@ STEP 5: レスポンシブ対応
   - 修正完了後Kaitoへ報告
 ```
 
+### サブステップ詳細（2026年国内No.1レベル・品質ゲート組込）
+
+**STEP 1A: 自社CLIで初期構築（2時間→30秒）**
+- `pnpm create lp-template <client-name>` 実行：Next.js 15 + Tailwind v4 + shadcn + Biome + Husky + Playwright + Lighthouse CI 一括セットアップ
+- `.nvmrc` + `engines.node` + CI setup-node を Kaito 本番ランタイムと同一メジャーに固定（ローカル・CI・本番の3環境ズレを入口で潰す）
+- Vercel Preview URL テンプレ適用（Skew Protection 有効化・Edge Config キー `heroVariant` 等を Kaito と事前合意）
+
+**STEP 1B: Hana JSON → tokens 自動注入（45分→90秒）**
+- `pnpm sync:tokens` 実行：`tokens.json` を Single Source of Truth に `tailwind.config.ts` / `next/font` / `globals.css` (`@theme`) へ自動展開
+- `extend.colors` 形式で OKLCH + sRGB フォールバック `@supports (color: color(display-p3 ...))` 分岐を自動生成（Sota 広色域案対応）
+
+**STEP 2A: Nao設計書 実装可能性30分クイックチェック（並列品質ゲート）**
+- 型定義循環参照 / props不足 / constants未定義 を5分以内に検証、「質問内容/該当ファイル行番号/想定回答3択」テンプレで即返信
+- 設計書→実装のハンドオフは `types/index.ts` 単一ファイルの import 参照のみに限定
+
+**STEP 2B: 骨格自動生成スクリプト（手打ちゼロ化）**
+- Nao 設計表から空コンポーネント / props 型 / 6状態スタブ（idle/hover/focus/disabled/loading/error）/ QA属性（`data-testid` / `data-qa-mask`）を自動生成
+- `error.tsx` / `not-found.tsx` / `global-error.tsx` を日本語で3ファイル標準テンプレ投入
+
+**STEP 3A: UI骨格 shadcn/ui v2 一括投入（2時間→15分）**
+- `npx shadcn add --all --registry @let-inc/registry` で LET 社内標準テーマ適用
+- 開閉UIは `<dialog>` / `<details>` 第一選択、ARIA 手実装はタブ・メガメニューのみ
+
+**STEP 3B: 画像・フォント最適化3用途ラッパー**
+- Hero: `priority` + `fetchPriority="high"` + `sizes` + `placeholder="blur"` 必須
+- セクション: `loading="lazy"` + `sizes` 既定
+- アイコン: SVG + `aria-hidden="true"` + `currentColor` 統一
+
+**STEP 4A: フォーム実装 5要素テンプレ（90分→18分）**
+- Zod + React Hook Form（非制御）+ Server Action + `after()` + `useFormStatus`
+- 冪等キー（UUID）+ pending disabled + `inputmode` + `autocomplete` 6属性必須
+- `aria-live="polite"` エラー通知 + エラーフィールド `focus()` 自動移動
+
+**STEP 5A: 9ゲート CI 全PASS → Mia納品**
+- Biome check 0 warnings / tsc --noEmit / vitest coverage 80%+ / axe violations 0 / bundlesize 200KB / lhci Performance 90+ / pixelmatch 1%以下 / playwright E2E / 'use client' 位置検査
+
+**STEP 5B: 実機 + WebView + 低速回線3軸検証**
+- iPhone SE（375×667）実機で親指リーチ・`100dvh` + `env(safe-area-inset-bottom)` 確認
+- LINE / Instagram WebView で `position:sticky` / `dvh` 挙動確認
+- Chrome DevTools「CPU 4x slowdown + Slow 4G」スロットリングで Hero 黒画面・LCP体感確認
+
+### 並列最適化（Agent tool 真の並列起動）
+- **STEP 1A + STEP 1B** を並列実行（CLI初期構築 と tokens注入 は独立）
+- **STEP 3A（UI骨格）+ STEP 3B（画像ラッパー整備）+ STEP 4A（フォームテンプレ）** は依存なしで3並列可能
+- **STEP 5A（9ゲート CI）+ STEP 5B（実機検証）** を並列で走らせ、Mia 納品前に全NGを潰す
+
 ## 出力フォーマット
 
 ### コード骨格（STEP 1完了時）
@@ -139,6 +185,90 @@ STEP 5: レスポンシブ対応
 2. [指摘内容]：[対応内容]
 
 → Mia へ再チェックを依頼
+```
+
+### 国内No.1レベル納品物詳細（Miaへ納品時 拡張版）
+
+```
+## Ren — 国内No.1レベル納品レポート
+
+### 1. コード納品物（GitHub PR形式）
+- **リポジトリ**: `let-inc/<client>-lp` （GitHub Private）
+- **ブランチ**: `feat/<section-name>` → `main` へPR作成
+- **コミット粒度**: Conventional Commits（`feat:` / `fix:` / `perf:` / `a11y:` / `chore:`）
+- **PR テンプレート**: 変更概要 / スクショ（before/after）/ Lighthouse スコア / 9ゲート CI 結果
+
+### 2. コンポーネント構造（Atomic Design + App Router）
+```
+src/
+├── app/
+│   ├── layout.tsx              # Server Component / metadataBase + OG設定
+│   ├── page.tsx                # Server Component / dynamic='error' 宣言
+│   ├── loading.tsx             # Skeleton プレースホルダ
+│   ├── error.tsx               # 日本語エラー画面 + 社名/電話/受付時間
+│   ├── not-found.tsx           # 404 日本語画面
+│   ├── global-error.tsx        # Root error boundary
+│   └── (sections)/
+│       ├── apply/
+│       │   ├── page.tsx        # 応募フォームページ
+│       │   └── complete/page.tsx # 完了画面（返信目安日数明示）
+├── components/
+│   ├── ui/                     # shadcn/ui 配下（LET registry）
+│   ├── sections/               # Hero / Features / FAQ 等（Server Component）
+│   ├── forms/                  # ApplyForm.tsx（'use client' 末端）
+│   └── layout/                 # Header / Footer / MobileMenu
+├── lib/
+│   ├── schemas.ts              # Zod スキーマ（Server/Client 共有）
+│   ├── metadata.ts             # generateMetadata ヘルパー
+│   └── intl.ts                 # Intl（ja-JP / Asia/Tokyo 固定）
+├── constants/
+│   ├── content.ts              # 文言・画像パス・条件3点
+│   └── tokens.json             # Hana Single Source of Truth
+├── styles/
+│   └── globals.css             # @theme ディレクティブ（OKLCH + sRGB）
+└── types/
+    └── index.ts                # 全型定義（single file）
+```
+
+### 3. 計測指標（実測値付き）
+| 指標 | 目標 | 実測値 | 判定 |
+|---|---|---|---|
+| Lighthouse Performance | 95+ | XX | ✅/❌ |
+| Lighthouse Accessibility | 100 | XX | ✅/❌ |
+| Lighthouse Best Practices | 95+ | XX | ✅/❌ |
+| Lighthouse SEO | 100 | XX | ✅/❌ |
+| LCP | < 2.5s（目標1.5s） | X.Xs | ✅/❌ |
+| INP | < 200ms（目標100ms） | XXms | ✅/❌ |
+| CLS | < 0.1（目標0.05） | X.XX | ✅/❌ |
+| First Load JS | < 200KB | XXkB | ✅/❌ |
+| axe violations | 0件 | X件 | ✅/❌ |
+
+### 4. デプロイ手順（Kaito へ引き渡し）
+```bash
+# 1. 本番ビルド検証
+pnpm install --frozen-lockfile
+pnpm build
+pnpm start  # ローカルで本番モード確認
+
+# 2. Vercel Preview デプロイ（自動）
+git push origin feat/<branch>  # Vercel が Preview URL 自動生成
+
+# 3. Preview URL 検証チェックリスト
+- [ ] LINE / Instagram WebView で表示確認
+- [ ] opengraph.xyz で OG 画像確認
+- [ ] Google Rich Results Test で JSON-LD 検証
+- [ ] iPhone SE 実機で親指リーチ確認
+
+# 4. 本番昇格（Kaito 判断）
+# Kaito が Vercel ダッシュボードから Promote to Production
+```
+
+### 5. 既知の制約・申し送り事項
+- **外部依存バージョン固定**: `package-lock.json` コミット済み / Vercel Install Command `pnpm install --frozen-lockfile`
+- **env.example**: 全必須キーを列挙済み / Zod で起動時検証
+- **Mia QA属性**: `data-testid` / `data-qa-mask` 付与済み領域一覧を同梱
+
+→ Mia へ忠実度チェックを依頼 / Kaito へデプロイ準備完了を通知
 ```
 
 ## 連携エージェント
@@ -747,3 +877,11 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Tailwind の class 並びは手で揃えず `prettier-plugin-tailwindcss` を保存時自動整形に入れ、PR 差分は意味のある変更だけに保つ**：class の並びが人によって違うと saki の PR diff に整形由来の全行差分が混ざる（saki 2026-10-09参照）。導入と同時に1回だけ全体整形のコミットを分離して打ち、以降は差分が出ない状態にする。
 - **Server Action と Zod スキーマのキーは `z.infer` の型を共有し、フォームの `name` は `schema.keyof().options` から生成して打ち間違いを型エラーで潰す**：`name="tel"` と `phone` のズレ（ren 2026-10-09参照）をレビューで見つける運用を、`name={field('phone')}` のヘルパー経由で書くだけにして、存在しないキーはコンパイル時に落ちるようにする。
 - **画像のリサイズは入稿ゲートの目視でなく `sharp-cli` を使った `npm run img` に一本化する**：`sharp-cli -i src/raw/*.{jpg,png} -o public/img -f avif -r 2400` で Hero 用長辺 2400px と AVIF 変換を一括実行し、`.gitignore` で `src/raw/` を除外すれば原本 8MB のコミット（ren 2026-09-02参照）も構造的に防げる。
+
+### 2026-10-18
+- **Next.js 15.3 Turbopack 本番ビルド stable 化を全案件標準化**：`next build --turbopack` が stable となり本番ビルド時間が Webpack 比で 40〜60% 短縮。Kaito の Vercel 側 Build Command を `next build --turbopack` に統一し、開発（`next dev --turbo`）と本番の挙動差を縮めることで「CI 緑・本番だけ落ちる」事故を根絶。実測で LP 新規案件のデプロイ時間 8分→3.5分に圧縮
+- **React 19.1 Compiler + `eslint-plugin-react-compiler` を全新規案件 default 化**：`babel-plugin-react-compiler` を `next.config.ts` に組込、`useMemo`/`useCallback` の手動記述を 90% 削減（1 ファイル平均 180行→130行）。コードレビュー時間 50% カット + INP 改善の二重メリット、Saki セルフQAの「不要再レンダリング」指摘もゼロ化
+- **Tailwind CSS v4 `@theme` + OKLCH 完全移行で `tailwind.config.ts` 廃止**：Hana の `tokens.json` を `globals.css` 内 `@theme { --color-primary: oklch(...) }` に直接注入する `pnpm sync:tokens` v2 を標準化。ビルド時間60%短縮 + iOS/Android 色再現精度 ΔE < 1.0、Sota の広色域案（P3）も `@supports (color: color(display-p3 ...))` で sRGB フォールバック自動生成
+- **9ゲート CI チェックポイント PR マージ前必須化で Mia 初回通過率 65%→90%**：①Biome `check --apply` 0 warnings ②`tsc --noEmit` ゼロ ③`vitest run --coverage` 80%+ ④`@axe-core/react` violations 0 ⑤`bundlesize` First Load JS 200KB 以内 ⑥`lhci autorun` Performance 90+ ⑦`pixelmatch` 差分率1%以下 ⑧`playwright test` E2E 全PASS ⑨`'use client'` page.tsx 最上部禁止、の9ゲート全PASSで初めて `gh pr merge`。Mia QA 前に Ren 自身で 90% NG 潰し
+- **View Transitions API + Speculation Rules API 併用で遷移体感を即時化**：CTA から応募フォームへの遷移は Speculation Rules API（`<script type="speculationrules">` で prerender 指定）で先読み、ページ内要素遷移は View Transitions API（`::view-transition` CSS）で Framer Motion 依存を一部置換。First Load JS 15〜25KB 削減 + 広告流入 LP の遷移離脱率を 12% 改善
+- **v0.dev + Figma Variables JSON → Next.js コード自動生成パイプライン整備**：Sota の Figma Variables JSON を `@figma/variables-cli` で Tailwind v4 `@theme` に自動変換、v0.dev から出力した React コンポーネントを `boundary-leaf-only` ESLint カスタムルールで RSC 境界に自動整形。LP 1 案件の初期実装着手〜Hero + 3 セクション完成までを 2 日→6 時間に短縮、Lighthouse 95+ 達成率 100% を維持

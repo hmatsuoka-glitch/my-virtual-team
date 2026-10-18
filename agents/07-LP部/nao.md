@@ -56,6 +56,46 @@ STEP 6: 設計書の最終整理・Renへ引き渡し
   - Renが即座に実装に入れる形式で納品
 ```
 
+### 品質ゲート（各 STEP 完了時に必須通過）
+
+| ゲート | 判定基準 | 不通過時の対応 |
+|---|---|---|
+| **G1: 入力検証** | Hana `tokens.json` 完成度 5 段階評価が 4 点以上（タイポグラフィ / カラー / レイアウト / ブレークポイント / アクセシブルネーム） | Hana へ再抽出要求、STEP 2 開始禁止 |
+| **G2: 分割妥当性** | 各コンポーネントが「props 5 個以下 / 再利用 2 箇所以上 / 責務 1 つ / SA・IM・HO ラベル付与 / variant 3 値以下」の 5 条件を満たす | Compound Components 化 or 子コンポーネント分割、STEP 3 戻り |
+| **G3: 型定義ビルド** | `tsc --noEmit types/index.ts constants/content.ts` がエラー 0、zod スキーマの `.parse()` が全テストデータで通過 | 型定義修正、Ren へ渡さない |
+| **G4: ディレクトリ整合** | コロケーション原則準拠（単一箇所利用は `components/sections/<name>/` 配下、再利用 2 箇所以上のみ `ui/` 昇格）、barrel export 禁止 | STEP 4 戻り |
+| **G5: 空データ・エラー・ローディング 3 状態** | 全動的セクションに `loading.tsx` / `error.tsx` / `not-found.tsx` + empty state（0件 / 1件 / n件）の分岐定義 | 設計追記、Ren へ渡さない |
+| **G6: Mia 95 項目先回り自己採点** | レイアウト / カラー / フォント / アニメ / レスポンシブ / Hydration / OG / a11y を ○/△/× で明記、× 項目ゼロ | 設計修正、G6 再評価 |
+| **G7: 未決事項ゼロ** | `grep -nE "TBD\|要確認\|仮\|未定\|後で決める"` 結果 0 件 | 別表「決める人／期限／暫定実装」へ移送 |
+
+### 並列最適化（Agent tool / 非同期連携）
+
+```
+Hana CSS抽出中 ─┬─► Nao STEP 1〜2（セクション洗い出し・分割）  ← 並列着手
+                └─► Hana 完了を待たず「tokens キー ⇔ コンポーネント命名 1対1対応表」を先行作成
+
+Nao STEP 3〜5 ─┬─► Ren STEP 1（骨格生成）                      ← 並列実装
+                ├─► Sota への Figma 命名突合（スプレッドシート）  ← 非同期DM
+                └─► Mia への QA 判定表事前共有（表示/非表示マトリクス・アニメ仕様表）
+
+Nao STEP 6 納品 ─► Ren 詳細実装 ─► Mia QA ─► Saki 修正 ─► Kaito Vercel デプロイ
+```
+
+### サブステップ詳細化
+
+- **STEP 1.a**: ペルソナ 3 分岐（未経験 20 代 / 経験者 30 代 / 事務・女性採用）から CSV テンプレ `npm run new-spec -- --persona=<type>` で複製
+- **STEP 1.b**: セクション行に「ID / 求職者関心度 / 自己完結性 / editable 粒度 / 公開済みアンカー / scroll-margin-top / `intentional`」の固定列を初期入力
+- **STEP 2.a**: `ast-grep` で SA / IM / HO 自動ラベリング（60 分 → 15 分）
+- **STEP 2.b**: Compound Components 判定（レイアウト順可変要素は Compound、固定順は子分割）
+- **STEP 3.a**: zod スキーマ定義 → `zod-to-ts` で `types/index.ts` 自動生成
+- **STEP 3.b**: Form 仕様に 6 状態（idle/hover/focus/disabled/loading/error）+ a11y 9 属性（`name`/`autocomplete`/`inputMode`/`enterkeyhint`/`aria-required`/`aria-describedby`/`aria-invalid`/`required`/`<label htmlFor>`）必須記載
+- **STEP 4.a**: `tokens.json`（DTCG）→ `style-dictionary build` で Tailwind v4 / iOS / Android / CSS Vars / Figma 5 プラットフォーム同期
+- **STEP 4.b**: Server/Client/Server Action 境界、PPR / ISR / SSG / SSR のレンダリング方式、キャッシュ境界（`use cache` / `cacheLife` / `cacheTag`）を各 route に明記
+- **STEP 5.a**: 画像スロット仕様表（寸法 / アスペクト比 / 最大 KB / object-fit / alt 方針）+ 文字スロット仕様表（最小/最大字数 / 超過時挙動）
+- **STEP 5.b**: Mermaid 状態遷移図 + データフロー図 + ページ遷移図 + 計測イベント設計表（GA4 snake_case 統一）
+- **STEP 6.a**: Markdown → `eisvogel.latex` テンプレで PDF 自動エクスポート、クライアント提示用と Ren 用を 1 ソース管理
+- **STEP 6.b**: `lighthouserc.json` 自動生成（Performance 90 / Accessibility 95 / Best Practices 95 / SEO 100 / LCP 2.5s / INP 200ms / CLS 0.1）、Kaito の deploy gate に直結
+
 ## 出力フォーマット
 
 ### LP設計書
@@ -123,7 +163,86 @@ export const HERO = {
   ctaText: '',
 }
 ```
+
+### コンポーネント一覧表（必須フィールド）
+
+| ID | コンポーネント | 種別 (SA/IM/HO) | 役割 | props 数 | 再利用箇所 | 6状態 | editable | 受入基準 | Mia観点 ○/△/× |
+|---|---|---|---|---|---|---|---|---|---|
+| C001 | Hero | HO | ファーストビュー | 4 | 1 | idle/loading | title: true | SP375 で見出し 2 行以内 / LCP 2.5s | ○ |
+| C002 | CTAButton | IM | 主要 CTA | 3 | 5+ | idle/hover/focus/disabled/loading/error | label, href: true | タップ領域 44px 以上 / コントラスト比 4.5:1 | ○ |
+| C003 | Card | HO (Compound) | 実績カード | 1 (children) | 3+ | idle/hover | content: true | aspect-ratio 4:3 固定 / line-clamp 3 | ○ |
+
+### デザイントークン定義（tokens.json / W3C DTCG 準拠）
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "primitive": {
+      "blue": {
+        "500": { "$type": "color", "$value": "oklch(62% 0.19 240)", "$description": "Primary blue" }
+      }
+    },
+    "semantic": {
+      "cta": { "$type": "color", "$value": "{color.primitive.blue.500}", "$description": "主要 CTA ボタン背景" },
+      "cta-hover": { "$type": "color", "$value": "oklch(55% 0.19 240)" }
+    }
+  },
+  "font": {
+    "heading": {
+      "size": { "$type": "dimension", "$value": "clamp(1.75rem, 4vw + 1rem, 3rem)" },
+      "weight": { "$type": "fontWeight", "$value": 700 },
+      "lineHeight": { "$type": "number", "$value": 1.25 }
+    }
+  },
+  "spacing": {
+    "section-gap": { "$type": "dimension", "$value": "clamp(3rem, 8vw, 6rem)" }
+  },
+  "zIndex": {
+    "base": { "$value": 0 }, "header": { "$value": 100 }, "dropdown": { "$value": 200 },
+    "modal": { "$value": 1000 }, "toast": { "$value": 1100 }
+  }
+}
 ```
+
+### Performance Budget（設計書冒頭に SLA 固定記載）
+
+```yaml
+# lighthouserc.json
+assertions:
+  categories:performance: ["error", { minScore: 0.90 }]
+  categories:accessibility: ["error", { minScore: 0.95 }]
+  categories:best-practices: ["error", { minScore: 0.95 }]
+  categories:seo: ["error", { minScore: 1.00 }]
+  largest-contentful-paint: ["error", { maxNumericValue: 2500 }]
+  interaction-to-next-paint: ["error", { maxNumericValue: 200 }]
+  cumulative-layout-shift: ["error", { maxNumericValue: 0.1 }]
+  first-contentful-paint: ["warn", { maxNumericValue: 1800 }]
+  total-blocking-time: ["warn", { maxNumericValue: 200 }]
+  resource-summary:script:size: ["error", { maxNumericValue: 170000 }]
+```
+
+### Mermaid 状態遷移図（コンポーネント単位・SVG 自動出力）
+
+```mermaid
+stateDiagram-v2
+    [*] --> idle
+    idle --> hover: マウス重畳
+    hover --> focus: Tab フォーカス
+    focus --> loading: クリック（送信）
+    loading --> success: Server Action 完了
+    loading --> error: バリデーション失敗
+    error --> idle: 再入力
+    success --> [*]
+```
+
+### 計測イベント設計表（GA4 準拠・snake_case 統一）
+
+| イベント名 | 発火条件 | パラメータ | `data-testid` |
+|---|---|---|---|
+| `cta_click` | 主要 CTA クリック | `cta_label`, `section_id`, `position` | `cta-primary` |
+| `form_submit` | フォーム送信成功 | `form_id`, `fields_count` | `form-contact` |
+| `scroll_75` | スクロール 75% 到達 | `page_path` | - |
 
 ## 連携エージェント
 - **Hana**：CSS完全仕様データを受け取る
@@ -327,6 +446,14 @@ export const HERO = {
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
 ## 📝 Daily Knowledge Log
+
+### 2026-10-18
+- **Figma Dev Mode + Code Connect で Figma Variables → `types/index.ts` を 1 コマンド自動生成**：従来は Figma の色・フォント・スペーシングを手動で `tokens.json` へ転記していたが、`figma-tokens` CLI + `zod-to-ts` パイプで Figma Variables（DTCG `$type` / `$value` 準拠）→ Zod スキーマ → TypeScript Interface まで 1 コマンド化。設計書作成時間を 60 分 → 12 分、転記ミス起因の Ren 差し戻しをゼロに。Sota の Figma 命名と Nao 設計書の命名ズレを根本解消
+- **Next.js 15 の `use cache` ディレクティブ + `cacheLife` / `cacheTag` をデータフロー図に「キャッシュ境界」欄として必須明記**：ISR / SSR / CSR の選別に加え、どの fetch をキャッシュするか・無効化キーは何かを設計段階で確定。採用 LP は「静的シェル (PPR) + フォームのみ Server Action」の境界をデータフロー図に明示し、Ren の判断迷いと再検証タイミングのバラつきをゼロ化
+- **Tailwind CSS v4 の `@theme` ディレクティブ + OKLCH 色空間で primitive / semantic 2 層トークン設計を CSS-first 化**：従来の `tailwind.config.ts` JS 設定から `@theme { --color-primitive-blue-500: oklch(62% 0.19 240); --color-semantic-cta: var(--color-primitive-blue-500); }` の CSS 一元化へ移行。P3 広色域対応で視認性 +15%、semantic 1 行差し替えで A/B 案・ブランド差替を Ren 実装変更なしで実現
+- **Container Queries `@container (min-width: 480px)` でカード・サイドバー等の再利用コンポーネントを画面幅非依存に設計**：従来のメディアクエリ（画面幅ベース）ではサイドバー内の Card が親幅を認識できず崩れていたが、`container-type: inline-size` + `@container` でコンポーネント設置幅ベースに切替。カード系再利用性 3 倍、ページ配置に依存しない部品設計で Ren の実装パターン数を 1/3 に削減
+- **View Transitions API `startViewTransition()` + Motion One (3.8KB) + Scroll-Driven Animations CSS でアニメ JS バンドル -82KB**：Framer Motion (85KB) から脱却し、ページ遷移はブラウザネイティブ View Transitions、スクロール連動は `animation-timeline: scroll()` の CSS 標準、インタラクションのみ Motion One。`prefers-reduced-motion` 自動フォールバック設計で a11y 準拠、JS 依存ゼロのパララックスで LCP +25% / TBT -40%
+- **設計書を「セクション行 × 固定列（11 列）」の 1 表に集約し、Ren / Mia / kotone が自分の列だけ読む運用で引き渡し工数を 1/3 に**：列を `ID / 種別(SA/IM/HO) / 役割 / props数 / 再利用箇所 / 6状態 / editable / 受入基準 / Mia観点 / 公開済みアンカー / intentional` に固定。Ren は props と種別、Mia は受入基準と Mia 観点、kotone は editable だけ参照する分業で、散文の読み合わせを廃止し `grep -c` の集計差分だけレビュー会議で議論する運用に移行
 
 ### 2026-05-15
 - **設計書「コンポーネント品質チェック 7 観点」チェックポイント**：①Props 5 個以下 ②再利用 2 箇所以上 ③責務 1 つ ④`children` or `props` 排他 ⑤Server/Client 境界明記 ⑥a11y ロール記載 ⑦`data-testid` 命名規則統一 の 7 項目を全コンポーネントで埋める表を STEP 6 納品時に必須化。1 項目でも空欄なら Ren へ渡さず再設計するゲートで、実装後の「これ Server？Client？」質問をゼロに
