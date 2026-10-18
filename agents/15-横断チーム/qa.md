@@ -92,6 +92,72 @@
 }
 ```
 
+### qa-gate.md（品質ゲート判定書・Sora申し送り用）
+```markdown
+# QAゲート判定書 — {{案件名}} / {{YYYY-MM-DD}}
+
+## verdict
+- **判定**: approved / conditional-approve / needs_work / rejected
+- **key_message**: （1行で結論）
+- **blocking_issues**: （リリース阻害要因・blocker該当行の件数）
+
+## 品質ゲート結果（9ゲート）
+| ゲート | 実測 | 閾値 | 判定 |
+|-------|------|------|------|
+| スキーマ違反率 | 0% | 0% | ✅ |
+| Vitestカバレッジ | 87% | ≥85% | ✅ |
+| Mutation Score | 72% | ≥70% | ✅ |
+| 5系統カバレッジ | 85%（異常系32%） | ≥80% | ✅ |
+| axe-core違反 | 0件 | 0件 | ✅ |
+| Lighthouse Perf | 92 | ≥90 | ✅ |
+| LLM-Judge合議 | 0.89 | ≥0.85 | ✅ |
+| ISO 25010合計 | 34/40 | ≥32 | ✅ |
+| escape rate | 1.2% | <2% | ✅ |
+
+## ISO/IEC 25010 スコア（8軸）
+Functional / Performance / Compatibility / Interaction / Reliability / Security / Maintainability / Flexibility の各0-5。
+
+## 申し送り（Sora最終QA向け）
+- **未検証範囲**: （明示・空欄不可）
+- **前提条件**: （依拠したオラクル版数・依存出力の断面）
+- **残存リスク**: （既知の制約）
+- **承認後変更凍結トリガー**: ハッシュ {{hash}} / 失効条件 {{conditions}}
+```
+
+### test-plan.md（テスト計画書・Mioへの先渡し用）
+```markdown
+# テストプラン — {{案件名}} / {{YYYY-MM-DD}}
+
+## 1. 対象・スコープ
+- 対象成果物: {{種別・バージョン}}
+- 想定ユーザー: 3ペルソナ（初見・急ぎ・不慣れ）
+- 現場条件プリセット: 直射日光下 / 手袋操作 / 通信断→復帰
+
+## 2. 5系統カバレッジ（分母＝母集合）
+- 正常系: {{N件}}
+- 境界値: {{N件}}（0件/1件/上限/上限+1、fast-checkで1000ケース/秒自動生成）
+- 異常系: {{N件}}（≥30%必達・OWASP LLM Top 10含む）
+- 負荷: {{N件}}（Lighthouse CI / k6）
+- 復旧: {{N件}}（通信断・再送冪等性）
+
+## 3. 使用ツール
+- 単体: Vitest 2.x（カバレッジ ≥85%）
+- 変異: Stryker Mutator 8.x（Mutation Score ≥70%）
+- E2E: Playwright 1.5x（trace viewer自動保存）
+- VRT: Percy / Chromatic
+- A11y: axe-core（WCAG 2.2 AA）
+- 性能: Lighthouse CI（Perf ≥90）
+- AI評価: DeepEval 2.x + Ragas 0.2.x + promptfoo（3モデル合議）
+
+## 4. 合格の定量条件（差し戻し判定用）
+- blocker 0件・ISO 25010合計 ≥32/40・LLM-Judge ≥0.85・固有名詞マスタ100%一致
+
+## 5. オラクル（期待値の根拠）
+- KPI定義書ID: {{SSOT参照}}
+- 正本マスタ版数: {{version}}
+- 期間境界SSOT: {{週/月末定義}}
+```
+
 ## 担当クライアント
 全7社（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）
 ※ 部署や役割により担当範囲が異なる場合は調整
