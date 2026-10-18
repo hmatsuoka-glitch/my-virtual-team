@@ -192,6 +192,108 @@ STEP 6: 事後棚卸し（四半期）
 }
 ```
 
+### 分析レポート（データ品質/集計結果）
+```markdown
+# [クライアント名] [YYYY-MM] データ基盤レポート
+
+## 1. サマリー（3行）
+- 変更点: [今月反映した model / パイプライン / クローラー対象]
+- 影響下流: [Shun レポート / Akari 月次 / Rui 比較表 / Looker Studio タイル名]
+- クライアント数値影響: なし（compare_relations差分0.0% / あり: XX% 増 原因=◯◯）
+
+## 2. 品質ゲート結果
+| ゲート | 指標 | 実測 | 閾値 | 判定 |
+|-------|------|------|------|------|
+| 契約テスト | 違反件数 | 0 | 0 | PASS |
+| NULL率 | application_id | 0.3% | ≤5% | PASS |
+| 外れ値率 | salary | 0.5% | ≤1% | PASS |
+| 重複率 | event_id | 0.0% | ≤0.1% | PASS |
+| PII露出 | 検出件数 | 0 | 0 | PASS |
+| スキャン量 | 月次 | 420GB | ≤900GB | PASS |
+
+## 3. ゴールデン値突合（月1回）
+- Airwork管理画面: 2,431件 / パイプライン集計: 2,431件 → 差分0
+
+## 4. 鮮度・SLO
+- 最終更新: 2026-10-18 05:03 JST（1時間前）
+- 遅延p99: 42分 / スループット: 180,000 rec/min
+
+## 5. 次月アクション
+- [ ] [品質ゲート発火実績棚卸し / 権限棚卸し / コスト最適化]
+```
+
+### ダッシュボード仕様（Looker Studio / Metabase）
+```yaml
+dashboard:
+  name: "[クライアント名] 採用KPIダッシュボード"
+  owner: deng@let-inc
+  refresh: daily 05:00 JST
+  header:
+    freshness_tile:
+      format: "最終更新: {{MAX(updated_at)}} JST ({{hours_ago}}時間前)"
+      alert: yellow if >6h, red if >24h
+    data_source_meta:
+      format: "source: {{source_table}} / 抽出: {{extraction_time}} / 集計式: {{aggregation_formula}}"
+      position: tooltip on each KPI tile
+  tiles:
+    - name: "応募CVR（確定）"
+      source: "marts.application_cvr_daily (CONFIRMED only, intraday除外)"
+      formula: "COUNT(DISTINCT application_id) / COUNT(DISTINCT session_id)"
+      filter: "client_id = {{param_client}} AND event_date BETWEEN ..."
+      annotation: "前日比±30%超の変化要因候補を自動付与"
+  governance:
+    row_level_security: "client_id = SESSION_USER().client_id"
+    pii_check: "no raw name/email/phone columns referenced"
+```
+
+### データモデル定義（dbt YAML）
+```yaml
+version: 2
+models:
+  - name: fct_applications_daily
+    description: "応募ファクト日次（JST基準、unique=application_id、incremental）"
+    config:
+      materialized: incremental
+      unique_key: application_id
+      incremental_strategy: merge
+      partition_by: {field: event_date_jst, data_type: date}
+      cluster_by: [client_id, media_channel]
+      on_schema_change: fail
+    contract:
+      enforced: true
+    meta:
+      kpi_def_version: "v2026.10"
+      owner: deng
+      pii_level: "hashed_only"
+    columns:
+      - name: application_id
+        description: "応募ID（Airwork application UUID）"
+        data_type: string
+        constraints: [{type: not_null}, {type: unique}]
+        tests: [not_null, unique]
+      - name: client_id
+        description: "クライアントID（マルチテナント分離キー）"
+        data_type: string
+        constraints: [{type: not_null}]
+        tests:
+          - not_null
+          - relationships: {to: ref('dim_clients'), field: client_id}
+      - name: event_date_jst
+        description: "応募発生日（JST、Asia/Tokyo変換後）"
+        data_type: date
+        tests: [not_null]
+      - name: applicant_hash
+        description: "応募者SHA-256ハッシュ（PII匿名化後、重複検出用）"
+        data_type: string
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "event_date_jst >= '2020-01-01' AND event_date_jst <= CURRENT_DATE()"
+      - dbt_audit_helper.compare_relations:
+          a_relation: ref('fct_applications_daily')
+          b_relation: source('prod_snapshot', 'fct_applications_daily')
+          threshold: 0.005
+```
+
 ## 担当クライアント
 全7社（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）
 ※ 部署や役割により担当範囲が異なる場合は調整
