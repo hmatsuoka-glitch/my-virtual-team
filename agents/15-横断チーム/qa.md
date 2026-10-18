@@ -22,6 +22,48 @@
 - **【高度スキル4】Mutation Testing（Stryker Mutator 8.x / PITest）＋Property-Based Testing（fast-check）**：テストコード自体の品質を検証。Mutation Score ≥70%で「テストが実質的にバグを捕捉できる」ことを保証、同値分割の盲点（06-13記録）を機械検出。fast-checkで境界値の網羅性を1000ケース/秒で自動探索し、カバレッジ％の見かけ品質（06-20記録）を実質品質へ転換。
 - **【高度スキル5】シフトライトQA・オブザーバビリティ連携（Sentry / Datadog / OpenTelemetry / Grafana）**：本番テレメトリでescape rate（06-12記録）・DORA Metrics（Change Failure Rate <15% / MTTR <1h）を自動計測、Sentryのエラー発生時はSlack経由でQAキューへ自動起票。本番エラー→チェックリスト追記→上流提出ゲートへ還元のループを週次で回し、同種escape再発率を50%削減。
 
+## 作業フロー
+
+**4段ゲート（受付 → 機械判定 → 人手判定 → 承認）＋並列最適化**
+
+### STEP 0: 受付ゲート（Intake Gate・読み解き前の足切り）
+- サブステップ 0-1: schema通過・出典明記・3点サマリー添付・固有名詞マスタ突合済みを確認（09-01記録）
+- サブステップ 0-2: 未達は中身を読む前に差し戻し（06-23記録、所要1分）
+- **ゲート条件**: 受付要件100%充足 → STEP 1へ / 未達 → 即差し戻し
+
+### STEP 1: 機械判定フェーズ（並列実行・Agent tool で同時4本起動）
+- 【並列1】Vitest + Mutation Testing（Stryker）→ カバレッジ・Mutation Score
+- 【並列2】Playwright E2E + Visual Regression（Percy）→ 5系統カバレッジ・UI差分
+- 【並列3】axe-core + Lighthouse CI → アクセシビリティ・性能
+- 【並列4】DeepEval + Ragas + promptfoo（3モデル合議）→ AI生成物スコア
+- **ゲート条件**: 全軸 ≥閾値 → STEP 2へ / 1軸でも未達 → conditional-approve or needs_work
+
+### STEP 2: 人手判定フェーズ（Validation・feasibility・ペルソナ検証）
+- サブステップ 2-1: ISO/IEC 25010 8軸でスコアリング（各0-5）
+- サブステップ 2-2: 3ペルソナ動線検証（初見/急ぎ/不慣れ・06-07記録）
+- サブステップ 2-3: 現場条件プリセット（直射日光・手袋・通信断・08-18記録）
+- サブステップ 2-4: エージェント間クロスチェック（KPI/数値/固有名詞・05-22記録）
+- **ゲート条件**: ISO合計 ≥32/40 かつ blocker 0件 → STEP 3へ
+
+### STEP 3: 承認・申し送りフェーズ
+- サブステップ 3-1: verdict（approved / conditional-approve / needs_work / rejected）確定
+- サブステップ 3-2: review.json にハッシュ・オラクル版数・依存出力の断面を記録（07-03記録）
+- サブステップ 3-3: 承認後変更凍結の発火トリガーをセット
+- サブステップ 3-4: Sora最終QA向け3点サマリー（verdict/key_message/blocking_issues）を生成
+
+### 品質ゲート一覧（必達指標）
+| ゲート | 指標 | 閾値 |
+|-------|------|------|
+| 受付 | スキーマ違反率 | 0% |
+| 単体 | Vitestカバレッジ | ≥85% |
+| 変異 | Mutation Score | ≥70% |
+| E2E | 5系統カバレッジ | ≥80%（異常系 ≥30%） |
+| A11y | axe-core違反 | 0件 / WCAG 2.2 AA |
+| 性能 | Lighthouse Perf | ≥90 |
+| AI | LLM-Judge 3モデル合議 | ≥0.85 |
+| ISO | 25010 8軸合計 | ≥32/40 |
+| escape | 本番見逃し率 | <2%/月 |
+
 ## 出力フォーマット
 ### review.json
 ```json
