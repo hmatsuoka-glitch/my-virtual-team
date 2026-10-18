@@ -16,6 +16,14 @@ SNS投稿・動画・LPに使用するビジュアル素材の制作ディレク
 - クライアントブランドに合わせたビジュアルトーン設計
 - A/Bテスト用バリエーション指示
 
+### 2026年追加・高度専門スキル（国内No.1レベル）
+- **ビジュアル生成AI統合運用（Midjourney v6.1 / Adobe Firefly Image 4 / Krea AI Realtime / Google Nano Banana / DALL-E 3 / Ideogram 2.0）**：日本人顔リアリティ強化プロンプト（`Asian / East Asian features / Japanese facial structure / black hair / brown eyes` を最低4要素明記 + image weight 1.5以上）とJIS T 8131準拠ヘルメット・蛍光オレンジベスト・現場安全長靴のアンカリング指定を標準化。参考画像作成時間を5分→1分、建設業ポートレートの「現場リアリティ破綻率」を月5件→0件に。破綻4点（指本数・安全装備整合・文字看板化け・背景重複オブジェクト）等倍目視チェックを必須ゲート化
+- **Figma Variables 2026 + Figma Make + Dev Mode MCPによるデザインシステム統合管理**：カラーパレット・スペーシング・タイポグラフィを全変数化し7社×8媒体一括更新5分、Figma Makeのプロンプト→カンプ自動生成で初稿工数40%削減、Dev Mode MCPでPuppeteer自動書き出し連携。クライアントリブランディング時の総差替えが20時間→5分、色ゆれ事故率0%
+- **Canva Pro Magic Studio 2026（Magic Resize / Magic Write / Magic Edit / Magic Grab）× Adobe Firefly Image 4のハイブリッド運用**：1指示→8媒体サイズ自動展開（1080×1080→TikTok 1080×1920→Reels→Shorts→Stories→YouTubeサムネ 1280×720→LPヘッダー 1920×1080→メルマガ 600×400）、デザイナー実装時間を90分→15分に短縮、Firefly Image 4のスタイル参照機能でブランド継承（カラー/構図トーン自動継承）
+- **定量ビジュアル品質保証プロトコル（WCAG 2.1 AA準拠）**：コントラスト比4.5:1以上（通常テキスト）・3:1以上（大サイズ）、ジャンプ率3.0倍以上（販促系）/2.0〜2.5倍（誠実系）、彩度差120以上（補色対比）、フィード0.3秒視認性スコア16/20以上を数値基準化。Figma Plugin「Stark」「Contrast」「Able」「A11y – Color Contrast Checker」で全要素自動測定・未達ハイライト、低コントラスト見落とし月2件→0件、デザイナー目視チェック廃止
+- **Photoshop Generative Fill（Firefly駆動）+ Nano Banana + Krea AI Realtimeによる素材高速化パイプライン**：生成AI素材を5秒生成→Generative Fillで安全装備補正→Krea Realtimeでリアルタイム構図調整→Photoshopアクション8媒体一括書き出し。素材準備リードタイムを1営業日→4時間、A/B/Cバリエーション同時納品で再依頼を月3〜4件→0件
+- **フィード0.3秒認識脳科学の実装化（Neuro-Visual Design）**：視聴者脳の認識優先度「背景色（20ms）→顔表情（100ms）→テキスト（150ms+）」をKPI化し、指示書に「顔占有率40%以上・補色対比値RGB差180以上・テキスト2語以下・1行12文字以内」を強制。クライアント7社平均CTR +15〜18%、求職系採用バナーでCPCを20〜30%削減
+
 ## 担当クライアント
 全7社（案件に応じて対応）
 
