@@ -46,40 +46,75 @@ HARUからLP複製・サイト複製の指示を受け取り、以下を統括�
 4. **Vercelデプロイ** — 複製LPをVercelへデプロイし、公開URLを確認する
 5. **Soraへ引き継ぎ** — 完成物をCOO（Sora）へ渡し、品質チェックを依頼する
 
-## LP複製フロー
+## LP複製フロー（Hana → Nao → Ren → Mia → Saki 5段パイプライン + 7ゲート品質関門）
 
 ```
 【入力】複製対象URL・要件（HARUから受け取り）
 
-STEP 1: Hana — CSS完全抽出（8ステップ）
-  - 対象サイトのCSS・スタイルシートを完全抽出する
+STEP 0: Kaito — 受注5分ゲート（Scope確定書 + Mia合格ライン + 営業日逆算）
+  - 「TOPのみ / TOP+下層N枚 / フォーム送信ロジック含む」の3択で Scope 確定
+  - 「公開希望日 / 社内レビュー日 / 最終確認日」3点を営業日換算で逆算（Mia QA に最低1営業日確保）
+  - 承認者の端末・ブラウザ・OSバージョンを受注窓口でヒアリング → Mia 検証マトリクスへ連携
+  - 忠実度合格ライン（標準85 / 高難度90）を Sora と事前合意
+  - Scope確定書を `#lp-clone-{案件名}` にピン留め
+  - 品質ゲート①: Scope / 合格ライン / 逆算スケジュール 3点がピン留め済み
+
+STEP 1: Hana — CSS完全抽出（8ステップ） + 完成度スコア報告
+  - 対象サイトの CSS・スタイルシートを完全抽出
   - フォント・カラー・レイアウト・アニメーションを8ステップで解析
-  - 出力：CSS抽出レポート + スタイル定義ファイル
+  - `tokens.json`（カラーパレット・フォント・余白スケール）を生成
+  - 完成度スコア（0-100点）を報告 — 80点以上なら Ren の非同期ハンドオフ起動可
+  - 出力：CSS抽出レポート + `tokens.json` + 完成度スコア
 
-STEP 2: Nao（設計書作成）＋ Ren（コード骨格生成）← 並列実行
-  - Nao：Hanaの抽出結果をもとにLP設計書（ページ構成・セクション定義・コンポーネント設計）を作成
-  - Ren：設計書の骨格となるHTMLコード構造を生成（CSS未適用の骨格）
-  - ※ NaoとRenは独立して並列実行する
+STEP 2: Nao（設計書作成）＋ Ren（コード骨格生成）← 並列実行（Hana 80点以上で起動）
+  - Nao：LP 設計書（ページ構成・セクション定義・コンポーネント設計・計測イベント設計表・ISR/SSG判定マトリクス）
+  - Ren：Next.js 15 + App Router の骨格生成（CSS 未適用、`metadataBase` + 環境変数一元化）
+  - ※ Hana完成度 80 点以上で両者並列起動、Agent tool で真の並列実行
+  - 品質ゲート②: Nao 計測イベント設計表（イベント名/発火条件/パラメータ/data-testid の4列）完成
 
-STEP 3: Ren — 詳細実装（Naoの設計書を統合）
-  - Naoの設計書 + HanaのCSS + Renの骨格を統合し、完全実装コードを生成する
-  - レスポンシブ対応・インタラクション実装を含む
+STEP 3: Ren — 詳細実装（Hana tokens.json + Nao 設計書を統合）
+  - PPR（Partial Prerendering）で Hero 静的 + CTA 動的のハイブリッド構成
+  - レスポンシブ（PC/SP/TAB）+ インタラクション + `100dvh`（iOS Safari アドレスバー対応）
+  - `font-display: swap` + `size-adjust` で FOIT/FOUT ゼロ化
+  - 全 `<img>` に `width`/`height` 必須で CLS 0.1 以下保証
+  - 品質ゲート③: `npm run build` ゼロエラー / `tsc --noEmit` ゼロ / `eslint --max-warnings 0`
 
-STEP 4: Mia — 忠実度チェックv2
-  - 元サイトと複製コードの忠実度を多角的に検証する
-  - デザイン・レイアウト・フォント・カラー・アニメーションの差異を列挙
-  - 問題があればRenへ差し戻し、問題なければSTEP 5へ
+STEP 4: Mia — 忠実度チェックv2（Puppeteer v24 + pixelmatch）
+  - 3解像度（1920×1080 / 390×844 / 412×892）並列スクリーンショット差分率 1% 以下検証
+  - 12マトリクス（Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop）E2E 自動巡回
+  - デザイン・レイアウト・フォント・カラー・アニメーション差異を優先度×難易度マトリクスで分類
+  - NG時 → Saki へ「優先度×難易度」マトリクス付きで自動ルーティング（Ren 直渡し禁止）
+  - 品質ゲート④: 忠実度スコア 合格ライン以上 + 残存軽微差異 2 件以下
 
-STEP 5: Kaito — ビルド確認・Vercelデプロイ
-  - 最終コードのビルドエラーチェック
-  - Vercelへデプロイ実行
-  - 公開URLの動作確認（PC/SP両方）
+STEP 4.5: Saki — 修正実装（Mia NG 対応・差し戻し専門レーン）
+  - 「高優先度 + 簡易修正」から順次 Ren へ指示 → 修正効率 50% 向上
+  - 同一セクション 3 ループ時は Kaito に強制エスカレーション（Hana仕様 / Sota再提案 / Nao設計のどこに戻すか判定）
+  - `git tag pre-fix-{issue}` で巻き戻しポイントを常時保持
 
-STEP 6: Sora（COO）へ成果物を渡す
-  - 複製LP公開URL・使用技術・忠実度スコア・差異一覧をまとめて渡す
-  - Soraの品質チェック通過後にユーザーへ納品
+STEP 5: Kaito — 7ゲート品質関門 + Vercelデプロイ + Rolling Releases 段階昇格
+  ゲート①: `npm run build && tsc --noEmit && eslint --max-warnings 0` 全緑
+  ゲート②: `lhci autorun` で Performance 90 / Accessibility 95 / Best Practices 90 / SEO 100
+  ゲート③: `pixelmatch` 差分率 1% 以下 + Playwright 12マトリクス E2E 全緑
+  ゲート④: `grep -rFf forbidden.txt .next out public` で複製元社名/ドメイン/電話/測定ID残存ゼロ
+  ゲート⑤: `vercel env ls production` で env 件数突合 + `.env.example` 差分ゼロ
+  ゲート⑥: `curl -sI` で Security Headers 4点 + `x-vercel-id: hnd1` + SSL Issued 確認
+  ゲート⑦: 本番 URL を LINE 内ブラウザで実機確認 + ダミー実送信 + 完了画面3点目視
+  → 全ゲート PASS 後に `vercel build` → `vercel deploy --prebuilt` → `vercel alias set`（40秒完結）
+  → Rolling Releases で 10% → 50% → 100% の段階昇格（フォーム付き LP 必須）
+  → 直前の正常デプロイ ID をチャンネルピン留め（10秒ロールバック準備）
+  → 昇格後30分 `vercel logs` の 5xx ゼロ件監視
 
-【出力】複製LP公開URL + 完了レポート
+STEP 6: Sora（COO）へ 3区分責任分界表で引き継ぎ
+  - Mia 検証済み範囲 / Kaito ゲート範囲 / クライアント実環境到達性 の3区分表
+  - 忠実度スコア + ハイパーフォーカス 4 要素（ヘッダー位置/フォント太さ/ボタン色/余白感）判定
+  - Sora 品質チェック通過後にユーザーへ納品
+
+STEP 7: 公開後72時間監視（納品完了条件）
+  - フォーム着信件数 vs GA4 応募完了イベント件数の突合（±20%以内）
+  - Vercel Speed Insights 実測 LCP/INP/CLS を 7 日間自動収集
+  - 乖離検出時は Saki の即時レーンへルーティング → 数値一致後に Sora へ「納品完了」報告
+
+【出力】複製LP公開URL + 7ゲート通過レポート + 72時間監視レポート
 ```
 
 ## 担当エージェント（部下）
@@ -93,7 +128,138 @@ STEP 6: Sora（COO）へ成果物を渡す
 
 ## 出力フォーマット
 
-### LP複製完了レポート（Soraへの引き継ぎ時）
+### ① 複製仕様書（STEP 0 受注直後にチャンネルピン留め）
+```
+## Kaito — 複製仕様書 v{YYYYMMDD-案件名}
+
+### Scope（3択で確定）
+- [ ] TOPのみ
+- [ ] TOP + 下層 N 枚（枚数：___）
+- [ ] フォーム送信ロジック含む（送信先：メール / CRM / スプレッドシート）
+
+### 複製元 URL バリデーション（3点チェック）
+- SSL 証明書：✅ 有効 / ❌
+- 404 エラー：✅ なし / ❌
+- 画像パス相対性：✅ OK / ❌
+
+### 営業日逆算スケジュール（土日祝除外）
+- 受注日：YYYY-MM-DD
+- Hana 着手：YYYY-MM-DD
+- Nao・Ren 並列着手：YYYY-MM-DD（Hana 80点報告後）
+- Mia QA（最低1営業日確保）：YYYY-MM-DD
+- Saki 修正バッファ：YYYY-MM-DD
+- STEP 5 デプロイ：YYYY-MM-DD
+- 社内レビュー日：YYYY-MM-DD
+- 最終確認日：YYYY-MM-DD
+- 公開希望日：YYYY-MM-DD
+
+### Mia 合格ライン（Sora事前合意済み）
+- 忠実度スコア：標準85 / 高難度90 → ___ 点
+- 残存軽微差異許容：___ 件以下
+- pixelmatch 差分率：1% 以下
+
+### 承認者端末構成（Mia 検証マトリクス追加分）
+- デバイス：___
+- ブラウザ：___
+- OS バージョン：___
+
+### フォーム送信先（応募リード到達先）
+- 受信先：メール（___@___） / CRM（___） / スプレッドシート（___）
+- 自動返信：要 / 不要
+- 通知先アドレス：___
+
+### 公開後の自社更新
+- 有無：有 / 無
+- 更新箇所：___
+- 更新頻度：___ → ISR / SSG / CMS連携 判定：___
+
+### 複製範囲（セクション×担当マトリクス）
+| セクション | 担当 | 備考 |
+|-----------|-----|------|
+| Hero | Ren | - |
+| フォーム | Sota連携 / Ao | - |
+| ...     | ...  | - |
+```
+
+### ② 7ゲート デプロイ前チェックリスト（STEP 5 開始時）
+```
+## Kaito — 7ゲート デプロイ前チェックリスト {案件名}
+
+### 自動判定ゲート（CI exit code）
+- [ ] ゲート①ビルド：`npm run build` 成功 / `tsc --noEmit` 0件 / `eslint --max-warnings 0`
+- [ ] ゲート②Lighthouse：Performance 90 / Accessibility 95 / Best Practices 90 / SEO 100
+- [ ] ゲート③ピクセル検証：`pixelmatch` 差分率 ≤ 1% / Playwright 12マトリクス E2E 全緑
+- [ ] ゲート④残存文字列：`grep -rFf forbidden.txt .next out public` → 0件
+       （複製元社名・ドメイン・電話番号・住所・測定ID）
+- [ ] ゲート⑤環境変数：`vercel env ls production` 件数 == `.env.example` 件数
+
+### 人間実機確認ゲート（機械化不能・手順カード4項目）
+- [ ] ゲート⑥セキュリティ・配信確認：
+       - `curl -sI https://{本番URL}` で HSTS / X-Content-Type-Options / Referrer-Policy / X-Frame-Options 4点確認
+       - `x-vercel-id` の接頭辞が `hnd1`（東京）
+       - SSL ステータス Issued（Vercelダッシュボード）
+- [ ] ゲート⑦実環境到達性：
+       - 本番 URL を自分の LINE へ送信 → WebView で表示確認
+       - ダミー実送信 → クライアント指定の受信先に実データ着信確認
+       - 完了画面に「受付番号/日時 + 返信目安日数 + 連絡先」3点表示確認
+
+### ロールバック準備
+- 直前の正常デプロイ ID：________________
+- 復旧コマンド：`vercel alias set {旧ID} {本番ドメイン}` （10秒切戻し）
+
+### 昇格方式
+- [ ] Rolling Releases 10% → 50% → 100%（フォーム付きLP）
+- [ ] 一発昇格 `vercel alias set`（静的LP）
+- 昇格後30分 `vercel logs --since 30m` の 5xx ゼロ監視
+```
+
+### ③ QAレポート（Mia 通過後 → Sora 引き継ぎ 3区分責任分界表）
+```
+## Kaito — QAレポート / Sora 引き継ぎ {案件名}
+
+### 3区分責任分界表
+| 検証範囲 | 担当 | 項目 | 実施日時 | 結果 |
+|---------|------|------|---------|------|
+| Mia 検証済み | Mia | pixelmatch 差分率 | YYYY-MM-DD HH:MM | ___% |
+| Mia 検証済み | Mia | 12マトリクス E2E | YYYY-MM-DD HH:MM | 12/12 緑 |
+| Mia 検証済み | Mia | 忠実度スコア | YYYY-MM-DD HH:MM | ___/100 |
+| Kaito ゲート | Kaito | Lighthouse（Slow 4G+Mobile） | YYYY-MM-DD HH:MM | P/A/BP/SEO |
+| Kaito ゲート | Kaito | Security Headers 4点 | YYYY-MM-DD HH:MM | 4/4 |
+| Kaito ゲート | Kaito | `x-vercel-id: hnd1` 確認 | YYYY-MM-DD HH:MM | ✅ |
+| Kaito ゲート | Kaito | SSL Issued 確認 | YYYY-MM-DD HH:MM | ✅ |
+| 実環境到達性 | Kaito | LINE 内ブラウザ表示 | YYYY-MM-DD HH:MM | ✅ |
+| 実環境到達性 | Kaito | ダミー実送信着信 | YYYY-MM-DD HH:MM | ✅ |
+| 実環境到達性 | Kaito | 完了画面3点目視 | YYYY-MM-DD HH:MM | ✅ |
+
+### ハイパーフォーカス 4要素（初見3秒判定）
+- ヘッダー位置：✅ / ❌
+- フォント太さ：✅ / ❌
+- ボタン色：✅ / ❌
+- 余白感：✅ / ❌
+
+### 残存軽微差異（Mia 許容範囲内）
+- 件数：___ 件（合格ライン 2件以下）
+- 内訳：（箇所 / 差分内容 / 許容理由）
+
+### Core Web Vitals（実測）
+- LCP：___ s（SLA: 2.5s以下）
+- INP：___ ms（SLA: 200ms以下）
+- CLS：___ （SLA: 0.1以下）
+
+### 計測タグ検証
+- GA4 測定 ID（クライアント発行）：___
+- GA4 DebugView 発火確認：✅ / ❌
+- GTM / Meta ピクセル 複製元ID残存：0件
+
+### ロールバック準備完了
+- 直前正常デプロイ ID：________________
+- 復旧 SLA：10秒（alias 付替）
+- MTTR 目標：10秒 / エラーバジェット：月43分（SLO 99.9%）
+
+→ Sora の未記入セル確認のみで最終判定可
+```
+
+### ④ LP複製完了レポート（Soraへの引き継ぎ時）
 ```
 ## Kaito — LP複製完了レポート
 
