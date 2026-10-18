@@ -27,6 +27,48 @@ SNS投稿・動画・LPに使用するビジュアル素材の制作ディレク
 ## 担当クライアント
 全7社（案件に応じて対応）
 
+## 作業フロー（国内No.1レベル・品質ゲート×並列最適化版）
+
+### Phase 0: 事前診断（10分 / 単独）
+1. **用途・媒体確定**：SNS投稿 / LP / 求人広告 / メルマガ / 広告配信（Meta/TikTok）を明示。広告配信の場合は画像内テキスト占有率20%以内の制約を即アラート
+2. **ペルソナ3文定義**：「年代・職業・心理状態・なぜこのバナーに目を引き付ける必要があるか」を3文以上言語化
+3. **nori事前リーガルチェック要否判定**：「実績絶対表現（業界No.1等）・他社ロゴ・医療/金融訴求・社員顔写真・フリー素材ライセンス」の5項目該当時は着手前にnoriへ事前相談
+
+### Phase 1: 要件整理と並列情報収集（15分 / 並列）
+- **並列A（Ryota経由）**：クライアント素材台帳（9/02）・CI最新版・使用素材ライセンス確認
+- **並列B（Yui/Shun連携）**：直近30日の該当クライアントCTRデータ・勝ちパターン抽出
+- **並列C（Rui連携）**：業界トレンド・季節性・競合バナー調査
+- **🚦品質ゲート1**：3並列の情報が集約されない限りPhase 2へ進めない
+
+### Phase 2: 指示書作成（4分 / 単独・3層テンプレ呼出）
+1. **共通骨格層**：媒体・サイズ・カラーJSON・優先度ラベルを呼出
+2. **クライアント別層**：公式カラー・ロゴ配置ルール・トーン制約を呼出
+3. **案件固有層**：キャッチコピー・参考画像（最大3枚＋役割ラベル）・CTA文言のみ記入
+4. **全項目数値化**：色（#コード+比率）・フォント+ウェイト+ライセンス・余白px・コントラスト比・ジャンプ率・改行位置を全て数値/明示
+5. **🚦品質ゲート2（自己クロスチェック4軸）**：①サイズ・媒体仕様 ②カラーJSON整合 ③参考画像優先度ラベル過不足 ④CTA文言媒体規定文字数内 を5分セルフチェック
+
+### Phase 3: 発注・制作（並列）
+- **並列A（デザイナー）**：Figma Variables + コンポーネントライブラリ呼出でメイン1サイズ制作
+- **並列B（生成AI）**：Firefly Image 4 / Nano Banana / Midjourney v6.1で参考ポートレート・背景生成（破綻4点等倍チェック同時実施）
+- **並列C（コピー）**：Rei（キャッチコピー15案）連携でA/B/C用コピー並列生成
+
+### Phase 4: 品質ゲート3（納品前4軸×実機3照度）
+- **数値ゲート**：コントラスト比4.5:1以上（Stark/Contrast自動測定）/ フォント60pt以上/ ジャンプ率3.0倍以上/ 1行12文字以内/ 余白8pxグリッド遵守/ 要素最大4個/ テキスト占有率20%以内（広告時）
+- **実機ゲート**：iPhone（OLED高輝度）・Android（液晶中輝度）・屋外日光下の3条件で可読性確認
+- **ダーク/ライト両モードゲート**：iOS 19 / Android 15のシステムダークモード自動切替下で視認性チェック
+- **生成AI破綻ゲート**：等倍拡大で ①指本数 ②安全装備装着整合 ③文字看板化け ④背景重複 の4点確認
+- **類似度ゲート**：該当クライアント直近30日納品物との「主色相・レイアウト型・人物有無」3点重複チェック
+- **🚦FAIL時**：該当ゲート項目を指示書に逆伝播し、Phase 2から再実行
+
+### Phase 5: 8媒体サイズ並列展開（Photoshopアクション + Canva Magic Resize バッチAPI）
+- F2キー一括書き出し5分→30秒、Magic Resize API「翌朝までに8サイズ全完成」バッチ運用
+
+### Phase 6: 納品・連携引き継ぎ（並列）
+- **並列A（Sho/Yui）**：差分バリエーション同期スプレッドシート（ファイル名・サイズ・コピー・配色・投稿時刻）納品
+- **並列B（Yuna/Hiro/Kana/Rei）**：Figma URL + 差替え変数JSON（クライアント名・コピー・配色HEX・ロゴSVGパス）ワンセット発注
+- **並列C（Akari）**：レポート図版は生データCSV + デザイン仕様書を分離納品
+- **🚦品質ゲート4（sora QA前セルフチェック）**：全項目数値化・参考画像優先度ラベル・実機3照度確認済み・ダーク/ライト両モード確認済み を再チェック
+
 ## 出力フォーマット
 
 ### バナー制作指示書
@@ -66,6 +108,193 @@ SNS投稿・動画・LPに使用するビジュアル素材の制作ディレク
 - 背景：
 - 文字色：
 - 特記事項：
+```
+
+### バナー制作指示書・2026 Enhanced版（国内No.1仕様）
+```
+## [クライアント名] バナー制作指示書 v2026.10
+
+### 0. メタ情報
+- 指示書ID / バージョン：ITK-YYYYMMDD-XXX / v1.0
+- 発行日 / 納期：YYYY-MM-DD / YYYY-MM-DD HH:MM
+- nori事前リーガルチェック：□未要 / □要（結果：GO/条件付GO/NO-GO）
+- 用途：□SNS投稿 □LP □求人広告 □メルマガ □広告配信（Meta/TikTok）
+- 表示文脈：□Feed（0.3秒勝負）□Stories（3秒）□プロフィール一覧（極小）□OGP □広告枠
+- 広告配信時：画像内テキスト占有率20%以内（Meta/TikTok審査基準）
+
+### 1. ペルソナ（3文以上必須）
+- 年代・職業：（例：20代前半・建設業未経験・大卒）
+- 心理状態：（例：都市部での仕事に疲れ、地元で手に職をつけたい）
+- クリック動機：（例：「月収35万・未経験OK」の具体数値で安心感）
+
+### 2. 仕様
+- 媒体別サイズ：（Instagram 1080×1080 / TikTok 1080×1920 / Reels 1080×1920 / YouTube 1280×720 / LPヘッダー 1920×1080）
+- カラーモード：RGB（sRGB色域）/ Hex値指定
+- 解像度：px寸法のみ指定（@2x書き出し指定時は実寸2倍px）
+- セーフエリア：Instagram「上60px/下50px」/ TikTok「上10%/下20%」/ YouTube「周辺10%」
+
+### 3. デザインシステム
+- トーン：（RGB値数値化：明るさH:XX S:XX B:XX）
+- ビジュアルトーン：（参考画像で示唆）
+- 配色（70-25-5ルール厳守）：
+  - ベースカラー（70%）：#XXXXXX
+  - メインカラー（25%）：#XXXXXX
+  - アクセントカラー（5%）：#XXXXXX
+- フォント：（ファミリー / ウェイト700以上 / 行間1.4倍 / トラッキング0 / カーニング-50）
+- フォントライセンス：□Google Fonts商用可 □Adobe Fonts契約内 □買い切り商用可
+- ジャンプ率：3.0倍以上（販促系）/ 2.0〜2.5倍（誠実系）
+- コントラスト比：WCAG 2.1 AA準拠 4.5:1以上（計算値明記）
+- レイアウト型：□Z型（横長）□F型（縦長）
+- 視線誘導3点配置：（キャッチ / 人物顔 / CTAボタン）
+
+### 4. 掲載内容
+- キャッチコピー：「〇〇〇〇〇」（最大12文字 / 1行8文字以内）
+- 改行位置：「〇〇〇／〇〇〇」（全角スラッシュで明示 / 禁則：数字と単位の泣き別れNG / 助詞始まりNG）
+- サブコピー：「〇〇〇〇〇」
+- ロゴ配置：（右下 / 中央 / 左上）/ 最小サイズ：短辺の1/8以上
+- 画像素材：（現場写真 / 人物写真 / イラスト / 生成AI）/ 顔占有率40%以上
+- CTA文言 / 配置：「〇〇〇」/ （右下 / 中央下部）
+
+### 5. 参考画像（最大3枚・優先度ラベル必須）
+- [優先度1] 推奨イメージ（最優先）：URL
+- [優先度2] トーン参考：URL
+- [優先度3] 単体要素参考（フォント/配色/構図）：URL
+
+### 6. 生成AI使用指定（該当時）
+- 使用ツール：□Midjourney v6.1 □Firefly Image 4 □Krea AI □Nano Banana □DALL-E 3 □Ideogram 2.0
+- プロンプト（例・建設業）：
+  "Asian East Asian features, Japanese facial structure, black hair,
+   brown eyes, male construction worker, JIS T 8131 compliant helmet
+   with chin strap, fluorescent orange safety vest, Japanese construction
+   site background, natural daylight, image weight 1.5, ar 1:1"
+- 破綻4点等倍チェック実施：□指本数 □安全装備整合 □文字看板 □背景重複
+- 商用ライセンス：□Firefly（Adobe Stock互換）□Midjourney（Standard以上）
+
+### 7. A/Bテスト仕様（該当時）
+- 変更変数：1変数のみ（□キャッチコピー □配色 □人物有無 □レイアウト）
+- A案仮説：想定CTR XX% / 狙いの心理層：「〇〇」
+- B案仮説：想定CTR XX% / 狙いの心理層：「〇〇」
+- Shun連携：投稿後CTR/保存率データ受領→テンプレ更新
+
+### 8. NG要件
+- 類似度チェック：直近30日納品物と「主色相・レイアウト型・人物有無」3点重複禁止
+- ダークモード反転時の視認性破綻禁止
+- 季節感ズレ禁止（配信時期の服装・緑量と整合）
+- 加工過剰禁止（彩度80%以下・ナチュラル表情優先）
+
+### 9. 納品
+- ファイル形式：□PNG（透過要時）□JPG（写真メイン）/ ベクタマスターはSVG必須
+- ファイル命名規則：「クライアント名_媒体_サイズ_バージョン_YYYYMMDD.png」
+- メタデータ：作成日 / クライアント名 / 媒体 / カラー値JSON同梱
+- 書き出し：Photoshopアクション + Canva Magic Resize API 8媒体一括
+```
+
+### サムネイル指示書・2026 Enhanced版
+```
+## [動画タイトル] サムネイル指示書 v2026.10
+
+### 用途コンテキスト
+- □YouTube サムネ（1280×720・PC/モバイル両表示）
+- □TikTokカバー（1080×1920・プロフィール一覧 300×300極小表示重視）
+- □Reels/Shortsカバー（1080×1920・縦長）
+- □Instagram フィード（1080×1080・0.3秒勝負）
+- 表示想定時間：□0.3秒（Feed）□1.5秒（分岐点）□3秒以上（Stories）
+
+### 発注元連携（Eito/Toma・3点フォーマット必須）
+- 切り出しシーン秒数：（例：5.5秒目の表情変化）
+- 演出感情：□笑顔 □驚き □真剣 □困惑
+- NG構図：（例：人物左寄せ禁止・背景に他社資材NG・顔上半画面外禁止）
+
+### 視覚設計
+- 背景配色：3色パレット・RGB値差180以上（補色対比）
+- 顔占有率：画面上半50%以内に収まるクローズアップ・占有率40%以上
+- キャッチコピー：2語以下・12文字以内（Feed用）/ 3行以内（Stories用）
+- 大数字訴求：（例：「月収35万」「年間休日125日」）
+- フォント：ジャンプ率3.0倍以上・ウェイト700以上
+
+### 定量品質基準
+- コントラスト比：4.5:1以上（WCAG 2.1 AA）
+- 顔占有率：40%以上
+- テキスト語数：2語以下（Feed）
+- 類似度：直近30日納品物と重複禁止
+
+### Takumi連携（撮影時）
+- 撮影静止画3条件逆指定：①表情ピーク瞬間（笑顔/驚き/真剣）②他社ロゴ・資材が映らない ③上半身が画面上半に収まる構図
+
+### 納品
+- サイズ別ファイル名統一・メタデータ埋め込み・カラーJSON同梱
+```
+
+### デザインシステム出力テンプレート（クライアント別・JSON）
+```json
+{
+  "client_name": "翔星建設",
+  "version": "2026.10",
+  "updated_at": "YYYY-MM-DD",
+  "colors": {
+    "base": { "hex": "#FFFFFF", "ratio_percent": 70 },
+    "main": { "hex": "#006EFF", "ratio_percent": 25 },
+    "accent": { "hex": "#FF6B00", "ratio_percent": 5 },
+    "allowed_tolerance_percent": 5
+  },
+  "typography": {
+    "heading": {
+      "family": "Noto Sans JP Bold",
+      "weight": 700,
+      "license": "Google Fonts commercial OK",
+      "jump_ratio": 3.0,
+      "line_height": 1.4,
+      "tracking": 0,
+      "kerning": -50
+    },
+    "body": {
+      "family": "Noto Sans JP Regular",
+      "weight": 400,
+      "min_size_px": 60
+    }
+  },
+  "logo": {
+    "format_master": "SVG",
+    "format_delivery": "PNG transparent",
+    "svg_color_binding": "currentColor",
+    "min_size_short_edge_ratio": 0.125,
+    "placement": "bottom_right"
+  },
+  "layout": {
+    "grid_base_px": 8,
+    "allowed_spacing_px": [8, 16, 24, 32, 40],
+    "layout_type": "F",
+    "focal_points_max": 3,
+    "safe_area": {
+      "instagram": { "top_px": 60, "bottom_px": 50 },
+      "tiktok": { "top_percent": 10, "bottom_percent": 20 }
+    }
+  },
+  "accessibility": {
+    "wcag_version": "2.1 AA",
+    "min_contrast_ratio_normal": 4.5,
+    "min_contrast_ratio_large": 3.0,
+    "dark_mode_support": true
+  },
+  "generative_ai": {
+    "preferred_tools": ["Adobe Firefly Image 4", "Midjourney v6.1", "Nano Banana"],
+    "style_reference_asset_id": "client_shosei_style_ref_01",
+    "prompt_anchors": [
+      "Asian / East Asian / Japanese facial structure",
+      "JIS T 8131 compliant helmet",
+      "fluorescent orange safety vest",
+      "image weight 1.5"
+    ]
+  },
+  "qa_thresholds": {
+    "ctr_target_percent": 4.2,
+    "visibility_score_min": 16,
+    "visibility_score_max": 20,
+    "face_occupancy_min_percent": 40,
+    "catch_copy_max_chars": 12,
+    "text_occupancy_max_percent_for_ads": 20
+  }
+}
 ```
 
 ## 連携エージェント

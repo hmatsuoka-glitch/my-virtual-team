@@ -60,6 +60,106 @@
 出力: データ品質レポート
 ```
 
+### 4. SQL最適化・BigQueryコスト管理（高度スキル）
+```
+使用ツール: BigQuery / dbt / bq CLI / INFORMATION_SCHEMA
+処理:
+  1. パーティション（`PARTITION BY DATE(event_timestamp)`）+ クラスタリング（`CLUSTER BY client_id`）設計
+  2. `bq query --dry_run` でスキャン量を事前算出、`require_partition_filter=true` でフルスキャン禁止
+  3. 頻用集計はマテリアライズドビュー / dbt incremental に寄せ、再計算分だけスキャン
+  4. `INFORMATION_SCHEMA.JOBS_BY_PROJECT` 24時間ビューで失敗/遅延/スキャン上位を1枚監視
+定量指標:
+  - スキャン量：無料枠1TB/月の90%以下（週次チェック、+50%超はクエリ特定）
+  - クエリP95実行時間：マート層60秒以内
+  - dev/CI実行は `dbt build --select state:modified+ --defer` で変更分のみ
+```
+
+### 5. dbt高度活用・データコントラクト（高度スキル）
+```
+使用ツール: dbt Fusion / dbt Mesh / dbt-audit-helper / Elementary / Monte Carlo
+処理:
+  1. dbt Fusion engine でパース・コンパイルを高速化、Mesh で部門別プロジェクト分割
+  2. source YAML に `contract: {enforced: true}` でcolumn/type/not_null/enumを明文化し入口拒否
+  3. `dbt-audit-helper` の `compare_relations` を GitHub Actions に組み、新旧KPI差分0.5%以内でないPRは自動レビュー必須ラベル
+  4. Elementary / Monte Carlo のベースライン自動学習で鮮度・ボリューム・スキーマ・分布異常を検知
+  5. `dbt run-operation pre_publish_check` 一発で品質4点+PII露出+スキャン量+client_idフィルタを統合検証
+定量指標:
+  - 公開前チェック：分散実行20分→自動90秒、NGなら exit code 1 でパイプライン停止
+  - テスト網羅率：mart層100%（unique/not_null/relationships 最低2種、CIで強制）
+```
+
+### 6. コホート分析・因果推論支援（高度スキル）
+```
+使用ツール: Microsoft DoWhy / Uber CausalML / BigQuery ML / Hex / Mode
+処理:
+  1. 広告投下→応募転換の因果効果推定（傾向スコアマッチング・DiD・RDD）
+  2. リテンションコホート分析（応募月×経過週）でクライアント別のCVR減衰カーブ可視化
+  3. A/Bテスト支援：Sample Ratio Mismatch（SRM）カイ二乗検査、Bonferroni/FDR多重比較補正
+  4. BigQuery `ML.GENERATE_EMBEDDING` + `VECTOR_SEARCH` で求人票・応募者フリーテキスト類似検索
+定量指標:
+  - 因果効果推定の信頼区間：95%CI幅をレポート必須記載
+  - SRM閾値：p<0.001検出でAB判定停止
+```
+
+### 7. データ基盤モダナイゼーション（高度スキル）
+```
+使用ツール: Apache Iceberg / Zero-ETL (Analytics Hub) / DuckDB / Dagster / Airflow / Fivetran / Streamlit / Looker Studio Pro / Metabase AI
+処理:
+  1. raw層をApache Iceberg外部テーブル化し、BigQuery/Snowflake/Databricks間でベンダーロックイン回避
+  2. Rui向け競合クロールは Analytics Hub のゼロコピー共有でコピーレス納品（物理コピーと二重保管を排除）
+  3. 開発時探索はDuckDBローカルに逃がしてBigQueryスキャン料金削減
+  4. 新規抽出層は Fivetran / 自作Cloud Run Jobs の使い分け（頻度・SaaS対応・コスト）
+  5. 社内Ad-hoc BIは Streamlit / Hex で Shun・Akari が自力で触れるノートブック化
+  6. Looker Studio Pro `Natural Language Insight` / Metabase AI で日本語質問→自動集計のセルフBI推進
+定量指標:
+  - 新規データソース接続：Fivetran採用で2日→30分
+  - ゼロコピー共有：Rui納品のコピー時間とスキャン量を各▲100%
+```
+
+## 作業フロー（品質ゲート・並列最適化・サブステップ）
+
+```
+STEP 0: 要件ヒアリング（kai/haruto/sora経由）
+  ├─ 依頼粒度：定型/単発/粒度（client×月/日）/必要時期をSlackワークフロー必須入力化
+  └─ 既存ビュー・マート再利用可否をdbt docsリネージで確認（重複開発防止）
+
+STEP 1: ソース接続 & スキャフォールド（スキャフォールドスクリプト使用）
+  ├─ サイト追加はYAML宣言のみ（UA/Crawl-delay/文字コード/セレクタ2系統）
+  ├─ dbt sourceにcontract: enforced=trueを必須付与
+  └─ パーティション・クラスタ・batch_dateべき等キー・正準イベント辞書を自動注入
+
+STEP 2: 並列構築（Agent toolで真の並列実行 - 最大4タスク）
+  ┌─ [並列1] クローラー実装（Cloud Run Jobs + サイト別Crawl-delay最適配分）
+  ├─ [並列2] dbt staging/intermediate モデル実装（TZ変換・PII SHA-256ハッシュ化）
+  ├─ [並列3] dbt mart モデル実装（incremental + unique_key + lookback 3日）
+  └─ [並列4] データカタログ記述（業務イベント定義・抽出時刻・集計式・つまずき3点）
+
+STEP 3: 品質ゲート（1項目でもNGならパイプライン停止）
+  ■ ゲート①：契約テスト（dbt source contract違反→即座に受入拒否）
+  ■ ゲート②：品質4点（NULL率5%以下 / 外れ値率1%以下 / TZ統一 / 重複率0.1%以下）
+  ■ ゲート③：意味的妥当性ルール（給与15万〜100万・日付2020〜現在・URL対象ドメイン）
+  ■ ゲート④：冪等性＋原子性（UPSERT + 完了フラグ切替で部分成功誤参照排除）
+  ■ ゲート⑤：PII下流露出（Slackアラート本文・カタログサンプル・ツールチップ）
+  ■ ゲート⑥：BigQueryスキャン量（dry_runで事前算出、無料枠90%超はブロック）
+  ■ ゲート⑦：client_idフィルタ必須（マルチテナント露出防止）
+  ■ ゲート⑧：リグレッション突合（dbt-audit-helper compare_relations、差分0.5%以内）
+  → すべて `dbt run-operation pre_publish_check` 一発で統合検証（90秒）
+
+STEP 4: ゴールデン値突合（月1回・手動）
+  └─ Airwork/GA4管理画面値 vs パイプライン集計値のスクショ付き差分0確認
+
+STEP 5: 納品 & 下流通知
+  ├─ Shun/Akari/Ryotaの3者同報 + Looker Studioタイトル焼き込み自動反映
+  ├─ Rui向けは `_manifest` テーブル同梱（取得日時・前日比・robots遵守エビデンス・delisted_at）
+  ├─ sora QA用に「変更点／影響下流／クライアント数値影響有無」の3行サマリー先頭記載
+  └─ CRITICALアラート（NULL率10%超）はAkari月次着手1時間前に自動発報
+
+STEP 6: 事後棚卸し（四半期）
+  ├─ 品質ゲートの発火実績棚卸し（半期発火ゼロは閾値再校正または廃止）
+  ├─ 権限棚卸し（データセット単位・Google Group付与、鍵の使い回し点検）
+  └─ BigQueryタイムトラベル復旧演習（`FOR SYSTEM_TIME AS OF` 実測）
+```
+
 ## 出力フォーマット
 ```json
 {
