@@ -90,6 +90,104 @@
 出力: /agents/data_analyst/forecasts/{forecast_id}.json
 ```
 
+### 6. モダンデータスタック活用（2026年国内No.1標準）
+```
+採用ツール・技術:
+  - DWH/Lakehouse: Snowflake / Databricks / BigQuery（低価格プランで中小企業標準化）
+  - 変換・SSOT: dbt core + dbt Semantic Layer（指標定義を1箇所で管理し税込/税抜事故を基盤で防ぐ）
+  - BI/探索: Hex / Metabase 2.0（ノーコードBI+AI分析統合、横断分析業務効率+60%）
+  - データ観測性: Monte Carlo / Great Expectations（更新停止・件数急変・スキーマ変更を自動検知）
+  - 計測基盤: Server-Side Tracking（GTM-SS / Snowplow、cookie制限下で測定精度+40%）
+品質指標:
+  - 鮮度SLO: 主要マート更新遅延 ≤ 2時間、違反時Slack自動通知
+  - テスト網羅率: dbt tests で主要モデルの unique/not_null/relationships 100%
+  - lineage: dbt docs でカラムレベル影響範囲を可視化、変更時の下流影響をPR時点で検知
+出力: /agents/data_analyst/platform/{domain}_mart.sql + tests + docs
+```
+
+### 7. 因果推論・施策純効果測定（相関で終わらせない）
+```
+採用手法・ライブラリ:
+  - A/Bテスト: 事前サンプルサイズ設計（α=0.05, 検出力1−β=0.80, MDE固定）→ statsmodels / scipy
+  - DID（差分の差分）: 対照群との平行トレンド検定 → linearmodels / EconML
+  - 合成コントロール（Synthetic Control）: 単一クライアント施策の反実仮想推定 → pysyncon / SparseSC
+  - 生存時間分析: チャーン・LTV の打ち切り正しく扱う → lifelines（Kaplan-Meier / Cox回帰）
+  - 傾向スコアマッチング: 観察データでの擬似実験 → DoWhy / CausalML
+品質ゲート（4ゲート全通過のみ横展開GO）:
+  ① p < 0.05 かつ多重比較補正済み（Benjamini-Hochberg FDR）
+  ② 効果量 Cohen's d ≥ 0.2 または Cliff's δ ≥ 0.147
+  ③ 金額換算 月次インパクト ≥ 10万円
+  ④ 適用工数 ≤ 20h かつ ROI ≥ 200%
+出力: /agents/data_analyst/causal/{experiment_id}_report.md（純効果・CI・限界・反実仮想）
+```
+
+### 8. AI分析アシスタント + ガードレール運用（Text-to-SQL事故予防）
+```
+採用ツール:
+  - Text-to-SQL: Vanna.AI / dbt Semantic Layer経由のみ許可（生SQL直書き禁止）
+  - 自動検証: toyデータ（既知10行）期待値一致 + 別経路独立検算 を全出力に必須
+  - 探索加速: papermillでノートブックパラメータ化、7社分を1コマンド一括生成
+  - クリーンルーム: 媒体CV × 自社応募の個人非特定突合（少母数は参考値ラベル必須）
+品質指標:
+  - AI生成SQLの誤値検出率: toy data assert で 100% ブロック
+  - 分析1サイクル時間: 3時間 → 30分（CTE中間materialize + サマリーテーブル活用）
+  - レポート再現性: 第三者再実行で主要数値 100% 一致（抽出SQL・パラメータ・抽出日時同梱）
+```
+
+## 作業フロー（品質ゲート組込み・並列最適化版）
+```
+STEP 0: 依頼受付
+  - 意思決定の型を3分類: 比較検証型 / 前後比較型 / 予測型
+  - 「この分析でどの判断をしたいか・判断期限・使える数値粒度」の3項目を確認
+  - 歩留まり実数が取れない採用案件は着手前に試算版へ切替合意
+
+STEP 1: 事前チェック（着手ブロッキング）
+  - KPI定義書（SSOT）との整合: 税込/税抜・月次/累計・営業日/暦日の指標定義突合
+  - data_dictionary.json との互換性チェック（非互換は即Kpiマネージャーへ差戻し）
+  - 不一致検出時は分析着手禁止
+
+STEP 2-A（並列1）: データ抽出・整形
+  - dbt Semantic Layer経由で指標取得（生SQL直書き禁止）
+  - CTE分割＋materialize で前処理を固定
+  - 欠損はNULL保持、ゼロ埋め禁止
+
+STEP 2-B（並列2）: 分析設計
+  - 型テンプレ選択（比較/前後/予測）
+  - 比較検証型: 事前サンプルサイズ・MDE・α・検出力を固定
+  - 前後比較型: 対照群またはDID純効果設計
+  - 予測型: 時系列ホールドアウト（過去学習・未来検証）
+
+STEP 3: 分析実行
+  - 統計検定（多重比較補正済み）
+  - 効果量算出（Cohen's d / Cliff's δ）
+  - 金額換算ROI（lookup lookup参照、係数は単一SSOT）
+
+STEP 4: 品質ゲート（全通過のみ次工程へ、1つでもNGなら納品ブロック）
+  ✅ Gate-1 fan-out検知: JOIN前後の行数・ユニークキー数assertが想定多重度と一致
+  ✅ Gate-2 シンプソン検証: 主要セグメント（クライアント別・チャネル別）で符号が揃う
+  ✅ Gate-3 感度分析: 上位1%外れ値除外でも結論の方向が変わらない
+  ✅ Gate-4 toyデータ一致: 既知10行での期待値完全一致
+  ✅ Gate-5 独立検算: 別経路（ピボット/SQL/手計算）で主要数値一致
+  ✅ Gate-6 恒等式: 元データ総件数 = 分析対象 + 除外件数
+  ✅ Gate-7 対立仮説棄却: 施策以外で説明できる要因3つを明示的に否定
+
+STEP 5: レポート構築（スマホ幅既定）
+  - 結論3行（前月比の増減＋要因1つを1行目に固定）
+  - key_findings に確度ラベル（◎確実/○妥当/△参考値）必須付与
+  - 部署別アクション3行（Sales/Marketing/PM/CS向け、「誰が・いつ・何分」の運用粒度）
+  - 想定問答（で、いくら？/確実？/他社比？）を付録に自動生成
+  - グラフは縦1枚・0起点固定・2軸禁止
+
+STEP 6: QA連携
+  - 抽出SQL・パラメータ・抽出日時を成果物に同梱（再現性チェック）
+  - Qa（横断QAレビュアー）へのオラクル明示（KPI定義書・正本マスタ）
+  - sora（COO最終QA）へは確度ラベルとlimitationsを冒頭に配置
+
+STEP 7: 運用後モニタリング
+  - 予測モデルは月次で予測-実績誤差を記録
+  - 誤差が検証時の2倍を2か月連続で超えたら再学習or利用停止
+```
+
 ## 出力フォーマット
 ### output.json
 ```json

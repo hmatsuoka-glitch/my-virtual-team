@@ -70,23 +70,259 @@
 出力: /agents/pr/brand_guidelines.json
 ```
 
+### 5. グローバル水準のメディアモニタリング・SOV分析（Meltwater / Cision / Muck Rack）
+```
+入力: 自社・競合・業界キーワード、Earned掲載URL
+処理:
+  1. Meltwater AI要約で日次モニタリング（手動クリッピング作業80%削減）
+  2. Cisionで競合SOV（Share of Voice）週次トラッキング
+  3. Muck Rackで記者別センチメント・過去論調を事前把握
+  4. 掲載記事のポジ/ネガ/ニュートラル分類と波及連鎖の可視化
+出力: /agents/pr/monitoring/{YYYY-MM}_sov_report.json
+定量指標:
+  - 月次SOV ≥ 25%（建設採用カテゴリ内）
+  - ポジティブ比率 ≥ 70%
+  - 媒体露出 ≥ 月6本（うち業界専門誌 ≥ 2本）
+  - 指名検索リフト +25%（掲載後14日）
+```
+
+### 6. マルチプラットフォーム配信最適化（PR TIMES / ValuePress! / @Press / Prowly）
+```
+入力: 確定リリース原稿、媒体別出し分けマスタ、SSOTシートの対外公表数値
+処理:
+  1. PR TIMES（国内最大・SEO/AI要約最適化／GEO対応）本線配信
+  2. ValuePress!・@Pressで中小規模Webメディア補完配信
+  3. Prowlyの記者DBと個別ピッチ連携（宛名差し込みで取り違えゼロ化）
+  4. 媒体カテゴリ別（業界専門/全国紙/地方/Web）に文案・画像出し分け
+  5. 火・水 10:30 / 13:30 の2スロットで予約投入
+出力: /agents/pr/distribution/{YYYY-MM-DD}_dispatch_log.json
+定量指標:
+  - 配信あたりPV ≥ 3,000
+  - ピックアップ率 ≥ 15%
+  - 個別ピッチ返信率 ≥ 20%、取材化率 ≥ 10%
+  - 開封率 ≥ 35%（火・水スロット固定効果）
+```
+
+### 7. GEO（Generative Engine Optimization）対応リリース設計
+```
+入力: リリース原稿、自社サイト掲載版テンプレ
+処理:
+  1. 要点先出し・数値明記・箇条書き構造でAI要約最適化（逆ピラミッド強化）
+  2. 自社サイト転載版に schema.org NewsArticle マークアップ必須化
+  3. h1/h2見出し構造・OGP画像・構造化データの3点チェック
+  4. ChatGPT検索・Perplexity・AI Overviews での引用モニタリング
+出力: /agents/pr/geo/{YYYY-MM}_ai_citations.json
+定量指標:
+  - AI検索引用率 ≥ 月3件（自社リリース起点）
+  - schema.org カバレッジ 100%（自社サイト掲載分）
+  - 構造化データエラー 0件（Google Rich Results Test）
+```
+
+### 8. 従業員アドボカシープログラム（EveryoneSocial / Smarp）
+```
+入力: 対象社員リスト、月次素材（現場写真・縦型動画・引用コメント）
+処理:
+  1. 発信ガイドライン（言ってOK/NG・守秘範囲）整備（07-01記録準拠）
+  2. 月次素材提供（本文用軽量1枚 + 高解像度5枚 + 縦型15〜30秒 + 字幕必須）
+  3. 発信リーチ・エンゲージメントの個別トラッキング
+  4. 退職時の掲載取扱い合意までHR連携で工程化
+出力: /agents/pr/advocacy/{YYYY-MM}_employee_reach.json
+定量指標:
+  - 社員発信リーチ ≥ 企業公式アカウントの3倍
+  - 月次参加率 ≥ 60%（登録社員ベース）
+  - 採用応募への寄与率 ≥ 15%
+```
+
+### 9. 記者DB連動個別ピッチ自動化（BuzzStream / Muck Rack / Notion DB）
+```
+入力: ネタ案件、記者DBプロパティ（最終確認日・担当ジャンル・過去反応タグ・エンバーゴ記録）
+処理:
+  1. Notion DB → BuzzStream連携で担当ジャンル×最終確認日90日以内を自動抽出
+  2. 「相手直近記事への一言＋自社ネタ接点1行＋素材DLリンク＋1行説明」の3行テンプレ差し込み
+  3. エンバーゴ・独占条件はDB必須項目として記録、一斉配信予約を自動ロック
+  4. 返信・掲載結果をDBへフィードバック、過去反応タグ更新
+出力: /agents/pr/pitch/{YYYY-MM-DD}_pitch_log.json
+定量指標:
+  - 個別ピッチ返信率 ≥ 20%
+  - 取材化率 ≥ 10%
+  - 宛名取り違え事故 0件（単一ソース差し込み）
+  - リピート取材率 ≥ 30%（同一記者からの追加依頼）
+```
+
+## 作業フロー（品質ゲート・並列最適化）
+
+### 配信前フロー（必須ゲート：全てPASSで配信可）
+
+```
+STEP 0: nori 事前リーガルチェック（制作系案件は必ず最初に通過）
+   ↓
+STEP 1: ネタ企画・ニュースバリュー判断（「誰にとってのニュースか」1文宣言）
+   ├─ Sales から独自数値・失敗談を受領（07-16記録）
+   └─ Dat から業界ベンチマーク受領（06-11記録）
+   ↓
+STEP 2: 原稿作成（並列実行可能）
+   ├─ 本文（逆ピラミッド＋GEO構造化）
+   ├─ 求職者向け末尾ブロック（CTA + 現場社員の声 + 絶対日付）
+   ├─ Itsuki 画像発注（本文軽量1枚 + DL用5枚 + 縦型字幕付き動画）
+   └─ 想定Q&A 30件（業種別マスタから複製）
+   ↓
+STEP 3: 【品質ゲート①】数値整合（機械突合・フェイルクローズ）
+   - SSOTシートとの一致
+   - 自社過去発表値との時系列整合
+   - 出典3点セット（調査機関・期間・対象）
+   - Datの業界平均と比較軸セット
+   ↓
+STEP 4: 【品質ゲート②】表現・法務（textlint + nori）
+   - 誇大表現辞書30語検出（No.1/業界初/絶対/100%等）
+   - 景表法・薬機法・ステマ規制（PR表記）
+   - 社名・人名の旧字体・表記ゆれ（名刺・登記突合）
+   ↓
+STEP 5: 【品質ゲート③】承諾・証跡
+   - クライアント書面承諾（2列テンプレ・求職者向け/対外信用向け）
+   - 社員登場時はHR経由の本人同意＋退職時取扱い合意
+   - 写真の写り込み・Exif位置情報削除
+   ↓
+STEP 6: 【品質ゲート④】配信日時・コンテクスト
+   - 火・水 10:30 / 13:30 スロット
+   - 当日朝の大型ニュース・災害・同業事故による凍結判定
+   - エンバーゴ・独占条件のDB記録とロック
+   ↓
+STEP 7: CEO Agent 最終承認 → 配信
+   ↓
+STEP 8: 【品質ゲート⑤】配信後1時間以内 公開面実表示確認（PC/スマホ両方）
+   ↓
+STEP 9: sora 事後QA
+```
+
+### 並列最適化ポイント
+
+| フェーズ | 並列実行対象 | 削減効果 |
+|---------|-------------|---------|
+| STEP 2 | 本文 + 画像発注 + Q&A準備 | リードタイム60分→15分 |
+| STEP 3-4 | 数値機械突合 + textlint辞書検出 | 目視工数ゼロ |
+| 配信後 | お礼メール起票 + 本人反響共有 + 実表示確認（配信ボタン連動自動起票） | 後工程抜け漏れゼロ |
+
 ## 出力フォーマット
-### release.json
+
+### 1. プレスリリース原稿（release.md）
+```markdown
+# [タイトル：30字以内・数値＋意外性＋業界文脈]
+# 例：建設業20代離職率8%、業界平均の1/5達成——翔星建設の定着施策
+
+## リード文（5W1H・90字以内で記事化可能）
+2026年X月X日、株式会社○○は、◯◯の背景のもと、◯◯を実施したことを発表しました。
+業界平均◯%に対し自社◯%を達成しています（出典：□□調査2026年版）。
+
+## 本文（逆ピラミッド構造）
+### 背景
+### 施策詳細
+### 独自データ（業界ベンチマークとのセット）
+### 代表コメント／現場社員コメント
+### 今後の展望
+
+## 画像素材（別DLリンク・1行説明）
+- 現場実写（16:9・2400px）: [URL]
+- 縦型動画（15〜30秒・字幕付き）: [URL]
+
+## 【採用ページCTA】現場社員の声
+> 現場代理人・鈴木（28歳・入社3年）「◯◯」
+> [採用ページ：UTM付きURL]
+
+## 会社概要（SSOTボイラープレート差し込み）
+
+## 広報問い合わせ先（広報直通・専用アドレス）
+```
+
+### 2. PR戦略書（pr_strategy.json）
 ```json
 {
-  "date": "YYYY-MM-DD",
-  "type": "press_release | statement | announcement",
-  "title": "タイトル",
-  "lead": "リード文",
-  "body": "本文",
-  "target_media": ["メディア名"],
-  "status": "draft | legal_review | ceo_approval | published",
-  "distribution_channels": ["PR TIMES", "直接送付", "SNS"],
+  "client": "翔星建設",
+  "period": "2026-Q4",
+  "news_hook": "業界課題（人手不足）へのカウンター＋独自データ",
+  "target_media_groups": [
+    "建設専門紙（日刊建設工業新聞ほか）",
+    "地方紙・地域経済紙（対象エリア：東北・北関東）",
+    "求人・採用系Web（マイナビ建設・type転職等）",
+    "業界団体メディア（全建連・建協系）"
+  ],
+  "distribution_channels": ["PR TIMES", "ValuePress!", "@Press", "Prowly記者DB個別ピッチ"],
+  "schedule": {
+    "release_date": "2026-11-18 (火) 10:30",
+    "embargo": null,
+    "freeze_criteria": ["人命災害", "建設業重大事故", "同業不祥事"]
+  },
   "kpi": {
-    "target_pickups": 5,
-    "actual_pickups": 0,
-    "reach_estimate": 0
+    "target_pickups": 6,
+    "target_pv": 3000,
+    "target_sov": 25,
+    "target_pickup_rate_pct": 15,
+    "target_pitch_response_rate_pct": 20,
+    "target_sci_search_lift_pct": 25,
+    "target_applications_contribution_pct": 15
+  },
+  "quality_gates": {
+    "numerical_consistency": "SSOT + 過去発表値 + 出典3点セット",
+    "legal_textlint": "誇大表現30語・景表法・ステマ表記",
+    "consent": "書面承諾（2列テンプレ）+ 本人同意",
+    "distribution_slot": "火・水 10:30/13:30",
+    "post_publish": "1時間以内 公開面実表示確認"
   }
+}
+```
+
+### 3. メディアリスト（media_list.json）
+```json
+{
+  "last_updated": "YYYY-MM-DD",
+  "sources": ["Muck Rack", "BuzzStream", "Notion DB"],
+  "media": [
+    {
+      "media_id": "nikken-kogyo",
+      "name": "日刊建設工業新聞",
+      "category": "業界専門紙",
+      "area": "全国",
+      "reporters": [
+        {
+          "name": "記者氏名",
+          "beat": ["建設採用", "2024年問題"],
+          "last_contact_date": "2026-10-01",
+          "past_coverage": ["URL"],
+          "sentiment": "positive",
+          "exclusive_history": [],
+          "embargo_eligible": true,
+          "preferred_channel": "email | X DM"
+        }
+      ]
+    }
+  ],
+  "filter_rules": {
+    "config_check_days": 90,
+    "slot": ["火 10:30", "火 13:30", "水 10:30", "水 13:30"]
+  }
+}
+```
+
+### 4. 掲載効果レポート（coverage_report.json）
+```json
+{
+  "release_id": "2026-11-18_shosei_tenchakuritsu",
+  "pickups": [
+    {
+      "media": "日刊建設工業新聞",
+      "url": "https://...",
+      "date": "2026-11-19",
+      "type": "earned",
+      "reach_estimate": 12000,
+      "sentiment": "positive"
+    }
+  ],
+  "metrics": {
+    "sov_pct": 28,
+    "named_search_lift_pct": 32,
+    "site_sessions_delta_14d": 850,
+    "application_attribution": 12
+  },
+  "note": "AVE単独報告は禁止（バルセロナ原則）。採用応募への波及連鎖で評価"
 }
 ```
 

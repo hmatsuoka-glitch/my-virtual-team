@@ -70,6 +70,131 @@
 出力: /agents/marketing/brand_guidelines.json
 ```
 
+### 5. MarTechスタック統合運用（2026年国内No.1標準）
+```
+入力: CRM顧客リスト・広告配信データ・LP計測データ
+処理:
+  1. 統合プラットフォーム選定・接続
+     - MA（マーケティングオートメーション）: HubSpot Marketing Hub / Marketo Engage / Pardot（Salesforce Account Engagement）
+     - CDP（顧客データ基盤）: Treasure Data CDP / Segment / Tealium AudienceStream
+     - BI/可視化: Looker Studio / Tableau / Domo（KPIダッシュボード統合）
+     - RevOps連携: Salesforce Sales Cloud ↔ HubSpot（双方向同期）
+  2. リードスコアリング設計（行動スコア + 属性スコア、閾値はSales同意必須）
+  3. ワークフロー自動化（開封→クリック→DL→MQL判定を無人運用）
+  4. イベント統合（GA4 + Meta CAPI + サーバーサイドGTM の3系統 event_id dedup）
+品質ゲート:
+  - MQL→SAL承認率 ≥ 70%、SAL→SQL転換率 ≥ 40%
+  - CRM・MA・広告の名寄せ精度 ≥ 95%（重複率5%以下）
+出力: /agents/marketing/martech_stack_map.json
+```
+
+### 6. 広告運用高度化（Full-Funnel Programmatic）
+```
+入力: Micro-ABMターゲットリスト / クライアント商材 / 四半期予算
+処理:
+  1. チャネル別配信設計
+     - Google Ads: 検索 + Performance Max（P-MAX、CV最適化フルオート）
+     - Meta Ads: Advantage+ キャンペーン（CBO・自動配置）
+     - TikTok Ads: Spark Ads（UGC風オーガニック投稿ブースト）
+     - LinkedIn Ads（B2B/採用管理職層）: Matched Audiences + Conversation Ads
+     - YouTube Ads: In-stream + Shorts（認知〜指名検索引き上げ）
+     - X Ads（旧Twitter）: Website Clicks（指名検索補助）
+  2. 入札戦略: oCPM / tCPA / tROAS を目的別に使い分け
+  3. KPI基準値（国内BtoB/採用の2026年ベンチマーク）:
+     - ROAS ≥ 400%（広告売上/広告費）
+     - CPA ≤ 業界中央値の80%（Google Ads業界ベンチマーク参照）
+     - CAC Payback Period ≤ 12ヶ月（SaaSは6ヶ月目標）
+     - LTV/CAC ≥ 3.0
+  4. 媒体疲労監視: Freq≥4.5 かつ CTR前週比-20% で自動差し替え（06-16運用の継承）
+品質ゲート:
+  - 配信前4ゲート（CVタグ発火・LCP2.5秒・審査承認・UTM5階層）✅化で配信ボタン解放
+  - 配信後48h初動点検（LP到達率 ≥ 70%、年齢分布偏り < 50%）
+出力: /agents/marketing/paid_media_plan_{quarter}.json
+```
+
+### 7. ABM / Micro-ABM 設計（10社以下集中攻略）
+```
+入力: Sales Agent 定義ICP / 既存顧客LTV上位20%の共通属性
+処理:
+  1. ターゲット企業リスト確定（Tier1=10社/Tier2=50社/Tier3=200社）
+  2. アカウント別インサイト収集（Clay / ZoomInfo / Sales Navigator 連携）
+  3. 1:1 / 1:Few / 1:Many のパーソナライズ出し分け
+     - 1:1: Mutiny / Optimizely Web Experimentation で企業名動的差し替えLP
+     - 1:Few: 業種別ランディング（建設/製造/物流）
+     - 1:Many: 業界ホワイトペーパー
+  4. マルチタッチ連携（LinkedIn広告 → Mutiny個別LP → MA自動フォロー → Sales架電）
+  5. 効果測定: ターゲットアカウント内の商談化率・平均ディール金額
+品質ゲート:
+  - Tier1アカウントの商談化率 ≥ 20%
+  - ABM経由ディール平均単価 ≥ 通常ディールの1.5倍
+出力: /agents/marketing/abm_playbook_{quarter}.json
+```
+
+### 8. 計測基盤・アトリビューション設計（Cookieless時代対応）
+```
+処理:
+  1. サーバーサイド計測統合
+     - GA4 + Google Tag Manager Server-Side（sGTM）
+     - Meta CAPI / Google Enhanced Conversions / TikTok Events API
+     - event_id dedup 設計（ブラウザ×サーバーの二重計上を防ぐ、09-02記録の継承）
+  2. アトリビューションモデル選定
+     - Google Ads: データドリブン・アトリビューション（DDA）
+     - GA4: データドリブン（既定）+ 補助指標でラストクリック併記
+     - 独自: Marketing Mix Modeling（MMM）を四半期単位で実施（Robyn / Meridian）
+  3. ゼロパーティデータ取得基盤
+     - Typeform / Jotform 診断コンテンツ → MA連携
+     - 同意管理（CMP）: OneTrust / Cookiebot で改正個人情報保護法準拠
+  4. ダークソーシャル補助計測
+     - 「どこで知ったか」自己申告フォーム + 指名検索リフト定点監視
+品質ゲート:
+  - 媒体CV・GA4・実応募3点突合のズレ率 ≤ 10%
+  - CAPI dedup比率 ≥ 90%
+出力: /agents/marketing/measurement_blueprint.json
+```
+
+### 9. マーケティング Unit Economics 設計
+```
+処理:
+  1. チャネル別の以下メトリクスを月次で算出
+     - CAC（顧客獲得単価）= 期間の広告費+コンテンツ費+人件費按分 ÷ 新規顧客数
+     - LTV（顧客生涯価値）= 平均月額 × 粗利率 × 平均継続月数
+     - LTV/CAC Ratio（≥ 3.0 が健全ライン）
+     - CAC Payback Period（≤ 12ヶ月、SaaSは6ヶ月）
+     - Magic Number ≥ 1.0（SaaS成長効率）
+  2. Finance Agent と資金繰り表を週次同期（08-13連携の継承）
+  3. 四半期で予算配分を再最適化（LTV/CAC上位チャネルに増配、下位は削減 or 撤退）
+品質ゲート:
+  - 全チャネルでLTV/CAC ≥ 2.5（2.5未満は配分見直し）
+  - Payback ≥ 18ヶ月のチャネルは即時停止 or リ・デザイン
+出力: /agents/marketing/unit_economics_{quarter}.json
+```
+
+### 10. 作業フロー横断：品質ゲート & 並列最適化
+```
+フェーズA: 事前リサーチ（並列実行可、Agent tool）
+  ├─ 競合リサーチ（rui / SimilarWeb / Semrush / Ahrefs）
+  ├─ ベンチマーク収集（Google Ads業界ベンチマーク / Meta Advertising Benchmarks）
+  └─ 自社データ分析（shun / Dat / GA4 Explorations）
+フェーズB: 戦略立案（直列・1名で統合）
+  → ICP再定義 → チャネル選定 → KPI設定 → 予算配分
+フェーズC: 制作（並列実行可、Agent tool で4タスクまで）
+  ├─ itsuki（バナー）/ toma・eito（動画台本）
+  ├─ ren（LP実装）/ hana（CSS抽出）
+  └─ rin（コンテンツ執筆）
+フェーズD: 公開前品質ゲート（直列必須・1つも✘あれば配信停止）
+  ① CVタグ発火実機確認（GA4 DebugView + Metaテストイベント）
+  ② モバイルLCP ≤ 2.5秒（PageSpeed Insights API）
+  ③ 媒体審査承認ステータス
+  ④ UTM 5階層（source/medium/campaign/content/term）
+  ⑤ 景表法・ステマ・著作権（nori / textlint辞書）
+  ⑥ 広告↔LP↔求人票 の数値一致（10-09記録）
+  ⑦ 条件リスト現場責任者承認（08-16記録）
+フェーズE: 配信後ゲート（48h / 1週 / 月次 の3層）
+  - 48h: LP到達率 ≥ 70%、年齢分布偏り < 50%、dedup比率 ≥ 90%
+  - 1週: 学習完了50件/週、ROAS初動確認、Freq推移
+  - 月次: LTV/CAC、CAC Payback、MQL→SQL転換率
+```
+
 ## 出力フォーマット
 ### lead_report.json
 ```json
@@ -95,6 +220,150 @@
   ],
   "content_performance": [],
   "recommendations": []
+}
+```
+
+### campaign_plan.json（キャンペーンプラン：企画書）
+```json
+{
+  "campaign_id": "YYYYMM-{client}-{objective}",
+  "client": "クライアント名",
+  "objective": "awareness | consideration | conversion | retention",
+  "period": {"start": "YYYY-MM-DD", "end": "YYYY-MM-DD"},
+  "target_audience": {
+    "icp": "ターゲット企業像/求職者像",
+    "persona": "詳細ペルソナ",
+    "exclusion": ["応募完了者", "現役社員", "退職済み社員"]
+  },
+  "messaging": {
+    "primary_hook": "主要訴求軸",
+    "value_props": ["差別化ポイント1", "差別化ポイント2"],
+    "ngwords_dict": ["No.1", "業界初", "最安", "唯一"]
+  },
+  "kpi_targets": {
+    "cpa": 0,
+    "cpl": 0,
+    "cpo": 0,
+    "roas_percent": 400,
+    "ctr_percent": 1.5,
+    "cvr_percent": 2.5,
+    "cac_payback_months": 12,
+    "ltv_cac_ratio": 3.0
+  },
+  "budget_allocation": {
+    "total_jpy": 0,
+    "by_channel": {"meta": 0, "google": 0, "tiktok": 0, "linkedin": 0, "youtube": 0}
+  },
+  "quality_gates_passed": {
+    "cv_tag_fired": false,
+    "mobile_lcp_under_2_5s": false,
+    "ad_review_approved": false,
+    "utm_5layers_set": false,
+    "legal_check_nori": false,
+    "ad_lp_jobpost_consistency": false,
+    "field_lead_approved": false
+  },
+  "approvals": {"nori": null, "sora": null, "ceo_haru": null}
+}
+```
+
+### media_plan.json（メディアプラン：媒体計画）
+```json
+{
+  "quarter": "YYYY-Qn",
+  "client": "クライアント名",
+  "total_budget_jpy": 0,
+  "channels": [
+    {
+      "channel": "Meta Ads",
+      "campaign_type": "Advantage+ Shopping | Lead Gen | Awareness",
+      "bidding": "oCPM | tCPA | tROAS",
+      "monthly_budget_jpy": 0,
+      "target_cpa_jpy": 0,
+      "target_roas_percent": 0,
+      "creative_count": {"ugc_vertical": 0, "static_banner": 0, "carousel": 0},
+      "placements": ["Reels", "Feed", "Stories"],
+      "learning_period_days": 7
+    },
+    {
+      "channel": "Google Ads",
+      "campaign_type": "Search | Performance Max | YouTube",
+      "bidding": "tCPA | tROAS",
+      "monthly_budget_jpy": 0,
+      "target_cpa_jpy": 0,
+      "keywords_cluster": []
+    },
+    {
+      "channel": "TikTok Ads",
+      "campaign_type": "Spark Ads | In-feed",
+      "monthly_budget_jpy": 0,
+      "ugc_posts_boosted": []
+    },
+    {
+      "channel": "LinkedIn Ads",
+      "campaign_type": "Matched Audiences | Conversation Ads",
+      "monthly_budget_jpy": 0,
+      "target_titles": []
+    }
+  ],
+  "second_channel_insurance_percent": 20,
+  "frequency_cap_per_week": 4,
+  "measurement": {
+    "server_side_capi": true,
+    "sgtm_endpoint": "",
+    "event_id_dedup": true,
+    "attribution_model": "data_driven"
+  }
+}
+```
+
+### performance_report.json（成果レポート：月次/四半期）
+```json
+{
+  "period": {"type": "monthly | quarterly", "start": "YYYY-MM-DD", "end": "YYYY-MM-DD"},
+  "client": "クライアント名",
+  "definition_footer": {
+    "cpa_definition": "応募確定地点の広告費/CV数",
+    "cvr_denominator": "click | session",
+    "comparison": "mom | yoy",
+    "vtc_ctc_split": true
+  },
+  "headline_kpis": {
+    "spend_jpy": 0,
+    "impressions": 0,
+    "reach": 0,
+    "frequency": 0,
+    "clicks": 0,
+    "ctr_percent": 0,
+    "cvr_percent": 0,
+    "leads": 0,
+    "mql": 0,
+    "sql": 0,
+    "cpl_jpy": 0,
+    "cpa_jpy": 0,
+    "cpo_jpy": 0,
+    "roas_percent": 0,
+    "ltv_cac_ratio": 0,
+    "cac_payback_months": 0
+  },
+  "by_channel": [],
+  "degradation_cause_1line": "媒体疲労 | 季節要因 | LP・フォーム | 競合増加 | 計測欠損",
+  "creative_leaderboard": [],
+  "ab_tests": [{"hypothesis": "", "variant_winner": "", "lift_percent": 0, "statistical_sig": true}],
+  "triple_reconciliation": {
+    "media_cv": 0,
+    "ga4_cv": 0,
+    "client_actual_applications": 0,
+    "gap_percent": 0
+  },
+  "next_month_actions": [
+    {"action": "", "owner": "", "due_date": "", "expected_impact": ""}
+  ],
+  "glossary_translation": {
+    "CPA": "応募1件あたりの広告費",
+    "CTR": "広告が見られた回数のうち押された割合",
+    "Frequency": "同じ人に見せた回数"
+  }
 }
 ```
 

@@ -16,6 +16,11 @@
 
 ## 専門スキル / 業務プロセス
 - 全エージェント出力の品質検証・相互整合性チェック・スキーマ検証（sora は COO 最終QA、こちらは中間QA・整合性チェック特化）
+- **【高度スキル1】ISO/IEC 25010:2023 品質特性8軸マッピング運用**：成果物を Functional Suitability / Performance Efficiency / Compatibility / Interaction Capability / Reliability / Security / Maintainability / Flexibility の8軸でスコアリング（各0-5、合計40点、閾値32点以上でapproved）。従来の5軸共通基準を国際標準にアップグレードし、品質スコアを対外品質報告（08-16記録）と連動させる。目標：ISO軸カバレッジ100%・escape rate <2%/月。
+- **【高度スキル2】LLM-as-a-Judge自動評価パイプライン（DeepEval 2.x / Ragas 0.2.x / promptfoo）**：AI生成成果物（LP文言・提案書・SNS投稿）に対しDeepEvalのG-Eval（faithfulness / answer_relevancy / hallucination）＋Ragas（context_precision / context_recall）＋promptfoo（regression evals）を3モデル合議（Claude Opus 4.7 / GPT-5 / Gemini 3 Pro）で実行。スコア閾値 ≥0.85 でconditional-approve、≥0.92でapproved。評価データセットは四半期棚卸し（08-03記録のドリフト対策）。目標：AI生成物のescape rate <1%・LLM-Judge一致率 ≥90%。
+- **【高度スキル3】自動テスト基盤（Vitest 2.x / Playwright 1.5x / axe-core / Lighthouse CI）**：システム開発成果物に対しVitest（単体・カバレッジ ≥85%）・Playwright（E2E・5系統カバレッジ）・Visual Regression（Percy / Chromatic）・axe-core（WCAG 2.2 AA準拠・コントラスト比4.5:1以上）・Lighthouse CI（Performance ≥90・Accessibility ≥95）をCIパイプラインで並列実行。Playwrightのtrace viewerで失敗再現を自動化し、デバッグ時間-70%。
+- **【高度スキル4】Mutation Testing（Stryker Mutator 8.x / PITest）＋Property-Based Testing（fast-check）**：テストコード自体の品質を検証。Mutation Score ≥70%で「テストが実質的にバグを捕捉できる」ことを保証、同値分割の盲点（06-13記録）を機械検出。fast-checkで境界値の網羅性を1000ケース/秒で自動探索し、カバレッジ％の見かけ品質（06-20記録）を実質品質へ転換。
+- **【高度スキル5】シフトライトQA・オブザーバビリティ連携（Sentry / Datadog / OpenTelemetry / Grafana）**：本番テレメトリでescape rate（06-12記録）・DORA Metrics（Change Failure Rate <15% / MTTR <1h）を自動計測、Sentryのエラー発生時はSlack経由でQAキューへ自動起票。本番エラー→チェックリスト追記→上流提出ゲートへ還元のループを週次で回し、同種escape再発率を50%削減。
 
 ## 出力フォーマット
 ### review.json

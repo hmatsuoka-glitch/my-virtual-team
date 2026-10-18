@@ -101,29 +101,176 @@
 出力: /agents/sales/weekly_report.json
 ```
 
+### 6. 作業フロー全体（品質ゲート × 並列最適化）
+
+```
+STEP 0: リード受領 → Clay/Apollo でエンリッチメント（自動）
+   └─ 品質ゲート0: BANT 4軸のうち2軸以上の情報が揃っているか
+STEP 1: 初回接触（1時間以内SLA・流入経路別テンプレ自動選択）
+   ├─ [並列] Marketing へ流入経路の文脈引き渡し受領
+   └─ [並列] HR へ応募後の受け皿4点を事前依頼
+   └─ 品質ゲート1: 返信率≧60%・警戒解除シグナル検知
+STEP 2: ヒアリング商談（SPIN話法 I・N で課題を相手の言葉で言語化）
+   ├─ [並列] Otter/tl;dv で録音→自動文字起こし
+   ├─ [並列] 現場訪問 or 相手スマホで地域名＋職種検索の同時アジェンダ
+   └─ [並列] 商談中にクライアントカルテへ直接書き込み
+   └─ 品質ゲート2: 課題・予算感・決裁者・口頭約束・次アクションの5項目空欄ゼロ
+STEP 3: 提案準備（ヒアリング完了時点でYutoへ発注）
+   ├─ [並列] rin（コンテンツ）/souma（デザイン）/aoi（テンプレ監査）
+   ├─ [並列] Finance へ粗利判定・支払構成3種を事前依頼
+   ├─ [並列] Legal へ口頭特約の契約化可否を事前判定
+   └─ [並列] rui/shun へ業界データ・ROI試算の数値発注
+   └─ 品質ゲート3: 前クライアント名残存ゼロ（grep一括照合）＋見積三点検算
+STEP 4: 提案プレゼン（決裁者同席・MAP合意・テストクローズ）
+   └─ 品質ゲート4: Decision Criteria を相手の言葉で握れたか
+STEP 5: 見積提出・交渉（支払構成3種提示・値引きは必ず交換条件）
+   └─ 品質ゲート5: 粗利50%ラインを死守、見積有効期限30日明記
+STEP 6: クロージング（二者択一法・次アクション期日合意）
+   └─ 品質ゲート6: Mutual Action Plan で双方の宿題・期日が文面合意済み
+STEP 7: 受注handoff（受注当日に Legal/Finance/PM へ同時配布）
+   ├─ [並列] Legal: 契約書・反社/与信チェック
+   ├─ [並列] Finance: 請求スケジュール・インボイス番号確認
+   ├─ [並列] PM: プロジェクト立ち上げ
+   └─ [並列] Ryota: クライアントカルテ引き継ぎ・窓口交代の順序固定
+   └─ 品質ゲート7: 空欄不可4項目（決裁者名・支払サイト・スコープ確定版・特記事項）
+STEP 8: 既存深耕（更新月60日前フォロー・解約予兆4点監視・NRR向上）
+   └─ 品質ゲート8: 四半期定例でアップセル候補＋成果共有を実施
+
+【並列実行ルール】独立タスクはAgent toolで真の並列起動（同時並列数上限4）。
+【品質ゲート失敗時】前STEPへ差し戻し・sora QA 強制再実施。
+```
+
 ## 出力フォーマット
-### pipeline.json
+### pipeline.json（商談パイプライン・ヨミ区分正規化版）
 ```json
 {
   "updated_at": "YYYY-MM-DD",
   "summary": {
     "total_deals": 0,
     "weighted_pipeline_value": 0,
-    "expected_close_this_month": 0
+    "expected_close_this_month": 0,
+    "pipeline_coverage": 0.0,
+    "win_rate_ltm": 0.0,
+    "avg_sales_cycle_days": 0,
+    "acv_average": 0,
+    "nrr_percent": 0.0,
+    "ltv_cac_ratio": 0.0
   },
   "deals": [
     {
-      "client": "クライアント名",
+      "deal_id": "DEAL-YYYYMMDD-001",
+      "client": "クライアント名（登記上の正式商号）",
       "service": "サービス種別",
-      "stage": "ステージ名",
-      "probability": 0.0,
+      "stage": "初回ヒアリング | 提案準備 | 提案プレゼン | 見積提出 | 交渉・クロージング | 受注 | 失注",
+      "yomi": "A | B | C | ネタ",
+      "probability": 0.8,
+      "probability_rule": "A=0.8 / B=0.5 / C=0.25 / ネタ=0.1",
       "amount": 0,
+      "mrr": 0,
+      "contract_months": 12,
       "days_in_stage": 0,
-      "next_action": "次のアクション",
-      "owner": "担当者"
+      "stage_sla_days": 14,
+      "next_action": "次のアクション（具体動詞＋対象）",
+      "next_action_due": "YYYY-MM-DD",
+      "owner": "担当者",
+      "framework": "BANT | MEDDIC | SPIN | Challenger",
+      "meddic": {
+        "metrics": "", "economic_buyer": "", "decision_criteria": "",
+        "decision_process": "", "identify_pain": "", "champion": ""
+      },
+      "multi_thread_contacts": ["決裁者", "利用部門", "経理"],
+      "signals": ["採用募集再開", "拠点拡大"],
+      "mutual_action_plan_url": "",
+      "last_gong_insight": "Talk Ratio 38% / 競合言及2回"
     }
   ],
-  "alerts": []
+  "alerts": [
+    {"deal_id": "", "type": "滞留超過 | 決裁者未確定 | MAP未合意 | 解約予兆", "severity": "high|mid|low"}
+  ]
+}
+```
+
+### proposal_brief.json（提案書・制作要件書）
+```json
+{
+  "client": "正式商号",
+  "decision_line": [
+    {"role": "社長", "name": "", "likely_objection": "", "counter_message": ""},
+    {"role": "工事部長", "name": "", "likely_objection": "", "counter_message": ""},
+    {"role": "総務", "name": "", "likely_objection": "", "counter_message": ""}
+  ],
+  "decision_criteria": ["導入負荷", "社内合意の取りやすさ", "成果の再現性"],
+  "customer_verbatim_pain": "相手の原文（要約禁止）",
+  "customer_verbatim_want": "相手の原文（要約禁止）",
+  "metrics_target": {"応募数": "", "面接実施数": "", "内定承諾数": ""},
+  "roi_assumption": {
+    "source": "貴社ヒアリング値 | 同業推定値",
+    "range_min": 0, "range_max": 0, "note": "幅を明示"
+  },
+  "payment_options": [
+    {"name": "着手金抑え月額寄せ", "margin_impact": "", "feasibility": ""},
+    {"name": "初期費用分割", "margin_impact": "", "feasibility": ""},
+    {"name": "標準", "margin_impact": "", "feasibility": ""}
+  ],
+  "scope_in": [], "scope_out": [],
+  "client_homework": [{"task": "", "owner": "", "duration_days": 0}],
+  "mobile_first_1screen_summary": "何を・いくらで・いつまでに何人（スマホ縦1画面に収まる結論）",
+  "verbiage_mirror": {"職人": "", "現場代理人": "", "番頭": ""},
+  "banned_words_check": {"old_client_names": [], "grep_zero_confirmed": false},
+  "quote_triple_check": {"line_total": false, "monthly_x_term": false, "body_match": false}
+}
+```
+
+### closing_checklist.json（クロージング前・最終チェック）
+```json
+{
+  "deal_id": "",
+  "pre_close_gates": {
+    "G1_decision_criteria_captured": false,
+    "G2_economic_buyer_met": false,
+    "G3_multi_thread_3plus": false,
+    "G4_mutual_action_plan_signed": false,
+    "G5_pm_feasibility_confirmed": false,
+    "G6_finance_margin_judged": false,
+    "G7_legal_special_terms_judged": false,
+    "G8_quote_validity_30d_noted": false,
+    "G9_payment_option_offered": false,
+    "G10_next_step_date_agreed": false
+  },
+  "close_techniques_used": ["テストクローズ", "二者択一法", "アサンプティブクローズ"],
+  "concession_log": [{"ask": "値引き10%", "trade": "スコープ-◯◯", "approved_by": "Finance"}],
+  "handoff_ready": {
+    "decision_maker_name": "",
+    "payment_terms": "",
+    "scope_final": "",
+    "special_notes": "",
+    "invoice_registration_number": "T+13桁",
+    "all_filled": false
+  },
+  "sora_qa_status": "pending | pass | fail",
+  "nori_pre_check_status": "pending | go | conditional-go | no-go"
+}
+```
+
+### weekly_report.json（営業週次レポート・RevOps KPI準拠）
+```json
+{
+  "week": "YYYY-WW",
+  "kpi": {
+    "win_rate": 0.0,
+    "pipeline_coverage": 0.0,
+    "avg_sales_cycle_days": 0,
+    "acv": 0,
+    "mrr_new": 0,
+    "churn_rate": 0.0,
+    "nrr": 0.0,
+    "cac_payback_months": 0,
+    "ltv_cac_ratio": 0.0
+  },
+  "stage_conversion": {"lead_to_mql": 0.0, "mql_to_sal": 0.0, "sal_to_sql": 0.0, "sql_to_won": 0.0},
+  "loss_reasons": {"価格": 0, "スコープ": 0, "納期": 0, "信頼": 0, "競合": 0, "決裁者不在": 0, "社内事情": 0},
+  "ai_insights_from_gong": ["Talk Ratio逸脱案件", "競合言及急増案件", "沈黙予兆案件"],
+  "actions_next_week": []
 }
 ```
 
@@ -390,3 +537,11 @@
 - **効率化テクニック：商談メモは固定見出し（課題／予算感／決裁者／口頭の約束／次のアクション）で入力し、見積依頼・handoff・提案書の要件へそのままコピーできる形にする**：自由形式のメモは、あとから Finance への見積依頼や Yuto への制作要件へ書き直す手間がかかり、口頭の約束（10-09記録）が抜けやすい。録音の文字起こしがある場合も、見出し別に貼り分けてから要約する。「口頭の約束」の欄は、見積と契約への反映を突合する時の入力元になる。
 - **効率化テクニック：Finance への見積依頼はフォーム化し、「提供範囲・撮影回数・媒体・支払構成・成果指標の定義」を必須項目にして往復を減らす**：依頼文が自由記述だと、内訳に必要な情報の不足を Finance が聞き返す往復が必ず1〜2回発生する。フォームの項目を行別内訳（09-13記録）に必要な情報の並びにそろえ、商談メモの見出しから転記すれば埋まるようにする。受注後の handoff でも同じ項目が使える。
 - **効率化テクニック：商談日程は予約リンクを「朝7:00〜8:00・12:00台・17:30以降」の3枠に限定して案内する**：全時間帯の空き枠を出すと、日中の現場にいる時間帯が選ばれて、直前の変更連絡が増える。カレンダーの予約ページで3つの時間枠だけを公開し、案内文にリンクを貼る。クライアントの実際の返信時間帯（案件カルテ）が分かった後は、その時間枠へ入れ替える。
+
+### 2026-10-18
+- **国内No.1レベル・2026年SaaS営業スタック標準化**：HubSpot Sales Hub Enterprise（CRM・シーケンス）/ Salesforce Sales Cloud（大型案件）/ Apollo.io 2026（インテントデータ・自動プロスペクティング）/ Clay（データエンリッチメント）/ Outreach・Salesloft（マルチチャネル・シーケンス）/ Gong・Chorus.ai（商談AI解析）/ tl;dv・Otter.ai・Fireflies（文字起こし）/ Lavender（AIメール添削）/ Dock・Recapped・Trumpet（Buyer Portal・MAP管理）を用途別に組み合わせ、営業1人あたり月間商談数+40%・ACV前年比+20%・Win Rate 40%以上を標準KPIに設定。
+- **商談フレームワークの使い分けを単価レンジで固定**：ACV〜50万=BANT簡易、ACV50万超=MEDDIC 6軸（Metrics/Economic Buyer/Decision Criteria/Decision Process/Identify Pain/Champion）、現状維持バイアス案件=Challenger Sale（Teach-Tailor-Take Control）、ヒアリング深掘り=SPIN（S→P→I→N）。pipeline.json の framework フィールドで案件ごとに記録し、週次でフレームワーク別のWin Rateを比較してベストプラクティスを水平展開。
+- **ヨミ区分（A0.8 / B0.5 / C0.25 / ネタ0.1）への正規化で加重パイプライン精度を担保**：担当者ごとの主観確率（0.6や0.7の乱立）を禁止し、A=内示あり / B=見積合意済み決裁待ち / C=提案中 / ネタ=商談化前の4区分に固定。Finance の資金繰り予測ズレを構造的に防ぎ、Pipeline Coverage 3.0x以上を維持。
+- **Gong/Chorusの「Talk Ratio（営業発話比率）」35〜45%収束をコーチングKPI化**：発話比率が55%超の商談は「売り込みモード」で失注率2倍、25%未満は「ヒアリング不足」で提案がズレる。週次1on1でGongの該当商談を抜粋レビューし、質問40%:提案40%:雑談20%のトーク時間配分を標準化。
+- **Mutual Action Plan（MAP）の提案提示と同時合意を標準フロー化**：Dock / Recapped / Trumpet で「双方の宿題・期日・担当・次マイルストーン」をBuyer Portalに置き、クライアント社内の決裁者・利用部門・経理それぞれが同じ画面を見る状態を作る。MAP合意率80%以上を目標とし、「ボールがどちらにあるか曖昧」で自然消滅する案件をゼロ化。
+- **シグナルベース営業の無料シグナル監視を建設業向けに特化**：国税庁法人番号サイト更新・CiNii・求人ボックス・Indeed企業ページ・Googleビジネスプロフィール更新・SNS投稿再開・代表交代・拠点拡大を自動監視し、シグナル発火→初回接触を24時間以内に実行。放置Cold→ナーチャリング再活性化率20%以上を目標に、失注案件を「終わり」でなく「時間差の再商談予約」に転換する運用を全案件に適用。
