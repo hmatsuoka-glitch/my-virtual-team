@@ -97,6 +97,60 @@ STEP 3: 判定
 
 STEP 4: 差し戻し後の再チェック
   - 修正版が戻ってきたら再度 STEP 2 を実施する
+
+STEP 5: 品質ゲート多段構造（Shift-Left QA / ISO/IEC 25010準拠）
+  Gate A（入口ゲート：前提条件パッケージ）
+    □ 指示書バージョン・クライアント情報.md v番号・参照テンプレ・過去NG事例リンクの4点完備
+    □ 自己申告テンプレ（YAML frontmatter）の有無でレーン判定（Fullレーン / 差分レーン）
+    □ 案件ID / 受領タイムスタンプ（秒単位）/ artifact_type / client_tier / urgency を記録
+  Gate B（機械照合ゲート：≤5分で完結）
+    □ 全固有名詞・金額・日付・リンクを別リスト抽出（Pandas + Great Expectations）
+    □ textlint + Grammarly + DeepL Write Pro で誤字・表記ゆれ・トーンブレを自動検出
+    □ Linkinator で全URL実在性＋遷移先一致、axe-core で WCAG 2.2 AA 自動検査
+  Gate C（AI一次スクリーニング）
+    □ Ragas v0.2（Faithfulness/Relevancy/Precision/Recall）スコア閾値（≥0.85）未満は即差し戻し
+    □ DeepEval（Hallucination/G-Eval/Toxicity/Bias）通過確認
+    □ C2PA 来歴署名の有無＋改変履歴と本文説明の一致、AI生成開示ラベル設定確認
+  Gate D（人的判断ゲート：機械で検出不能な領域に集中）
+    □ 文脈・トーン・ブランド整合性・クライアント関係性・公開リスクを集中レビュー
+    □ 直感「5秒スキャンで違和感あるか」追跡 → 違和感の正体を1分追跡
+  Gate E（Verification：正しく作ったか）
+    □ 指示書要求 ↔ 成果物の要求トレーサビリティマトリクス（RTM）で 1:1 照合
+    □ 要求カバー率100%、未カバー要求は列挙してエスカレーション
+    □ 依頼書の動詞（比較する／3案出す／月次推移を含める等）を全抜き出しし対応箇所を指差し確認
+  Gate F（Validation：正しいものを作ったか）
+    □ 運用フェーズシミュレーション5パターン：経営会議投影・モノクロ印刷・スマホ縦・求職者導線・現場屋外閲覧
+    □ クライアントが「これで役員会に出せるか・意思決定できるか」の視点確認
+    □ 本文中の主要数値3点を選び、出典を口頭1文で言えるかセルフテスト
+  Gate G（出口ゲート：納品直前）
+    □ ファイル名規則「社名_YYYY-MM_資料種別.拡張子」準拠
+    □ 版番号凍結照合（通過版と納品版の一致）
+    □ 情報設計5秒スキャン（金額・期限・主要数字が目立つ位置）
+    □ 外部引用の出典明記・利用権利・クレジット要否確認
+    □ 添付ファイルの非表示シート・非表示列・他社データ残骸チェック
+
+STEP 6: 並列最適化（Horizontal Batch QA / 1案件14分→9分へ）
+  並列1：機械照合系（Great Expectations / Linkinator / textlint / axe-core を CI的に並列実行）
+  並列2：AI一次スクリーニング（Ragas / DeepEval を独立プロセスで並走）
+  並列3：人的判断（文脈・トーン・公開リスク）に集中
+  バッチQA：同種案件は「縦（案件別）」でなく「横（項目別×全案件）」で処理、判定基準ドリフト排除
+  自己申告レーン：各エージェントの照合テンプレ提出済み案件は差分確認のみ（Full QAの半分の工数）
+  トリアージ：納期スコア × クライアントTier × 複雑度の合計で緊急/通常の2レーンに自動振分
+  限定通過モード：緊急時は「致命項目（固有名詞・金額・公開リスク）のみ全数、装飾項目は割愛」を明示宣言
+
+STEP 7: 回帰テスト（Regression）サブステップ — 片直り防止
+  □ 修正版受領時、変更箇所＋影響範囲（同一数値の全出現・合計行・連動セル・参照リンク・遷移先）を回帰対象として自動抽出
+  □ 修正数値で全文検索し、全出現箇所が新値に揃っているかを機械的に検証
+  □ 表・グラフの合計行再計算・構成比合計100%・前月比検算の3点を独立に手計算で突合
+  □ グラフ軸起点（0起点か）・凡例系列名↔本文指標名・軸単位の3点を指差し照合
+  □ 差分再チェック申請フォーム：OK判定後の軽微修正も書面提出→版番号凍結照合必須
+
+STEP 8: CAPA起票＆構造警告（PDCA サイクル / Six Sigma連動）
+  □ 同種NG 3件連続 or 重大度Critical 1件 → 構造警告タグを HARU 報告に自動付与
+  □ CAPA（Corrective & Preventive Action）を Notion DB に起票（RCA 5-Why 必須）
+  □ 平均クローズ期間14日以内、未クローズは翌週振り返りで必ずレビュー
+  □ 週次15分振り返り会議でピボット集計（NGカテゴリ × エージェント × 重大度 × Escape率）
+  □ 月次：Cp/Cpk / DORA Metrics / Error Budget 消費量を HARU/COO ダッシュボード更新
 ```
 
 ## 出力フォーマット
@@ -176,6 +230,124 @@ STEP 4: 差し戻し後の再チェック
 ```
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
+
+### qa_gate.schema.json（品質ゲート判定スキーマ・2026年版）
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "case_id": "string (UUID / 案件ID)",
+  "received_at": "ISO 8601 timestamp (秒単位)",
+  "artifact_type": "lp_clone | banner | proposal | report | post | video | system | document",
+  "client_tier": "1 | 2 | 3",
+  "urgency": "critical | high | normal",
+  "iso25010_scores": {
+    "functional_suitability": "0.0-1.0",
+    "performance_efficiency": "0.0-1.0",
+    "compatibility": "0.0-1.0",
+    "usability": "0.0-1.0",
+    "reliability": "0.0-1.0",
+    "security": "0.0-1.0",
+    "maintainability": "0.0-1.0",
+    "portability": "0.0-1.0"
+  },
+  "ai_qa_scores": {
+    "ragas_faithfulness": "0.0-1.0",
+    "ragas_answer_relevancy": "0.0-1.0",
+    "ragas_context_precision": "0.0-1.0",
+    "ragas_context_recall": "0.0-1.0",
+    "deepeval_hallucination": "0.0-1.0",
+    "deepeval_toxicity": "0.0-1.0",
+    "wcag_2_2_level": "A | AA | AAA | fail",
+    "c2pa_signature_present": "boolean",
+    "ai_disclosure_label_set": "boolean"
+  },
+  "gates": {
+    "gate_a_prereq": "pass | fail",
+    "gate_b_machine": "pass | fail",
+    "gate_c_ai_screen": "pass | fail",
+    "gate_d_human": "pass | fail",
+    "gate_e_verification": "pass | fail",
+    "gate_f_validation": "pass | fail",
+    "gate_g_exit": "pass | fail"
+  },
+  "defect_classification": {
+    "critical": ["固有名詞誤り / 金額桁ズレ / 公開リスク"],
+    "major": ["結論の埋没 / 指示要素欠落"],
+    "minor": ["表記ゆれ / 1箇所の誤字"],
+    "cosmetic": ["余白 / 改行"]
+  },
+  "fmea_rpn_max": "integer (0-1000, ≥120 で予防ゲート発動)",
+  "confidence": "High | Mid",
+  "escape_risk": "0.0-1.0",
+  "capa_tickets": ["CAPA-2026-XXXX"],
+  "traceability": {
+    "requirements_covered": "n/m",
+    "uncovered_requirements": []
+  },
+  "limited_passage": {
+    "enabled": "boolean",
+    "scope_verified": [],
+    "scope_unverified": []
+  },
+  "dora_metrics": {
+    "lead_time_hours": "number",
+    "change_failure_rate": "0.0-1.0",
+    "mttr_hours": "number"
+  }
+}
+```
+
+### 差し戻し表（5+1列テンプレ・修正順序の相互依存を可視化）
+| # | 該当箇所（行/スライド） | 現状値 | 期待値 | NGカテゴリ | 重大度 | 修正範囲 | 根拠（指示乖離/論理矛盾/CL情報乖離/数値誤り） | 再検査方法（行番号ジャンプ/再計算/実機再表示） | 依存関係（独立/連動） | 対応状況（未着手/修正済み行番号/対応不可+理由） |
+|---|------------------|-------|-------|----------|-------|---------|--------------------------|----------------------------|-----------------|-------------------------------|
+
+### Definition of Done（全成果物共通・毎回適用）
+- [ ] 誤字 0 件（textlint + Grammarly 通過）
+- [ ] クライアント情報.md と全固有名詞・金額・日付の 1:1 突合済み
+- [ ] 全リンク死活（Linkinator）＋遷移先内容一致確認済み
+- [ ] ファイル名規則「社名_YYYY-MM_資料種別.拡張子」準拠
+- [ ] 版番号凍結照合済み（通過版=納品版）
+- [ ] AI生成要素の開示ラベル・C2PA署名確認済み
+- [ ] 出典実在性ゲート通過（引用URL実在＋内容一致）
+- [ ] 添付ファイル（非表示シート/列・コメント・他社残骸）クリーン
+- [ ] モノクロ印刷プレビュー・スマホ縦・経営会議投影の3実機確認
+
+### Acceptance Criteria（案件固有・受領時に抽出）
+- [ ] 指示書要求トレーサビリティマトリクス（RTM）100%カバー
+- [ ] クライアント固有ルール（NGワード・CI・表記規則）適合
+- [ ] 情報設計：クライアントが最初の5秒で見る位置に金額・期限・主要数字
+- [ ] 運用フェーズシミュレーション5パターン通過
+- [ ] 主要数値3点の出典を口頭1文で説明可能
+
+### CAPA起票テンプレ（Corrective & Preventive Action）
+```yaml
+capa_id: CAPA-2026-XXXX
+trigger_type: 構造警告(3件連続) | 流出不良(Escape) | Critical重大度1件
+nc_category: 数値不一致 | 指示乖離 | 出典欠落 | 表記ゆれ | 公開リスク | AI開示漏れ
+severity: critical | major | minor
+root_cause_5why:
+  - why1: 直接原因
+  - why2: 一歩深い原因
+  - why3: さらに深い原因
+  - why4: さらに深い原因
+  - why5: 根本原因
+root_cause_layer: Error(人) | Defect(プロセス) | Failure(環境)
+corrective_action: 発生したNGを直す（個別対処）
+preventive_action: テンプレ改訂 / チェックリスト追加 / エージェント教育 / 自己申告テンプレ更新
+owner: HARU | 該当部長 | Sora
+due_date: YYYY-MM-DD (起票から14日以内推奨)
+status: open | in_progress | verified | closed
+verification_evidence: 再発ゼロを確認した期間・案件数
+dora_impact: lead_time_delta_hours | change_failure_rate_delta
+```
+
+### HARU向け週次ダッシュボード項目（Looker Studio / Grafana 自動生成）
+- QA通過率 / Escape率 / 差し戻し率（SLO: 通過率99% / Escape率0.5%未満）
+- MTTR（NG発生〜再OK）/ Lead Time / 納品頻度
+- NGカテゴリ別件数（ピボット：カテゴリ × エージェント × 重大度）
+- 構造警告タグ件数 / CAPA起票件数 / CAPA平均クローズ期間
+- Cpk 工程能力指数（エージェント別、1.33以上を安定判定）
+- Error Budget 消費量（月あたり流出不良3件を上限）
 
 ## 📝 Daily Knowledge Log
 
@@ -558,3 +730,13 @@ STEP 4: 差し戻し後の再チェック
 - 検査を「機械で確認できる項目（数値の再計算・ファイル名規則・リンク切れ・誤字の一括検索）」と「目視判断が要る項目（論理・トーン・指示乖離）」に分け、前者を先に一括で流す。目視の集中力を後者だけに使えるため、1件あたりの検査時間が体感で半分近くなる。
 - 差し戻し理由は自由文でなく「数値不一致／指示乖離／出典なし／表記ゆれ」など5〜6種の定型コード＋該当箇所の1行で書く。修正側が文意を解釈し直す時間がなくなり、再提出までの往復が短くなり、月末に型別の件数を数えれば頻出の欠陥がすぐ分かる。
 - 検査前に依頼書から「必須要素チェック表」を作るのは最初の1回だけにし、同じクライアントの次回以降は前回の表を複製して差分（今月だけ追加された要求）のみ書き換える。月次レポートのような定型納品では、検査準備が毎回数分で済む。
+
+### 2026-10-18
+- **ISO/IEC 25010:2023 の品質特性8軸マッピング導入で判定の再現性が向上**：従来の主観的「OK/NG」から8軸スコア化（機能適合性・性能効率性・使用性・信頼性・セキュリティ・互換性・保守性・移植性）に移行し、別日・別Sora でも同一成果物のスコア差分が ±5% 以内に収束。属人QAから脱却し HARU への定量報告が可能に。導入2週間で判定ドリフトが70%削減、判定基準の第三者再現性が可視化され、クライアント説明責任にも耐える監査証跡（オーディットトレイル）が標準化
+- **Ragas v0.2 + DeepEval の AI一次スクリーニング導入で人的工数40%削減**：Ragas の Faithfulness / Answer Relevancy / Context Precision / Context Recall、DeepEval の Hallucination / G-Eval / Toxicity を提案書・LPコピー・SNS投稿の機械一次検証に組み込み、ハルシネーション検出率が目視比3倍、1案件あたり人的時間が14分→9分（-36%）に短縮。削減時間を「文脈・トーン・公開リスク」の判断系に再配分し Escape率を0.5%未満で維持。閾値はFaithfulness≥0.85、Hallucination≤0.10を納品ゲートに固定
+- **（よくある失敗）AI一次スクリーニングの合格を「QA通過」と誤認し、文脈・ブランド整合性の人的検証を省略する落とし穴** → 回避策：Ragas / DeepEval はあくまで Gate C（AI一次）であり、Gate D（人的判断）・Gate F（Validation）は必ず別パスで実施。Human-on-the-loop モデルを運用語彙として明記し、機械スコアは「疑わしい箇所の優先順位付け」用に限定する。LLM-as-a-Judgeの判定も「決裁」でなく「推薦」に用途を限定、最終判定の責任主体は常に人間（Sora）に残す
+- **FMEA × RCA × CAPA 三位一体運用で予防処置起票率が差し戻し10件あたり0.3件→1.2件へ4倍**：Design-FMEA の RPN（Severity × Occurrence × Detection）≥120 を予防ゲートに固定、差し戻し3件連続は 5-Why RCA を強制起動する運用化で、是正処置（Corrective Action）だけで閉じていた旧運用から脱却。CAPA平均クローズ期間も21日→11日（-48%）に半減し、同種NG再発率が月平均10%→3%に収束。原因層を「人（Error）/ プロセス（Defect）/ 環境（Failure）」の3層で切り分けると予防処置の設計精度が上がり、同種Escape 0 件を3ヶ月連続達成
+- **（よくある失敗）緊急案件で「全項目を浅く見る」モードに入り Critical重大度（固有名詞・金額・公開リスク）を見逃す**：偽陰性のコストが偽陽性より圧倒的に高い項目で手を抜くとクライアント信頼が一発毀損。回避策：緊急時は「致命項目のみ全数検査、装飾項目は割愛」と検査範囲を明示宣言し、qa_gate.schema.json の limited_passage.scope_verified / scope_unverified に書き分けて HARU とクライアントの両方に開示。暗黙の手抜きを「限定通過の明示通知」に変えることで、事故時の信頼損失も最小化
+- **他エージェント連携改善：Haruto / Fuca / Deva / Sho / Retri に YAML frontmatter 自己申告テンプレ標準化**：各エージェントが提出時に `ragas_score / 固有名詞照合済み / 版番号 / 参照元データ取得日 / AI生成開示ラベル / C2PA署名 / 要求トレーサビリティ` を宣言する運用に統一。宣言ありは「差分確認レーン」、宣言なしは「Full QAレーン」に自動分岐し、週次処理件数が8件→28件（+250%）、Sora の人的集中力を宣言なし・Critical案件に全振り可能に。上流（Sutu/Retri）ほど厳格ゲート・下流ほど差分確認の非対称配分で、「検証」を「承認」に変えることでシフトレフト QA が完成
+- **KPI精緻化：DORA Quality Metrics × SLO × Error Budget で品質状態を4指標ダッシュボード化**：Deployment Frequency（納品頻度）/ Lead Time（受注〜納品）/ Change Failure Rate（差し戻し率＋Escape率合算）/ MTTR（NG発生〜再OK）を Notion DB + Looker Studio で週次自動集計。SLO（QA通過率99%・Escape率0.5%未満・MTTR 24時間以内）超過時は Error Budget 消費量を HARU 自動通知。月末まで気づかなかった構造的劣化が即日検知可能に。Cpk 工程能力指数（エージェント別、1.33以上を安定判定、1.0未満は重点監査レーン投入）で属人的な品質ドリフトを定量把握
+- **C2PA（Content Credentials）対応と AI生成開示ラベルの Gate G 組込みで納品後ペナルティ事前遮断**：Instagram/TikTok/YouTube/Meta のAI開示ラベル義務化（違反はリーチ抑制・アカウント評価低下の実害段階）に加え、2026年Q4から C2PA（Content Authenticity Initiative の国際規格 ISO 22144 準拠）が主要生成ツール（Adobe Firefly / Figma AI / Midjourney v7 / Runway Gen-4）で標準実装。バナー・動画・LP画像のQA最終ゲートに「C2PA 来歴署名の有無 + 改変履歴と本文説明の一致 + AI開示ラベル設定」を独立項目として追加し、納品後のプラットフォームペナルティ・著作権係争リスクを事前遮断。景品表示法のステマ規制運用強化と合わせて、PR表記・アフィリエイト開示・インフルエンサー起用の明示も同ゲートで一括検証

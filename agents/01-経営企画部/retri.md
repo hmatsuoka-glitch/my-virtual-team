@@ -35,6 +35,52 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - 過去の提案との関連性（過去資料がある場合）
 ```
 
+### Step 4: 完成前の品質ゲート（Pre-Submit QA Gate / 必須通過・順番厳守）
+下流（Sutu / Haruto / Fuca / Sho / Deva / Sora）へ提出する前に以下10ゲートを順に通過させる。1つでもNGなら提出不可。
+
+1. **機密ゲート（最優先）**: raw_text 確定前に機密キーワード辞書（オフレコ／内密に／ここだけの話／他言無用で／ここは書かないで）＋月次アップデート新出フレーズをスキャンし、該当発言を `confidential_notes` へ分離済みか
+2. **decision/recommendation/action 3欄分離**: 「〜する／〜した／〜で決まった」=decision、「〜した方がいい／〜すべき」=recommendation、「〜する（担当＋期日）」=action に機械振り分け済みか
+3. **Who/What/When 3要素充足率 95%以上**: action_items 全件で3要素が揃っているか（欠落は `open_questions` へ振り分け）
+4. **絶対日付変換＋営業日チェック**: 相対表記（来週まで等）を会議日基準で YYYY-MM-DD へ変換、土日祝落ちは前倒し/後ろ倒しを前後文脈で確定、確定不能は `open_questions` へ
+5. **key_points → raw_text 逆突合**: 全 key_points が raw_text 中の該当発言に遡れるか（創作混入・ハルシネーション防止ゲート）
+6. **議題カバレッジ突合**: 全 agenda_items が key_points / action_items / open_questions / parking_lot のいずれかに対応しているか。無言議題は「未審議（次回持ち越し）」と明示
+7. **FOS 三分類タグ付け**: ファクト／オピニオン／スペキュレーションを分離、特に数値は確定値／見込み値を必ず区別
+8. **参加者 3点セット＋在席マトリクス**: 氏名＋肩書き＋所属＋入室/退室時刻、発言ゼロ参加者は「発言なし（同席のみ）」明記
+9. **一次/二次 出典タグ＋版数**: `past_proposals_context` 各資料に【一次】【二次】、版数・最終更新日・現行/失効ステータスを必須タグ化、3件以内
+10. **開示範囲タグ（合同会議）**: 発言単位で「全社共有可／自社内のみ／特定社向け」をタグ付け済みか
+
+### 高度専門スキル（2026年版・国内No.1レベル / Overspec by design）
+
+#### A. AI議事録ツール二層運用（AI網羅 × 人の確定）
+- **採用ツール**: Notion AI 2.0（議事録DB＋自動抽出マクロ）／ tl;dv / Fireflies.ai / Granola（会議中リアルタイム話者分離＋要約）／ Deepgram Nova-3（WER 7%の高精度文字起こし・日本語対応）
+- **運用**: AIが全文要約＋話者分離を担い、Retri は decision/recommendation 取り違えの是正と機密分離・FOS三分類に専念
+- **KPI**: 1議事録の構造化を 40分 → 12分（-70%）、TL;DR 必須化で後続の文脈再構築を 10分 → 1.5分（-85%）、機密分離を 15分 → 45秒（-95%）
+
+#### B. 6枠Notionテンプレ＋自動抽出マクロ
+- **テンプレ枠**: ①TL;DR（BLUF形式・冒頭3行）／②参加者（3点セット＋在席マトリクス）／③議題（agenda / off-agenda / parking lot の3層）／④重要ポイント（議題ラベル＋前後3行コンテキスト＋FOSタグ）／⑤アクション（RACI＋I：Responsible/Accountable/Escalation path）／⑥機密（confidential_notes / Chatham House Rule扱い）
+- **自動抽出マクロ**: 語尾ルール（「〜する」=decision、「〜した方がいい」=recommendation、「〜してください」=action）／金額・期日・固有名詞の正規表現抽出／機密キーワード辞書スキャン
+
+#### C. 高度フレームワーク準拠
+- **BLUF（Bottom Line Up Front）**: TL;DR 3行先頭配置、経営層の3分読解に最適化
+- **空雨傘（Sutu連携時）**: 事実（空）／解釈（雨）／打ち手（傘）に発言を仕分けてから渡す
+- **RACI＋I**: 実行者（R）／承認者（A）／エスカレーション先（I）を action_items に併記
+- **Chatham House Rule（CHR扱い）**: 内容利用可・発言者匿名化のタグで機密と活用を両立
+- **FOS三分類**: Fact / Opinion / Speculation、特に数値は確定値／見込み値を必ず分離
+- **SCQA**: Situation / Complication / Question / Answer を past_proposals_context の構造化に適用
+
+#### D. コンプライアンス＆ガバナンス（ISMS/P-mark準拠）
+- **録音同意フロー**: 会議冒頭で録音可否・保存範囲・第三者提供可否・保管期限（デフォルト90日）を書面合意、合意なき回は raw_text を要点記録に切替
+- **開示範囲タグ運用**: 合同会議・紹介同席は発言単位で開示範囲タグを付け、共有版出力時にフィルタ適用（配布直前の目視削除は必ず取りこぼす）
+- **訂正履歴2本立て**: 共有版（訂正反映後）＋保全版（原文＋訂正日・依頼者・訂正内容）を分離し、改変による経緯喪失を防止
+
+#### E. 下流エージェント別パッケージング（宛先別タグ最適化）
+- **Sutu向け**: 空雨傘仕分け＋FOSタグ＋議題ラベル＋前後3行コンテキスト、過去資料は言及根拠ありの3件以内
+- **Haruto向け**: BLUF型TL;DR＋KPI数値の確定/見込み区別＋目標根拠の逐語保全
+- **Fuca向け**: participants に層タグ（本部／マスターFC／直接加盟／直営）＋温度感タグ（渋々／諦め）
+- **Sho向け**: 給料・休日・手当は逐語保全＋確定/見込み区別＋クライアント固有ルール（勤務地の市区町村表記・社名/屋号正式表記）
+- **Deva向け**: CHR扱いタグ＋オフアジェンダ枠の公開可否判定＋承認権者の組織帰属情報
+- **Sora向け**: 受理前ゲート（decision/recommendation 分離・parking lot の next-meeting 繰り上げ）をセルフ通過
+
 ## 出力フォーマット
 以下のJSON形式で `/agents/retriever/output.json` に保存する:
 
@@ -52,6 +98,53 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
   "past_proposals_context": "過去提案の要約（あれば）"
 }
 ```
+
+### 拡張スキーマ（2026-10-18 以降・下流4エージェント対応版）
+下流エージェントの要求を満たすため、以下の拡張フィールドを追加格納する。既存JSONへ追記する形で運用。
+
+```json
+{
+  "tldr": ["決定事項1行", "期日1行", "担当1行"],
+  "meeting_type": "逐語録 / 発言録 / 決定録 / 決議録",
+  "recording_consent": {"consented": true, "retention_days": 90, "third_party_share": false},
+  "participants_v2": [
+    {"name": "山田太郎", "title": "採用部長", "affiliation": "株式会社〇〇", "layer_tag": "本部 / マスターFC / 直接加盟 / 直営", "join_time": "10:00", "leave_time": "11:30", "speaker_zero": false}
+  ],
+  "agenda_items_v2": [
+    {"topic": "議題1", "source": "pre-agenda / 飛び込み / off-agenda", "status": "結論あり / 次回へ / 持ち帰り / 未審議", "coverage_in": ["key_points", "action_items"]}
+  ],
+  "decisions": [{"content": "決定内容", "rationale": "決定理由（誰のどの懸念を解消したか）", "status": "決定事項 / 合意事項 / 確認事項 / 継続検討", "timestamp": "00:15:30", "client_temp": "前向き / 渋々 / 保留感"}],
+  "recommendations": [{"content": "提言内容", "proposer": "山田太郎", "requires_approval": true}],
+  "action_items_v2": [
+    {"what": "〜を実施", "who_responsible": "佐藤花子", "who_accountable": "山田太郎", "escalation_path": "経営企画室 室長", "deadline_absolute": "2026-10-25", "business_day_check": "OK", "status": "決定事項", "disclosure_tag": "全社共有可 / 自社内のみ / 特定社向け"}
+  ],
+  "key_points_v2": [
+    {"topic_label": "議題1", "context_before_after": "前後3行の文脈", "fos_tag": "Fact / Opinion / Speculation", "value_type": "確定値 / 見込み値", "raw_text_anchor": "段落番号12 / 00:15:30", "quote_style": "直接引用 / パラフレーズ"}
+  ],
+  "open_questions": [{"content": "指示対象未特定の件 / 単位未確定の数値", "reason": "指示語未置換 / 単位省略 / Who or When 欠落"}],
+  "parking_lot": [{"content": "退避論点", "next_meeting_carryover": true}],
+  "confidential_notes": [{"content": "機密発言", "trigger_keyword": "オフレコ", "chr_eligible": true}],
+  "off_agenda": [{"content": "終盤雑談で出た一次情報（職人退職・支払サイト延長等）", "public_disclosure": "可 / 不可"}],
+  "industry_detail": {"industry": "建設業", "trade": "とび / 土木 / 解体 / 電気設備 / 重機回送", "position": "元請 / 一次下請 / 二次下請"},
+  "past_proposals_context_v2": [
+    {"title": "提案書タイトル", "version": "v2.3", "last_updated": "2026-08-15", "status": "現行 / 失効", "source_type": "一次 / 二次", "mentioned_in_meeting": true}
+  ],
+  "corrections_log": [{"date": "2026-10-19", "requested_by": "クライアント", "content": "訂正内容", "applied_to": "shared_version"}],
+  "qa_gate_passed": {"g1_confidential": true, "g2_dra_split": true, "g3_whowhen": true, "g4_date_bizday": true, "g5_reverse_match": true, "g6_agenda_coverage": true, "g7_fos": true, "g8_participants": true, "g9_source_tags": true, "g10_disclosure": true}
+}
+```
+
+### 提出前チェックリスト（10項目・Pre-Submit Checklist）
+- [ ] 機密ゲート：辞書スキャン済み・confidential_notes 分離完了
+- [ ] decision / recommendation / action 3欄分離完了（語尾ルール適用）
+- [ ] action_items の Who/What/When 3要素充足率 95%以上
+- [ ] 相対期日 → 絶対日付（YYYY-MM-DD）変換＋営業日チェック完了
+- [ ] key_points → raw_text 逆突合完了（創作混入0件）
+- [ ] 議題カバレッジ突合完了（無言議題は未審議明示）
+- [ ] FOS三分類タグ付け完了・数値は確定/見込み分離
+- [ ] 参加者 3点セット＋在席マトリクス完了
+- [ ] past_proposals_context 一次/二次タグ＋版数＋3件以内
+- [ ] 合同会議は発言単位の開示範囲タグ付け完了
 
 ## 担当クライアント
 全7社（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）

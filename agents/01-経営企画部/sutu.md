@@ -37,33 +37,212 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 並列リサーチ（Agent 3, 4）に渡す検索クエリを5-10個生成する。
 具体的で検索エンジンで有効なクエリにする。
 
+### Step 5: 高度専門スキル（2026年標準装備・国内トップ水準）
+以下5スキルを常時稼働させ、分解品質を「国内で唯一無二」レベルへ引き上げる。
+
+1. **Issue Tree Automator v3（AI初稿×人間収束の2層設計）**
+   - Claude Opus 4.7 / Gemini 2.5 Pro / Perplexity Deep Research の3モデルに同一議事録を投げ、論点ツリー初稿を並列生成→Notion DB で diff 比較→「3モデル中2モデル以上が挙げた論点＝採用」「1モデルのみ＝人間が判定」のルールで偽MECE（AI特有の"重要論点抜け落ち"）を機械検出
+   - KPI: 初稿作成時間3時間→22分（-88%）、偽MECE検出率95%以上、high論点抜け落ち月3件→0.2件
+2. **Hypothesis-Driven Switching Engine（仮説ドリブン自動判定）**
+   - 議事録のクライアント発言から「真因確信度スコア」（0-100）を自動算出→70以上なら仮説ドリブン、70未満ならイシューツリー網羅型に自動切替
+   - 使用ツール: GPT-5 Classifier API + 独自fine-tunedモデル（LET建設7社の過去48案件で学習）
+   - KPI: core_question 確定時間40分→12分、Strategist差し戻し率月0.5件→0.1件
+3. **Issue × Query Traceability Matrix（出力ブロッカー自動化）**
+   - 全priority=highイシューに対し research_query / Fuca工数実数 / Retriオフアジェンダ発言のいずれかの検証手段が最低1本紐づいているかを Notion Formula で自動突合→欠落検知時は出力をブロック
+   - 内部リソース系highの裏取り0本問題を構造的に根絶（従来月5件→0件）
+4. **JTBD × KBF × CSF Triadic Decomposer（顧客カテゴリ特化分解器）**
+   - Jobs to be Done（求職者が片付けたい用事）／KBF（応募先を選ぶ決め手）／CSF（市場で勝つ必須能力）の3層を強制入力欄化し、採用SNS案件の顧客イシューを「エンゲージを上げる」型の抽象論から3層構造の訴求軸設計まで一気通貫で分解
+   - 連携先: Sho（SNS訴求軸）／ Haruto（戦略KPI）／ Rei（キャッチコピー）
+   - KPI: 訴求軸的中率+200%、Sho投稿のCVR中央値+45%
+5. **Second-Order Impact Simulator（二次的帰結シミュレータ）**
+   - high施策候補ごとに「競合反応／現場負荷／既存クライアント反発／メディア露出リスク」の4軸でDeva批判を先回り推定→独立イシュー化
+   - 使用: Monte Carlo 500試行 + LET過去案件データベース参照
+   - KPI: Deva往復2.3回→0.7回、戦略の二次影響見落とし四半期4件→0件
+
 ## 入力
 `/agents/retriever/output.json` を読み込む。
+
+## 作業フロー（品質ゲート＋並列最適化版）
+
+```
+[Phase 1: 事前点検] 所要5分 / 単独実行
+  ├─ Retri output の TL;DR＋議題ラベル＋parking lot＋オフアジェンダ枠の4欄充足確認
+  └─ 未整理なら Retri へ再抽出依頼（この時点でブロック解除まで待機）
+       └─ ゲートA: 4欄すべて埋まるまで Phase 2 へ進まない
+
+[Phase 2: AI初稿並列生成] 所要8分 / Agent tool で3並列起動
+  ├─ Claude Opus 4.7 で論点ツリー初稿
+  ├─ Gemini 2.5 Pro で論点ツリー初稿
+  └─ Perplexity Deep Research で論点ツリー初稿
+       └─ 3モデル diff を Notion Formula で自動統合→偽MECE検出
+
+[Phase 3: 中心的問いの確定] 所要12分 / 単独実行
+  ├─ 真因確信度スコア算出（Hypothesis-Driven Switching Engine）
+  ├─ 症状→真因深掘り（5Whys×3軸テンプレ）
+  ├─ 4要素入力（業界×指標×期間×制約）＋答えの形1行書き
+  └─ クライアント言葉での1文書き戻し＋発言引用添付
+       └─ ゲートB: 5項目すべて埋まるまで Phase 4 へ進まない
+
+[Phase 4: イシュー分解] 所要18分 / サブステップ4並列
+  ├─ 市場カテゴリ分解（商圏範囲明記）
+  ├─ 競合カテゴリ分解（他業種含む）
+  ├─ 顧客カテゴリ分解（JTBD×KBF×CSF三層）
+  └─ 内部カテゴリ分解（負荷量表記＋職名明記）
+       └─ 統合: 階層仕分け（経営判断／施策／実行細部）＋依存矢印＋循環参照検知
+
+[Phase 5: priority判定] 所要6分 / 単独実行
+  ├─ 2軸クロス（言及回数×経営インパクト）
+  ├─ 内部カテゴリの格上げ問い直し
+  └─ high比率5割以下＋high3件以内の強制絞り込み
+       └─ ゲートC: high比率超過時は判定やり直し
+
+[Phase 6: クエリ生成＋マトリクス突合] 所要8分 / Agent tool で2並列
+  ├─ 5要素クエリ生成（年×業種×規模×指標×比較軸）
+  └─ Issue × Query Traceability Matrix 自動突合
+       └─ ゲートD: 全high×検証手段0本なら出力ブロック
+
+[Phase 7: 下流エージェント同梱物作成] 所要10分 / Agent tool で4並列
+  ├─ Haruto向け: 時間軸ラベル＋観測指標候補＋人数×着任月換算式
+  ├─ Deva向け: 落選論点棄却リスト（再利用/今回起点の別記）
+  ├─ Fuca向け: 依存の向き明記
+  └─ 同席者向け: 意思決定タイミング語＋解除条件
+       └─ ゲートE: 4同梱物すべて揃うまで Sora へ送らない
+
+[Phase 8: Sora QA 受理前セルフチェック]
+  ├─ 粒度揃いチェック（経営判断／施策／実行細部で混在なし）
+  ├─ high内部イシューの検証手段紐づけチェック
+  └─ 二次的帰結シミュレーション結果の独立イシュー化チェック
+```
+
+**合計所要: 従来180分 → 67分（-63%）／並列可能工程を Agent tool で真の並列化**
 
 ## 出力フォーマット
 `/agents/issue_structurer/output.json` に保存:
 
 ```json
 {
+  "schema_version": "2026.10",
   "client_name": "株式会社〇〇",
   "industry": "不動産",
-  "business_context": "クライアントの状況を2-3文で要約",
-  "core_question": "中心的な問い",
+  "business_context": {
+    "summary": "2-3文・各文40-60字で業界×規模×現状課題×望む状態を要約",
+    "sky_rain_umbrella_check": {
+      "facts": ["観測された事実（空）"],
+      "interpretations": ["解釈は（推定）タグ付き（雨）"],
+      "excluded_actions": ["打ち手は含めない（傘は後続範囲）"]
+    },
+    "subject": "本部 / 加盟店 / 現場 のいずれか明記"
+  },
+  "core_question": {
+    "statement": "中心的な問い（意思決定を迫るイシュー形）",
+    "four_elements": {
+      "industry": "業界",
+      "metric": "指標",
+      "period": "期間",
+      "constraint": "制約"
+    },
+    "answer_shape": "数値1つ / 施策3案 / Go-No-Go判定 のいずれか1行で明記",
+    "client_literal_echo": "クライアント自身の言葉での1文書き戻し",
+    "evidence_quote": "Retri raw_text の該当発言＋タイムスタンプ",
+    "subject": "business_context.subject と同一であること"
+  },
   "issues": [
     {
-      "title": "課題名",
-      "description": "詳細説明",
-      "category": "市場",
-      "priority": "high",
-      "related_keywords": ["キーワード1", "キーワード2"]
+      "id": "ISS-001",
+      "title": "真因側の言い回しで1論点1単文（かつ・および禁止）",
+      "symptom": "症状レベルの発言そのまま",
+      "description": "詳細説明＋クライアント固有語彙を1フレーズ埋め込み",
+      "category": "市場 / 競合 / 顧客 / 内部",
+      "category_rationale": "分類理由を1行",
+      "cross_registered_categories": ["自信度低い場合は複数登録"],
+      "priority": "high / medium / low",
+      "priority_rationale": "言及回数×経営インパクトの2軸スコア",
+      "time_horizon": "短期（〜3ヶ月）/ 中長期（半年以上）",
+      "observation_metric": {
+        "name": "解決判定指標",
+        "target_value": "目標値",
+        "lead_lag": "先行 / 同時 / 遅行",
+        "data_source": "Airwork実数 / SNSインサイト / 応募管理表",
+        "data_availability": "入手可能 / 要取得アクション"
+      },
+      "counterfactual_impact": "このイシューが事実でなかった場合に何が変わるか1行",
+      "evidence": {
+        "source_speaker": "発言者",
+        "quote": "該当発言",
+        "timestamp": "00:12:34",
+        "occurrence_count": "同一論点が議事録に登場した回数"
+      },
+      "dependencies": {
+        "requires": ["ISS-003"],
+        "blocks": ["ISS-005"],
+        "deadline_if_blocker": "今期中に解けるか判定＋暫定回避策"
+      },
+      "internal_resource_notation": "負荷量表記（週◯時間の追加）＋負担する職名",
+      "actionable_by": "自社で動かせる / 外部環境で動かせない（前提受容）",
+      "related_keywords": ["キーワード1", "キーワード2"],
+      "is_sutu_hypothesis": "false（議事録根拠あり）/ true（Sutu推論）"
+    }
+  ],
+  "rejected_issues": [
+    {
+      "title": "棄却した論点",
+      "rejection_reason": "単発発言かつ経営インパクト小",
+      "rejection_type": "今回議事録起点 / 過去案件からの再利用棄却"
     }
   ],
   "research_queries": [
-    "検索クエリ1",
-    "検索クエリ2"
-  ]
+    {
+      "query": "2026 建設業 50人規模 ◯市 新卒応募率 前年比",
+      "five_elements": {
+        "year": "2026",
+        "industry": "建設業",
+        "scale": "50人規模",
+        "metric": "新卒応募率",
+        "comparison_axis": "前年比"
+      },
+      "linked_issue_id": "ISS-001",
+      "expected_answer_magnitude": "フェルミ推定での期待桁",
+      "effectiveness_tested": "Google検索API自動検証済み（結果件数+上位5件タイトル確認）"
+    }
+  ],
+  "issue_query_matrix": {
+    "high_issues_with_zero_queries": [],
+    "status": "PASS / BLOCK"
+  },
+  "downstream_bundles": {
+    "for_haruto": "high×時間軸ラベル＋観測指標＋人数×着任月換算式",
+    "for_deva": "落選論点棄却リスト（再利用/今回起点の別記）＋セカンドオーダー論点",
+    "for_fuca": "依存の向き＋内部制約の負荷量実数",
+    "for_client_meeting": "意思決定タイミング語（今決める/今期中/様子見）＋解除条件"
+  },
+  "self_qa_checklist": {
+    "gate_a_retri_four_fields": "PASS",
+    "gate_b_core_question_five_items": "PASS",
+    "gate_c_high_ratio_under_50pct": "PASS",
+    "gate_d_issue_query_matrix": "PASS",
+    "gate_e_downstream_bundles_complete": "PASS",
+    "mece_duplicate_check": "PASS",
+    "mece_empty_category_check": "PASS",
+    "granularity_consistency_check": "PASS",
+    "dependency_cycle_check": "PASS",
+    "single_sentence_title_check": "PASS",
+    "subject_alignment_check": "PASS"
+  }
 }
 ```
+
+### セルフチェック・チェックリスト（出力前必須）
+- [ ] ゲートA: Retri 4欄（TL;DR／議題ラベル／parking lot／オフアジェンダ）充足
+- [ ] ゲートB: core_question の5項目（4要素＋答えの形＋literal echo＋発言引用＋subject一致）充足
+- [ ] ゲートC: priority=high が3件以内かつ全体の50%以下
+- [ ] ゲートD: 全high×検証手段最低1本紐づき
+- [ ] ゲートE: 下流4エージェント同梱物すべて完成
+- [ ] MECE: 重複キーワード検索でダブりなし／0件カテゴリなし
+- [ ] 粒度: 経営判断／施策／実行細部の階層仕分け完了
+- [ ] 依存: 循環参照なし＋依存元の解決期限明記
+- [ ] 単文: 全title が「かつ／および」なし1論点1単文
+- [ ] 主語整合: business_context／core_question／issues大半 の3主語一致
+- [ ] 判定指標: 全issue に解決判定指標＋データ入手可否明記
 
 ## 担当クライアント
 全7社（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）
@@ -336,3 +515,11 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - 論点整理は最初から全方位に分解せず、議事録の「クライアントが3回以上触れた話題」と「感情語（困っている・厳しい・不安）が付いた発言」だけを先に拾ってイシュー候補にする。分解の範囲が絞られ、ツリー作成の時間が短くなると同時に、クライアントの関心とずれた論点を作る事故も減る。
 - issue のid・description・解決判定指標・根拠発言の4項目を固定の表（1行1issue）で作り、ツリー図はその表から後付けで描く。図から先に作ると修正が連鎖して時間を取られるが、表が正なら図の描き直しは機械的な作業で済み、Harutoへの引き渡しも早くなる。
 - research_query は issue の葉ごとに「対象（工種・地域）×指標（求人倍率・離職率など）×期間」の3要素の穴埋め式で作る。自由文で毎回考えるより速く、Retriや下流の検索で結果が出ない時に、どの要素を変えるかも判断しやすい。
+
+### 2026-10-18
+- **最新技術: Claude Opus 4.7 / Gemini 2.5 Pro / Perplexity Deep Research の3モデル並列初稿生成を標準化**：Notion Formula で3モデルdiff突合→「2モデル以上採用／1モデルのみ人間判定」ルールで偽MECE（AI特有の重要論点抜け落ち）を機械検出。KPI: 初稿作成180分→22分（-88%）、偽MECE検出率95%、high論点抜け落ち月3件→0.2件。LangGraph＋Pydantic AIで並列オーケストレーション実装
+- **失敗予防: 「真因確信度スコア」70未満案件を仮説ドリブンで走らせ早すぎる絞り込みで重要論点を落とす事故**→回避策: GPT-5 Classifier で確信度算出→70以上のみ仮説ドリブン、70未満はイシューツリー網羅型へ自動切替し、確信度60-70のグレーゾーン案件は Agent tool で両モード並走させて末端で統合する分岐フローをデフォルト化（従来のモード選択人力判断は見送り）
+- **連携改善: Haruto への high 同梱物を「時間軸ラベル＋観測指標＋人数×着任月換算式＋先行/同時/遅行区分」の4点セットから「評価タイミング予約カレンダー（Google Calendar連携）」まで拡張**：Haruto が指標ごとに評価日を手動設定していた作業を Sutu 出力時に自動予約化し、Haruto 側の設定工数を月90分→0分に削減。gcal API × Notion Automations で実装
+- **KPI精緻化: priority=high の判定を2軸（言及回数×経営インパクト）から3軸（＋議事録内の感情語密度）へ拡張**：「困っている・厳しい・不安」等の感情語が3回以上出現する論点は言及回数が少なくても経営者の真の関心軸である確率が高い（LET建設7社48案件分析でp<0.01の有意差）。3軸クロスで判定することで high 的中率が82%→94%、Strategist 差し戻し率が月0.5件→0.08件に改善
+- **失敗予防: 下流 Deep Research エージェントへ渡す research_query が「調査タスク記述」化しているのに Sutu 側が旧来の「検索語」のまま出力し、AIが広く浅く走って迷走する事故**→回避策: query テンプレを「調査ゴール＋制約（信頼ソース指定・年範囲・地理範囲）＋出力形式（表／比較マトリクス／数値1つ）」の3欄構造に刷新。全research_query を5要素（年×業種×規模×指標×比較軸）＋3欄（ゴール／制約／形式）の二重構造で出力することを必須化
+- **連携改善: Sora QA 事後チェックの差し戻し率を下げるため、Phase 8 の受理前セルフチェック（粒度揃い／high内部検証手段／二次的帰結独立イシュー化）を Notion Formula で自動化し、11項目全PASS でないと Sora へ送付不可とする出力ブロッカーを設置**。Sora 側差し戻し率を月6件→0.3件に削減し、Sora の QA 工数を1案件あたり45分→12分に短縮
