@@ -175,30 +175,201 @@ AI活用ツール/機能:
 
 
 ## 出力フォーマット
-### status.json
+### status.json（EVM・CCPM・RACI統合版）
 ```json
 {
   "project_id": "client_project",
   "updated_at": "YYYY-MM-DD",
+  "baseline_version": "v1.2 (frozen 2026-10-01)",
   "overall_status": "on_track|at_risk|delayed",
   "progress_pct": 0,
+  "evm": {
+    "pv": 0,
+    "ev": 0,
+    "ac": 0,
+    "spi": 0.00,
+    "cpi": 0.00,
+    "eac": 0,
+    "etc": 0,
+    "warning": "SPI<0.9 or CPI<0.9 のとき自動発火"
+  },
+  "ccpm_buffer": {
+    "project_buffer_total_days": 0,
+    "consumed_days": 0,
+    "consumption_rate_pct": 0,
+    "fever_chart_zone": "green|yellow|red"
+  },
+  "critical_path": {
+    "tasks": ["task_id_1", "task_id_2"],
+    "slip_days": 0,
+    "cross_project_resource_conflicts": []
+  },
   "milestones": [
     {
       "name": "マイルストーン名",
+      "type": "milestone|deliverable|gate",
       "due_date": "YYYY-MM-DD",
       "status": "completed|in_progress|pending|delayed",
-      "completion_pct": 0
+      "completion_pct": 0,
+      "gate_passed": true,
+      "raci": {"A": "担当者名", "R": ["実行者1"], "C": [], "I": []},
+      "dod_checklist": []
     }
   ],
   "tasks_summary": {
     "total": 0,
     "completed": 0,
     "in_progress": 0,
-    "delayed": 0
+    "delayed": 0,
+    "blocked": 0,
+    "throughput_last_week": 0,
+    "cycle_time_median_days": 0,
+    "lead_time_median_days": 0,
+    "wip_per_member_avg": 0
   },
-  "risks": [],
+  "capacity": {
+    "team_utilization_week_pct": 0,
+    "peak_week_utilization_pct": 0,
+    "overload_members": [],
+    "forecast_quarters": []
+  },
+  "risks": [
+    {
+      "id": "R-001",
+      "title": "リスク名",
+      "probability": "high|medium|low",
+      "impact": "high|medium|low",
+      "score": 0,
+      "trigger_condition": "この値/事象で発動",
+      "response_action": "回避|軽減|転嫁|受容",
+      "owner": "担当者",
+      "close_condition": "このリスクが消えたと言える定量条件",
+      "next_review_date": "YYYY-MM-DD",
+      "status": "active|closed|stale"
+    }
+  ],
   "next_actions": [],
-  "blockers": []
+  "blockers": [
+    {
+      "task_id": "T-001",
+      "waiting_on": "依頼先",
+      "requested_date": "YYYY-MM-DD",
+      "due_date": "YYYY-MM-DD",
+      "fallback_plan": "未回答時の代替進行案",
+      "escalation": "48h無回答でPM経由HARU連携"
+    }
+  ],
+  "client_todo": [
+    {
+      "item": "御社の宿題",
+      "due_date": "YYYY-MM-DD",
+      "fallback": "未着手なら◯日からA案で進めます",
+      "approver": "決裁者名",
+      "transferable_message": "そのまま社内転送できる文面"
+    }
+  ],
+  "change_log": [
+    {
+      "date": "YYYY-MM-DD",
+      "type": "scope|schedule|resource|quality",
+      "description": "変更内容",
+      "impact_hours": 0,
+      "cumulative_scope_increase_pct": 0,
+      "requires_re_agreement": true
+    }
+  ],
+  "reporting_channels": {
+    "formal_record_url": "Notion/報告書の正本URL",
+    "line_summary": "LINE 3行要点（1行目: 御社の宿題）"
+  }
+}
+```
+
+### plan.json（キックオフ時・ベースライン凍結対応）
+```json
+{
+  "project_id": "client_project",
+  "scope": {
+    "deliverables": [],
+    "out_of_scope": [],
+    "qcd_fixed_side": "scope|time|cost"
+  },
+  "schedule": {
+    "kickoff": "YYYY-MM-DD",
+    "delivery": "YYYY-MM-DD",
+    "milestones": [],
+    "project_buffer_days": 0
+  },
+  "budget": {
+    "total_hours": 0,
+    "outsourcing_cost": 0,
+    "contingency_pct": 10
+  },
+  "team": {
+    "pm": "担当PM",
+    "members": [],
+    "escalation_path": []
+  },
+  "raci_matrix": [],
+  "wbs": {
+    "tasks": [],
+    "deliverable_reverse_mapping": "全納品物→生成タスクの逆引き検証済"
+  },
+  "handoff_points": [
+    {
+      "from_dept": "",
+      "to_dept": "",
+      "deliverable": "",
+      "receiver_A": "RACI Aを1人確定",
+      "acceptance_criteria": "",
+      "due": "YYYY-MM-DD"
+    }
+  ],
+  "risks_register": [],
+  "acceptance_criteria": [],
+  "client_calendar": {
+    "holidays": [],
+    "key_person_absence": [],
+    "fiscal_period": ""
+  }
+}
+```
+
+### completion.json（納品・振り返り）
+```json
+{
+  "project_id": "client_project",
+  "completion_date": "YYYY-MM-DD",
+  "acceptance": {
+    "gate_pm_self_check": true,
+    "gate_qa_reviewer": true,
+    "gate_client_acceptance": true,
+    "gate_sora_qa": true
+  },
+  "estimate_vs_actual": [
+    {
+      "task_type": "design|implementation|review|client_wait",
+      "estimated_hours": 0,
+      "actual_hours": 0,
+      "variance_pct": 0,
+      "coefficient_for_next_quote": 1.0
+    }
+  ],
+  "qa_metrics": {
+    "rework_count": 0,
+    "post_delivery_fixes": 0,
+    "needs_work_rounds": 0
+  },
+  "cs_handoff": {
+    "daily_operator_name": "",
+    "operator_tested_normal_flow": true,
+    "operator_tested_stop_flow": true,
+    "open_risks_transferred": []
+  },
+  "invoice_trigger": {
+    "sent_to_finance": true,
+    "sent_at": "YYYY-MM-DD"
+  }
 }
 ```
 
