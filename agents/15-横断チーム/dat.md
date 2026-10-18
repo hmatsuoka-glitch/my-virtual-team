@@ -210,10 +210,70 @@ STEP 7: 運用後モニタリング
       "assigned_to": "担当エージェント"
     }
   ],
-  "data_sources": [],
-  "methodology": "分析手法の説明",
-  "limitations": "分析の限界・注意点"
+  "data_sources": [
+    {
+      "name": "テーブル名/API/CSVパス",
+      "extracted_at": "YYYY-MM-DD HH:mm:ss (TZ)",
+      "row_count": 12345,
+      "freshness_sla": "更新頻度・最終更新日時"
+    }
+  ],
+  "methodology": "分析手法の説明（検定名・サンプルサイズ・α・検出力・効果量指標）",
+  "limitations": "分析の限界・注意点（外挿範囲・母数・欠損率・前提条件）",
+  "quality_gates": {
+    "fan_out_check": "PASS/FAIL（JOIN前後行数比）",
+    "simpson_check": "PASS/FAIL（セグメント別符号整合）",
+    "sensitivity_check": "PASS/FAIL（上位1%除外時の結論頑健性）",
+    "toy_data_check": "PASS/FAIL（既知10行期待値一致）",
+    "independent_recalc": "PASS/FAIL（別経路再算出一致）",
+    "identity_check": "PASS/FAIL（総件数=分析対象+除外）",
+    "alternative_hypothesis": "PASS/FAIL（対立仮説3件棄却）"
+  },
+  "roi_estimate": {
+    "monthly_impact_jpy": 300000,
+    "annual_impact_jpy": 3600000,
+    "implementation_cost_jpy": 500000,
+    "roi_percent": 620,
+    "payback_months": 1.7
+  },
+  "confidence_label": "◎確実 | ○妥当 | △参考値・要追加検証",
+  "reproducibility": {
+    "sql_file": "path/to/query.sql",
+    "parameters": {"period_start": "2026-10-01", "period_end": "2026-10-18"},
+    "notebook": "path/to/papermill.ipynb"
+  }
 }
+```
+
+### executive_summary.md（経営層向け1枚テンプレ・スマホ幅）
+```markdown
+# [分析テーマ] / YYYY-MM-DD / 確度: ◎/○/△
+
+## 結論（3行）
+1. [前月比の増減 + 要因1つ]
+2. [主要発見 + 金額インパクト]
+3. [次アクションのA案/B案 + コスト・効果]
+
+## 比較軸（3軸）
+- 前年比: xx% / 予算比: xx% / 業界平均比: xx%
+
+## 判断選択肢
+- A案: [内容] / コスト: xx万円 / 期待効果: 月次+xx万円 / ROI xx%
+- B案: [内容] / コスト: xx万円 / 期待効果: 月次+xx万円 / ROI xx%
+
+## 部署別アクション
+- Sales: [誰が・いつ・何を]
+- Marketing: [誰が・いつ・何を]
+- PM: [誰が・いつ・何を]
+- CS: [誰が・いつ・何を]
+
+## 想定問答
+Q1「で、いくら？」→ 月次+xx万円 / 年間+xx万円 / ROI xx%
+Q2「それ確実？」→ 確度◎（p<0.01, 効果量0.5, n=xxx）
+Q3「他社比べて？」→ 業界平均xx% / 自社xx%（母数x社・参考値）
+
+## 限界・前提
+- [外挿範囲 / 母数 / 欠損率 / 前提条件]
 ```
 
 ## 担当クライアント

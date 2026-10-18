@@ -176,6 +176,85 @@
 }
 ```
 
+### kpi_tree.json（KGI → CSF → KPI 階層・親子リンクSSOT）
+```json
+{
+  "kgi": {
+    "id": "KGI-001",
+    "name": "年商10億円",
+    "target": 1000000000,
+    "forecast": 920000000,
+    "commit": 850000000
+  },
+  "csf": [
+    {
+      "id": "CSF-01",
+      "name": "採用マーケ案件の契約継続率向上",
+      "parent_kgi": "KGI-001",
+      "target": 0.90
+    }
+  ],
+  "kpi": [
+    {
+      "id": "KPI-101",
+      "name": "月次ヘルススコア平均",
+      "parent_csf": "CSF-01",
+      "type": "leading",
+      "stock_flow": "stock",
+      "unit": "点",
+      "nsm": true,
+      "guardrail_of": null,
+      "guardrails": ["KPI-102"],
+      "threshold_fn": "cv_dynamic",
+      "actionable": true,
+      "owner_agent": "akari"
+    }
+  ]
+}
+```
+
+### scorecard.json（Balanced Scorecard 4視点）
+```json
+{
+  "month": "YYYY-MM",
+  "perspectives": {
+    "financial":   { "kpis": ["monthly_revenue_progress", "operating_margin"], "status": "green|yellow|red" },
+    "customer":    { "kpis": ["nps", "health_score", "retention_rate"],         "status": "..." },
+    "process":     { "kpis": ["lead_time", "deployment_frequency", "mttr"],     "status": "..." },
+    "learning":    { "kpis": ["okr_achievement", "skill_coverage"],             "status": "..." }
+  },
+  "action_items": [
+    { "perspective": "customer", "priority": "RICE score", "owner": "ryota", "due": "YYYY-MM-DD" }
+  ]
+}
+```
+
+### dashboard_spec.yml（3層構造ビュー定義／05-26・08-27記録）
+```yaml
+layers:
+  top5:
+    refresh: "5min"
+    kpis: ["nsm", "monthly_revenue_progress", "new_leads", "retention_rate", "operating_margin"]
+    guardrails_adjacent: true
+  dept10:
+    refresh: "1h"
+    kpis_by_dept: { sales: [...], marketing: [...], cs: [...], dev: [...] }
+  detail50:
+    refresh: "daily"
+    cost_monitor: true   # BigQuery INFORMATION_SCHEMA でクエリコスト監視
+
+views:
+  executive: { default_filter: "all", labels: "formal" }
+  field:     { default_filter: "assigned_only", labels: "colloquial" }
+  staff:     { default_filter: "input_scope", labels: "formal" }
+
+alert_routing:
+  critical: ["ceo_dm", "owner_dm"]
+  warning:  ["owner_dm"]
+  info:     ["log_only"]
+  input_anomaly: ["owner_dm_quiet"]   # 入力起因は本人に静かに／08-16記録
+```
+
 ## 担当クライアント
 全7社（エスコプロモーション、cantera、ナワショウ、宮村建設、清一建設、桝本レッカー、翔星建設）
 ※ 部署や役割により担当範囲が異なる場合は調整
