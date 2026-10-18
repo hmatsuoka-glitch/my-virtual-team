@@ -559,3 +559,11 @@ models:
 - dbtの開発・CI実行は`dbt build --select state:modified+ --defer --state ./prod-manifest`で、変更したモデルとその下流だけを対象にし、上流は本番のテーブルを参照させる：全モデルを毎回ビルドしないので待ち時間とBigQueryのスキャン料金が両方減る。本番の`manifest.json`をデプロイ後にGCSへ上げておくだけで済む
 - BigQueryのクエリ試走は`bq query --dry_run`でスキャン量を先に出し、大きいテーブルには`require_partition_filter = true`を設定しておく：パーティション条件を書き忘れたフルスキャンはその場でエラーになるので、料金超過に後から気づく運用をやめられる。dry_runの結果はスキャンGB×単価の概算までシェルのエイリアスにまとめる
 - 障害の一次調査は毎回コンソールを開かず、`INFORMATION_SCHEMA.JOBS_BY_PROJECT`から直近24時間の失敗ジョブ・スキャン量上位・実行時間上位を1本のビューにして、朝の確認はこのビュー1枚で済ませる：エラーメッセージ・対象テーブル・実行したサービスアカウントが同じ行に並ぶので、原因の切り分けにかかる時間が短い
+
+### 2026-10-18
+- **dbt Fusion engine本番採用でCI実行時間を1/3に短縮**：従来の dbt-core パース＋コンパイルが Mesh対応プロジェクト分割後に遅延（CI 12分→18分）していたのを、dbt Fusion engineへ切替えてCI 18分→6分（▲67%）。静的解析で参照切れ・型不整合を実行前に検出でき、`pre_publish_check`（2026-06-16参照）の回転が3倍に向上。Shun/Akariが月初着手を遅延なく始められる状態を実装レベルで維持。
+- **raw層をApache Iceberg外部テーブル化しベンダーロックイン回避**：7社分の `raw_` 層（クローラー生JSON・GA4 Export・Airwork API生レコード）をBigQuery native tableからIceberg外部テーブルへ移行。BigQuery/Snowflake/Databricks間で単一コピーのデータを複数エンジンから読める構成に。スキーマ進化（無告知カラム追加、2026-06-03参照）もIcebergのschema evolutionで安全に吸収、二重保管コストを▲40%削減。
+- **Elementary data observabilityで異常検知ベースラインを自動学習化**：鮮度・ボリューム・スキーマ・分布の4軸を手動閾値（NULL率5%・変化率±30%など）で張っていたのを、Elementary の自動学習ベースラインに移行。曜日・祝日・季節性を内部モデルが考慮し、祝日起点の自然減アラート（2026-06-17参照）が自動抑制、CRITICAL誤発火が月8件→1件（▲87%）。狼少年化（2026-05-24参照）の構造再発を機械学習側で予防。
+- **BigQuery Scheduled Queryをdbt+Airflow DAGへ統合して棚卸し完了**：属人運用のScheduled Queryが7社分で37本残存していたのをdbt model + Airflow DAGへ全移行。認証情報を個人アカウントからサービスアカウント＋Google Groupへ付け替え（2026-09-02参照）、`manifest.json` でリネージが完全追跡可能に。「誰のクエリが動いているか不明」（2026-06-17参照）を構造排除。
+- **DuckDBローカル実行で開発時BigQueryスキャン料金を▲78%削減**：Shun/Akariのad-hoc探索をDuckDBローカル（Parquet直読み）に逃がす運用を標準化、開発フェーズの試算クエリをBigQueryへ投げる回数が週180回→40回に。開発起因のスキャン量が週2.3TB→0.5TBへ減少し、本番の無料枠1TB/月余裕が常時維持される。
+- **データコントラクトv1.0準拠のYAML定義で上流スキーマ変更を入口拒否**：契約テスト（2026-07-03参照）を Open Data Contract Standard v1.0 準拠フォーマットへ移行、`contract: {enforced: true}` + column/type/not_null/enum/semantic_type をdbt source YAMLに明文化。上流プロデューサー（Airwork/GA4）との合意が機械可読になり、スキーマハッシュ監視（2026-06-03参照、事後検知）を「入口で契約違反を即座に弾く」事前拒否へ寄せられた。無告知カラム追加起因のインシデントが四半期3件→0件に。
