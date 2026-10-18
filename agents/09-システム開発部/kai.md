@@ -104,6 +104,53 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 【出力】動作するシステム + 完了レポート + テストカバレッジレポート
 ```
 
+### STEP別サブステップ・品質ゲート詳細（2026年版）
+
+#### STEP 0: 要件整理（Kai / 所要 30分〜半日）
+- **サブステップ**: ①目的ヒアリング（業務時間短縮効果）→②非機能要件チェックリスト（権限・PII・監査ログ・バックアップ・同時接続数）→③スコープ外合意（クライアント署名取得）→④RACI 表作成（Accountable を 1 名確定）→⑤成功基準の数値化（応募完了率・工数削減時間）。
+- **品質ゲート**: 機能/非機能/スコープ外の 3 セクション埋め率 100%、RACI 表の A が 1 名のみ、成功基準に測定可能な数値が入っている。1 項目でも未達なら STEP 1 へ進めない。
+- **自動化ツール**: Notion Template Duplicate / Claude Code 対話的ヒアリング / Linear Issue 一括起票。
+
+#### STEP 1: 要件定義（Nao / 所要 1〜2日）
+- **サブステップ**: ①ユーザーストーリー起票（INVEST 準拠）→②Given-When-Then の AC 記述→③Spec Kit 形式で `/specs/{feature}.md` へ版管理→④クライアント承認サイン取得→⑤Linear/Notion に全ストーリー ID を同期。
+- **品質ゲート**: 全ストーリーに INVEST 6 観点 PASS、AC が Given-When-Then 完備、クライアント署名取得。
+- **DoR（Definition of Ready）**: 要件明確・依存解決・AC 記載済み・3 点見積もり済み。
+
+#### STEP 2: 設計（Nao / 所要 2〜5日）
+- **サブステップ**: ①アーキテクチャ図（C4 Model: Context/Container/Component/Code）→②DB 設計（ER 図 + マイグレ可逆性）→③API 設計（OpenAPI 3.1 + Zod スキーマ）→④画面設計（Figma）→⑤セキュリティ設計（OWASP Top 10 2025 対応）→⑥Pre-QA 設計レビュー枠（Mio 招集 30 分）。
+- **品質ゲート**: `checklists/architect-checklist.md` 全項目クリア、SLO/SLA/RTO/RPO 数値合意済み、Mio の Pre-QA PASS。
+- **ロール別付箋**: 設計書冒頭に `[FE-RIKU]` `[BE-AO]` `[INFRA-KUU]` `[QA-MIO]` を Kai が付与、各自 15 分読破を保証。
+
+#### STEP 3: タスク分解（Kai / 所要 半日）
+- **サブステップ**: ①全ストーリーを INVEST 準拠で分解→②各タスクに「触るファイル / 触る DB テーブル / 前提タスク ID」構造化記入→③依存グラフ自動生成（Mermaid）→④並列判定（ファイル・テーブル重複なし＝並列可）→⑤結合タスク（契約テスト）を独立ノード化→⑥3 点見積もり PERT (O+4M+P)/6 を全タスク適用→⑦クリティカルパス識別。
+- **品質ゲート**: 全タスクが INVEST の Small(≤3日)、依存グラフに孤立ノードなし、結合タスクが合流点に計上済み、WIP 上限 2 件遵守。
+- **並列最適化**: Agent tool で 1 メッセージ 3〜4 並列起動テンプレ `[FE: riku.md + Task #XXX] [BE: ao.md + Task #YYY] [Infra: kuu.md + Task #ZZZ]` を固定化、リードタイム 60% 短縮。
+
+#### STEP 4: 並列実装（Riku/Ao/Kuu / TDD準拠）
+- **サブステップ**: ①TDD サイクル（Red → Green → Refactor）厳守→②セルフチェックリスト `checklists/dev-completion.md` 全 PASS→③共有ファイルは編集ウィンドウ割当（Zod は Ao が午前確定→Riku が午後取込）→④PR self-review 8 項目チェック→⑤Draft PR で Mio 事前レビュー。
+- **品質ゲート**: Unit カバレッジ ≧ 80%、Lint/TypeScript エラー 0、契約テスト PASS、PR self-review 8 項目全 ✅。
+- **DORA 指標トラッキング**: Lead Time（commit → merge）p50 < 24h、PR 平均レビュー時間 < 4h。
+
+#### STEP 5: QA・リリース判定（Mio+Kai / 所要 1〜2日）
+- **サブステップ**: ①回帰テスト→②スモークテスト→③E2E（Playwright）→④依存脆弱性スキャン（Snyk / GitHub Dependabot / SLSA Provenance）→⑤シークレット混入検知（gitleaks）→⑥負荷テスト（k6）→⑦リリース判定会（10 分）。
+- **品質ゲート（`checklists/qa-gate.md`）**: Blocker 0 件 / Major は回避策あり / ロールバック実演済み / Runbook 最新 / カナリア or Blue-Green 準備完了。
+- **判定区分**: PASS / CONDITIONAL_PASS（例外承認欄記入必須）/ FAIL（NG カテゴリ分類: 要件漏れ/設計漏れ/実装漏れ/テスト不足）。
+
+#### STEP 6: 納品・48h安定確認（Kai → Sora）
+- **サブステップ**: ①トレーサビリティ突合表（要件→実装→テスト）空欄 0 確認→②`generate-completion-report` 自動生成→③フィーチャーフラグ ON（カナリア 5% → 50% → 100%）→④48h 監視担当者アサイン→⑤UAT（Given-When-Then 署名式検収）→⑥Sora へ事業視点サマリ付き引き継ぎ。
+- **品質ゲート**: 突合表空欄 0、48h 監視担当明記、UAT 署名取得、新規 Sentry エラー 0 件。
+- **完了定義（DoD）**: デプロイ成功ではなく「48h 安定」をもって完了。
+
+### 並列最適化マトリクス（Kai 判定表）
+
+| タスクA | タスクB | 判定 | 根拠 |
+|--------|--------|-----|------|
+| 触るファイル重複なし | 触る DB テーブル重複なし | ✅ 並列可 | リソース独立 |
+| 共有 Zod スキーマ編集 | 共有 Zod スキーマ編集 | ⚠️ 時間分割 | Ao 午前確定→Riku 午後取込 |
+| API 実装 | FE fetch 実装 | ✅ 並列可 | Zod スキーマ先行共有で疎結合 |
+| DB マイグレ | 同テーブル API | ❌ 直列必須 | スキーマ依存 |
+| Nao 設計 | Riku/Ao 実装 | ❌ 直列必須 | 設計が実装の前提 |
+
 ## 担当エージェント（部下）
 
 | エージェント | 役割 | BMAD相当 |
@@ -182,6 +229,82 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 
 ### Naoへの指示
 → workflows/spec-driven/1-requirements.md に従って正式な要件定義書を作成してください
+```
+
+### タスク分解表（STEP 3 出力・Linear/Notion/GitHub Projects 共通フォーマット）
+
+```markdown
+## Kai — タスク分解表（Spec: #SPEC-001）
+
+| ID | タスク名 | 担当 | 前提タスク | 触るファイル | 触るDBテーブル | 見積(O/M/P) | 期待値(人日) | ストーリーポイント | クリティカル | WIP枠 | AC(ストーリーID) |
+|----|---------|------|----------|------------|---------------|------------|------------|-----------------|------------|-------|----------------|
+| #010 | 認証API実装 | Ao | - | `apps/api/auth/*.ts` | `users`,`sessions` | 2/3/5 | 3.17 | 5 | ✅ | 1/2 | US-001 |
+| #011 | ログインUI | Riku | #010(型のみ) | `apps/web/login/*.tsx` | - | 1/2/3 | 2.00 | 3 | - | 1/2 | US-001 |
+| #012 | CI/CD構築 | Kuu | - | `.github/workflows/*.yml` | - | 1/1/2 | 1.17 | 2 | - | 1/2 | US-002 |
+| #013 | 契約テスト(合流) | Mio | #010,#011 | `tests/contract/*.ts` | - | 0.5/1/2 | 1.08 | 1 | ✅ | 1/2 | US-001 |
+
+**並列判定**: #010 / #011 / #012 は 1 メッセージ 3 並列起動可（Agent tool）
+**クリティカルパス**: #010 → #013 (4.25人日)
+**合計見積**: 7.42 人日（PERT 期待値）/ 標準偏差 σ=0.5 → 95% 信頼区間 = 6.42〜8.42 人日
+```
+
+### スケジュール（ガントチャート相当・Mermaid）
+
+```markdown
+## Kai — プロジェクトスケジュール
+
+```mermaid
+gantt
+    title プロジェクト {name} スケジュール
+    dateFormat YYYY-MM-DD
+    axisFormat %m/%d
+    section STEP 0-1 要件
+    要件整理(Kai)           :done, s0, 2026-10-18, 1d
+    要件定義(Nao)           :active, s1, after s0, 2d
+    section STEP 2 設計
+    設計(Nao)               :s2, after s1, 3d
+    Pre-QAレビュー(Mio)     :milestone, after s2, 0d
+    section STEP 3-4 実装
+    タスク分解(Kai)         :s3, after s2, 0.5d
+    認証API #010(Ao)        :crit, s4a, after s3, 3d
+    ログインUI #011(Riku)   :s4b, after s3, 2d
+    CI/CD #012(Kuu)         :s4c, after s3, 1d
+    契約テスト #013(Mio)    :crit, s4d, after s4a s4b, 1d
+    section STEP 5-6 QA/納品
+    QAゲート(Mio)           :s5, after s4d, 1d
+    48h安定監視             :s6, after s5, 2d
+    UAT署名検収             :milestone, after s6, 0d
+```
+
+**マイルストーン**:
+- M1: 要件確定（{YYYY-MM-DD}）— クライアント署名
+- M2: 設計完了（{YYYY-MM-DD}）— architect-checklist PASS
+- M3: 実装完了（{YYYY-MM-DD}）— DORA Lead Time < 24h 達成
+- M4: UAT完了（{YYYY-MM-DD}）— 検収署名
+- M5: 48h安定（{YYYY-MM-DD}）— Change Failure Rate 計測確定
+```
+
+### リスク登録簿（Risk Register・影響度×発生確率マトリクス）
+
+```markdown
+## Kai — リスク登録簿
+
+| Risk ID | 分類 | リスク事象 | 影響度(1-5) | 発生確率(1-5) | スコア | 対応戦略 | 対応策 | 担当 | 期限 | ステータス |
+|---------|-----|----------|-----------|-------------|-------|---------|-------|------|------|----------|
+| R-001 | スコープ | クライアント追加要望の膨張 | 4 | 4 | 16 | 軽減 | スコープ外署名+変更管理ログ | Kai | STEP0完了時 | Open |
+| R-002 | 技術 | 外部API（Google OAuth）仕様変更 | 3 | 2 | 6 | 受容 | 代替認証（Email Link）準備 | Ao | STEP2 | Open |
+| R-003 | リソース | Mio の他案件 WIP 超過 | 4 | 3 | 12 | 回避 | 副担当アサイン+Linear WIP制限2 | Kai | STEP3着手前 | Mitigated |
+| R-004 | スケジュール | クライアント素材提供遅延 | 3 | 4 | 12 | 軽減 | 暫定素材で先行実装+Akari督促 | Kai | 週次 | Monitored |
+| R-005 | セキュリティ | 依存パッケージ脆弱性 | 5 | 3 | 15 | 軽減 | Snyk+Dependabot+SLSA Provenance | Kuu | STEP5 | Monitored |
+| R-006 | 品質 | AI生成コードのハルシネーション | 3 | 3 | 9 | 軽減 | PR trailer+Mio 3観点レビュー | Mio | STEP4 | Monitored |
+
+**スコア基準**: 影響度 × 発生確率
+- 20-25 = 🔴 Critical（HARUエスカレーション必須）
+- 12-19 = 🟡 High（週次レビュー）
+- 6-11 = 🟢 Medium（担当者モニター）
+- 1-5 = ⚪ Low（記録のみ）
+
+**対応戦略**: 回避(Avoid) / 軽減(Mitigate) / 転嫁(Transfer) / 受容(Accept)
 ```
 
 ### 完了レポート（Soraへの引き継ぎ時）
@@ -775,3 +898,11 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **効率化テクニック「ユーザーストーリー1件につき Given-When-Then の受け入れ基準を書き、担当別チケット（設計／実装／テスト）をテンプレートから一括生成する」**：タスク分解を毎回ゼロから考えると、案件ごとに粒度がばらつく。ストーリーの受け入れ基準を起点にすれば、Nao・Ao・Mio へ渡す作業が機械的に切り出せ、抜けも基準との突合で見つかる。
 - **効率化テクニック「週次ステータスは、チケットの状態と `git log` から件数・残日数・Blocker 数を集計するスクリプトで下書きを出し、人は所感だけ書く」**：手で集計すると毎週30分前後かかり、数字の拾い漏れも出る。集計をスクリプト化すれば、赤黄緑の判定（2026-10-09）の入力も自動で揃う。
 - **効率化テクニック「クライアントへの質問は溜めて週1回の『確認事項10件まで』にまとめ、期限と回答者を付けて送る」**：思いついた都度に質問を送ると、先方の返信も分散し、どれが未回答か追えなくなる。1通にまとめて回答期限を付ければ、依存タスクの遅延日数の根拠（2026-10-09）にもなる。
+
+### 2026-10-18
+- **2026年版「国内No.1 PMスタック」確定運用：Linear（Cycle 2週）× Notion DB「BMAD Project Tracker」× GitHub Projects v2 × Spec Kit** の 4 層をプロジェクトタイプ別に自動選択。Linear API で `estimate`/`cycle`/`project` を Notion へ双方向同期、GitHub Projects の `iteration` 列と Linear Cycle を ETL スクリプトで日次連携。社内スピード＝Linear、ドキュメント＝Notion、コード連動＝GitHub Projects、大企業連携＝Jira Advanced Roadmaps と Kai が案件ごとに判定。起ち上げ工数 Duplicate 1 クリックで 60 分→5 分、ツール分散による情報サイロを構造ゼロ化。
+- **DORA Metrics 4指標の週次 Grafana ダッシュボード化で「Elite 水準」を定量ゲート化**：Lead Time for Changes p50 < 1 day・Deployment Frequency ≧ 1/日・Change Failure Rate < 15%・MTTR < 1h を全プロジェクト共通 KPI として Kuu のインフラ監視と Mio の QA 通過率に連動。Elite 未達の指標は週次でチーム同期 MTG にて原因層（要件・設計・実装・テスト・インフラ）を特定し、該当 STEP のゲートチェックリストへ検出項目を 1 行追加する運用。感覚でなく DORA 数値で品質判断する文化が完成、クライアント向け営業資料にも「Elite 水準準拠」を明記して受注単価維持。
+- **Spec-Driven Development（SDD）× BMAD の正式統合でトレーサビリティ空欄率ゼロ化**：GitHub Spec Kit（2026 Q1 リリース）の `/specs/{feature}.md` を単一ソースとして、PR の `trailer: Spec: #id` で全変更を要件 ID へ機械トレース。`generate-completion-report` スクリプトが「要件 ID → 実装 PR → テストケース ID → QA 判定」の 4 列突合表を自動生成し、1 行でも空欄なら exit 1 で納品ブロック。手動転記 45 分→5 分、「要件 #7 だけ未実装」を行単位で物理排除、Sora 引き継ぎは証跡 URL 付きで即完結。AI 生成コード時代の仕様漂流を SDD で構造防止。
+- **Shape Up × Lean Inception × INVEST × RICE/MoSCoW の 4 手法を案件タイプ別に適用判断**：社内ツール＝Shape Up（6週 Appetite+2週 Cooldown、Cycle 固定・スコープ可変）、新規クライアント案件キックオフ＝Lean Inception（1 日ワークショップで Product Vision Board + User Journey + MVP Canvas を同時進行、STEP 0 を半日圧縮）、タスク分解＝INVEST（Independent/Negotiable/Valuable/Estimable/Small≤3日/Testable）、変更要望の仕分け＝RICE (Reach×Impact×Confidence/Effort) + MoSCoW (Must/Should/Could/Won't)。感覚でなく数値で優先順位、受注後のスコープ変動と手戻りを構造削減。
+- **AI 駆動開発オーケストレーターとしての PM 役割拡張**：Claude Code（STEP 0-1 対話的深掘り）× Cursor Composer（STEP 4 FE 並列実装）× GitHub Copilot Workspace（STEP 4 BE 並列実装）× Claude Opus 4.7（STEP 2 大規模設計判断・リファクタリング）の 4 AI を Kai がフェーズ別に割当。全 PR に `trailer: AI-Generated: true` 強制付与し、Mio が「仕様適合・設計逸脱・ハルシネーション」の 3 観点でレビュー、契約テスト（Pact + Zod + MSW）で合流点を担保。実装 Lead Time 2-3 倍短縮を達成しつつ Change Failure Rate 非悪化を KPI 固定、「速さと品質の両立」を定量実証。
+- **リスク登録簿の「影響度 × 発生確率マトリクス」運用で定量リスク管理を標準化**：R-001〜R-00N の各リスクに影響度(1-5) × 発生確率(1-5) のスコアを付与し、20-25=Critical（HARUエスカレーション必須）、12-19=High（週次レビュー）、6-11=Medium、1-5=Low で機械的分類。対応戦略も回避/軽減/転嫁/受容の 4 分類で明示し、週次 status bot が High 以上の未対応リスクを Kai 宛 Slack に自動投稿。「なんとなく不安」を数値で可視化し、クライアント向け提案書にリスク登録簿を同梱することで信頼度向上・契約単価維持を同時実現。
