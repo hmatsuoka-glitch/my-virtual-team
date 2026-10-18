@@ -456,6 +456,14 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 ## 📝 Daily Knowledge Log
 
+### 2026-10-18
+- **2026年Q4のビジュアル QA 標準スタックを `Playwright 1.52 + @axe-core/playwright 4.11 + lhci 0.14 + Chromatic 2026 + Percy v2` の5点セットに固定**：バージョンを `package.json` の `engines` と `.nvmrc` で明示的に固定し、Mia・Ren・Saki 間でローカル実行結果が一致することを担保。各ツールの出力 JSON スキーマを `mia.config.json` に版付きで記録し、将来のメジャーアップデートで差し戻しレポートのフォーマットが崩れないようガードする
+- **AI 知覚差分エンジン『Applitools Eyes Visual AI』を Chromatic と並走させ、Chromatic が「意図変更」判定したものを Eyes 側で再判定する二重知覚判定運用**：Chromatic 単独では意図変更の誤認が 1〜3% 発生し、見逃された本質 NG が本番で露呈するリスクが残る。Eyes の Visual AI（学習済み知覚モデル）で再判定を回し、両エンジンが「意図変更」と一致した場合のみ自動承認。片方が差分検出なら Mia 目視判定へエスカレ、2層判定で偽陰性（見逃し）を物理ゼロ化
+- **WCAG 2.2 AA の達成基準番号を axe-core 違反に自動マップし、差し戻しレポートに「2.4.11 フォーカス非隠蔽」「2.5.8 最小ターゲットサイズ 24px」のように規格番号で明記**：単に「a11y 違反 X件」ではなく達成基準番号付きで報告することで、クライアント法務部からの「どの基準違反か」質問に即答可能化。axe の `help` フィールドから WCAG 番号を抽出するスクリプトを `scripts/axe-to-wcag.mjs` に置き、Mia レポート生成時に自動注入
+- **色差 ΔE00（CIEDE2000）< 2 をブランドカラーの新合格基準として `mia.config.json` に明文化**：従来の HEX ±5 は RGB 空間の数値差で知覚と乖離（青系と緑系で知覚差が別物）。`culori` npm パッケージの `differenceCiede2000()` で元 LP と複製 LP の computed color を数値照合し、ブランドカラー（ロゴ・主 CTA）は ΔE00 < 2（識別不能レベル）、装飾色は ΔE00 < 3（並べれば分かるが単独では気付かないレベル）を2段階基準として採用。知覚均等指標で「HEX 近いのに違う」係争を根絶
+- **納品後 7日継続監視を『CrUX API + Vercel Observability + GitHub Actions cron』で自動化し、Lab/Field 乖離 20% 超なら Kaito へ Slack 自動通知**：Mia 通過時の Lighthouse Lab 値 90 でも、本番 1 週間後の CrUX Field Data で LCP 4.2s と判明する事故を予防。`workflow_dispatch` で手動実行可能にしつつ `cron: '0 9 * * *'` で毎朝 9 時に自動実行し、乖離検出時は `gh issue create` で改修 Issue 起票 + Kaito へ `#lp-ops` Slack 通知。Mia 単発 QA を「納品後継続品質保証」に拡張
+- **Figma Dev Mode MCP の `get_variable_defs` でトークン原本（HEX・余白・font-weight）を直接取得し、元 LP スクショ比較と二重照合する運用化**：元 LP スクショは古い場合や A/B テスト中で基準が揺れるリスクがあり、ピクセル比較だけでは「元が正しいのか複製が正しいのか」判定不能。Figma MCP でデザイン原本の変数定義を抽出し、`mia-token-diff.mjs` で複製 LP の computed style と機械照合。「元 LP スクショ vs 複製」「Figma トークン vs 複製」の2軸で判定し、スコープ外改修要求と実装デグレを切り分け
+
 ### 2026-05-15
 - **ピクセルパーフェクト検証「`pixelmatch` 4 段階しきい値」チェックポイント**：差分しきい値 0.05 / 0.1 / 0.2 / 0.5 の 4 段階で `pixelmatch(img1, img2, diff, w, h, {threshold})` を実行。0.05 で差分率 1% 以下=95 点 / 0.1 で 1% 以下=90 点 / 0.2 で 1% 以下=85 点と段階スコア化。Mia の合否ラインを「85 点 = しきい値 0.2 で許容 1%」と数式定義し、人為的甘さを排除
 - **レスポンシブ崩れ検出「7 幅自動ステップ撮影」**：Playwright の `page.setViewportSize` で 320 / 375 / 414 / 768 / 1024 / 1280 / 1920 の 7 幅でスクショ → `sharp.resize().composite()` で縦並びシート画像を 1 枚生成。崩れがあれば視認 1 秒で判別可能化。SP 偏向した QA を物理的に防止

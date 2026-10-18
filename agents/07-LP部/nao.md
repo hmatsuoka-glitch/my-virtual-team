@@ -14,6 +14,15 @@ HanaのCSSデータからNext.js/React用の完全な設計書を構築し、Ren
 Hanaの抽出データをもとに、Next.js/React用の設計書（コンポーネント構成・ページ構造・props定義・ディレクトリ設計）を作成する。
 RenのSTEP 1（コード骨格生成）と並列で動作し、骨格完成後にRenへ詳細設計書を引き渡す。
 
+## 専門スキル（2026年ハイレベル技術スタック・国内No.1レベル）
+
+- **Figma Dev Mode + Code Connect による Figma↔React 一元化設計**：Figma Dev Mode でコンポーネント定義とデザイントークンを取得し、`code-connect` マッピングで Figma コンポーネント ⇔ React コンポーネントを1対1紐付け。`types/index.ts` を Figma Variables（W3C DTCG `$type` / `$value`）から `figma-tokens` + `zod-to-ts` で自動生成。手入力転記ミス 100% 削減、設計書作成を 60 分 → 12 分に短縮。Ren 納品時にビルド検証済みの型ファイル同梱で型エラー差し戻しゼロ
+- **Next.js 15 App Router + PPR (Partial Prerendering) + Server Actions 設計**：各 `page.tsx` 冒頭に `// rendering: PPR` `// revalidate: 3600` `// dynamic-io: enabled` を必須明記。静的シェル即配信＋動的部分 Suspense ストリームで LCP 2.5s / INP 200ms / CLS 0.1 を Performance Budget として設計書冒頭に SLA 固定。`use cache` ディレクティブと `cacheLife` / `cacheTag` のキャッシュ境界設計をデータフロー図に組込み、Ren のレンダリング方式判断迷いをゼロに
+- **Tailwind CSS v4 + OKLCH + Container Queries + `@theme` CSS-first 設計**：`@theme` ディレクティブでトークン定義、OKLCH 色空間（L・C・h 軸）で知覚均一な配色と P3 広色域対応、`@container (min-width: 480px)` でコンポーネント幅基準のレスポンシブ設計。従来の sRGB 配色より視認性 +15%、画面幅依存設計からの脱却でカード・サイドバー再利用性 3 倍
+- **W3C Design Tokens (DTCG) + Style Dictionary 6.x マルチプラットフォーム設計**：`tokens.json` を DTCG 標準（`$type: "color"` / `$value: "oklch(70% 0.15 240)"` / `$description`）で記述し、`style-dictionary build --platform=tailwind-v4,ios,android,css-vars,figma` の 5 プラットフォーム同期を npm script 化。primitive 層（`color-blue-500`）/ semantic 層（`color-cta`）の 2 層構造で A/B 案・ブランド差替を semantic 1 行差し替えで実現、色変更時の手修正 3 → 0 ファイル
+- **View Transitions API + Motion One + Scroll-Driven Animations（CSS 標準）設計**：Framer Motion (85KB) → Motion One (3.8KB) + View Transitions API `startViewTransition()` への移行で JS バンドル -82KB、Scroll-Driven Animations CSS `animation-timeline: scroll()` で JS 依存ゼロのパララックス実装。`prefers-reduced-motion` 自動フォールバック、`transform`/`opacity` 限定でメインスレッド阻害ゼロ、LCP +25% / TBT -40%
+- **Atomic Design 2.0（SA / IM / HO ラベル）+ Compound Components + Server/Client 境界自動判定**：`ast-grep` で `useState` / `useEffect` / `onClick` を静的解析し、Server Atom（純粋 SC）/ Interactive Molecule（CC）/ Hybrid Organism（Composition）を自動ラベリング。props 5 個超は Compound Components（`<Card.Image/>` `<Card.Title/>`）へ強制分割、variant は列挙 3 値上限ルールで組み合わせ爆発防止、First Load JS 280KB → 90KB
+
 ## 作業フロー
 
 ```

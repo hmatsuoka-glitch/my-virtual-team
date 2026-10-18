@@ -172,6 +172,63 @@ tokens.json流し込みHTMLモックで**5状態を1画面並列表示**：
 - セクション背景（淡）: bg=primary-50
 ```
 
+### マスター納品JSONスキーマ（palette.json・2026年標準）
+```json
+{
+  "meta": {
+    "client": "〇〇株式会社",
+    "logo_source": "logo_v2.1_2026-10-01.svg",
+    "logo_profile": "sRGB",
+    "ci_guide": "CI_v3_2026-09.pdf",
+    "ci_revision_date": "2026-09-15",
+    "preset_base": "earth-tone/natural",
+    "verified_at": "2026-10-18T10:00:00+09:00"
+  },
+  "tokens_light": {
+    "--brand-primary":     { "hex": "#1A4D8C", "oklch": "oklch(33% 0.12 240)", "role": "primary",   "pccs": "dp",  "p3": "color(display-p3 0.1 0.3 0.55)" },
+    "--brand-accent":      { "hex": "#F5A623", "oklch": "oklch(72% 0.17 70)",  "role": "accent",    "pccs": "v",   "usage_limit": 1 },
+    "--brand-focus-ring":  { "hex": "#2E6CB8", "oklch": "oklch(55% 0.13 240)", "role": "focus",     "pccs": "b" }
+  },
+  "tokens_dark":  { "/* OKLCH L値反転・H/C保持で culori 自動生成（24色） */": "..." },
+  "contrast_matrix": {
+    "pairs_count": 45,
+    "apca_lc_min": 60,
+    "wcag_ratio_min": 4.5,
+    "greyscale_delta_l_min": 15,
+    "cvd_simulated": ["protanopia","deuteranopia","tritanopia"],
+    "forced_colors_ok": true,
+    "ng_pairs": []
+  },
+  "accessibility_redundancy": {
+    "cta_shape_fallback": "border + icon",
+    "error_vs_cta": "shape differs (icon ! vs arrow)",
+    "link_underline_required": true
+  },
+  "handoff": {
+    "ren":    { "css_vars_file": "tokens.css", "state_colors_included": true },
+    "sota":   { "accent_usage_limit": 1, "pccs_tone": "dp base + v accent", "outdoor_redundancy": "border|shadow|spacing" },
+    "kotone": { "emphasis_rank_1_assigned_to": "accent" },
+    "mia":    { "verified_axes": ["APCA","WCAG2.1","WCAG3.0","greyscale","CVD","forced-colors"] },
+    "hiro":   { "banner_subset": ["--brand-primary","--brand-accent","--text","#FFFFFF"], "thumb_check_bgs": ["white","black","gray"] }
+  }
+}
+```
+
+### 納品前チェックリスト（Mia / Sora QA前の自己検証用）
+- [ ] STEP 0: 素材5点＋Rui競合色＋Hana役割分担（複製時）が揃っている
+- [ ] STEP 1: 面積比5%未満除外・CIガイドΔE00照合済み・カラープロファイルsRGB変換済み
+- [ ] STEP 2: 12ロール揃っている（primary / primary-50 / accent / bg / text / text-muted / link / hover / success / warning / error / **focus-ring**）
+- [ ] STEP 3: ダーク12色がculori L値反転で生成済み（状態色5色も含む）
+- [ ] STEP 4: 45ペア×6軸（APCA Lc 60+ / WCAG 2.1 / WCAG 3.0 / ΔL 15+ / 3色覚 / forced-colors）全通過
+- [ ] STEP 4: 実効色（rgba/opacity/画像オーバーレイ/グラデ最悪点）で判定済み
+- [ ] STEP 4: サイズ×ウェイト別閾値（placeholder/disabled/注釈も対象）で判定済み
+- [ ] STEP 5: 5状態モック（室内/屋外/ダーク強制反転/競合5社横並べ/サムネ縮小3面）通過
+- [ ] STEP 6: 5宛先ビュー（Ren/sota/Kotone/Mia/hiro）が1マスターJSONから自動生成
+- [ ] 納品物3点（CSS変数定義書・スウォッチ画像・適用ガイドライン）のHEX機械照合0件不一致
+- [ ] `accent_usage_limit`=1画面1箇所／`--link`≠`--accent` 分離／本文中リンク下線必須
+- [ ] 本文テキストはLc 75-90（ハレーション抑制）/ 純黒純白禁止
+- [ ] `color-scheme: light|dark|auto` または `color(display-p3)` 二系統要否をRenへ明示
+
 ## 連携エージェント
 - tsumugi（LP制作係係長）: 案件着手指示の受領
 - kotone（コピーライター）: 強調すべきキーワードを共有してもらい、アクセント色の使い所を最適化

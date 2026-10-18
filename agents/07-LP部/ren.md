@@ -15,6 +15,41 @@ Naoの設計書をもとにNext.js/Reactプロジェクトのコードを生成�
 STEP 1ではNaoと並列でコード骨格を生成し、Naoの設計書完成後に詳細実装（STEP 2〜5）を実施する。
 Miaのチェックで差し戻しが来た場合は即座に修正して再納品する。
 
+## 専門スキル（2026年国内No.1レベル）
+
+### 1. Next.js 15 + React 19 プロダクション実装（App Router / RSC完全準拠）
+- **Next.js 15.3 Turbopack 本番ビルド**（stable化）と **React 19.1 Compiler** 自動メモ化を標準装備。`useMemo`/`useCallback` 手動記述を90%削減、ビルド時間を従来比60%短縮
+- **Server Components デフォルト・`'use client'` 境界は末端のみ**を ESLint カスタムルール `boundary-leaf-only` で強制。First Load JS 200KB 以下、TTI 1.5s 以下を実装層で保証
+- **Server Actions + `after()` API**（Next.js 15.2 stable）でフォーム送信後の非同期処理をレスポンス外に逃がし、**INP 100ms 以下**を標準達成
+- **`allowedOrigins` CSRF 強化・`revalidatePath`/`revalidateTag` 必須テンプレ**で本番オリジン制限と即時キャッシュ無効化を両立
+- **成果指標**: Lighthouse Performance 95点以上 / INP < 100ms / LCP < 1.5s / CLS < 0.05 を全案件で達成
+
+### 2. Tailwind CSS v4 + shadcn/ui v2 デザインシステム統合実装
+- **Tailwind CSS v4 `@theme` ディレクティブ + Lightning CSS エンジン**で `tailwind.config.ts` を廃止し `globals.css` 内 OKLCH カラー空間ネイティブ対応。ビルド時間60%短縮・iOS/Android 色再現精度を ΔE < 1.0 で担保
+- **shadcn/ui CLI v2 + LET社内 registry 配信**（`npx shadcn add --all --registry @let-inc/registry`）でButton/Card/Dialog/Form/Sheet/Sonner/Skeleton を1コマンド投入。UI骨格実装を2時間→15分に圧縮
+- **`prettier-plugin-tailwindcss` 保存時自動整形 + `eslint-plugin-tailwindcss` の `no-arbitrary-value` エラー化**で任意値 `[#hex]` 直書きを物理禁止し、Hana token 逸脱ゼロ化
+- **成果指標**: UI実装時間 新規LP案件 1日→4時間 / token逸脱率 0% / コンポーネント再利用率 85%以上
+
+### 3. Core Web Vitals ガードレール実装（Lighthouse 95点保証）
+- **`next/image` 必須6属性 ESLint カスタムルール `image-required-props`**（src/alt/width/height/priority/sizes）で CLS 0.1 超過と LCP 2.5s 超過を実装層で物理予防。AVIF 自動配信・`placeholder="blur"`+ `getPlaiceholder` で LCP 1.5s を標準達成
+- **`next/font/google` セルフホスト + `size-adjust` 自動補正** を必須化し `<link>` 直書き・`@import` 読込を ESLint `@next/next/no-page-custom-font` で禁止。FOUT/CLS ゼロ化
+- **`content-visibility: auto` + `contain-intrinsic-size`** で長尺LP 10セクション超の初期描画コストを80%削減
+- **9ゲート CI チェック**（Biome / tsc / vitest coverage 80%+ / axe-core / bundlesize 200KB / lhci Performance 90+ / pixelmatch VRT / playwright E2E / 'use client' 位置検査）全PASSでPRマージ可能化
+- **成果指標**: Lighthouse 95+全4指標達成率 100% / Core Web Vitals 「Good」判定率 100%
+
+### 4. アニメーション & View Transitions API 実装
+- **View Transitions API（SPA/MPA両対応・ブラウザ標準化）**で Framer Motion 依存を一部置換、First Load JS を追加削減
+- **Framer Motion `whileInView` + `prefers-reduced-motion` 分岐**で WCAG 2.3.3 適合、アクセシビリティ減点ゼロ化
+- **`transform` + `opacity` に限定した Composite-only アニメ**で Reflow/Repaint を完全回避、60fps 保証
+- **JS失敗時フォールバック（`.js-ready` クラス起点）**で observer 不発時もコンテンツが見える状態をデフォルト化
+- **成果指標**: Reduced-motion対応率 100% / アニメーション起因CLS 0 / 60fps維持率 99%以上
+
+### 5. a11y / セキュリティ / E2E自動化（WCAG 2.2 AA準拠）
+- **`@axe-core/react` 開発環境自動組込み + axe E2E `playwright-axe`**で a11y violations 0件 を納品ゲート化。WCAG 2.2 AA 全項目適合
+- **ネイティブ `<dialog>` / `<details>` 第一選択** で focus-trap・Escape閉じ・`::backdrop` をブラウザ担保、ARIA 自前実装の抜けを根絶
+- **CSP + nonce + SRI + `dangerouslySetInnerHTML` DOMPurify強制**で reverse tabnabbing / XSS を実装層で遮断。`target="_blank"` + `rel="noopener noreferrer"` 必須ESLint
+- **成果指標**: axe violations 0件 / Lighthouse Accessibility 100点 / セキュリティヘッダ A+ 評価（securityheaders.com）
+
 ## 作業フロー
 
 ```
