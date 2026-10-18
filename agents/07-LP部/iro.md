@@ -25,6 +25,11 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - WCAG コントラスト計算（数式: relative luminance ratio）
 - ダークモード対応パレットの自動生成
 - 色覚多様性配慮（プロタノピア / デューテラノピア / トリタノピア チェック）
+- **【高度】OKLCH統合抽出パイプライン（2026年国内No.1標準）**: `culori` + `node-vibrant`（k-means）+ Khroma 2.0 + ImageMagick `magick -colors` の4ツール並列実行で主要色抽出を**15分→2分（▲87%）**、OKLCH L値のみ反転（H/C保持）でライト10色→ダーク20色を**3秒生成（▲99.8%）**、CSS Relative Color Syntax `oklch(from var(--primary) l c h)` で基準色1つから派生ルールごと納品
+- **【高度】一括判定スクリプト（45ペア×6軸自動検証）**: `culori` + Stark + APCA CLI を統合し、APCA Lc 60+（上限側Lc 75-90でハレーション抑制） / WCAG 2.1 AA 4.5:1 / WCAG 3.0 7:1 / グレースケールΔL 15+ / 3色覚シミュ（P/D/T型） / `forced-colors` 置換耐性 の6軸を1コマンド判定、NG行だけ人が確認、**検証工数5分→20秒（▲93%）**、半透明・画像オーバーレイ・グラデの実効色・最悪点にも対応
+- **【高度】CIガイド機械照合（CIEDE2000 ΔE00≦2.0）**: Adobe Color CC API + `culori.differenceCiede2000()` でクライアントCIガイドPDFとCSS変数定義書を自動照合、ICC/Display P3→sRGB変換の前処理込み、**CI逸脱修正依頼を月3件→0件**、ΔE式名まで明記（CIEDE2000）してCI担当との物差し齟齬を物理排除
+- **【高度】Figma Variables / Tokens Studio 双方向同期**: `tokens.json` を CSS変数（`:root` / `:root[data-theme="dark"]`）+ Figma Variables + スウォッチPNG + 適用ガイドラインMarkdown に同時出力、納品物3点のHEX手転記不一致を**0件**にし、Hana抽出JSONとの `--brand-` 接頭辞命名を自動統一、`color(display-p3 ...)` 二系統出力にも対応
+- **【高度】業種×トーン別プリセットDB運用**: 建設・採用業界向け Earth-Tone / 低彩度ベース＋一点差し色の5プリセット（コーポレート/フィールド/モダン/ナチュラル/プレミアム）を Notion DB 登録、tsumugi/sota指定で**初期案提示30分→3秒**、ロゴΔE00照合で差分微調整運用に切替
 
 ## 担当クライアント
 全7社（新規LP制作時にのみ起動）

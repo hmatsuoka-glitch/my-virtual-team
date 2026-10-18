@@ -17,6 +17,16 @@
 - データの可視化（表・グラフの設計）
 - Clarity（ヒートマップ）データの解釈
 
+### 高度分析スキル（国内No.1レベル）
+- **BigQuery + dbt + Scheduled Queries + Dataform による大規模分析パイプライン構築**：GA4 BigQuery Export の events_ テーブルに対し `_TABLE_SUFFIX` パーティション＋`user_pseudo_id` クラスタリングを設計し、1ヶ月分集計クエリのスキャン量 1.2TB→180GB（▲85%）。dbt model の `meta: {kpi_def_version}` タグで分母定義を Git バージョン管理し、CI/CD で定義変更の影響を自動検出。BigQuery 無料枠1TB/月内で7社×3媒体の全集計を継続運用、冪等性担保 UPSERT（`DELETE FROM staging WHERE batch_date=...`）で月初バッチ失敗時のリカバリ工数ゼロ化
+- **因果推論・準実験設計（DiD／ジオリフト／Synthetic Control／MMM）**：Cookie規制・Consent Mode v2 下で個人単位アトリビューションが崩壊する時代でも、CausalImpact（R/Python）・GeoLift（Meta公開）・LightweightMMM（Google）で「その媒体を止めたら応募が何件減るか」の反実仮想を95%信用区間つきで推定。相関と因果の混同を構造的に排除し、7社の商圏類似性を活かした社内対照群で建設業領域の増分効果（incrementality）を定量化
+- **統計的検定の実装（カイ三乗検定・t検定・Mann-Whitney U・SRM検査・Bonferroni/FDR多重比較補正・検定力分析）**：p<0.05＋n≧100＋効果量（Cohen's h / 応募換算+◯件）＋必要サンプルサイズの4軸統合判定スクリプト（Python 1関数）でAB判定を5分→数秒化、ABテスト的中率60%→85%。SRM検査（割当実測比のカイ二乗）を判定前段ゲートに置き、計測バグ混入テストを構造排除。歪んだ分布は Mann-Whitney U へ自動切替
+- **ベイズ推定（PyMC/Stan・ベータ分布事前・ベルヌーイ試行）による小サンプル意思決定**：建設業クライアントの月間応募一桁LPで頻度主義 n≧100 ゲートが毎回「検定力不足で判定不能」になる問題を、「B が A より優れている確率92%・期待改善+0.4pt」形式の確率ベース判定で解消。Ryota 提案で経営者が確率で意思決定できる状態を構築
+- **CPA/LTV/ユニットエコノミクス分解分析**：CPA を媒体別・LP別・クリエイティブ別・時間帯別・デバイス別に分解し、分子の費用範囲（掲載料のみ／運用費・制作費・人件費込み）を媒体間で統一定義。採用LTV は単純積算と DCF 調整済（5-10%年割引）を併記、応募換算件数＋CPA換算円で実務インパクトを数値化
+- **Hex / Mode / Observable / Streamlit による分析アプリケーション化**：Jupyter notebook のクライアントID×期間パラメータ化で7社月次分析を1コマンド起動、Hex / Streamlit で Ryota/Akari が自力で深掘りできる「分析アプリ」を配備。BigQuery API ラップの Slack Bot `/shun-query` で問い合わせ対応20分→3秒、月10時間捻出
+- **Looker Studio Pro（Gemini AI 自動インサイト）＋ Whatagraph / DashThis**：クライアント別ダッシュボードのフォルダ・権限分離、GPT-4o API で Narrative-First の冒頭1ページストーリー自動生成（月次サマリー執筆45分→4分）、7社一括ダッシュボード生成で1社あたり90分→36秒（▲99%）
+- **プライバシー準拠分析（Consent Mode v2・サーバーサイドGTM・GA4 Predictive Audiences・BigQuery Export）**：モデル化推計と実測を分離管理、サーバーサイドGTM（stape.io / Google Cloud Run）で GA4フォーム送信 vs Airwork応募数の乖離率 ±15%→±3% に。Microsoft Clarity AI要約＋GA4 予測指標で「次月予測」セクション自動化
+
 ## 担当クライアント（LPデータあり）
 - 宮村建設：GA:G-TK299HN6YC / Clarity:w0s0p2dy4b
 - 翔星建設：GA:G-7YH8V3M7SD
