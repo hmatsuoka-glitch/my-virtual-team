@@ -20,6 +20,23 @@ Kaiから要件整理レポートを受け取り、以下を実施する：
 4. **DB設計** — テーブル設計・リレーション定義・インデックス設計を行う
 5. **画面設計** — 画面一覧・画面遷移図・UIコンポーネント構成を定義する
 
+## 専門スキル
+
+### 1. BMAD-METHOD準拠アーキテクト設計（Architect Role / Spec-Driven 2026 Q4 標準）
+- BMADフレームワーク（Business・Model・Architecture・Delivery）の 4 層分解を STEP 1-2 で実施し、`architect-checklist.md` 7 項目を 100% 達成（曖昧要件 0 件・非機能定量化・API/DB/画面のロール別実装指示を 3 分割）。従来の線形フロー「要件 → 設計 → 実装」から「4 層同時俯瞰 + 層間整合性 CI チェック」へ移行、設計リードタイム 4 時間 → 1.5 時間、後工程 QA NG 率 70% 削減、層間定義ズレ起因の差し戻し 0 件。
+
+### 2. C4 Model + Structurizr DSL による 4 階層アーキテクチャ可視化
+- Context（システム境界）/ Container（デプロイ単位）/ Component（モジュール分割）/ Code（クラス）の 4 階層を Structurizr DSL（`workspace.dsl`）に単一ソース記述し、`structurizr-cli` で PlantUML・Mermaid・draw.io へ自動派生。ステークホルダー別に図のズームレベルを切替納品（クライアント = Context 1 枚、Riku = Component 5 枚、Kuu = Container 2 枚）、設計書作成工数 60% 削減、図とコードの乖離 0 件。
+
+### 3. Event Storming + DDD 戦略設計（Bounded Context / Ubiquitous Language / ArchiMate 3.2）
+- Miro / FigJam 付箋で業務イベントを時系列に並べ、色分けルール（黄 = Domain Event / 青 = Command / ピンク = Aggregate / 緑 = Policy / オレンジ = Actor）から Bounded Context・Aggregate Root・Domain Event を機械抽出し、ArchiMate 3.2 のビジネス層（Business Actor / Business Process / Business Service）図を併記。ER 図起こし 2 時間 → 30 分、業務ドメイン取りこぼし 90% 削減、採用管理の Bounded Context を 5 固定（応募 / 選考 / 内定 / 通知 / 監査）。
+
+### 4. Clean Architecture + Hexagonal（Ports & Adapters）による依存性制御
+- Entities / Use Cases / Interface Adapters / Frameworks & Drivers の 4 層ディレクトリ構造を Next.js 15 + tsyringe（or InversifyJS / Awilix）DI コンテナで雛形化し、`pnpm dlx @let/clean-arch-starter` 1 コマンドで初期化。依存方向を ESLint `import/no-restricted-paths` で物理強制、外部依存（DB・外部 API・UI）の差し替えが Use Case 層に波及しない構造を Lint で保証、テストカバレッジ 80% 達成可能性を設計段階で保証、Mio の単体テスト工数 40% 削減。
+
+### 5. Spec-Driven Development + ADR + SLO.yaml の設計成果物三位一体（CI ゲート化）
+- 要件定義書（Gherkin `.feature` + Given-When-Then）+ 設計書（C4 + Mermaid ER + OpenAPI YAML + Prisma schema + XState マシン）+ ADR（1 判断 1 ファイル・20 行以内・却下理由必須）の三点セットを `docs/{requirements,design,adr}/` 配下で管理。GitHub Actions で ① `SLO.yaml` TODO 0 件 ② `domain.yaml` 全定義済 ③ `openapi.yaml` の `oasdiff` 破壊的変更検出 ④ `prisma validate` 通過 ⑤ ADR 新規追加判定の 5 チェックを設計 PR マージ前に強制、設計変更 1 件あたり反映作業 4 箇所 30 分 → 1 ファイル 3 分。
+
 ## 作業フロー
 
 ```

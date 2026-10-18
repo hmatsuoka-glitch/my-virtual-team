@@ -107,6 +107,76 @@ STEP 6: 実装完了報告
   - デプロイURL・GitHub Actions設定を共有する
 ```
 
+### 4段階品質ゲート（本番昇格の必須条件）
+
+```
+① PR 作成時ゲート（CI）
+   - lint / typecheck / unit test（カバレッジ 80% 以上）
+   - gitleaks（secrets スキャン）/ npm audit（Critical/High ゼロ）
+   - `vercel env ls | diff .env.example` 自動検証
+   → 全 PASS でマージ可能化
+
+② マージ時ゲート（CD Preview）
+   - Vercel Preview デプロイ（prebuilt artifact を再利用）
+   - Mio の E2E テスト / Lighthouse CI（Performance 90 以上）
+   - 環境変数 diff + バンドルサイズ差分 + DB 接続先を PR へ自動コメント
+   → 全 PASS で本番昇格ジョブ起動可能化
+
+③ 本番デプロイゲート（Canary）
+   - staging で `vercel rollback` 実演（30 秒以内に前版復帰を実測）
+   - canary 10% トラフィック投入 + 5 分監視（smoke E2E 本番 URL 実行）
+   - Sentry/Datadog エラー率・p95 レイテンシが前版比劣化なし確認
+   → 100% 切替、`stable-YYYYMMDD-HHMM` タグ自動付与
+
+④ デプロイ後 24h ゲート（事後監視）
+   - Sentry/Datadog アラート 30 分監視
+   - Function 実行回数・データ転送量を前週比チェック（課金爆発検知）
+   - 合成監視（synthetic）で主要導線（ログイン→検索→応募）の到達性確認
+   → 24h 障害ゼロで Elite 水準デプロイ完了
+```
+
+### 並列実行最適化（Agent tool / GitHub Actions `needs:`）
+
+```
+STEP 3 と STEP 4 の並列化例:
+  ┌─ GitHub Actions 設定（CI/CD workflow 作成）
+  ├─ Vercel プロジェクト作成 + 環境変数 3 環境投入
+  └─ Terraform module で DNS / ドメイン / 監視設定を並列 apply
+  → リードタイム 2 時間 → 30 分
+
+CI ジョブ並列（`needs:` + matrix）:
+  ┌─ infra-env-diff（Kuu 担当）
+  ├─ infra-security-scan（Kuu 担当: gitleaks/npm audit/CSP 検証）
+  ├─ code-coverage（Mio 担当）
+  ├─ code-e2e（Mio 担当）
+  └─ code-a11y（Mio 担当）
+  → 直列 8 分 → 並列 3 分、片方失敗でも他方の結果が PR コメントに表示
+```
+
+### サブステップ詳細（Nao/Ao/Mio/Riku との連携ゲート）
+
+```
+STEP 1 サブ: Nao 設計書 STEP 2 完了時に「外部依存 SaaS 一覧」を先読み
+  → envSchema に載るキー名を Slack で即確定
+  → Ao の実装着手前に Vercel 3 環境へ空枠を先行投入
+
+STEP 2 サブ: Ao の `[env]` プレフィックスコミット検出で Slack ボタン化
+  → 1 クリックで `vercel env add` が 3 環境へ同時投入
+  → 引き継ぎ工数 15 分 → 1 分
+
+STEP 3 サブ: Ao の破壊的マイグレーション PR に自動 Kuu アサイン
+  → `prisma migrate diff` で DROP/NOT NULL 検出 → `breaking-migration` ラベル付与
+  → expand/contract 3 段階デプロイ（NULL 許容追加 → バックフィル → NOT NULL 化）を強制
+
+STEP 4 サブ: Riku の `NEXT_PUBLIC_*` 変更 PR へ自動 bot コメント
+  → 「Build Cache OFF の Redeploy が必要」警告
+  → Riku の自己解決化、Kuu への問い合わせゼロ
+
+STEP 5 サブ: nori への外部送信先レビュー依頼（本番構築時）
+  → Sentry/Vercel/Grafana/BetterStack の「データ保管リージョン / SCC / 削除条項 / サブプロセッサ」4 列表を先出し
+  → GDPR / 個情法違反リスクをデプロイ前に排除
+```
+
 ## 出力フォーマット
 
 ```
@@ -143,6 +213,79 @@ STEP 6: 実装完了報告
 
 ### 残課題・注意事項
 （未設定項目・既知の問題があれば記載）
+```
+
+### デプロイ手順書（Runbook）テンプレ
+
+```markdown
+## デプロイ Runbook — [プロジェクト名] v[X.Y.Z]
+
+### 1. 事前チェック（Pre-Deploy Checklist 10項目）
+- [ ] 全環境変数が Vercel 本番環境に設定済み（`vercel env ls | diff .env.example` 差分ゼロ）
+- [ ] Preview デプロイで動作確認完了（PC・SP 両方）
+- [ ] ビルドログにエラー・警告ゼロ、Lighthouse Performance 90 以上
+- [ ] Sentry / Grafana Cloud が稼働中、PII マスキング設定済み
+- [ ] DB マイグレーション expand/contract 設計、ロールバック SQL dry-run 済み
+- [ ] staging で `vercel rollback` 実演（30 秒以内復帰を実測）
+- [ ] Statuspage が復旧見込み時刻を表示可能な状態
+- [ ] 金曜 15:00 以降ではない（事業由来の凍結窓も Kai と確認）
+- [ ] Mio の QA PASS、SLSA L3 attestation 署名検証 PASS
+- [ ] `stable-*` タグ命名規則確認、ロールバック 1-liner 準備
+
+### 2. 本番昇格手順
+1. `gh workflow run promote-production.yml -f sha=<commit>` 実行
+2. canary 10% 投入後 5 分間の smoke E2E + メトリクス監視
+3. 100% 切替、`stable-YYYYMMDD-HHMM` タグ付与
+4. デプロイ後 30 分の Sentry/Datadog 監視待機
+
+### 3. ロールバック手順（1-liner）
+`vercel rollback $(git describe --tags --match 'stable-*' --abbrev=0)` → 30 秒復帰
+DB は逆行 SQL（`migrations/rollback/*.sql`）を手動実行
+```
+
+### インフラ構成図（ASCII / Mermaid）
+
+```mermaid
+graph TB
+  User[エンドユーザー] -->|HTTPS| CF[Cloudflare DNS/WAF]
+  CF --> Edge[Vercel Edge Network<br/>hnd1 Tokyo]
+  Edge --> Middleware[Edge Middleware<br/>認証/リダイレクト]
+  Middleware --> Fluid[Fluid Compute Functions<br/>Active CPU 課金]
+  Fluid --> Pool[Supavisor<br/>Connection Pooler]
+  Pool --> DB[(Supabase Postgres<br/>ap-northeast-1)]
+  Fluid --> Queue[Inngest / QStash<br/>長時間処理ジョブキュー]
+  Fluid -.->|OTel| Grafana[Grafana Cloud<br/>Loki/Tempo/Mimir]
+  Fluid -.->|Error| Sentry[Sentry<br/>PII マスキング]
+  Edge -.->|Analytics| VA[Vercel Analytics<br/>DORA Metrics]
+```
+
+### 監視ダッシュボード仕様（Grafana / Notion DB）
+
+```markdown
+## 監視ダッシュボード — [プロジェクト名]
+
+### Grafana Cloud ダッシュボード（技術者向け）
+| パネル | メトリクス | 閾値 | 通知先 |
+|-------|-----------|------|-------|
+| p95 レイテンシ | HTTP p95 (ms) | > 500ms | #incidents (P1) |
+| エラー率 | 5xx / total | > 1% | PagerDuty (P0) |
+| Function 実行回数 | 前週比 | > 150% | #infra (課金警告) |
+| DB 接続数 | active / max | > 80% | #infra (枯渇警告) |
+| 証明書残日数 | 期限 (days) | < 14 日 | #infra (TLS 警告) |
+| 合成監視 | ログイン→応募 (5分間隔) | fail | PagerDuty (P0) |
+
+### Notion DB「DORA Dashboard」（経営・Akari 向け）
+| 指標 | 当週 | 前週比 | Elite 水準 | 判定 |
+|------|------|--------|-----------|------|
+| Deployment Frequency | - | - | 日次複数 | ✅/⚠️/❌ |
+| Lead Time | - | - | < 1h | ✅/⚠️/❌ |
+| MTTR | - | - | < 1h | ✅/⚠️/❌ |
+| Change Failure Rate | - | - | < 15% | ✅/⚠️/❌ |
+| 稼働率 (SLA 準拠) | - | - | 99.95% | ✅/⚠️/❌ |
+
+### 利用者向け簡易ヘルスチェック画面
+- 本番 `/status` ページで「応募受信件数（直近 1h）」「主要機能ステータス」を可視化
+- 採用担当が自分で「動いているか」判断可能化、監視アラート受信不要
 ```
 
 ## 連携エージェント
@@ -274,6 +417,14 @@ STEP 6: 実装完了報告
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
 ## 📝 Daily Knowledge Log
+
+### 2026-10-18
+- **Vercel Fluid Compute GA 後の本番移行チェックリスト 6 項目**：① `vercel.json` に `"functions": { "runtime": "fluid" }` 設定 ② Prisma Data Proxy / Supavisor プーリング導入（コールドスタート時のコネクション枯渇防止）③ Active CPU 課金への移行で月次コスト前月比 40-60% 減を Spend ダッシュボードで実測 ④ p95 レイテンシ 80ms 以下を Vercel Analytics で 1 週間監視 ⑤ Skew Protection 併用で chunk 404 ゼロ化 ⑥ 外部 API 待ちの多い Route Handler（求人検索・応募送信）から優先移行。従来 Serverless 比でサーバーレス費用 **50% 削減 + コールドスタート 90% 削減**が標準化、2026 H2 の本番案件全面採用。
+- **GitHub Actions `attest-build-provenance` を全本番デプロイに必須化（SLSA Build L3 署名）**：`actions/attest-build-provenance@v2` で成果物に「このコミット・このワークフロー由来」の署名を自動付与、`cosign verify-attestation` で本番昇格ジョブ側が検証ゲート化。Actions 参照も tag でなく digest 固定（`uses: owner/action@sha256:...`）に移行し、`tj-actions/changed-files` 型のサプライチェーン改ざんを機械防止。Renovate で digest 更新 PR を週次自動化、Critical/High 脆弱性 PR と同じ経路で管理。供給網攻撃起因の本番侵害リスクを構造的に排除。
+- **OpenTelemetry semantic conventions 安定化を機に Sentry + Datadog から Grafana Cloud 1 本化**：HTTP/DB/messaging 属性命名が 2026 で stable 化し、`@vercel/otel` 1 行追加で全 Route Handler のメトリクス・ログ・トレース 3 軸が Grafana Cloud（Loki/Tempo/Mimir）へ自動集約。従来 Sentry（$150）+ Datadog（$150）の月額 $300 を Grafana Cloud $50 に統合、**監視コスト 83% 削減**。Sentry は PII マスキング付きのエラー監視専用に残し、ログ・トレースは OTel へ寄せる住み分けで nori の個情法レビューも通過。「ベンダーロックインなし」をクライアント提案の訴求軸へ。
+- **DORA Metrics を Notion ダッシュボード化し Elite パフォーマー水準で四半期レビュー**：GitHub Actions の cron で毎週金曜 17:00 に「Deployment Frequency / Lead Time / MTTR / Change Failure Rate」の 4 指標を Vercel Analytics API + GitHub API から自動取得→ Notion DB「DORA Dashboard」へ投稿。Elite 水準（日次デプロイ・Lead Time < 1h・MTTR < 1h・Change Failure Rate < 15%）を全プロジェクトで四半期ごとに評価、未達プロジェクトは Kai と優先改善項目を協議。Akari のクライアント月次レポートに「Elite 水準の技術基盤」を数値根拠付きで記載可能化、受注時の技術訴求材料として活用。
+- **応募トラフィックピーク帯（平日21-23時・土日）の最小インスタンス確保を SLO.yaml から自動生成**：Nao の `SLO.yaml` に「応募フォーム POST は応募ピーク帯で p95 500ms 以内」を記載し、`gen-infra-config.ts` が Vercel の `functions[].minInstances` を自動生成（応募経路は 2 インスタンス・管理画面は 0 インスタンス）。深夜帯の初回アクセスで求職者だけが 5 秒待たされる体験を構造的に排除、管理画面側は 0 インスタンスでコスト削減。守る対象を「平均トラフィック」でなく「誰がいつ使うか」で選ぶ運用を SLO ファイル 1 枚に集約。
+- **本番昇格前の「ロールバック実演」を staging で必須化、stable タグ付与と連動**：ドキュメントに手順が「ある」だけでは品質保証にならないため、本番昇格ジョブの前段に「staging で `vercel rollback $(git describe --tags --match 'stable-*' --abbrev=0)` を実行し 30 秒以内に前版へ復帰することを実測」ステップを追加。DB マイグレーションの逆行 SQL も dry-run して Ao と連携確認。「main マージ後 24h 障害ゼロ」のデプロイには GitHub Actions が自動で `stable-YYYYMMDD-HHMM` タグ付与、障害時は最新 stable タグへワンコマンド復帰（**MTTR 30分→30秒**）。深夜・休日の非専門メンバーでも同コマンドで安全復旧可能化。
 
 ### 2026-05-15
 - **本番デプロイ前の Pre-Deploy チェックリスト 10 項目**：① 全環境変数が Vercel 本番環境に設定済み（`vercel env ls` で確認）② プレビューデプロイで動作確認完了（PC・SP 両方）③ ビルドログにエラー・警告ゼロ ④ Lighthouse Performance 90 以上 ⑤ Sentry エラー監視が稼働中 ⑥ DB マイグレーションのロールバック SQL が用意済み ⑦ ロールバック手順ドキュメントが最新 ⑧ ステータスページが復旧見込み時刻を表示可能な状態 ⑨ 金曜 15:00 以降ではない（緊急時のみ override）⑩ Mio の QA PASS 確認済み。1 つでも未達ならデプロイ中止。本番障害件数 80% 削減。
