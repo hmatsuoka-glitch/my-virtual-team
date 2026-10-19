@@ -712,3 +712,71 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **Tailwind の class 並びは手で揃えず `prettier-plugin-tailwindcss` を保存時自動整形に入れ、PR 差分は意味のある変更だけに保つ**：class の並びが人によって違うと saki の PR diff に整形由来の全行差分が混ざる（saki 2026-10-09参照）。導入と同時に1回だけ全体整形のコミットを分離して打ち、以降は差分が出ない状態にする。
 - **Server Action と Zod スキーマのキーは `z.infer` の型を共有し、フォームの `name` は `schema.keyof().options` から生成して打ち間違いを型エラーで潰す**：`name="tel"` と `phone` のズレ（ren 2026-10-09参照）をレビューで見つける運用を、`name={field('phone')}` のヘルパー経由で書くだけにして、存在しないキーはコンパイル時に落ちるようにする。
 - **画像のリサイズは入稿ゲートの目視でなく `sharp-cli` を使った `npm run img` に一本化する**：`sharp-cli -i src/raw/*.{jpg,png} -o public/img -f avif -r 2400` で Hero 用長辺 2400px と AVIF 変換を一括実行し、`.gitignore` で `src/raw/` を除外すれば原本 8MB のコミット（ren 2026-09-02参照）も構造的に防げる。
+
+### 2026-10-19
+- **Next.js 15 の Turbopack 本番ビルド検証開始**：`next build --turbo` が stable となり、ビルド時間が従来比 60% 短縮。CI の `vercel build` を Turbopack 対応に切替、ベンチマークを週次で計測。
+- **React 19 の `useOptimistic` + Server Actions でフォーム UX を全面刷新**：送信ボタン押下から完了画面遷移までの体感待機時間を 300ms → 0ms に。
+- **Tailwind CSS v4 の `@theme` ディレクティブ採用で `tailwind.config.ts` を廃止**：Hana の tokens.json → `globals.css` の `@theme` に直接取り込み、設定ファイル二重管理を解消。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸し
+- Next.js 14 App Router / Tailwind / Framer Motion / Server Actions / Zod / `next/font` / Edge Runtime 区別 / `prettier-plugin-tailwindcss` / sharp-cli まで本番実装の完成域。
+- `error.tsx` / `not-found.tsx` / `generateMetadata` / honeypot / Turnstile / `Intl` locale 固定 / lockfile 厳守など、本番運用の落とし穴を網羅。
+- 一方で、Next.js 15 の Turbopack 本番ビルド、Partial Prerendering、React 19 の Actions / useOptimistic、Tailwind v4 Oxide、Vercel AI SDK は未体系化。
+
+### 2. 2026年に不足している最先端知識領域
+- **Next.js 15（App Router / PPR / `after()` / `unstable_cache` → `cache` 安定化 / Turbopack 本番 stable）** の実装パターン。
+- **React 19（`useActionState` / `useFormStatus` / `useOptimistic` / `use()` / Document Metadata API / Server Components）** の実装標準化。
+- **Tailwind CSS v4（Oxide / `@theme` / `@utility` / `@source` / CSS-first config）** への完全移行。
+- **Vercel AI SDK 4.x（`useChat` / `useCompletion` / RSC Streaming）** の LP への組み込み。
+- **View Transitions API / `<dialog>` + Popover API / Anchor Positioning / Container Queries** の実装パターン。
+- **TanStack Query v5 / SWR 2.x / React Hook Form v8 + Conform.js** の最新データ・フォームパターン。
+
+### 3. 不足している最新ツール・テクニック
+- **Playwright v2（`toHaveScreenshot` + `trace: 'on'`）** で Visual Regression を Mia QA の前段に組み込む。
+- **Million.js / React Compiler（RC → stable）** による再レンダー最適化。
+- **`@vercel/og` v2** による動的 OGP 生成の Hero 画像自動化。
+- **`@vercel/analytics` / `@vercel/speed-insights`** を全案件で必須化、本番劣化を 1 分以内に検知。
+- **Bun 1.2 / pnpm 9** を CI の `install` 層に採用し、ビルド時間を更に短縮。
+- **Lightning CSS** を PostCSS の代替として採用、Vendor Prefix 自動付与と CSS Nesting 最適化。
+
+### 4. 隣接・越境スキル
+- **バックエンド**：Server Actions の Zod スキーマ・Rate Limit（`@upstash/ratelimit`）・DB 接続（Vercel Postgres / Neon）を自力で実装できる水準。
+- **DevOps**：GitHub Actions のワークフロー・Vercel の Build Cache・Turborepo Remote Cache を自分で設計。
+- **アクセシビリティ**：axe-core / `eslint-plugin-jsx-a11y` を CI に組み込み、WCAG 2.2 Level AA を自動保証。
+- **パフォーマンス計測**：Lighthouse CI / Web Vitals SDK を実装し、本番 Field データを Slack 自動投稿。
+- **i18n**：`next-intl` / `next-i18next` で多言語 LP を実装できる水準（技能実習生向け LP 等）。
+
+### 5. オーバースペック化後の出力品質バー
+- **ビルド成功率 100%**：`npm run build` / `tsc --noEmit` / `eslint --max-warnings=0` を CI 必須。
+- **Lighthouse スコア**：Performance / Accessibility / Best Practices / SEO 全カテゴリ 95 点以上。
+- **Core Web Vitals**：LCP < 1.5s / INP < 100ms / CLS < 0.05 を Field データで達成。
+- **Visual Regression**：Playwright `toHaveScreenshot` でピクセル差分 < 1%。
+- **TypeScript strict**：`strict: true` + `noUncheckedIndexedAccess: true` + `exactOptionalPropertyTypes: true` を必須。
+- **ESLint 0 warnings**：`@typescript-eslint` + `eslint-plugin-jsx-a11y` + `eslint-plugin-react-hooks` フル採用。
+
+### 6. 高度 KPI（個人単位）
+- 月次 **Mia QA 一発通過率 >= 85%**（差し戻し率 15% 以下）。
+- 月次 **ビルドエラー発生率 = 0%**（`vercel --prod` 直前）。
+- 月次 **実装リードタイム**：STEP2〜5 平均 <= 1 営業日 / 案件（軽量 LP）。
+- 月次 **Lighthouse Performance 95点以上達成率 100%**。
+- 月次 **TypeScript strict エラー発生 = 0 件**（CI ゲートで物理ブロック）。
+- 月次 **再利用コンポーネント化率 >= 60%**（新規コードのうち既存コンポーネント活用）。
+
+### 7. 想定される失敗パターン
+- **Turbopack の挙動差**：webpack で動いていた一部ライブラリ（CSS-in-JS 系）が Turbopack 本番で動かない。回避：`next.config.ts` で `experimental.turbo.resolveAlias` を調整、本番前に `next build --turbo` を必ず実行。
+- **React 19 Server Components の fetch 二重実行**：Server と Client で同じ API を叩いて二重課金。回避：`cache()` でメモ化、または Server のみで fetch し props で渡す。
+- **`useOptimistic` のロールバック漏れ**：Server Action が失敗しても楽観的更新が残る。回避：try/catch で元の state に戻す処理を必須化。
+- **Tailwind v4 の `@source` 漏れ**：動的に生成されるクラス名がビルドから除外。回避：`@source` ディレクティブで明示登録、`safelist` 概念から移行。
+- **Vercel AI SDK のストリーミング切断**：Edge の 25 秒タイムアウト超過。回避：`maxDuration = 60` 指定 + `experimental_streamData`。
+
+### 8. 継続学習ソース
+- **Next.js 公式 Blog / Vercel Changelog**：Next.js 15 / Turbopack / PPR の仕様変更を毎週。
+- **React 公式 Blog / React Conf 録画**：React 19 / React Compiler の最新。
+- **Tailwind Labs YouTube / Tailwind v4 ドキュメント**：Oxide / `@theme` / `@utility` の実装パターン。
+- **Josh W. Comeau Blog / Theo（t3.gg）/ Jack Herrington**：Server Components / RSC Streaming の実装パターン。
+- **Addy Osmani Newsletter**：Core Web Vitals / INP 改善 / React Compiler 情報。
+- **Lee Robinson（Vercel）/ Delba de Oliveira（Vercel）/ Guillermo Rauch**：Next.js 公式の実装ベストプラクティス。
+- **web.dev / Chrome for Developers**：Browser API（View Transitions / Container Queries）の最新。
+- **Smashing Magazine / CSS-Tricks**：フロントエンド全般の記事を週次で斜め読み。

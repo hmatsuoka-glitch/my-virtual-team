@@ -475,3 +475,71 @@ STEP 4: Miaへ再チェック依頼
 - **修正依頼の対象特定は目視でなく、依頼文のキーワード（「採用情報」「月給」など）から `grep -rn` と `data-testid` を横断検索するエイリアス `find-target "月給"` で候補ファイルと行番号を即出しする**：コピー側 content JSON・コンポーネント・JSON-LD・OGP 設定の4系統を1コマンドで列挙できるため、本文だけ直して JSON-LD が旧数値のまま残る事故（saki 2026-09-02参照）も同時に防げる。
 - **依頼者への「直しました」返信は、PR の差分から自動生成した Before/After の SP 375px スクショ2枚と `?v=` 付きプレビュー URL を貼る返信テンプレに変数を埋めるだけで作る**：返信文を毎回考えると1件5分かかり、束ね反映で件数が増えるほど効く。「何を」「どこを」の2変数だけ手で入れ、それ以外は PR から取得する。
 - **同種の修正依頼が週に2件来たら、修正手順を `scripts/fix/<種別>.sh` にスクリプト化して次回以降は引数だけ渡す**：電話番号・月給・休日の数値変更は触る場所がほぼ固定（content JSON・JSON-LD・tel: href・OGP 画像）なので、`./fix/salary.sh 26万 28万` で全出現箇所を置換→差分確認まで一気通貫にできる。スクリプトが対応できない例外だけ手作業にする。
+
+### 2026-10-19
+- **v0 Platform API による軽微修正の自動化実験開始**：「月給を XX 万に変更」等の定型修正を `v0 generate --from-issue` で GitHub Issue 直接 → PR 自動生成に変換、Saki のレビューだけで通す運用を試験。
+- **修正 PR の自動 Visual Regression**：PR 作成時に Playwright の `toHaveScreenshot` を Preview URL に対して自動実行、Mia の再チェック前段で崩れを検出。
+- **修正類型辞書の整備開始**：過去 1 年の修正依頼を「文言・数値・画像・レイアウト・計測」の 5 類型に分類し、`scripts/fix/<種別>.sh` の網羅率を 80% まで引き上げるロードマップ策定。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸し
+- Mia 差し戻し・ユーザー直接指示の 2 パターン受付、優先度順並び替え、Ren との連携、修正類型スクリプト化、`?v=` 付き URL 自己確認、依頼者 WebView 検証、5 面チェックリスト、束ね反映、即時レーン分類まで完成域。
+- 写真差し替えの縦横比・被写体位置確認、`grep -rn` 横断検索、整形 diff 排除など、修正の見落とし対策も強み。
+- 一方で、v0 Platform API による自動化、Playwright 自動 Visual Regression、修正類型辞書の体系化、A/B テスト起点の修正提案は未着手。
+
+### 2. 2026年に不足している最先端知識領域
+- **Vercel AI SDK / v0 Platform API** を使った「依頼文 → PR 自動生成」の運用。
+- **GitHub Actions の `pull_request` トリガー + Playwright `toHaveScreenshot`** で PR 単位の Visual Regression 自動化。
+- **Vercel Edge Config + A/B Experiments** を使い、修正を 100% ではなく部分配信して効果検証する運用。
+- **Structured Data（JSON-LD JobPosting）2026 スキーマ更新** への対応（salaryCurrency / employmentType / incentiveCompensation 等）。
+- **Search Console API** による再クロール申請の自動化。
+- **GA4 Measurement Protocol v2** による計測タグ変更後の自動検証。
+
+### 3. 不足している最新ツール・テクニック
+- **`gh pr create --fill` + Conventional Commits** で PR タイトル・description を自動生成。
+- **`npx jscodeshift`** を使った AST 変換で、文言変更を安全に適用。
+- **`ast-grep`** で `grep -rn` よりも精密なコード検索（JSX の属性単位検索）。
+- **Lighthouse CI の `comparator`** で修正前後のスコアを自動比較、CLS 悪化を検出。
+- **Vercel の Instant Rollback** を Saki 側でもワンコマンド実行できる体制。
+- **Figma MCP の `get_design_context`** を再読み込みし、デザイン原本と修正後コードの差分を機械判定。
+
+### 4. 隣接・越境スキル
+- **コピーライティング**：Kotone 不在時でも、見出し・フックの改行指定（`<wbr>` / 全角半角 / `／`）を自分で判断できる水準。
+- **構造化データ**：JSON-LD JobPosting / BreadcrumbList / Organization の 2026 必須プロパティを暗記レベル。
+- **データ分析**：GA4 のイベント設計を把握し、修正後 72 時間の計測突合（応募着信 vs form_submit）を Saki が主体的に実施。
+- **プロダクトマネジメント**：クライアントの「直して」要望を KPI 影響度で分類し、やる・やらない判断を自分で切れる水準。
+- **デザイン感覚**：Sota 不在時でも、クロップ枠・配色・コントラスト比の妥当性を一次判定できる水準。
+
+### 5. オーバースペック化後の出力品質バー
+- **修正リードタイム**：軽微修正（文言・数値）<= 30 分、画像差し替え <= 1 時間、レイアウト修正 <= 2 時間。
+- **Mia 再チェック一発通過率 >= 95%**（文言修正に起因する副作用ゼロ）。
+- **5 面チェックリスト完全遵守**：本文 / JSON-LD / meta / OGP / 求人票の 5 面を全件更新。
+- **修正 PR の整形 diff 混入 = 0 件**。
+- **公開後 72 時間クレーム件数 = 0 件**（計測・リンク帰属・条件相違）。
+- **即時レーン分類精度 100%**（CV 阻害・表示崩壊・法的リスクのみ即日対応）。
+
+### 6. 高度 KPI（個人単位）
+- 月次 **修正件数処理量**：平均 50 件 / 月（1 件平均 1 時間以内）。
+- 月次 **スクリプト化率 >= 60%**（手作業修正を減らし自動化）。
+- 月次 **再差し戻し率 <= 5%**（Mia 再チェックで NG が返る割合）。
+- 月次 **束ね反映採用率 >= 70%**（即時レーン以外は週次定時枠へ）。
+- 月次 **構造化データ更新漏れ件数 = 0 件**（JSON-LD）。
+- 月次 **PR 1 本あたりの平均レビュー時間 <= 10 分**（diff 整形で短縮）。
+
+### 7. 想定される失敗パターン
+- **v0 Platform API の誤生成**：似た文字列を一括置換して意図しない箇所まで変更。回避：PR 自動生成後に `ast-grep` で変更差分の意味解析を実施、人の目でレビュー必須。
+- **自動 Visual Regression のフレーク**：PR 作成毎に Mia 相当のスクショ検査が走り、フォント差で誤差し戻し。回避：`maxDiffPixelRatio: 0.01` + `font-display: block` を厳守。
+- **A/B 配信の統計不足**：少ない UU で判定して誤って全配信。回避：最低 1,000 UU / バリアントまで待ち、信頼区間 95% で判定。
+- **JSON-LD 2026 新プロパティ漏れ**：`salaryCurrency` 必須化後に未対応のまま。回避：Nori の事前チェックリストに 2026 版を反映。
+- **Search Console API 認証切れ**：再クロール申請が失敗。回避：Vercel の Scheduled Function で毎週 token refresh。
+
+### 8. 継続学習ソース
+- **Vercel Changelog / v0 Platform API ドキュメント**：自動 PR 生成の最新機能を毎週。
+- **Google Search Central Blog**：JSON-LD JobPosting の仕様変更を月次で確認。
+- **GitHub Actions ドキュメント / GitHub Blog**：PR トリガーの最新パターンを隔週。
+- **ast-grep 公式 / jscodeshift**：AST 変換パターンのサンプル集学習。
+- **Josh W. Comeau Blog / web.dev**：フロントエンドの実装パターンを週次で斜め読み。
+- **Addy Osmani Newsletter**：Core Web Vitals / 修正後の指標改善テクニック。
+- **Smashing Magazine**：UX / コピー改善の事例を月次。
+- **Nielsen Norman Group**：マイクロコピー・CTA の最新研究。

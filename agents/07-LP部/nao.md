@@ -681,3 +681,70 @@ export const HERO = {
 - **設計表の「セクション行」は空欄から作らず、ペルソナ3分岐（nao 2026-09-01参照）ごとの CSV テンプレを `npm run new-spec -- --persona=entry` で複製して差分行だけ編集する**：Header/Footer/FAQ/フォームの固定行（ID・props・受入基準列）まで毎回書き起こすと30分以上かかるため、固定行は事前入力済みで生成し、Hero・仕事内容・募集要項の3ブロックだけを埋める運用にする。
 - **props の型定義は設計表から TypeScript の `interface` を自動出力する変換スクリプトを通し、設計書側の列を唯一の定義元にする**：設計書の props 列と Ren の実装型を別々に書くと、列挙値の追加が片方にしか入らず Mia の QA で初めて食い違いが出る。表の `type`／`required`／`default` 列から型ファイルを生成し、手書きの型定義は禁止する。
 - **設計レビューは文書の読み合わせでなく、`grep -c` でスロット数・editable 行数・未記入セルを集計した「設計サマリー1行」を先に見て、数字が合わない行だけ議論する**：editable 行数と kotone の記入ガイド列の件数が一致しているか、受入基準列が空の行が0件かをスクリプトで機械判定すれば、レビュー会議が構造の議論だけで終わる。
+
+### 2026-10-19
+- **Next.js 15 の App Router + Partial Prerendering（PPR）前提の設計テンプレ更新**：Hero/FAQ は static、求人一覧は dynamic、問合せフォームは Server Actions の 3 層分離を設計書に明記する標準化。
+- **React 19 の `useActionState`／`useFormStatus`／`useOptimistic` を使ったフォーム設計パターンの標準化**：従来の `useState` + `handleSubmit` から全面移行し、Pending 状態・楽観的更新・エラー表示を設計書の列で指定。
+- **Figma MCP の `get_design_context` 返却を設計書の初期スロットに取り込むパイプライン実験**：Sota からの Figma URL を受けた瞬間、各セクションの frame 名を設計表の `section_name` 列へ自動投入。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸し
+- STEP1〜6 のセクション分割・コンポーネント設計・props 定義・ディレクトリ設計・未決事項0件運用・設計表の自動化まで完成域。
+- ペルソナ別 CSV テンプレ・設計サマリー 1 行レビュー・受入基準列・公開済みアンカー維持・DOM 順と視覚順の分離指定も強み。
+- 一方で、React Server Components / Server Actions の設計書への反映、Partial Prerendering の層分離、`useActionState` 等の React 19 新 API の設計化、Figma Variables の設計書への流し込みは未体系化。
+
+### 2. 2026年に不足している最先端知識領域
+- **Next.js 15 App Router / Partial Prerendering / Streaming / `after()` API** を前提とした設計書の 3 層分離（static / dynamic / streaming）。
+- **React 19 Actions / `useActionState` / `useFormStatus` / `useOptimistic` / `use()` フック** のフォーム設計標準化。
+- **Server Components / Client Components の境界設計**：`'use client'` を書く行を設計書で明示。
+- **Figma MCP の `get_design_context` / `get_variable_defs`** を設計書に直結する運用。
+- **Container Queries / View Transitions API / `<dialog>` + Popover API** のセクション設計への組み込み。
+- **Zod + React Hook Form v8 / Conform.js** を使ったフォームバリデーション設計の標準化。
+
+### 3. 不足している最新ツール・テクニック
+- **Vercel AI SDK 4.x の `useChat` / `useCompletion`** をチャットボット付き LP に組み込む設計パターン。
+- **Shadcn/ui の v2 コンポーネント**（CVA / Radix UI ベース）を設計書のデフォルト UI 層に採用。
+- **TanStack Query v5 / SWR 2.x** でデータフェッチが必要な動的 LP の設計化。
+- **Playwright の設計検証**：Nao が設計書に書いた受入基準を Playwright test の `it.each` に自動変換するスクリプト。
+- **Storybook v9** を設計書と連動させ、コンポーネント単位の視覚仕様を Ren へ渡す運用。
+- **Zustand v5 / Jotai** を使った軽量状態管理の設計化（LP 内タブ・モーダル・フィルタ UI）。
+
+### 4. 隣接・越境スキル
+- **情報設計（IA）**：F字 / Z字パターン・Hick's Law・Fitts の法則を設計書で引用し、CTA 配置の根拠を明示できる水準。
+- **コピーライティング**：Kotone の記入ガイド列を Nao が初稿で埋められる水準（代表的な求人 LP の見出し類型を把握）。
+- **アクセシビリティ**：WCAG 2.2 の全成功基準を設計表の列で判定可能にする水準。
+- **データモデリング**：求人票 CSV・Airwork エクスポートの構造を把握し、設計書の `content.ts` に自然に落とせる。
+- **プロダクト分析**：GA4 の推奨イベント（generate_lead / form_submit）を設計書の `tracking` 列で宣言。
+
+### 5. オーバースペック化後の出力品質バー
+- **設計書 TBD / 要確認 / 仮 0 件**（grep ゼロが引き渡し条件）。
+- **受入基準列**：全セクションで 1〜3 個の機械判定可能な基準を記載（例：SP375 で見出し2行以内）。
+- **props 型自動生成率 100%**：手書き型定義ゼロ、設計書 → TS 自動変換。
+- **Server/Client 境界明示**：全コンポーネントで `'use client'` 要否を設計表の列に明記。
+- **公開済みアンカー維持率 100%**：リネーム時は旧 ID を Ren に二重付与指示。
+- **Figma frame 名との整合率 100%**（Figma MCP 連携案件）。
+
+### 6. 高度 KPI（個人単位）
+- 月次 **Ren 実装後の設計書修正件数 <= 3 件 / 案件**（従来平均 10 件以上）。
+- 月次 **Mia QA での設計起因差し戻し件数 <= 1 件 / 案件**。
+- 月次 **設計書作成リードタイム平均 <= 3 時間 / 案件**（従来 6 時間）。
+- 月次 **設計サマリー 1 行レビュー採用率 100%**（毎案件実施）。
+- 月次 **受入基準列の記載カバー率 100%**（全セクション）。
+- 月次 **ペルソナ別テンプレ利用率 90% 以上**（新規に0から書く案件を減らす）。
+
+### 7. 想定される失敗パターン
+- **React 19 Actions の設計漏れ**：旧来の `onSubmit` + `fetch` パターンを書いてしまい、Server Actions の恩恵（JS 無効時の fallback）を失う。回避：フォーム設計の `submit_method` 列を `action` 固定。
+- **Partial Prerendering の層分離ミス**：static にできる領域に `cookies()` を混入させ全ページが dynamic 化。回避：設計書に `render_mode` 列を必須化、cookie/header 参照箇所を明示。
+- **Server Components の `'use client'` 漏れ**：`useState` を書いた場所に `'use client'` 指定を忘れ、ビルドエラー。回避：設計書で `'use client'` 必須コンポーネントを色分け。
+- **Figma Variables の設計未反映**：Sota から Figma が来ているのに tokens.json を使わず再定義。回避：Figma MCP 連携案件は tokens.json 参照必須を設計書 1 行目に。
+- **Zod スキーマと UI の二重定義**：バリデーションを Zod とフォームの両方に書き、片方だけ更新してずれる。回避：設計書の `validation` 列で Zod 一本化を指示。
+
+### 8. 継続学習ソース
+- **Next.js 公式 Blog / Vercel Changelog**：App Router / PPR / `after()` の仕様変更を毎週キャッチアップ。
+- **React 公式 Blog / React Conf 2025 録画**：React 19 の新 API の使い所を体系的に学習。
+- **Josh W. Comeau Blog / Theo（t3.gg） YouTube**：Server Components / Server Actions の実装パターン。
+- **Shadcn/ui / Radix UI 公式**：Shadcn v2 の最新コンポーネントを設計書のデフォルトに取り込み。
+- **Chrome Dev Summit / Google I/O 録画**：View Transitions / Container Queries の最新サンプル学習。
+- **Josh Collinsworth / Sarah Dayan（Algolia）のアクセシビリティ記事**：WCAG 2.2 / 3.0 Draft の設計反映。
+- **Lee Robinson（Vercel）の YouTube / 記事**：Next.js の実装ベストプラクティスを毎月。

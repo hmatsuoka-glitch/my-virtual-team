@@ -333,3 +333,71 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - ロゴからの色抽出はスポイトで1点ずつ採らず、`magick logo.png -alpha off -colors 6 -unique-colors -scale 10000% swatch.png`のように量子化して面積比つきのHEX一覧を1コマンドで出す：ノイズやアンチエイリアスの値が混じりにくく、面積比2%未満の装飾色を候補から機械的に外せる。ロゴがSVGなら`fill=`の値を`grep -o`で直接抜けば圧縮ノイズ自体が存在しない
 - パレット案は3案を最初から作り込まず、基準色のOKLCH色相(H)を±15°ずらした2案だけを同じトークン構造で生成し、HTMLモックの`:root`の1ファイルを差し替えて並べる：クライアントの好みを1回の確認で絞れるので、彩度の戻し（2026-09-13参照）の往復が減る。差し替えるのは色変数だけなので、モックの再作成は発生しない
 - Hanaのtokens.jsonから色トークンをCSS変数とFigma Variablesに同時出力するスクリプトを持ち、色の変更は1か所だけ書き換える：納品物3点の機械照合（2026-10-02参照）の前段で、手転記そのものを作らない。バナー用サブセットもこの出力の部分集合としてhiroに渡すため、パレット変更時の再書き出しが1回で済む
+
+### 2026-10-19
+- **APCA（Advanced Perceptual Contrast Algorithm）本採用の切替検討**：WCAG 2.x コントラスト比から APCA Lc への完全移行時期を検討、WCAG 3.0 Draft の進捗を四半期ごと追跡開始。
+- **Figma Variables の Mode を Light/Dark/HighContrast の3構成で納品標準化**：従来ライト10色＋ダーク10色の2構成から HighContrast を追加、WCAG 2.2 の `prefers-contrast: more` 対応をデフォルトに。
+- **AI カラー抽出（Khroma / Coolors AI）との組合せ運用**：ロゴ抽出 + AI 補助カラー提案で、パレット設計時間を 30% 短縮する試験開始。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸し
+- k-means / 面積比抽出、OKLCH 相対色構文、APCA Lc 判定、45 ペアコントラスト検証、色覚多様性シミュレーション、ダーク版自動生成、グレースケール ΔL、CMYK ↔ sRGB 乖離 ΔE00、トークン名ロール化まで完成域。
+- SVG 原本優先・白抜きロゴ区別・CIガイド改訂確認・暖色シフト対応・色域 gamut-map など、建設業特有の運用も強み。
+- 一方で、WCAG 3.0 Draft 完全対応、HighContrast Mode 標準装備、Figma Variables Mode 連動、AI カラー補助、HDR モニタ対応は未体系化。
+
+### 2. 2026年に不足している最先端知識領域
+- **WCAG 3.0 Draft（APCA ベース）** への完全移行準備。
+- **CSS `color-mix()` / `oklch()` / `light-dark()` / `color-contrast()`** の最新色関数。
+- **Figma Variables の Mode 設計**（Light / Dark / HighContrast / Brand の 4 Mode 構成）。
+- **HDR モニタ対応（Display-P3 / Rec.2020）** とフォールバック設計。
+- **`prefers-contrast: more` / `forced-colors`** メディアクエリの対応。
+- **Material Design 3 のダイナミックカラー**（Monet 風）の建設業パレットへの応用。
+
+### 3. 不足している最新ツール・テクニック
+- **Figma MCP `get_variable_defs`** でトークンを設計時に取り込む。
+- **culori / chroma.js / colorjs.io** の最新バージョンを使った色変換・gamut mapping。
+- **APCA ReadabilityTest** の公式ライブラリ採用、`@tempesta/apca` を CI に組み込み。
+- **Leonardo（Adobe）** でパレット自動生成を初動の候補出しに活用。
+- **Khroma / Coolors AI** でブランドカラー候補を 10 案自動生成。
+- **Playwright + axe-core** で実装後のコントラストを本番で自動検証。
+
+### 4. 隣接・越境スキル
+- **色彩心理学**：Pantone Color of the Year / トレンド調査を四半期で把握、建設業に転用可能なカラーを提案。
+- **印刷カラーマネジメント**：DIC / CMYK / Pantone / 塗料 RGB の相互変換を実務レベルで扱える。
+- **アクセシビリティ**：WCAG 2.2 Level AAA までの達成基準を暗記、Nori 連携時に自力判定。
+- **タイポグラフィ**：APCA Lc の font-size / font-weight 連動要件を Hana / Nao へ適切に指示。
+- **デザインシステム**：Semantic Token / Primitive Token の 2 層構造を自力で設計。
+
+### 5. オーバースペック化後の出力品質バー
+- **45 ペア + placeholder/disabled/注釈 + link×text ペア**：全ペア APCA Lc 基準達成。
+- **色覚多様性 P/D/T 型**：全 CTA / 状態色 / リンクでアイコン併用判定を納品書に記載。
+- **Figma Variables 4 Mode 標準装備**（Light / Dark / HighContrast / Brand）。
+- **CSS 変数定義書 + スウォッチ画像 + 適用ガイドライン**：3 点自動生成で手転記 0 件。
+- **sRGB 域内チェック**：gamut-map で全段階色が実機で再現可能であることを保証。
+- **印刷用 DIC / CMYK 併記**：Web + 印刷の両用パレットを納品。
+
+### 6. 高度 KPI（個人単位）
+- 月次 **パレット納品リードタイム平均 <= 1 営業日 / 案件**。
+- 月次 **コントラスト未達による Mia 差し戻し件数 = 0 件**。
+- 月次 **CI ガイド整合率 100%**（公式 HEX 値と抽出値の ΔE00 乖離を記録）。
+- 月次 **Figma Variables 連動納品率 100%**（Figma MCP 連携案件）。
+- 月次 **再利用パレット活用率 >= 40%**（同クライアント追加案件）。
+- 月次 **色覚多様性チェック実施率 100%**（P/D/T 型シミュレーション）。
+
+### 7. 想定される失敗パターン
+- **APCA と WCAG 2.x の併記混乱**：Nori が WCAG 2.x 基準で判定し APCA 合格でも差し戻し。回避：納品書に両基準の数値を併記、優先順位を明記。
+- **HDR モニタ色の sRGB クランプ**：OKLCH の広色域値が実機で再現されず承認時と色が違う。回避：gamut-map で納品前に sRGB 域内に丸める。
+- **`forced-colors` モードでの CTA 消失**：Windows ハイコントラストモードで CTA が消える。回避：`forced-color-adjust: auto` の挙動を納品時にチェック。
+- **Figma Variables の Mode 爆発**：4 Mode × Brand = 大量の組合せで管理不能。回避：Primitive と Semantic を分離、Mode は Semantic のみに適用。
+- **AI カラー補助の文脈外提案**：Khroma が建設業と無関係なカラー提案。回避：建設業パレットのプロンプトを定型化。
+
+### 8. 継続学習ソース
+- **W3C WCAG 3.0 Working Draft / APCA 公式**：Draft 進捗を四半期ごとチェック。
+- **Lea Verou（CSS Working Group）/ Chris Lilley** の記事：CSS Color Module Level 4/5 の最新。
+- **Nathan Curtis（EightShapes）**：デザイントークンの最新パターン。
+- **Material Design 3 ドキュメント / Apple HIG**：ダイナミックカラーの最新実装。
+- **Pantone / Adobe Color Trends**：年次トレンドレポートを採用時に参照。
+- **Figma Config 録画**：Figma Variables / Modes の最新ワークフロー。
+- **Josh W. Comeau / Smashing Magazine**：Color の実装パターンを月次。
+- **A11y Weekly / Deque**：WCAG / APCA のアクセシビリティ記事を週次。

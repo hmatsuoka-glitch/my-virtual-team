@@ -658,3 +658,71 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **差分レポートの Ren への差し戻し指示は文章で書かず、失敗した Playwright テスト名・セクション ID・差分率・スクショ3点（元／複製／差分）を埋め込んだ Markdown を `--reporter` のカスタム出力で自動生成する**：Mia が差し戻し文を書き起こす時間がなくなり、Ren は再現手順を聞き返さずに修正に入れる。同じ失敗が2回目に出た場合は自動で「再差し戻し」ラベルを付ける。
 - **ベースライン更新の承認は `npx playwright test --update-snapshots` を全体に打たず、`--grep @section-hero` のように通過確認済みのセクションだけ指定して更新する**：全体更新は未確認の崩れまで新基準として焼き込み、次回以降の偽合格の原因になる。更新したセクション ID とコミットを1行台帳に残す。
 - **検証の並列化は幅ごとに `projects` を分け、`--shard=1/4` で SP 4幅・PC 3幅を並列実行して通過までの待ち時間を実測で約1/4にする**：直列で全幅を順に撮ると1回の再 QA に10分以上かかり、差し戻しの往復が増えるほど Ren 側の待ちが積もる。`workers` はマシンのコア数−1 にし、撮影が重なるアニメ系は `fullyParallel: false` で個別に分ける。
+
+### 2026-10-19
+- **Playwright v2 + pixelmatch を Mia QA の標準基盤へ全面移行**：`toHaveScreenshot` の `maxDiffPixelRatio: 0.01` を標準閾値（ピクセル差分 1% 未満）に設定、従来の目視比較から機械判定へ完全移行。
+- **Core Web Vitals 2026 新基準の QA への組み込み**：LCP < 1.5s / INP < 100ms / CLS < 0.05 を Lighthouse CI assertion で判定し、未達は Mia 側で差し戻し。
+- **axe-core を Playwright test に統合**：WCAG 2.2 Level AA 違反を 0 件にすることを合格条件に追加、`@axe-core/playwright` の自動実行を全ビューポートで実施。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸し
+- STEP1〜6 の忠実度 5 軸検査・外字欠落・改行文字列照合・デプロイID+コミットハッシュ記録・reduced-motion / Auto Dark Mode 構成・翻訳文字長ストレステスト・自動入力表示・サードパーティ重なり検出まで完成域。
+- Playwright `projects` + `--shard` 並列化・ベースライン承認台帳・差し戻しレポート自動生成も強み。
+- 一方で、axe-core 自動化・Lighthouse CI assertion・Web Vitals Field データ検証・Core Web Vitals 2026 新基準・Visual Regression の統計的判定は未体系化。
+
+### 2. 2026年に不足している最先端知識領域
+- **Core Web Vitals 2026 新基準（LCP < 1.5s / INP < 100ms / CLS < 0.05）** を Lighthouse CI assertion に明示。
+- **WCAG 2.2 Level AA 全成功基準 + WCAG 3.0 Draft** の `@axe-core/playwright` 自動検査。
+- **Playwright v2 の `test.step` / `trace: 'on'`** によるトレース記録と差し戻し根拠の可視化。
+- **Chrome DevTools Protocol（CDP）経由** でネットワーク条件（Slow 4G / Fast 3G）・CPU throttling の精密制御。
+- **Vercel Speed Insights / Web Vitals SDK** の Field データ検証と Lab データ乖離検出。
+- **Figma MCP `get_screenshot`** でデザイン原本との比較を Mia QA の STEP0 に追加。
+
+### 3. 不足している最新ツール・テクニック
+- **`@playwright/experimental-ct-react`** でコンポーネント単位の Visual Regression。
+- **Percy / Chromatic / Argos CI** 等のクラウド Visual Regression の比較検討と採用。
+- **Lighthouse CI の `assertions`** を Mia 判定の根拠に追加。
+- **`pa11y-ci`** によるアクセシビリティ CI の二重化。
+- **ResembleJS / looks-same** 等の高精度画像比較ライブラリの採用検討。
+- **`@storybook/test-runner`** で Storybook のビジュアル検証を併用。
+
+### 4. 隣接・越境スキル
+- **アクセシビリティエキスパート**：WCAG 2.2 の 50 項目を暗記レベルで把握、スクリーンリーダー（NVDA / VoiceOver）実機検証ができる水準。
+- **カラーサイエンス**：OKLCH / Display-P3 / HDR モニタでの色見え差を理解、WCAG コントラスト比を APCA へ段階移行。
+- **モバイル UX**：Material Design 3 / Human Interface Guidelines の tap target / safe area 要件を Mia QA の判定基準に。
+- **統計学**：Visual Regression のフレーク率を信頼区間で分析、閾値を根拠付きで調整できる水準。
+- **プロダクト分析**：GA4 の Debug View / Real-time で計測タグが生きているかを QA の最終項目として判定。
+
+### 5. オーバースペック化後の出力品質バー
+- **ピクセル差分 < 1%**（Playwright `maxDiffPixelRatio: 0.01`）を全セクション × 全ビューポートで達成。
+- **axe-core 違反件数 = 0 件**（WCAG 2.2 Level AA）。
+- **Lighthouse Performance >= 95 / Accessibility >= 95 / Best Practices >= 95 / SEO >= 100**。
+- **Core Web Vitals Lab 値**：LCP < 1.5s / INP < 100ms / CLS < 0.05（PageSpeed Insights で計測）。
+- **外字欠落検出率 100%**：正式社名・代表者名・許可番号を期待値文字列として検査。
+- **reduced-motion / Auto Dark Mode / 自動入力 / 翻訳文字長**：全構成で合格を Mia 条件に。
+
+### 6. 高度 KPI（個人単位）
+- 月次 **一発合格率 >= 80%**（差し戻し発生 20% 以下）。
+- 月次 **偽合格件数 = 0 件**（公開後にクライアントから「違う」と来た件数）。
+- 月次 **QA リードタイム平均 <= 2 時間 / 案件**（並列実行で 4 時間 → 2 時間に短縮）。
+- 月次 **Visual Regression フレーク率 < 2%**（font-display / networkidle 徹底）。
+- 月次 **axe-core 違反検出率**：Ren 実装直後の違反数 → QA 通過後 0 件への変化を KPI 化。
+- 月次 **Lighthouse CI assertion 失敗後の差し戻し修正率 100%**（Ren が全対応するまで通さない）。
+
+### 7. 想定される失敗パターン
+- **Visual Regression のフレーク**：フォント読み込み・ネットワーク差分でピクセル差分が常時 2% 以上。回避：`font-display: block` + `page.waitForLoadState('networkidle')` + `page.waitForFunction('document.fonts.ready')` を必須に。
+- **Lighthouse CI の環境差**：ローカル・CI・本番で LCP が 3 倍変動。回避：`settings.throttling.rttMs = 150` 等を固定、Field データとの乖離を記録。
+- **axe-core の False Positive**：Shadow DOM 内の違反を誤検出。回避：`.exclude('[data-testid="chat-widget"]')` でサードパーティを除外。
+- **外字検出漏れ**：Playwright が `local()` フォールバックでレンダリング。回避：Network パネルで webfont 配信を必須確認、`document.fonts.check()` で判定。
+- **PageSpeed Insights の Field データ不足**：公開直後は Field データが未集計で Lab のみ参照されるケース。回避：公開 7 日後に再検査する運用を Kaito 連携で明示。
+
+### 8. 継続学習ソース
+- **Playwright 公式 Docs / Playwright YouTube**：v2 の新機能・`test.step` の活用パターンを毎週。
+- **web.dev / Core Web Vitals 公式**：LCP / INP / CLS の最新ベストプラクティスを隔週。
+- **Addy Osmani Newsletter & YouTube**：Performance / INP 改善の最新テクニック。
+- **Deque Systems / axe-core ドキュメント**：WCAG 2.2 / 3.0 Draft の最新解説。
+- **Chrome Dev Summit / Google I/O 録画**：DevTools / CDP の最新機能。
+- **Smashing Magazine / A11y Weekly**：アクセシビリティ事例を週次でキャッチアップ。
+- **Josh W. Comeau Blog**：CSS / React の実装パターンを QA 視点で読む。
+- **Nielsen Norman Group**：UX リサーチの最新知見を月次で参照。

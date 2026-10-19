@@ -831,3 +831,70 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - フォントの実使用範囲は`document.fonts`をループして『実際にロードされたフォントファイルのfamily・weight・style・unicode-range』だけを列挙する：ソースの`@font-face`を全て仕様書に書き出す作業が不要になり、使われていないweightの追加ダウンロードを仕様に混ぜない。ライセンス判定表（2026-09-01参照）への突き合わせも実使用分だけで済む
 - `:root`のカスタムプロパティは`getComputedStyle(document.documentElement)`で一括取得し、値の完全一致でtokens.jsonの色・余白キーを逆引きして候補マッピングを自動生成する：元サイトがCSS変数を使っている場合、手で『この16進はどのトークンか』を対応づける作業が消える。一致しない値だけを人が判断するので、例外処理に時間を使える
 - レスポンシブの確認は375/768/1280pxの3幅で目視往復せず、Playwrightで元サイトと実装の両方のフルページスクリーンショットを1コマンドで撮り、pixelmatchで差分率と差分箇所の画像を出す：差分率が閾値内なら通過、超えた箇所だけをRen/Kaitoへ戻す。ブレークポイントごとの見比べを全ページで繰り返さなくてよい
+
+### 2026-10-19
+- **Tailwind CSS v4 の Oxide エンジン学習開始**：`@theme` ディレクティブで CSS 変数と Tailwind トークンを一元管理する運用に切替、`tokens.json` の出力形式を v4 準拠へ変更。
+- **Figma MCP の `get_variable_defs` 統合**：Figma Variables が設定された案件は、`get_design_context` → Variables JSON を自動取得し、CSS 抽出の STEP2〜3 を 60% 短縮する実験開始。
+- **`color-mix()`・`oklch()`・`light-dark()` の全走査スクリプト**：2026年にモダンサイトで激増している CSS 色関数を解決前・解決後の両方で記録する走査ロジックを `extract-color.ts` に追加。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸し
+- STEP1〜8 の CSS 完全抽出・DevTools Coverage 検証・`document.getAnimations()`／`document.fonts` ダンプ・pixelmatch 差分検証まで、CSS 抽出スペシャリストとして完成域。
+- `tap_target_warning` / `late_reveal_risk` / `text_scale_risk` / `prefers-reduced-motion` 判定など、建設業求職者の実環境に即した独自フラグ運用も強み。
+- 一方で、Figma Variables → Tailwind v4 `@theme` の自動変換、Tailwind v4 Oxide の最適化出力、CSS Container Queries の完全対応、View Transitions API のアニメ抽出は未着手。
+
+### 2. 2026年に不足している最先端知識領域
+- **Tailwind CSS v4（Oxide / `@theme` / CSS-first config / `@utility`）** のトークン命名規約と抽出スクリプトの v4 対応。
+- **CSS Container Queries（`@container` / `cqw`/`cqh`）** の抽出走査追加。従来の `@media` だけでは漏れる。
+- **CSS `@scope` / `@layer` / `@starting-style` / View Transitions API** の走査対応。
+- **Figma Variables / Figma MCP の `get_variable_defs`** による設計時トークンの直接取り込み。
+- **`color-mix()` / `oklch()` / `light-dark()` / `color()`** の色空間別記録と WCAG コントラスト比の自動計算。
+- **CSS Anchor Positioning / `position-try` / Popover API** を使ったトーストやメニュー実装の抽出。
+
+### 3. 不足している最新ツール・テクニック
+- **Figma MCP `get_design_context` / `get_variable_defs`** を STEP2〜3 の初期入力として採用。
+- **Playwright `toHaveScreenshot` + pixelmatch** を 375 / 768 / 1280 の 3 幅で自動実行し、差分率を仕様書に記載。
+- **PostCSS AST 解析（`postcss-scss` / `postcss-nested`）** で生 CSS を厳密パース、`@media` / `@container` / `@scope` の完全網羅。
+- **Puppeteer の `coverage.startCSSCoverage`** を自動化し、使用済みルールと未使用ルールの仕分けを納品前に自動化。
+- **WAVE / axe-core CLI** による抽出時のアクセシビリティ事前チェック（コントラスト比 4.5:1 以上、tap target 44px 以上）。
+- **`capo.js`** による `<head>` の読み込み順最適化診断。
+
+### 4. 隣接・越境スキル
+- **デザイントークン設計**：Figma Variables → tokens.json → Tailwind `@theme` の変換辞書を自力で設計できる水準。
+- **アクセシビリティ**：WCAG 2.2 / 3.0 Draft の最新条文（Target Size・Focus Visible・Dragging Movements）を抽出時に判定。
+- **フォントタイポグラフィ**：Variable Font の `font-variation-settings` の axis を正確に抽出し、`wght`/`wdth`/`opsz` を記録。
+- **カラーサイエンス**：OKLCH / Display-P3 / sRGB の色空間差を理解し、HDR モニタでの見え方差を Mia へ事前共有。
+- **パフォーマンス計測**：抽出時に Lighthouse CI を回し、元サイトの LCP / INP / CLS を基準値として記録しておく。
+
+### 5. オーバースペック化後の出力品質バー
+- **CSS 抽出網羅率 100%**：DevTools Coverage の未使用仕分けまで含めて 0 件未分類。
+- **アニメーション抽出網羅率 100%**：`document.getAnimations()` + 生 CSS 走査の両面で漏れゼロ。
+- **ブレークポイント網羅**：`@media` + `@container` の全条件を昇順リスト化、丸めずに記録。
+- **色値の形式**：HEX / RGB / OKLCH の 3 形式で記録、WCAG コントラスト比を併記。
+- **フォント実使用証明**：`document.fonts` ダンプで実ロード済み family / weight / unicode-range を証跡化。
+- **仕様書の出所ラベル**：全プロパティに「computed / 生 CSS / 推定」を明示、推定ゼロを原則。
+
+### 6. 高度 KPI（個人単位）
+- 月次 **STEP1〜8 完了リードタイム平均 <= 4 時間**（従来 8 時間を半減）。
+- 月次 **Ren 実装後の CSS 差し戻し件数 <= 3 件 / 案件**（従来平均 10 件）。
+- 月次 **Mia QA でのピクセル差分検出件数 <= 5 件 / 案件**（CSS 由来のもの）。
+- 月次 **DevTools Coverage 未使用仕分け未達件数 = 0 件**。
+- 月次 **抽出済みフォントのライセンス確認カバー率 100%**（Nori への事前送付）。
+- 月次 **`color-mix()` / `oklch()` 検出時の仕様書記録率 100%**。
+
+### 7. 想定される失敗パターン
+- **Tailwind v4 Oxide の JIT 消失**：v3 の `safelist` 概念が v4 で変更され、動的クラスが抽出漏れ。回避：`@source` ディレクティブで明示登録。
+- **Figma Variables の未定義モード**：Light/Dark 以外に Brand モードが設定された案件で、デフォルトモードしか抽出せず別モードが欠落。回避：全 Mode を `get_variable_defs` で列挙。
+- **View Transitions API の抽出漏れ**：`::view-transition-*` の疑似要素を `getComputedStyle` が返さない。回避：生 CSS 走査でキーワード検索。
+- **Container Queries の見落とし**：`@container` を `@media` と誤認し `cqw` 単位の挙動が消失。回避：抽出スクリプトに `@container` 走査を追加。
+- **OKLCH 色の sRGB フォールバック欠落**：古いブラウザで色が崩れる。回避：OKLCH 検出時は sRGB 変換値を併記。
+
+### 8. 継続学習ソース
+- **Josh W. Comeau Blog**：CSS 新機能（`:has()`・Container Queries・View Transitions）の実装パターンを月1回チェック。
+- **Smashing Magazine / web.dev**：Chrome Dev Summit の録画・CSS 新仕様記事を優先視聴。
+- **Tailwind Labs YouTube / Tailwind v4 公式ドキュメント**：Oxide エンジン / `@theme` の最新パターンを毎月。
+- **CSS Working Draft（CSSWG）**：`@scope` / Anchor Positioning / Nested CSS の仕様更新を Twitter / GitHub でウォッチ。
+- **Figma Config 2025 / 2026 録画**：Figma Variables / MCP の最新ワークフロー学習。
+- **Addy Osmani の Core Web Vitals 記事**：CSS 由来の LCP/CLS 改善テクニックを隔週。
+- **Rachel Andrew（Google） / Miriam Suzanne の記事**：CSS レイアウト・カスケードレイヤーの最新知見。

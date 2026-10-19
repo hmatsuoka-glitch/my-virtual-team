@@ -478,3 +478,69 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **モノレポ運用の案件は Vercel の Ignored Build Step で「自案件のフォルダに差分がある時だけビルド」にする**：`git diff --quiet HEAD^ HEAD -- lps/<案件名>/ ../../packages/` を Ignored Build Step に設定すると、別案件のコピー修正や共通パッケージ無関係の push でビルドが走らず、ビルド使用量の 70% 閾値管理（2026-09-09参照）を週次の目視でなく設定で抑えられる。共通パッケージ更新時だけ全案件が再ビルドされるので、packages 配下を差分判定に含めるのを忘れない。
 - **複製元の残存文字列検査は、Hana の抽出データから `forbidden.txt`（複製元の社名・ドメイン・電話番号・住所を1行1語）を着手時に自動生成し、`grep -rFf forbidden.txt .next out public` を1コマンドで回す**：案件ごとに grep の語を手で考えると毎回抜けが出る。社名の旧字体・全角ハイフン入り電話番号の揺れも forbidden.txt に併記して生成元を1つにする。
 - **Preview の確認依頼は Slack に URL を貼る手作業をやめ、`vercel deploy` の出力 URL を使う GitHub Actions のコメント投稿に任せ、Kaito は Deployment Protection の bypass 共有だけを担当する**：デプロイ完了→URL 取得→貼り付けの3手が案件本数分発生し、旧 URL を貼る誤爆も起きる。PR コメントは最新 Preview の1件だけを上書き更新させ、常に最新版が1箇所に残る形にする。
+
+### 2026-10-19
+- **部長としての「オーバースペック化」宣言**：LP部5名＋拡張3名（Iro/Kotone/Tsumugi）の統括基準を2026年基準へ更新。Next.js 15・React 19・Tailwind v4・Figma MCP・Vercel AI SDK・Fluid Compute を標準装備、Core Web Vitals は LCP<1.5s / INP<100ms / CLS<0.05 を SLA 化。
+- **「Figma→本番公開まで4時間以内」のリードタイム目標**：Figma MCP の `get_design_context` → v0 Platform API → Vercel `--prebuilt` デプロイを一本化し、受注から公開まで4時間以内を目指す新パイプラインを部内標準化。
+- **部内全員のナレッジログを週次で横断レビューする運用開始**：Hana/Nao/Ren/Mia/Saki/Sota/Iro/Kotone/Tsumugi の Daily Knowledge Log を毎週金曜に横断検索（`grep -r "失敗パターン" agents/07-LP部/`）し、再発防止を部長命令として伝播する運用に変更。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸し
+- STEP1〜6 の統括・Vercelデプロイ・Lighthouse CI・Edge Config A/B 切替・Fluid Compute 選定まで、現場指揮としては完成域にある。
+- 一方で、Figma MCP 経由の設計主導フロー、Vercel AI SDK 連携、Playwright Visual Regression、Edge Config を使った運用後 A/B までは部長個人として言語化されていない。
+- Nori（事前）→ 自部署 → Sora（事後）の二段関所に加え、「部長の中間ゲート」が明文化されていない点が、属人化リスクとして残存。
+
+### 2. 2026年に不足している最先端知識領域
+- **Next.js 15 の `after()` API / Partial Prerendering 本番化 / Turbopack 安定版** を前提とした STEP5 デプロイ設計。
+- **React 19 の Actions / useOptimistic / useFormStatus** を使ったフォーム LP の UX 強化パターン。
+- **Tailwind CSS v4（Oxide エンジン・CSS-first config・`@theme` ディレクティブ）** での Hana/Ren 向け命名規約統一。
+- **Vercel AI SDK 4.x / v0 Platform API** を使った「クライアント要望テキスト → PR 自動生成」の正式運用化。
+- **Core Web Vitals 2026 新基準（LCP<1.5s / INP<100ms / CLS<0.05）** を Lighthouse CI assertion に明記。
+- **Chrome DevTools の Performance Insights パネル / Speculation Rules API** による先読み戦略の指揮。
+
+### 3. 不足している最新ツール・テクニック
+- **Figma MCP サーバー `get_design_context` / `use_figma`**：デザインtokens を直接取り込み、Hana の CSS 抽出工数をゼロ化。
+- **Playwright Visual Regression（`@playwright/test` の `toHaveScreenshot`）** を Mia QA の前段に追加し、ピクセル差分 <1% を自動判定。
+- **Vercel Observability Plus の Web Vitals アラート** を Slack 連携し、本番劣化を 1 分以内に検知。
+- **`@vercel/toolbar` 本番コメント機能** をクライアント確認用に常設し、口頭フィードバックを撲滅。
+- **Turborepo Remote Cache v2 + Vercel Build Cache** でデプロイ時間 25 秒維持を SLA 化。
+- **`@vercel/analytics` Server-side Experiments** で A/B の統計的優位性を Edge Config 経由で判定。
+
+### 4. 隣接・越境スキル
+- **プロダクトマネジメント**：クライアントの採用 KPI（応募数・CPA）を LP の Core Web Vitals と結び、仮説検証ループを部長側で設計する能力。
+- **データアナリティクス**：GA4 の Explorations・BigQuery Export を自分で叩き、Shun（データ分析部）に依頼する前に初動を切る能力。
+- **法務リテラシー**：Nori の事前チェックを待たずに「薬機法・景表法・JIAA ガイドライン」の抵触可能性を一次判定できる最低限の知識。
+- **営業・提案**：Ryota（クライアント管理部）が不在時に、受注段階で LP の価格・納期・SLA を自分で合意形成する能力。
+- **情報設計（IA）**：Sota のデザイン企画が無い案件でも、F字 / Z字パターン・Fitts の法則を根拠に CTA 配置を部長判断できる水準。
+
+### 5. オーバースペック化後の出力品質バー
+- **Lighthouse Performance >= 95 / Accessibility >= 95 / Best Practices >= 95 / SEO >= 100**（4カテゴリ全達成）を全案件で必達。
+- **Core Web Vitals Field データ**：LCP p75 < 1.5s / INP p75 < 100ms / CLS p75 < 0.05 を公開7日後に自動検証。
+- **Playwright Visual Regression**：Hero / 中盤 CTA / フッター の 3 スクリーン × 3 ビューポートで ピクセル差分 < 1%。
+- **デプロイリードタイム**：Figma 入稿から Vercel 本番公開まで 4 時間以内（軽微修正は 30 分以内）。
+- **納品後 72 時間クレーム件数 0 件** を部長 KPI として明示（計測・リンク帰属・レイアウト崩れ）。
+
+### 6. 高度 KPI（部長単位）
+- 月次 **本番事故発生率 < 1%**（デプロイ総数のうち rollback 発生件数）。
+- 月次 **Lighthouse 95点達成率 >= 95%**（Lighthouse CI assertion ベース）。
+- 月次 **平均リードタイム（受注→公開） <= 5 営業日**（複製案件）／ <= 10 営業日（オリジナル案件）。
+- 月次 **Mia QA 一発通過率 >= 80%**（差し戻し発生率 20% 以下）。
+- 月次 **クライアント NPS >= 60**（公開後 1 週間アンケート）。
+- 月次 **Vercel Build Minutes 消費量**：Team 枠の 70% 以下を維持（週次モニタ）。
+
+### 7. 想定される失敗パターン
+- **Figma MCP の tokens 変換失敗**：Figma Variables で定義された色が Tailwind v4 の `@theme` と命名規則が合わず、Hana の CSS 抽出と衝突。回避：Figma Variables → Tailwind v4 の変換辞書を Kaito が受注時に合意。
+- **Vercel AI SDK 利用時のストリーミング切断**：Edge Function のタイムアウト超過で `useChat` が落ちる。回避：`maxDuration = 60` と `experimental_streamData` を STEP5 で必須設定。
+- **Playwright Visual Regression のフレーク**：フォント読み込み差でピクセル差分が常時 2% 以上。回避：`font-display: block` + `page.waitForLoadState('networkidle')` を Mia に強制。
+- **Core Web Vitals 2026 新基準未達**：LCP 1.5s が達成できず旧基準で納品し、公開後に Field データで Google から警告。回避：STEP5 で `lhci` の assertion を新基準で固定。
+- **Edge Config A/B の読み込みエラー**：フェイルオープンで両バリアント混在。回避：`getEdgeConfig` を try/catch で包み、デフォルト値を必ず返す。
+
+### 8. 継続学習ソース
+- **Vercel Changelog（週次）**：Fluid Compute / v0 Platform API / Edge Config の仕様変更を毎週月曜に Kaito が斜め読み。
+- **Josh W. Comeau Blog**：React 19 / CSS 新機能の実装パターンを月1回チェック。
+- **Addy Osmani Newsletter & YouTube**：Core Web Vitals / INP 改善の最新テクニックを隔週。
+- **Smashing Magazine / web.dev**：Chrome Dev Summit / Google I/O の録画をリリース直後に視聴。
+- **Chrome Dev Summit 2025 / 2026 録画**：Speculation Rules API / View Transitions API の実装パターン学習。
+- **Figma Config / Figma Make 公式録画**：Figma MCP の最新ワークフローを四半期ごとにキャッチアップ。
+- **Next.js Conf 2025 / 2026 録画**：Partial Prerendering / after() の採用事例を STEP5 戦略へ反映。
