@@ -376,3 +376,82 @@
 - **効率化テクニック：媒体ごとに列名と日付書式が違うCSVは、媒体別の列名対応表（YAML）を1つ持ち、取り込み時に標準スキーマへ変換する**：Indeed・求人ボックス・Airワークなどの出力を毎回手で揃えると、列のずれや日付の取り違えが起きやすい。対応表に型と必須列を書いておけば、新しい媒体の追加は対応表の1ファイル分で済み、取り込み時に欠損列も検出できる。
 - **効率化テクニック：月次の分析ノートブックはクライアントIDと期間をパラメータにして、7社分を1回の実行で出力する**：クライアントごとにノートブックを複製すると、修正が7か所に必要になり、社ごとに集計の定義が微妙に違ってしまう。パラメータ化すれば定義は1か所で、結果の確認は前月との差分が大きい社から始められる。
 - **効率化テクニック：分析依頼の受付は自由文でなく、「この結果で変わる判断」「判断の期限」「使える数値の粒度」の3項目を書くフォームにする**：目的が曖昧な依頼は深掘りの途中で方向が変わり、やり直しになる。判断と期限が先に分かれば、探索分析にするか既存サマリーで返すかをその場で決められ、着手前の確認往復が減る。
+
+### 2026-10-19
+- **Causal Inference（因果推論）本格導入**：Judea Pearl の因果推論手法（DAG / do-calculus / Propensity Score Matching）で、相関と因果を厳密に区別。従来の A/B テストで扱えないケース（施策の重畳・自己選択バイアス）に対応。
+- **MMM（Marketing Mix Modeling）実装**：Meta Robyn / Google Meridian をベースに、全7社の媒体別貢献度を定量化。Marketing の月次レポート（Marketing agent）と連携。
+- **Bayesian A/B Testing 導入検討**：従来の頻度論ベース（p 値）から、ベイズ推論ベースの A/B テスト判定へ移行検討。小サンプル・連続モニタリングで有利。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの延長：世界基準のデータ分析運用への引き上げ
+- **Causal Inference（因果推論）**：DAG（Directed Acyclic Graph）で因果構造を可視化し、Propensity Score Matching / Instrumental Variables / Diff-in-Diff で因果効果を推定。A/B テストで扱えないケース（施策重畳・自己選択バイアス）に対応。
+- **Bayesian Statistics**：頻度論ベースの p 値から、ベイズ推論ベースの事後分布へ移行。信頼区間でなく確信区間（Credible Interval）で結論を提示。
+- **Time Series Forecasting（Prophet / NeuralProphet / ARIMA / LSTM）**：予測モデルの体系的実装。10-02 記録の予測精度追跡を体系化。
+- **Causal Impact（Google BSTS）**：施策導入前後の時系列効果推定。Marketing / Sales 施策の効果検証。
+- **Metric Tree + Decomposition Analysis**：KPI の変動要因を数学的に分解（Price × Quantity × Mix 分析）。
+- **Hypothesis-Driven Analysis**：仮説 → データ収集 → 検証のサイクルを徹底。探索的分析との区別。
+
+### 2. 不足している最先端知識（2026年版）
+- **MMM（Marketing Mix Modeling）2026**：Meta Robyn / Google Meridian / PyMC Marketing。Cookie 不要の媒体効果測定。
+- **Uplift Modeling**：施策で効果が変わる層を特定する機械学習手法。
+- **Survival Analysis**：顧客の継続・解約の時間イベント分析。
+- **Causal Forests（Susan Athey）**：因果効果の異質性推定。
+- **Multi-Armed Bandit**：A/B テストを超えた動的最適化。
+- **Reinforcement Learning**：長期意思決定の最適化。
+- **Explainable AI（SHAP / LIME）**：機械学習モデルの解釈。
+- **Data Observability（Monte Carlo / Metaplane）**：データパイプライン品質の可観測性。
+
+### 3. 不足している最新ツール・技法
+- **Meta Robyn / Google Meridian / PyMC Marketing**：MMM の OSS 実装。
+- **CausalML（Uber）/ EconML（Microsoft）**：因果推論ライブラリ。
+- **PyMC / Stan / Numpyro**：ベイズ推論フレームワーク。
+- **Prophet / NeuralProphet / Darts**：時系列予測。
+- **dbt + BigQuery / Snowflake / Databricks**：モダンデータスタック。
+- **Hex / Deepnote / Jupyter Notebooks + Papermill**：インタラクティブ分析環境。
+- **Streamlit / Gradio / Observable**：分析成果物の対話型配布。
+- **DuckDB / MotherDuck**：ローカル分析エンジン。
+
+### 4. 隣接・クロスドメインスキル
+- **データサイエンス（統計基礎 + 機械学習基礎）**：仮説検定・推定・分類・回帰の原理。
+- **データエンジニアリング（ETL/ELT + Reverse ETL）**：Dat が利用するデータ基盤の構造理解。
+- **プロダクトマネジメント（Prioritization Framework）**：分析結果を意思決定に繋げる視点。
+- **UX / Data Visualization（Edward Tufte）**：10-09 記録の縦軸起点・2軸禁止の原則を体系化。
+- **行動経済学 / 心理学**：意思決定バイアスの理解。Data Storytelling に活用。
+- **ドメイン知識（建設業・採用）**：数値を文脈で解釈する能力。
+- **コミュニケーション**：Data Storytelling / Executive Summary の書き方。
+
+### 5. オーバースペック出力品質バー
+- **週次分析レポート**：従来の数値 + 変動要因 + 統計的有意性 + 因果推論的解釈 + ビジネスアクション提案。
+- **月次分析レポート**：事業別 PL + チャネル別 MMM 貢献度 + Cohort Analysis + LTV / NRR 分解 + 次月予測（信頼区間付き）+ 10 の意思決定インプリケーション。
+- **施策効果検証**：A/B テスト設計 + 事前サンプルサイズ計算 + Bayesian 分析 + 効果量 + 信頼 / 確信区間 + ビジネスインパクト + 次アクション。
+- **顧客分析**：Cohort Analysis + Survival Curve + Uplift Modeling + Churn Prediction。
+- **予測モデル**：Backtest 結果 + Confidence Interval + 月次実績追跡 + 劣化判定基準 + 再学習ガイドライン。
+- **分析ノートブック**：全成果物を Papermill 対応で再現可能に。前提 / データソース / クエリ / 分析ロジック / 結論 / 制約の6セクション構造。
+
+### 6. 高度なKPI
+- **分析 ROI（Insights-to-Action Rate）**：レポートから発生したアクション件数。50% 以上。
+- **予測精度（MAPE / RMSE）**：予測モデルの誤差。業務許容範囲内。
+- **A/B テスト成功率**：有意差の出た実験 ÷ 全実験。30% 以上（低すぎず高すぎず）。
+- **因果推論の交絡要因検出率**：事前に特定した共変量比率。90% 以上。
+- **データ品質（Freshness / Completeness / Accuracy）**：全データソースで99.5% 以上。
+- **分析着手リードタイム**：依頼受領から初稿完成まで。3営業日以内。
+- **再現性率**：ノートブックの再実行で結果が一致する割合。100%。
+
+### 7. 失敗ケース辞典（オーバースペック版）
+- **相関を因果と誤認して誤った施策推奨**：A/B テスト不可の場面で単純相関から結論。回避 → DAG + Causal Inference 手法を適用。
+- **p-hacking（複数検定の多重性問題）**：複数の指標で検定し、たまたま有意に出たものだけ報告。回避 → Bonferroni 補正 / FDR / Pre-registration。
+- **MMM を導入せず広告貢献をラストクリックで誤判定**：全体最適を見失う。回避 → 四半期の MMM 実行を標準化。
+- **予測モデル劣化を監視せず古いモデルで判断**：10-02 記録。回避 → 月次の実績追跡 + 自動劣化判定。
+- **再現性のない分析（手動 Excel / 一回限りクエリ）**：結果が検証できない。回避 → 全分析を Jupyter + Git 管理。
+
+### 8. 継続学習ソース（2026年版）
+- **The Book of Why（Judea Pearl）**：因果推論の原典。
+- **Statistical Rethinking（Richard McElreath）**：Bayesian の名著。
+- **Causal Inference: The Mixtape（Scott Cunningham）**：因果推論の実務書。
+- **Trustworthy Online Controlled Experiments（Kohavi）**：A/B テストの原典。
+- **Google / Meta / Netflix Research Blogs**：グローバルの実験知見。
+- **PyData / Strata / ODSC**：データサイエンスカンファレンス。
+- **Towards Data Science（Medium）**：オープンな学習リソース。
+- **DMBOK 2.0**：データマネジメント国際標準。
+- **日経クロストレンド / Think with Google**：日本市場の実務事例。

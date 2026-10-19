@@ -368,3 +368,78 @@
 - **効率化テクニック：会議の議事録は録音の文字起こしを生成AIで「決定／未決／宿題（担当・期限）」の3区分（10-09記録）に仕分けた下書きにし、人は担当と期限の確認だけをして終了後30分以内に出す**：議事録を手で起こすと、翌日になって記憶が薄れ、決定事項が欠ける。下書きから始めれば、24時間以内の発行が安定し、未決の持ち越し回数も機械的に数えられる。
 - **効率化テクニック：週次ステータスはPMが聞き取りで集めず、各担当のNotionタスクの更新から「期限超過」「依存待ち」「計画外工数」の3つだけを自動集計し、PMは例外のあるタスクの確認だけをする**：全タスクの進捗を聞くと、担当者の応答待ちがそのままPMの待ち時間になる。例外抽出に絞れば、確認する件数は数件になり、リスク登録簿の再評価日超過（10-09記録）の確認も同じ画面で済む。
 - **効率化テクニック：クライアントへの素材・資料の催促は、期限の3日前と当日の2段階をLINEの予約送信にテンプレ化し、依頼時に同時に登録する**：催促を思い出したときに書くと、催促が遅れ、素材の遅延が納期に直結する。依頼の時点で予約しておけば、遅れた日数と回数は見積の前提条件（10-09記録）の記録にそのまま残る。
+
+### 2026-10-19
+- **PMI PMBOK 7版 + Agile Practice Guide 統合運用**：従来のウォーターフォール WBS に加え、Hybrid（ハイブリッド）アプローチを導入。LP 制作などの短期案件は Scrum ベース、半年超の継続案件はウォーターフォール + 四半期レビューで管理。
+- **DORA メトリクス（Four Keys）を全社案件に拡張**：Deployment Frequency / Lead Time for Changes / Change Failure Rate / Time to Restore を、システム開発だけでなく LP・資料制作にも拡張して適用。
+- **OKR 2.0（NCR = Net Confidence Rating）導入検討**：従来の OKR の進捗％ でなく、達成確信度（NCR）で管理する手法。プロジェクトリスクの早期検知に有効。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの延長：世界基準のPM運用への引き上げ
+- **PMI PMBOK 7版準拠**：プロセス群中心から Principle-based への移行。12 の原則（Stewardship / Team / Stakeholder / Value / Systems Thinking / Leadership / Tailoring / Quality / Complexity / Risk / Adaptability / Change）を全案件に適用。
+- **Agile Practice Guide + Hybrid アプローチ**：案件特性（短期 / 継続 / 不確実性）で Agile / Waterfall / Hybrid を選択。LP は Scrum（2週間スプリント）、月額運用は Kanban、新規サービス開発は Scrum + Discovery。
+- **Scaled Agile Framework（SAFe）/ LeSS**：複数部署が絡む横断案件（Marketing + Sales + 制作）で Program Increment（PI）プランニングを導入。
+- **Beyond Budgeting**：従来の年次予算に縛られない柔軟なリソース配分。Rolling Forecast（12 ヶ月先の継続予測）を導入。
+- **Theory of Constraints（制約理論 / TOC）**：ボトルネックを特定し集中改善。クリティカルパス（07-01 記録）の高度版。
+
+### 2. 不足している最先端知識（2026年版）
+- **DORA Metrics（Four Keys + SPACE Framework）**：DevOps 研究の最新。システム開発以外にも応用可能。
+- **Flow Metrics（Flow Time / Flow Load / Flow Efficiency / Flow Velocity / Flow Distribution）**：Mik Kersten の Project to Product の中心概念。
+- **OKR 2.0（NCR = Net Confidence Rating）**：Google の OKR 進化版。達成確信度での管理。
+- **Shape Up（37signals）**：6週間サイクル + 2週間クールダウン。LET のサクバズサイクルに適用可能性あり。
+- **Deep Work（Cal Newport）**：知識労働の生産性原理。リソース配分設計に反映。
+- **Dynamic Reteaming**：チーム構成の動的最適化。横断案件のリソース配分に有効。
+- **Team Topologies（Matthew Skelton）**：Stream-aligned / Enabling / Complicated-subsystem / Platform の4チーム分類。
+
+### 3. 不足している最新ツール・技法
+- **Linear / Height / Shortcut**：Jira を超える次世代プロジェクト管理 SaaS。Notion との並行検討。
+- **Asana AI 2026 / ClickUp Brain**：AI ネイティブなプロジェクト管理。進捗自動更新・リスク予測。
+- **Monday.com Work OS**：横断ワークフローの統合管理。
+- **Range / Twist / Loom**：非同期コミュニケーション SaaS。会議削減。
+- **FigJam / Miro**：バーチャルホワイトボード。キックオフ・レトロスペクティブで使用。
+- **Zapier / n8n / Make**：Bo と連携した自動化。進捗レポート自動生成。
+- **DORA DevOps Report / Dora Metrics Calculator**：Four Keys の自動測定ツール。
+
+### 4. 隣接・クロスドメインスキル
+- **組織開発（OD）**：チーム力学・コンフリクトマネジメント・ファシリテーション。
+- **ファシリテーション**：Lean Coffee / Fishbone / 5 Whys 等のワークショップ手法。
+- **コーチング（ICF 標準）**：メンバーの自律的課題解決を促す対話技法。
+- **ネゴシエーション（ハーバード流交渉術）**：クライアント・外注・社内の交渉で利用。
+- **CS（Customer Success）**：受注後のクライアント満足度 / NPS を PM の責任範囲に拡張。
+- **FinOps**：プロジェクトの運用コスト（SaaS / 外注費）を可視化。
+
+### 5. オーバースペック出力品質バー
+- **プロジェクト定義書（plan.json）**：スコープ / スケジュール / 予算 / 体制 + Stakeholder Map + リスク登録簿 + Communication Plan + Change Control Procedure + Quality Plan の 8点セット。
+- **進捗レポート（status.json）**：日次更新 + DORA Metrics + Flow Metrics + OKR NCR + リスクトリガー + 中間レビュー結果 + QA 差し戻し履歴。
+- **リソースアロケーション**：全部署・全案件の俯瞰ダッシュボード。稼働率 80% を超えるメンバーは自動アラート。
+- **リスク登録簿**：各リスクに Probability / Impact / Response Strategy（Avoid / Mitigate / Transfer / Accept）+ Owner + 再評価日 + Trigger Condition が明記。
+- **キックオフ資料**：Stakeholder Map + Communication Plan + Decision Making Framework + Escalation Path + Definition of Done + Working Agreement を含む8点パック。
+
+### 6. 高度なKPI
+- **DORA Four Keys**：Deployment Frequency / Lead Time / Change Failure Rate / MTTR。
+- **Flow Efficiency**：実作業時間 ÷ リードタイム。50% 以上を目標。
+- **OKR NCR（Net Confidence Rating）**：達成確信度。70% 以下で早期介入。
+- **納期遵守率**：95% 以上。
+- **スコープクリープ率**：当初スコープに対する追加作業の比率。10% 以下。
+- **再評価日超過リスク件数**：ゼロを目標。
+- **QA 差し戻し率**：needs_work 判定回数 / 全提出回数。15% 以下。
+- **クライアント NPS**：案件完了後の満足度。50 以上を目標。
+
+### 7. 失敗ケース辞典（オーバースペック版）
+- **DORA Metrics を測らずボトルネックが見えない**：改善対象が特定できない。回避 → Four Keys の自動測定を全案件に導入。
+- **Hybrid アプローチの選択を誤り、短期 LP を Waterfall で管理し手戻り頻発**：Scrum が適した案件に Waterfall を適用。回避 → 案件特性診断シート（Cynefin フレームワーク）で選択。
+- **Risk Response Strategy を Mitigate 一択で思考停止**：Avoid / Transfer / Accept の判断を怠る。回避 → 4戦略の明示的選択を Risk Register の必須項目化。
+- **Communication Plan を作らずステークホルダーごとに伝達ミス**：決裁者に進捗が届かず途中で炎上。回避 → RACI + Communication Matrix を全案件で作成。
+- **Working Agreement を定義せず部署間の期待値がズレる**：マーケと制作で納期感覚が違い衝突。回避 → キックオフで Working Agreement を合意し Notion に掲示。
+
+### 8. 継続学習ソース（2026年版）
+- **PMI 標準（PMBOK 7版 + Agile Practice Guide + Standard for Earned Value Management）**：PM の国際標準。
+- **DORA Report（Google Cloud）**：年次 DevOps 研究。
+- **Project to Product（Mik Kersten）**：Flow Metrics の原典。
+- **Agile Alliance / Scrum.org**：Agile コミュニティ。
+- **Shape Up（37signals）**：短サイクル開発の原典。
+- **Linear Blog / Height Blog**：次世代 PM ツールの思想。
+- **PMAJ（日本プロジェクトマネジメント協会）P2M**：日本固有の PM 標準。
+- **日経クロステック / ITmedia エンタープライズ**：日本の実務事例。
+- **Harvard Business Review Project Management**：経営視点の PM 知見。

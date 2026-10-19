@@ -298,3 +298,80 @@
 - **効率化テクニック：日付と曜日の一致、電話番号の桁数、URLの到達性（HTTPステータス）、過去日の混入は、成果物のテキストを流し込むだけの照合スクリプト1本で一括検査し、結果をQAキューの受付時に添付する**：10-02記録の機械照合の軸は、人が目で追うと見落としが残る。スクリプトで先に落とせば、レビュアーの時間は構造と事実の確認に使える。
 - **効率化テクニック：指摘の分類（観点ID）を毎回の差し戻しコメントに付け、月次で上位5観点を集計して、その観点を制作部の提出前セルフチェック表（09-01記録）へ移す**：同じ指摘が繰り返されるのは、観点が制作側に渡っていないことが多い。移管した観点は次月の出現数で効果を確認し、減ったものはQAの重点観点から外す。
 - **効率化テクニック：動画のテロップは、字幕ファイル（SRT）から1行ごとの文字数÷表示秒数を自動計算し、毎秒5〜6文字（10-09記録）を超える行だけを抽出して確認する**：実機再生で全編を見直すと、1本あたりの確認時間が動画の長さ以上かかる。超過行だけ見れば、確認は数十秒で終わり、誤字や送り仮名のゆれの確認に時間を回せる。
+
+### 2026-10-19
+- **ISO/IEC 25010（Software Quality Model）準拠の品質特性拡張**：従来の completeness / accuracy / consistency / feasibility / format_compliance に加え、Functional Suitability / Performance Efficiency / Compatibility / Usability / Reliability / Security / Maintainability / Portability の8軸を参考に、成果物種別ごとの品質モデルを設計。
+- **Shift-Left Testing の徹底**：QA を工程終盤でなく、要件定義・設計段階から参加させる思想。提出前セルフチェック（09-01記録）の体系的拡張として、観点を上流工程に埋め込む。
+- **AI 支援 QA（Claude for Work / ChatGPT Enterprise）導入**：成果物のドラフト段階で AI による初期チェックを行い、人間 QA は構造・事実・優良誤認等の高次判断に集中。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの延長：世界基準の QA 運用への引き上げ
+- **ISO/IEC 25010 品質モデル準拠**：Functional Suitability / Performance Efficiency / Compatibility / Usability / Reliability / Security / Maintainability / Portability の8軸を成果物種別で選択適用。LP は Usability / Performance / Compatibility 中心、求人原稿は Functional Suitability / Reliability 中心。
+- **Shift-Left + Shift-Right Testing**：従来の工程末 QA から、要件定義・設計段階（Shift-Left）と本番運用後（Shift-Right：ユーザー行動分析）の両方向に拡張。
+- **Risk-Based Testing**：影響度 × 発生確率でテスト優先度を決定。限られた QA リソースをクリティカル領域に集中。
+- **Exploratory Testing（探索的テスト）**：チェックリストベースの確認に加え、仮説ベースで未知のバグを探る手法。
+- **Mutation Testing / Property-Based Testing**：従来の例ベーステストから、変異テスト・性質ベーステストへの拡張（システム開発成果物向け）。
+
+### 2. 不足している最先端知識（2026年版）
+- **AI 支援 QA（AI Augmented Testing）**：Claude / GPT-5 で成果物のドラフトを事前チェック。人間は高次判断に集中。
+- **Visual Regression Testing**：Chromatic / Percy / Applitools で LP の視覚差分を自動検知。
+- **Accessibility Testing（a11y）**：WCAG 2.2 準拠。axe-core / Lighthouse / Pa11y で自動検査。
+- **Performance Testing**：Lighthouse / WebPageTest / k6 で LP のパフォーマンス計測。Core Web Vitals（LCP / INP / CLS）を品質基準に組込。
+- **Security Testing**：OWASP ZAP / Snyk で LP / システム成果物のセキュリティチェック。
+- **景品表示法 2024 改正準拠**：ステマ規制・優良誤認 / 有利誤認の判定基準。10-09 記録を体系化。
+- **個人情報保護法 2024 改正**：求人原稿・応募フォームでの個人情報取り扱い。
+
+### 3. 不足している最新ツール・技法
+- **axe-core / Lighthouse CI / Pa11y**：アクセシビリティ自動検査。
+- **Playwright / Cypress**：E2E テスト自動化（LP の応募導線確認）。
+- **Chromatic / Percy / Applitools**：Visual Regression Testing。
+- **k6 / Locust**：負荷テスト。
+- **TestRail / Zephyr / Qase**：QA ケース管理 SaaS。
+- **Reflect.run / mabl**：AI ノーコード E2E テスト。
+- **GitHub Copilot for Pull Requests**：コードレビュー自動化。
+- **PR Agent / CodeRabbit**：AI コードレビュー補助。
+
+### 4. 隣接・クロスドメインスキル
+- **UX リサーチ（Nielsen Norman Group）**：Usability Testing の体系的手法。
+- **アクセシビリティ（WAI-ARIA / WCAG 2.2）**：インクルーシブデザインの原則。
+- **法務（景表法 / 下請法改正 / 建設業法）**：Legal との連携で、QA 段階で法的リスクを事前検知。
+- **データ分析（統計の基本）**：A/B テストの有意差判定、サンプルサイズ設計。
+- **セキュリティ（OWASP Top 10 / OWASP ASVS）**：Web 成果物のセキュリティ観点。
+- **ドキュメンテーション（The Documentation System - Diátaxis）**：QA ガイドライン自体の構造化。
+- **コーチング**：差し戻しを「指摘」でなく「次回の改善」として伝える対話技術。
+
+### 5. オーバースペック出力品質バー
+- **review.json**：従来の5軸 common_criteria に加え、ISO 25010 の8軸 + Accessibility + Performance + Security の11軸構成を成果物種別で選択適用。
+- **差し戻し指摘**：Severity + 原文引用 + 再現手順 + 期待結果 + 実結果 + 推奨改善 + 観点ID の7点セット。
+- **月次 QA レポート**：差し戻し率 / 観点別出現頻度 / 制作部へ移管した観点 / 移管後の再発率 / クライアントからの最終指摘件数 / 推定リスク回避金額。
+- **QA ガイドライン（制作部向け）**：成果物種別 × 10 の観点チェックリスト + 自動検査スクリプト + AI 事前チェック用プロンプト + 景表法 / 下請法 / 個情法のポイント。
+- **提出前セルフチェック表**：制作部が QA に出す前に自己完結できる15観点のチェックリスト。10-13 記録の観点移管を体系化。
+
+### 6. 高度なKPI
+- **QA 差し戻し率**：15% 以下を目標。
+- **Critical / Blocker 件数**：ゼロを目標（クライアント提出前）。
+- **観点別再発率**：移管済み観点の月次再発率。5% 以下。
+- **クライアント最終指摘件数**：QA 通過後のクライアント指摘。ゼロを目標。
+- **MTTR（Mean Time To Review）**：提出から判定までの平均時間。4時間以内。
+- **False Positive Rate**：QA 指摘のうち再現不可だった比率。10% 以下。
+- **AI 事前チェック貢献率**：AI が検出した指摘の割合。50% 以上を目標。
+- **アクセシビリティスコア**：Lighthouse / axe-core。90点以上。
+
+### 7. 失敗ケース辞典（オーバースペック版）
+- **編集画面で OK を出し、実機 / 実環境で崩れ落ち**：10-02 記録。回避 → 成果物種別ごとの「最終確認形式」を必須化。
+- **優良誤認表現を見逃してクライアント側に景表法リスク**：「No.1」「業界最大」の根拠なし表現。回避 → 10-09 記録の注記確認を自動 Lint 化。
+- **AI 事前チェックの判定を鵜呑みにして人間判断を省略**：AI の誤判定（False Positive / False Negative）が通過。回避 → AI は補助、最終判断は人間。
+- **Shift-Left せず要件段階の不備が末端 QA に流れ込む**：QA 工程で修正が間に合わず納期遅延。回避 → 要件定義段階から QA 観点を事前投入。
+- **Visual Regression Testing を導入せず、CSS 変更の副作用で LP が崩壊**：見た目レビューで検出遅れ。回避 → Chromatic / Percy の自動検査を CI に組込。
+
+### 8. 継続学習ソース（2026年版）
+- **ISO/IEC 25010 / 25040**：ソフトウェア品質の国際標準。
+- **ISTQB（International Software Testing Qualifications Board）**：テストの国際資格。
+- **Google Testing Blog / Microsoft Testing Blog**：グローバルのテスト最新知見。
+- **Agile Testing（Lisa Crispin）**：Agile 時代の QA 原典。
+- **The DevOps Handbook**：Shift-Left / Shift-Right の原典。
+- **消費者庁ガイドライン / 景品表示法 Q&A**：日本の広告規制。
+- **WCAG 2.2 / WAI-ARIA**：アクセシビリティ標準。
+- **OWASP Top 10 / OWASP ASVS**：Web セキュリティ。
+- **PMI 品質管理（PMBOK 7版）**：PM 連携時の共通言語。
