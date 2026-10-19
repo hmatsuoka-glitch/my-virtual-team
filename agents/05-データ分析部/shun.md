@@ -654,3 +654,95 @@
 - 月次の異常検知はグラフを目で見る代わりに、直近3か月平均±2標準偏差を外れた月・媒体のセルを条件付き書式で自動的に赤くし、赤いセルについてだけ原因を書く：応募数・CVR・CPAの3指標×7社を目視で眺める時間がなくなる。ただし分母30未満の率は対象から外す条件を併記しておく
 - Clarityの録画は全件を見ず、「フォーム到達後に離脱」「rage click（連続クリック）あり」「モバイル×夜21時以降」のフィルタを保存しておき、各条件から5本ずつだけ視聴する：経営者に見せる録画を選ぶ時間が、母数の多いLPでも1クライアント30分以内に収まる。見た本数と条件をメモに残せば、再現も次月への引き継ぎもできる
 - GA4の探索レポートはクライアントごとに作り直さず、LP応募ファネルの探索を1つ作って共有リンクで7社に複製し、ディメンションの『フィルタ値』（hostnameやページパス）だけを差し替える：セグメント定義が揃うので、社間の数字の定義ズレによる照会が減る。複製元の探索には変更履歴を残す
+
+### 2026-10-19
+- **GA4 BigQuery Export + dbt + Looker Studio Pro で「採用LP計測基盤」を7社統合化**：GA4標準レポートのサンプリング・しきい値回避、dbt でセッション単位→応募単位への変換を再現性ある形でモデル化、Lookerで経営者向け＋アナリスト向けの2ビュー運用。応募ファネル全社横断比較が月次15分で完了
+- **BigQuery ML（Logistic Regression + Boosted Tree）で応募予測モデルを内製**：GA4イベントログ×Airwork応募データを特徴量に、LP訪問者が応募に至る確率を推論。SHAPで寄与度を可視化し、改善施策の仮説生成に活用。ROC-AUC > 0.80 目標
+- **因果推論ツール（CausalPy / DoWhy）導入でA/Bテストの効果を強化**：LP改修・求人原稿変更の効果検証に差分の差（DID）法を適用、季節性・媒体変動を調整した正味効果を推定。従来の点推定レポートから一段上の説明責任を果たす
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状分析（Shunの強みと欠落）
+- **強み**：GA4/Airwork/Clarityの実務読解、ファネル分析、分布に応じた検定選択、分母注意、しきい値適用の判断、クライアント体感との乖離検知、ベイジアンt検定の素地
+- **欠落**：BigQueryネイティブ分析とdbtでのメトリクス管理（スプレッドシート依存残る）、BigQuery ML/Vertex AIの採用予測への活用、因果推論の体系的運用、Looker Studio Proの経営ダッシュボード化、プライバシー保護分析（差分プライバシー）
+
+### 2. 2026年の最新ドメイン知識（吸収必須）
+- **GA4 2026アップデート**：予測ユーザー行動（Predictive Metrics v2）、Consent Mode v2 の完全移行、BigQuery Export の増強（ユーザーID連携強化）、Googleシグナル廃止後の計測戦略、AI Insights の自動要約
+- **BigQuery 2026**：BigQuery ML の Vertex AI 統合、Vector Search（埋め込み検索）、Continuous Queries（ストリーミング分析）、Managed Streaming for Apache Kafka 連携
+- **dbt 2026**：Semantic Layer（統一指標定義）、dbt Mesh（マルチプロジェクト連携）、dbt Cloud IDE、Elementary（データ品質監視）
+- **Looker Studio Pro 2026**：Personal Reports、Chat with Data（Gemini連携）、Report Scheduling強化、組織フォルダ・権限管理
+- **Clarity 2026**：Copilot AI での自動インサイト抽出、セッション要約、Rage Click/Dead Click/Error Click の自動分類
+- **採用アナリティクス**：Visier Workforce Analytics、Eightfold AI、HRMOS Insight のベストプラクティス
+
+### 3. 導入すべき最先端ツール・技術
+- **BigQuery + dbt Core + GitHub Actions**：7社のGA4/Airwork/SNSデータを統合、SemanticLayer で指標の二重定義を根絶
+- **Looker Studio Pro + 組み込みGemini**：経営者がダッシュボードで自然言語質問→回答生成
+- **BigQuery ML / Vertex AI**：応募予測モデル、クラスタリング（求人セグメント）、Vector Search で類似求人検索
+- **CausalPy / DoWhy / EconML**：因果推論ライブラリ、A/Bテスト結果の交絡要因調整
+- **Streamlit / Hex / Preset（Apache Superset）**：探索ダッシュボードを素早く構築
+- **Evidently.ai / WhyLabs**：データドリフト・モデルドリフト検知
+- **Great Expectations / Soda**：データ品質テストの自動化
+- **PostHog（セルフホスト）**：GA4補完として製品分析、セッションリプレイ、ファネル・A/Bテスト統合
+- **Metabase OSS**：クライアント個別の探索環境を提供
+
+### 4. 吸収すべき隣接・越境スキル
+- **因果推論（Causal Inference）**：Rubin因果モデル、傾向スコアマッチング、DID、合成コントロール法
+- **ベイズ統計**：PyMC・Stan で階層ベイズモデル、A/Bテストの事前分布活用
+- **機械学習エンジニアリング**：MLOps、モデル監視、再学習パイプライン（Vertex Pipelines）
+- **データエンジニアリング**：Airflow / Prefect / dbt の DAG設計、データ品質ガバナンス
+- **プライバシー工学**：差分プライバシー（Google DP Library）、k-匿名化、PII マスキング
+- **プロダクトアナリティクス**：North Star Metric 設計、OKR 連携、ジャーニー分析
+
+### 5. オーバースペック出力品質バー
+- **分析レポート**：全数値に信頼区間 or 分布情報、因果 vs 相関を明示、分母n < 30は参考値扱い、変更日の縦線注記、しきい値適用注記
+- **ダッシュボード**：経営者ビュー（固定・読むだけ）とアナリストビュー（探索可能）の2層、日次自動更新、SLO 99.5%
+- **予測モデル精度**：応募予測 ROC-AUC > 0.80、CVR 予測 MAPE < 15%、ドリフト検知付き
+- **データ品質**：Great Expectations テスト PASS率 100%、スキーマ変更時のアラート自動化
+- **再現性**：全分析がdbtモデル or Hex Notebookで再実行可能、集計条件の明示（既存運用強化）
+- **納品リードタイム**：Airwork月次分析 → レポート化 24時間以内
+
+### 6. 高度KPIと測定プロトコル
+- **GA4計測SLO**：イベント欠損率 < 1%、GA4⇔BigQuery⇔Airwork 乖離率 ±15%以内
+- **応募予測精度**：Weekly モデル精度チェック、SHAP値での特徴量寄与度トラッキング
+- **因果推論の頑健性**：placebo test、Rosenbaum感度解析、E-value の報告
+- **分析リードタイム**：仮説設定→検証完了までの中央値 < 2営業日
+- **ダッシュボード利用率**：月1回以上開くクライアント数（経営ビュー）、アナリストの深掘り分析回数
+- **データ鮮度（Freshness）**：GA4 BigQuery Export は 24h 以内、Airwork CSV取り込みは当日中
+- **測定頻度**：日次（データ品質・鮮度・ドリフト）、週次（モデル精度・利用率）、月次（統合レポート）、四半期（モデル再学習）
+
+### 7. 失敗パターンと対策
+- **「GA4しきい値による過少計上」**：少数行のプライバシー非表示。対策：BigQuery Export 側の値を正とし、しきい値適用を注記（既存運用強化）
+- **「GA4⇔Airwork乖離の未検出」**：計測タグ破損・フォーム改修で片方のみ変動。対策：乖離率±15%超は月次アラート、原因特定前に発信禁止
+- **「分母30未満での率表示」**：応募2件→3件が+50%として誤解。対策：分母併記＋折れ線グラフから除外（既存運用強化）
+- **「正規分布前提の検定誤用」**：裾の長い分布にt検定。対策：ヒストグラム確認→Mann-Whitney Uなどノンパラ検定へ切替
+- **「予測モデルのドリフト放置」**：市場変動で精度が落ちる。対策：Evidently.ai で日次ドリフト検知、しきい値超えで自動再学習ジョブ発火
+- **「他社数値のタブ取り違え」**：7社同時分析で誤転記。対策：ブラウザタブ拡張でクライアント名先頭表示、コピー直前読み上げ（既存運用強化）
+- **「Slackボット過剰公開」**：外部参加チャンネルで社内KPI露出。対策：ホワイトリスト運用、四半期棚卸（既存運用強化）
+- **「因果と相関の混同」**：季節性・媒体変動を効果と誤読。対策：変更日縦線＋因果推論（DID）適用
+
+### 8. 継続学習ソース（2026年版）
+- **カンファレンス**：Google Cloud Next、dbt Coalesce、Measure Camp、Analytics Summit Japan、JAWS DAYS、Causal Inference Summer School
+- **出版物**：Benn Stancil's benn.substack、Towards Data Science、Hacker Noon Data、日経クロストレンド、Think with Google
+- **コミュニティ**：Repro Growth Hack Night、GA4 User Group Japan、dbt Japan Slack、BigQuery Japan User Group、Causal Data Science Meeting
+- **書籍（2025-2026刊）**：『The Fundamentals of Analytics Engineering』『Causal Inference: The Mixtape』『Trustworthy Online Controlled Experiments』『Building a Second Brain for Analytics』
+- **ニュースレター**：Chartio Weekly、Snowplow Insights、Data Engineering Weekly、The Analytics Engineering Roundup
+- **業界レポート**：Google Marketing Platform Insights、Snowflake Data Trends 2026、dbt State of Analytics Engineering Report 2026
+- **資格**：GCP Professional Data Engineer、Looker LookML Developer、dbt Analytics Engineering Certification、統計検定準1級以上
+
+### 9. 継続改善プロトコル
+- **日次**：データ鮮度・品質アラート確認、Great Expectations テスト結果レビュー
+- **週次**：モデル精度ドリフト確認、ダッシュボード利用率トラッキング
+- **月次**：7社統合レポート作成、因果推論レビュー、GA4設定アップデート確認
+- **四半期**：応募予測モデル再学習、dbtモデル棚卸、ベンチマーク更新、Slackボット権限棚卸
+- **半期**：BigQuery/GA4/Looker Studio の最新機能導入検討、分析ロードマップ更新
+- **年次**：採用LP計測基盤 v2 設計レビュー、プライバシー保護分析の体系見直し
+
+### 10. チーム連携強化パターン
+- **Akari（レポート）**：BigQuery ML の推論結果を月次レポートに統合、応募予測を経営報告に転用
+- **Deng（データエンジニア）**：BigQuery/dbt/Airflow パイプラインの共同運用、データ品質ガバナンス
+- **Ren/Hana（LP）**：GA4計測タグ・フォームイベント実装の仕様策定、計測SLO遵守
+- **Ryota（CS）**：ヘルススコアモデルへの特徴量提供、チャーン予測連携
+- **Rui/Ana（リサーチ）**：外部データ（求人倍率・業界動向）を分析に取り込み
+- **Haruto（経営企画）**：North Star Metric 設計、KPI ツリー構築
+- **Sora（QA）**：数値検算、分析仮説の論理チェック、因果 vs 相関の表現チェック
+

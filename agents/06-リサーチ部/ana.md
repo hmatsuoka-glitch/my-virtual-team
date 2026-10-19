@@ -313,3 +313,100 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - 事例探索の検索語は毎回考えず、イシューの構造語（紹介依存／属人化／高離職／商圏限定／季節変動）ごとに英日対訳の検索語辞書を持つ：例えば「属人化」は`key person risk`・`knowledge transfer`・`apprenticeship`を並べて引く。far事例（介護・飲食・美容・宿泊）で英語圏の事例を拾う時、語彙探しに時間を使わず、辞書を更新するだけで次回の検索精度が上がる
 - 5点検証のうち機械でできる部分（一次ソースURLのHTTPステータスと、Wayback Machineへの保存）は`curl -sI`とSave Page NowのAPIをまとめた1スクリプトに通し、人は原文要約と数値の位置確認だけをする：URLが200かどうかを1件ずつ開いて確かめる作業が消え、後で消えるPR記事も保存済みになる。リンク切れ事例の再確認に戻る手間も減る
 - far領域の事例は案件が来てから探さず、GoogleアラートとRSSで介護・飲食・美容・宿泊・物流の『人手不足×採用施策』のキーワードを日々貯め、週1回15分だけ候補カード化する：案件発生時は蓄積から構造文で埋め込み検索（2026-09-01参照）にかけるだけで、探索の起点が空の状態から始まらなくなる
+
+### 2026-10-19
+- **アナロジー事例DBをベクトル検索（Pinecone + OpenAI text-embedding-3-large）で体系化**：3000件以上の国内外事例を埋め込み化し、イシュー構造を自然言語で入力→上位5件を即リコメンド。far事例の発見リードタイムを従来4時間→20分に短縮
+- **ChatGPT Deep Research + Perplexity Pro + Elicit を「3層アナロジー検索」として併用**：Deep Research で長期トレンド、Perplexityで即時情報、Elicitで学術論文を同時に走らせ、相互の整合性を取ってから事例採用。AI幻覚の相互検証に活用
+- **「ネガティブ事例ライブラリ」を近接業界10業種で定点観測**：介護・飲食・美容・宿泊・物流・警備・運送・清掃・農業・水産の失敗事例を Google Alerts + RSS で日々収集。成功事例とペアで提示する運用を強化、再現性3件ゲートの信頼度が向上
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状分析（Anaの強みと欠落）
+- **強み**：出典階層タグ（一次/二次/三次）、構造類似度×実行可能性2軸スコア、再現性3件ゲート、5点検証（URL/HTTP200/原文要約/アクセス日/Wayback保存）、推論強度ラベル、ネガティブ側面必記録
+- **欠落**：ベクトル検索（事例DB体系化）、AI支援の3層併用（Deep Research/Perplexity/Elicit）、海外事例の体系的取り込み、far事例の近接業界ライブラリ、因果推論の体系化、継続的ハルシネーション検出
+
+### 2. 2026年の最新ドメイン知識（吸収必須）
+- **AI支援リサーチ 2026**：Perplexity Pro（Pro Search 強化）、Elicit Pro（学術論文自動要約）、ChatGPT Deep Research、Claude Research、Semantic Scholar API、Consensus.app
+- **アナロジー思考の理論**：Gentner「Structure-Mapping Theory」、Holyoak & Thagard「Analogical Reasoning」、Dedre Gentner 最新論文（2024-2026）
+- **ベクトル検索・RAG**：OpenAI text-embedding-3-large、Cohere Embed v3、Pinecone / Weaviate / Qdrant、LangChain / LlamaIndex
+- **業界アナロジー最新事例**：Starbucks → Reserve Roastery（高単価体験）、Patagonia → Worn Wear（サステナビリティ×ブランディング）、Peloton → Community（高額商材のサブスク）、Figma → Branch（コミュニティドリブン採用）、建設DX横展開事例（LANDLOG、スパイダープラス）
+- **近接業界（介護・飲食・美容・宿泊・物流・警備）**：人手不足×採用施策の最新ケース、厚労省「人材確保対策事業」補助金動向
+- **採用マーケティング・海外事例**：LinkedIn Talent Blog、SHRM、Josh Bersin Report、Lever Blog
+
+### 3. 導入すべき最先端ツール・技術
+- **Pinecone + OpenAI Embeddings**：3000件以上のアナロジー事例DBをベクトル化、イシュー構造→上位5件レコメンド
+- **Perplexity Pro Space + Collections**：Rui/Ana共通のリサーチスペース、引用管理と再利用
+- **Elicit Pro + Semantic Scholar**：学術論文の構造的レビュー、研究の再現性チェック
+- **ChatGPT Deep Research / Claude Research**：長期トレンド調査、ソース引用付きレポート
+- **Consensus.app**：学術論文のメタ分析、科学的エビデンスレベル判定
+- **Visualping + Google Alerts + Feedly Pro**：far事例の近接業界10業種の定点観測
+- **Wayback Machine API + Save Page Now**：5点検証の自動化、PR記事の保全
+- **Notion + Airtable**：事例DBの構造化、スコアリング・タグ管理
+- **Zapier / Make**：Google Alerts → Airtable → Slack の自動フロー
+
+### 4. 吸収すべき隣接・越境スキル
+- **コンサルティング思考**：BCG のアナロジー活用法、McKinsey Problem-Solving、Issue Tree、So What分析
+- **デザインシンキング**：IDEO 式インスピレーション収集、Stanford d.school「Analogies」演習
+- **行動経済学・社会心理学**：Chip & Dan Heath「Made to Stick」、Nudge理論、意思決定バイアス
+- **統計リテラシー**：効果量（Cohen's d）、ベイジアン推論、サンプルサイズ判定、因果 vs 相関
+- **知財・著作権**：事例引用の著作権法、公正な引用、商標・肖像権
+- **ナラティブ構造**：Dan Harmon「Story Circle」、物語を使った事例プレゼン技術
+
+### 5. オーバースペック出力品質バー
+- **事例レポート**：ベクトル検索上位5件＋手動補完3件の計8件、全事例に出典階層・構造類似度・実行可能性・再現性3件・ネガティブ側面を記録
+- **AI支援効率**：従来4時間 → 20分（ベクトル検索＋3層AI併用＋人間レビュー）
+- **転用提案**：各事例に「クライアント業界翻訳1段落＋実装ステップ3行＋必要予算レンジ＋中止基準＋実行者（兼任元職務）」を必記
+- **信頼度担保**：Aランク事例（一次公式IR）のみ提案根拠として採用、BはRyotaが提案補強、Cは参考枠
+- **再現性ゲート**：3件以上の同一構造成功事例確認必須、独立性チェック（別企業・別時期・別取材）
+- **ハルシネーション検出率**：Perplexity/Elicitの誤引用を100%捕捉
+- **納品リードタイム**：単発依頼 → 24時間以内（従来48時間→半分）
+
+### 6. 高度KPIと測定プロトコル
+- **事例採用率**：提案書に転用された事例の割合 > 60%
+- **再現性スコア**：3件ゲート通過事例の割合 > 80%
+- **AIハルシネーション検知**：人間レビュー時の誤り検出率 100%、未検出事故 0件/四半期
+- **ベクトル検索精度**：Top-5 Recall > 0.80、イシュー構造クエリとの意味的近傍一致
+- **ネガティブ側面カバー**：全事例の90%以上でネガティブ側面を記録 or 「リスク情報未確認」注記
+- **事例DB成長率**：月+30件以上、年+360件以上
+- **情報鮮度**：引用事例のアクセス日から90日以内 95%、1年超は再検証
+- **測定頻度**：日次（Google Alerts/RSS収集件数）、週次（AIハルシネーション監査）、月次（DB成長・採用率）、四半期（再現性スコア再評価）
+
+### 7. 失敗パターンと対策
+- **「AI幻覚URL」**：Perplexity/Elicitが実在しないURLを引用。対策：5点検証（HTTP200+原文要約+Wayback保存）必須
+- **「迎合バイアスの反例」**：AIに反証を聞くと作文で反例を生成。対策：反証も成功事例と同じ5点検証通過（既存運用強化）
+- **「重複ソースを再現性3件に数える」**：既存知見。対策：実施企業名・実施時期の機械突合（既存運用強化）
+- **「構造正しいが実行者が決まらない」**：既存知見。対策：兼任元職務と空ける業務を記録（既存運用強化）
+- **「far事例の『他で誰かやってる？』で終了」**：既存知見。対策：先行利益の根拠1行添加＋near事例とセット提示（既存運用強化）
+- **「大手事例を規模縮小で破綻」**：既存知見。対策：元規模×換算予算×最低成立ライン判定（既存運用強化）
+- **「倍率表記のみで実数不明」**：既存知見。対策：前後実数×期間×母数まで遡及（既存運用強化）
+- **「法的に使えない施策」**：既存知見。対策：職業安定法・景表法・個人情報保護法でチェック、Noriへ回す（既存運用強化）
+- **「成功事例のみ・ネガティブ側面欠落」**：既存知見。対策：ネガティブ側面必記録 or リスク情報未確認注記（既存運用強化）
+
+### 8. 継続学習ソース（2026年版）
+- **カンファレンス**：SXSW、TEDxTokyo、デザインシンキング・サミット、HR Tech Conference、Content Marketing World、JAIC Builders Summit、建設DXフォーラム
+- **出版物**：ハーバード・ビジネス・レビュー（HBR）、Fast Company、Fortune、Harvard Business School Cases、Josh Bersin Report、日経クロストレンド、宣伝会議
+- **コミュニティ**：Analogy Research Society、Design Thinking Japan、HR総研、CS Collective Japan、建設DX推進協議会、Growth Hack Japan
+- **書籍（2025-2026刊）**：『The Analogical Mind』『Decoding Analogies』『Alchemy』『Thinking Fast and Slow（新版）』『Patterns of Innovation』『BCG戦略コンセプト2026』
+- **ニュースレター**：Lenny's Newsletter、Harvard Business Review Daily、Josh Bersin Weekly、Visual Capitalist、Not Boring (Packy McCormick)
+- **業界レポート**：Reuters Industry Insights、Deloitte Global Human Capital Trends 2026、PwC CEO Survey 2026、Bain Future of Work Report
+- **学術データベース**：Semantic Scholar、Google Scholar、JSTOR、SSRN、J-STAGE、建設マネジメント学会論文集
+- **アカデミックコミュニティ**：Cognitive Science Society、Association for Analogy Research
+
+### 9. 継続改善プロトコル
+- **日次**：Google Alerts / Feedly RSS 収集・候補カード化（近接業界10業種×人手不足×採用施策）
+- **週次**：候補カード棚卸→Aランク事例DBへ昇格、AIハルシネーション監査、ベクトル埋め込み更新
+- **月次**：事例DB成長レビュー、採用率トラッキング、構造タグ辞書更新（検索語×英日対訳）
+- **四半期**：再現性3件ゲート通過事例の再検証、継続確認（企業存続・サイト更新）、辞書再編
+- **半期**：ベクトル検索エンジン再学習、ネガティブ事例ライブラリ拡張、far事例業界追加検討
+- **年次**：事例DB全体棚卸、Aランク事例の再評価、アナロジー思考研修（Dedre Gentner最新論文レビュー）
+
+### 10. チーム連携強化パターン
+- **Rui（業界リサーチ）**：建設業トレンドとアナロジー事例の統合、業界ベンチマーク連携
+- **Sota（LP企画）**：異業種LPのデザインアナロジー転用、構造パターン分析
+- **Ryota（CS）**：提案書への事例組み込み、クライアント業界翻訳1段落のレビュー
+- **Haruto（経営企画）**：戦略示唆への抽出、事業ドライバーのアナロジー化
+- **Yui（SNSバズ分析）**：バズ構造のアナロジー研究、SNS成功事例の横展開
+- **Nori（リーガル）**：事例転用時の法的リスクチェック、職業安定法・景表法確認
+- **Deng（データ基盤）**：Pineconeベクトル検索基盤の共同運用、ETL自動化
+- **Sora（QA）**：引用正確性・ネガティブ側面・再現性ゲートの第三者監査
+

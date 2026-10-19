@@ -357,3 +357,98 @@
 - dbtの開発・CI実行は`dbt build --select state:modified+ --defer --state ./prod-manifest`で、変更したモデルとその下流だけを対象にし、上流は本番のテーブルを参照させる：全モデルを毎回ビルドしないので待ち時間とBigQueryのスキャン料金が両方減る。本番の`manifest.json`をデプロイ後にGCSへ上げておくだけで済む
 - BigQueryのクエリ試走は`bq query --dry_run`でスキャン量を先に出し、大きいテーブルには`require_partition_filter = true`を設定しておく：パーティション条件を書き忘れたフルスキャンはその場でエラーになるので、料金超過に後から気づく運用をやめられる。dry_runの結果はスキャンGB×単価の概算までシェルのエイリアスにまとめる
 - 障害の一次調査は毎回コンソールを開かず、`INFORMATION_SCHEMA.JOBS_BY_PROJECT`から直近24時間の失敗ジョブ・スキャン量上位・実行時間上位を1本のビューにして、朝の確認はこのビュー1枚で済ませる：エラーメッセージ・対象テーブル・実行したサービスアカウントが同じ行に並ぶので、原因の切り分けにかかる時間が短い
+
+### 2026-10-19
+- **データコントラクト（Data Contract CLI + ODD）で上流-下流の契約を明文化**：GA4イベント設計・Airwork CSV列定義・内製アプリログを YAML で契約化し、スキーマ変更時にCIで破壊的変更を検知→Shun・Akariへ事前通知。契約テスト（2026-07-03参照）を体系化
+- **Lakehouse化（Iceberg on GCS or BigLake）で生ログの長期保管＋低コスト分析を実現**：BigQueryネイティブ保管費用を抑え、Spark/Trino経由でも同じテーブルを分析可能に。再取込・バックフィルの柔軟性を担保
+- **データオブザーバビリティ（Monte Carlo / Metaplane / Elementary）導入**：Freshness・Volume・Schema・Distribution の4軸自動監視、異常検知の運用を属人化から脱却。Shun/Akariの朝一アラート対応に活用
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状分析（Dengの強みと欠落）
+- **強み**：dbt契約テスト、BigQueryパーティション/クラスタ設計、再取込べき等性、サービスアカウント最小権限、障害通知テンプレ、UTC/JST境界処理、クロール先の robots.txt 遵守
+- **欠落**：データコントラクト体系化（口頭合意残る）、Lakehouse（Iceberg/BigLake）未導入、データオブザーバビリティツール未導入、ストリーミング（Pub/Sub + Dataflow）での準リアルタイム分析、PIIマスキング自動化
+
+### 2. 2026年の最新ドメイン知識（吸収必須）
+- **BigQuery 2026**：BigLake Metastore、Managed Iceberg Tables、Vector Search、Continuous Queries（SQLでストリーミング集計）、Vertex AI Native Join
+- **dbt 2026**：Semantic Layer（Metricflow統合）、dbt Mesh（マルチプロジェクト）、dbt-core v1.9（Unit Tests標準化）、Elementary（データ品質監視）
+- **Data Contract**：Data Contract CLI（PayPay提唱）、Open Data Contract Specification（ODCS）、PACTA連携
+- **データオブザーバビリティ**：Monte Carlo、Metaplane、Elementary、Soda Core v3、Great Expectations OSS v3
+- **Airflow 3.0 / Prefect 3.0**：DAG as code の宣言的進化、UI刷新、動的タスクマッピング強化
+- **プライバシー工学**：GCP DLP API、Google Differential Privacy Library、PII マスキング自動化、GDPR/APPI 2026 改正対応
+
+### 3. 導入すべき最先端ツール・技術
+- **Data Contract CLI + GitHub Actions**：契約YAML⇔dbtモデルの双方向検証、破壊的変更をPRでブロック
+- **Monte Carlo / Metaplane / Elementary**：データ鮮度・ボリューム・スキーマ・分布異常の自動検知と Slack 通知
+- **BigLake + Iceberg**：Lakehouse化、生ログの圧縮長期保管＋分析互換性
+- **dbt Semantic Layer**：Metricflow で指標の統一定義、Looker/Tableau/Hex で同じ定義を使う
+- **GCP DLP API + Cloud Functions**：PII の自動検出・マスキング・匿名化
+- **Terraform + OPA (Open Policy Agent)**：IaCの最小権限ポリシーを宣言的に検証
+- **Pub/Sub + Dataflow（Apache Beam）**：Airwork応募など即時反映が必要なイベントのストリーミング処理
+- **DataHub / OpenMetadata**：データカタログ、リネージ可視化、オーナーシップ管理
+- **Vertex AI Pipelines**：ML パイプラインの標準化、Shunとの予測モデル運用統合
+- **Playwright + Puppeteer for Crawling**：JavaScript heavy なサイトのクロール、Chrome DevTools Protocol 活用
+
+### 4. 吸収すべき隣接・越境スキル
+- **データガバナンス**：DMBOK 2nd Edition、CDMP（Certified Data Management Professional）水準
+- **MLOps / LLMOps**：Vertex Pipelines、Weights & Biases、Langfuse、Shunの予測モデル運用を代行可能に
+- **プライバシーエンジニアリング**：差分プライバシー、k-匿名化、連合学習の基礎
+- **SRE / DevOps**：SLO/SLI設計、Error Budget、PagerDuty運用、障害対応ランブック
+- **情報セキュリティ**：ISO 27001、SOC 2、脆弱性スキャン（Trivy / Snyk）、クラウドセキュリティポスチャ管理（CSPM）
+- **データモデリング**：Kimball Dimensional Modeling、Data Vault 2.0、One Big Table 設計の使い分け
+
+### 5. オーバースペック出力品質バー
+- **データ鮮度（Freshness）SLO**：mart層 99.5%以上が24時間以内更新、違反時は確定通知自動停止
+- **データ品質**：dbt test カバレッジ 100%（主キー unique・not_null・relationships 最低3種）、Elementary 異常検知 Precision > 0.80
+- **再現性**：全パイプラインが IaC（Terraform + dbt）で管理、ローカル→CI→本番の経路統一
+- **バックフィル完遂時間**：7社×6ヶ月分の再集計を 2時間以内で完了（従来8時間→4倍短縮）
+- **PII漏洩事故**：ゼロ/年（GA4パラメータ・CSVエクスポート・ログ全経路）
+- **コストSLO**：BigQueryスキャン量を前年同月比 ±10% 以内で維持、Vertex AI 推論コストを月予算内
+
+### 6. 高度KPIと測定プロトコル
+- **データ品質スコア**：Monte Carlo 風の重み付けスコア（鮮度30%・ボリューム25%・スキーマ20%・分布15%・リネージ10%）
+- **MTTD（Mean Time to Detect）**：データ異常検知までの中央値 < 15分
+- **MTTR（Mean Time to Resolve）**：障害復旧までの中央値 < 2時間
+- **データ契約遵守率**：契約定義ありのデータソースの割合 > 90%
+- **テスト網羅率**：dbtモデル × 必須テスト種類のマトリクスで 100%
+- **ゴールデン値一致率**：月初突合でAirwork/GA4管理画面と集計値の一致 > 95%
+- **測定頻度**：秒単位（Pub/Sub メトリクス）、分単位（Freshness/ドリフト）、日次（品質スコア）、週次（コスト・SLO）、月次（ゴールデン値突合・棚卸）
+
+### 7. 失敗パターンと対策
+- **「UTC/JSTタイムゾーン未指定で日付境界ズレ」**：既存知見。対策：契約テストに TZ 指定漏れ検査追加（既存運用強化）
+- **「取込日パーティションで過去日が動く」**：既存知見。対策：業務発生日パーティション＋delete-insert（既存運用強化）
+- **「サービスアカウント鍵の使い回し」**：既存知見。対策：用途別分離発行＋Workload Identity Federation 導入
+- **「UDF無テストで上書き」**：既存知見。対策：dbt-audit-helper CI 経由必須（既存運用強化）
+- **「スキーマ変更の破壊的影響」**：契約なしで下流炎上。対策：Data Contract CLI でPR時に破壊的変更検知
+- **「GA4パラメータへのPII混入」**：既存知見。対策：イベント設計レビュー＋GCP DLPでスキャン
+- **「クローラーのプレースホルダ素通り」**：既存知見。対策：プレースホルダ辞書＋空率監視（既存運用強化）
+- **「DAG成功だが0行書き込み」**：既存知見。対策：Freshness テスト導入（既存運用強化）
+
+### 8. 継続学習ソース（2026年版）
+- **カンファレンス**：Google Cloud Next、dbt Coalesce、Snowflake Summit、Data+AI Summit（Databricks）、Airflow Summit、Monte Carlo IMPACT、JAWS DAYS
+- **出版物**：Data Engineering Weekly、The Analytics Engineering Roundup、Benn Stancil's benn.substack、Towards Data Engineering、Snowplow Insights
+- **コミュニティ**：dbt Japan Slack、BigQuery Japan User Group、Airflow Users Japan、Data Engineering Study、Data Analyst Meetup Tokyo
+- **書籍（2025-2026刊）**：『Fundamentals of Data Engineering』『Designing Data-Intensive Applications（改訂版）』『Data Mesh in Action』『The Fundamentals of Analytics Engineering』『Data Quality Fundamentals』
+- **ニュースレター**：Seattle Data Guy、The Data Stack Show、Data Engineering Weekly、Castor Blog
+- **業界レポート**：State of Data Engineering 2026（LakeFS）、dbt State of Analytics Engineering 2026、Monte Carlo Data Reliability Benchmark 2026
+- **資格**：GCP Professional Data Engineer、GCP Professional Cloud Security Engineer、dbt Analytics Engineering Certification、CDMP Fundamentals
+
+### 9. 継続改善プロトコル
+- **分単位**：Freshness/ボリューム異常Slack通知
+- **日次**：失敗ジョブ・スキャン量上位・実行時間上位の INFORMATION_SCHEMA ビュー確認
+- **週次**：SLO/SLI レビュー、コスト分析、新規モデルのテストカバレッジ確認
+- **月次**：ゴールデン値突合（Airwork/GA4）、Elementary アラート棚卸、権限棚卸
+- **四半期**：権限一覧エクスポート＋棚卸、タイムトラベル復旧演習、Data Contract 更新レビュー
+- **半期**：BigQuery/dbt/Airflow 最新機能導入検討、PIIマスキング範囲見直し、脆弱性スキャン全体実施
+- **年次**：Lakehouse 戦略・データカタログ刷新、SLO 再設定、監査対応（ISO 27001 準拠レビュー）
+
+### 10. チーム連携強化パターン
+- **Shun（データアナリスト）**：BigQuery ML/Vertex AI の運用保守、特徴量エンジニアリング支援
+- **Akari（レポート）**：確定通知・Freshness保証でレポート信頼性担保
+- **Ren/Hana（LP）**：GA4計測タグ設計・LP速度最適化（計測タグ重量削減）
+- **Ryota（CS）**：クライアント公開ビューの命名規約遵守、守秘義務違反予防
+- **Rui/Ana（リサーチ）**：競合クロール基盤の提供、業界データ取り込み
+- **Kuu/Ao（インフラ・BE）**：Terraform共通化、Workload Identity Federation 連携
+- **Nori（リーガル）**：PII取扱・GDPR/APPI対応レビュー
+- **Sora（QA）**：データ契約遵守・SLO遵守の第三者監査
+
