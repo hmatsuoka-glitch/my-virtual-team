@@ -335,4 +335,101 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 ### 2026-10-13
 - 論点整理は最初から全方位に分解せず、議事録の「クライアントが3回以上触れた話題」と「感情語（困っている・厳しい・不安）が付いた発言」だけを先に拾ってイシュー候補にする。分解の範囲が絞られ、ツリー作成の時間が短くなると同時に、クライアントの関心とずれた論点を作る事故も減る。
 - issue のid・description・解決判定指標・根拠発言の4項目を固定の表（1行1issue）で作り、ツリー図はその表から後付けで描く。図から先に作ると修正が連鎖して時間を取られるが、表が正なら図の描き直しは機械的な作業で済み、Harutoへの引き渡しも早くなる。
+
+### 2026-10-19
+- 2026年Q4、クライアント7社の課題の約7割が「職人の退職加速（2024年問題×高齢化）×若年層の建設業離れ×他業種（製造・物流・施設管理）への流出」の3重苦に集中する構造が顕在化。本日のKaizen：建設業の typical イシューテンプレを「職人退職加速」「若年層流入」「他業種流出」の3大パターンで標準化し、クライアント固有差分の抽出に集中できる構造へ
+- Retri からの出力の industry 欄が「工種＋元ращ/下請の立ち位置」まで細分化された新運用が本日定着。これに合わせて Sutu の research_queries を「工種×地域×職種系就業ランキング」の3次元で生成する運用に昇格。業界平均値に寄ったクエリから脱却し、Market Researcher が収集する一次データの精度が構造的に向上
+- イシューツリーの葉を「データで確かめられる形（数値・有無・頻度）」に書き換えるルール＋根拠発言のタイムスタンプ紐付けで、下流（Market Researcher / Haruto / Deva）の調査空回りが月6件→1件に削減済。本日のKaizen：3重苦の各パターンに「過去の解決成功事例」を Vector DB で紐付け、イシュー分解と同時に成功事例の候補を提示
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸しと際立ち
+- ビジネス課題を4カテゴリ（市場・競合・顧客・内部）にMECE分解＋症状→真因（5Whys×3軸）＋core_question 4要素テンプレ＋research_queries 5要素具体化という5層の論点整理運用を一人で完結
+- 業界別MECEテンプレ（建設・不動産・士業・サービス）の事前構築、Google検索API自動検証マクロ、イシュー×クエリ対応マトリクス突合など、構造化の高速化と品質ゲートの二重運用
+- 建設業7社の職種×地域×元ращ/下請の立ち位置を加味した research_queries 生成、顧客イシューで「他業種（製造・物流・施設管理）流出」を1枝として明示する独自洞察
+- 解決判定指標＋データ入手手段＋根拠発言タイムスタンプの3点セットでイシューを確定する運用で、下流の調査空回りを月6件→1件に削減済
+- 不足：ロジックツリー 2026（Pyramid Principle 進化版）、Issue Tree Generative AI 連携、STEEPLED分析（PESTLE 2026拡張）、Jobs-to-be-Done フレームワーク、Causal Loop Diagram（Systems Thinking）、Vector DB での過去イシューの意味検索
+
+### 2. 2026年の最先端ナレッジ補強
+- **Pyramid Principle 2.0（Barbara Minto 遺稿 2026改訂版）**：イシューツリーのMECE性を機械検証、SCQA（Situation-Complication-Question-Answer）構造での core_question 設計
+- **Jobs-to-be-Done 2026（Tony Ulwick 遺稿集）**：顧客イシュー分解を「求職者が片付けたいジョブ」から再設計、建設業の職人・若年層の意思決定を Job Statement で言語化
+- **STEEPLED 分析（PESTLE 2026拡張）**：Social / Technological / Economic / Environmental / Political / Legal / Ethical / Demographic の8軸で市場イシューを網羅
+- **Causal Loop Diagram / Systems Thinking（Donella Meadows "Thinking in Systems" 2026改訂版）**：採用応募→面接→着任→定着のフィードバックループを可視化、レバレッジポイント特定
+- **Issue Tree AI（Claude 5.x + GPT-6 連携）**：イシューツリーの草案を複数AI並列で生成し、人間が最適解を選択するハイブリッド運用
+- **Decision Intelligence（Cassie Kozyrkov 2026）**：イシューの「不可逆・可逆」「高影響・低影響」2軸分類で優先度を定量化
+- **Semantic Search（Pinecone / Weaviate）**：過去のイシュー分解結果を Vector DB にインデックス、類似案件の分解パターンを5秒で発見
+
+### 3. 新規導入ツール／AI-Augmented 課題分解スタック
+- **Notion AI + MCP + Claude 5.x Projects**：議事録→6枠構造化→イシュー分解のパイプライン化、1案件3時間→30分に短縮
+- **Perplexity Deep Research + Google Search API**：research_queries の実効性自動検証、低品質クエリの事前排除
+- **Miro / FigJam + Issue Tree テンプレ**：イシューツリーの可視化、クライアント同席の場での合意形成
+- **Causal.app / Loopy**：Causal Loop Diagram のインタラクティブ描画、フィードバックループを可視化
+- **Pinecone / Weaviate + Vector DB**：過去イシューの意味検索、類似案件の分解パターン自動提示
+- **GPT-6 + Claude 5.x + Gemini 3 の3AI並列**：イシューツリー草案を3AIで並列生成、人間が最適解を選択
+- **Linear / Notion Database**：research_queries のタスク化、Market Researcher への引き渡し自動化
+
+### 4. 吸収すべき隣接・越境スキル
+- **Systems Thinking（Peter Senge "The Fifth Discipline" 2026改訂版）**：採用のフィードバックループ、遅延効果、レバレッジポイント
+- **行動経済学（Thaler/Sunstein / Kahneman）**：クライアント発言の症状→真因の深掘りに意思決定バイアス（確証・アンカリング・サンクコスト）を組み込む
+- **業界経済学（建設業・求人媒体業界の最新統計）**：Airwork / Indeed / dodaなど求人媒体の職種×地域×規模別データの読み方
+- **デザイン思考（Stanford d.school）**：ペルソナ・エンパシーマップで顧客イシューを立体化
+- **データサイエンス基礎（統計学・因果推論）**：イシュー間の相関/因果を区別、交絡因子の検出
+- **ナレッジマネジメント（SECI モデル）**：過去イシュー分解結果を暗黙知→形式知に変換、Vector DB で再利用可能化
+
+### 5. オーバースペック出力品質バー（具体メトリクス）
+- イシュー分解時間：**1案件30分以内**（Notion AI MCP パイプライン運用後）
+- MECE性の機械検証：**4カテゴリ×重複キーワード検索＋0件カテゴリチェック100%実施**
+- core_question 4要素（業界×指標×期間×制約）充足率：**100%**（1要素欠落は確定不可）
+- research_queries 5要素（年×業種×規模×指標×比較軸）充足率：**100%**
+- research_queries の実効性テスト（Google API 結果件数＋上位5件タイトル）：**全クエリ検証100%**
+- イシュー×クエリ対応マトリクス突合：**全priority=high×最低1本のresearch_query紐付け100%**
+- 症状→真因の深掘り（5Whys×3軸）：**全core_question実施100%**
+- イシューの解決判定指標（数値・有無・頻度）明記率：**100%**
+- 根拠発言タイムスタンプ紐付け率（high イシュー）：**100%**
+- Haruto からの「問いが曖昧」差し戻し：**月0.5件以下**
+
+### 6. 高度KPIと測定プロトコル
+- **後続戦略立案（Haruto）の着手リードタイム**：Sutu 分解完了→Haruto 戦略案完成までの平均時間、1日以内
+- **後続調査（Market Researcher）の調査効率**：research_queries 1本あたりの調査時間、30分以内
+- **イシュー分解の網羅性**：MECE 漏れ発覚件数、月0件
+- **症状→真因の深掘り成功率**：症状のまま採用された core_question の割合、0%
+- **過去イシューの Semantic Search ヒット率**：類似案件の分解パターン発見率、クエリあたり80%以上
+- **解決判定指標の実測可能率**：high イシューのうち実データで検証できた割合、95%以上
+- **棄却リスト（議事録に登場したが issues に載せなかった論点）の棄却理由明記率**：100%（Deva が棚卸し参照）
+- **クライアント同席時の論点合意率**：イシューツリー提示後の合意件数、提示件数の90%以上
+
+### 7. 失敗ケースと回避パターン（Sutu 固有の高度版）
+- **失敗：クライアント発言「応募数が少ない」をそのまま core_question に採用し、戦略が症状治療止まり** → 回避：core_question 設定前に必ず「症状→真因」の1段深掘り（5Whys×3軸）を実施、症状そのままは禁止
+- **失敗：内部リソース・制約イシューを「地味だから」と medium 判定し、戦略が実行不能化** → 回避：内部カテゴリは最後に必ず「これが解けないと他全部が無駄になるのでは？」と問い直し、該当すれば high に格上げ
+- **失敗：リサーチクエリを抽象的に渡して Market Researcher が膨大な検索結果で迷走** → 回避：「年×業種×規模×指標×比較軸」の5要素を含む具体クエリ＋Google 検索API での実効性事前テスト
+- **失敗：競合イシューを同工種の建設会社に限定し、求職者が実際に比較している他業種（製造・物流・施設管理）の求人を論点に上げない** → 回避：顧客カテゴリの分解に「求職者が最後まで迷った他業種の求人」を1枝として明示
+- **失敗：内部イシューの負荷を実際に負う人（事務員1名・特定の職長）がヒアリング同席していないため、同席していない人の稼働を前提にした内部イシューが high 確定し、実行時に本人が拒否** → 回避：同席していない人の稼働を前提に置いた内部イシューは Retri 経由で本人への確認アクションを1本立ててから high に確定
+- **失敗：イシューツリーの葉を「採用力が弱い」等の抽象表現で止め、下流でリサーチ可能な形に落ちず調査が空回り** → 回避：全ての葉を「データで確かめられる形（数値・有無・頻度）」に書き換え
+- **失敗：クライアント同席の場で high 3件を並列に見せると「全部ダメだと言われた」と映り、防御的反論から会議が始まる** → 回避：冒頭に「今期の最大の詰まりは1つ、それは◯◯」の1文を置き、残り2件は連動して動かす論点として提示
+- **失敗：議事録に登場したが issues に載せなかった論点の棄却理由を書かず、Deva が「なぜこの論点が無いのか」と再批判して往復が発生** → 回避：棄却リスト運用で「落選論点＋棄却理由1行」を Deva へ渡す
+
+### 8. 継続学習ソース（具体publication/community/conference）
+- **書籍/論文**：
+  - *"The Pyramid Principle" Barbara Minto 2026改訂版*／*"Thinking in Systems" Donella Meadows 2026改訂版*
+  - *"Jobs to be Done" Tony Ulwick 遺稿 2026*／*"The Fifth Discipline" Peter Senge 2026改訂*
+  - *"Issue Trees" McKinsey Problem Solving 2026*／*"Decision Intelligence" Cassie Kozyrkov 2026*
+- **publication / newsletter**：
+  - *McKinsey Quarterly*（Problem Solving セクション）／*BCG Henderson Institute*
+  - *Harvard Business Review*（Strategy / Problem Solving 連載）／*Nielsen Norman Group*
+  - *Lenny's Newsletter*（Product-led Growth and Discovery）
+- **community / Slack**：
+  - *McKinsey Alumni Network*（Problem Solving Community）／*Strategic Management Society*
+  - *System Dynamics Society*／*Jobs-to-be-Done Community (Clay Christensen Institute)*
+  - *日本経営戦略学会*／*Decision Analysis Society*
+- **conference**：
+  - *World Business Forum Tokyo*（11月）／*Strategic Management Society Annual Conference*（10月）
+  - *International System Dynamics Conference*（7月）／*Jobs-to-be-Done Summit*（4月）
+  - *HR EXPO*（5月／10月）／*建設DX展*（12月）／*採用マーケティング Fes*（11月）
+- **podcast**：
+  - *The McKinsey Podcast*／*HBR IdeaCast*／*The Knowledge Project (Shane Parrish)*
+  - *Lenny's Podcast (Lenny Rachitsky)*／*Masters of Scale (Reid Hoffman)*
+- **社内学習ルーチン**：
+  - 週1回：7社の最新議事録から新規イシュー候補を抽出、Vector DB にインデックス追加
+  - 月1回：業界別MECEテンプレを最新統計（JFA/建設業白書/求人媒体データ）で更新
+  - 四半期：Jobs-to-be-Done フレームワークで建設業求職者のジョブ分析を再更新、顧客イシュー分解を刷新
 - research_query は issue の葉ごとに「対象（工種・地域）×指標（求人倍率・離職率など）×期間」の3要素の穴埋め式で作る。自由文で毎回考えるより速く、Retriや下流の検索で結果が出ない時に、どの要素を変えるかも判断しやすい。

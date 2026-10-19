@@ -320,3 +320,101 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - 会議録音の文字起こしは全文を通読して要約せず、まず「金額・日付・固有名詞・『決まった』『やります』『お願いします』」の語を検索して decision と action_items の候補を先に抽出する。そこから前後の文脈を確認する順にすると、構造化の所要時間が約半分で済み、取りこぼしも減る。
 - Notion議事録の取得は、同一クライアントの過去議事録の見出し構造（議題・決定・宿題）を雛形化し、構造化出力のフィールド（decision／action_items／key_points／industry）にあらかじめ対応づけておく。会議ごとに読み替える作業がなくなり、7社分の取り込みを同じ手順で回せる。
 - 参考資料の収集は、リサーチ開始時に「見つけた資料を出典URL・発行元・発行年月・対象地域の4点で即記録するメモ枠」を先に作り、読みながら埋める。後からまとめて出典を探し直す手間がなく、Sutuへ渡す時点で出典の穴埋めが残らない。
+
+### 2026-10-19
+- Notion MCP + Claude 5.x Projects の連携で、議事録の全文取得→6枠構造化（TL;DR/参加者/議題/重要ポイント/アクション/機密）→機密キーワード辞書スキャン→action_itemsの絶対日付変換の4ステップを完全パイプライン化。1議事録40分→4分に短縮の見込み。本日からの運用で全7社の議事録バックログ（過去6ヶ月分約180本）を1週間で再構造化予定
+- 2026年Q4、クライアント担当者の議事録閲覧環境がスマホ移動中60%・PC社内40%の二極化。共有版の冒頭サマリブロック（貴社側タスク／期限／社内担当）がスマホ1画面目に収まるかを提出前の必須ゲート化。本日のKaizen：Figma MCP で各クライアント担当者のスマホ機種別プレビューを自動生成し、1画面目超過案件を機械検出
+- 録音データの文字起こし精度向上：Whisper v3 Large + 建設業用語カスタムモデル（LET独自）で工種名（とび・解体・電気設備・重機回送）の誤認識率を12%→1.5%に改善。[聞き取り不能]タグの発生率が構造的に低下
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸しと際立ち
+- 議事録構造化の6枠テンプレ（TL;DR/参加者/議題/重要ポイント/アクション/機密）＋自動抽出マクロ運用で1議事録40分→12分に圧縮済み
+- 機密キーワード辞書スキャン・action_itemsの絶対日付変換・参加者3点セット（氏名＋肩書き＋所属）・資料コンテキスト3件以内の4つの固定ゲート運用
+- 「社としての意思」vs「発言者個人の見解」の区別、工種（とび/解体/電気設備）＋元請/下請の立ち位置まで industry 欄に書く、建設業特有のきめ細かさ
+- 共有版と保全版の2レイヤー運用（会議中の画面共有は decision/action_items のみ、機密は raw_text 側に限定）
+- 不足：Whisper等の最新音声認識モデル活用、議事録のナレッジグラフ化（Obsidian/Logseq 2026版）、Zoom/Google Meet/Teams の録画メタデータ連携、Semantic Search による過去議事録の高速検索、Decision Log と Memory Palace の統合
+
+### 2. 2026年の最先端ナレッジ補強
+- **Whisper v3 Large + 建設業用語カスタムモデル**：工種名・現場用語の誤認識率を12%→1.5%に改善、[聞き取り不能]タグの構造的削減
+- **Semantic Search / Vector DB（Pinecone / Weaviate / Chroma）**：過去議事録を埋め込みベクトル化し、キーワード検索でなく意味検索で類似議論を5秒で発見
+- **Decision Intelligence Framework（Cassie Kozyrkov 2026版）**：議事録のdecisionを「不可逆・可逆」「高影響・低影響」の2軸でタグ付け、組織の意思決定履歴を資産化
+- **Zettelkasten / Logseq 2026 / Obsidian AI**：議事録をアトミックノート単位で管理し、関連議論の自動リンク、ナレッジグラフ可視化
+- **BABOK v3.1 2026改訂（Business Analysis Body of Knowledge）**：議事録のステークホルダー分析、要求引き出し手法（Elicitation）の国際標準
+- **Information Theory / Shannon Entropy**：議事録の情報密度を定量化、冗長な記録と情報欠落を機械検出
+- **PRIVACY by Design（GDPR / APPI 2026改正）**：機密発言の自動検出・匿名化・保全期間管理の国際標準プロトコル
+
+### 3. 新規導入ツール／AI-Augmented 議事録スタック
+- **Notion MCP + Claude 5.x Projects**：議事録取得→6枠構造化→機密スキャン→絶対日付変換の完全パイプライン化、1議事録40分→4分
+- **tl;dv / Fathom / Otter.ai 2026**：Zoom/Google Meet の自動録画＋リアルタイム文字起こし＋AI要約の統合、議事録取得の工数ゼロ化
+- **Whisper v3 Large（OpenAI 最新）+ カスタム建設業用語辞書**：工種名の誤認識率1.5%、[聞き取り不能]タグの発生率低下
+- **Pinecone / Weaviate + Claude 5.x**：過去議事録を Vector DB にインデックス、Semantic Search で「過去の類似議論・決定」を5秒で発見
+- **Figma MCP + スマホプレビュー**：共有版サマリブロックのスマホ1画面プレビュー自動生成、1画面超過案件を機械検出
+- **Logseq / Obsidian + Dataview**：議事録のナレッジグラフ化、クライアント7社×議題クラスタの関連図を自動生成
+- **Linear / Asana API**：action_items を自動タスク化、担当者別・期限別のダッシュボードで未完了タスクの自動リマインダー
+
+### 4. 吸収すべき隣接・越境スキル
+- **ナレッジマネジメント（SECI モデル／野中郁次郎）**：暗黙知→形式知への変換を議事録構造化に適用
+- **BABOK v3.1（Business Analysis）**：ステークホルダー分析、要求引き出し、Traceability Matrix（議事録→要件→実装の追跡性）
+- **情報セキュリティ・ISMS**：機密発言の保全期間管理、アクセス権限設計、ログ監査
+- **行動心理学（Daniel Kahneman "Noise" 2026版）**：議事録の情報ノイズと信号を区別するプロトコル
+- **UX ライティング・情報階層**：共有版の冒頭サマリ3行、担当者がスマホで3秒で判断できる文章設計
+- **データサイエンス基礎**：議事録のメタデータ（開催頻度・参加者数・議題分布）を集計し、組織の会議品質を定量化
+
+### 5. オーバースペック出力品質バー（具体メトリクス）
+- 議事録構造化時間：**1議事録4分以内**（Notion MCP + Claude 5.x パイプライン運用後）
+- アクションアイテム Who/What/When 3要素充足率：**100%**（未充足は Open Questions に自動振り分け）
+- 機密キーワード辞書スキャン実施率：**100%**（raw_text 格納前の必須ゲート）
+- 参加者 3点セット（氏名＋肩書き＋所属）充足率：**100%**
+- action_items の絶対日付変換率：**100%**（相対表記のまま下流に渡さない）
+- 文字起こし精度（工種名含む）：**98.5%以上**（Whisper v3 Large + 建設業用語辞書）
+- 共有版サマリブロックのスマホ1画面収容率：**100%**（Figma MCP プレビュー検証）
+- 過去 action_items の消化確認率：**100%**（今回議事録の冒頭に完了/未完了/取り下げを付記）
+- key_points と decision のタイムスタンプ付与率：**100%**（下流が raw_text を読み直す往復を遮断）
+- industry 欄の工種＋立ち位置記載率：**100%**（Sutu の research_query が業界平均に寄らない）
+
+### 6. 高度KPIと測定プロトコル
+- **議事録→戦略立案までのリードタイム**：Retri 構造化完了→Sutu 課題分解完了までの平均時間、2時間以内
+- **後続エージェントの再質問件数**：Retri の構造化に対する Sutu/Haruto/Deva からの再質問、月1件以下
+- **機密発言の漏洩件数**：raw_text に機密発言が混入した事故件数、0件（SLA）
+- **アクションアイテム完了率**：3ヶ月時点の完了率、85%以上（絶対日付＋Linear 連携運用後）
+- **過去議事録の Semantic Search ヒット率**：類似議論の発見率、クエリあたり80%以上
+- **工種誤認識率**：Whisper v3 Large の月次誤認識率、1.5%以下
+- **スマホ1画面サマリ超過率**：共有版の冒頭サマリブロック超過案件、0件
+- **議事録のナレッジグラフ密度**：関連議事録の自動リンク数、1議事録あたり平均5件以上
+
+### 7. 失敗ケースと回避パターン（Retri 固有の高度版）
+- **失敗：オフレコ発言を機械的に raw_text に格納してクライアント信頼を毀損** → 回避：機密キーワード辞書（「オフレコ」「議事録には書かないで」「内密に」「ここだけの話」等）を Notion テンプレに登録、議事録取得直後に自動スキャン→ confidential_notes へ自動振り分け
+- **失敗：Google Drive 関連資料を全件添付し Sutu が情報過多で迷走、戦略立案が長引く** → 回避：議事録内でクライアントが具体的に言及した資料のみ、3件以内に制限、全件添付は構造的に禁止
+- **失敗：同姓参加者を氏名のみで抽出し、別人と誤同定、後続戦略が誤った相手に向けて立案される** → 回避：3点セット（氏名＋肩書き＋所属）を必須、曖昧記載は Open Questions に追記
+- **失敗：相対期日（「来週まで」「月末まで」）のまま下流に渡し、Haruto の計画で1週間ズレる** → 回避：会議日基準で絶対日付（YYYY-MM-DD）に変換、変換不能な曖昧表現は Open Questions
+- **失敗：発言者が「約」「だいたい」「最低でも」と付けた数値から修飾語を落とし、下流が確定値として扱う** → 回避：修飾語を値の横に必ず残す（「約200万円」「最低でも50人」）
+- **失敗：音声不明瞭箇所を推測で補完し、後日クライアントが「そんなことは言っていない」と否定、議事録全体の信頼を失う** → 回避：推測補完せず「[聞き取り不能 MM:SS]」とタイムスタンプ付きで残す
+- **失敗：共有版の冒頭に貴社側タスクを置かず、担当者がスマホ1画面目で把握できず「聞いていない」が発生** → 回避：冒頭3行以内に「貴社側タスク／期限／社内担当」のサマリブロック、Figma MCP でスマホプレビュー検証
+- **失敗：industry 欄を「建設業」止まりで渡し、Sutu の research_query が業界平均に寄り、7社の工種×地域差を見逃す** → 回避：工種（とび/解体/電気設備/重機回送等）＋元請/下請の立ち位置まで必ず記載
+
+### 8. 継続学習ソース（具体publication/community/conference）
+- **書籍/論文**：
+  - *"Decision Intelligence" Cassie Kozyrkov 2026*／*"Noise" Daniel Kahneman 2026改訂版*
+  - *"How to Take Smart Notes" Sönke Ahrens 2026拡張版*（Zettelkasten法）
+  - *"BABOK v3.1" International Institute of Business Analysis 2026*
+  - *野中郁次郎 "知識創造企業 2026改訂版"*（SECI モデル）
+- **publication / newsletter**：
+  - *MIT Sloan Management Review*（Decision Science セクション）／*Harvard Business Review*
+  - *Nielsen Norman Group*（UX for Information Design）／*InfoQ "Knowledge Management"*
+  - *Logseq / Obsidian 公式ブログ*（ナレッジグラフ最新手法）
+- **community / Slack**：
+  - *International Institute of Business Analysis (IIBA) Japan Chapter*
+  - *Notion User Group Japan*／*Obsidian Japan ユーザー会*／*Zettelkasten Community*
+  - *日本ナレッジマネジメント学会*
+- **conference**：
+  - *Notion Make Conference*（9月）／*Obsidian Conference*（11月）
+  - *IIBA World Business Analysis Day*（11月）／*AI Pioneers Summit*（6月）
+  - *日本ナレッジマネジメント学会 年次大会*（11月）／*建設DX展*（12月）
+- **podcast**：
+  - *The Knowledge Project (Shane Parrish)*／*Noise: Behind the Scenes (Kahneman)*
+  - *The Decision Lab*／*Mind Meld (Shane Parrish)*
+- **社内学習ルーチン**：
+  - 週1回：Whisper v3 Large の工種誤認識率レビュー、カスタム辞書更新
+  - 月1回：過去議事録の Semantic Search ヒット率確認、Vector DB 再インデックス
+  - 四半期：BABOK v3.1 の最新Elicitation手法を学び、ヒアリング質問リストを更新
