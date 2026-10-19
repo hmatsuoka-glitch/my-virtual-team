@@ -530,3 +530,92 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **効率化テクニック：フォームのバリデーションを zod スキーマ 1 つにして、Ao と共有する**：画面側と API 側で別々に検証を書くと、文字数や必須条件が食い違い、画面は通るのに API で拒否される不具合になる。`packages/schemas` に zod スキーマを置き、React Hook Form は `zodResolver` で、API は `parse` で同じものを使う。エラー文言は日本語の辞書にまとめ、項目名ごとの案内（例：全角数字でも可）を一箇所で管理する。
 - **効率化テクニック：Storybook のストーリーを `composeStories` で Vitest からも再利用する**：見た目確認用のストーリーと、振る舞い確認用のテストで同じ状態を二重に用意すると、更新漏れが起きる。ストーリー側に「空・エラー・読み込み中・長文」の状態を定義し、テストでは `composeStories` で読み込んで操作とアサーションだけを書く。フォントサイズ最大や 200% 拡大の検証もストーリーの状態として共有できる。
 - **効率化テクニック：`cva`（class-variance-authority）と `prettier-plugin-tailwindcss` で、スタイルのレビュー負荷を下げる**：Tailwind のクラスを各所に直書きすると、ボタンの大きさや色の違いが画面ごとに微妙にずれ、レビューでも差分が追いにくい。`cva` で size・variant を定義して部品に閉じ込め、クラスの並び順は plugin に任せて自動整列する。ずれの修正が 1 ファイルで済み、Mio の目視確認の対象も絞れる。
+
+### 2026-10-19
+- **Next.js 15 App Router + React 19 の本格活用**：Server Components / Server Actions / Partial Prerendering (PPR) / `use()` フックを標準装備化、クライアント JS バンドルを 40% 削減。
+- **TDD Guard 連携でカバレッジ 85% + 型 any ゼロを強制**：Vitest + Playwright + Storybook interactions で振る舞いテストを三位一体化。
+- **読むべき 2026 ソース**：Next.js 15 Docs、Overreacted (Dan Abramov)、React Advanced London 動画、Josh Comeau Blog、TkDodo's React Query Blog、TC39 Proposals。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸しとギャップ分析
+- 現状：Zod + React Hook Form 共有、Storybook composeStories、cva + Tailwind 整列まで固定化済み。
+- ギャップ 1：**Next.js 15 の Server Actions / PPR / use() フック** 標準活用が未徹底。
+- ギャップ 2：**React 19 の `useOptimistic` / `useFormState` / `useActionState`** 新 API 未習得。
+- ギャップ 3：**Tanstack Query v5 / SWR 2.x** のキャッシュ戦略設計が属人化。
+- ギャップ 4：**アクセシビリティ（WCAG 2.2 AA）** のテスト自動化が未装備。
+- ギャップ 5：**Web Vitals（LCP / INP / CLS）** の継続観測と最適化手順が未整備。
+- ギャップ 6：**React Server Components (RSC) 境界設計**（server/client boundary）の判断ロジック未明文化。
+
+### 2. 2026 年の最先端知識領域（必修）
+- **Next.js 15 App Router**：Server Components、Server Actions、Streaming SSR、Partial Prerendering (PPR)、Dynamic I/O、Turbopack 安定版。
+- **React 19**：`use()` フック、`useOptimistic`、`useFormState`、`useActionState`、Compiler（旧 React Forget）、Document Metadata。
+- **TypeScript 5.x**：`satisfies`、`const` type parameters、Decorators (Stage 3)、`NoInfer` ユーティリティ。
+- **Tanstack Query v5 + Zustand**：サーバー状態 / クライアント状態の責務分離、Optimistic Update 設計。
+- **Vitest 2.x + Testing Library + Playwright Component Testing**：単体〜統合〜E2E の 3 層テスト設計。
+- **CSS 2026 標準**：Container Queries、`@scope`、Subgrid、`color-mix()`、`oklch()`、View Transitions API、Anchor Positioning。
+- **WCAG 2.2 AA**：Focus Appearance、Dragging Movements、Target Size (Minimum)、Consistent Help。
+- **Web Vitals 2026**：LCP < 2.5s、INP < 200ms、CLS < 0.1 を全ページで維持。
+
+### 3. 導入すべきツール・技法
+- **Next.js 15 + React 19 + TypeScript 5.x** のモノレポ構成（pnpm workspaces）。
+- **Storybook 8.x + composeStories**：ストーリー再利用で Vitest / Playwright からも同じ状態を活用。
+- **Chromatic / Percy**：Visual Regression Testing、PR 単位で差分検知。
+- **axe-core + Playwright a11y プラグイン**：アクセシビリティ自動検査、CI 必須化。
+- **MSW (Mock Service Worker) 2.x**：API モック統一、Storybook / Vitest / Playwright 共通利用。
+- **cva + Tailwind CSS 4 + prettier-plugin-tailwindcss**：デザイントークン統一。
+- **react-hook-form + zodResolver + 日本語エラー辞書**：フォーム設計の標準化。
+- **Partytown**：サードパーティスクリプトを Web Worker へ、INP 改善。
+
+### 4. 隣接・越境スキル
+- **UX / IA（情報設計）**：Riku が設計レビューに参画、ナビゲーション・情報階層の判断。
+- **アクセシビリティ**：スクリーンリーダー（NVDA / VoiceOver）実機テスト、WAI-ARIA 1.3 設計。
+- **デザインシステム**：Figma Variables → Tailwind Config の双方向同期、Storybook との統合。
+- **パフォーマンスエンジニアリング**：Lighthouse / WebPageTest / React Profiler で p95 計測、Core Web Vitals 改善。
+- **i18n（国際化）**：next-intl、ICU MessageFormat、言語切替 UX 設計。
+- **SEO（技術 SEO）**：Metadata API、JSON-LD、OGP、サイトマップ自動生成。
+
+### 5. オーバースペック品質ライン
+- **単体テストカバレッジ > 85%**（Riku 担当モジュール全体）。
+- **型 any 使用率 0%**（ESLint `no-explicit-any` error レベル）。
+- **Web Vitals p75 全グリーン**：LCP < 2.5s、INP < 200ms、CLS < 0.1。
+- **アクセシビリティスコア 100%**（Lighthouse Accessibility、axe-core 違反ゼロ）。
+- **バンドルサイズ初回ロード < 100KB**（gzip 後、Next.js 15 Dynamic Imports 活用）。
+- **Storybook カバレッジ 100%**（全 UI コンポーネントがストーリー化）。
+- **Visual Regression 差分検知率 100%**（Chromatic での意図外変更ゼロ化）。
+
+### 6. 高度 KPI セット
+- **PR サイクルタイム**：平均 1 日、p95 2 日以内。
+- **PR あたり LOC**：500 行以下（レビューしやすい単位）。
+- **Storybook ストーリー数**：UI コンポーネント数 ×3（空・ロード中・エラー・成功 の状態）。
+- **React Server Components 比率**：全ページの 70% 以上を RSC 化。
+- **Server Actions 導入率**：フォーム送信の 100%、API Route 代替で TypeScript エンドツーエンド型安全。
+- **axe-core 違反件数**：ゼロ件を常時維持。
+
+### 7. 想定失敗ケースと予防策
+- **失敗 1：Server Component 内で `useState` 誤用**：予防策は ESLint `@next/next` ルール厳格化、`'use client'` 境界を Nao の設計書で明示。
+- **失敗 2：Tanstack Query のキャッシュキー設計ミスで古いデータ表示**：予防策はキャッシュキー命名規約を ADR 化、`queryClient.invalidateQueries` を Zod スキーマで型安全に。
+- **失敗 3：フォームバリデーションの日本語エラー文言不統一**：予防策は Zod スキーマに `errorMap` を定義、日本語辞書を packages/schemas で共通化。
+- **失敗 4：Visual Regression の False Positive 多発**：予防策は Chromatic の TurboSnap 有効化、アニメ・ランダム要素を `data-chromatic-ignore` で除外。
+- **失敗 5：INP > 200ms（インタラクション遅延）**：予防策は React 19 Compiler 有効化、重い計算を `useMemo` / `useTransition` でラップ。
+- **失敗 6：next/image の最適化漏れで LCP 悪化**：予防策は `priority` 属性と `fetchpriority="high"` を Hero 画像に強制。
+
+### 8. 継続学習ソース（毎週/毎月）
+- **週次**：Overreacted（Dan Abramov）、Josh Comeau、TkDodo's React Query Blog、Vercel Changelog、Next.js Blog、Smashing Dev。
+- **月次**：React Advanced 動画、Chrome Developers Blog、web.dev、CSS-Tricks、Shoptalk Show Podcast。
+- **四半期**：React Conf、Next.js Conf、JSConf、Chrome Dev Summit アーカイブ。
+- **年次**：State of JS、State of CSS、State of React、Web Almanac Report。
+- **コミュニティ**：Next.js Japan Slack、React Japan Discord、Frontend Japan Meetup。
+
+### 9. 四半期自己評価レビュー
+- **月初 15 日**：過去 1 ヶ月の Web Vitals p75 を集計、劣化ページを特定して改善スプリント化。
+- **月末**：PR サイクルタイム・LOC・テストカバレッジを集計、ボトルネック工程を可視化。
+- **四半期**：Next.js / React のバージョンアップデート検証、新機能の採用判断を ADR 化。
+
+### 10. 他部門との越境連携強化
+- **Nao（Architect）**：OpenAPI 型自動生成、Server/Client 境界設計のペアワーク。
+- **Ao（BE）**：Zod スキーマ共有、Server Actions 設計の共同運用。
+- **Kuu（Infra）**：Vercel デプロイ最適化、Edge Function 活用判断。
+- **Mio（QA）**：Storybook composeStories での統合テスト、Chromatic 導入。
+- **バナー部（Kana）**：デザインシステム共有、Figma Variables → Tailwind Config 同期。
+- **COO（Sora）**：UI 品質ゲート（a11y / Web Vitals / Visual Regression）の半期更新。

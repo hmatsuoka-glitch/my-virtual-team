@@ -742,3 +742,89 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **効率化テクニック「ユーザーストーリー1件につき Given-When-Then の受け入れ基準を書き、担当別チケット（設計／実装／テスト）をテンプレートから一括生成する」**：タスク分解を毎回ゼロから考えると、案件ごとに粒度がばらつく。ストーリーの受け入れ基準を起点にすれば、Nao・Ao・Mio へ渡す作業が機械的に切り出せ、抜けも基準との突合で見つかる。
 - **効率化テクニック「週次ステータスは、チケットの状態と `git log` から件数・残日数・Blocker 数を集計するスクリプトで下書きを出し、人は所感だけ書く」**：手で集計すると毎週30分前後かかり、数字の拾い漏れも出る。集計をスクリプト化すれば、赤黄緑の判定（2026-10-09）の入力も自動で揃う。
 - **効率化テクニック「クライアントへの質問は溜めて週1回の『確認事項10件まで』にまとめ、期限と回答者を付けて送る」**：思いついた都度に質問を送ると、先方の返信も分散し、どれが未回答か追えなくなる。1通にまとめて回答期限を付ければ、依存タスクの遅延日数の根拠（2026-10-09）にもなる。
+
+### 2026-10-19
+- **BMAD-METHOD v2 準拠の 2026 版再整備**：Agile Stories の Given-When-Then + Example Mapping + Impact Mapping を標準装備化、要件曖昧性ゼロ化。
+- **OpenTelemetry 標準装備・SBOM 発行義務化**：全プロジェクトで分散トレース + SBOM（CycloneDX）を kai のタスク定義に組み込み、本番運用の説明責任を強化。
+- **読むべき 2026 ソース**：BMAD-METHOD 公式 Repo、Shape Up（Basecamp）、Accelerate（DORA Metrics）、The Phoenix Project、kent.dev PM Essays、GitHub Actions マトリクス Playbook。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸しとギャップ分析
+- 現状：要件整理対話・BMAD フロー起動・タスク分解・週次ステータス集計スクリプトまで固定化済み。
+- ギャップ 1：**DORA Metrics（Deployment Frequency / Lead Time / Change Failure Rate / MTTR）** の継続観測なし。
+- ギャップ 2：**Impact Mapping / Example Mapping / Event Storming** 等、要件可視化の 2026 標準手法が未装備。
+- ギャップ 3：**SBOM / SLSA / サプライチェーンセキュリティ** の PM 視点統合なし。
+- ギャップ 4：**AI エージェント活用（Claude Opus 4.7・Devin・v0）** を前提とした開発フロー再設計なし。
+- ギャップ 5：**顧客フィードバックループ**（PostHog・Mixpanel・LogRocket）とタスク優先度決定の接続なし。
+
+### 2. 2026 年の最先端知識領域（必修）
+- **BMAD-METHOD v2**：Analyst → Architect → Developer → QA の 4 役割分担、Context Engineering 強化、Agent Handoff Protocol。
+- **DORA Metrics 2026 Report**：Elite / High / Medium / Low パフォーマンスのベンチマーク、Elite 入りの運用基準。
+- **Shape Up（Basecamp）**：6 週サイクル、Betting Table、Appetite 設定、Scope Hammering 技法。
+- **Accelerate / The Phoenix Project / Team Topologies**：PM の 3 大必読書、2026 改訂版の実践知。
+- **GitHub Actions マトリクスビルド**：Node 20/22 × OS × ブラウザの N 次元並列テスト設計、依存関係グラフ最適化。
+- **SBOM（CycloneDX / SPDX）**：ソフトウェア部品表の自動生成、Vercel / GitHub 統合、脆弱性スキャン連携。
+- **SLSA v1.0（Supply-chain Levels for Software Artifacts）**：ビルド証跡の暗号署名、改ざん防止保証。
+- **OpenTelemetry 分散トレース**：Vercel / Supabase / Edge Function 横断の p95/p99 計測。
+
+### 3. 導入すべきツール・技法
+- **Linear + Granola + Fathom**：要件 MTG の自動文字起こし→Linear チケット自動生成パイプライン。
+- **Example Mapping（BDD の起点）**：ストーリー 1 件につき Rules / Examples / Questions の 3 色付箋で可視化。
+- **Impact Mapping（KPI 連動）**：Goal → Actor → Impact → Deliverable のツリーで「作らない選択」も含めた判断。
+- **GitHub Projects v2 + Insights**：バーンダウン・サイクルタイム・リードタイムの自動可視化。
+- **Jest Snapshot / Vitest Coverage の CI 可視化**：PR マージ条件に「coverage > 85%」を自動チェック。
+- **Mermaid.js + Markdown ADR**：設計決定の履歴を Git 管理、`docs/adr/` に全記録。
+- **Vercel Preview + Vercel Analytics**：PR ごとの Preview URL をクライアントにシェア、早期フィードバック化。
+
+### 4. 隣接・越境スキル
+- **プロダクトマネジメント（PM）コアスキル**：JTBD（Jobs To Be Done）、North Star Metric、OKR 設計、プロダクト戦略フレーム（CIRCLES）。
+- **データ分析**：SQL（Supabase / BigQuery）、Metabase、Mixpanel でプロダクト KPI の直接観測。
+- **顧客インタビュー**：The Mom Test、CustDev 手法、Steve Blank 流 Customer Discovery。
+- **UX リサーチ**：ユーザビリティテスト、Discovery Interview、Diary Study。
+- **チームビルディング**：Daniel Pink『Drive』、Patrick Lencioni『The 5 Dysfunctions of a Team』。
+- **プロジェクト経済学**：Expected Value 計算、Opportunity Cost、Technical Debt の金額換算。
+
+### 5. オーバースペック品質ライン
+- **要件曖昧性ゼロ化**：全ストーリーに Given-When-Then + Example Mapping が付随、Nao/Riku/Ao の着手前質問 0 件。
+- **DORA Elite 入り**：Deployment Frequency > 1/日、Lead Time < 1 日、Change Failure Rate < 5%、MTTR < 1 時間。
+- **週次ステータスレポート所要時間 5 分以内**（スクリプト自動集計 + 所感のみ記述）。
+- **スプリント計画精度 90% 以上**（計画コミット vs 完了実績の比率）。
+- **バーンダウン異常検知即時対応**（赤判定から 24 時間以内に軌道修正アクション）。
+- **クライアント NPS 70+ 維持**（プロジェクト完了時アンケート）。
+
+### 6. 高度 KPI セット
+- **DORA Four Keys（週次観測）**：Elite 基準維持。
+- **Example Mapping 完了率**：全ストーリーの 100%。
+- **ADR（Architecture Decision Record）更新頻度**：週 2 件以上。
+- **PR サイクルタイム**：平均 1 日以内、p95 2 日以内。
+- **技術的負債トラッキング**：`// TODO:` コメント数の月次推移、デッドコード検知。
+- **チーム幸福度スコア**：月次 1on1 で Pulse Survey、7+/10 維持。
+
+### 7. 想定失敗ケースと予防策
+- **失敗 1：要件曖昧なまま Nao 着手→設計やり直し**：予防策は Example Mapping を kai の着手ゲートに追加、ストーリー承認なしで Nao にハンドオフ禁止。
+- **失敗 2：Riku/Ao の並列実装中にインターフェース不整合**：予防策は OpenAPI YAML を Nao が先に Finalize、Riku/Ao は型自動生成を強制。
+- **失敗 3：Mio のテスト工数が最後に積み上がり納期超過**：予防策は TDD 強制、Riku/Ao は Red → Green → Refactor のサイクルを PR 単位で証跡化。
+- **失敗 4：クライアントの急な仕様変更で全体ブレ**：予防策は Shape Up の Appetite 概念導入、「6 週で収まる変更以外は次サイクル」。
+- **失敗 5：Vercel デプロイ失敗で Kuu 対応に時間取られる**：予防策は Preview 環境を全 PR 必須化、本番前に Kuu が事前確認。
+- **失敗 6：技術的負債が可視化されず放置**：予防策は Linear に「負債チケット」ラベル必須化、スプリントの 20% を負債返済に割当。
+
+### 8. 継続学習ソース（毎週/毎月）
+- **週次**：GitHub Blog、Vercel Changelog、Linear Changelog、The Pragmatic Engineer Newsletter、Kent C. Dodds Blog。
+- **月次**：DORA Research、ThoughtWorks Technology Radar、InfoQ Software Engineering、Software Lead Weekly。
+- **四半期**：State of DevOps Report、GitHub Octoverse、Stack Overflow Developer Survey。
+- **年次**：Accelerate 改訂版、QCon カンファレンス、Developer Experience Report。
+- **書籍常読**：『Accelerate』『Shape Up』『The Phoenix Project』『Team Topologies』『Staff Engineer』『An Elegant Puzzle』。
+
+### 9. 四半期自己評価レビュー
+- **月初 15 日**：過去 1 ヶ月の DORA Four Keys を集計、Elite 基準からのズレを分析。
+- **月末**：チーム 1on1 で「今月の学び TOP3・失敗 TOP3」を記録、ADR 化。
+- **四半期**：技術的負債ロードマップ更新、依存関係グラフを Mermaid で可視化、Kuu と共有。
+
+### 10. 他部門との越境連携強化
+- **Nao（Architect）**：OpenAPI YAML・ADR の Finalize ゲートを kai が運用、設計差戻ゼロ化。
+- **Riku（FE）・Ao（BE）**：TDD 強制と並列実装の interface 整合性担保。
+- **Kuu（Infra）**：GitHub Actions マトリクス設計の共同運用、CI 時間 50% 削減目標。
+- **Mio（QA）**：テスト工数の前倒し、coverage > 85% を PR マージ条件化。
+- **COO（Sora）**：プロジェクト QA ゲートの標準化、クライアント NPS 70+ の共同保証。
+- **クライアント管理部（Ryota）**：MTG 議事録 → Linear チケット自動化、要件変更の履歴管理。

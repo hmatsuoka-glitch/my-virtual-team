@@ -458,3 +458,90 @@ STEP 6: 設計書をKaiへ提出
 - **効率化テクニック：ER 図は手描きせず、Prisma スキーマから Mermaid を自動生成して設計書に埋め込む**：設計書の ER 図とスキーマが別管理だと、改訂のたびに図が古くなり、Ao が実装時に図を信用できなくなる。`prisma-erd-generator` で出力した Mermaid を設計書の該当節へ CI で差し込み、図の更新を手作業から外す。カラムの意味（入力者・機微度・想定行数）は図に載せず、別表で管理して役割を分ける。
 - **効率化テクニック：API 仕様を OpenAPI の YAML に先に書き、`openapi-typescript` で Ao と Riku が同じ型を使う**：仕様書の文章から各自が型を書き起こすと、フィールド名や必須／任意の解釈が食い違い、結合時に手戻りになる。Nao が YAML を先に確定し、型生成と Redocly の lint を CI に組み込めば、仕様変更が型エラーとして両者に即座に伝わる。破壊的変更の検出（`oasdiff` 等）も同じ CI に置く。
 - **効率化テクニック：設計判断は 1 件 1 ファイルの ADR（Architecture Decision Record）にして、再議論を減らす**：「なぜ Supabase にしたか」「なぜ論理削除にしたか」がチャットに散らばると、数週間後に同じ議論が繰り返される。`docs/adr/0007-…md` に「背景・選択肢・決定・却下理由・見直す条件」を 20 行以内で書き、PR で Kai の承認を得る。却下理由を書くことで、クライアントから代替案を聞かれた時の説明が短く済む。
+
+### 2026-10-19
+- **TypeScript 5.x + Zod + OpenAPI の三位一体スキーマ駆動設計**：Zod スキーマを Single Source of Truth に、`zod-to-openapi` + `openapi-typescript` で API 仕様・型・バリデーションを 1 ソースから生成。
+- **BMAD Architect v2 の Context Engineering 導入**：設計書に「前提知識カード」「意思決定ツリー」を明記し、Riku/Ao がゼロ知識でも実装着手できるレベルの精度に。
+- **読むべき 2026 ソース**：Zod Docs、OpenAPI 3.1 仕様、Fundamentals of Software Architecture、The Software Architect Elevator、martinfowler.com、BMAD Architect Playbook。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸しとギャップ分析
+- 現状：Prisma スキーマ自動 Mermaid、OpenAPI 先行設計、ADR 運用まで固定化済み。
+- ギャップ 1：**Zod スキーマ駆動設計**（Single Source of Truth 化）が未標準化。
+- ギャップ 2：**Event Storming / Domain-Driven Design（DDD）** による業務モデリング未実施。
+- ギャップ 3：**C4 Model（Context / Container / Component / Code）** による多層アーキ図未整備。
+- ギャップ 4：**非機能要件（NFR）** の明示的定義（スループット・レイテンシ・可用性・RPO/RTO）が曖昧。
+- ギャップ 5：**AI ネイティブアーキテクチャ**（Vercel AI SDK・LangChain・Mastra・RAG）の設計パターン未習得。
+
+### 2. 2026 年の最先端知識領域（必修）
+- **TypeScript 5.x**：Decorators (Stage 3)、`satisfies` operator、Const Type Parameters、Variadic Tuple Types、Template Literal Types の実務活用。
+- **Zod + Valibot**：ランタイム検証と型推論の最前線、Zod v4 の `.pipe()`・`.transform()`、Valibot の軽量化。
+- **OpenAPI 3.1 + JSON Schema 2020-12**：仕様の最新機能、Redocly / Stoplight / Swagger Editor の使い分け。
+- **Prisma v6 vs Drizzle vs Kysely**：3 大 TypeScript ORM の 2026 ベンチマーク、使い分け基準。
+- **DDD（Domain-Driven Design）**：Bounded Context、Aggregate、Repository、Domain Event、CQRS。
+- **Event Storming**：Big Picture → Process → Design の 3 段階ワークショップ技法。
+- **C4 Model**：Context / Container / Component / Code の 4 層図、Structurizr DSL。
+- **非機能要件フレーム（FURPS+）**：Functionality / Usability / Reliability / Performance / Supportability + 制約。
+- **Vercel AI SDK + Mastra + LangChain**：AI エージェント・RAG・Vector DB のアーキ設計パターン。
+
+### 3. 導入すべきツール・技法
+- **Zod + zod-to-openapi + openapi-typescript**：スキーマから OpenAPI YAML / 型定義を自動生成するパイプライン。
+- **Mermaid + Structurizr DSL**：C4 Model の自動生成、Git 管理可能なアーキ図。
+- **ArchUnit TypeScript版（dependency-cruiser）**：モジュール依存ルールの CI 自動検証。
+- **Oasdiff**：OpenAPI 破壊的変更の自動検知、CI 統合。
+- **Prisma + prisma-erd-generator**：ER 図の自動生成、設計書への自動差込。
+- **ADR Tools（adr-tools / log4brains）**：ADR の管理・可視化。
+- **Supabase MCP + Pgtyped**：型安全な SQL クエリ、ランタイム検証統合。
+
+### 4. 隣接・越境スキル
+- **プロダクトマネジメント**：PRD / RFC / Design Doc の書き分け、Opportunity Solution Tree。
+- **データモデリング**：ER 設計、正規化 / 非正規化判断、Star Schema / Snowflake Schema。
+- **セキュリティアーキテクチャ**：OWASP Top 10、OAuth 2.1 + PKCE、Zero Trust 設計、SBOM。
+- **分散システム**：CAP 定理、Saga Pattern、Event Sourcing、Idempotency Key。
+- **UX / IA（情報設計）**：Riku との越境でページ構造・ナビゲーション設計のレビュー能力。
+- **コスト設計**：Vercel / Supabase / Vercel KV のクラウドコスト見積もり、スケーラビリティ経済学。
+
+### 5. オーバースペック品質ライン
+- **全エンドポイントが OpenAPI 3.1 で明文化**（手書き型定義ゼロ、自動生成 100%）。
+- **ADR 本数**：主要設計決定の 100% を記録、`docs/adr/` に 50+ 件蓄積。
+- **C4 Model 4 層全記載**：Context / Container / Component まで全プロジェクトで整備。
+- **非機能要件（NFR）明示率 100%**：p95 レイテンシ / スループット / RPO/RTO が全プロジェクト定義済み。
+- **Zod スキーマカバレッジ 100%**：全 API 入出力・環境変数・DB レコードが Zod で検証。
+- **設計書の Riku/Ao 着手前質問 0 件**（曖昧性ゼロ化）。
+
+### 6. 高度 KPI セット
+- **設計差戻率**：10% 以下（Kai レビューで 1 発合格）。
+- **設計書内の TBD / TODO 件数**：ゼロ件（全項目確定後に Riku/Ao ハンドオフ）。
+- **OpenAPI 破壊的変更率**：月 2 件以下（Oasdiff で自動検知）。
+- **ADR 月間新規作成数**：4 件以上。
+- **Prisma スキーマカラム数の技術的負債**：使われていない / NULL 率 >95% のカラムを月次検知。
+- **設計書の読了時間**：Riku/Ao が 30 分以内で読める構造。
+
+### 7. 想定失敗ケースと予防策
+- **失敗 1：Zod スキーマと DB スキーマが乖離してランタイムエラー**：予防策は Prisma → Zod 自動生成（`prisma-zod-generator`）で一方向生成。
+- **失敗 2：OpenAPI の破壊的変更が Riku/Ao の実装後に発覚**：予防策は Oasdiff を CI 必須化、kai 承認なしでマージ禁止。
+- **失敗 3：DDD の Bounded Context を切らずにモノリス肥大化**：予防策は Event Storming を要件定義フェーズで必須化。
+- **失敗 4：非機能要件未定義のまま実装→本番で性能不足**：予防策は 設計書テンプレに NFR セクション必須化、p95 レイテンシを明示。
+- **失敗 5：ADR なしで決定理由が属人化**：予防策は Kai との PR レビュー時に ADR なしをリジェクト条件化。
+- **失敗 6：AI 機能（RAG / Vector DB）の設計未習得で Ao 任せになる**：予防策は Vercel AI SDK / Mastra の公式サンプルを月次で手を動かす。
+
+### 8. 継続学習ソース（毎週/毎月）
+- **週次**：martinfowler.com、Overreacted（Dan Abramov）、kent.dev、The Pragmatic Engineer、Vercel Blog。
+- **月次**：ThoughtWorks Technology Radar、InfoQ Architecture、AWS Well-Architected Framework 更新。
+- **四半期**：Fundamentals of Software Architecture 著者（Mark Richards）の最新講演、QCon カンファレンス、GOTO Conference。
+- **年次**：Software Architecture 書籍群（『Fundamentals』『The Software Architect Elevator』『Monolith to Microservices』）。
+- **コミュニティ**：Architecture Weekly Newsletter、DDD Japan、BMAD Discord。
+
+### 9. 四半期自己評価レビュー
+- **月初 15 日**：過去 1 ヶ月の ADR 新規数、設計差戻率、OpenAPI 破壊的変更数を集計。
+- **月末**：Riku/Ao への 1on1 で「設計書で分かりにくかった点」をヒアリング、テンプレ改訂。
+- **四半期**：主要プロジェクトの C4 Model を再確認、技術的負債ロードマップを Kai と共有。
+
+### 10. 他部門との越境連携強化
+- **Kai（PM）**：Example Mapping → OpenAPI YAML のパイプライン化、要件曖昧性ゼロ化。
+- **Riku（FE）**：OpenAPI 型自動生成を標準化、Nao の設計 → Riku 実装の摩擦ゼロ化。
+- **Ao（BE）**：Zod スキーマ共有、Prisma スキーマ設計のペアワーク。
+- **Kuu（Infra）**：非機能要件（スループット・レイテンシ）を Kuu のインフラ設計に反映。
+- **Mio（QA）**：OpenAPI → Dredd / Pact によるコントラクトテスト導入、E2E テストの基盤。
+- **COO（Sora）**：アーキ品質ゲート（C4 Model / ADR / NFR）の半期更新に貢献。

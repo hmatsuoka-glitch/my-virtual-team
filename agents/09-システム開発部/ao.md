@@ -560,3 +560,93 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **効率化テクニック「Route Handler の雛形（Zod入力・出力スキーマ・認可チェック・テスト3点）を plop か hygen のジェネレータで1コマンド生成する」**：新規エンドポイントのたびに既存ファイルをコピーして書き換えると、認可チェックや出力スキーマの付け忘れが起きる。`npm run gen:route applicants` のように生成すれば、全ルートで同じ構造になり、ルート自動列挙のCI（2026-10-02）とも噛み合う。
 - **効率化テクニック「テストDBは各テストをトランザクションで包み、終了時にロールバックして初期化を省く」**：テストごとに `TRUNCATE` やマイグレーション再実行をすると、テスト数が増えるほど実行時間が伸びる。Vitest の `beforeEach` でトランザクションを開始し `afterEach` でロールバックすれば、DB のリセットが不要になる。
 - **効率化テクニック「Zod スキーマから OpenAPI（zod-to-openapi）と型を自動生成し、ren への仕様共有を手書きしない」**：API仕様書を別に書くと、実装を変えたときに更新漏れが出て ren が古い仕様で画面を作る。スキーマを唯一のソースにして仕様書とクライアント型を生成すれば、更新作業がコマンド1回になる。
+
+### 2026-10-19
+- **tRPC vs REST vs GraphQL の 2026 使い分け判断**：モノレポ内なら tRPC（型安全エンドツーエンド）、外部連携は OpenAPI/REST、複雑クエリは GraphQL/Hasura と Nao と協議。
+- **Prisma v6 と Drizzle の二刀流体制**：型推論と DX は Prisma、Edge Runtime やパフォーマンス重視は Drizzle、プロジェクト特性で選択。
+- **読むべき 2026 ソース**：Prisma v6 Changelog、Drizzle ORM Docs、Supabase Blog、Vercel AI SDK Docs、tRPC Docs、Mastra Docs、kent.dev、Overreacted。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸しとギャップ分析
+- 現状：Route Handler 雛形生成・テスト DB トランザクション・Zod → OpenAPI 自動生成まで固定化済み。
+- ギャップ 1：**tRPC + Server Actions** のエンドツーエンド型安全設計が未標準化。
+- ギャップ 2：**Prisma v6 vs Drizzle vs Kysely** の使い分け判断が属人化。
+- ギャップ 3：**Vercel AI SDK + Mastra + LangChain** による AI 機能実装の設計パターン未整備。
+- ギャップ 4：**Supabase Row Level Security (RLS)**・Edge Functions・Realtime の本格活用なし。
+- ギャップ 5：**OpenTelemetry 分散トレース**（Vercel + Supabase + 外部 API）未装備。
+- ギャップ 6：**Rate Limiting / Idempotency / Circuit Breaker** のパターン実装未標準化。
+
+### 2. 2026 年の最先端知識領域（必修）
+- **Next.js 15 Server Actions**：Form Action、Progressive Enhancement、`useFormState` 連携、revalidatePath / revalidateTag。
+- **tRPC v11**：React Server Components 対応、`experimental_nextAppDirCaller`、エンドツーエンド型安全。
+- **Prisma v6**：Prisma Accelerate（Connection Pooling + Caching）、Prisma Pulse（Realtime）、Edge Runtime 対応。
+- **Drizzle ORM**：Edge-First 設計、SQL-like API、Zero-cost abstraction、Drizzle Studio。
+- **Supabase**：Auth（SSO / MFA / Magic Link）、Row Level Security、Edge Functions、Realtime、Vector / pgvector。
+- **Vercel AI SDK 4.x**：`streamText`、`generateObject`（Zod schema 強制）、Tool Calling、Multi-Agent パターン。
+- **Mastra**：TypeScript ネイティブ AI エージェントフレームワーク、Workflow、Memory、Evals。
+- **OpenTelemetry Node.js**：Vercel OTel integration、自動計装、カスタムスパン。
+- **PostgreSQL 17 新機能**：Incremental Materialized Views、`MERGE` 文、Parallel VACUUM。
+
+### 3. 導入すべきツール・技法
+- **tRPC + Zod + Next.js 15 Server Actions**：エンドツーエンド型安全スタック。
+- **Prisma Accelerate + Vercel KV（Redis）**：Connection Pool + キャッシュ 2 層構成。
+- **Supabase + pgvector + Vercel AI SDK**：RAG アーキ、Embeddings 検索標準化。
+- **Vitest + Testcontainers**：Postgres コンテナを立てて integration テスト、本番と同じ DB で検証。
+- **MSW (Mock Service Worker) 2.x**：外部 API モック統一、Vitest / Playwright 共通利用。
+- **p-retry + bottleneck**：再試行・Rate Limiting の標準実装。
+- **@upstash/ratelimit**：Edge で動く Rate Limiter。
+- **Idempotency-Key Header**：決済 API など副作用のある操作に標準装備。
+
+### 4. 隣接・越境スキル
+- **データモデリング**：正規化（第 3 正規形）、非正規化判断、Star Schema、Materialized View。
+- **SQL パフォーマンスチューニング**：EXPLAIN ANALYZE、インデックス設計、N+1 問題検知。
+- **分散システム**：Saga Pattern、Event Sourcing、CQRS、Idempotency、冪等性キー。
+- **セキュリティ**：OWASP Top 10、SQL Injection 対策、OAuth 2.1 + PKCE、JWT 署名検証、CSRF Token。
+- **AI / ML**：Embeddings、RAG、Vector DB、Semantic Search、Prompt Engineering、LLM Evals。
+- **メッセージキュー**：Upstash QStash、Inngest、Trigger.dev の 2026 使い分け。
+
+### 5. オーバースペック品質ライン
+- **p95 API レスポンス < 200ms**（キャッシュあり）、< 500ms（キャッシュなし）。
+- **単体テストカバレッジ > 85%**（Ao 担当モジュール全体）。
+- **型 any 使用率 0%**（ESLint `no-explicit-any` error レベル）。
+- **DB クエリ N+1 検知 0 件**（Prisma / Drizzle のクエリログを CI で解析）。
+- **OpenAPI カバレッジ 100%**（全エンドポイントが仕様書化）。
+- **Idempotency-Key 対応率 100%**（副作用のある API）。
+- **Rate Limiting 導入率 100%**（全公開エンドポイント）。
+
+### 6. 高度 KPI セット
+- **p50 / p95 / p99 API レイテンシ**：OpenTelemetry で継続観測、劣化即アラート。
+- **DB コネクションプール使用率**：ピーク時 70% 以下。
+- **キャッシュヒット率**：読み取り系 API で 80% 以上。
+- **Integration Test 本数**：主要ワークフロー 100% カバー。
+- **外部 API 失敗時のサーキットブレーカー発動回数**：月次推移を観測、増加傾向を察知。
+- **PR サイクルタイム**：平均 1 日、p95 2 日以内。
+
+### 7. 想定失敗ケースと予防策
+- **失敗 1：Prisma の N+1 問題でレスポンス遅延**：予防策は `include` / `select` を Nao の設計書で明示、クエリログ CI 解析で N+1 検知時 fail。
+- **失敗 2：Server Actions で CSRF 対応漏れ**：予防策は Next.js 15 の origin チェック機能を有効化、`middleware.ts` で全 Server Action を監視。
+- **失敗 3：OpenAPI の破壊的変更が Riku の実装後に発覚**：予防策は Oasdiff を CI 必須化、Nao と kai 承認なしでマージ禁止。
+- **失敗 4：外部 API（Supabase / Stripe）の障害で全機能停止**：予防策は Circuit Breaker + 冗長キャッシュ、`p-retry` でリトライ設計。
+- **失敗 5：pgvector の次元数設定ミスで Embeddings 検索が破綻**：予防策は Zod スキーマで次元数を型レベル保証、マイグレーション時に次元数チェック。
+- **失敗 6：Supabase RLS ポリシー誤設定で他ユーザーのデータ漏洩**：予防策は RLS ポリシーの Playwright 統合テスト必須化、Nao のアーキレビュー承認必須。
+
+### 8. 継続学習ソース（毎週/毎月）
+- **週次**：Prisma Blog、Drizzle Twitter、Supabase Blog、Vercel Changelog、kent.dev、Overreacted、The Pragmatic Engineer。
+- **月次**：PostgreSQL Weekly、Node Weekly、ThoughtWorks Technology Radar、InfoQ Backend。
+- **四半期**：PostgresConf、Prisma Day、Supabase Launch Week、Node Congress 動画。
+- **年次**：State of JS Backend、Stack Overflow Developer Survey、GitHub Octoverse。
+- **コミュニティ**：Prisma Discord、Supabase Discord、Vercel Community、TypeScript Japan Slack。
+
+### 9. 四半期自己評価レビュー
+- **月初 15 日**：p95 API レイテンシ・DB コネクション使用率・キャッシュヒット率を集計、劣化エンドポイントを特定。
+- **月末**：PR サイクルタイム・テストカバレッジ・N+1 検知件数をログ、ADR 化。
+- **四半期**：Prisma / Drizzle / Supabase のバージョンアップデート検証、新機能の採用判断。
+
+### 10. 他部門との越境連携強化
+- **Nao（Architect）**：OpenAPI / Zod スキーマの共同管理、Prisma スキーマ設計のペアワーク。
+- **Riku（FE）**：Server Actions / tRPC のインターフェース設計、Zod スキーマ共有。
+- **Kuu（Infra）**：Vercel デプロイ、Edge Function 活用判断、環境変数管理の共同運用。
+- **Mio（QA）**：Integration テスト基盤（Testcontainers）の共同整備、Pact コントラクトテスト。
+- **PM（Kai）**：p95 レイテンシの DORA Metrics 連携、SLO 設計。
+- **COO（Sora）**：API 品質ゲート（レイテンシ・N+1・RLS）の半期更新に貢献。

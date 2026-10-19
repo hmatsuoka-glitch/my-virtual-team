@@ -498,3 +498,93 @@ const banners = [
 - **効率化テクニック「ブラウザは1回だけ起動し、サイズごとに `setViewport` を切り替えて同じ page で撮影する」**：HTMLごとに `puppeteer.launch()` し直すと1回あたり1〜2秒の起動時間が枚数分かかる。1つのブラウザを使い回して `page.setViewport({width, height, deviceScaleFactor:2})` と `goto` だけを繰り返せば、20枚規模のバッチで30秒前後の短縮になる。バッチの最後に `browser.close()` を `finally` で必ず呼ぶ。
 - **効率化テクニック「入力HTMLと参照画像のハッシュを保存し、変わっていないファイルは再撮影しない」**：1枚のコピー差し替えで全サイズを撮り直すと、変更のない枚数分の時間が無駄になる。HTML本体と読み込む画像のSHA-256を `.hash.json` に残し、前回と同じものはスキップ、変わったものだけ撮影する。出力の決定性確認（2026-10-09）とは別に、入力側の変更検知として使う。
 - **効率化テクニック「撮影は並列数3〜4に制限して回し、検証（寸法・容量）を同じループ内で流して失敗した枚だけ再撮リストに載せる」**：全部撮ってから検証すると、1枚の失敗で全体をやり直しがちになる。`p-limit(3)` で並列撮影し、`sharp(file).metadata()` と `fs.statSync().size` を撮影直後に実行して、NGの枚だけ `retry.json` に出す。
+
+### 2026-10-19
+- **Playwright へ段階移行検討**：Puppeteer の後継として Playwright が標準化、Chromium/Firefox/WebKit 3 ブラウザでの差分検知が可能に。
+- **WebP/AVIF 中間フォーマット対応**：媒体規定で WebP 入稿を許可する Meta・LINE 向けに AVIF/WebP 自動出力追加、ファイル容量 60% 削減。
+- **読むべき 2026 ソース**：Playwright Release Notes、Sharp.js Changelog、web.dev Image Optimization、Chrome Developers Blog、addyosmani.com Performance Patterns。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸しとギャップ分析
+- 現状：Puppeteer 単一ブラウザ再利用・ハッシュベース差分撮影・並列数制限・寸法検証ループまで固定化済み。
+- ギャップ 1：**Playwright への移行**（Puppeteer の 2026 保守モード入り対応）。
+- ギャップ 2：**AVIF/WebP 自動出力**（媒体規定の 2026 更新対応）。
+- ギャップ 3：**ICC カラープロファイル正確性**（sRGB → P3 対応環境）の検証自動化。
+- ギャップ 4：**ビジュアルリグレッションテスト**（Pixelmatch / Odiff）導入なし。
+- ギャップ 5：**CI/CD パイプライン統合**（GitHub Actions で自動撮影）なし。
+- ギャップ 6：**Sharp.js の高度な機能**（libvips メタ最適化、EXIF 削除、Progressive JPEG）未活用。
+
+### 2. 2026 年の最先端知識領域（必修）
+- **Playwright 1.4x**：Chromium/Firefox/WebKit 3 ブラウザ対応、`page.screenshot({ animations: 'disabled' })` でアニメ安定化、`page.evaluate` + `requestIdleCallback` でフォント完全ロード検知。
+- **Sharp.js 0.33+**：libvips エンジン、AVIF 第二世代エンコード、`.jpeg({ mozjpeg: true })` で 10% 追加圧縮。
+- **AVIF (AV1 Image Format)**：WebP より 30% 小さいファイルサイズ、Chrome/Safari/Firefox 全対応。
+- **WebP 2024 更新仕様**：Lossless mode の圧縮率向上。
+- **Pixelmatch / Odiff / Resemble.js**：ピクセル単位差分検知、閾値 0.1% 以下の変化を検出。
+- **ICC Profile（sRGB IEC61966-2.1 / Display P3）**：色空間指定による媒体表示色の一貫性担保。
+- **Progressive JPEG / Interlaced PNG**：モバイル環境での段階的表示。
+- **imagemin plugins（mozjpeg / pngquant / svgo）**：追加圧縮の 3 大プラグイン。
+
+### 3. 導入すべきツール・技法
+- **Playwright + Sharp パイプライン**：Playwright でキャプチャ→Sharp で AVIF/WebP/PNG 3 フォーマット並列出力。
+- **p-limit + p-queue**：並列数制御 + 優先度キュー、1 時間 500 バナー撮影のベンチマーク達成。
+- **Pixelmatch による自動 QA**：前回納品バナーとの差分検知、意図外変更をゼロ化。
+- **FFmpeg + Lottie**：動画バナー・APNG・GIF への変換パイプライン。
+- **ImageMagick + GraphicsMagick**：ICC プロファイル検証、ヒストグラム解析。
+- **GitHub Actions + Vercel Blob Storage**：CI で自動撮影→Blob にアップロード→Yuna へ URL 通知。
+- **Lighthouse CI**：バナー HTML のパフォーマンス（CLS/LCP）を撮影前に自動検査。
+
+### 4. 隣接・越境スキル
+- **カラーサイエンス**：sRGB / Display P3 / Adobe RGB / Rec.2020 色域の違いと変換理論。
+- **動画エンコーディング**：H.264 / H.265 / AV1 / VP9 のビットレート設計、Lottie から MP4 変換時のパラメータ最適化。
+- **フォント技術**：Variable Fonts、Subset（必要字形のみ埋め込み）、WOFF2 変換。
+- **CDN / Edge Compute**：Vercel Image Optimization、Cloudflare Images、`<picture>` + `srcset` 設計。
+- **CI/CD（Kuu との越境）**：GitHub Actions マトリクスで Node.js 20/22 × Chromium/Firefox の 4 環境並列テスト。
+- **Node.js パフォーマンス**：Worker Threads、Streams、Buffer 最適化で大量バナー処理のメモリ 70% 削減。
+
+### 5. オーバースペック品質ライン
+- **ファイル容量削減率**：Puppeteer PNG 比で 40% 以上削減（AVIF/WebP 併用）。
+- **ICC プロファイル付与率 100%**（sRGB 明示、Display P3 対応環境では P3 も生成）。
+- **Pixelmatch 差分検知率**：意図外変更 0 件、意図変更 100% 検知。
+- **1 時間撮影能力**：500 バナー以上（並列数 4、キャッシュヒット 60%）。
+- **Retina 2 倍 / 3 倍対応 100%**（deviceScaleFactor 設定を変数化、媒体規定に応じて切替）。
+- **媒体規定遵守率 100%**（Indeed 150KB、LINE 1MB、Instagram 30MB の全上限内）。
+- **撮影パイプラインの CI/CD 統合率 100%**（手動撮影の廃止）。
+
+### 6. 高度 KPI セット
+- **1 枚あたり撮影 LT**：200ms 以下（ブラウザ再利用時）、1 秒以下（新規起動時）。
+- **メモリピーク使用量**：500 バナー連続撮影で 2GB 以下。
+- **AVIF 変換成功率**：Sharp.js エラー 0 件、品質スコア 90+ 維持。
+- **CI 自動撮影成功率**：99.5% 以上（Flaky なし）。
+- **ハッシュキャッシュヒット率**：差分なし撮影で 60% 以上スキップ。
+- **ビジュアルリグレッション検知精度**：False Positive 1% 以下、False Negative 0.1% 以下。
+- **月間撮影バナー数**：3000 枚以上（DCO セット前提）。
+
+### 7. 想定失敗ケースと予防策
+- **失敗 1：Puppeteer のバージョンアップで `page.screenshot` API 破壊的変更**：予防策は Playwright 併用、どちらかで動く冗長構成。
+- **失敗 2：AVIF 非対応ブラウザ（旧 iOS）での表示崩れ**：予防策は `<picture>` フォールバック設計、PNG を必ず併せて出力。
+- **失敗 3：フォント完全ロード前のキャプチャで文字化け**：予防策は `page.waitForFunction(() => document.fonts.ready)` で明示的待機。
+- **失敗 4：Google Fonts CORS 制約で CI 環境で読み込み失敗**：予防策は フォントファイルを Vercel Blob にキャッシュ、ローカルパス参照。
+- **失敗 5：Sharp.js の libvips メモリリーク**：予防策は `sharp.cache(false)`、`sharp.concurrency(2)` でメモリ上限制御。
+- **失敗 6：Chromium ヘッドレス起動オプション競合（`--disable-gpu` 等）**：予防策は Docker image を `mcr.microsoft.com/playwright` に固定。
+- **失敗 7：ICC プロファイル欠落で媒体に提出した PNG の色が変**：予防策は Sharp.js `.withMetadata({ icc: 'sRGB IEC61966-2.1' })` を全出力で強制。
+
+### 8. 継続学習ソース（毎週/毎月）
+- **週次**：Playwright Release Notes、Sharp.js Changelog、Chrome Developers Blog、Node Weekly、web.dev Image Optimization。
+- **月次**：addyosmani.com Performance Patterns、Smashing Magazine、CSS-Tricks Image Articles、Vercel Changelog。
+- **四半期**：Google I/O Web セッション、Chrome Dev Summit、NodeConf JP、PerfNow 動画アーカイブ。
+- **年次**：Web Almanac Report、HTTP Archive Performance Report、State of CSS、JAM Fest。
+- **コミュニティ**：Node.js Japan Slack、Playwright Discord、Image Processing Reddit。
+
+### 9. 四半期自己評価レビュー
+- **月初 15 日**：過去 1 ヶ月の撮影 LT・メモリピーク・CI 失敗率を Notion にログ、トレンド分析。
+- **月末**：Pixelmatch 差分検知結果の False Positive/Negative 件数を集計、閾値を調整。
+- **四半期**：Playwright/Puppeteer のバージョンアップデート検証、新機能の採用判断。
+
+### 10. 他部門との越境連携強化
+- **Yuna**：撮影パイプラインの CI 統合、Hiro の手動介入ゼロ化。
+- **Kana**：HTML ビルドステップに Hiro の sanity check（CLS/LCP/フォント）を組み込み、撮影失敗を予防。
+- **インフラ部（Kuu）**：GitHub Actions ワークフローの共同設計、キャッシュ戦略共有。
+- **QA 部（Mio）**：Pixelmatch 導入設計、ビジュアルリグレッションテストの CI 統合。
+- **データ分析部（Shun）**：媒体別配信データ（Instagram / Indeed / LINE）の表示色フィードバックを月次受領、ICC プロファイル調整。
+- **COO（Sora）**：QA 合格基準（容量・解像度・ICC・ファイル名）の半期更新に貢献。

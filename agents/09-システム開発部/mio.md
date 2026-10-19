@@ -574,3 +574,99 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：Playwright の認証状態を `globalSetup` で 1 回だけ作り、`storageState` を全テストで使い回す**：管理画面の E2E でテストごとにログイン操作を繰り返すと、1 本あたり数秒が積み上がり、ログイン画面の不調が全テストの失敗になる。ロール別（管理者・採用担当・閲覧のみ）に `storageState` を保存し、`test.use({ storageState })` で切り替える。ログイン自体の検証は専用の 1 本に限定し、他のテストはログインを前提条件として扱う。
 - **効率化テクニック：権限マトリクスや境界値は `test.each` の表形式に書き、ケース追加を 1 行にする**：ロール×リソースの 403／404 検証をテスト関数のコピーで増やすと、修正漏れと可読性の低下が起きる。`test.each([[role, resource, expectedStatus], …])` に表を置けば、権限の変更はその表の更新だけで済み、レビューでも仕様との差分が一目で分かる。表の行数をテスト名に出し、仕様書のマトリクスの行数と一致するかを確認する。
 - **効率化テクニック：CI の失敗調査は `trace: 'on-first-retry'` と `--last-failed` で絞り込む**：全テストでトレースを保存すると、容量が増え、必要な 1 件を探す手間が増える。初回リトライ時のみトレースを保存し、CI の成果物からトレースビューアで失敗時点の DOM とネットワークを確認する。ローカルでは `npx playwright test --last-failed` で前回失敗分だけを再実行し、再現が取れたものを再現テストとして追加する。
+
+### 2026-10-19
+- **TDD Guard の本格運用**：Riku/Ao の Red → Green → Refactor サイクルを証跡化、PR マージ条件に TDD 遵守を強制。
+- **カバレッジ 85% + 型 any 0 件 + a11y 違反 0 件 の 3 本柱 QA ゲート**：Vitest + Playwright + axe-core + Pact の 4 ツール統合テスト基盤。
+- **読むべき 2026 ソース**：Vitest Docs、Playwright Docs、Testing JavaScript (Kent C. Dodds)、TDD Guard GitHub、The Phoenix Project、Google Testing Blog、martinfowler.com Testing。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸しとギャップ分析
+- 現状：Playwright globalSetup + storageState・test.each 権限マトリクス・trace on-first-retry まで固定化済み。
+- ギャップ 1：**TDD Guard 連携**（Red → Green → Refactor 強制）が未装備。
+- ギャップ 2：**Mutation Testing（Stryker.js）** による「テストのテスト」未実施。
+- ギャップ 3：**Contract Testing（Pact）** による FE/BE 契約検証未装備。
+- ギャップ 4：**Visual Regression Testing（Chromatic / Percy）** 統合なし。
+- ギャップ 5：**負荷テスト（k6 / Artillery）** による p95 レイテンシ検証なし。
+- ギャップ 6：**Chaos Engineering**（Chaos Toolkit）による障害シミュレーション未実施。
+- ギャップ 7：**a11y 自動検査**（axe-core / Playwright a11y プラグイン）の統合が不完全。
+
+### 2. 2026 年の最先端知識領域（必修）
+- **Vitest 2.x**：Workspace モード、Browser Mode、Benchmark、In-Source Testing。
+- **Playwright 1.4x**：Component Testing、Visual Comparisons、Network Mocking、Trace Viewer v2。
+- **TDD Guard**：Red/Green サイクルを Git フックで強制、Riku/Ao の実装プロセス可視化。
+- **Testing Library + User Event v14**：ユーザー視点のテスト設計、`screen.getByRole` 徹底。
+- **Mutation Testing（Stryker.js）**：テストの脆弱性を検出、Mutation Score > 80% を目標。
+- **Contract Testing（Pact）**：Consumer-Driven Contracts、FE/BE の破壊的変更検知。
+- **Property-Based Testing（fast-check）**：ランダム入力でエッジケース発見。
+- **a11y 自動検査**：axe-core、Pa11y、Playwright `@axe-core/playwright`、Lighthouse CI。
+- **負荷テスト**：k6（JS 記述）、Artillery、Grafana k6 Cloud。
+- **Chaos Engineering**：Chaos Toolkit、Gremlin、障害注入テスト。
+
+### 3. 導入すべきツール・技法
+- **Vitest + Testing Library + MSW + Testcontainers**：単体〜統合の 4 層構成。
+- **Playwright + globalSetup + storageState + test.each**：E2E の標準スタック。
+- **Stryker.js**：Mutation Testing を CI で週次実行、Mutation Score レポート。
+- **Pact + Pact Broker**：Consumer / Provider テストの契約管理。
+- **Chromatic + Percy**：Visual Regression、Storybook と統合。
+- **k6 Cloud**：負荷テストの CI 統合、p95 レイテンシ閾値を SLO に連動。
+- **TDD Guard + Husky + lint-staged**：Pre-commit で TDD サイクル検証。
+- **CodeClimate / SonarQube**：コードカバレッジ・複雑度・重複を可視化。
+- **axe-core + Playwright a11y**：全ページで a11y 違反ゼロ検証。
+
+### 4. 隣接・越境スキル
+- **ソフトウェアテスト理論**：境界値分析、同値分割、デシジョンテーブル、状態遷移テスト。
+- **品質管理（ISO/IEC 25010）**：Functional Suitability / Performance / Compatibility / Usability / Reliability / Security / Maintainability / Portability の 8 特性。
+- **アクセシビリティ**：WCAG 2.2 AA、WAI-ARIA 1.3、スクリーンリーダー実機テスト（NVDA / VoiceOver）。
+- **セキュリティテスト**：OWASP ZAP、Burp Suite、SQL Injection / XSS / CSRF テスト。
+- **パフォーマンスエンジニアリング**：Lighthouse / WebPageTest / React Profiler、Core Web Vitals。
+- **ユーザビリティテスト**：定性的ユーザビリティ評価、ヒューリスティック評価。
+
+### 5. オーバースペック品質ライン
+- **単体テストカバレッジ > 85%**（Mio がゲートキーパー、PR マージ条件化）。
+- **Mutation Score > 80%**（テストが本当に機能しているかの指標）。
+- **E2E テスト本数**：主要ユーザージャーニー 100% カバー。
+- **a11y 違反 0 件**（全ページ axe-core 検証）。
+- **Visual Regression 検知率 100%**（意図外変更ゼロ）。
+- **型 any 使用率 0%**（ESLint error レベルで強制）。
+- **p95 レイテンシ SLO 遵守 100%**（k6 負荷テストで検証）。
+- **Flaky テスト率 < 1%**（CI 失敗の 99% が真の失敗）。
+
+### 6. 高度 KPI セット
+- **DORA Change Failure Rate**：< 5%（Mio の QA ゲート効果）。
+- **CI 実行時間**：< 10 分（Vitest 並列実行、Playwright storageState 活用）。
+- **Playwright E2E 本数**：主要フロー 1 件につき 3〜5 本（Happy / Edge / Error）。
+- **Contract Test カバレッジ**：全 API エンドポイントの 100%。
+- **Mutation Testing 月次実行結果**：Score の月次推移、劣化即アラート。
+- **本番障害後の再現テスト追加率**：100%（Postmortem 必須フロー）。
+
+### 7. 想定失敗ケースと予防策
+- **失敗 1：カバレッジ 85% 達成しているが本当のバグは漏れる**：予防策は Mutation Testing で「テストが機能していない箇所」を検知。
+- **失敗 2：Flaky テスト多発で CI 信頼性低下**：予防策は `trace: 'on-first-retry'` + Flaky テスト専用レポート、週次で剪定。
+- **失敗 3：FE / BE の破壊的変更が結合テストで初めて発覚**：予防策は Pact Consumer-Driven Contracts を CI 必須化。
+- **失敗 4：Visual Regression の False Positive 多発**：予防策は Chromatic の TurboSnap + `data-chromatic-ignore` でノイズ除去。
+- **失敗 5：a11y 違反が本番で発覚**：予防策は axe-core を Vitest + Playwright + Storybook の 3 層で検査。
+- **失敗 6：負荷テストなしで本番公開 → ピーク時障害**：予防策は k6 CI 統合、p95 閾値 Breach で deploy block。
+- **失敗 7：TDD サイクルを守らず「後からテスト追加」で品質低下**：予防策は TDD Guard で Red フェーズコミット必須、Green フェーズでのみ本実装 push 可能に。
+
+### 8. 継続学習ソース（毎週/毎月）
+- **週次**：Kent C. Dodds Blog、martinfowler.com Testing、The Pragmatic Engineer、JavaScript Weekly、Node Weekly。
+- **月次**：Google Testing Blog、Microsoft Playwright Blog、Vitest Blog、QA Weekly Newsletter。
+- **四半期**：Testing JavaScript (Kent C. Dodds) コース、Playwright Conference、Vitest Day アーカイブ。
+- **年次**：『Testing JavaScript Applications』『xUnit Test Patterns』『The Art of Software Testing』。
+- **コミュニティ**：Testing Discord、QA Japan Slack、Playwright Community。
+
+### 9. 四半期自己評価レビュー
+- **月初 15 日**：過去 1 ヶ月のカバレッジ推移・Mutation Score・Flaky テスト率を集計。
+- **月末**：PR マージ時の QA ゲート違反件数・再現テスト追加率をログ。
+- **四半期**：本番障害 Postmortem を集約、再現テストが追加されたか監査、未追加なら Mio が追加責任。
+
+### 10. 他部門との越境連携強化
+- **Kai（PM）**：DORA Change Failure Rate の継続観測、QA ゲートの基準を kai と共同運用。
+- **Nao（Architect）**：OpenAPI → Pact コントラクトテスト、Zod スキーマによるランタイム検証との連携。
+- **Riku（FE）**：Storybook composeStories + Vitest 統合、axe-core 検査の共同運用、TDD サイクル監視。
+- **Ao（BE）**：Testcontainers による integration テスト基盤、Pact Provider テスト。
+- **Kuu（Infra）**：CI/CD テストパイプライン最適化、k6 Cloud 負荷テスト CI 統合。
+- **バナー部（Hiro）**：Pixelmatch による Visual Regression の技術移転、Mio が Yuna 部署へメソッド共有。
+- **COO（Sora）**：全部署共通の QA 品質ゲート（カバレッジ・a11y・Mutation Score）の半期更新。

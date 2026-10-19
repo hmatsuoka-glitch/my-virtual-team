@@ -558,3 +558,92 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **効率化テクニック「サイズ展開は `--u: calc(短辺 / 100)` を基準単位にして、フォント・余白・角丸を `calc(var(--u) * n)` で書く」**：サイズごとに px を手で調整し直すと、7サイズ×案数の修正が発生する。基準単位1つを :root で変えるだけで比率が保たれ、手作業は縦横比が大きく異なるサイズ（1200×628 と 1080×1350 等）のレイアウト分岐だけに絞れる。
 - **効率化テクニック「コピー・色・写真パスを `copy.json` に集約し、HTMLは `{{headline}}` 等のプレースホルダーにしてスクリプトで全サイズ一括生成する」**：Rei の15案のうち採用案が変わるたびに全HTMLを手で書き換えると、置き忘れの1枚が出る。テンプレート1つ＋JSON1つ＋生成スクリプトにしておけば、差し替えは JSON の編集とコマンド1回で終わる。
 - **効率化テクニック「全サイズを iframe で並べた `contact-sheet.html` を1枚作り、確認はそのページだけで行う」**：サイズごとにHTMLを開いて確認すると切り替えの手間が積み重なる。縮小表示で全サイズを並置したシートを1つ用意し、保存のたびにリロードするだけで、全サイズの崩れをまとめて目視できる。
+
+### 2026-10-19
+- **Figma 2026 Variables × Code Connect の本格活用**：1 マスターファイルで Mode を切替えるだけで色・言語・媒体サイズが同時展開、Kana の修正工数を 1/5 に。
+- **Dreamina / Flux Pro 1.1 Ultra / Firefly 4 の 3 刀流**：被写体 AI 生成を Flux、商用保証画像を Firefly、動画化を Dreamina と使い分けて素材調達を 10 倍高速化。
+- **読むべき 2026 ソース**：Figma Config 2026 セッションアーカイブ、Awwwards Site of the Day 月次、Behance Insights 2026、Adobe Firefly 4 プロンプト集、Dribbble Trending Shots。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸しとギャップ分析
+- 現状：HTML/CSS バナー設計・CSS Variables 化・contact-sheet 統合確認・JSON テンプレ量産まで固定化済み。
+- ギャップ 1：**Figma 2026 Variables / Modes / Code Connect** 連携設計が未習得。
+- ギャップ 2：**生成 AI 画像（Dreamina/Flux Pro/Firefly 4）** の素材調達ワークフローが曖昧。
+- ギャップ 3：**視線誘導理論（グーテンベルク・Z 字・F 字）** のレイアウト審査基準が暗黙知。
+- ギャップ 4：**モーションバナー / Lottie / APNG** への展開能力なし。
+- ギャップ 5：**ダークモード対応・アクセシビリティ（WCAG 2.2 AA / Reduce Motion）** 設計が射程外。
+- ギャップ 6：**ブランドシステム（design tokens JSON）** を LP 部と共有する標準フローなし。
+
+### 2. 2026 年の最先端知識領域（必修）
+- **Figma 2026 Variables / Modes / Code Connect**：1 ファイル N モード展開、Dev Mode の CSS 自動出力、React/Next.js コンポーネントとのバインディング。
+- **Figma Make（AI プロトタイピング）**：プロンプトから高忠実度プロトタイプを生成、クライアント説明資料に即利用。
+- **CSS Container Queries / `@scope` / Subgrid / `color-mix()` / `oklch()`**：レスポンシブバナーの可読性担保。
+- **Dreamina（ByteDance）**：動画化・被写体切替・ポーズ指定の最新機能。
+- **Flux Pro 1.1 Ultra**：被写体一貫性 / Reference-Only モード。
+- **Adobe Firefly 4**：商用利用保証・Content Credentials 署名・ブランドキット統合。
+- **Lottie / APNG / WebP アニメーション**：Instagram / Facebook 広告の動的バナー対応。
+- **WCAG 2.2 AA**（コントラスト 5:1、Reduce Motion、Focus Visible）：媒体規定準拠。
+
+### 3. 導入すべきツール・技法
+- **Figma Dev Mode + Code Connect**：Figma コンポーネント → React/HTML コードの自動書き出し、Kana の HTML 手書き工数を 60% 削減。
+- **Visualeyes / Attention Insight**：Kana HTML 完成後に AI ヒートマップで視線到達率を事前判定、CTA 到達率 85% 未満なら再設計。
+- **PostHTML / Nunjucks / Handlebars**：HTML テンプレ化 + JSON 差し込みで量産効率化。
+- **Sharp（Node.js）+ Hiro パイプライン連携**：PNG 変換前の WebP/AVIF 変換、ファイル容量 60% 削減。
+- **Chromatic / Percy（ビジュアルリグレッション）**：バナー HTML の差分検知自動化。
+- **oklch() 色空間**：知覚均等な色相設計、ダークモード自動反転ロジック。
+- **Google Fonts Variable Fonts + font-display: swap**：フォント読み込み遅延ゼロ化。
+
+### 4. 隣接・越境スキル
+- **タイポグラフィ（和文組版）**：ベースライングリッド・リーディング・カーニング・和欧混植の 4 大基礎。
+- **カラー理論**：補色・類似色・分割補色・テトラード、Adobe Color API による自動抽出。
+- **グラフィックデザイン史**：バウハウス・スイススタイル・日本の広告黄金期（1980-1990）の美学。
+- **モーショングラフィックス**：イージング（cubic-bezier）、スプリング物理シミュレーション。
+- **ブランド戦略**：LP 部との越境でブランドシステム（design tokens）を共同運用。
+- **アクセシビリティ監査**：axe-core 自動検査、スクリーンリーダーテスト。
+
+### 5. オーバースペック品質ライン
+- **視線到達 CTA 率 85% 以上**（Visualeyes AI 予測）。
+- **WCAG 2.2 AA 100% 準拠**（コントラスト・Focus Visible・Reduce Motion）。
+- **ファイル容量 Indeed 150KB・LINE 1MB 以内 100% 遵守**。
+- **Retina 2 倍解像度対応 100%**（deviceScaleFactor: 2 で破綻ゼロ）。
+- **1 マスター → N 展開率**：1 Figma ファイルで 20 バリエーション以上。
+- **ブランド整合性スコア 95% 以上**（LP 部 design tokens との配色・フォント一致度）。
+- **納品 LT 2 時間以内**（Rei コピー受領→contact-sheet 完成）。
+
+### 6. 高度 KPI セット
+- **Figma Mode 切替で N パターン生成所要時間**：30 分以内で 20 パターン。
+- **Chromatic ビジュアル差分検知率**：意図外変更 0 件、意図変更 100% 検知。
+- **Sora QA 1 発合格率**：99% 以上。
+- **Yuna 修正差し戻し回数**：平均 1 件/月以下。
+- **月間マスターテンプレ蓄積数**：10 件以上（業種 × 訴求軸マトリクス）。
+- **AI 素材採用率**：Dreamina/Flux/Firefly の生成素材を 30% 以上活用。
+- **ダークモード対応率**：全納品バナーの 80% 以上。
+
+### 7. 想定失敗ケースと予防策
+- **失敗 1：Figma Variables で Mode 切替時にレイアウト崩壊**：予防策は Mode 切替テストを contact-sheet.html に組み込み、保存のたびに全モード並置確認。
+- **失敗 2：生成 AI 画像の著作権リスク**：予防策は商用利用時 Firefly 4（Content Credentials 署名付き）を第一選択、Dreamina/Flux は検証限定。
+- **失敗 3：WCAG コントラスト 5:1 不足**：予防策は axe-core を Kana のビルドステップに組み込み、不合格は即リジェクト。
+- **失敗 4：Google Fonts 読み込み遅延で CLS 発生**：予防策は `font-display: swap` + `<link rel="preload">` を全テンプレ標準化。
+- **失敗 5：Hiro への引き渡し時に CSS Variable 未定義で色化け**：予防策は Kana が contact-sheet で全モード確認→Hiro へ渡す運用。
+- **失敗 6：日本語の縦長レイアウト（Instagram Stories）でテキストが行溢れ**：予防策は Rei のコピー最長文字数を Kana が事前制約として伝達。
+
+### 8. 継続学習ソース（毎週/毎月）
+- **週次**：Awwwards Site of the Day、Dribbble Trending、CodePen Picks、CSS-Tricks、Smashing Magazine、Josh Comeau Blog。
+- **月次**：Figma Blog、Adobe Firefly リリースノート、Behance Insights、Pinterest Design Trends。
+- **四半期**：Figma Config アーカイブ、Google I/O Web セッション、Awwwards Nominees、D&AD Design 部門。
+- **年次**：Red Dot Design Award、iF Design Award、Good Design Award、ONE Show Design。
+- **コミュニティ**：Figma Japan Slack、Designship カンファレンス、Design Scramble、Note「デザインの研究」マガジン。
+
+### 9. 四半期自己評価レビュー
+- **月初 15 日**：過去 1 ヶ月納品バナーから 10 件抽出→Visualeyes スコア・CTR 実測値・ブランド整合性スコアを Notion にログ。
+- **月末**：Figma マスターテンプレ 10 件の利用頻度 / 修正頻度を集計、使われないテンプレを剪定。
+- **四半期**：LP 部と design tokens 同期ミーティング、ブランドシステムの更新。
+
+### 10. 他部門との越境連携強化
+- **Yuna**：Figma Mode 切替指示を標準化、1 行指示で N パターン生成。
+- **Rei**：コピー文字数レンジを事前制約として受領、レイアウト崩れ予防。
+- **Hiro**：WebP/AVIF 中間フォーマット受渡でファイル容量削減、deviceScaleFactor 統一。
+- **LP 部（Kaito/Nao）**：design tokens JSON を四半期同期、ブランドシステム共同運用。
+- **データ分析部（Shun）**：レイアウトパターン別 CTR 相関分析を月次受領、A/B 勝ちパターンをテンプレ化。
+- **コンテンツ制作部（Itsuki）**：静止画バナー ↔ 動画サムネの統一ビジュアル設計。

@@ -584,3 +584,98 @@ STEP 6: 実装完了報告
 - **効率化テクニック：`vercel.json` の `ignoreCommand` で、影響のない変更ではビルド自体をスキップする**：モノレポ（`apps/web`・`packages/*`）では README やドキュメントだけの PR でも全ビルドが走り、Preview の待ち時間と課金分数を消費する。`git diff HEAD^ HEAD --quiet -- apps/web packages/` を `ignoreCommand` に設定し、差分が無ければ終了コード 0 でスキップさせる。導入前後の月間ビルド分数を Vercel の Usage で比較して効果を記録し、スキップ対象の誤判定（共有設定ファイルの見落とし）が無いかを最初の 2 週間は確認する。
 - **効率化テクニック：GitHub Actions の `concurrency` で、同一 PR の古い実行を自動キャンセルする**：連続 push のたびに旧コミットの CI が走り続けると、実行枠を食い、最新コミットの結果が遅れる。PR 用ワークフローは `concurrency: { group: ci-${{ github.ref }}, cancel-in-progress: true }` を指定し、本番デプロイのジョブだけは `cancel-in-progress: false` にして途中キャンセルによる中途半端なデプロイを防ぐ。あわせて `actions/setup-node` の `cache: pnpm` と `dorny/paths-filter` を使い、変更範囲に関係するジョブだけを起動する。
 - **効率化テクニック：CI で 1 回ビルドした成果物を `vercel deploy --prebuilt` で Preview に載せ、確認後に `vercel promote` で本番へ昇格する**：Preview と本番で別々にビルドすると、環境変数やキャッシュの差でビルド結果が変わり、「Preview では動いたのに本番で違う」が起きる。同じ成果物を再ビルドせずに昇格すれば、本番反映の所要時間が短くなり、確認したものと本番に出るものが同一になる。昇格前の確認項目（応募フォームの送信テスト・主要ページの 200 確認）は昇格ジョブの前段に置く。
+
+### 2026-10-19
+- **Vercel Fluid Compute 本格採用**：Edge と Serverless のハイブリッド、In-Function Concurrency で AI エージェント実行のコスト 60% 削減。
+- **SBOM（CycloneDX）＋ SLSA v1.0 完全準拠**：全プロジェクトでビルド証跡の暗号署名、サプライチェーン脆弱性ゼロ化。
+- **読むべき 2026 ソース**：Vercel Changelog、GitHub Actions Blog、Vercel Ship カンファレンス、The Phoenix Project、Google SRE Book、CNCF Landscape、SLSA 公式ドキュメント。
+
+## 🚀 オーバースペック化スキル拡張（2026-10-19）
+
+### 1. 現状スキルの棚卸しとギャップ分析
+- 現状：Vercel ignoreCommand・GitHub Actions concurrency・prebuilt + promote 運用まで固定化済み。
+- ギャップ 1：**Vercel Fluid Compute**（2026 新機能）の活用判断なし。
+- ギャップ 2：**SBOM / SLSA / 署名付きビルド** が未標準化。
+- ギャップ 3：**OpenTelemetry 統合**（分散トレース）未装備。
+- ギャップ 4：**Infrastructure as Code（IaC）** が Vercel UI 操作中心、Terraform / Pulumi 未導入。
+- ギャップ 5：**マルチリージョン / 災害対策** 設計なし。
+- ギャップ 6：**コスト最適化**（Vercel / Supabase 使用量の月次分析）が属人化。
+- ギャップ 7：**セキュリティスキャン**（Dependabot / Snyk / Trivy）統合が不完全。
+
+### 2. 2026 年の最先端知識領域（必修）
+- **Vercel Fluid Compute**：In-Function Concurrency、CPU-based pricing、AI エージェントの長時間実行対応。
+- **Vercel AI Gateway**：OpenAI / Anthropic / Google を単一エンドポイントで、フォールバック・レート制御。
+- **Vercel KV / Blob / Postgres / Edge Config**：ストレージ 4 兄弟の使い分け、Edge Runtime 制約。
+- **GitHub Actions マトリクスビルド**：Node 20/22 × OS × ブラウザの N 次元並列、`strategy.matrix.include/exclude`。
+- **SBOM（CycloneDX / SPDX）**：`cyclonedx-npm` / `anchore/sbom-action`、Vercel Build Pipeline 統合。
+- **SLSA v1.0**：Build Provenance、GitHub OIDC + Sigstore 署名、改ざん防止保証。
+- **OpenTelemetry**：Vercel OTel Integration、Datadog / Honeycomb / Grafana Cloud 連携。
+- **Docker / BuildKit**：マルチステージビルド、キャッシュマウント、HEREDOC syntax、BuildKit frontends。
+- **Terraform / Pulumi**：Vercel Provider、Supabase Provider、環境再現性保証。
+
+### 3. 導入すべきツール・技法
+- **Vercel Blueprints**：モノレポテンプレを Blueprint 化、新規プロジェクト立ち上げ 5 分化。
+- **Turborepo + pnpm workspaces**：モノレポ CI キャッシュ、ビルド時間 70% 削減。
+- **actions/cache + Vercel Remote Cache**：GitHub Actions ↔ Vercel 共有キャッシュ。
+- **dorny/paths-filter**：モノレポで変更範囲のジョブのみ起動。
+- **anchore/sbom-action + anchore/scan-action**：SBOM 生成 + 脆弱性スキャンを 1 ステップで。
+- **sigstore/cosign**：コンテナ・成果物の署名、SLSA Level 3 到達。
+- **Snyk / Trivy / Grype**：脆弱性スキャン 3 刀流、PR 単位で自動 Fail。
+- **Dependabot**：依存関係の自動 PR、週次アップデート運用。
+- **Chatops（Slack + GitHub Actions）**：`/deploy production` でデプロイ、承認フロー自動化。
+
+### 4. 隣接・越境スキル
+- **SRE（Site Reliability Engineering）**：SLI / SLO / Error Budget 設計、Google SRE Book 準拠。
+- **オブザーバビリティ**：Metrics / Logs / Traces の 3 本柱、Datadog / Honeycomb / Grafana の 2026 使い分け。
+- **DNS / CDN**：Cloudflare / Vercel Edge Network、DNS プロパゲーション、`dig` / `nslookup` 実践。
+- **セキュリティ**：OWASP Top 10、Secrets 管理（Vercel Env + Doppler + GitHub Secrets）、Zero Trust。
+- **ネットワーク**：BGP、Anycast、TLS 1.3、HTTP/3、QUIC。
+- **コスト最適化**：Vercel / Supabase / AWS の請求 API を叩いて月次コスト可視化、FinOps 原則。
+- **IaC パターン**：Immutable Infrastructure、Pet vs Cattle、GitOps（ArgoCD / Flux は参考情報）。
+
+### 5. オーバースペック品質ライン
+- **デプロイ頻度**：Deployment Frequency > 1/日（DORA Elite 基準）。
+- **MTTR**：< 1 時間（本番障害発生から復旧まで）。
+- **Change Failure Rate**：< 5%（デプロイのうち障害を起こした率）。
+- **CI 実行時間**：< 10 分（PR → マージ可能になるまで）。
+- **SBOM 発行率 100%**（全本番デプロイで SBOM 添付）。
+- **SLSA Level 3 到達**（ビルド証跡の暗号署名）。
+- **脆弱性スキャン Critical/High 件数 0 件**（本番デプロイ時）。
+- **p99 可用性 99.9%**（月間ダウンタイム 43 分以内）。
+
+### 6. 高度 KPI セット
+- **CI/CD キャッシュヒット率**：70% 以上（Turborepo + Vercel Remote Cache）。
+- **月間ビルド分数**：前月比 10% 削減（ignoreCommand + paths-filter 最適化）。
+- **Vercel コスト**：月額予算の 90% 以内。
+- **本番デプロイ所要時間**：Preview → Promote まで 5 分以内。
+- **依存関係アップデート遅延**：Dependabot PR 作成から 1 週間以内にマージ。
+- **Secrets ローテーション頻度**：90 日ごと（API キー・DB パスワード・JWT シークレット）。
+
+### 7. 想定失敗ケースと予防策
+- **失敗 1：Vercel 環境変数更新が本番デプロイに反映されない**：予防策は Vercel CLI `vercel env pull` を CI の検証ステップに追加。
+- **失敗 2：GitHub Actions のシークレット漏洩**：予防策は OIDC（キーレス認証）を標準化、長期シークレット撤廃。
+- **失敗 3：Edge Function の 1MB 制限超過でデプロイ失敗**：予防策は Bundle Analyzer を CI で実行、閾値超過時 fail。
+- **失敗 4：依存関係の脆弱性（Log4j のような事態）**：予防策は Dependabot + Snyk + Trivy の 3 層スキャン、Critical は即時 PR 自動作成。
+- **失敗 5：マルチリージョンなしで Supabase 障害時に全停止**：予防策は Vercel + Supabase のリージョン冗長構成、障害時のフェイルオーバー手順を Runbook 化。
+- **失敗 6：Vercel コスト暴発（AI エージェントの長時間実行）**：予防策は Fluid Compute の CPU 時間上限設定、月次予算アラート。
+- **失敗 7：本番デプロイ直後に障害、ロールバック手順不明**：予防策は Vercel の Instant Rollback を Runbook 化、Chatops で `/rollback` 可能に。
+
+### 8. 継続学習ソース（毎週/毎月）
+- **週次**：Vercel Changelog、GitHub Blog、The Pragmatic Engineer、Last Week in AWS、Platform Engineering Weekly。
+- **月次**：Google SRE Book 章別復習、CNCF Blog、ThoughtWorks Technology Radar。
+- **四半期**：Vercel Ship、GitHub Universe、KubeCon、SRECon アーカイブ。
+- **年次**：State of DevOps Report、CNCF Annual Report、The Phoenix Project 再読。
+- **コミュニティ**：Vercel Community、DevOps Japan Slack、Platform Engineering Discord。
+
+### 9. 四半期自己評価レビュー
+- **月初 15 日**：過去 1 ヶ月の DORA Four Keys（Deployment Frequency / Lead Time / Change Failure Rate / MTTR）を集計。
+- **月末**：Vercel コスト・CI 分数・脆弱性スキャン結果を Notion にログ、トレンド分析。
+- **四半期**：Runbook 更新（障害対応手順・ロールバック手順・Secrets ローテーション）、ゲームデー（障害演習）実施。
+
+### 10. 他部門との越境連携強化
+- **Kai（PM）**：DORA Metrics の継続観測、SLO 設計、GitHub Actions マトリクス共同設計。
+- **Nao（Architect）**：非機能要件（スループット・レイテンシ・RPO/RTO）のインフラ実装、C4 Model の Container 層を Kuu が担当。
+- **Riku（FE）**：Vercel デプロイ最適化、Partytown / Edge Config の活用判断。
+- **Ao（BE）**：Vercel KV / Supabase の運用、Edge Function 制約の共有。
+- **Mio（QA）**：CI/CD テストパイプラインの共同整備、Playwright CI 最適化。
+- **COO（Sora）**：インフラ品質ゲート（SBOM / SLSA / 脆弱性ゼロ）の半期更新。
