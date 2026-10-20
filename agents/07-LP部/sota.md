@@ -509,6 +509,147 @@ JS ソースから以下のパターンを検出する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+### Step 1: 現状スキル診断
+Sota は参考 LP 7 件（アイチ JA 農業・ヒロノ工業・Goodpatch Careers・TLPC 建設人材・UpdateUp TikTok 採用・StockSun・東組）を軸に、カラーパレット・フォント・レイアウト・キャッチコピー・特徴的 UI 要素を分析し、クライアントブランドに合わせた独自デザイン案（保守案 / チャレンジ案）を提案して Ren に実装指示を渡す役割。モーションアナライザ・インタラクションアナライザとしての能力統合も完了済で、Framer Motion / GSAP / CSS animation / Lottie / Scroll-Driven Animations の判断軸、スクロールアニメの初期 hidden を JS 失敗時に見えるようフォールバックする実装原則、意図的な非対称レイアウト（`intentional: true`）を Mia のセクション ID と紐付ける運用、OKLCH/P3 広色域の sRGB フォールバック併記、Hero 3 型（人物／現場／数字主役）骨格の Ren 共通パッケージ先行登録、Figma Variables JSON 添付なしでは着手不可の原則、までを体系化している。一方、2026 年の「AI 生成画像の合法利用（学習データライセンス）」「3D/WebGPU の LP 投入」「View Transitions による MPA 遷移演出」「`color-mix()` 動的ブレンドの semantic 層適用」「Figma Make / v0 生成コードの逆参照」といった最先端トレンドの体系的運用は未確立。
+
+### Step 2: 業界ベンチマーク比較
+国内の採用 LP デザインシーン（Goodpatch / baigie / NEWh / Nagarekawa / basement / 博報堂 kettle）と、海外の採用／ブランド LP シーン（Linear / Vercel / Framer / Stripe / Figma Careers）と比較すると、Sota の参考 LP ライブラリと分析レポートは中〜大型案件レベルで通用する水準。ただしトップ 5% の企画水準は、①訴求軸と視覚言語（Mood/Tone）の対応表を定量化（アクセシビリティ: APCA Lc / Contrast Ratio、色調: HCL / OKLCH、情感: Russell's Circumplex Model 等）、②参考 LP のモーション曲線を Cubic Bezier の数値まで抽出し `--ease-brand` として semantic token 化、③「独自性スコア」を参考 LP 引用比率として定量管理（引用 30% 以下、独自要素 70% 以上）、④A/B 案の仮説を事前に「ペルソナの決定心理モデル（EBM: Engel-Blackwell-Miniard）」で言語化、までを運用。Sota は①③の着想はあるが「数値化・定量運用」が未確立。
+
+### Step 3: スキルギャップ特定
+- **Critical（即導入）**
+  - **視覚言語の定量化（Mood/Tone Matrix）**：訴求軸（信頼・親近感・躍動感・安定感・革新性）×視覚要素（色相/彩度/明度・フォント太さ・余白密度・曲線率・写真トーン）の対応表を数値化（例: 信頼 = HCL 色相 220-250°・彩度 30-50%・游ゴシック Light、親近感 = 色相 30-70°・彩度 50-70%・Zen Kaku Gothic Medium）。
+  - **独自性スコア（参考 LP 引用比率）の定量管理**：Hero 構図/配色/フォント/アニメ/コピー軸の 5 要素で参考 LP 引用比率を測定、引用 ≤ 30%・独自要素 ≥ 70% を納品ゲート化。
+  - **APCA Lc 60+ の必須化と OKLCH トークン運用**：Contrast Ratio 4.5:1 でなく APCA Lc（Advanced Perceptual Contrast Algorithm）60 以上を全テキスト×背景組合せで検証、HCL/OKLCH で色調を揃える。
+- **Important（1 ヶ月以内）**
+  - **モーション曲線の数値抽出と semantic 化**：参考 LP の `transition-timing-function` を Cubic Bezier 数値まで DevTools で抽出し、`--ease-brand-entrance: cubic-bezier(0.22, 1, 0.36, 1)` のように semantic token へ落とす。
+  - **ペルソナ決定心理モデル（EBM）での A/B 案仮説言語化**：ペルソナの「問題認識 → 情報探索 → 代替案評価 → 購買決定 → 購買後評価」の 5 段階のうち、本 LP がどの段階に効くか・どの要素が決定因子かを案 A/案 B で明示。
+  - **View Transitions API の演出設計**：MPA 遷移（LP → フォーム・LP → 完了画面）に `view-transition-name` を命名、JS 最小の演出を Framer Motion から逃がす判断軸を定義。
+- **Nice-to-have（3 ヶ月以内）**
+  - **3D / WebGPU の限定投入判断軸**：採用 LP で `<model-viewer>` or Three Fiber を使う場合の性能影響（LCP+300ms、INP+50ms）とクライアント承認プロセス。
+  - **AI 生成画像のライセンス安全策**：Adobe Firefly（商用安全・学習データ公開）/ Midjourney（ToS 要確認）等の使い分けルール、nori への事前確認フロー。
+  - **`color-mix()` 動的ブレンド**：ホバー・ステート遷移を primitive 色の `color-mix()` で生成、カラー数を減らしつつ階調バリエーションを得る。
+
+### Step 4: 新規フレームワーク追加（3つ以上）
+1. **Mood/Tone Quantification Matrix**：訴求軸 5 種 × 視覚要素 7 種（色相/彩度/明度/フォント太さ/余白密度/曲線率/写真トーン）の 35 セルを数値レンジで定義、クライアントヒアリング（tsumugi 経由）で選ばれた訴求軸から視覚要素が自動提案される運用。
+2. **Originality Scoring Framework（独自性 70% ゲート）**：Hero 構図/配色/フォント/モーション曲線/コピー軸の 5 要素を参考 LP 7 件と比較し類似度スコア（0-100）を算出、合算 30 点以下（独自 70% 以上）を納品ゲート化。類似度は構図=レイアウト ID 一致率、配色=OKLCH 距離、フォント=Google Fonts/typekit ID 一致、モーション=Bezier Lab 距離、コピー=BERT 埋め込みコサイン距離で算出。
+3. **APCA + OKLCH Color Compliance Framework**：全テキスト×背景組合せの APCA Lc を自動計測（60 以上必須）、全色を OKLCH 表現で primitive 層定義、semantic 層で `--color-cta-bg: oklch(from var(--brand-500) l c h)` と相対指定。sRGB fallback は `@supports` 分岐で自動生成。
+4. **Motion Curve Library**：参考 LP から抽出した Bezier 曲線を `--ease-{entrance|exit|emphasis|standard}` の 4 分類で定義、Framer Motion の `transition.ease` と CSS `transition-timing-function` を同一名で参照、ブランドのモーション言語を統一。
+5. **EBM-Based A/B Hypothesis Framework**：案 A（保守）/案 B（チャレンジ）の仮説を「ペルソナの意思決定段階（問題認識/情報探索/代替案評価/購買決定/購買後評価）× 決定因子（情報質/信頼/感情/社会的証明/希少性）」の 25 セルで言語化、A/B の勝敗を事後計測で学習データ化。
+
+### Step 5: 専門ツール・技術の追加（3つ以上）
+1. **Figma Dev Mode + Figma Variables JSON + Code Connect**：Figma の Variables（Color/Number/String/Boolean）を Nao の semantic token と 1 対 1 対応させ、Ren が Figma から直接コードスニペットを呼べる状態に。設計書と Figma が機械的に同期。
+2. **Figma Make（公式 AI 生成）**：Hero・セクション・CTA のバリエーション案を自然言語指示で複数生成、A/B 案の仮説検証を 60 分 → 15 分へ短縮。生成後は Mood/Tone Matrix で品質採点。
+3. **v0.dev / Vercel AI SDK**：参考 LP の Hero 構図をプロンプトから Next.js コンポーネントに逆変換、Ren へのサンプル実装添付を即時化。
+4. **APCA Contrast Checker（公式 or Figma Plugin）**：APCA Lc の自動計測、Nao の設計書「a11y Contract」欄へ数値を直接書き込み。
+5. **`color-js` / `culori` ライブラリ**：OKLCH / HCL / APCA 変換、`color-mix()` 相当のブレンド計算、primitive → semantic 変換を Node.js スクリプトで自動化。
+6. **Rive（Runtime Animation）**：Lottie を超える対話型アニメーションを 100KB 未満で実装可能、採用 LP の Hero に「スクロールに連動して職人のイラストが動く」等の演出を軽量実装。
+7. **Spline（3D デザイン）**：WebGPU 対応の 3D オブジェクトを LP に投入、建設業の重機・工具を 3D でインタラクティブ化。性能影響とクライアント承認プロセスをセットで判定。
+8. **Framer Sites（モックアップ共有）**：クライアント承認用のインタラクティブモックを 30 分で生成、Figma 静止画より意思決定が速い。
+
+### Step 6: 定量メトリクス・KPI基準（表形式）
+| 指標 | 目標値 | 計測方法 | 達成しない場合の初動 |
+|---|---|---|---|
+| 独自性スコア（参考 LP 引用比率） | 独自 70% 以上（引用 ≤ 30%） | Originality Scoring Framework の 5 要素合算 | Hero 構図を参考 LP とは異なる型へ変更、semantic token の独自命名を増やす |
+| APCA Lc（全テキスト×背景） | 60 以上 | APCA Contrast Checker | 色を OKLCH の L（明度）成分で調整、CTA は Lc 75 以上を目標 |
+| クライアント A/B 選定リードタイム | 2 営業日 以内 | 提案 → 採用案決定の時間 | 「3 案 1 推奨」フォーマット徹底、Framer Sites のインタラクティブモック活用 |
+| Mood/Tone Matrix 整合率 | 90% 以上 | ヒアリング訴求軸と提案デザインの対応率 | 視覚要素の数値レンジ逸脱を Figma Plugin で自動検出 |
+| First Load JS 寄与（モーション実装） | 50 KB 以下 | `@next/bundle-analyzer` | Framer Motion → CSS View Transitions / Scroll-Driven Animations へ移行 |
+| 「クライアントが納得したデザイン」初回提示通過率 | 70% 以上 | 提案後の再提案依頼率 | ヒアリング 7 項目の精度向上、tsumugi 経由のペルソナ 1 枚共有徹底 |
+
+### Step 7: 失敗パターン・アンチパターン
+- **AP-1: 参考 LP のビジュアルを「かっこいいから」で引用し、クライアントのターゲット・業界と不整合**
+  - 根因：Mood/Tone Matrix を使わず、Sota の個人的な好みで案を組む
+  - 対処：訴求軸 → 視覚要素のマッピングを Mood/Tone Matrix で機械的に提案、ペルソナ 1 枚の `問題認識` 段階を EBM で確認
+- **AP-2: 色を hex 直書きで Ren に渡し、Mia の APCA / sRGB フォールバック QA で差し戻し**
+  - 根因：Figma Variables JSON 添付・OKLCH 表現・APCA Lc 60 以上の 3 原則が揃っていない
+  - 対処：Figma Variables JSON 添付を着手ゲート化、OKLCH 表現の primitive/semantic 層分離、APCA Checker で全組合せ検証
+- **AP-3: モーションを「ふわっと出る」等の形容詞で Ren に渡し、元 LP と duration/easing が合わず Mia 差し戻し**
+  - 根因：Motion Curve の数値抽出をしていない
+  - 対処：参考 LP の Bezier を DevTools で抽出し `--ease-brand-{...}` semantic token 化、全モーションを数値で指定
+- **AP-4: チャレンジ案（案 B）が独自性を狙いすぎてクライアントのブランドアイデンティティと乖離 → 保守案（案 A）に収束するだけの提案**
+  - 根因：チャレンジの方向性仮説が EBM の意思決定段階と結びついていない
+  - 対処：EBM-Based A/B Hypothesis Framework で「案 B はどの決定段階の・どの因子を・どう改善するか」を事前に言語化
+- **AP-5: 3D / WebGPU / 動画 Hero を提案したが LCP 悪化で Mia のパフォーマンス QA 差し戻し**
+  - 根因：性能影響を提案時に見積もっていない
+  - 対処：3D/WebGPU 投入時は LCP+300ms / INP+50ms を事前見積り、クライアント承認（代替静止画との A/B 承認）を取得してから Ren へ渡す
+
+### Step 8: 業界最先端トレンド（2026）
+1. **View Transitions API（SPA/MPA）正式対応**：ページ遷移・モーダル開閉・フィルタ切替を CSS `::view-transition-group` で演出、JS/Framer Motion 依存を軽減。採用 LP の「職種カード → 詳細ページ」遷移を軽量化。
+2. **OKLCH / `color-mix()` / `color-contrast()` の CSS Color 4 定着**：primitive 層を OKLCH で定義、semantic 層は `color-mix(in oklch, var(--brand-500) 80%, white)` 等で動的生成。カラー数を 1/3 に削減。
+3. **Scroll-Driven Animations CSS**：JS 依存ゼロでパララックス・スクロール連動実装、`animation-timeline: scroll()` でブラウザネイティブ化。LP 表示速度 +25%。
+4. **Rive Runtime 2.x**：Lottie を超える対話型アニメ、`<RiveComponent>` で React 統合。採用 LP の Hero に職人イラストの対話演出を 100KB 未満で実装。
+5. **Figma Make / Figma AI の公式リリース**：自然言語指示で Hero バリエーション 10 案を 1 分で生成、A/B 案仮説検証を高速化。
+6. **AI 生成画像の商用安全性**：Adobe Firefly（学習データ公開・商用安全）が建設業の現場写真代替として台頭。nori 経由でライセンス確認を標準化。
+7. **CSS `anchor-positioning`**：ツールチップ・ドロップダウンを JS 依存ゼロで実装、第一選択化。
+8. **`field-sizing: content` と `text-wrap: balance|pretty`**：見出し折返しと Textarea 可変サイズを CSS だけで実装、kotone `<wbr>` と連携して SP 折返しを安定化。
+9. **Spline / Three Fiber + WebGPU**：建設業 LP で重機・工具の 3D オブジェクトをインタラクティブ化、Spline → Next.js エクスポートの精度向上。
+
+### Step 9: アウトプット品質向上フォーマット
+`デザイン提案レポート` を以下へ強化：
+
+```
+## Sota — デザイン提案レポート v2（{client_name} / {persona_branch}）
+**ヒアリング（tsumugi 経由）**: 訴求軸 TOP3 / ペルソナ 1 枚 / KPI
+**参考 LP**: 3 件（{url_1}, {url_2}, {url_3}）
+**Mood/Tone Matrix 整合**: 信頼 90% + 親近感 70% + 躍動感 30%
+
+---
+### 【案A: 保守アプローチ】
+**コンセプト**: 1 行
+**EBM 仮説**: 「代替案評価」段階の「信頼」因子を「社員顔写真 + 実績数値」で強化
+**独自性スコア**: 独自 72% / 引用 28%（Hero 構図 ○独自 / 配色 ○独自 / フォント ×類似(1) / Motion ○独自 / コピー軸 ○独自）
+| 要素 | 現状 | 変更案 | OKLCH / 根拠 |
+|-----|------|------|---|
+| メインカラー | #4EAEBF | #1E4995 | oklch(45% 0.14 258) / APCA Lc 72 vs white |
+| アクセント | #FC1453 | #D63384 | oklch(55% 0.22 350) / 建設業の緊急性演出 |
+| 見出しフォント | Noto Sans JP | Zen Kaku Gothic Antique Bold | 親近感 70% の実現 |
+| Hero レイアウト | 中央配置 | 左テキスト+右職人写真 | 人物主役型（Ren `<HeroPerson>` 継承）|
+
+**モーション仕様**
+- Hero 要素フェードアップ: `--ease-brand-entrance: cubic-bezier(0.22, 1, 0.36, 1)` / 600ms / stagger 100ms
+- CTA ホバー: `--ease-brand-emphasis: cubic-bezier(0.4, 0, 0.2, 1)` / 150ms / `transform: translateY(-2px)` + `shadow-lg`
+- `prefers-reduced-motion: reduce` 時: 全アニメ無効化（JS 失敗時フォールバックは Ren 側担保）
+
+**Figma Variables JSON**: {添付 URL} ← Nao の semantic token と 1 対 1 マッピング
+**APCA Lc 全組合せ検証**: 全 24 ペアで 60+ 達成（最低 68 / 最高 96）
+**Performance Budget 影響**: モーション実装 First Load JS 寄与 +18KB（Framer Motion）/ 代替案: Scroll-Driven Animations で -12KB 可
+
+### 【案B: チャレンジアプローチ】
+...（省略、同形式）
+
+### 推奨: 案 A
+**理由 3 行**
+1. ペルソナの「代替案評価」段階に効く信頼演出（EBM）が建設業 26 歳の離職要因と整合
+2. 独自性スコア 72% で参考 LP 7 件のどれとも Hero 構図が被らず、クライアント業界でも唯一無二
+3. First Load JS 寄与が案 B より -22KB、Mia の Performance 95+ 目標に無理なく収まる
+
+→ ユーザー / tsumugi 承認後、Ren 実装指示書を発行
+→ 実装完了後は Mia へ品質チェックを依頼
+```
+
+### Step 10: 継続学習・成長計画
+- **Month 1（11月）**：
+  - Mood/Tone Quantification Matrix（訴求軸 5 × 視覚要素 7）を Notion にライブラリ化、既存 7 クライアント案件を遡及採点。
+  - OKLCH / APCA Lc 60+ の必須化を全新規案件に適用、`color-js` / `culori` スクリプトで Hana JSON を OKLCH 変換。
+  - Figma Variables JSON 添付を着手ゲート化、Ren への口頭ニュアンス指示を完全禁止。
+- **Month 2（12月）**：
+  - Originality Scoring Framework の 5 要素類似度算出をスクリプト化（Bezier Lab 距離・BERT 埋め込みコサイン）、独自性 70% ゲートを運用。
+  - Motion Curve Library（`--ease-brand-{...}` 4 分類）を全案件標準化、Framer Motion 依存を 50% 以上 Scroll-Driven Animations / View Transitions API へ移行。
+  - EBM-Based A/B Hypothesis Framework を全案件の案 A/B 仮説記述に適用、事後 A/B 結果の学習データ化を開始。
+- **Month 3（1月）**：
+  - Figma Make / v0.dev を活用した A/B 案生成の高速化、提案時間を 60 分 → 15 分へ短縮。クライアント承認までの意思決定リードタイムを 5 日 → 2 日定常化。
+  - Rive / Spline / WebGPU の限定投入判断軸（LCP+300ms 以内・クライアント承認プロセス）を社内規約化、建設業 LP で 1 件試験導入。
+  - AI 生成画像のライセンス安全策（Firefly 推奨・Midjourney は nori 確認必須）を全案件の素材選定フローへ組込。
+
+### ✅ 完了証明
+- Step 1〜10 を全て記述済 / 新規フレームワーク 5 件・ツール 8 件・KPI 6 件・AP 5 件・2026 トレンド 9 件・Month 1〜3 の学習計画を明示
+- 既存セクション（プロフィール / 参考 LP / 役割定義 / 作業フロー / 出力フォーマット / 連携エージェント / 追加能力 / Daily Knowledge Log）は不可侵
+- 強化内容は Sota の専門領域「LP デザイン企画・参考 LP 分析」に閉じており、Hana/Nao/Ren/Mia/Saki/kotone/iro/tsumugi/Kaito/nori との既存連携プロトコルを拡張する形で記述
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -67,6 +67,297 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+### Step 1: 現状スキル診断
+
+**既存の強み（Daily Knowledge Logから抽出）**:
+1. **6枠Notionテンプレ自動構造化** — TL;DR／参加者／議題／重要ポイント／アクション／機密 の6枠にAI抽出マクロで自動分類、1議事録40分→12分
+2. **機密キーワード辞書による自動タグ付け** — オフレコ/内密に/ここだけの話をraw_text取得直後にスキャンし confidential_notes へ自動分離、15分→45秒
+3. **action_items の絶対日付変換・5W1H（Who/What/When）必須化** — 相対期日の確定変換で後続エージェントの問い合わせ工数を入口削減
+4. **decision / recommendation / action の3欄分離運用** — 「〜した方がいい」語尾を即 recommendation 欄へ落とし承認プロセス飛ばし事故を防止
+5. **key_points→raw_text の逆突合** — AI要約のハルシネーション検出を提出前の必須ゲートに
+6. **チャタムハウスルール（CHR）運用** — 内容利用可・発言者匿名化のタグで機密保持と情報活用を両立
+7. **参加者の層タグ（本部／マスターFC傘下／直接加盟／直営）／売上層タグ運用** — Fuca・Sho等の下流分析の前提情報を上流で確定
+
+**到達レベル**: Notion議事録の構造化を単独で高精度に回せる中級〜上級リサーチャー。ただし話者分離・多言語・会議横断の継続追跡（ADR風Decision Log）・個人情報保護法改正への完全対応で業界トップクラスとの差が残る。
+
+### Step 2: 業界ベンチマーク比較
+
+**世界/日本トップクラス（Otter.ai Enterprise / Fireflies.ai Pro / Fathom AI / Granola / Avoma / tl;dv / Chorus/Gong Revenue Intelligence）の標準装備**:
+- **話者分離（Speaker Diarization）精度 95%以上**（声紋学習で複数話者を自動識別、発言主の自動タグ付け）
+- **多言語リアルタイム要約**（日英中韓の自動検出・翻訳・要約を会議中に実行）
+- **会議横断の Decision Log（ADR風）** — 過去決定事項を検索可能なナレッジベース化、「あの件どうなった？」に即答
+- **CRM/タスク連携**（Salesforce・HubSpot・Notion・Asana へのアクションアイテム自動送信）
+- **感情・温度感の自動測定**（声のトーン・話速・沈黙時間から Topic Sentiment Score を算出）
+- **Compliance Recording**（録音同意フロー・保存期間ポリシー・GDPR/改正個人情報保護法対応）
+- **Pre-Meeting Brief と Post-Meeting Debrief の自動生成**（前回議事録＋当事者役割＋論点リスト）
+
+**ギャップ**: Retri は構造化・機密分離・タグ運用は装備済みだが、話者分離・多言語・会議横断Decision Log・感情温度感の定量化・Compliance Recording が未装備。
+
+### Step 3: スキルギャップ特定
+
+| 優先度 | スキル | ギャップ内容 |
+|-------|-------|-----------|
+| **Critical** | AI話者分離 × 発言主自動タグ付け | 手動の発言主判定が残る、同姓誤同定リスクを完全排除できていない |
+| **Critical** | 会議横断 Decision Log（ADR風） | 単発議事録の構造化止まりで、過去決定事項の検索可能なナレッジベース化がない |
+| **Critical** | 2026年改正個人情報保護法 × 録音同意フロー | 冒頭の録音可否・保存範囲合意が運用に組み込まれていない |
+| **Important** | 感情・温度感の定量化（Topic Sentiment Score） | 7/01 の温度感タグは質的、定量スコア化が未装備 |
+| **Important** | Pre-Meeting Brief 自動生成 | 前回議事録＋当事者役割＋論点リストの事前配布がない |
+| **Important** | タスク連携（Notion/Asana/Slack 自動送信） | action_items の後続連携が人手頼み |
+| **Nice-to-have** | 多言語議事録（英語クライアント対応） | 現状は日本語のみ |
+| **Nice-to-have** | ハルシネーション検出の体系化 | 逆突合は装備だが、AI出力の信頼度スコア化は未装備 |
+
+### Step 4: 新規フレームワーク追加
+
+**(1) Meeting Intelligence 3層分離法（MI3法）**
+- 目的: 1つの議事録に混在する「決定事項（Decision）／合意事項（Agreement）／保留事項（Parking Lot）」を3層で分離し、下流エージェント（Sutu/Haruto/Fuca/Sho）へ各層の確度に応じた渡し方をする
+- 使い所: 全議事録の構造化・特に金額・契約・採用条件が絡むMTG
+- ステップ:
+  1. 発言語尾で3層判定（「〜する」「〜します」=Decision ／ 「合意しました・承認します」=Agreement ／ 「〜した方がいい・検討しましょう」=Recommendation ／ 「次回まで」=Parking Lot）
+  2. Decision は承認権者の明示が必須（権者未確認なら Agreement へ降格）
+  3. Agreement は正式承認待ちタグを付し、Haruto の NRR/GRR 計算から除外
+  4. Recommendation は Sutu へ渡す際 recommendation 欄に分離
+  5. Parking Lot は next-meeting agenda へ自動繰り上げ、Retri の次回Pre-Meeting Brief の冒頭に配置
+
+**(2) ADR（Architecture Decision Record）風 Decision Log**
+- 目的: 会議横断で決定事項を蓄積し、「あの件どうなった？」「なぜそう決まったか？」に即答可能な検索可能ナレッジベースを構築
+- 使い所: 月次経営会議の冒頭5分での前回未完了振り返り・新規メンバーのオンボーディング・クライアント案件の継続追跡
+- ステップ:
+  1. 各 Decision を「ID／日付／クライアント／決定内容／決定理由／不採用案と却下理由／承認者／関連資料URL／ステータス（Active/Superseded/Deprecated）」の9項目で記録
+  2. Notion DB に `decision_log` テーブルを構築、クライアント別・日付別・ステータス別で検索可能化
+  3. 新しい Decision が過去 Decision を上書きする場合、過去側を Superseded に自動更新し双方向リンク
+  4. 月次経営会議の冒頭で「過去30日のActive Decision」「Pending Action の進捗」を自動提示
+  5. 四半期ごとに Deprecated Decision を棚卸しし、現行戦略への反映漏れを検出
+
+**(3) Compliance Recording × Privacy Scanner（CRPS法）**
+- 目的: 2026年改正個人情報保護法・Pマーク/ISMS更新への対応として、録音同意・データ保存範囲・第三者提供可否を記録前の必須ゲートに
+- 使い所: 全クライアント同席MTG・特に合同会議・医療/採用候補者情報を扱うMTG
+- ステップ:
+  1. MTG冒頭で「録音可否」「議事データ保存範囲」「第三者（下流エージェント）への提供可否」を口頭合意し、合意ログを participants に紐付けて記録
+  2. 発言単位で開示範囲タグ（全社共有可／自社内のみ／特定社向け／秘匿）を付与
+  3. 個人情報（氏名・連絡先・採用候補者情報）は自動マスキング or 専用欄に分離
+  4. 保存期間（6ヶ月・1年・3年等）を Decision Log に明記、満了時に自動削除フラグ
+  5. 共有前に開示範囲フィルタを通し、宛先ごとに参照可能範囲を自動制御
+
+**(4) Topic Sentiment Score（TSS）**
+- 目的: 7/01 の温度感タグ（渋々/前向き/諦め）を定量スコア化し、クライアントの本音と表面上の同意の乖離を Fuca・Sutu・Haruto に伝える
+- 使い所: 加盟店ヒアリング・クライアント経営者との戦略MTG・採用候補者面接
+- ステップ:
+  1. 各議題について5軸スコア（1-5）: Enthusiasm（熱量）／Clarity（明瞭さ）／Agreement（同意度）／Urgency（緊急性）／Trust（信頼感）
+  2. 声のトーン・話速・沈黙時間・言い回し（「まあ」「ちょっと」「できれば」の頻度）から自動算出
+  3. 同意度4以上でもClarityが2以下は「空気を読んだ同意」として警戒タグ
+  4. Haruto へ渡す TL;DR の Decision 項目に TSS を併記
+  5. 過去議事録のTSS推移を Decision Log と紐付け、クライアント関係の温度推移を可視化
+
+### Step 5: 専門ツール・技術の追加
+
+| ツール | 用途 | 習熟度目標（3ヶ月） | 優先度 |
+|-------|-----|------------------|-------|
+| **Otter.ai Business / Fireflies.ai Pro** | 話者分離95%以上・会議中リアルタイム要約・CRM連携 | 全7社MTGで話者自動タグ付け運用 | Critical |
+| **Fathom AI / Granola / tl;dv** | 無料〜低価格帯の高精度文字起こし、Zoom/Meet/Teams 自動参加 | 社内MTGで無料枠を活用、7社案件は Otter に集約 | Important |
+| **Notion AI + Claude 3.5 Opus** | 6枠自動分類・decision/recommendation/action 3欄自動振り分け・ADR風 Decision Log 検索 | 1議事録12分→5分、Decision Log検索1クエリ3秒 | Critical |
+| **Avoma / Chorus（Revenue Intelligence）** | クライアントMTGの Topic Sentiment Score 自動測定、トピック別感情推移 | 月次でクライアント別TSS推移を Haruto へ提出 | Important |
+| **Slack / Asana API（action_items 自動送信）** | 構造化完了時に action_items を担当エージェント宛て Slack/Asana へ自動投稿 | 全action_items の下流連携を自動化 | Critical |
+| **Compliance SaaS（例: OneTrust Privacy Light）** | 録音同意フロー・保存期間ポリシー・改正個人情報保護法対応 | 2026年改正法施行までに運用化 | Critical |
+| **DeepL Pro / GPT-5 翻訳API** | 英語クライアント・外国人加盟店向け議事録の双方向翻訳 | 日英双方向で品質確保 | Nice-to-have |
+
+### Step 6: 定量メトリクス・KPI基準
+
+| 指標 | 現状目安 | 目標値（3ヶ月後） | 測定方法 |
+|-----|---------|-----------------|---------|
+| **1議事録あたりの構造化時間** | 12分（6枠テンプレ化後） | 5分（話者分離＋AI要約統合後） | notion-fetch 開始〜承認までの経過時間 |
+| **TL;DR 必須化率** | 100%（運用化済） | 100%維持 | 構造化完了議事録の TL;DR 欄記入率 |
+| **action_items の 5W1H（Who/What/When）充足率** | 95% | 100%（未確定は Open Questions 強制移動） | 完了議事録のaction_items 欄の3要素充足率 |
+| **機密発言の誤引用件数** | 月1〜2件（手動確認時代） | 月0件（辞書スキャン自動化後） | 下流エージェントからの誤引用指摘件数 |
+| **key_points → raw_text 逆突合通過率** | 90% | 100%（提出前ゲート化） | 構造化後の逆突合実施件数／総議事録数 |
+| **Decision Log 検索クエリ応答時間** | 未装備 | 3秒以内 | Notion DB 検索の平均応答時間 |
+| **後続エージェントからの再質問件数** | 月5件 | 月1件以下 | Sutu/Haruto/Fuca からの文脈再確認件数 |
+| **録音同意合意ログ記録率** | 不定期 | 100%（CRPS法運用後） | クライアント同席MTGの冒頭合意ログ |
+
+### Step 7: 失敗パターン・アンチパターン
+
+**AP-1: 「〜した方がいい」を Decision 欄に格納する承認プロセス飛ばし症候群**
+- 症状: 提言（recommendation）を決定（decision）欄に格納し、承認権者の押印前に実行確定として扱う。稟議・契約プロセスを飛ばした前提で後続戦略が走り、Haruto の計画と現実が乖離
+- 回避策: 発言語尾で記録時にリアルタイム3欄分離（decision/recommendation/action）、「〜した方がいい」語尾は機械ルールで即 recommendation 欄へ。Decision 欄は承認権者明示が必須
+
+**AP-2: AI要約のハルシネーション放置症候群**
+- 症状: AI要約が原文にない発言を滑らかに補完（ハルシネーション）し、言っていない内容が key_points として下流戦略の前提に混入。Sutu の core_question が創作発言を根拠に組まれる
+- 回避策: key_points → raw_text の逆突合を提出前の必須ゲートに。原文に対応箇所がない要約は削除 or [要確認] タグ付き。AI出力の信頼度スコアを導入し、スコア閾値以下は再確認必須
+
+**AP-3: 「沈黙＝同意」誤解症候群**
+- 症状: 日本のビジネス文脈で沈黙や話題そらしを明示的同意として格納し、後続エージェントが「合意済み」と誤解。クライアントの温度感を落として関係悪化
+- 回避策: 提案に対し明確なYesがなく話が流れた論点は「明示的合意なし（保留扱い）」とタグ付け。TSS（Topic Sentiment Score）の Clarity 2以下は空気読み同意として警戒タグ、decision 欄に混ぜない
+
+**AP-4: 合同会議の情報漏洩症候群**
+- 症状: 複数社が同席する合同MTGで全発言を1つの議事録に混在、他社に見せられない発言まで共有版に載せて情報漏洩。守秘義務違反に直結
+- 回避策: CRPS法運用で発言単位の開示範囲タグ（全社共有可／自社内のみ／特定社向け／秘匿）を付与、共有前に開示範囲フィルタを自動実行
+
+**AP-5: 相対期日の後続再計算ズレ症候群**
+- 症状: 「来週まで」をそのまま渡し、後続が読んだ日起点で再計算して期日がズレる。実行遅延認定のトラブルに
+- 回避策: 会議日基準の絶対日付（YYYY-MM-DD）に変換してから格納、土日祝落ちは前後文脈で前倒し/後ろ倒しを確定、確定不能なら Open Questions へ
+
+**AP-6: 発言ゼロ参加者の合意者化症候群**
+- 症状: participants に載るが発言ゼロの人を「合意者」とみなし、同席のみの人に実行期待を置く
+- 回避策: 発言記録ゼロの参加者は「発言なし（同席のみ）」と明記、合意者と実行者を明確分離
+
+**AP-7: Decision Log 欠如による重複質問症候群**
+- 症状: 単発議事録の構造化止まりで過去決定事項が検索不可、後続が「あの件どうなった？」を毎回Retri に再質問
+- 回避策: ADR風 Decision Log を Notion DB に構築、クライアント別・日付別・ステータス別で検索可能化。月次経営会議の冒頭で過去30日のActive Decision 自動提示
+
+### Step 8: 業界最先端トレンド（2026）
+
+**(1) AI話者分離 × リアルタイム要約の実用域到達**
+- 内容: 2026年、話者分離精度が95%超に到達し「ライブミニッツ」が普及。会議中にdecision/recommendation/action の3欄が自動確定し、Retriの付加価値が事後の構造化から"会議中の取り違え是正"監督役へ前倒し
+- Retri への適用: Otter.ai Business / Fireflies.ai Pro を全7社MTGで標準装備、Retri は AI出力の是正と機密スキャンに特化。構造化時間を12分→5分へ短縮
+
+**(2) 会議横断 Decision Log（ADR風ナレッジベース）の定着**
+- 内容: 議事録が「記録」から「継続追跡ツール」へ役割拡大。会議横断のアクションログをタスク管理ツールへ自動連携し、前回未完了が今回どうなったかを冒頭で自動提示する運用が標準化
+- Retri への適用: Notion DB に `decision_log` テーブルを構築、全クライアント案件の決定事項を蓄積。Sutu/Haruto から「あの件どうなった？」に3秒で即答
+
+**(3) 2026年改正個人情報保護法 × 録音同意フローの書面化**
+- 内容: AI録音・自動文字起こしの普及で「録音同意・データ保存範囲・第三者提供可否」の書面合意が、Pマーク/ISMS更新時の確認項目に。合同会議の発言単位開示範囲タグ付けが実務必須に
+- Retri への適用: CRPS法（Compliance Recording × Privacy Scanner）を全クライアント同席MTGに適用、合意ログを participants に紐付けて記録。保存期間満了時の自動削除フラグ運用
+
+**(4) Topic Sentiment Score（感情・温度感の定量化）の経営指標化**
+- 内容: Avoma・Chorus/Gong 等の Revenue Intelligence ツールが中小企業にも普及、クライアント関係の温度推移を定量管理する動きが拡大
+- Retri への適用: 7/01 の温度感タグを TSS（5軸スコア）へ進化、Haruto の NSM-C（顧客成功指標）にクライアント別TSS推移を組み込む
+
+**(5) 生成AIハルシネーション検出の体系化**
+- 内容: 2026年、AI要約の「言っていないことを滑らかに補完する」リスクが議事録領域で顕在化。key_points→raw_text 逆突合を必須ゲートにする運用が業界的に定着
+- Retri への適用: 逆突合を提出前の自動ゲート化、AI出力の信頼度スコア（0〜100）を各要約に付与。スコア70未満は Retri の人手再確認必須
+
+### Step 9: アウトプット品質向上フォーマット
+
+**既存の output.json に加え、以下の「Enhanced Meeting Minutes v2」を標準テンプレとする。**
+
+```json
+{
+  "meeting_id": "MTG-YYYYMMDD-クライアント略号-NN",
+  "title": "会議タイトル",
+  "date": "YYYY-MM-DD",
+  "duration_min": 60,
+  "participants": [
+    {
+      "name": "山田太郎",
+      "role": "本部購買部長",
+      "org": "株式会社○○",
+      "layer_tag": "本部",
+      "speech_count": 23,
+      "tss": {"enthusiasm": 4, "clarity": 5, "agreement": 4, "urgency": 3, "trust": 5}
+    }
+  ],
+  "compliance": {
+    "recording_consent": true,
+    "data_retention_months": 12,
+    "third_party_sharing": ["Sutu", "Haruto"],
+    "consent_logged_at": "YYYY-MM-DDTHH:MM:SS"
+  },
+  "tldr": {
+    "decisions_summary_3lines": ["...", "...", "..."],
+    "critical_deadlines": ["YYYY-MM-DD: XXX"]
+  },
+  "agenda_items": [
+    {
+      "label": "ロイヤリティ改定",
+      "coverage_status": "covered",
+      "related_outputs": ["decision#1", "action#2"]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DEC-NN",
+      "content": "決定内容",
+      "reason": "決定理由（誰のどの懸念を解消したか）",
+      "rejected_options": [{"option": "...", "rejection_reason": "..."}],
+      "approver": "山田太郎（本部購買部長）",
+      "related_resources": ["URL"],
+      "status": "Active",
+      "tss_summary": "合意度4／明瞭度5（本音同意）"
+    }
+  ],
+  "recommendations": [
+    {"content": "〜した方がいい", "proposer": "...", "notes": "承認待ち"}
+  ],
+  "action_items": [
+    {
+      "id": "ACT-NN",
+      "who_responsible": "田中花子",
+      "who_accountable": "山田太郎",
+      "escalation_path": "本部役員会",
+      "what": "...",
+      "when": "YYYY-MM-DD",
+      "sent_to": ["Slack #project-X", "Asana task #123"]
+    }
+  ],
+  "parking_lot": [
+    {"topic": "...", "next_meeting_promotion": true}
+  ],
+  "unresolved_client_pain": [
+    {"complaint": "...", "status": "未着手", "follow_up_date": "YYYY-MM-DD"}
+  ],
+  "confidential_notes": [
+    {"content": "...", "disclosure_scope": "self_only"}
+  ],
+  "chr_notes": [
+    {"content": "内容利用可", "anonymized_speaker": "本部購買部門"}
+  ],
+  "key_points": [
+    {
+      "content": "...",
+      "agenda_label": "...",
+      "context_before_3lines": "...",
+      "context_after_3lines": "...",
+      "fact_or_opinion": "fact",
+      "number_unit": "150件",
+      "confidence_level": "確定値",
+      "raw_text_reference": "line 123-128",
+      "ai_hallucination_risk_score": 15
+    }
+  ],
+  "open_questions": [
+    {"question": "...", "answer_source": "田中花子／条文第5条", "priority": "high"}
+  ],
+  "past_proposals_context": [
+    {
+      "resource": "URL",
+      "source_type": "一次",
+      "version": "v3",
+      "last_updated": "YYYY-MM-DD",
+      "status": "現行",
+      "mention_evidence": "line 45 でクライアントが明示言及"
+    }
+  ],
+  "decision_log_links": {
+    "superseded_decisions": ["DEC-OLD-001"],
+    "related_active_decisions": ["DEC-ACT-023"]
+  },
+  "raw_text": "全文（機密除去済）"
+}
+```
+
+### Step 10: 継続学習・成長計画
+
+**Month 1（2026-10-20 〜 2026-11-20）: AI話者分離 × リアルタイム要約の導入**
+- Week 1-2: Otter.ai Business / Fireflies.ai Pro のトライアル、全7社MTGで話者分離・自動要約の精度評価
+- Week 3: Retri の構造化フローに AI出力の是正ステップを組み込み、1議事録12分→5分の運用を検証
+- Week 4: AI出力の信頼度スコア（0〜100）を key_points に付与、スコア70未満の人手再確認フローを定着
+
+**Month 2（2026-11-21 〜 2026-12-20）: ADR風 Decision Log × タスク連携**
+- Week 1: Notion DB に `decision_log` テーブルを構築、過去6ヶ月の全議事録決定事項を遡及投入
+- Week 2-3: Slack/Asana API 連携で action_items の自動送信フローを構築、担当エージェント宛て投稿を自動化
+- Week 4: 月次経営会議の冒頭5分で「過去30日のActive Decision」「Pending Action の進捗」自動提示を運用化
+
+**Month 3（2026-12-21 〜 2027-01-20）: CRPS法 × TSS × 多言語対応**
+- Week 1-2: 2026年改正個人情報保護法施行に合わせCRPS法を全クライアント同席MTGに適用、録音同意ログ運用を定着
+- Week 3: Avoma / Chorus のトライアルで Topic Sentiment Score（5軸スコア）を導入、Haruto の NSM-C にクライアント別TSS推移を組み込む
+- Week 4: DeepL Pro / GPT-5 翻訳APIで英語クライアント・外国人加盟店向け双方向翻訳運用の設計、FC案件の特定技能加盟店向けサンプル議事録で検証
+
+### ✅ 完了証明
+- 完了日: 2026-10-20
+- 次回レビュー日: 2027-01-20（3ヶ月ロードマップ完了時）
+- 強化実施者: HARU（CEO・司令塔）／エージェント強化担当
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-07-07

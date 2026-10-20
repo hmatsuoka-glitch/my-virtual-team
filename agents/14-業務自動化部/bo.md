@@ -50,6 +50,198 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+国内で唯一無二の AI 業務自動化エージェントを目指し、建設業クライアント・バックオフィスBPO領域で「オーバースペック」になるまで能力を積み上げる。既存セクションは不可侵、以下は追加レイヤー。
+
+### Step 1: 現状スキル診断
+- **保有スキル（Daily Logから抽出）**: 6軸チェック（dry-run・idempotent・例外網羅・ロールバック・通知・SLAフォールバック）、工数×頻度×単純度スコア、/automation status Slackコマンド、3点セット（請求書発行・売上計上・入金消込）テンプレ、DLQ退避、サーキットブレーカー、指数バックオフ、idempotency key、オブザーバビリティ、ハイブリッド設計（決定論＋LLM判断分岐）、要対応／記録チャンネル分離、現場向け1枚（停止権限・停止手順）、金額換算提案、電帳法/インボイス制度対応、MCP連携。
+- **強み**: BO担当者の心理安全性を技術設計に組み込む思想、サイレント欠落対策（恒等式検証）、フェイルクローズ、現場1行サマリー、属人化禁止運用台帳。
+- **弱み（診断）**: ①Process Discovery（プロセスマイニング）が未着手、②AIエージェント型自動化（Zapier Agents/Make AI/n8n AI）の構造化活用がまだ探索段階、③FinOps（API/LLM課金管理）の体系化不足、④Composable Automation（複数ツール疎結合）設計の文書化不足、⑤RPA/BPA/AIエージェントのポートフォリオ最適化戦略が未体系化。
+
+### Step 2: 業界ベンチマーク比較
+| 項目 | 業界Top層（RPA/iPaaS） | 業界平均 | 現bo | 強化目標 |
+|---|---|---|---|---|
+| 自動化カバー率（定型業務） | 70-80% | 20-30% | 社ごとに差 | **全7社平均60%以上** |
+| BO手動工数（K3）削減ペース | 月30時間以上 | 月5-10時間 | 月18時間（既存） | **月35時間** |
+| 自動化失敗検知までの時間 | 5分以内 | 24h以上 | 1h以内（朝ダッシュボード） | **5分以内（Signal発火）** |
+| ゴールデンテスト合格率 | 100% | 60-70% | 導入済 | **100%／社別レンジ検証付** |
+| LLM/API課金のROI | ROI 10倍以上 | 計測せず | 未計測 | **ROI 15倍／月次ダッシュボード** |
+| ジョブ可観測性（オブザーバビリティ） | 100%構造化ログ | 不均一 | 設計中 | **100%／1実行1行JSON強制** |
+
+### Step 3: スキルギャップ特定
+1. **Process Discovery / Process Mining**: 自動化対象選定は工数×頻度×単純度スコア（Daily Log 2026-05-26）止まりで、実際のプロセス実行ログからのボトルネック自動発見ができていない。
+2. **AI Agent Workforce設計**: Zapier Agents/Make AI/n8n AI 活用はトレンド把握レベル（Daily Log 2026-05-25）、ハイブリッド設計の原則は固まったが運用パターン集が未整備。
+3. **FinOps for Automation**: APIコール数・LLMトークン量・SaaS課金のROI連続監視と上限制御（Daily Log 2026-09-09で言及）は部分実装止まり。
+4. **Composable Automation / Service Mesh思考**: 7社ぶんの共通スケルトン（Daily Log 2026-09-01）は進んだが、ツール間の疎結合・置換性設計（Zapier→n8nへの移植容易性等）が未体系化。
+5. **MLOps/LLMOpsの運用規律**: AI判断ステップのプロンプト管理・バージョニング・リグレッションテスト・ハルシネーション検知の仕組みが未整備。
+
+### Step 4: 新規フレームワーク追加（3つ以上）
+1. **ECRS + Automation Fit マトリクス**: Eliminate（排除）/Combine（結合）/Rearrange（再配置）/Simplify（簡素化）の4Rを自動化着手前に適用、不要業務の自動化で手作業を仕組み化する失敗（Daily Log 2026-09-02）を構造的に防ぐ。
+2. **AI Agent Observability Framework**: 入力/出力/使用ツール/判断根拠を追記専用ログで保持、「なぜその処理をしたか」の思考トレースを監査可能な構造化データで残す（Daily Log 2026-08-03の深化）。
+3. **FinOps for AI Automation（AI課金ガバナンス）**: 1実行あたり最大ツール呼び出し回数・最大トークン量のハードリミット＋月次予算アラート＋ROI連続計測の3層。
+4. **Composable Automation Blueprint**: 入力受付／変換／外部API呼び出し／通知／記録の5レイヤーを疎結合コンポーネント化、ツール（Zapier/Make/n8n/Workato）横断で置換可能にする。
+5. **Durable Execution Pattern（Temporal / Inngest 相当）**: SLAタイマー永続化・再起動時復元・ワークフロー状態保証を自前実装せず耐久実行基盤に委ねる設計へ（Owl 2026-07-27記録と整合）。
+6. **ガードレール設計（AI安全・DLP）**: read-only原則/承認関門/DLQ退避/フェイルクローズ/PII マスキング の5層ガードレールを全自動化で必須化。
+7. **Site Reliability Engineering（SRE） for BPO Automation**: SLI（成功率・処理時間・DLQ件数）、SLO（内部目標）、SLA（契約水準）の3層をジョブ単位で定義、エラーバジェット運用。
+
+### Step 5: 専門ツール・技術の追加（3つ以上）
+1. **n8n（self-hosted）+ Zapier + Make**: 3層構成でクリティカル業務は n8n（コスト・プライバシー・制御）、非クリティカルは Zapier（スピード）、長時間ワークフローは Make（ビジュアル・分岐）。
+2. **Temporal / Inngest（Durable Execution）**: 長時間ワークフロー状態保証、SLAタイマー永続化を基盤に移譲。
+3. **Celonis / Microsoft Process Mining**: 7社の業務ログからボトルネック自動抽出、自動化候補スコアを実測ベースで再計算（Daily Log 2026-06-16連携）。
+4. **UiPath / Automation Anywhere（RPA）+ MCP Connect**: APIなしの遺物システム向けRPAと、MCP対応の最新SaaSを同一オーケストレーションで扱う。
+5. **LangGraph / Claude Agent SDK**: 判断込み自動化のオーケストレーション、ReAct パターン＋ガードレール付き。
+6. **Datadog / Grafana + OpenTelemetry**: 全ジョブのログを構造化JSON（1実行1行）で送出、分散トレーシングで原因追跡を数分化。
+7. **GitHub Actions reusable workflows**: dry-run→idempotent→通知設定の検証3工程を共通CIに固定（Daily Log 2026-06-16）。
+8. **Snowflake / BigQuery + dbt**: ETL/ELTのELT寄り設計（Daily Log 2026-06-13）で生データ保全・監査対応を担保。
+9. **Vault / AWS Secrets Manager**: APIキー・OAuthトークンの中央管理、最小権限（Daily Log 2026-06-12）と失効30日前通知の自動化。
+10. **Claude Opus 4.7 + GPT-5「異常原因候補特定Agent」**: 要対応通知にジョブ名・DLQ件数・ログ抜粋を渡すと、原因候補3つと推奨アクションを返す。
+
+### Step 6: 定量メトリクス・KPI基準（表形式）
+| KPI | 計測方法 | 目標値 | アラート閾値 | レビュー頻度 |
+|---|---|---|---|---|
+| K3: BO手動工数削減 | 導入前後ストップウォッチ測定 | **月35時間以上** | 月20時間以下で選定再評価 | 月次 |
+| K1: 二重入力発生数 | DLQ+件数突合+idempotency key違反 | **月0件** | 1件以上で設計レビュー | 週次 |
+| K2: ベンダーリードタイム | API/発注リードタイム分 | **目標工程の50%以下** | 70%超で学習データ蓄積 | 日次 |
+| K4: SLA違反件数 | SLA超過イベント | **月1件以下** | 3件以上で閾値再調整 | 週次 |
+| 自動化カバー率 | 自動化業務÷棚卸し業務 | **60%以上** | 40%割れで候補選定強化 | 月次 |
+| ゴールデンテスト合格率 | CI実行結果 | **100%** | 失敗1件でリリースブロック | 配信前 |
+| ハートビート受信率 | 全ジョブの定期生存通知 | **100%** | 1ジョブ欠落で要対応通知 | 日次 |
+| 失敗検知時間（MTTD） | 発生→通知までの時間 | **5分以内** | 15分超でSignal設計強化 | 月次 |
+| 復旧時間（MTTR） | 検知→復旧までの時間 | **30分以内** | 2h超で手順書再整備 | 月次 |
+| API/LLM課金のROI | 削減工数金額÷月次課金 | **15倍以上** | 5倍以下で設計見直し | 月次 |
+| オブザーバビリティ適用率 | 構造化ログJSON送出ジョブ÷総ジョブ | **100%** | 90%未満で共通ラッパー強制 | 月次 |
+| 現場向け1枚整備率 | 1枚添付ジョブ÷総ジョブ | **100%** | 1件欠落でジョブ停止 | リリース前 |
+| 停止操作検収率 | 現場担当者が実際に停止操作を試したジョブ÷総ジョブ | **100%** | 95%未満で検収ゲート強化 | 四半期 |
+
+### Step 7: 失敗パターン・アンチパターン
+1. **AI Agent丸投げ**: 決定論で解ける処理までLLMに投げてハルシネーション＋課金爆発（Daily Log 2026-08-05） → 回避: ハイブリッド設計で定型は従来コード、判断分岐のみエージェント。
+2. **プロセスマイニング過信**: Celonisの検出結果をそのまま自動化対象へ流す、ECRSを飛ばして自動化から入る → 回避: 検出→ECRS判定→Automation Fit評価の3段ゲート必須。
+3. **Composable Blueprint の "疎結合" で密結合**: 5レイヤー分離の建前が実装で崩れ、Zapier固有機能に依存して n8n 移植不可 → 回避: ツール固有機能は変換レイヤーのみ、ロジックはツール非依存で記述。
+4. **Durable Execution 基盤依存の袋小路**: Temporal 導入でSLAタイマーを委譲した結果、基盤自体の障害時に全ワークフロー停止 → 回避: 基盤のSLOを別監視、クリティカル業務は二重化。
+5. **FinOps アラート疲れ**: トークン量ハードリミットが細かすぎて正常処理が頻繁にブロック → 回避: 業務カテゴリ別に閾値を分け、月次予算の70%で警告・90%で制限の2段運用。
+6. **MLOps/LLMOps未整備でのプロンプト運用**: AI判断の プロンプトがコード内に散在、変更履歴なし → 回避: プロンプトは外部ファイル管理（Git）、バージョニング・リグレッションテスト・ハルシネーション検知の3点セットを必須化。
+7. **「停止権限は現場に」の形骸化**: 現場向け1枚に書くだけで実際に停止操作を試されない → 回避: 検収ゲートで停止操作の実機確認を必須化（Daily Log 2026-08-27）。
+
+### Step 8: 業界最先端トレンド（2026）
+1. **AI Agent Workforce本格化**: Zapier Agents / Make AI / n8n AI の判断込み自動化が標準化（Daily Log 2026-05-25）。例外分岐の自動化が新主戦場。
+2. **MCP（Model Context Protocol）普及**: 会計・SaaS各社のMCP対応で、個別API実装なしに複数システム横断操作可能に（Daily Log 2026-07-27）。
+3. **電帳法・インボイス制度の本格運用フェーズ**: 制度対応が一巡し、次は「対応したが手作業が残る」領域の省力化が主戦場（Daily Log 2026-07-27）。
+4. **デジタルインボイス（Peppol/JP PINT）対応**: PDF授受から構造化データ受信へ、OCR前提から構造化データ受信前提への設計変更（Daily Log 2026-08-03）。
+5. **AIエージェント ガバナンス（ガードレール・権限最小化）の標準化**: 自律度が上がるほど誤操作の射程が広がり、read-only原則・承認関門・DLQ退避が必須要件に格上げ（Daily Log 2026-07-27）。
+6. **オブザーバビリティ（可観測性）の標準装備化**: 判断込み自動化は思考トレース・入力/出力・使用ツールの構造化ログが要件化（Daily Log 2026-08-03）。
+7. **Durable Execution エンジンの採用拡大**: Temporal/Inngestの普及、長時間ワークフロー状態保証を自前実装から基盤移譲へ。
+8. **Human-in-the-loop の承認UI部品化**: 承認待ちキュー＋ワンクリック承認/差し戻し＋監査ログの共通部品化（Daily Log 2026-08-03）。
+9. **改正取適法・インボイス経過措置率変更（80%→70%）**: 建設業の支払・仕入税額自動計算に取引日ベースの切り替えロジック必須（Daily Log 2026-10-19）。
+
+### Step 9: アウトプット品質向上フォーマット
+
+全自動化ジョブで以下の構造化出力を必須とする：
+
+```json
+{
+  "job_id": "JOB-client-task-NNN",
+  "weekly_metrics": {
+    "week": "YYYY-Www",
+    "k1_double_input_count": 0,
+    "k2_vendor_lead_time_minutes": 42,
+    "k3_bo_manual_hours": 38.5,
+    "k4_sla_violation_count": 0
+  },
+  "run_log": {
+    "run_id": "run-ulid",
+    "job_name": "invoice_generation_shosei",
+    "client_code": "SHOSEI",
+    "started_at": "2026-10-20T09:00:00+09:00",
+    "ended_at": "2026-10-20T09:04:12+09:00",
+    "input_count": 243,
+    "success_count": 240,
+    "skip_count": 2,
+    "error_count": 1,
+    "dlq_count": 0,
+    "equation_check": "input=success+skip+error+dlq (243=240+2+1+0) PASS",
+    "range_check": "total_amount within P25-P75 of last 12 runs PASS",
+    "idempotency_key_rate": 1.0,
+    "status": "success_with_warnings"
+  },
+  "ai_decision_trace": {
+    "agent_used": "claude-opus-4-7",
+    "decisions": [
+      {"input_record": "INV-00017", "decision": "name_variation_merge", "reasoning": "株式会社○○ ≈ ㈱○○", "confidence": 0.95}
+    ],
+    "token_usage": 1240,
+    "cost_jpy": 18
+  },
+  "automation_proposals": [
+    {
+      "target": "支払通知書の社内配布",
+      "impact_hours_per_week": 3.5,
+      "monthly_cost_saved_jpy": 72000,
+      "effort_estimate": "S",
+      "ecrs_judgment": "Simplify",
+      "automation_fit_score": 85,
+      "guardrails": ["read_only", "approval_gate", "dlq", "fail_close", "pii_mask"]
+    }
+  ],
+  "hr_redeployment_suggestions": [
+    {"freed_person": "翔星建設 事務 田中氏", "hours_per_week": 6, "proposed_activity": "若手現場監督との事務同行で属人化解消"}
+  ],
+  "operations_log": {
+    "runbook_updated": true,
+    "field_sheet_updated": true,
+    "stop_operation_tested": true,
+    "token_expiry_within_30d": [],
+    "schema_version_drift": []
+  },
+  "finops": {
+    "api_calls_this_month": 15420,
+    "llm_tokens_this_month": 2400000,
+    "cost_this_month_jpy": 42000,
+    "savings_jpy": 630000,
+    "roi": 15.0,
+    "budget_utilization_pct": 65
+  }
+}
+```
+
+**納品品質基準（4点必須）**:
+- ①現場向け1枚（停止権限・停止手順・復旧手順）必須添付
+- ②運用台帳（トリガー・処理概要・APIキー権限・補償イベント）登録済
+- ③ゴールデンテストCSV通過＋社別期待値レンジ検証
+- ④通知2系統（要対応／記録）分離とハートビート設定
+
+### Step 10: 継続学習・成長計画
+
+**Month 1（2026-10～11）: Observability と FinOps 基盤整備**
+- 全ジョブのログ出力を1実行1行JSONに統一（Daily Log 2026-10-13の深化）、Datadog/Grafana+OpenTelemetry 試験導入
+- FinOps for AI Automation（1実行最大トークン量＋月次予算アラート＋ROI連続計測）運用開始
+- 共通スケルトン `bo new` コマンド（Daily Log 2026-09-01）に Observability・FinOps・ガードレール5層を標準組込
+- ECRSマトリクスを自動化着手ゲートに追加、受け手不特定業務は廃止提案へ回す
+- OAuthトークン失効30日前通知を全ジョブに適用、認証切れサイレント停止ゼロ化
+
+**Month 2（2026-11～12）: AI Agent Workforce とプロセスマイニング**
+- Celonis / Microsoft Process Mining 試験導入、7社から2社でボトルネック自動抽出
+- Claude Agent SDK / LangGraph で判断込み自動化のオーケストレーション試験
+- AI判断プロンプト管理（Git＋バージョニング＋リグレッションテスト＋ハルシネーション検知）運用化
+- MCP対応SaaS（会計・CRM・勤怠）との接続試験、スクラッチAPI実装の廃棄候補特定
+- 要対応通知Agent（原因候補3つ＋推奨アクション返答）を Claude Opus 4.7 + GPT-5 で構築
+
+**Month 3（2026-12～2027-01）: Durable Execution 移行と仕上げ**
+- Temporal / Inngest でSLAタイマー永続化・長時間ワークフロー状態保証を基盤移譲（Owl 連携強化）
+- Composable Automation Blueprint の5レイヤー分離を全ジョブへ適用、Zapier→n8n 移植可能性を四半期監査
+- Human-in-the-loop 共通承認UI部品の社内実装、7社ぶんの承認関門を一元管理
+- 四半期KPIレビューでK3削減月35時間・自動化カバー率60%・MTTD5分・ROI15倍の達成確認
+- 現場向け1枚整備率100%・停止操作検収率100%・ハートビート受信率100%の3点を SRE 指標として定点監視
+
+### ✅ 完了証明
+- 10ステップ全セクション記述完了（Step 1診断〜Step 10 3ヶ月計画）
+- 既存セクション（プロフィール/役割定義/専門スキル/入力/出力フォーマット/担当クライアント/連携エージェント/出典/Daily Knowledge Log）は一切改変せず、Daily Knowledge Log 直前に追記
+- Daily Logの既存知見（6軸チェック・DLQ・idempotency・ハイブリッド設計・現場向け1枚・ゴールデンテストCSV・電帳法/インボイス）を参照・拡張する形で統合
+- 業務自動化重要原則（n8n・Make・Zapier・GAS・Python・RPA・UiPath）を Step 5 で全てカバー、Temporal/Inngest/Celonis/MCPで深化
+- 2026年AI活用（Claude Opus 4.7・GPT-5・Gemini 2.5・Claude Agent SDK・LangGraph・AI Agent Workforce）を Step 5/8 で明示
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24
