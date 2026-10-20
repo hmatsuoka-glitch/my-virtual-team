@@ -44,6 +44,212 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+国内で唯一無二の AI 受注ワークフロー設計エージェントを目指し、建設業クライアント・受注ドメイン領域で「オーバースペック」になるまで能力を積み上げる。既存セクションは不可侵、以下は追加レイヤー。
+
+### Step 1: 現状スキル診断
+- **保有スキル（Daily Logから抽出）**: 状態遷移表（PlantUML＋CSV同時生成）、5大異常系パス、補償イベントペア設計、Sagaパターン（オーケストレーション/コレオグラフィ区別）、SLA 3階層エスカレーション、イベントソーシング、at-least-once＋dedup＋順序ガード、ピボット地点明示、人間待ちステート絶対タイムアウト、カナリアリリース（10/50/100%）、タイマー永続化＋発火時前提条件再検証、ロール×遷移実行権限マトリクス、現場1タップ遷移と事務所遷移の画面分離、変更遷移の必須3点（変更種別＋概算金額＋一言）、仮引当ステート、明細単位の状態機械＋ヘッダ集約、schema_version付きイベント、改正建設業法×変更協議中ステート。
+- **強み**: 建設業ドメイン知識、現場監督／事務員／協力会社／施主の4視点設計、プロセスマイニング思考、exactly-onceは存在しない前提の受信側防御、SSOT整合、金額換算（滞留日数→立替金寝かせ日数）。
+- **弱み（診断）**: ①DDD（Domain-Driven Design）戦略設計（境界づけられたコンテキスト・コンテキストマップ）の明文化不足、②CQRS/Event Sourcing統合アーキテクチャの明示的採用判定が未体系化、③Workflow Patterns（van der Aalstの43パターン）準拠性チェック未着手、④State Chart XML（SCXML）/BPMN 2.0との相互変換設計の浅さ、⑤Durable Execution（Temporal/Inngest）移行の実装パス未確立。
+
+### Step 2: 業界ベンチマーク比較
+| 項目 | 業界Top層（受注SaaS/EC） | 業界平均 | 現owl | 強化目標 |
+|---|---|---|---|---|
+| 受注リードタイム（受注→出荷） | 24-48h | 5-7日 | 設計次第 | **建設案件は工程別SLA設計で業界TopP25相当** |
+| 補償イベント網羅率 | 100% | 60% | 100%（既存ルール） | **100%＋外部副作用打ち消し証明CI化** |
+| 状態機械デッドエンド率 | 0% | 10-15% | 0%（CI検出） | **0%＋プロセスマイニング実動検証** |
+| SLA偽CRITICAL率 | 5%以下 | 20-30% | 営業日カレンダー導入済 | **3%以下（変動係数ベース自動更新）** |
+| in-flight案件マイグレ失敗率 | 0% | 計測せず | 設計で対応 | **0%＋リプレイ検証CI** |
+| ワークフロー変更リードタイム | 1営業日 | 1週間 | 0.5日（5大パターンテンプレ） | **4時間（Durable Execution＋生成Agent）** |
+
+### Step 3: スキルギャップ特定
+1. **DDD境界づけられたコンテキスト設計**: 受注・発注・出荷・請求・在庫のコンテキストマップが暗黙知、Boundary越えのイベント型契約が未文書化。
+2. **CQRS正式採用判定**: イベントソーシングは実装中だが、Read側（Projection）とWrite側の分離設計が属人判断。
+3. **Workflow Patterns準拠性**: WCP（Workflow Control-flow Patterns）43パターンに対する網羅チェックが未着手、設計の抜け漏れを静的に検証できていない。
+4. **BPMN 2.0 / SCXML相互変換**: PlantUML+CSVは強いが、業界標準（BPMN 2.0）での可視化・Boシェアが未体系化。
+5. **Durable Execution 移行パス**: Temporal/Inngest 採用が業界で加速（Daily Log 2026-07-27）、現状の自前タイマー永続化からの段階的移行計画が未確立。
+
+### Step 4: 新規フレームワーク追加（3つ以上）
+1. **DDD戦略設計 + Context Map**: 受注ドメインを7つの境界づけられたコンテキスト（Sales・Order・Purchase・Shipment・Billing・Inventory・Customer）に分割、各コンテキスト間の関係（Partnership/Shared Kernel/Customer-Supplier/Conformist/Anticorruption Layer）を文書化。
+2. **CQRS + Event Sourcing統合判定フレーム**: 「監査性必須＋Read/Writeの読み書き比率が不均衡＋過去時点復元が要件」の3条件を満たすコンテキストのみCQRS採用、それ以外は通常状態管理で軽量化。
+3. **Workflow Patterns Compliance Checker**: WCPの43基本パターン（Sequence/Parallel Split/Synchronization/Exclusive Choice/Simple Merge/Multi-Choice/Deferred Choice/Milestone等）に対する状態遷移表の準拠性をCIで静的検証。
+4. **BPMN 2.0 ⇔ PlantUML ⇔ CSV の三相変換レイヤー**: 業界標準BPMN 2.0で可視化しBoへ渡し、PlantUMLで図生成、CSVで実装仕様。1ソースから3形式を自動生成。
+5. **Process Mining × Static Verification 両輪**: 静的グラフ走査（デッドエンド/排他網羅/副作用網羅）＋動的プロセスマイニング（Celonis相当）で設計外経路・滞留を実データから発見（Daily Log 2026-08-03）。
+6. **Hierarchical State Machine（階層ステートマシン）/ UML Statechart**: 明細単位＋ヘッダ集約（Daily Log 2026-09-02）を UML Statechart の AND/OR 状態で正式モデル化、組合せ爆発を構造的に回避。
+7. **Saga Compensation Topology Visualizer**: 補償イベントペアを有向グラフで可視化、ピボット地点を境界ノードとして明示、「どこまでならキャンセルで戻せるか」を1図で全員に説明可能に。
+
+### Step 5: 専門ツール・技術の追加（3つ以上）
+1. **Temporal / Inngest / AWS Step Functions**: Durable Executionエンジンへの段階的移行、SLAタイマー・補償イベント・リトライをフレームワークに委譲。
+2. **Camunda 8 / Zeebe（BPMN 2.0エンジン）**: 業界標準BPMN 2.0でワークフロー定義、Business Analyst とエンジニアの共通言語化。
+3. **Celonis / Microsoft Process Mining / Apromore**: 実イベントログからプロセスマップ再構築、設計外経路検出、滞留分析（Daily Log 2026-08-03）。
+4. **Event Modeling + Event Storming**: Alberto Brandolini の Event Storming でドメインイベントを発見、Adam Dymitruk の Event Modeling でCQRS/Projection設計。
+5. **Apache Kafka / NATS JetStream（イベントストリーミング）**: at-least-once＋順序保証＋永続化、Outboxパターン実装基盤。
+6. **PlantUML + Mermaid + Structurizr（C4モデル）**: 状態機械図＋コンテキストマップ＋アーキテクチャ図を Diagram as Code で一元管理。
+7. **AxonFramework / EventStoreDB**: イベントソーシング専用基盤、schema_version付きイベント・リプレイ検証（Daily Log 2026-09-02）の基盤移譲。
+8. **Claude Opus 4.7「状態遷移表生成Agent」**: 業務要件文→標準遷移モデル（受注→着工→搬入→完了→請求確定）＋案件固有分岐のCSVを自動生成、5大異常系パス・補償・顧客向けラベル・in-flightマイグレ全自動補完。
+9. **GPT-5「WCP準拠性レビューAgent」**: 状態遷移表を入力に43パターンの網羅性と潜在パターン欠落を自動指摘。
+
+### Step 6: 定量メトリクス・KPI基準（表形式）
+| KPI | 計測方法 | 目標値 | アラート閾値 | レビュー頻度 |
+|---|---|---|---|---|
+| K4: SLA違反件数 | SLA超過イベント | **月1件以下** | 3件以上で閾値再調整 | 週次 |
+| 状態機械デッドエンド数 | CI静的グラフ走査 | **0件** | 1件検出で設計レビュー差戻 | 設計時 |
+| 補償イベント網羅率 | 補償ペアあり÷異常系遷移総数 | **100%** | 95%未満でリリースブロック | 設計時 |
+| 外部副作用打ち消し証明 | 副作用列挙→補償時打ち消しマッピング | **100%一致** | 不一致1件で設計レビュー差戻 | 設計時 |
+| 設計表⇔実装enum差分 | 双方向diff | **0件** | 1件以上でリリースブロック | CI毎回 |
+| in-flight案件マイグレ失敗 | 旧状態→新状態の無矛盾移行 | **0件** | 1件発生で全件停止＋ロールバック | リリース時 |
+| カナリア段階ロールバック率 | 10/50%段階での自動ロールバック | **0%（理想）** | 2回連続で設計再評価 | リリースごと |
+| 偽CRITICAL発火率 | 誤って発火したCRITICAL÷総CRITICAL | **3%以下** | 10%超で閾値見直し | 月次 |
+| タイマー発火成功率 | 発火予定÷実発火数 | **100%** | 99%未満で永続化基盤調査 | 日次 |
+| dedup/順序ガード突破 | 不正順序イベントの保留キュー退避率 | **100%退避** | 1件でも適用されたら緊急対応 | 日次 |
+| プロセスマイニング設計外経路率 | 実運用経路÷設計経路 | **5%以下** | 15%超で正常系昇格検討 | 四半期 |
+| 現場1タップ遷移の滞留率 | 入力遅延時間 | **実発生時刻との差2h以内** | 24h超で画面導線見直し | 月次 |
+
+### Step 7: 失敗パターン・アンチパターン
+1. **DDD戦略設計の過剰適用**: 7コンテキスト全てにAnticorruption Layer→保守コスト爆発 → 回避: Partnership/Shared Kernel で始め、必要になった境界のみACL導入。
+2. **CQRS早期採用**: 監査性要件が低いコンテキストにもCQRS適用→Read/Write同期の運用負荷 → 回避: 3条件判定フレームで厳格判定、CQRS不要コンテキストは単純状態管理のまま。
+3. **Workflow Patterns網羅の目的化**: 43パターン全てを設計表に埋め込もうとして複雑化 → 回避: パターンは「適用候補の点検リスト」として使用、業務要件がなければ採用しない。
+4. **BPMN 2.0 vs PlantUML の二重管理**: Camunda 8 で BPMN 直接実行する誘惑に乗ってPlantUML+CSV資産を捨てる → 回避: CSV をSSOTに固定、BPMN/PlantUMLは生成物。
+5. **Durable Execution 丸投げ**: Temporal 導入で設計規律が緩み、補償イベント設計を基盤任せに → 回避: 基盤は実装詰替、Saga Topology の明示とピボット地点は人間が設計レビューで握る。
+6. **Process Mining の設計外経路を即座に塞ぐ**: 現場が回避経路を作る理由を分析せず経路を塞ぎ、手動運用が地下化 → 回避: Datへ頻度実測依頼、月◯件以上は正常系昇格を検討（Daily Log 2026-08-05）。
+7. **AI判断ステップの状態機械への盲目的採用**: LLMが返す遷移先を無条件採用し、到達不能状態へ遷移 → 回避: AI出力は候補扱い、到達可能ガード＋ピボット地点検証で機械的に弾く（Daily Log 2026-08-05）。
+8. **現場1タップ遷移の多言語対応先送り**: 外国人技能実習生・特定技能人材の誤操作で状態がズレる（Daily Log 2026-09-09） → 回避: やさしい日本語＋ピクトグラム＋取消導線を既定に。
+
+### Step 8: 業界最先端トレンド（2026）
+1. **Durable Execution エンジンの普及**: Temporal/Inngest/AWS Step Functions等が長時間ワークフロー状態保証の標準基盤に（Daily Log 2026-07-27）。
+2. **AI駆動のワークフロー生成**: n8n/Make等がAI Workflow Builder搭載、自然言語→フロー生成が実装フェーズへ（Daily Log 2026-07-27）。異常系・補償の網羅は人手設計レビューの価値が逆に上昇。
+3. **イベント駆動アーキテクチャ＋Outboxパターンが受注系の標準実装に**: at-least-once＋dedup＋順序ガードが業界共通言語化（Daily Log 2026-07-27）。
+4. **デジタルインボイス（Peppol/JP PINT）対応**: 受注の入口イベントがPDF→構造化データ受信へ、at-least-once＋dedup＋順序ガードが電子受発注でも必要（Daily Log 2026-08-03）。
+5. **エージェンティック・ワークフロー**: Durable Execution＋LLM判断ステップの統合、状態機械側の到達可能ガードとピボット地点明示が必須要件に（Daily Log 2026-08-03）。
+6. **電子契約・電子署名のピボット地点化**: 建設業の見積→契約電子化で、両者署名完了イベントが明確なピボット境界として機械判定可能に（Daily Log 2026-08-03）。
+7. **プロセスマイニング標準装備化**: 設計遷移と実運用遷移の乖離を自動検出するツールが普及（Daily Log 2026-08-03）。
+8. **改正建設業法 変更協議中ステート必須化**: 価格改定申し入れと契約変更の記録を状態として持つ設計が制度対応要件に（Daily Log 2026-10-19）。
+9. **週休2日工事カレンダー対応**: 工事ごとの休工日（4週8休／完全週休2日）を持てる設計が必要（Daily Log 2026-10-19）。
+
+### Step 9: アウトプット品質向上フォーマット
+
+全ワークフロー設計で以下の構造化出力を必須とする：
+
+```json
+{
+  "workflow_id": "WF-client-receiving-NNN",
+  "state_machines": {
+    "Order": {
+      "states": ["Received", "Confirmed", "ChangeRequested", "ChangeNegotiating", "InProgress", "DeliveryReady", "Delivered", "BillingConfirmed", "Completed", "Cancelled"],
+      "transitions": [
+        {
+          "from": "Confirmed", "to": "InProgress",
+          "event": "ConstructionStarted",
+          "guard": "contract.signed == true && both_parties_signed",
+          "actors": ["site_supervisor"],
+          "device": "mobile_1tap",
+          "customer_label": "着工しました",
+          "side_effects": ["notify_customer", "lock_resources"],
+          "compensation_event": "ConstructionReverted",
+          "compensation_sql": "UPDATE orders SET state='Confirmed' WHERE id=?",
+          "pivot": false,
+          "sla_minutes_business_days": 60,
+          "schema_version": "v3"
+        }
+      ],
+      "pivot_points": ["BillingConfirmed"],
+      "events": [
+        {"name": "OrderConfirmed", "payload_schema": "schemas/order_confirmed_v3.json", "schema_version": "v3"}
+      ]
+    },
+    "PurchaseOrder": {},
+    "Shipment": {}
+  },
+  "sla_rules": [
+    {
+      "stage": "Confirmed→InProgress",
+      "lead_time_basis": "business_days_including_wait",
+      "p25": 2, "p75": 7, "p95": 14,
+      "warning_threshold_pct": 50,
+      "alert_threshold_pct": 80,
+      "critical_threshold_pct": 100,
+      "calendar": "shosei_4week_8holiday"
+    }
+  ],
+  "exception_paths": [
+    {"name": "Cancellation", "trigger": "CustomerCancelRequest", "compensation_chain": ["ReservationReleased", "InvoiceVoided", "ShipmentRecalled"]},
+    {"name": "PartialReturn", "trigger": "PartialReturnReceived", "compensation_chain": ["InvoiceAdjusted", "InventoryRestored"]},
+    {"name": "SplitShipment", "trigger": "SplitShipmentRequested", "compensation_chain": []},
+    {"name": "StockShortage", "trigger": "InventoryInsufficient", "compensation_chain": ["ReservationReleased", "AlternativeVendorSelected"]},
+    {"name": "ApprovalTimeout", "trigger": "HumanWaitTimeout", "compensation_chain": ["EscalatedToManager"]}
+  ],
+  "wcp_compliance": {
+    "patterns_used": ["WCP-1 Sequence", "WCP-2 Parallel Split", "WCP-4 Exclusive Choice", "WCP-11 Implicit Termination", "WCP-18 Milestone"],
+    "coverage_check": "PASS",
+    "potential_missing_patterns": []
+  },
+  "in_flight_migration": [
+    {"from_state_old": "Legacy_Shipped", "to_state_new": "Delivered", "count": 42}
+  ],
+  "ci_quality_gates": {
+    "deadend_check": "PASS",
+    "guard_exclusivity_coverage": "PASS",
+    "design_implementation_diff": "ZERO",
+    "compensation_side_effect_mapping": "PASS",
+    "pivot_marking": "PASS",
+    "replay_last_3months_accounts": "PASS (140/140 match)"
+  },
+  "runtime_requirements": {
+    "idempotency_key_strategy": "sender_id + message_id + issued_at",
+    "ordering_guarantee": "monotonic_sequence_per_order",
+    "timer_persistence": "temporal.io",
+    "human_wait_absolute_timeout_business_days": 3,
+    "role_permission_table_externalized": true,
+    "admin_override_as_event": true
+  },
+  "field_1pager": {
+    "field_1tap_transitions": ["ConstructionStarted", "MaterialArrived", "ConstructionCompleted"],
+    "operator_role": "site_supervisor",
+    "stop_authority": "field_person",
+    "escalation_if_not_pressed_by_eod": "foreman"
+  }
+}
+```
+
+**設計品質基準（4点必須）**:
+- ①CI品質ゲート（デッドエンド検出・排他網羅・副作用網羅・ピボット明示・リプレイ検証）全パス
+- ②Bo実装即着手パッケージ（補償ペア・ロールバックSQL・顧客ラベル・in-flightマイグレ・採番規約）同梱
+- ③現場1タップ遷移と事務所遷移の画面分離＋現場向け1枚（押す人・押すタイミング・催促先）
+- ④WCP準拠性チェック＋schema_version付きイベント＋AdminOverrideイベント化
+
+### Step 10: 継続学習・成長計画
+
+**Month 1（2026-10～11）: DDD戦略設計とBPMN 2.0 統合**
+- 受注ドメインの7コンテキスト（Sales・Order・Purchase・Shipment・Billing・Inventory・Customer）を Context Map で可視化
+- BPMN 2.0 ⇔ PlantUML ⇔ CSV の三相変換スクリプト作成、1ソースから3形式を自動生成
+- Workflow Patterns Compliance Checker を CI に組込、43パターンの網羅性チェックを自動化
+- 既存CI品質ゲート（デッドエンド/排他網羅/副作用網羅/ピボット）に「WCP準拠性」「schema_version drift」を追加
+- Celonis / Microsoft Process Mining 試験導入、2社の実運用経路から設計外経路を自動検出
+
+**Month 2（2026-11～12）: Durable Execution 移行と AI Agent 統合**
+- Temporal / Inngest で1クライアントのSLAタイマー・補償イベントを基盤移譲、自前実装からの段階的脱却
+- Claude Opus 4.7「状態遷移表生成Agent」実装、業務要件文→標準遷移モデル＋案件固有分岐のCSV自動生成
+- エージェンティック・ワークフロー（判断込み自動化）の到達可能ガード＋ピボット地点検証を Owl側で保証
+- 電子契約の両者署名完了イベントをピボット地点として実装、建設業の見積→契約を機械判定可能に
+- 改正建設業法 変更協議中ステートを標準遷移モデルへ組込、価格改定申し入れと契約変更を状態で管理
+
+**Month 3（2026-12～2027-01）: CQRS + Event Sourcing統合と仕上げ**
+- CQRS採用判定3条件フレームで Order・Billing コンテキストにCQRS正式採用、Read Projection設計
+- AxonFramework / EventStoreDB 相当のイベントソーシング基盤導入、schema_version付きイベントとリプレイ検証を基盤移譲
+- Saga Compensation Topology Visualizer 完成、7社の受注フローの補償チェーン・ピボット地点を1図で可視化
+- 四半期KPIレビューで補償網羅率100%・デッドエンド0・設計外経路5%以下・偽CRITICAL 3%以下の達成確認
+- Workflow Patterns 準拠性・WCP43パターンの各業種案件へのマッピング集を社内資産化、新規案件の設計リードタイム4時間達成
+
+### ✅ 完了証明
+- 10ステップ全セクション記述完了（Step 1診断〜Step 10 3ヶ月計画）
+- 既存セクション（プロフィール/役割定義/専門スキル/入力/出力フォーマット/担当クライアント/連携エージェント/出典/Daily Knowledge Log）は一切改変せず、Daily Knowledge Log 直前に追記
+- Daily Logの既存知見（5大異常系・補償イベント・Saga・at-least-once＋dedup・ピボット地点・現場1タップ・仮引当・schema_version・改正建設業法）を参照・拡張する形で統合
+- 業務自動化重要原則の受注ワークフロー側面を Step 4/5 で網羅、DDD/CQRS/WCP/BPMN 2.0/Camunda 8/Temporal/Inngestで深化
+- 2026年AI活用（Claude Opus 4.7・GPT-5・Gemini 2.5・AI Workflow Builder・エージェンティック・ワークフロー）を Step 5/8 で明示
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24
