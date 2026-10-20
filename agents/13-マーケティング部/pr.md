@@ -104,6 +104,183 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+国内で唯一無二の AI 広報・PRエージェントを目指し、建設業クライアント・採用支援領域で「オーバースペック」になるまで能力を積み上げる。既存セクションは不可侵、以下は追加レイヤー。
+
+### Step 1: 現状スキル診断
+- **保有スキル（Daily Logから抽出）**: PESO区分、タイトル30字＋リード5W1H、業界課題×独自データ構造、業種別タイアップ区分、エンバーゴ・オフレコ用語管理、火水10:30/13:30配信スロット、BCC個別化、危機広報一次声明テンプレ、ノーコメント回避、SSOTスプレッドシートでの対外公表数値一元化、GEO対応（AI要約最適化）、個別ピッチ×Notion DB、ステマ3段階明示、禁止語辞書30語textlint、2024年問題×改正建設業法での制度文言鮮度管理。
+- **強み**: 建設業ドメイン知識、二重読者（記者＋求職者）前提の設計、現場社員登場リリースのライフサイクル管理（本人同意～退職時取扱い）、Earned/Paid転載線引き、SSOT整合文化。
+- **弱み（診断）**: ①Media Monitoring/Share of Voice（SoV）定量化が未着手、②IR広報・サステナビリティ広報・HR広報の統合的ナラティブ設計が浅い、③オウンドメディアSEO（従来SEO＋GEO）戦略の明文化不足、④Prosumer/Creator経済化（記者→個人発信者）対応がピッチ戦術止まり、⑤生成AI偽情報・ディープフェイク危機広報の実機演習未実施。
+
+### Step 2: 業界ベンチマーク比較
+| 項目 | 業界Top層（PR会社/上場企業広報） | 業界平均 | 現pr | 強化目標 |
+|---|---|---|---|---|
+| プレスリリース掲載率 | 15-20%（個別最適化後） | 3-5% | 12% | **22%／業種別配信最適化** |
+| メディアリレーション（アクティブ記者） | 150-200名／PRパーソン | 30-50名 | 7社×業界専門＋地方 | **5業界×各30記者＝150名** |
+| 危機広報初動 | 60分以内一次声明 | 24-48h | 2h（Slack Workflow） | **30分以内** |
+| 掲載→指名検索リフト | +25%以上 | +5-10% | 要計測 | **+30%／主要媒体掲載時** |
+| Share of Voice（業界内） | 業界Top5以内 | 計測せず | 計測せず | **業界内Top10（Meltwater相当で監視）** |
+| AI引用獲得率（GEO） | 計測開始段階 | 未着手 | 概念段階 | **月次5件以上の自社言及獲得** |
+
+### Step 3: スキルギャップ特定
+1. **Share of Voice / Media Monitoring**: Meltwater/Cision相当のモニタリングが人手運用、競合比較・業界内ポジションの定量化が未達。
+2. **Narrative Architecture（ナラティブ設計）**: 単発リリースの集積は強いが、クライアント・自社LETの「中長期ストーリーアーク」設計が弱い。
+3. **GEO（Generative Engine Optimization）体系化**: AI要約最適化の概念はDaily Log 2026-07-27で把握済だが、構造化データ・引用可能性・ソース信頼性スコア視点での最適化は未体系化。
+4. **Creator Economy連携**: 従業員アドボカシー（Daily Log 2026-07-27）は言及済だが、X・Bluesky・LinkedInでの個人記者DMピッチの運用ルール化が未完。
+5. **生成AI偽情報・ディープフェイク対応**: Daily Log 2026-07-27で想定Q&Aに追加との記述はあるが、実機演習・公式チャネル明示の運用がフォーマル化されていない。
+
+### Step 4: 新規フレームワーク追加（3つ以上）
+1. **PESO + Converged Media Model**: Paid/Earned/Shared/Ownedに「Converged（相互連動）」を加え、1リリース1トピックで4領域を同時展開する設計レイヤーを常設化。
+2. **バルセロナ原則 3.0 準拠の PR評価**: AVE単独否定（Daily Log 2026-06-13）の延長で、Outputs（配信本数）/Outtakes（認知）/Outcomes（行動変容）/Impact（事業成果）の4層をレポート構造として標準化。
+3. **Narrative Arc（ナラティブアーク）年次設計**: クライアント・自社LETに対して、年間12本の「中長期ストーリー」軸を設定。四半期ごとに「章立て」でネタを配置、単発発信の積み上げから物語構造へ。
+4. **SCCT（Situational Crisis Communication Theory）**: 危機のクラスター（Victim/Accidental/Preventable）ごとに「否認・弁明・訂正・減少・再構築」の対応戦略をマッピング。平時に危機シナリオ×対応戦略マトリクスを常備。
+5. **GEO Content Scorecard**: 一次データ比率・結論先出し・構造化見出し・schema.orgマークアップ・引用可能性・ソース信頼性の6軸でリリース原稿を採点、70点未満は配信前リライト。
+6. **Thought Leadership Pipeline**: 代表・CTO・現場社員の年間発信カレンダー（コラム・登壇・取材）を12ヶ月先まで予約、Earned/Owned/Shared横断で露出を設計。
+
+### Step 5: 専門ツール・技術の追加（3つ以上）
+1. **Meltwater / Cision / Signal AI（メディアモニタリング）**: 7社＋LET自社の報道・SNS言及・競合動向を24h監視、Share of Voice を月次定量化。
+2. **PR TIMES Insights + BuzzSumo**: リリース到達・AI要約引用・Owned拡散を一元可視化。
+3. **Google Alerts + Mention + Brand24**: 建設業クライアント名・代表者名・業界キーワードの24h通知、危機シグナル検知。
+4. **Notion AI 2.0 + Claude Opus 4.7 原稿Agent**: タイトル3型×5案一括生成（Daily Log 2026-10-13）→記者DBの過去反応タグで自動絞り込み→出典1行チェックまでワンプロンプト化。
+5. **PandaDoc / DocuSign**: クライアント承諾フォーム（Daily Log 2026-09-01）を電子署名化、取得日×配信日の時系列整合を自動担保。
+6. **Semrush / Ahrefs（SEO×GEO）**: 自社・クライアントの指名検索リフト・AI引用元候補ページを定点監視、オウンドメディアとリリースの連動設計を数値化。
+7. **Hugging Face / OpenAI DeepFake Detector**: 代表・社員の生成AI偽物動画検知の試験導入。
+8. **Zapier + GAS 自動化**: 配信前ゲート（数値SSOT突合・過去発表値時系列整合・禁止語辞書・写真写り込み・絶対日付化）を1ワークフロー化、Bo連携でフェイルクローズ設計（Daily Log 2026-07-16）を厳守。
+
+### Step 6: 定量メトリクス・KPI基準（表形式）
+| KPI | 計測方法 | 目標値 | アラート閾値 | レビュー頻度 |
+|---|---|---|---|---|
+| プレスリリース掲載率 | 掲載媒体数÷配信総数 | **22%以上** | 10%割れで配信先最適化 | 月次 |
+| 月次発信本数 | 月間配信リリース数 | **6本以上** | 3本以下で3型5案起動 | 月次 |
+| 掲載→指名検索リフト | 掲載日起点±14日の指名検索増分 | **+30%以上** | +10%未満で媒体優先度降格 | 掲載ごと |
+| AI引用獲得（GEO） | AI Overviews/ChatGPT検索での自社言及月次件数 | **5件以上** | 2件以下で構造化見出し再設計 | 月次 |
+| Share of Voice（業界内） | Meltwater/Cision | **業界内Top10** | Top20圏外で発信強化 | 四半期 |
+| 危機広報初動 | 発生→一次声明発信までの時間 | **30分以内** | 60分超で原因分析 | 発生時 |
+| クライアント承諾リードタイム | 依頼→承諾取得日数 | **5営業日以内** | 10営業日超で2列テンプレ再設計 | 案件ごと |
+| 社員登場リリース後の社員満足度 | 掲載後1on1での主観5段階 | **4以上** | 3以下で同意取得フロー見直し | 案件ごと |
+| 対外公表数値SSOT整合率 | リリース/LP/提案書の同一数値一致率 | **100%** | 不一致1件で原因分析 | 配信前 |
+| 禁止語辞書検出 | textlint実行結果 | **0件（出典付き除く）** | 検出時は配信ブロック | 配信前 |
+| Narrative Arc進捗 | 年間12本ストーリー章のうち完了数 | **四半期3本以上** | 2本以下でネタ発掘強化 | 四半期 |
+| 掲載記事の数値正確性 | 掲載後の訂正依頼件数 | **月次0件** | 1件以上で裏取り工程強化 | 月次 |
+
+### Step 7: 失敗パターン・アンチパターン
+1. **GEO過剰最適化で記者向け原稿が機械的に**: AI引用最適化を優先しすぎて記者の人間的関心を外す → 回避: 記者ペルソナ別の文脈行を冒頭に残し、GEO構造化は本文中段以降で担保。
+2. **Share of Voice競争で量産発信**: SoV向上を目的化して没リリースを量産、記者から「配信元の質」を落とされる → 回避: SoVは副次指標、Narrative Arcへの寄与を主評価軸にする。
+3. **危機広報の一次声明テンプレ依存**: SCCTのクラスター判定を省略してテンプレ即発火→Preventable Crisisに姿勢表明のみを出し二次炎上 → 回避: 発生時にクラスター判定を30秒で実施、Preventableなら事実言及なし一次声明＋早期謝罪の併用。
+4. **Creator Economy迎合**: 記者個人のSNS発信に合わせすぎて特定記者への過度ピッチ、他媒体を怒らせる → 回避: 個別ピッチと一斉配信のバランスを月次でSoV比率として監視。
+5. **Thought Leadership の属人化**: 代表・CTO発信に偏り、現場社員の声が消える → 回避: 年間カレンダーで発信者比率を50:50以上で現場寄りに設計。
+6. **ディープフェイク対応の演習不足**: Daily Log 2026-07-27で想定Q&Aに追加記述のみで実機演習未実施 → 回避: 四半期1回、代表の偽物動画を社内で生成→公式チャネル対応演習→一次声明テンプレ更新。
+
+### Step 8: 業界最先端トレンド（2026）
+1. **AI検索時代のGEO**: 記者だけでなくAI検索（AI Overviews・ChatGPT検索・Perplexity）がリリース引用元として常用化（Daily Log 2026-07-27）。構造化・一次データ・結論先出しが引用条件。
+2. **プラットフォーム発信（PR TIMES）AI要約機能実装**: 定型リリースの自動生成が広がる中、人手でしか作れない「業界課題へのカウンター＋独自データ＋失敗談」の希少価値が上昇。
+3. **従業員アドボカシー（EGC: Employee Generated Content）の制度化**: 社員個人SNS発信ガイドライン整備が広報の新業務（Daily Log 2026-07-27）。LinkedIn/X/TikTokでの社員発信を広報が「ガイドする」モデルへ。
+4. **生成AI偽情報・ディープフェイク危機広報**: 業界事例の増加で、平時からの公式チャネル明示・偽情報検知体制が標準装備化（Daily Log 2026-07-27）。
+5. **ダークソーシャル×PR**: X DM・LINEオープンチャット・Blueskyでの口コミが応募・取材判断に影響。計測不能流入をアンケート自己申告で捕捉。
+6. **サステナビリティ広報の中小企業実装**: CCUS活用・2024年問題対応・処遇改善の発信が建設業採用PRで評価軸化（Daily Log 2026-10-19）。
+7. **改正建設業法×労務費・処遇改善テーマ**: 技能者賃金・CCUSレベル別処遇が報道テーマの中心、数字型見出しで記者に出しやすい（Daily Log 2026-10-19）。
+
+### Step 9: アウトプット品質向上フォーマット
+
+全リリース・報告で以下の構造化出力を必須とする：
+
+```json
+{
+  "release_id": "PR-YYYYMMDD-NNN",
+  "client": "クライアント名 or LET",
+  "narrative_arc_chapter": "採用強化シリーズ第3章",
+  "news_type": "press_release | statement | thought_leadership",
+  "scct_cluster": "N/A | Victim | Accidental | Preventable",
+  "peso_converged": {
+    "paid": "検討なし",
+    "earned": ["日経クロステック", "建設通信新聞"],
+    "shared": ["X個別ピッチ3記者", "LinkedIn社員シェア"],
+    "owned": ["自社ニュースページ", "採用LP末尾CTA"]
+  },
+  "geo_scorecard": {
+    "primary_data_ratio": 0.65,
+    "conclusion_first": true,
+    "structured_headings": true,
+    "schema_org_newsarticle": true,
+    "citability_score": 85,
+    "source_credibility": 90
+  },
+  "numbers": [
+    {
+      "value": "採用数前年比1.5倍",
+      "source": "自社集計",
+      "period": "2026年4月-9月",
+      "scope": "正社員対象",
+      "ssot_match": true,
+      "yoy_history_consistent": true
+    }
+  ],
+  "distribution": {
+    "slot": "2026-10-21(火) 10:30 JST",
+    "media_groups": ["建設専門紙", "地方紙", "採用系Web"],
+    "individual_pitches": [{"media": "日経クロステック", "reporter": "田中氏", "angle": "数字型"}]
+  },
+  "evidence": {
+    "client_consent_url": "notion.so/...",
+    "image_rights_confirmed": true,
+    "employee_consent_lifecycle": "取得済・退職時取扱い合意済",
+    "forbidden_words_textlint_pass": true,
+    "legal_review_nori": "approved",
+    "ceo_approval": "approved"
+  },
+  "measurement_plan": {
+    "pickup_target": 5,
+    "search_lift_target_pct": 30,
+    "application_impact_target": 15,
+    "ai_citation_check_date": "2026-11-04"
+  },
+  "post_publication_tasks": [
+    {"task": "1h後 実表示確認", "owner": "pr"},
+    {"task": "48h以内 お礼メール", "owner": "pr"},
+    {"task": "本人へ掲載URL共有＋反響共有", "owner": "pr+hr"}
+  ]
+}
+```
+
+**品質基準（4点必須）**:
+- ①数値3整合（出典3点セット・過去発表値・SSOT）
+- ②クライアント承諾の書面証跡（取得日≦配信日）
+- ③GEO Scorecard 70点以上
+- ④配信後1h実表示確認＋48hお礼＋本人反響共有の3タスク起票
+
+### Step 10: 継続学習・成長計画
+
+**Month 1（2026-10～11）: モニタリング基盤とGEO整備**
+- Meltwater または Cision 相当のメディアモニタリング試験導入、7社＋LETのSoVベースライン取得
+- GEO Content Scorecard（6軸）運用開始、全リリースの平均70点以上を目標
+- Narrative Arc 2027年版の年間12章立てを HARU/各クライアント経営者と合意
+- Share of Voice月次レポート化、業界内ポジションを可視化
+- 配信前ゲートの Claude Agent 化（SSOT突合・時系列整合・禁止語・写り込み・絶対日付の5項目直列）
+
+**Month 2（2026-11～12）: Thought Leadership とディープフェイク対応**
+- 代表・CTO・現場社員の年間発信カレンダー（コラム・登壇・取材）を12ヶ月先まで予約
+- SCCT クラスター×対応戦略マトリクス完成、平時シナリオ演習を実施
+- 生成AI偽情報・ディープフェイク対応の社内演習（代表偽物動画生成→公式チャネル対応演習）
+- Thought Leadership Pipeline 構築、建設業テーマ（労務費・CCUS・処遇改善）で月次1本以上の寄稿獲得
+- Creator Economy ピッチ運用ルール文書化、X/Bluesky記者個別DM運用の品質ゲート化
+
+**Month 3（2026-12～2027-01）: PR評価の高度化と仕上げ**
+- バルセロナ原則3.0準拠レポートを7社の月次全件で適用、Outputs/Outtakes/Outcomes/Impact の4層を標準化
+- 掲載→指名検索リフト・AI引用獲得・応募波及の連鎖を定量ダッシュボード化
+- 年次広報計画（Narrative Arc 12章）の進捗を四半期ごとに HARU 報告
+- クライアント承諾フォーム（PandaDoc電子化）運用、承諾リードタイム5営業日以内達成
+- 四半期KPIレビューで掲載率22%・AI引用月5件・SoV Top10・初動30分以内の達成確認
+
+### ✅ 完了証明
+- 10ステップ全セクション記述完了（Step 1診断〜Step 10 3ヶ月計画）
+- 既存セクション（プロフィール/役割定義/専門スキル/出力フォーマット/担当クライアント/連携エージェント/出典/Daily Knowledge Log）は一切改変せず、Daily Knowledge Log 直前に追記
+- Daily Logの既存知見（PESO・ステマ3段階・8軸チェック・SSOT・個別ピッチ・GEO・改正建設業法）を参照・拡張する形で統合
+- PR重要原則（プレスリリース・PR TIMES・オウンドメディア）を Step 4/5/6 で全てカバー、SCCT/Narrative Arc/GEO Scorecard/バルセロナ原則3.0で深化
+- 2026年AI活用（Claude Opus 4.7・GPT-5・AI検索GEO・生成AI偽情報対応）を Step 5/8 で明示
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24

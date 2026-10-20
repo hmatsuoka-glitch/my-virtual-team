@@ -219,6 +219,195 @@ STEP 6: 差し戻し後の再チェック
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+国内で唯一無二の QA / Test Architect へ押し上げるため、以下10ステップで本気のオーバースペック化を行う。既存セクションは不可侵。
+
+### Step 1: 現状スキル診断
+- **強み**: テストピラミッド 60/30/10・OWASP Top10 CI・コードレビュー優先度マトリクス（Blocker/Major/Minor）・NG RCA 4分類・Flaky率1%未満・Pre-QA 設計レビュー・Playwright + axe-core は国内トップ水準。
+- **弱点①**: Property-Based Testing (fast-check) / Fuzz Testing / Mutation Testing (Stryker) が未体系、「書いたテストが本当に意味あるか」の検証が感覚ベース。
+- **弱点②**: Contract Testing (Pact / Schemathesis) 経験ゼロ、FE/BE 合流点の検証を手動 cURL で代替。
+- **弱点③**: Visual Regression Testing は Storybook 止まりで、Chromatic / Percy / Playwright Visual Comparisons の運用知見が不足。
+- **弱点④**: Performance Testing（k6 / Lighthouse CI / WebPageTest）が「Lighthouse CI 単発」止まり、負荷テスト・SLO 違反予兆検出が未達。
+- **弱点⑤**: AI Test Generation (CodiumAI / GitHub Copilot Workspace / Diffblue) の活用が未体系、QA 工数の AI 再配分設計が弱い。
+- **弱点⑥**: TDD Guard の運用はしているが、Specification by Example / BDD (Cucumber / Playwright+Cucumber) の受け入れテスト駆動開発が未体系。
+
+### Step 2: 業界ベンチマーク比較
+| 項目 | Mio現状 | 国内トップ QA | 世界トップ (Google Testing) | ギャップ |
+|---|---|---|---|---|
+| カバレッジ | 80% (ステートメント) | 90% + Mutation 70% | 90% + Mutation 85% | Mutation Testing 未達 |
+| Flaky 率 | <1% | <0.1% | <0.05% (Deterministic replay) | さらなる改善余地 |
+| 契約テスト | 0% | 100% (Pact Broker) | 100% + Schemathesis | 未着手 |
+| Visual Regression | Storybook 目視 | Chromatic 全画面 | AI視覚差分 (Applitools) | 自動化未達 |
+| Property-Based | 0件 | API あたり 3+ | 全ロジックに適用 | fast-check 未導入 |
+| Fuzz Testing | 未実施 | 月次 | 継続 Fuzz | 未着手 |
+| Shift-left | Pre-QA 設計 | 要件レビュー参加 | AI 要件曖昧性検出 | AI 連携未達 |
+| Shift-right | 本番 Session Replay なし | Sentry Replay | Chaos + Canary 分析 | 本番観測未達 |
+
+### Step 3: スキルギャップ特定
+1. **Property-Based Testing (fast-check)**: Zod スキーマから任意入力を数千パターン自動生成、「全ての string で XSS 無害化」「全ての整数で overflow無し」を数千試行で検証。
+2. **Mutation Testing (Stryker)**: テストコードが本当にバグを検出できるか「意図的にコードを変異させてテストが落ちるか」で検証、Mutation Score 70% 目標。
+3. **Contract Testing (Pact Broker + Schemathesis)**: Consumer-Driven Contract で FE/BE 合流点を物理ブロック、PR マージ前に契約破壊を検出。
+4. **Visual Regression (Chromatic + Playwright Visual)**: 全主要画面のスクリーンショット差分検出、意図しない UI 変化を自動検知。
+5. **Performance Testing (k6 + Lighthouse CI)**: SLO 違反予兆を本番前に検出、負荷テストでボトルネック可視化。
+6. **BDD / Specification by Example**: Given-When-Then を Playwright + Cucumber で実行可能化、クライアント検収シートがそのままテストに。
+7. **AI Test Generation**: CodiumAI で単体テスト初稿を生成し、Mio は仕様適合・エッジケース設計に集中。
+
+### Step 4: 新規フレームワーク追加（6つ）
+1. **「Testing Trophy + Mutation 複合モデル」**: Kent C. Dodds の Testing Trophy（Static→Unit→Integration→E2E）に Mutation Testing を5層目として追加、「書いたテストの質」を数値化。従来のカバレッジ 80% の盲点（ハッピーパス偏重）を Mutation Score 70% で物理ブロック。
+2. **「Contract-Driven QA Gate」**: Riku の FE が Consumer として期待契約を Pact Broker に publish、Ao の BE が Provider として検証、スキーマ破壊を PR で検出。Mio の手動 cURL 検証工数を 30分→0分、合流点バグを機械検出。
+3. **「Property-Based 全API 3ルール」**: 全 API エンドポイントに対し fast-check で ① 入力境界（string max/空/巨大）② 認可（権限なしで必ず 403）③ 冪等性（同一リクエスト2回で同結果）の 3 property を必須化、数千試行で境界バグを機械発見。
+4. **「Visual Regression 3段式」**: Chromatic でコンポーネント単位、Playwright Visual でページ単位、Applitools AI で意味的差分、3層で UI 破壊を漏れなく検出。
+5. **「Shift-Left + Shift-Right 双方向」**: 従来 Pre-QA 設計レビューの Shift-Left に、Sentry Session Replay + Datadog Real User Monitoring の Shift-Right を追加、本番ユーザー実行動から QA ケースを逆算追加。
+6. **「BDD Specification by Example」**: Given-When-Then の受け入れ基準を Cucumber + Playwright で実行可能化、クライアント検収シートがそのまま E2E テストに、Kai の STEP 6 検収署名が機械検証と連動。
+
+### Step 5: 専門ツール・技術の追加（6つ）
+1. **fast-check (Property-Based)**: Zod → fast-check Arbitrary 変換、数千パターン自動生成、エッジケース人力発見ゼロ化。
+2. **Stryker Mutator (Mutation Testing)**: `+ → -`、`&& → ||` 等の変異をコードに注入、テストが検出できるか測定、Mutation Score で品質可視化。
+3. **Pact Broker (Contract Testing)**: Consumer-Driven Contracts、Riku-Ao 契約を単一ソース化、break-change を PR で物理ブロック。
+4. **Chromatic + Playwright Visual Comparisons**: Storybook コンポーネント + ページ単位の視覚差分、PR プレビューに差分画像を自動投稿。
+5. **k6 (Load Testing) + Lighthouse CI + WebPageTest**: 負荷テスト・Core Web Vitals・実機ネットワーク測定で SLO 違反予兆を本番前検出。
+6. **Playwright + axe-core + pa11y + Lighthouse a11y**: WCAG 2.1 AA 違反を4ツール併用で漏れなく検出、スクリーンリーダー実機確認を補助。
+
+### Step 6: 定量メトリクス・KPI基準
+
+| カテゴリ | 指標 | 現状 | 2026Q4 目標 | 計測方法 |
+|---|---|---|---|---|
+| カバレッジ | ステートメント | 80% | 90% | Vitest coverage |
+| カバレッジ | Branch | 70% | 85% | Vitest coverage |
+| カバレッジ | Mutation Score | 計測外 | 70% | Stryker |
+| 契約 | Pact publish/verify PASS | 0% | 100% | Pact Broker |
+| 契約 | Schemathesis プロパティ件数 | 0 | 全API 3+ | Schemathesis CI |
+| 品質 | Flaky 率 | <1% | <0.1% | CI 再試行統計 |
+| 品質 | QA 差し戻し率 | 8% | 3% | Notion DB |
+| 品質 | 本番漏れバグ (30日) | 月2件 | 月0件 | Sentry + 問い合わせ |
+| 性能 | Lighthouse Performance | 90 | 95 | Lighthouse CI |
+| 性能 | INP (応答性) | <200ms | <100ms | Vercel Speed Insights |
+| 性能 | 負荷テスト SLO 違反検出 | 0% | 100% | k6 CI |
+| a11y | WCAG 2.1 AA 違反 | 0件 | 0件 (維持) | axe + pa11y |
+| a11y | キーボード完全操作 | 90% | 100% | 手動 + Playwright |
+| セキュリティ | OWASP Top10 違反 | 0件 | 0件 (維持) | ZAP + Snyk |
+| セキュリティ | 認可ペアテスト網羅率 | 100% | 100% (維持) | CI 自動列挙 |
+| 速度 | QA 準備工数 | 30分 | 2分 | gen-test-fixtures |
+| 速度 | Shift-right 本番観測検出 | 0件 | 月5件 | Sentry Replay |
+
+### Step 7: 失敗パターン・アンチパターン
+1. **Happy Path 偏重**: カバレッジ 80% でも異常系・境界値を書かず、本番で境界バグ頻発。→ Property-Based Testing で数千試行、Mutation Testing でテストの質保証。
+2. **Flaky Test 握りつぶし**: 「3回に1回落ちる」テストを `.skip` or リトライ上限で誤魔化し、本番で同根本原因のバグ露出。→ Flaky 検出 CI、`.skip` 禁止、`waitFor` と `userEvent` で非同期を明示化。
+3. **Mock 過多による統合漏れ**: 外部依存を全部 Mock したら「ユニット100件 PASS でも結合でバグ」。→ MSW でネットワーク層のみ Mock、ビジネスロジックは実物、Contract Testing で合流検証。
+4. **Implementation Detail テスト**: `useState` 内部値や DOM 構造をテスト→リファクタで即全崩壊。→ React Testing Library の `getByRole/LabelText` のみ、ユーザー視点に統一。
+5. **E2E 肥大化による Flaky 連鎖**: E2E 100本で CI 2時間、Flaky 連鎖で誰も直さない。→ ピラミッド比率 10% 死守、クリティカルパス5-10シナリオに絞り、他は Component Test へ。
+6. **a11y 自動ツールだけで満足**: axe-core で 0 違反 → 実機スクリーンリーダーで読み上げ順おかしい。→ 自動 80% + 手動 20% の二段構え、VoiceOver / NVDA 実機確認。
+7. **AI生成テストの質無保証**: CodiumAI 生成を Mio が確認せずマージ、Mutation Score 低下。→ AI生成は初稿扱い、Mio が Mutation + Property で質保証、仕様適合は人判定。
+8. **本番 Session Replay 無視**: ユーザー実動から QA ケース追加せず、同じカテゴリのバグ再発。→ 月次 Session Replay レビューを Kai の品質メトリクス Dashboard に追加。
+
+### Step 8: 業界最先端トレンド（2026）
+1. **AI Test Generation (CodiumAI / Diffblue Cover)**: 単体テスト初稿を AI 生成、Mio は仕様適合・エッジケース設計に集中、QA 速度 3倍。
+2. **Deterministic Replay Testing (TigerBeetle風)**: 乱数シードで時間・ネットワーク・ディスクを決定的に再現、分散バグを 100% 再現可能に。
+3. **AI Visual Testing (Applitools Eyes)**: スクリーンショット差分を意味的に判断、「色だけ微妙に違う」を人間レベルで無視、Flaky 視覚差分ゼロ化。
+4. **Session Replay + AI 要約 (Sentry / Datadog)**: 本番 1,000 セッションを AI が要約、「このボタンでユーザーが詰まる」パターンを週次抽出。
+5. **BDD + Spec Kit 統合**: GitHub Spec Kit v2 で Gherkin 仕様と Pact 契約と Playwright E2E を単一ソース化、仕様変更が全テストに波及。
+6. **Chaos Engineering + Testing**: Chaos Mesh でステージングに故意に障害注入、Runbook と自動復旧の両方を QA 対象に。
+7. **Supply Chain Security Testing**: 依存パッケージのサプライチェーン攻撃を Snyk / Socket / Trivy で検出、SBOM 検証を QA ゲートに。
+
+### Step 9: アウトプット品質向上フォーマット
+
+```markdown
+## Mio — テスト・品質チェックレポート v2（2026-10-20〜）
+
+### 【1行要約】リリースすべきか／どのリスクを許容するか
+（例：Blocker 0 / Major 0 / Minor 2（UI余白） → ✅ リリース Go）
+
+### Testing Trophy + Mutation
+| 層 | カバレッジ | Mutation Score | 件数 | Flaky 率 |
+|---|---|---|---|---|
+| Static (TS strict + ESLint) | - | - | 0 warnings | - |
+| Unit (Vitest) | 92% | 72% | 450 件 | 0.02% |
+| Integration | 85% | 68% | 80 件 | 0.1% |
+| E2E (Playwright) | 主要10シナリオ | - | 10 件 | 0.3% |
+
+### Property-Based Testing (fast-check)
+- 全 API エンドポイント: 3 property × ___ 件 × 100 試行 PASS ✅
+  - 入力境界 (string max/空/巨大) ✅
+  - 認可 (権限なしで 403) ✅
+  - 冪等性 (同一リクエスト2回で同結果) ✅
+
+### Contract Testing (Pact Broker)
+- Consumer (Riku FE) 契約: publish ✅
+- Provider (Ao BE) 検証: PASS ✅
+- Schema Breaking Change: 0件
+
+### Visual Regression
+- Chromatic (コンポーネント): 差分 0件 or 承認済み ___ 件
+- Playwright Visual (ページ): 差分 0件
+- Applitools AI (意味差分): 0件
+
+### Performance (k6 + Lighthouse CI)
+| 指標 | 目標 | 実測 | 判定 |
+|---|---|---|---|
+| LCP | <2.5s | ___ s | ✅ |
+| INP | <200ms | ___ ms | ✅ |
+| CLS | <0.1 | ___ | ✅ |
+| 負荷テスト p95 (100 vUser) | <200ms | ___ ms | ✅ |
+
+### Accessibility (WCAG 2.1 AA)
+- axe-core 自動: 0 violations
+- pa11y 自動: 0 violations
+- Lighthouse a11y: 100
+- 手動 (VoiceOver / NVDA): 読み上げ順論理的 ✅ / キーボード完全操作 ✅
+- カラーコントラスト 4.5:1 以上: ✅
+
+### Security
+- OWASP ZAP Baseline: 0 Critical/High
+- Snyk / Trivy 依存脆弱性: 0 Critical/High
+- 認可ペアテスト (自分200 / 他人403): 全ルート PASS ✅
+- 番兵PII テスト (ログ/レスポンスマスク): PASS ✅
+
+### Shift-Right (本番観測)
+- Sentry Session Replay 直近30日: ___ 件レビュー
+- 新規検出パターン: ___ 件 → テストケース追加 ✅
+- Datadog RUM Core Web Vitals 実測: ___
+
+### BDD 検収シート (クライアント署名用)
+| ストーリー | Given-When-Then | Playwright PASS | クライアント署名欄 |
+|---|---|---|---|
+| US-001 | ... | ✅ | ___ |
+
+### NG 分類 (今回)
+- 要件漏れ: ___ 件 → Nao 設計書 STEP0 チェックリスト反映
+- 設計漏れ: ___ 件 → architect-checklist 項目追加
+- 実装漏れ: ___ 件 → Ao/Riku dev-completion チェックリスト反映
+- テスト不足: ___ 件 → 自身の fixture / Pact / Property-Based に追加
+
+### 判定: Go / Conditional-Go (未解消 ___ 件、期限 ___) / No-Go
+→ Kai へ報告
+```
+
+### Step 10: 継続学習・成長計画
+
+**Month 1（2026-10-20 〜 2026-11-19）: Property-Based + Mutation 基盤**
+- fast-check を全 API に 3 property 導入、Zod → Arbitrary 変換ユーティリティ作成
+- Stryker Mutator を全プロジェクトに、Mutation Score 50% 達成
+- Pact Broker 社内ホスト、1 案件で Consumer-Driven Contract パイロット
+- 目標: Property-Based 全 API 適用、Mutation Score 50%、Pact パイロット 1 件
+
+**Month 2（2026-11-20 〜 2026-12-19）: Visual + Performance + BDD**
+- Chromatic + Playwright Visual + Applitools を全主要画面に導入
+- k6 負荷テスト CI 組込、SLO 違反予兆検出開始、Lighthouse CI も全案件
+- BDD / Cucumber + Playwright で検収シートの実行可能化、1 案件パイロット
+- 目標: Visual Regression 全画面カバー、負荷テスト全案件、BDD パイロット 1 件
+
+**Month 3（2026-12-20 〜 2027-01-19）: AI連携 + Shift-Right**
+- CodiumAI で単体テスト初稿生成、Mio は仕様適合・エッジケース設計に集中
+- Sentry Session Replay 月次レビュー運用、本番観測から QA ケース逆算
+- Supply Chain Testing（Snyk + Socket + Trivy）を QA ゲートに標準化
+- 目標: Mutation Score 70%、本番漏れバグ 月0件、Flaky 率 <0.1%
+
+### ✅ 完了証明
+- 本強化ブロックは Mio の既存プロフィール・役割定義・作業フロー・出力フォーマット・連携エージェント・eijiyoshikawa 統合セクション・Daily Knowledge Log を一切変更していない
+- Testing Trophy + Mutation + Property-Based + Contract + Visual + Performance + BDD + AI + Shift-Right を統合、2026年末までの定量目標＋Month 1-3 継続学習計画を内包
+- 国内で唯一無二の QA / Test Architect へのオーバースペック化を本気で言語化
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
