@@ -118,6 +118,161 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+国内で唯一無二の AI 営業エージェントを目指し、建設業クライアント開拓・SNSマーケ×採用支援（サクバズ）領域で「オーバースペック」になるまで能力を積み上げる。既存セクションは不可侵、以下は追加レイヤー。
+
+### Step 1: 現状スキル診断
+- **保有スキル（Daily Logから抽出）**: BANT/MEDDIC使い分け、SPIN話法、ヨミ管理（A/B/C/ネタ）、Mutual Action Plan、Champion Enablement、警戒解除型初回返信、支払構成3種提案、クライアントカルテ即時書き込み、現場訪問1回集約運用、Otter→Notion→AI要約。
+- **強み**: 建設業ドメイン知識（2024年問題・CCUS・改正建設業法）、商談後24h認識合わせメール、失敗談同梱提案、現場語への用語翻訳。
+- **弱み（診断）**: ①アカウント・ベースド・セリング（ABS）の体系化不足、②営業収益オペレーション（RevOps）の数値設計の浅さ、③AI SDR/Signal-based Prospecting の実装レベルがまだ運用設計止まり、④マルチプロダクト（SNSマーケ×採用支援×どっと原価）クロスセル導線の明文化不足、⑤既存NRR（Net Revenue Retention）向上を測るLTV式が構造化されていない。
+
+### Step 2: 業界ベンチマーク比較
+| 項目 | 業界Top層（SaaS/BtoB営業） | 建設DX営業の平均 | 現sales | 強化目標 |
+|---|---|---|---|---|
+| 初回返信SLA | 5分以内（Drift/Chili Piperレベル） | 24h以内 | 1h以内 | **15分以内（AI下書き＋人レビュー）** |
+| 受注率 | 25-35%（ARR>¥10M案件） | 15-20% | 40%目標（既存） | **45%＋ARPU向上** |
+| 商談期間 | 中央値60-75日 | 90-120日 | 60日以内（既存） | **45日中央値** |
+| LTV/CAC | 3.0以上 | 1.5-2.0 | 未測定 | **3.5以上を定点監視** |
+| NRR | 110-130%（ベスト企業） | 95-100% | 未測定 | **115%以上** |
+| ピッチ採択率 | 15-20% | 5-10% | 12% | **22%（事例ベースMAP運用）** |
+
+### Step 3: スキルギャップ特定
+1. **ABS（Account-Based Selling）統合不足**: Target Account List（TAL）作成→Buying Committee特定→Playbook展開→Pursuit Teamingの一連を体系化できていない。
+2. **Revenue Operations視点欠如**: Pipeline Velocity＝（商談数×平均案件額×受注率）÷商談期間 の式を週次で監視していない。
+3. **Signal-based Prospecting**: 公開シグナル（採用募集再開・拠点拡大・代表交代）検知を人手リスト化で止まり、API化・優先度自動付与まで届いていない。
+4. **MEDDPICC深化**: MEDDICに「Paper Process（契約手続き）」「Competition」が未反映。建設業は電子契約移行期で紙→電子ハイブリッドのPaper Processを握らないと締結が遅延する。
+5. **Price Realization**: 値引き許容幅・交換条件マトリクスがFinance粗利50%ラインとだけ接続。「どの変数を動かせば粗利を守って受注単価を上げるか」の価格モデルが未整備。
+
+### Step 4: 新規フレームワーク追加（3つ以上）
+1. **MEDDPICC + Champion Enablement Loop**: Metrics / Economic Buyer / Decision Criteria / Decision Process / Identify Pain / Champion / Competition / Paper Process の8軸をヒアリングシート化し、Champion（社内推進者）1名育成を必須KPI化。既存のMEDDIC（6軸）を拡張して建設業の紙稟議にも対応。
+2. **Command of the Message（Force Management流 Value Framing）**: ①顧客ビジネス課題（Problem）②その影響（Impact）③必要能力（Required Capability）④自社の差別化（Why Us Only）の4ステップで提案を構造化。業種類似の鏡像事例（Daily Log 2026-05-24）と組み合わせ、営業トーク全文を標準化。
+3. **MAP（Mutual Action Plan）→ MASP（Mutual Action & Success Plan）進化版**: 既存Mutual Action Plan（Daily Log 2026-05-25）に「受注後90日の成功基準（Time to First Value）」を接続。受注前から導入後KPIを合意し、CS/PMへのhandoffとNRR向上の連結点にする。
+4. **Pipeline Velocity Framework**: 週次でPipeline Velocity＝（Deals × Avg Deal Size × Win Rate）÷ Sales Cycle Days を計算、4変数のうちどれを動かすかを HARU 報告に添える。
+5. **Deal Qualification Scorecard（0-100点）**: BANT/MEDDPICC/Champion有無/Paper Process確定度/Competition状況の5軸を各20点で採点、70点未満はNurturingステージへ自動降格。
+
+### Step 5: 専門ツール・技術の追加（3つ以上）
+1. **HubSpot CRM + Clay.com（データエンリッチ）**: 建設クライアントの採用募集・拠点・代表交代シグナルをClayで自動取得→HubSpotのDealsへ自動タグ付け。失注再アプローチ（Daily Log 2026-06-03）の「状況が変わる月」をAPI検知へ格上げ。
+2. **Gong.io / Jamroom.ai（会話インテリジェンス）**: Otter→Notionの既存運用（Daily Log 2026-05-26）に、Gong相当のトーク分析を追加。「ペインの原文抽出」「競合名の言及頻度」「Championの発話率」を自動タグ化し、SPINのI/N素材を機械で揃える。
+3. **Apollo.io 2026 / Outreach AI（AI SDR）**: 初回メール＋フォローアップ7タッチの自動生成。流入元別テンプレ分岐（Daily Log 2026-07-07）とHubSpot連携で、1h以内返信→15分以内返信へ短縮。
+4. **PandaDoc + CloudSign（電子契約・提案書）**: 提案書送付→開封率計測→電子契約締結を一本化。handoff当日起票（Daily Log 2026-06-04）の契約遅延リスクを締結完了イベントで自動補足。
+5. **Claude Opus 4.7 / GPT-5 を活用した「提案書初稿ジェネレータ」**: 商談AI要約＋業種テンプレ＋Finance粗利判定＋Yuto制作要件を1プロンプトで生成。提案書リードタイム5営業日→2営業日（Daily Log 2026-05-26）をさらに→1営業日へ圧縮。
+6. **Google Sheets + Apps Script「Pipeline Velocity 自動ダッシュボード」**: 週次でDeals/Avg Deal Size/Win Rate/Cycle Daysを自動集計し、Slack `/pipeline` で即出力。
+
+### Step 6: 定量メトリクス・KPI基準（表形式）
+| KPI | 計測方法 | 目標値 | アラート閾値 | レビュー頻度 |
+|---|---|---|---|---|
+| 受注率（Win Rate） | 受注数÷クローズ商談数 | **45%以上** | 35%割れで要因分析 | 月次 |
+| 平均案件額（ARPU） | 月次新規受注の平均月額 | **月額55万円以上** | 45万円割れでPricing再設計 | 月次 |
+| 商談期間（中央値） | ステージ1→受注の中央値日数 | **45日以内** | 60日超でステージ別滞留分析 | 週次 |
+| Pipeline Velocity | Deals × Avg × Win ÷ Cycle | **週次で前週比±10%以内** | -20%で緊急レビュー | 週次 |
+| 初回返信SLA | 問合せ受信→初回メール送信までの時間 | **15分以内90%** | 中央値30分超で運用改善 | 日次 |
+| Deal Qualification Score | 5軸100点満点 | **70点以上をActiveで維持** | 60点未満→Nurture降格 | 商談ごと |
+| MQL→SQL転換率 | SQL化数÷受領MQL数 | **40%以上** | 25%割れでMarketing申送り | 月次 |
+| LTV/CAC | （ARPU×粗利×継続月数）÷（営業＋マーケ費/新規社数） | **3.5以上** | 2.5割れで獲得コスト見直し | 四半期 |
+| NRR | 既存顧客からの売上継続率（アップセル込み） | **115%以上** | 100%割れで既存深耕緊急 | 四半期 |
+| 既存解約率（Logo Churn） | 四半期解約社数÷期初社数 | **5%以下** | 10%超で予兆分析強化 | 四半期 |
+| 失注理由分類タグ付率 | 分類済失注÷総失注 | **100%** | 90%未満で記録運用是正 | 週次 |
+
+### Step 7: 失敗パターン・アンチパターン
+1. **「Signal検知で動く」から「Signal通知を見て動けない」反転**: 公開シグナル自動検知を入れても、通知の洪水で優先度判断ができず放置される → 回避: 検知結果にDeal Qualification Scoreを即時付与、70点以上のみSlack要対応チャンネルへ出す。
+2. **AI SDR依存による「人のタッチ消失」**: Apollo/Outreach自動化で初回接触を機械化した結果、Championとの信頼構築ができず受注率が逆に落ちる → 回避: 2タッチ目以降は必ず人がパーソナライズ、商談化後は全接点を人運用に戻す。
+3. **MEDDPICC「書けば終わり」症候群**: 8軸埋めた時点で商談が進んだ気になり、実際にはPaper Process・Competitionが空欄のまま提案 → 回避: Deal Review週次で未埋め欄に根拠を1行追加、埋められないならステージを戻す。
+4. **Pipeline Velocity改善で「商談数だけ増やす」**: Velocity式の4変数のうち、商談数だけ増やし他が劣化→受注率とARPUが同時に下がる → 回避: 4変数を同時にダッシュボードで監視し、改善施策は「どの変数に効くか」を宣言してから着手。
+5. **NRR追求で「売り過ぎアップセル」**: 既存深耕を進めすぎて現場の受容キャパを超え、解約率が逆上昇 → 回避: アップセル提案前にCS/PMから「受容キャパ残量」を取り、満杯なら時期をずらす。
+6. **電子契約の「送信＝締結」誤認**: PandaDoc送付＝受注と記録し、相手未署名のままhandoff起票 → 回避: 「両者署名完了イベント」のみを受注確定の発火条件に固定（Owlの08-05記録と整合）。
+
+### Step 8: 業界最先端トレンド（2026）
+1. **AI SDR（Artisan、11x.ai、Regie.ai）の本格日本参入**: 自動プロスペクティング＋初回メール生成＋返信判定が業界平均で営業工数60%削減。差別化は「AIで作れない一次情報（鏡像事例＋失敗談）」に二極化（Daily Log 2026-07-27記録と連動）。
+2. **Signal-Based Selling / Intent Data（6sense、Bombora）**: 大手のインテントデータ購入は中小には重いが、公開シグナル（SNS投稿・採用再開・拠点拡大）の軽量検知で代替可能。放置Coldでなくシグナル発火で動く運用へ。
+3. **Gen AI Deal Rooms（Dealfront、Allego）**: クライアントごとのDeal Roomに提案書・事例・ROI計算機・契約書を集約し、Championが社内で回覧しやすい形で提示。社内突破用1枚サマリー（Daily Log 2026-08-05）の進化系。
+4. **PLG（Product-Led Growth）× SLG（Sales-Led）ハイブリッド**: 無料診断・ROI計算機（ゼロパーティデータ取得）→営業接触のハイブリッドが採用支援領域で定着。Marketing連携（Daily Log 2026-07-16）の非受諾理由フィードバックと組み合わせ。
+5. **バイヤーイネーブルメント（Buyer Enablement）**: Gartner調査で「B2B購買の77%が困難と感じる」が常態化。営業の価値は説明でなく「買い手の社内稟議道具立て」。
+6. **Revenue Intelligence（Clari、BoostUp）**: Pipeline inspection→AI予測→経営報告の自動化。ヨミ管理（Daily Log 2026-06-13）をAIで補正し、楽観バイアスを機械で検出。
+7. **建設業「2024年問題」第2波**: 残業上限規制の本格運用でSNS採用需要が構造拡大、月45万→62万単価上昇（Daily Log 2026-05-25）が継続。
+
+### Step 9: アウトプット品質向上フォーマット
+
+全商談レポートで以下の構造化出力を必須とする：
+
+```json
+{
+  "deal_id": "DEAL-YYYYMMDD-NNN",
+  "client": "クライアント名",
+  "stage": "初回/提案/見積/クロージング/受注/失注",
+  "yomi": "A/B/C/ネタ",
+  "probability": 0.8,
+  "meddpicc": {
+    "metrics": "採用数前年比1.5倍など",
+    "economic_buyer": "社長",
+    "decision_criteria": ["価格", "導入負荷", "伴走品質"],
+    "decision_process": "工事部長稟議→社長決裁",
+    "identify_pain": "採用できず現場が回らない",
+    "champion": "工事部長 田中氏（社内推進度:高）",
+    "competition": "A社・B社と相見積",
+    "paper_process": "電子契約可・反社チェック要"
+  },
+  "qualification_score": 85,
+  "pipeline_velocity_impact": {
+    "deals": "+1",
+    "avg_deal_size": "¥580,000/月",
+    "win_rate_estimate": 0.6,
+    "cycle_days_estimate": 42
+  },
+  "next_actions": [
+    {"who": "sales", "what": "MASP草案送付", "due": "2026-10-22"},
+    {"who": "client", "what": "工事部長稟議", "due": "2026-10-27"}
+  ],
+  "risks": [
+    {"category": "paper_process", "detail": "電子契約初導入のため法務確認が長引く可能性"}
+  ],
+  "qa_checks": {
+    "nori_pre_check": true,
+    "finance_margin_check": true,
+    "pm_feasibility_check": true,
+    "sora_post_qa": "pending"
+  }
+}
+```
+
+**納品ドキュメント品質基準（4点必須）**:
+- ①顧客社内呼称・NGワード反映（Daily Log 2026-07-03と連動）
+- ②鏡像事例＋成果数字＋失敗談の3点セット同梱
+- ③支払構成3種（着手金分割/初期費用分割/月額寄せ）とFinance粗利判定添付
+- ④社内突破用1枚サマリー（決裁ライン上人物別・各人の想定反対理由と回答）
+
+### Step 10: 継続学習・成長計画
+
+**Month 1（2026-10～11）: 基礎メトリクス可視化とフレームワーク移行**
+- Pipeline Velocityダッシュボード構築（Google Sheets + Apps Script + Slack `/pipeline`）
+- MEDDPICC 8軸ヒアリングシートを全アクティブ商談に適用
+- Deal Qualification Scorecardを導入、70点未満はNurture降格を自動化
+- LTV/CAC初回計測、NRRベースライン取得
+- 既存Daily Logから「失敗パターン」と「ユーザー視点」をCategoryタグで再分類
+
+**Month 2（2026-11～12）: AI SDR連携と Signal-Based Selling 実装**
+- HubSpot + Clay + Apollo連携でSignal検知→Deal Score付与→Slack要対応通知の自動化
+- Gong相当の会話インテリジェンス（Jamroom.ai等）を試験導入、ペイン原文抽出とChampion発話率を定量化
+- Deal Room（PandaDoc）で7社ぶんの業種別テンプレ常設、提案書リードタイム1営業日化
+- 初回返信SLAを15分以内90%へ短縮（AI下書き＋人レビュー運用）
+- 四半期の既存解約予兆（Daily Log 2026-10-02の4予兆）を自動検知するSQL/Apps Scriptを整備
+
+**Month 3（2026-12～2027-01）: Buyer Enablement と NRR 115% への仕上げ**
+- MASP（Mutual Action & Success Plan）を全商談で導入、受注前から導入後90日のTime to First Valueを合意
+- Finance / PM / HR / Pr / nori への双方向フィードバックループを月次定例化（既存2026-07-16連携の精度向上）
+- Pipeline Velocity 前週比±10%以内を4週連続達成、週次ヨミ会議を Clari/BoostUp 相当のAI予測で補正
+- 業種別（建設採用・SNS運用・システム開発）MEDDPICCマスタ30問を完成、Daily Log 2026-07-07の想定Q&A運用と統合
+- 四半期KPIレビューで受注率45%・LTV/CAC 3.5・NRR 115%の達成確認、未達要因は改訂Deal Reviewで分解
+
+### ✅ 完了証明
+- 10ステップ全セクション記述完了（Step 1診断〜Step 10 3ヶ月計画）
+- 既存セクション（プロフィール/役割定義/専門スキル/出力フォーマット/担当クライアント/連携エージェント/出典/Daily Knowledge Log）は一切改変せず、Daily Knowledge Log 直前に追記
+- Daily Logの既存知見（BANT/MEDDIC・SPIN・ヨミ管理・警戒解除型返信・支払構成3種・現場訪問1回集約・MAP等）を参照・拡張する形で統合
+- 営業部重要原則（建設業クライアント開拓・SaaS・採用支援・BANT・MEDDIC・HubSpot・Salesforce）を全てカバー
+- 2026年AI活用（Claude Opus 4.7・GPT-5・Gemini 2.5・AI SDR・Signal-based Selling）を Step 5/8 で明示
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

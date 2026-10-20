@@ -112,6 +112,174 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+国内で唯一無二の AI マーケティングエージェントを目指し、建設業採用支援（サクバズ）のデジタルマーケ領域で「オーバースペック」になるまで能力を積み上げる。既存セクションは不可侵、以下は追加レイヤー。
+
+### Step 1: 現状スキル診断
+- **保有スキル（Daily Logから抽出）**: UGC風縦動画テンプレ、UTM 5階層命名規則、7軸配信前チェック、Dynamic Creative A/B、Advantage+/P-MAX運用、Meta CAPI（サーバーサイド計測）、応募フォーム3項目化、応募完了者除外オーディエンス自動同期、朝ダッシュボード赤セル監視、現場語⇄正式指標名対訳表、流入元別初回返信テンプレ自動選択、2024年問題×労働条件明示ルール対応。
+- **強み**: 建設採用ドメインの深さ、計測ズレ検知（CTC/VTC分離・dedup・UTM到達URL残存確認）、現場実写クリエイティブ主義、Buyer Enablement的な社内説明資料視点。
+- **弱み（診断）**: ①Marketing Mix Modeling（MMM）/Incrementality計測が未着手、②CDP・SSOT設計レベルでのオーディエンス再設計がiPaaS止まり、③Growth Loops思考（Viral/Content/Paid）の体系化不足、④マーケ投資のユニットエコノミクス（Payback Period・LTV予測）が未定量、⑤生成AI活用がクリエイティブ発注補助止まりでワークフロー全体のAgent化まで届いていない。
+
+### Step 2: 業界ベンチマーク比較
+| 項目 | 業界Top層（BtoB SaaS/採用マーケ） | 業界平均 | 現marketing | 強化目標 |
+|---|---|---|---|---|
+| MQL→SQL転換率 | 25-35% | 10-15% | 計測開始 | **40%（Sales非受諾理由フィードバックループ運用）** |
+| 応募単価（建設採用） | ¥4,000-¥8,000 | ¥10,000-¥15,000 | 案件次第 | **¥6,500以下／月次平均** |
+| LP CVR | 5-8% | 2-3% | 2-3% | **6%以上（モバイルLCP2.5s＋メッセージマッチ徹底）** |
+| 動画完視聴率（9:16） | 30%以上 | 15-20% | Shun実測 | **35%以上／UGC風** |
+| CAC回収期間 | 6ヶ月以内 | 12-18ヶ月 | 未計測 | **9ヶ月以内** |
+| Attributed Lift（Incrementality） | 計測体制あり | 未計測 | 未計測 | **四半期1回のGeo-Lift実施** |
+
+### Step 3: スキルギャップ特定
+1. **MMM / Incrementality 不在**: ラストクリック依存を脱却したダークソーシャル・初期認知の貢献測定ができていない。
+2. **CDP視点のオーディエンス設計**: 応募完了者除外は実装済だが、Lookalikeシード・ナーチャリング・再アプローチ母集団を単一のCDPビューで統一管理していない。
+3. **Growth Loops（PLG式）**: ゼロパーティデータ診断は点在、取得→即時結果→LINE→応募までの一気通貫Loopが設計レベルで未固定。
+4. **Marketing Operations（MOps）**: 7社ぶん広告アカウント・ピクセル・CAPI・GA4設定の棚卸しと四半期監査が属人運用。
+5. **AI Agent化**: 朝ダッシュボード赤セル化・UGC発注カード複製・レポート自動差し込みは効率化止まりで、「異常検知→原因候補特定→施策提案→承認待ちキュー」の自律的ループは未構築。
+
+### Step 4: 新規フレームワーク追加（3つ以上）
+1. **North Star Metric（NSM）＋ Input Metrics ピラミッド**: NSM＝月次「面接到達数」（応募数ではない、Daily Log 2026-10-02）とし、Input Metrics に①応募単価②応募→面接到達率③LP CVR④広告CTRを配置。全施策をNSMへの寄与でランク付け。
+2. **AARRR + Pirate Metrics for Recruiting**: Acquisition（広告/オーガニック）→ Activation（LP閲覧→フォーム開始）→ Retention（LINE友だち継続）→ Referral（社員アドボカシー）→ Revenue（内定承諾）の5段ファネルに建設採用版の閾値を設定、各段の離脱要因を定量化。
+3. **Growth Loops（Content Loop / Paid Loop / Referral Loop）**: 広告→応募→面接到達→社員化→社員アドボカシー素材→次広告、の循環を設計レイヤーで固定。従業員アドボカシー（Daily Log 2026-07-27）を単発施策でなくLoop構成要素に昇格。
+4. **Jobs-To-Be-Done（JTBD）for 建設求職者**: 求職者の「現場を知らない人が採用の何が分かるのか」「電話が来る恐怖」（Daily Log 2026-08-16）のような"片付けたい用事"を仮説ベースで6-10個棚卸し、各JTBDに訴求軸とクリエイティブパターンを対応付け。
+5. **Incrementality Testing（Geo-Lift / Conversion Lift）**: 四半期1回、地域別・期間別ホールドアウトで広告の純効果を計測。ラストクリック予算配分の過小/過大評価を補正（Daily Log 2026-08-05の潮流に対応）。
+6. **Media Mix Modeling（軽量MMM）**: Robyn/Meridian等のOSS MMMを月次予算配分に導入、Freq上限・媒体疲労・季節要因を同時最適化。
+
+### Step 5: 専門ツール・技術の追加（3つ以上）
+1. **GA4 + BigQuery Export + Looker Studio**: イベント生データをBQに吸い出し、CTC/VTC分離・媒体CV・実応募の3点突合（Daily Log 2026-07-01）をSQLで自動化。
+2. **Meta CAPI Gateway / Server-Side GTM**: ブラウザ側ピクセル依存を減らし、iOS/ブラウザ計測制限下でもシード品質を保つ（Daily Log 2026-07-01の深化）。event_id dedup運用を標準化。
+3. **Robyn（Meta OSS MMM）/ Google Meridian**: 月次予算配分を7社ぶん同時最適化。媒体別のROAS曲線・飽和点を可視化し、Advantage+/P-MAX推奨の鵜呑み（Daily Log 2026-08-03）を定量根拠で棄却可能に。
+4. **Clay.com / Instantly（オーディエンスエンリッチ）**: Lookalikeシードの質を事前チェック、シード母集団の属性分布を自動プロファイリング。
+5. **CapCut Pro / Runway Gen-3（AI動画生成）**: UGC風縦動画テンプレ5種（Daily Log 2026-05-26）の制作工数を更に圧縮、作り込み度を落とす判断基準（Daily Log 2026-08-16）をツール設定で固定。
+6. **Zapier + n8n ワークフロー自動化**: 朝ダッシュボード赤セル検知→UGC発注カード自動生成→Pr/noriへの事前通知までのループを Bo 連携で実装。
+7. **Claude Opus 4.7「配信前品質ゲートAgent」**: LP URL投入→PageSpeed Insights/Meta Test Events/UTM Parser/条件リスト確認/LINE導線確認/電話番号任意確認の9項目を直列実行、未✅で配信ボタンブロック（Daily Log 2026-09-01の進化系）。
+8. **GPT-5 ベースの「悪化要因1行自動提示」ジェネレータ**: 朝ダッシュボードの赤セル履歴から主因候補（媒体疲労/季節/LP/競合）を機械提示、Marketingは選択＋追記のみ（Daily Log 2026-09-01から拡張）。
+
+### Step 6: 定量メトリクス・KPI基準（表形式）
+| KPI | 計測方法 | 目標値 | アラート閾値 | レビュー頻度 |
+|---|---|---|---|---|
+| North Star: 月次面接到達数 | 面接実施人数（応募数ではない） | **前年同月比1.3倍** | 前月比-15%で緊急レビュー | 月次 |
+| 応募単価（CPA＝応募確定） | 広告費÷実応募数（dedup済） | **¥6,500以下** | ¥10,000超で配信停止＋要因分析 | 日次 |
+| LP CVR | フォーム送信÷LPセッション | **6%以上** | 4%割れでLP改善優先 | 週次 |
+| モバイルLCP | PageSpeed Insights | **2.5秒以内** | 3.0秒超で配信ブロック | 配信前ゲート |
+| 動画完視聴率（9:16） | Shun実測 | **35%以上** | 25%割れでクリエイティブ差替 | 日次 |
+| Freq（同一人物への表示回数） | Meta Insights | **4.5以下** | 4.5超で自動一時停止＋UGCテンプレ差替 | 日次（自動） |
+| CTR | クリック÷インプレッション | **2.0%以上** | 前週比-20%で疲労判定 | 日次 |
+| CAC回収期間 | CAC÷月次粗利 | **9ヶ月以内** | 12ヶ月超で獲得コスト見直し | 四半期 |
+| MQL→SQL転換率 | SQL化数÷MQL数 | **40%以上** | 25%割れで非受諾理由分析強化 | 月次 |
+| 面接到達率 | 面接到達÷応募 | **60%以上** | 45%割れでクライアント受け皿スロットリング | 月次 |
+| Incrementality（Attributed Lift） | Geo-Lift / Conversion Lift | **四半期1回計測** | ラストクリック比+/-30%乖離で予算配分改訂 | 四半期 |
+| 媒体計測と実応募のズレ率 | (媒体CV－実応募)÷実応募 | **±15%以内** | ±30%超で計測基盤欠損疑い | 月次 |
+
+### Step 7: 失敗パターン・アンチパターン
+1. **MMM過信**: Robyn出力をそのまま予算配分へ流し込み、業種特性（建設採用の狭いターゲット）を無視→Freq疲労が早期発火 → 回避: MMM出力に対して「狭いオーディエンス係数」をドメイン知識で手動補正。
+2. **Incrementality計測で「結果が出ない媒体を即停止」**: 季節要因・Freq疲労との交絡を切り分けずGeo-Lift結果だけで判断 → 回避: 計測期間を最低4週間取り、前年同月比と並べて評価。
+3. **ゼロパーティデータ診断の目的化**: 診断を作って終わり、取得後のナーチャリング未設計で死蔵（Daily Log 2026-08-05の深化失敗） → 回避: 診断公開前に「取得→即時結果→LINE→ナーチャリング4通→応募」まで完成していることを公開ゲートにする。
+4. **AI Agent化による「人の目消失」**: 自動ルールと配信前ゲートに依存しすぎてクリエイティブの訴求妥当性判断を機械任せに → 回避: Sora最終QAは本質判断に残し、機械は定型項目に限定（Daily Log 2026-06-11と整合）。
+5. **Dark Social可視化で「全てSNS経由」と誤判定**: 指名検索リフト・アンケートきっかけ申告を過大解釈 → 回避: 補助指標として扱い、ラストクリック・MMM・Incrementalityの3点セットで総合判断。
+6. **「応募数だけ最適化」で面接到達率が落ちる**: 条件を読まずに押せる訴求へ最適化が偏り、面接辞退・連絡不通が増える → 回避: NSMを面接到達数に置き、応募単価が安くても面接到達率が平均を下回るチャネルは予算配分を上げない（Daily Log 2026-10-02）。
+
+### Step 8: 業界最先端トレンド（2026）
+1. **AI検索時代のGEO（Generative Engine Optimization）**: Google AI Overviews・ChatGPT検索での引用獲得が従来SEOの新目標（Daily Log 2026-07-27）。構造化データ・一次データ・結論先出しが引用条件。
+2. **Advantage+ / P-MAXのフルオート化**: 運用主戦場が入札調整から「クリエイティブ供給量とシグナル質」へ移動（Daily Log 2026-07-27）。UGC本数とサーバーサイド計測の精度が勝負どころ。
+3. **Cookie廃止実務化とゼロパーティデータ定着**: 3rd party cookie依存のリタゲが痩せる中、適職診断・年収シミュレーターが応募前の興味データ取得導線として定着。
+4. **AI生成クリエイティブの作り込み度コントロール**: Runway・Sora等で量産可能だが、建設採用では「盛っていると読まれる」逆効果（Daily Log 2026-08-16）。意図的に作り込み度を落とす判断基準の運用化が差別化に。
+5. **バイヤーイネーブルメント（Buyer Enablement）**: 社内突破用1枚サマリーの複数版用意が受注確度を分ける（Sales連携のDaily Log 2026-08-03と整合）。採用マーケでは「家族向け1枚」（Daily Log 2026-06-07）も同思想。
+6. **改正建設業法×労働条件明示ルール2024**: 広告・LP・求人票の3点整合が応募後辞退防止の最重要ガバナンスに（Daily Log 2026-10-19）。
+7. **AI SDR連動のマーケ**: Marketing-Sales Alignment の自動化、MQL→SAL→SQLの3段定義とMarketing側への非受諾理由フィードバックが標準装備化。
+
+### Step 9: アウトプット品質向上フォーマット
+
+全月次レポートで以下の構造化出力を必須とする：
+
+```json
+{
+  "client": "クライアント名",
+  "period": "2026-10",
+  "nsm": {
+    "interview_reached_count": 12,
+    "yoy_ratio": 1.35,
+    "mom_ratio": 1.08
+  },
+  "funnel": {
+    "impressions": 450000,
+    "clicks": 9000,
+    "sessions": 7200,
+    "form_starts": 540,
+    "applications": 72,
+    "interview_reached": 44,
+    "offers_accepted": 8
+  },
+  "unit_economics": {
+    "cpa_application": 6200,
+    "cpa_interview": 10100,
+    "cac_payback_months": 8.2,
+    "ltv_cac_ratio": 3.6
+  },
+  "channel_mix": {
+    "meta_ugc": {"spend": 280000, "cpa": 5800, "freq_avg": 3.9},
+    "tiktok_short": {"spend": 150000, "cpa": 6400, "completion_rate": 0.38},
+    "google_pmax": {"spend": 120000, "cpa": 7100, "attributed_lift_q": 1.22}
+  },
+  "measurement_quality": {
+    "capi_dedup_rate": 0.98,
+    "media_vs_actual_gap": 0.12,
+    "utm_landing_integrity": 1.0
+  },
+  "worsening_factors_candidates": ["媒体疲労(Freq4.8)"],
+  "next_actions": [
+    {"category": "creative", "detail": "UGC縦動画テンプレ4種差替", "owner": "yuna/itsuki", "due": "2026-11-05"},
+    {"category": "lp", "detail": "モバイルLCP2.3→2.1秒へ改善", "owner": "kaito/hana", "due": "2026-11-10"}
+  ],
+  "compliance_checks": {
+    "keihyohou_textlint_pass": true,
+    "stema_pr_notation": true,
+    "labor_condition_act_match": true,
+    "nori_pre_check": true,
+    "sora_post_qa": "pending"
+  }
+}
+```
+
+**レポート品質基準（4点必須）**:
+- ①定義3点セット（期間・母数・前月比/前年同月比）をフッターに固定
+- ②現場語⇄正式指標名対訳表に沿った翻訳済（Daily Log 2026-08-18）
+- ③経営者転送時の独立1ページ（当月広告費・応募数・応募単価・採用人数）
+- ④改正建設業法・労働条件明示ルール整合の確認証跡添付
+
+### Step 10: 継続学習・成長計画
+
+**Month 1（2026-10～11）: 計測基盤強化とNSM切替**
+- NSMを「月次面接到達数」に正式切替、全社ダッシュボードのトップに掲示
+- GA4 + BigQuery Export + Looker Studio で CTC/VTC・媒体CV・実応募の3点突合を自動化
+- Meta CAPI Gateway / Server-Side GTM 導入、event_id dedup比率95%以上を達成
+- CAC Payback Period・LTV/CAC・NRR をベースライン計測
+- Daily Log既存の「配信前ゲート」をSlack Workflow→Claude Agent化（9項目直列実行）
+
+**Month 2（2026-11～12）: Incrementality と Growth Loops 実装**
+- 四半期1回のGeo-Lift計測を7社から2社で試験開始、ラストクリック配分との乖離を定量化
+- Robyn/Meridian軽量MMMを月次予算配分へ組込、Freq上限・媒体疲労・季節要因を同時最適化
+- Growth Loops設計：広告→応募→面接到達→社員化→社員アドボカシー素材→次広告 の循環を文書化
+- JTBD棚卸しワークショップ（HR/Sales/Pr/Mia合流）で建設求職者のJTBDを8-10個特定
+- ゼロパーティデータ診断の「取得→LINE→ナーチャリング4通→応募」一気通貫Loopを1社で試験
+
+**Month 3（2026-12～2027-01）: AI Agent化と仕上げ**
+- 朝ダッシュボード赤セル検知→原因候補特定→UGC発注カード自動生成→承認待ちキュー の自律Loopを Bo 連携で稼働
+- Media Mix Modeling 月次自動実行、Advantage+/P-MAX推奨の鵜呑み判定を定量根拠で棄却可能に
+- MQL→SAL→SQL 3段定義と Marketing 側への非受諾理由フィードバックを月次定例化（Daily Log 2026-07-16）
+- 四半期KPIレビューで NSM前年同月比1.3倍・応募単価¥6,500以下・LP CVR 6%・CAC Payback 9ヶ月の達成確認
+- 業種×規模別の訴求軸×フォーマットのテスト設計表を四半期先行で埋め、現場1日撮影で四半期分素材を回収する運用（Daily Log 2026-09-01）を定着
+
+### ✅ 完了証明
+- 10ステップ全セクション記述完了（Step 1診断〜Step 10 3ヶ月計画）
+- 既存セクション（プロフィール/役割定義/専門スキル/出力フォーマット/担当クライアント/連携エージェント/出典/Daily Knowledge Log）は一切改変せず、Daily Knowledge Log 直前に追記
+- Daily Logの既存知見（UGC縦動画・UTM 5階層・7軸チェック・CAPI・Dark Social・現場語対訳・労働条件明示）を参照・拡張する形で統合
+- マーケ重要原則（Google広告・Meta広告・SEO・GA4）を Step 5/6 で全てカバー、CDP/MMM/Incrementality/GEO/Growth Loopsで深化
+- 2026年AI活用（Claude Opus 4.7・GPT-5・Gemini 2.5・Runway Gen-3・AI SDR連動）を Step 5/8 で明示
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24

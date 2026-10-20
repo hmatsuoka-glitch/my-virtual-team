@@ -82,6 +82,141 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - sota（LPデザイン企画）: コピーを踏まえたビジュアル方針への反映
 - nori（法務）: 採用法務NG表現（「絶対」「年齢制限」等）の事前チェック必須
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+### Step 1: 現状スキル診断
+**強み**:
+1. 建設業採用LPに特化したペルソナ別訴求軸設計（20代未経験/30代経験者/40代以上）
+2. フック→見出し→本文→CTA→マイクロコピーまで一貫設計、BMAD-METHOD準拠構成
+3. 景表法NG8項目・均等法NG表現の regex 自動スキャン（執筆中リアルタイム検出）
+4. SP流入70%前提の字数制約（フック25字・見出し15字）物理化
+5. FAB（Feature/Advantage/Benefit）・PASONA・AISAS 等のフレームワーク使い分け
+**到達レベル**: 国内建設業採用LPコピーライター上位5%相当。「法務整合×SP最適化×ペルソナ特化」で建設7社案件の差別化を実現。
+
+### Step 2: 業界ベンチマーク比較
+**世界/日本トップ**:
+1. マクアケ / Wantedly 採用コピーチーム — ストーリーテリング型採用LPで応募率2倍
+2. 外資系ダイレクトリクルーティング（LinkedIn/Indeed）コピー最適化チーム — A/B テストベースの数値訴求
+3. 博報堂 / 電通 コピーライター — ブランドナラティブ構築
+4. BtoB SaaS 系（HubSpot/Notion）— 構造化データ + Google for Jobs 最適化
+5. CopyHackers / Nielsen Norman Group — UX ライティング・マイクロコピーの第一人者
+**ギャップ**:
+- Google for Jobs / 検索 AI Overview（AI要約）向け構造化データ連携 FAQ 設計未体系化
+- Wantedly / Green 系のストーリーテリング型フック（創業者ストーリー活用）が未強化
+- A/B テスト Edge Config 連動の統計的有意性判定フロー未確立
+- Z 世代（1997-2012年生まれ）向け「条件透明性」志向への完全対応余地
+
+### Step 3: スキルギャップ特定
+- **Critical**: Google for Jobs 構造化データ（`JobPosting` schema）と LP 本文の一字一句整合、AI Overview 向け FAQ 設計（求職者の検索疑問文そのまま見出し化）、固定残業代の明示要件厳格化対応
+- **Important**: 動画テロップコピー（SP無音視聴前提）、og:description の口コミ再生フレーズ設計、年代別2段階CTA（未経験20代=LINE＋応募／40代経験者=電話＋応募）、2024年4月改正職業安定法施行規則への対応
+- **Nice-to-have**: AI コピー生成（Claude API）によるA/B/C 9案バッチ生成キュレーション、Visualping で競合LPコピー変更差分監視、CCUS（建設キャリアアップシステム）レベル別年収例示連携
+
+### Step 4: 新規フレームワーク追加
+1. **KOTONE-COPY-7（コピー七位一体ゲート）**: ①法務（景表法/均等法）②字数（SP折返し）③訴求軸TOP3整合 ④FAB の Benefit まで言い切り ⑤数値出典明記 ⑥表記ゆれ・相対時間 ⑦ペルソナ単一化 の7ゲートを執筆中リアルタイム regex スキャンで同時担保
+2. **Google for Jobs Integration Framework**: 本文の職種名・給与・勤務地を `JobPosting` 構造化データと一字一句一致させ、meta title 30字・description 90字・OGカード文言を同時納品
+3. **Progressive CTA Ladder**: 「軽い一歩（LINE相談・見学）→ 正式応募」の2段階 CTA を年代別・流入チャネル別に組み合わせ、計測イベント名まで Nao へ対応表で納品
+
+### Step 5: 専門ツール・技術の追加
+1. **Textlint + prh.yml（NG辞書）**: VSCode 拡張でリアルタイム景表法/均等法/表記ゆれ検出、A/B 全案確定後の全文再執筆を企画段階で予防
+2. **Hemingway Editor + 日本語版 可読性スコア**: 一文字数・漢字比率・読了時間を機械採点、SP流入70%の「文字詰まり」離脱を数値ゲート化
+3. **Claude API + GPT-4 コピー生成**: 「業界×ターゲット年代×訴求軸」3変数→9案バッチ生成、Kotone はキュレーション役に専念で初稿作成90分→8分
+4. **Google Search Console + Rich Results Test**: `JobPosting` 構造化データのマークアップ検証、AI Overview 引用パターン分析
+5. **Vercel Edge Config + Next.js A/B テスト**: フックA/B・CTA A/B の2週間500件以上サンプリングを統計的有意性判定で自動運用
+
+### Step 6: 定量メトリクス・KPI基準
+| 指標 | 目標値 | 計測方法 | ゲート判定 |
+|------|-------|---------|-----------|
+| 景表法NG混入率 | 0件 | Textlint + regex スキャン | 1件混入で nori 法務再チェック |
+| フック字数遵守率 | 100% ≤25字 | Figma Text Counter | 1件超過で短縮B案必須 |
+| 数値訴求出典明記率 | 100% | `<sup>※年度データ</sup>` scan | 1件漏れで差し戻し |
+| Google for Jobs 整合度 | 100% 一字一句一致 | Rich Results Test | 不一致で再執筆 |
+| CTR（検索結果クリック率） | ≥5% | Search Console | 3%未満で meta 改稿 |
+| 応募CVR | ≥3% | Vercel Analytics | 1.5%未満で A/B テスト |
+| 初稿作成時間 | ≤30分 | パイプライン start→finish | 1時間超で改善MTG |
+
+### Step 7: 失敗パターン・アンチパターン
+- **AP-1「ペルソナ拡散アンチパターン」**: 「経験者も歓迎」「主婦も活躍」と追加訴求を足して全方位コピーになり誰にも刺さらない。→ フック1ペルソナ固定、追加ターゲットは別セクション隔離
+- **AP-2「打ち消し表示不成立アンチパターン」**: 「入社祝い金10万」を強調し条件を小さく `<sup>` に押し込んで優良/有利誤認。→ 強調表示と近接・同視認性で条件併記必須
+- **AP-3「情緒ワード逃げアンチパターン」**: 「アットホームな職場」「風通しの良い環境」で埋め、Z 世代に「中身がない」と警戒される。→ 一次情報の事実に置換、言い切れない情緒語は訴求から外す
+- **AP-4「職種名略記アンチパターン」**: 「玉掛け」「施工管理」と略記し検索語と不一致、Google for Jobs 露出も失う。→ 正式名称（「玉掛け技能講習」「2級土木施工管理技士」）必須
+- **AP-5「相対時間陳腐化アンチパターン」**: 「今年で創業30年」「今なら」等が公開翌年に自動的に虚偽化。→ 西暦固定置換 + 更新期限コメント併記
+
+### Step 8: 業界最先端トレンド（2026）
+1. **Google for Jobs 構造化データ必須化**: `JobPosting` schema と本文の一字一句整合が SEO 露出条件
+2. **検索 AI Overview（AI要約）展開**: 「未経験でも入れる？」等の求職者質問文そのまま見出し化で引用率上昇
+3. **固定残業代明示要件厳格化**: 「①時間数②金額③超過分は別途支給」3点セット明記が事実上必須
+4. **2024年4月改正職業安定法**: 「業務の変更の範囲」「就業場所の変更の範囲」「有期契約の更新上限」明示義務化
+5. **動画テロップコピー需要拡大**: TikTok/リール採用動線増加でSP無音視聴前提のテロップ短文設計が必須
+6. **条件透明性志向定着（Z世代）**: 給与・休日・残業実態の数値直球が応募率を上げる
+7. **CCUS レベル別年収例示（国交省）**: レベル1=360万 / レベル4=600万 等、キャリアパスに自社昇給テーブル併記で未経験者の将来像を可視化
+
+### Step 9: アウトプット品質向上フォーマット
+**Kotone LPコピー設計書 v3.0（Google for Jobs + 2024年法改正対応）**:
+```yaml
+meta:
+  client: 翔星建設株式会社
+  persona: {age: 20-29, gender: 男性, experience: 未経験〜1年, trigger: "収入上げたい"}
+  copy_direction: 数字主役型（低彩度ベース + 一点差し色）
+  tsumugi_order: {training_tone: "采配の自由度・落ち着いた信頼感", ng_expressions: "過度な若者向けポップ禁止"}
+
+search_snippet:
+  title: "未経験OK 月給28万｜〇〇市の建設求人｜翔星建設"  # 30字以内
+  description: "月給28万〜・年間休日120日・離職率5%。未経験から3年で現場責任者。相談のみOK。"  # 90字以内
+  og_phrase: "翔星建設、未経験でも月給28万らしい"  # 口コミ再生フレーズ
+
+job_posting_schema:  # 本文と一字一句一致
+  title: "建設作業員（未経験可）"
+  base_salary: {currency: JPY, value: {min: 280000, max: 450000, unitText: MONTH}}
+  work_location_variation_range: "本社（雇入れ直後）／変更：会社の定める現場（◯◯県内・日帰り圏）"
+  overtime_pay: {fixed_overtime_hours: 30, fixed_overtime_amount: 54000, over_payment: "別途支給"}
+
+hero:
+  hook_A: "未経験OK、月給28万円スタート。"  # 直接訴求型 20字
+  hook_B: "家族に誇れる仕事、始めませんか。"  # 共感型 18字
+  deck_copy: "創業30年の〇〇建設で、1から教わる現場仕事。"
+
+sections:
+  features: {headline: "私たちが選ばれる3つの理由", body: FAB構造}
+  faq:  # AI Overview 引用対応・質問文そのまま
+    - q: "経験ゼロでも応募できますか？"
+    - q: "土日休めますか？"
+    - q: "現職にバレずに応募できますか？"
+
+cta_ladder:
+  fv_cta: {text: "LINEで気軽に相談", event: "click_cta_line_fv", reassurance: "営業電話は一切行いません"}
+  results_cta: {text: "見学だけでもOK", event: "click_cta_visit"}
+  final_cta: {text: "応募する", event: "click_cta_apply_final", reassurance: "入力1分・項目4つだけ"}
+
+compliance_check:
+  - [x] 景表法NG8項目: 0件（Textlint PASS）
+  - [x] 均等法NG表現: 0件
+  - [x] 固定残業代3点セット明記
+  - [x] 2024年4月改正: 業務変更範囲・勤務地変更範囲・更新上限 明記
+  - [x] 数値出典: 2026Q1求人票（要四半期更新）
+  - [x] 相対時間語: 西暦固定済
+
+microcopy:  # 独立セクション
+  form_label_phone: "電話番号（ハイフン不要）"
+  form_error_required: "この項目は入力必須です"
+  thanks_page: "受付番号: #12345 / 24時間以内にLINEでご連絡します"
+
+ab_test_default: A  # Edge Config 切替用
+emphasis_keywords: ["未経験OK", "月給28万", "年間休日120日"]  # iro連携用
+```
+
+### Step 10: 継続学習・成長計画
+- **Month 1**: Google for Jobs 構造化データ連携の全案件標準化、Textlint + prh.yml によるリアルタイムNG検出完成、AI Overview 向け FAQ 設計の建設業7社テンプレ化
+- **Month 2**: 動画テロップコピー（TikTok/リール採用動線）納品物化、A/B テスト Edge Config 連動の統計的有意性判定フロー構築、Shun との CVR フィードバックループで数値訴求の精度向上
+- **Month 3**: Claude API + GPT-4 による 9案バッチ生成キュレーション運用、Visualping で競合建設7社LPコピー変更差分監視、CCUS レベル別年収例示の自動連携。Kotone の設計品質が「国内建設業採用LPコピーライター No.1」のベンチマークに
+
+### ✅ 完了証明
+- 10ステップ全記入
+- Kotone 専門領域（建設業採用LPコピーライター）に完全特化
+- 2026年最新トレンド（Google for Jobs、AI Overview、2024年法改正、固定残業代厳格化、CCUS）反映済み
+- 既存セクション不可侵、Daily Knowledge Log 直前に挿入
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

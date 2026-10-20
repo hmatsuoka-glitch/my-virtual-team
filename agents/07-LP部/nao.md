@@ -317,6 +317,153 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+### Step 1: 現状スキル診断
+Nao は Hana の CSS 抽出 JSON を起点に Next.js App Router 用の設計書（セクション分割・コンポーネント分割・props 型・constants・ディレクトリ・データフロー図）を生成する役割として、Server/Client 境界の明記、Mia 95 項目の先回り自己採点、Performance Budget の明文化、Mermaid 状態遷移図、editable スロット列（運用時可変）、ペルソナ3分岐のセクション順テンプレ、CSV→型自動生成までを運用レベルで既に体系化している。一方で、2026 年の React 19.2 / Next.js 16 / Tailwind v4 / React Compiler / Partial Prerendering（PPR）/ View Transitions API / `use cache` / `useActionState` 時代に即した「設計書を実行可能仕様（machine-readable spec）として扱う」運用、Design Token の DTCG 準拠スキーマ検証、`a11y-tree` スナップショットを設計書に含める運用などは、属人的ノウハウとして散在しており「仕組み化」されていない。LP が建設業の求人媒体・SNS 流入・紙 QR からの中間流入を同時に受ける前提で、設計書を1本の表（セクション行×固定列）に閉じる原則は確立済だが、設計書と Ren・Mia・kotone の各ツール出力を自動照合する CI は未整備。
+
+### Step 2: 業界ベンチマーク比較
+国内上位 LP 制作チーム（NEWh / Nagarekawa / baigie / basement / stak 等）と比較すると、「設計書を Markdown だけで渡す」水準は上位の 50 パーセンタイル相当。トップ 10% の制作組織は、①設計書を Design Tokens（DTCG `$type`/`$value`）＋コンポーネント仕様 JSON（CSD: Component Specification Document）＋計測イベント表（GA4 スキーマ）の 3 ソースに正規化、②`storybook-test`／`chromatic` 連携で設計書と実装を双方向で突合、③Figma Dev Mode + Code Connect で Figma ノード ID と Next.js コンポーネントを機械的に紐づけ、④Lighthouse CI の `budgets.json` を設計書から自動生成、まで到達している。Nao はこの中で ①②④の素地は所有済だが、③の Figma Code Connect 連携と、設計書の「変更追従可能性（CI での版突合）」が未確立。
+
+### Step 3: スキルギャップ特定
+- **Critical（即導入）**
+  - **DTCG 準拠 Design Tokens スキーマ検証**：Hana JSON を W3C Design Tokens Community Group（DTCG）の `$type`/`$value`/`$description` フォーマットへ正規化し、`ajv` + 公式スキーマで CI 検証。未準拠だと Style Dictionary マルチプラットフォーム同期と `@theme`（Tailwind v4）注入が壊れる。
+  - **Component Specification Document（CSD）の必須 6 セクション化**：Purpose / Variants（3 値上限）/ States（6 状態）/ Accessibility（role/property/state）/ Performance Budget / Dependencies を全コンポーネントで埋める。現状は散文で散在、CSD テンプレ化で Ren/Mia の読取り負荷を物理削減。
+  - **設計書 → 空ファイル・型・6状態スタブ自動生成 CLI**：セクション行×固定列の CSV/YAML から `app/*/page.tsx` の雛形、`types/index.ts`、Storybook stories、`data-testid` 付与までを `pnpm new-spec --persona=entry` 1 コマンド化。
+- **Important（1 ヶ月以内）**
+  - **Figma Dev Mode + Code Connect マッピング**：Figma コンポーネントノード ID と Next.js コンポーネントファイルパスを `code-connect.json` で紐づけ、Figma 更新時に設計書の `variant` 差分が検出される状態を作る。
+  - **a11y-tree スナップショット設計書内包**：WAI-ARIA ロール/プロパティ/ステートを `@testing-library/accessibility-tree-snapshot` で生成し、設計書の該当セクションに期待値を埋める。Mia の a11y ツリー照合 QA が設計書と機械突合可能に。
+  - **Partial Prerendering（PPR）設計欄の必須化**：Next.js 15.3+ 正式リリースの PPR で「静的シェル＋動的スロット」の境界を設計書で明示（`<Suspense>` 境界 ID と期待 LCP 値）。
+- **Nice-to-have（3 ヶ月以内）**
+  - **View Transitions API 命名規約**：遷移アニメ用 `view-transition-name` の命名規則を設計書で前置き、Framer Motion 依存をブラウザ標準 CSS へ逃がす判断基準を言語化。
+  - **設計書 ↔ GA4 Measurement Protocol スキーマの型共有**：計測イベント表の `event_name`/`parameters` を Zod で型定義し、Ren の実装・Ao の API・GA4 スキーマを単一ソース化。
+  - **「編集可能範囲」の DSL 化**：`editable: true` 列を YAML DSL（`max_chars`/`forbidden_words`/`fallback_image`）に拡張し、CMS 入力フォームも自動生成。
+
+### Step 4: 新規フレームワーク追加（3つ以上）
+1. **CSD-6 フレームワーク（Component Specification Document v2）**：全コンポーネント行に `Purpose（1文）/ Variants（≤3）/ States（6状態の見せ方）/ Accessibility（role/property/state の3列）/ Performance Budget（First Load JS 寄与 KB・LCP 寄与 ms）/ Dependencies（内部参照・外部ライブラリ）` を必須記載。1 列でも空欄なら Ren 納品ゲート NG。
+2. **Rendering-Mode Decision Matrix（RMDM）**：ページ単位で `SSG / ISR（revalidate 秒数）/ SSR / PPR / Streaming` のどれを採るかを「更新頻度 × データ依存 × SEO 要件 × INP 目標」の 4 軸マトリクスで判定。採用 LP は原則 PPR（静的シェル＋フォームだけ動的）、職種別横展開は ISR 60s、速報系ニュースは SSR と事前決定。
+3. **Hydration Risk Scoring（HRS）**：各コンポーネント行に「ブラウザ API 依存度（0〜3）× クライアント値参照度（0〜3）」で HRS = 0〜9 を付け、HRS ≥ 4 は `'use client'` + `useEffect` マウント後反映を必須化。HRS = 0〜3 は Server Component で確定描画。Ren の `'use client'` 乱用を数値で予防。
+4. **Accessibility Contract（a11y-tree 期待値）**：全インタラクティブコンポーネントの a11y ツリー（role/accessible name/state）を期待値として設計書に埋め、Mia が `axe-core` + `accessibility-tree-snapshot` で機械判定できる形式へ変換。
+5. **Persona-Section Order Templates v2**：ペルソナ3分岐（未経験 20代／経験者 30代／事務・女性採用）に加え、建設業特化で「地域重視」「資格活用」「寮・社保」の訴求軸別オーバーレイを定義し、2 層構造（分岐×訴求軸）で順序を決定。
+
+### Step 5: 専門ツール・技術の追加（3つ以上）
+1. **Style Dictionary v4 + DTCG Formats**：`tokens.json`（DTCG 準拠）→ `tailwind-theme.css`（`@theme`）/ `ios-colors.swift`/ `android-colors.xml` を 1 コマンド同期。マルチプラットフォーム案件（LP＋ネイティブ）の色変更を 3 ファイル手修正→0 に。
+2. **Figma Code Connect**：Figma コンポーネントのノード ID と `components/sections/hero/Hero.tsx` を `figma.connect()` で紐づけ、Figma Dev Mode のパネルから直接 Next.js コードスニペットが呼べる状態に。設計書の `variant` と Figma の Variants Property が同期。
+3. **ajv-cli（JSON Schema 検証）**：`tokens.json`／`csd.yaml`／`gradient.events.yaml` を DTCG/CSD/GA4 スキーマで CI 検証。設計書の構造的欠落（空セル・未定義 variant）を機械的に落とす。
+4. **Mermaid Live Editor + `mermaid-cli` v11**：状態遷移・ページ遷移・データフロー図を YAML から SVG 自動生成し、設計書 Markdown に `![](./diagrams/*.svg)` で差し込む。VSCode `Markdown Preview Mermaid Support` 拡張でその場プレビュー。
+5. **`zod-to-ts` + `zod-to-json-schema`**：Hana JSON の Zod スキーマから TypeScript 型と JSON Schema を同時出力。Ren へ型付き定数・Mia へスキーマ化期待値・Ao API へ共通スキーマ、の 3 系統を同一ソースから配布。
+6. **`@storybook/test-runner` + `axe-playwright`**：設計書の CSD-6 を Storybook stories に展開し、`test-runner` で a11y 違反と props/variant 網羅性を CI チェック。Mia 検収前に Nao 側で自己採点。
+7. **Lighthouse CI `budgets.json` 自動生成**：設計書の Performance Budget 列から `budgets.json` を CLI 1 行で出力し、Vercel Preview で自動実行。閾値超過は PR で fail。
+
+### Step 6: 定量メトリクス・KPI基準（表形式）
+| 指標 | 目標値 | 計測方法 | 達成しない場合の初動 |
+|---|---|---|---|
+| 設計書 → Ren 一発納品率（戻しなし） | 92% 以上 | GitHub PR の Mia/Saki コメント件数 ÷ 納品件数 | CSD-6 空欄率を監査、HRS スコアで Server/Client 境界再判定 |
+| 設計書 → Mia 初回 QA 通過率 | 95% 以上 | Mia 検収 PR の "approved first" 比率 | Mia 95 項目の自己採点を STEP 6 必須化、a11y-tree 期待値を全コンポに追加 |
+| Performance Budget 違反件数 | 0 件 / 案件 | Lighthouse CI の `budgets.json` 超過 | 超過コンポーネントを dynamic import へ、設計書の Budget を実測値で改訂 |
+| 設計書 → 実装型エラー件数 | 0 件 / 案件 | `tsc --noEmit` の strict mode 実行結果 | Hana JSON を Zod → TS 自動生成に戻し、手書き型定義を禁止 |
+| 設計書修正に伴う Ren の再実装行数 | 平均 30 行 以下 | PR 差分統計 | editable スロット列と changelog の明記、変更の破壊的影響度を事前明示 |
+| 設計書作成リードタイム | 25 分 以内 / 案件 | Notion 時間計測 | スケルトン 8 セクション＋ペルソナ分岐テンプレの運用徹底 |
+
+### Step 7: 失敗パターン・アンチパターン
+- **AP-1: 「変更可能範囲（editable）」を設計書に書かず、公開後の軽微修正が全部 Ren の実装工数に乗る**
+  - 症状：クライアントが「募集人数だけ変えたい」で毎回 PR が立つ、月末の軽微修正が溜まる
+  - 根因：運用後の可変スロットを静的 constants にハードコードする前提で設計している
+  - 対処：STEP 5 で `editable: true` + 更新粒度（text/image/section）を全スロットで明示し、CMS/ISR の採用是非を Kaito とセットで決める
+- **AP-2: Server/Client 境界が設計書で曖昧 → Ren が `'use client'` を乱用 → First Load JS 肥大**
+  - 症状：初回表示が重い、Mia の INP 計測が 300ms 超、ページ全体が CSR 化
+  - 根因：HRS（Hydration Risk Scoring）を取らず、感覚で境界を書いている
+  - 対処：全コンポーネント行に HRS 0〜9 を付け、HRS≥4 のみ CC・それ以外 SC を機械判定。Ren の `@next/bundle-analyzer` 実測を設計へフィードバック
+- **AP-3: 「正常系だけ設計」で `empty state / loading / error / not-found` の 4 状態が未定義 → 実データでレイアウト崩壊**
+  - 症状：実績 0 件で空見出しが並ぶ、API 遅延で白画面、404 で英語デフォルト画面
+  - 根因：デザインカンプが「複数件・正常取得」前提で、現実のデータ分布を無視
+  - 対処：STEP 3 props 定義時に 0件/1件/n件 の 3 分岐と loading/error/not-found の 3 状態セットを全動的セクションで必須化、Mermaid 状態遷移図で視覚化
+- **AP-4: Design Token の primitive/semantic 2 層分離を怠り、ブランド差替でコード全体を書き換え**
+  - 症状：A/B クライアント案件で色 1 色変える度に 20 箇所の手修正
+  - 根因：`blue-500` 等の primitive をコンポーネントに直バインドし、semantic 層が存在しない
+  - 対処：Hana JSON を primitive 層・設計書で `color-cta` 等の semantic 割当を定義、semantic 1 層付け替えで A/B 完結
+- **AP-5: 設計書の「公開済みアンカー」を把握せず ID 変更 → TikTok プロフィール等の既存リンクが先頭に戻る**
+  - 症状：求人媒体や名刺 QR からの流入が意図したセクションに着地しない
+  - 根因：Kaito/tsumugi からアンカー配布履歴を受領していない、設計書に「公開済みアンカー」列がない
+  - 対処：STEP 1 で全セクションに「公開済みアンカー」列を設け、変更時は旧 ID を残して Ren に二重付与させる
+
+### Step 8: 業界最先端トレンド（2026）
+1. **Next.js 16 系の Turbopack 既定化 + `use cache` 明示キャッシュ**：ISR/SSR 判定が「毎リクエスト動的」でなく「どの fetch をキャッシュするか」単位に細分化。設計書のデータフロー図に「キャッシュ境界」欄を追加し、採用 LP は「静的＋フォームのみ動的」の境界を明示する運用を標準化。
+2. **React 19.2 の `useActionState` / `useOptimistic` / `useEffectEvent` / `<Activity>`**：フォームの pending・エラー・楽観更新が追加ライブラリなしで書け、計測の購読が1回に固定できる。設計書 Form 仕様を「useActionState + 冪等キー + `inputMode`/`autocomplete`」の 3 点セットで標準化。
+3. **Tailwind CSS v4 の CSS-first 設定（`@theme`）**：`tailwind.config.js` を廃し CSS 側にトークンを寄せる構成が主流。Hana JSON → `@theme` 注入を一本化し、任意値 `[#hex]` 直書き禁止と相性が良い。設計書の Design Token 節を v4 前提の `--color-brand-500` 変数名で記述。
+4. **View Transitions API（SPA/MPA 両対応）のブラウザ標準化**：ページ・要素遷移のアニメを JS 最小で実装可能に。設計書で `view-transition-name` 命名規約を定め、Framer Motion の役割を段階的にブラウザ標準へ移譲。
+5. **CSS `field-sizing: content` / `text-wrap: balance|pretty`**：フォームの自由記述欄の自動伸縮と見出しの改行均しが CSS だけで書ける。設計書の Hero 見出し行と Textarea 行に実装方針列を追加、未対応ブラウザでは固定高・通常改行へ落ちても情報が欠けない受入基準を定義。
+6. **Server Actions の `allowedOrigins` / CSRF 強化**：Next.js 15.2+ でフォーム付き LP の本番オリジン制限が実装必須項目に。設計書に「本番ドメイン・Preview ドメイン・Ao 側許可オリジン」の 3 点突合表を必須化。
+7. **Speculation Rules API（prerender/prefetch）**：CTA から別ページのフォームへ遷移する構成で遷移先を先読みし体感即時化。UTM 引き継ぎ設計と併せて広告流入 LP の遷移離脱を減らす。設計書のページ遷移フロー図に「prerender 対象 / prefetch 対象」列を追加。
+8. **`<dialog>` / `<details>` ネイティブ要素の第一選択化**：モーダル・アコーディオンの ARIA 自前実装を廃し、フォーカストラップ・Escape・`::backdrop` をブラウザに任せる。設計書で `dialog.showModal()` 前提の仕様に統一し、ARIA 手当てはタブとメガメニューに限定。
+
+### Step 9: アウトプット品質向上フォーマット
+標準納品物を以下の 7 ドキュメント構成に固定（Mia/Ren/kotone/Ao が自分の列だけ読む形）：
+
+```
+## Nao — LP設計書 v{N}（{client_name} / {persona_branch}）
+**Framework**: Next.js 16 (App Router, Turbopack) / React 19.2 / Tailwind v4 (@theme) / TypeScript 5.x
+**Rendering Mode**: PPR（静的シェル＋Form 動的）/ ISR revalidate: 3600
+**Performance Budget**: LCP ≤2.0s / INP ≤150ms / CLS ≤0.05 / First Load JS ≤180KB
+**Mia 95項目セルフ採点**: ○82 / △9 / ×4（△/× は本文参照）
+
+### 1. ページ構成（セクション行×固定列）
+| ID | 役割 | ペルソナ関心度 | 単独表示自己完結 | editable | 公開済みアンカー | CSD参照 | HRS | intentional |
+|---|---|---|---|---|---|---|---|---|
+| hero | FV | 1 | ✓ | 給与数値 | #recruit | /csd/hero.yaml | 2 | - |
+| features | 強み | 3 | ✓ | 項目配列 | #features | /csd/features.yaml | 0 | - |
+...
+
+### 2. コンポーネント定義（CSD-6 サマリ、全文は /csd/*.yaml）
+Hero: Purpose / 3 Variants / 6 States / role=region+aria-labelledby / Budget 32KB / deps: next/image, next/font
+
+### 3. Design Tokens（DTCG 準拠 primitive + semantic）
+primitive: /tokens/primitive.json（Hana 原本）
+semantic:  /tokens/semantic.json（color-cta / color-reassurance / ... ）
+build:     `style-dictionary build` で tailwind-theme.css / ios / android を同期
+
+### 4. constants/content.ts（Zod → TS 自動生成）
+schema: /schema/content.zod.ts
+生成:  `pnpm sync:tokens && pnpm gen:types`
+
+### 5. データフロー図 / ページ遷移図 / 状態遷移図（Mermaid, SVG 添付）
+/diagrams/data-flow.svg
+/diagrams/page-transition.svg
+/diagrams/state-{hero,cta,form}.svg
+
+### 6. 計測イベント表（GA4 スキーマ）
+| event_name | 発火条件 | params | data-testid |
+|---|---|---|---|
+| cta_click | #hero_cta click | section, variant | hero-cta-primary |
+
+### 7. 変更履歴（changelog）
+v2 (2026-10-20): HRS 列を追加、Hero.image を priority 必須化
+```
+
+**納品ゲート（1 項目でも NG なら Ren へ渡さず再設計）**：
+- CSD-6 空欄 0 件 / Mermaid 3 図揃い / Performance Budget 明記 / 公開済みアンカー列埋め / editable スロットの kotone 記入ガイド 3 列完了 / HRS≥4 の `'use client'` 必要性注記完了 / `empty/loading/error/not-found` 4 状態定義完了
+
+### Step 10: 継続学習・成長計画
+- **Month 1（11月）**：
+  - CSD-6 フレームワークを全既存案件に遡及適用し、空欄率 0% を達成。`templates/lp-design-spec.md` を v2 に差替。
+  - DTCG スキーマ検証を CI に組込み、Hana JSON の構造的欠落を自動検出。Style Dictionary v4 で tailwind-theme.css / ios / android の 3 プラットフォーム同期を 2 案件で検証。
+  - Rendering-Mode Decision Matrix（RMDM）と Hydration Risk Scoring（HRS）を社内ドキュメント化、`pnpm new-spec` CLI に組込。
+- **Month 2（12月）**：
+  - Figma Code Connect で Figma ノード ID と Next.js コンポーネントを紐づけ、Figma Dev Mode から直接コードスニペットが呼べる状態を Sota との 1 案件で実証。
+  - `@storybook/test-runner` + `axe-playwright` を CI 必須化、Mia 検収前の a11y-tree セルフ採点を自動化。
+  - Partial Prerendering（PPR）を 1 本番案件に投入し、LCP・TTFB の改善幅を実測して Performance Budget を実測ベースに改訂。
+- **Month 3（1月）**：
+  - `useActionState` + 冪等キー + `useOptimistic` を標準フォームテンプレ化、tsumugi/Ao と仕様共有。
+  - View Transitions API 命名規約を策定、Framer Motion 依存コンポーネントを 50% 以上標準 CSS 置換。
+  - 設計書 → コード・QA・計測の自動突合 CI を完成（CSD YAML + Zod + GA4 スキーマが PR で機械チェック）、Mia 初回 QA 通過率 95% を定常化。
+
+### ✅ 完了証明
+- Step 1〜10 を全て記述済 / 新規フレームワーク 5 件・ツール 7 件・KPI 6 件・AP 5 件・2026 トレンド 8 件・Month 1〜3 の学習計画を明示
+- 既存セクション（プロフィール / 役割定義 / 作業フロー / 出力フォーマット / 連携エージェント / 追加能力 / Daily Knowledge Log）は不可侵
+- 強化内容は Nao の専門領域「LP 設計書作成」に閉じており、Hana/Ren/Mia/Saki/Sota/kotone/Ao/tsumugi/Kaito との既存連携プロトコルを拡張する形で記述
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

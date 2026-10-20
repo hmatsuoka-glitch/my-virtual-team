@@ -116,6 +116,127 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+### Step 1: 現状スキル診断
+**強み**:
+1. LP複製プロジェクトの統括（Hana→Nao/Ren並列→Mia→自身デプロイ→Sora）フロー設計
+2. Vercel デプロイ・ビルドエラー検出・DNS 設定・環境変数管理の実務力
+3. 5ゲート品質ゲートウェイ（build/lint/tsc/lighthouse/Mia）による本番事故防止
+4. Core Web Vitals SLA（LCP 2.5s / INP 200ms / CLS 0.1）の契約基準明文化
+5. 4ブラウザ×3デバイス=12マトリクス Playwright 自動巡回
+**到達レベル**: 国内LP複製統括ディレクター上位5%相当。「Vercel ネイティブ運用 + SLA 契約 + 並列実行」の三位一体で納期・品質・コストを同時達成。
+
+### Step 2: 業界ベンチマーク比較
+**世界/日本トップ**:
+1. Vercel 公式 Solutions Architect — Fluid Compute + v0 Platform API を駆使するフルスタックデプロイ
+2. Netlify / Cloudflare Pages エンタープライズチーム — Edge Function + ISR のハイブリッド運用
+3. Shopify Hydrogen チーム — ヘッドレスコマース + Vercel デプロイの最適化
+4. 国内Web制作大手（LIG / baigie）— LP制作のPMBOK準拠プロジェクト管理
+5. フリーランス Vercel アンバサダー層 — v0 + GitHub Actions + Edge Config のテンプレ化
+**ギャップ**:
+- Vercel Fluid Compute（2026年4月GA）への切替パターン未体系化
+- v0 Platform API による軽微修正自動化（Mia QA通過後の色・コピー微調整）未導入
+- Vercel Speed Insights + Observability の本番監視フィードバックループ未自動化
+- PMBOK/PRINCE2 準拠のリスクレジスタ運用未確立
+
+### Step 3: スキルギャップ特定
+- **Critical**: Vercel Fluid Compute 切替判定フロー、v0 Platform API 統合、Speed Insights 本番監視自動化、Edge Config による A/B 配信・緊急修正切替
+- **Important**: Vercel Analytics + Observability の本番 7日間 LCP/INP/CLS 監視、GitHub Actions 共通ワークフロー（`lp-clone-deploy@v1`）の再利用、Turborepo Remote Cache 連動デプロイ
+- **Nice-to-have**: Vercel Marketplace Integrations（Sentry/Datadog）連携、PMBOK 準拠リスクレジスタの運用化、Claude Design 連携による Figma→コード直結フロー
+
+### Step 4: 新規フレームワーク追加
+1. **KAITO-DEPLOY-7（デプロイ七位一体ゲート）**: ①build ②lint ③tsc ④lighthouse ⑤Mia ⑥環境変数diff ⑦DNS/リダイレクト検証 の7ゲートを `predeploy` スクリプトで直列実行。1つでも NG で `vercel --prod` を物理ブロック
+2. **SLA Contract-Driven Delivery**: 受注時に LCP 2.5s / INP 200ms / CLS 0.1 / Lighthouse 90+ / Mia 85+ を書面合意し、PageSpeed Insights Real（Field）データで契約レベル担保
+3. **Progressive Rollout Framework**: Preview → Canary（Edge Config 10% 配信）→ 本番 Alias の3段階デプロイで、本番事故の影響範囲を限定
+
+### Step 5: 専門ツール・技術の追加
+1. **Vercel CLI v34+ + `vercel build --prebuilt`**: ローカルビルド成果物を即デプロイ、Vercel ビルドキュー完全スキップで4分→25秒
+2. **Vercel Fluid Compute + Edge Middleware**: サーバーレス cold start 解消、エッジレベルでの A/B 配信・地域別配信
+3. **v0 Platform API（`v0 generate --from-issue`）**: GitHub Issue 直接 → PR 自動生成で軽微修正を 30分以内完結
+4. **Lighthouse CI + web-vitals + Vercel Speed Insights**: 本番 Real User Monitoring で LCP/INP/CLS を 7日間自動 Slack 投稿
+5. **GitHub Actions 共通ワークフロー `uses: let-inc/lp-clone-deploy@v1`**: lint/build/lighthouse/vercel deploy を 1 行で呼出し、新規プロジェクトのCI構築時間を30分→3分
+
+### Step 6: 定量メトリクス・KPI基準
+| 指標 | 目標値 | 計測方法 | ゲート判定 |
+|------|-------|---------|-----------|
+| ビルド→本番デプロイ時間 | ≤40秒 | `vercel deploy --prebuilt` + Turborepo | 1分超過で改善 |
+| 本番 LCP（CRUX / Field） | ≤2.5s | PageSpeed Insights API 自動取得 | 3s超で緊急対応 |
+| 本番 INP | ≤200ms | web-vitals 本番計測 | 300ms超でリリース停止 |
+| 本番 CLS | ≤0.1 | Vercel Speed Insights | 0.15超で原因調査 |
+| デプロイ事故率 | 0件/月 | 本番ロールバック件数 | 1件発生でポストモーテム |
+| 納期遵守率 | 100% | 契約納期 vs 実リリース日 | 遅延1件で原因分析MTG |
+
+### Step 7: 失敗パターン・アンチパターン
+- **AP-1「Preview通過本番失敗アンチパターン」**: Preview デプロイ成功を本番成功と誤認し、本番環境変数（DB接続・OAuth）の差分で本番停止。→ `vercel env pull --environment=production` 事前 diff 必須化
+- **AP-2「Scope曖昧着手アンチパターン」**: 「このサイト複製して」だけでHana着手させ、CMS 連動・下層ページ・フォーム送信が後から判明して工数倍増。→ 受注5分以内に Scope 確定書を Slack ピン留め
+- **AP-3「placeholder残置アンチパターン」**: Mia QA をプレースホルダー画像で通過させ、本番素材差替えを忘れて `placeholder.jpg` のまま公開。→ `grep -r 'placeholder' src/` 0件確認を予約必須
+- **AP-4「vercel.json redirects 無限ループ」**: 複数リダイレクトルールの順序ミスで301が5回以上連続。→ `curl -I -L` で5ホップ以内自動検証
+- **AP-5「production_branch 誤設定」**: 新規 Vercel プロジェクトの Production Branch が作業ブランチのまま、未完成コードが本番配信。→ `vercel project inspect` で `main` ブランチ必須確認
+
+### Step 8: 業界最先端トレンド（2026）
+1. **Vercel Fluid Compute（2026年4月GA）**: cold start 問題解決、API ルート集約 LP で TTFB 800ms→150ms
+2. **v0 Platform API 公開**: 修正指示テキスト → コード自動生成がデプロイ経路に統合、Mia QA通過後の軽微修正を Kaito 単独で30分完結
+3. **Edge Config + Edge Middleware**: A/B 配信・地域別配信をエッジ集約、Slack スラッシュコマンド `/lp-ab` で5秒切替
+4. **Next.js 15 + Partial Prerendering**: Hero=静的 / コンテンツ=CSR のハイブリッドで LCP/TTFB 劇的改善
+5. **Core Web Vitals INP（旧 FID 置換）**: 2024年3月から正式指標化、200ms 以下が実質必須
+6. **Vercel Speed Insights + Observability**: 本番 Real User Monitoring + Runtime Logs 統合、Slack 自動投稿が標準運用
+7. **GitHub Actions + Turborepo Remote Cache**: CI間ビルド成果物共有、同一依存変更なしは tsc/next build 完全スキップ
+
+### Step 9: アウトプット品質向上フォーマット
+**Kaito LP複製完了レポート v3.0（SLA契約準拠）**:
+```yaml
+project:
+  client: 翔星建設株式会社
+  source_url: https://old-site.example.com
+  deploy_url: https://shosei-recruit.vercel.app
+  framework: Next.js 15.0.3 / React 19.0.0 / Tailwind v4.0.0
+  deploy_mode: Fluid Compute + ISR (revalidate: 60)
+sla_commitment:
+  lcp: {target: ≤2.5s, actual_field: 1.8s, status: ✅}
+  inp: {target: ≤200ms, actual_field: 125ms, status: ✅}
+  cls: {target: ≤0.1, actual_field: 0.03, status: ✅}
+  lighthouse: {performance: 95, accessibility: 98, best_practices: 100, seo: 100}
+  mia_fidelity: 92/100
+pipeline_status:
+  step1_hana: {status: ✅, duration: 45min, coverage: 99.7%}
+  step2_nao_parallel: {status: ✅, duration: 60min}
+  step2_ren_parallel: {status: ✅, duration: 60min}
+  step3_ren_detail: {status: ✅, duration: 120min}
+  step4_mia: {status: ✅, score: 92, iterations: 1}
+  step5_deploy: {status: ✅, duration: 25sec via prebuilt+turborepo}
+pre_deploy_7gates:
+  - [x] npm run build (success)
+  - [x] npm run lint (0 warnings)
+  - [x] tsc --noEmit (0 errors)
+  - [x] lighthouse ≥85 (all categories)
+  - [x] Mia fidelity ≥85
+  - [x] env diff: production synced
+  - [x] vercel.json redirects: 5-hop check passed
+cross_browser_12_matrix: [all ✅]  # Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop
+production_monitoring:
+  speed_insights_7day: enabled
+  slack_channel: "#lp-shosei-monitoring"
+  alert_threshold: {lcp: 3s, inp: 300ms, cls: 0.15}
+handoff_to_sora:
+  diff_report: ./mia-residual-diff.md
+  changelog: ./CHANGELOG.md
+  rollback_plan: "vercel alias set [previous-deployment-url]"
+```
+
+### Step 10: 継続学習・成長計画
+- **Month 1**: Vercel Fluid Compute への全案件切替、v0 Platform API 統合による軽微修正自動化、Speed Insights 本番監視フィードバックループ構築、GitHub Actions 共通ワークフロー `lp-clone-deploy@v1` 完成
+- **Month 2**: Progressive Rollout（Preview→Canary→本番）パイプライン、Edge Config 連動 A/B 配信の全案件標準化、PMBOK 準拠リスクレジスタ運用、Turborepo Remote Cache 連動で全デプロイ30秒以内達成
+- **Month 3**: Vercel Marketplace Integrations（Sentry/Datadog/PostHog）連携、Claude Design + Figma → コード直結パイプライン、本番運用 KPI（LCP/INP/CLS）の月次改善レポート自動化。Kaito の統括品質が「国内LP複製統括ディレクター No.1」のベンチマークに
+
+### ✅ 完了証明
+- 10ステップ全記入
+- Kaito 専門領域（LP複製統括・Vercelデプロイ・品質保証）に完全特化
+- 2026年Vercel最新技術（Fluid Compute、v0 Platform API、Edge Config、Next.js 15）反映済み
+- 既存セクション不可侵、Daily Knowledge Log 直前に挿入
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

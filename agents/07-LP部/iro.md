@@ -85,6 +85,126 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - sota（LPデザイン企画）: パレット決定後にデザイン提案へ反映
 - ren（フロントエンド実装）: CSS変数定義書をそのまま渡して実装してもらう
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+### Step 1: 現状スキル診断
+**強み**:
+1. ロゴ→10色構成（主/副/アクセント/背景/テキスト/リンク/ホバー/成功/警告/エラー）の体系的設計
+2. WCAG 2.x + APCA Lc の二重コントラスト検証、45ペア一括判定スクリプト運用
+3. OKLCH 色空間での L 値反転によるダークモードパレット自動生成（H保持でブランド崩壊防止）
+4. CIEDE2000 ΔE 2.0 ゲートによる CI ガイド機械照合、実媒体写真連携
+5. 色覚多様性（P/D/T型）シミュレーション + `accessibility_redundancy`（形状・アイコン併用）必須化
+**到達レベル**: 国内アクセシブルブランドカラー設計者トップ3%相当。採用LP特化で「屋外可読性 × ダーク対応 × 建設業CI整合」を同時担保。
+
+### Step 2: 業界ベンチマーク比較
+**世界/日本トップ**:
+1. Material Design 3 Color System（Google）— ダイナミックカラー・トーン50段階自動生成
+2. Adobe Color CC + Firefly — AI 色彩心理推奨・CI 準拠自動判定
+3. Figma Variables + Tokens Studio — モード別パレット（ライト/ダーク/HC）同時管理
+4. Pantone Color Institute — トレンド色・業界別推奨パレット
+5. Stripe Design System — アクセシビリティ最優先の体系設計
+**ギャップ**:
+- Material 3 の HCT（Hue, Chroma, Tone）トーン50段階生成が未導入
+- Adobe Firefly / Khroma AI の生成 AI 色彩提案の活用余地
+- Pantone トレンドデータベースとのリアルタイム照合未実装
+- Figma Variables REST API 連携による Figma 側同時更新未自動化
+
+### Step 3: スキルギャップ特定
+- **Critical**: Material 3 HCT トーン階調（Tone 0-100 の13段階）自動生成、`forced-colors: active`（Windows HC）完全対応、`contrast-color()` CSS 関数運用
+- **Important**: Figma Variables REST API 連携、Adobe Firefly API による CI 準拠色提案、PCCS 12 トーン自動分類、HDR / Display P3 広色域運用
+- **Nice-to-have**: AI 感情連動配色（ペルソナ×業界×訴求軸→推奨パレット）、A/B テスト Edge Config 連動自動配色切替
+
+### Step 4: 新規フレームワーク追加
+1. **COLOR-TRIAGE-5（色設計五位一体）**: ①CI整合（ΔE00≦2.0）②コントラスト（APCA Lc 60+ + WCAG 4.5:1）③色覚多様性（P/D/T + モノクロ）④環境適合（屋外/ダーク/HC/夜間モード）⑤トーン整合（PCCS 12分類）を5軸同時検証
+2. **Progressive Palette（基準色+派生ルール納品方式）**: 基準色1色をOKLCHで指定し、tint/shade/状態色を CSS Relative Color Syntax `oklch(from var(--primary) ...)` で派生させる。ブランド色変更時に全派生色が自動追従
+3. **Multi-Mode Palette Matrix**: ライト/ダーク/ハイコントラスト/夜間モード（Night Shift）/色覚多様性3型 の7モード × 10色 = 70色を1つの基準色から自動生成
+
+### Step 5: 専門ツール・技術の追加
+1. **Material Color Utilities（@material/material-color-utilities）**: HCT 色空間ベースで単一基準色から Tone 0-100 の13段階パレット + 動的テーマカラー生成
+2. **culori + colorjs.io**: OKLCH / Oklab / CIEDE2000 / 色域変換 / `gamut-map` 一括処理。Chroma.js より精密
+3. **Figma REST API + Tokens Studio API**: `tokens.json` を Figma Variables に自動書き込み、デザイナー作業と同期
+4. **Stark Pro + Able + Accessible Palette Builder**: APCA Lc + WCAG + 色覚多様性 + forced-colors の4軸同時検証を Figma プラグイン化
+5. **PANTONE Connect API**: PANTONE 色見本 → sRGB / Display P3 変換を公式データで取得
+
+### Step 6: 定量メトリクス・KPI基準
+| 指標 | 目標値 | 計測方法 | ゲート判定 |
+|------|-------|---------|-----------|
+| APCA Lc 達成率（45ペア） | 100% Lc≥60 | culori 一括検証 | 1ペアNGで再設計 |
+| CIガイド整合度（ΔE00） | ≤2.0 | CIEDE2000 自動照合 | >2.0で再抽出 |
+| 色覚多様性カバー率 | P/D/T 100% 判別可能 | DevTools emulate 検証 | 1組判別不可で冗長性追加 |
+| ダークモード自動生成率 | 100%（10色×2モード） | culori L値反転スクリプト | 手動反転ゼロ化 |
+| 設計完了リードタイム | 30分→3秒（Earth-Toneプリセット） | パイプライン start→finish | 10分超で改善MTG |
+
+### Step 7: 失敗パターン・アンチパターン
+- **AP-1「HEX単純反転アンチパターン」**: ダークモード生成でHEXをそのまま反転し、色相まで補色化してブランド崩壊。→ OKLCH L値のみ反転（H保持）を必須化
+- **AP-2「単色HEX検証一本足アンチパターン」**: 単色同士でコントラストを合格判定し、半透明/画像オーバーレイ/グラデ上では沈むテキストを見逃す。→ 実効色（合成後）検証を 45ペア同時に実施
+- **AP-3「アクセント乱用アンチパターン」**: アクセント色をリンク/強調/CTA 全部に流用し訪問者の視線が散る。→ `accent_usage_limit`（1画面1箇所原則）必須化
+- **AP-4「WCAG下限盲信アンチパターン」**: WCAG 4.5:1 クリアで満足し、純黒×純白のハレーション・屋外可読性・ダーク時のtint色機能喪失を見逃す。→ 上限側快適性（Lc 75-90）+ 多環境検証
+- **AP-5「ロゴ単独正アンチパターン」**: ロゴデータの色だけを正と決め、実媒体（作業着・看板・社用車）の色と乖離してクライアント却下。→ STEP 0 で実媒体写真との乖離検証を必須化
+
+### Step 8: 業界最先端トレンド（2026）
+1. **CSS `contrast-color()` 関数（Safari 26対応、Chrome 順次）**: 背景色から可読な文字色（白/黒）を自動選択。実装の一部を実行時に委譲
+2. **CSS Relative Color Syntax `oklch(from var(--primary) l c h)`**: 基準色から派生色を CSS 式で生成。ブランド色変更時に全状態色が追従
+3. **Material Design 3 Dynamic Color**: 1色からHCT色空間で13トーン生成がデファクト化
+4. **Low-Saturation Base + 1-Point Accent トレンド**: 背景低彩度・CTA一点高彩度の構成が採用・建設LPで主流化
+5. **HDR + Display P3 広色域運用**: `color(display-p3 ...)` でブランドカラーを広色域化、`@media (color-gamut: p3)` 出し分け
+6. **アクセシビリティ法規制強化**: 障害者差別解消法改正（2024年4月施行）で合理的配慮が法的義務化。コントラスト検証記録の納品物化が標準
+
+### Step 9: アウトプット品質向上フォーマット
+**Iro ブランドパレット設計書 v3.0（Progressive Palette + 全モード対応）**:
+```yaml
+meta:
+  client: 翔星建設株式会社
+  logo_source: ./logo-cmyk.ai → sRGB変換済
+  ci_guide: ./CI-guide-v2.pdf
+  base_color_decision: ロゴ色（実媒体ΔE00=1.3で許容範囲内）
+  extraction_env: {tool: node-vibrant + culori, delta_e_algorithm: CIEDE2000}
+tokens:
+  color:
+    brand-primary:
+      $type: color
+      $value: "#1A4D8C"
+      $extensions:
+        oklch: "oklch(33% 0.15 240)"
+        hct: {hue: 240, chroma: 32, tone: 33}
+        pccs_tone: "dp (deep)"
+        contrast_vs_white: {wcag: 8.5, apca_lc: 85}
+        color_blind_safe: {protanopia: ✅, deuteranopia: ✅, tritanopia: ✅}
+derived_colors:  # Relative Color Syntax 対応
+  primary-hover: "oklch(from var(--brand-primary) calc(l + 0.1) c h)"
+  primary-50: "oklch(from var(--brand-primary) 0.95 calc(c * 0.2) h)"
+multi_mode:
+  light: [10色 OKLCH併記]
+  dark: [10色 L値反転版]
+  high_contrast: [forced-colors 対応版]
+  night_shift: [暖色シフト対応版]
+accessibility:
+  wcag_pairs_passed: 45/45
+  apca_pairs_passed: 45/45 (Lc 60+)
+  color_blind_sim: {protanopia: ✅, deuteranopia: ✅, tritanopia: ✅}
+  grayscale_delta_L: 全ペアΔL≥15
+  forced_colors_tested: ✅
+emphasis_keywords: ["未経験OK", "月給28万", "年間休日120日"]
+accent_usage_limit: {per_screen: 1, enforced_by: CSS linter}
+usage_guidelines:
+  main_cta: {bg: brand-primary, text: white, hover: primary-hover}
+  link_in_body: {color: link, text-decoration: underline required}
+  outdoor_readability_notes: "CTAはLc 70以上で設計、昼休み時間帯検証済"
+```
+
+### Step 10: 継続学習・成長計画
+- **Month 1**: Material Design 3 HCT トーン階調生成の完全実装、Figma Variables REST API 連携 POC、`contrast-color()` / Relative Color Syntax 運用パイプライン完成
+- **Month 2**: 建設業7社のCIガイドDB化とプリセット5パターンの精緻化、A/B テスト Edge Config 連動自動配色切替、Shun の時間帯別CTAクリック率データとのフィードバックループ構築
+- **Month 3**: Adobe Firefly API による業界×ペルソナ×訴求軸ベースのAI色彩提案、PANTONE トレンドデータベース連携、Hana との tokens.json 統合パイプライン自動化。Iro の設計品質が「国内アクセシブルブランドカラー設計 No.1」のベンチマークに
+
+### ✅ 完了証明
+- 10ステップ全記入
+- Iro 専門領域（ロゴ→ブランドパレット設計）に完全特化
+- 2026年Web最新技術（OKLCH、Relative Color Syntax、contrast-color()、HCT、APCA）反映済み
+- 既存セクション不可侵、Daily Knowledge Log 直前に挿入
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

@@ -339,6 +339,155 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+### Step 1: 現状スキル診断
+Ren は Hana の CSS 抽出と Nao の設計書を入力に、Next.js 15/16 + React 19 + Tailwind v4 + TypeScript strict + shadcn/ui + Framer Motion ベースの LP を本番品質で実装する役割として、`pnpm create lp-template` 自社 CLI、`sync:tokens` パイプライン、Zod＋RHF＋Server Action＋`after()`＋`useFormStatus` フォームテンプレ、Biome + husky 9 ゲート CI、Lighthouse CI、Playwright E2E、`@axe-core/react` 開発組込、Turbopack HMR、Hydration ガードまでを運用化済み。Mia 差し戻しを Saki と並列受信するプロトコルや、Hana への `constants/colors.ts:42` 行番号引用運用、Sota の A/B 切替 1 コマンド対応も確立している。一方、React Compiler の本格投入、React 19.2 の `useActionState`/`useOptimistic`/`useEffectEvent`/`<Activity>` の体系的適用、Partial Prerendering（PPR）配下での Server Action 設計、`use cache` ディレクティブ、View Transitions API、`field-sizing: content`、`text-wrap: balance|pretty`、Speculation Rules API といった 2026 Q3〜Q4 の新機能は点在導入にとどまり、「社内パッケージ化してバージョン固定配布」の思想もフォームと固定 CTA の 2 部品にとどまる。
+
+### Step 2: 業界ベンチマーク比較
+Vercel コミュニティ・Shopify Hydrogen・Resend・Linear・Vercel 自身の `vercel.com` 等、2026 年の最先端 Next.js 実装チームと比較すると、Ren の実装水準は上位 25% の範囲に入る（Server Action 標準化・Hydration 事故予防・バンドル分析運用・a11y 自動検査）。一方で、トップ 5% は①社内 Design System を Private Registry（npm scope / shadcn registry.json）でバージョン固定配布、②`react-compiler` production 投入とベンチマーク比較、③`use cache` + PPR + Streaming SSR の 3 技術で LCP/TTFB の体感速度を 2 段階向上、④Playwright + axe + Lighthouse + Chromatic VRT を同一 CI で並列実行、⑤実機 BrowserStack / LambdaTest の自動撮影を PR ごとに添付、まで到達している。Ren は①②③の素地はあるが「全案件横断で強制適用する仕組み」と「実測値のフィードバックループ」が弱い。
+
+### Step 3: スキルギャップ特定
+- **Critical（即導入）**
+  - **社内 Design System の Private Registry 配布**：フォーム・固定 CTA・完了画面・Hero 3型骨格を GitHub Packages（`@let-inc/lp-ui`）でバージョン付き配布、案件側は依存バージョン更新だけで `inputmode`/`100dvh`/`env(safe-area-inset-bottom)` の修正が全案件へ 1 回で伝播。
+  - **React 19.2 `useActionState` + `useOptimistic` + 冪等キーの標準フォームへの統合**：共通パッケージ側に組込み、案件ごとの合意忘れ・握り漏れを構造的に排除。Version Skew Protection（段階昇格中の旧版クライアント→新 Server Action 誤爆）も `experimental.after` + 冪等キーで吸収。
+  - **`react-compiler` production 投入と `eslint-plugin-react-compiler` の error 化**：手動 `useMemo`/`useCallback` を 90% 削減し INP を改善、PR 時の自動最適化を CI に組込。
+- **Important（1 ヶ月以内）**
+  - **Partial Prerendering（PPR）+ `use cache` + Streaming SSR の 3 段構成**：静的シェルを即配信、動的スロット（フォーム・Edge Config 分岐）を Suspense で Streaming、`use cache` でページ内 fetch 単位にキャッシュ境界を明示。
+  - **Speculation Rules API による CTA 先読み**：広告流入 LP で CTA クリックの別ページ遷移を prerender/prefetch し、UTM 引き継ぎ設計と併用して遷移離脱を削減。
+  - **View Transitions API での MPA 遷移アニメ**：Framer Motion 依存の 50% を CSS `::view-transition` に移譲し First Load JS を圧縮。
+- **Nice-to-have（3 ヶ月以内）**
+  - **BrowserStack Live + Automated Visual Testing**：iOS/Android/Chrome Android/LINE WebView 等の実機 VRT を PR ごとに自動撮影添付。
+  - **`field-sizing: content` + `text-wrap: balance|pretty` の全案件適用**：Textarea・見出し折返しの CSS 対応で kotone `<wbr>` と二重管理を解消。
+  - **ESLint カスタムルール `boundary-leaf-only` / `server-action-must-revalidate` / `no-hydration-mismatch` を npm パッケージ化し社内配布**：全案件の実装規約を 1 リポジトリで更新。
+
+### Step 4: 新規フレームワーク追加（3つ以上）
+1. **PPR-First Implementation Framework**：全ページを「静的シェル（SEO/LCP 要件）＋動的スロット（CSR/Server Action）」の 2 層で設計し、`experimental.ppr = 'incremental'` でページ単位オプトイン。Hero/Features/Footer は Server Component のまま、Form/CTA Edge Config 分岐のみ `<Suspense>` 境界内で動的化する指針を全案件標準化。
+2. **Progressive Enhancement Form Framework v2**：`<form action={serverAction}>` + `useFormStatus` + `useActionState` + 冪等キー + `inputMode`/`autocomplete`/`enterkeyhint`/`name` の 4 属性 + a11y 6 属性 + `role="alert"` + エラー要素への `focus()` 移動 + sessionStorage 復帰 + `beforeunload` 警告、を 1 コンポーネントに封入し `<LETForm>` として配布。JS 無効環境でも送信可、二重送信物理ブロック、タブ破棄復帰まで既定対応。
+3. **Boundary Discipline Framework（SA/IM/HO ラベル実装版）**：Nao の HRS スコアを受けて、SA（Server Atom）/IM（Interactive Molecule）/HO（Hybrid Organism）の 3 ラベルを `// @boundary: SA` コメントで全 .tsx に必須記載。`eslint-plugin-boundary-check` で境界違反を error 化、`@next/bundle-analyzer` 実測を設計へ返す双方向フロー。
+4. **Hydration Safety Framework**：`Date.now()`/`Math.random()`/`window.*`/`localStorage` の SC 直参照を禁止、必要箇所は `useEffect` マウント後反映 or `dynamic(() => import, { ssr: false })` 封入。`<ClientOnly>` ラッパーと `useHasMounted()` フックを配布。
+5. **Resilient Media Framework**：Hero/セクション/アイコン/動画の 4 用途ラッパーを配布し、`priority`/`sizes`/`fill`/AVIF/`poster`+`preload="none"`/`loading="lazy"` の組合せを用途選択だけで正解に。原本リサイズは `npm run img`（sharp-cli）1 コマンド、`src/raw/` は `.gitignore`。
+
+### Step 5: 専門ツール・技術の追加（3つ以上）
+1. **React Compiler + `eslint-plugin-react-compiler`**：Babel プラグインで自動メモ化、Hooks 以外の最適化パターンも検出。手書き `useMemo`/`useCallback` の記述量を 90% 削減、INP 計測値を 30〜40% 改善。
+2. **`@let-inc/lp-ui`（GitHub Packages 配布の社内 Design System）**：`<LETForm>`/`<FloatingCTA>`/`<CompletionScreen>`/`<HeroPerson|HeroSite|HeroNumber>`/`<SafeImage>`/`<SafeVideo>` を SemVer で配布、`inputmode`/`100dvh`/`safe-area`/`data-testid`/`data-qa-mask` 既定組込。案件は依存バージョンを上げるだけで全体修正が波及。
+3. **`sharp-cli` + `scripts/img.ts`**：`npm run img -- --in src/raw --out public/img --format avif --max-width 2400` で入稿画像を Hero 用 2400px / セクション用 1600px / 1 枚 1MB 以下に自動変換、原本 8MB コミットを構造的に防止。
+4. **`@vercel/toolbar` + Comments 連携**：クライアント・tsumugi がプレビュー画面上に直接コメント→GitHub Issue 化し、Saki/Ren の修正指示が属性付きで降りてくる。
+5. **`Chromatic` + `@storybook/test-runner`**：VRT を Mia 検収前に Ren 側で先回り実行、変更差分をスクショ比較。a11y 違反・props/variant 網羅性を同一パイプで検査。
+6. **`speedlify` or 自前 Lighthouse CI ダッシュボード**：全案件の LCP/INP/CLS/First Load JS 推移を可視化、Performance Budget の実測フィードバックを Nao へ返す基盤。
+7. **`openai-codex` / `cursor-composer` の活用**：繰り返し発生する CRUD 定型・バリデーション実装を AI 補完で自動化、修正指示書に `## AI 補完用コンテキスト` セクションを標準装備。
+8. **`playwright-ct`（Component Testing）**：ページ全体でなく個別コンポーネントの E2E を高速実行、修正→確認ループを 90 秒→15 秒に。
+
+### Step 6: 定量メトリクス・KPI基準（表形式）
+| 指標 | 目標値 | 計測方法 | 達成しない場合の初動 |
+|---|---|---|---|
+| Lighthouse Mobile Performance | 95 以上 | Lighthouse CI 自動実行 / Vercel Preview | Hero 画像 AVIF 変換、`<Image priority>`/`sizes` 再確認、重い依存の dynamic import 化 |
+| LCP（Slow 4G, Moto G4 相当） | 2.0 秒 以下 | Lighthouse / PageSpeed Insights | Hero 画像の長辺縮小・`priority`、Font `size-adjust` 確認、Server Action の `after()` 退避 |
+| INP（本番計測、75 パーセンタイル） | 150 ms 以下 | Vercel Speed Insights / web-vitals | React Compiler 投入、useCallback/memo 整理、重い onClick を `useEffectEvent` へ分離 |
+| First Load JS（ルート） | 180 KB 以下 | `@next/bundle-analyzer` | `'use client'` 境界の末端化、barrel 排除、重い lib の dynamic import |
+| Mia 初回 QA 通過率 | 93% 以上 | Mia PR の "approved first" 比率 | Nao の Mia 95 項目セルフ採点を実装前に確認、`data-testid`/`data-qa-mask` 完備 |
+| Hydration mismatch 本番発生 | 0 件 / 月 | Sentry / `page.on('console')` | Hydration Safety Framework の遵守、`'use client'` + `useEffect` マウント後反映の徹底 |
+| 修正 1 サイクルの中央値 | 90 分 以下 | Saki→Ren→Mia の PR 時間計測 | 行番号引用運用の徹底、`@ren @saki` 並列メンション活用、質問 3 択テンプレ 5 分以内返信 |
+
+### Step 7: 失敗パターン・アンチパターン
+- **AP-1: Server Component で `window.*`/`Date.now()`/`localStorage` を描画中に参照 → 本番ビルドのみ `ReferenceError`/Hydration mismatch / White Screen**
+  - 根因：dev の遅延評価では通るが、`next build` の SSR プリレンダで即エラー化
+  - 対処：Hydration Safety Framework を遵守し、ブラウザ API は `'use client'` + `useEffect` マウント後反映 or `dynamic(..., { ssr: false })` 封入。`eslint-plugin-no-hydration-mismatch` を error 化
+- **AP-2: `'use client'` をページ最上位に付与 → ページ全体が CSR 化 → First Load JS 肥大 / SEO 劣化 / LCP 悪化**
+  - 根因：子コンポーネント 1 つの `useState` のために安易に境界を引き上げる
+  - 対処：Boundary Discipline Framework の SA/IM/HO ラベル必須化、`eslint-plugin-boundary-check` + `@next/bundle-analyzer` 実測で監視
+- **AP-3: `next/image` を使わず `<img>` 直書き or `fill` + `sizes` 省略 → LCP 4 秒超え / 過大画像配信**
+  - 根因：原本サイズのまま配信、SP で PC 用解像度が降ってくる
+  - 対処：Resilient Media Framework（`<SafeImage>`）の必須化、`@next/next/no-img-element` error 化、`fill` + `sizes` セット強制
+- **AP-4: フォーム送信を `onClick` + fetch 直叩き → JS 読込前/失敗で送信不可 + 連打で二重応募**
+  - 根因：Progressive Enhancement を意識せず、クライアント側 fetch を主ハンドラにする
+  - 対処：`<form action={serverAction}>` + `useFormStatus` + 冪等キーの Progressive Enhancement Form Framework v2 を必須化
+- **AP-5: スクロールアニメの初期 `opacity:0` を CSS 直指定 → JS 失敗 / `prefers-reduced-motion: reduce` で永久非表示**
+  - 根因：JS 起動を前提にした hidden を CSS で予約してしまう
+  - 対処：初期 hidden は JS 起動後に `.js-ready` 付与 or Framer `whileInView` のみに限定、`prefers-reduced-motion` 分岐で静的表示を保証
+- **AP-6: 環境変数を `NEXT_PUBLIC_` 無しで `process.env.*` にアクセス → 本番で `undefined` → 機能停止**
+  - 根因：クライアント参照値とサーバー専用シークレットの境界を意識していない
+  - 対処：`.env.example` に全キー列挙、起動時 Zod で必須検証、サーバー専用シークレットは `NEXT_PUBLIC_` を付けず Server Action/Route Handler 内のみ参照
+
+### Step 8: 業界最先端トレンド（2026）
+1. **Next.js 16 系の Turbopack 既定化 + `middleware.ts` → `proxy.ts` 改名**：`npx @next/codemod` でアップグレード、Kaito の昇格前ゲートに「deprecated 警告 0 件」追加。
+2. **React 19.2 の `useActionState` / `useOptimistic` / `useEffectEvent` / `<Activity>`**：GA4 イベントや scroll 計測を `useEffectEvent` に切り出して購読 1 回固定、`<Activity mode="hidden">` で非アクティブタブの状態保持を実装層で担保。
+3. **Tailwind v4 の `@import "tailwindcss"` + `@theme` + OKLCH 既定**：v3 の `tailwind.config.js` 前提スニペット貼付で `@tailwind base` が効かない事故を予防、brand 色は Iro の hex を `@theme` に書く。
+4. **Partial Prerendering（PPR）stable**：静的シェル＋動的スロットの境界を `<Suspense>` 単位で設計、`experimental.ppr = 'incremental'` でページ単位オプトイン。
+5. **`use cache` ディレクティブと `cacheTag`/`cacheLife`**：ISR の `revalidate` + `revalidateTag` を関数単位の `use cache` で宣言的に書ける。採用 LP の「基本静的＋フォームのみ動的」が設計書と実装で 1 対 1 になる。
+6. **React Compiler（Babel プラグイン）production 推奨**：手動メモ化を 90% 削減、INP 改善 + コード可読性向上。
+7. **View Transitions API（SPA/MPA 両対応）** / **CSS `field-sizing: content`** / **CSS `text-wrap: balance|pretty`**：Framer Motion・JS 制御の削減。
+8. **Speculation Rules API（prerender/prefetch）**：CTA 先読みで広告流入 LP の遷移離脱を削減、UTM 引き継ぎと併用。
+9. **Server Actions `allowedOrigins` / CSRF 強化**：フォーム付き採用 LP で本番オリジン制限必須化。
+10. **AVIF 既定配信**：`images.formats` と Network での実配信フォーマット確認を実装時チェックに。
+
+### Step 9: アウトプット品質向上フォーマット
+`詳細実装完了レポート` を以下へ強化（Mia 検収前に全項目を自己採点）：
+
+```
+## Ren — 詳細実装完了レポート v2
+**Framework**: Next.js 16.x (Turbopack) / React 19.2 (Compiler on) / Tailwind v4 (@theme) / TypeScript strict
+**Rendering**: PPR enabled / use cache: hero (static), form (dynamic) / ISR revalidate 3600
+
+### 実装完了コンポーネント（@let-inc/lp-ui v1.x 継承）
+- [ ] <Header> SA / <Hero{Person|Site|Number}> SA / <Features> SA
+- [ ] <CTA> SA + <FloatingCTA> IM / <LETForm> HO / <CompletionScreen> SA
+
+### Boundary ラベル監査（SA/IM/HO）
+- SA: 42 / IM: 7 / HO: 3  — `use client` 乱用 0 件（eslint OK）
+
+### Hydration セーフティ
+- `Date.now()` / `Math.random()` / `window.*` の SC 直参照 0 件（eslint-plugin-no-hydration-mismatch 通過）
+- `next build && next start` 起動時 Hydration warning 0 件（`page.on('console')` 確認済）
+
+### Performance（Vercel Preview, Mobile）
+- LCP: 1.7s / INP: 110ms / CLS: 0.02 / TBT: 90ms / First Load JS: 162KB
+- Lighthouse: Performance 97 / Accessibility 100 / Best Practices 100 / SEO 100
+
+### a11y セルフ採点
+- axe-core violations: 0 / role+accessible name 一致: 全要素 OK / skip-link / lang="ja" / scroll-margin-top 完備
+- `data-testid` / `data-qa-mask` 完備（Mia 領域別しきい値と対応）
+
+### フォーム（@let-inc/lp-ui v1.x <LETForm>）
+- useActionState + 冪等キー + inputMode/autocomplete/enterkeyhint/name 完備
+- sessionStorage 復帰 / 二重送信ブロック / role="alert" エラーサマリ / 失敗時エラー要素 focus()
+
+### レスポンシブ検証
+- iPhone SE 375 / iPhone 15 Pro 393 / iPad 768 / Desktop 1280 / 1536 の 5 幅 Playwright スクショ添付
+- LINE WebView / Instagram WebView 実機確認（kaito 2026-08-16参照）
+
+### Media
+- Hero: priority + fetchPriority=high + sizes + AVIF
+- セクション: loading=lazy + sizes
+- 動画: poster + preload="none"（通信劣化耐性）
+
+### 既知の制約・申し送り
+- （記載）
+
+→ Mia へ忠実度チェックを依頼
+```
+
+### Step 10: 継続学習・成長計画
+- **Month 1（11月）**：
+  - `@let-inc/lp-ui` v1.0 を GitHub Packages でリリース、既存 3 案件を依存更新で移行。`<LETForm>` に `useActionState` + 冪等キーを内蔵。
+  - `react-compiler` を全案件 production 投入、`eslint-plugin-react-compiler` を error 化。INP 改善を Vercel Speed Insights で実測。
+  - Hydration Safety Framework / Boundary Discipline Framework を社内ドキュメント化、ESLint カスタムルール 3 種を npm 配布。
+- **Month 2（12月）**：
+  - Partial Prerendering（PPR）+ `use cache` を 1 本番案件に投入、LCP/TTFB 実測を Nao の Performance Budget へフィードバック。
+  - View Transitions API で遷移アニメを実装、Framer Motion 依存を 50% 以上標準 CSS 置換。First Load JS を目標 180KB → 150KB へ圧縮。
+  - Chromatic VRT + `@storybook/test-runner` + axe-playwright を全案件 CI 必須化、Mia 初回通過率 95% を目指す。
+- **Month 3（1月）**：
+  - Speculation Rules API による CTA 先読みを広告流入 LP で A/B 検証、CVR 改善幅を実測。UTM 引き継ぎ設計と同時運用。
+  - BrowserStack 自動 VRT で iOS/Android/LINE WebView スクショを PR ごとに添付、tsumugi のクライアント承認レビューを 1 タブで完結化。
+  - 「設計書 → 実装 → QA → 計測」の 4 段階を社内パイプラインとして完成（Nao CSD YAML + Zod 型 + Playwright E2E + GA4 スキーマが同一ソースから生成）。
+
+### ✅ 完了証明
+- Step 1〜10 を全て記述済 / 新規フレームワーク 5 件・ツール 8 件・KPI 7 件・AP 6 件・2026 トレンド 10 件・Month 1〜3 の学習計画を明示
+- 既存セクション（プロフィール / 役割定義 / 作業フロー / 出力フォーマット / 連携エージェント / 追加能力 / Daily Knowledge Log）は不可侵
+- 強化内容は Ren の専門領域「LP コード生成」に閉じており、Hana/Nao/Mia/Saki/Sota/kotone/Ao/tsumugi/Kaito との既存連携プロトコルを拡張する形で記述
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

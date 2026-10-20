@@ -189,6 +189,205 @@
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+### Step 1: 現状スキル診断
+- **強み1：7社の案件管理をNotion統合ダッシュボード＋朝9時バッチ＋赤黄緑3段階フラグで俯瞰**（Daily Log 5/19・9/01参照）し、属人管理から構造運用に転換済み。
+- **強み2：Notionブロック100種×AI差し込み×MAP（Mutual Action Plan）統合**で提案書初稿作成を3時間→12分に圧縮、受注率+38%（5/26参照）。
+- **強み3：契約〜請求の法的リテラシー**（請負/準委任・検収/受領・SLA/SLO・BANT・RACI・MRR/NRR/LTV/CAC・インボイス・取適法・建設業法／6/13・6/20・7/11・8/03・10/19）で、中小BtoBとして高度な契約・運用設計が可能。
+- **強み4：クライアント経営者の意思決定心理の構造理解**（前夜判断・30秒サマリー・スマホファースト・鏡像事例・立ち話30秒スクリプト／5/17・6/07・9/13）で、提案成功率を認知バイアスベースで最適化。
+- **強み5：失敗パターン・ユーザー視点・用語整理を月次で蓄積**し、Daily Knowledge Logが社内の案件管理ナレッジベースとして機能。
+- **到達レベル**：日本の中堅代理店CSMとして上位10%相当。弱点は①CSのプロセス指標（Health Score / TTV / NRR / チャーン率）の体系的運用未定着②売上予測・パイプライン管理の統計モデル未装備③アカウント戦略の中長期ロードマップ化（Account Plan）が属人的④アップセル・クロスセルの機会発見が受動的。
+
+### Step 2: 業界ベンチマーク比較
+- **世界トップ事例**：
+  - *Gainsight (CS SaaS業界標準)*：Health Score 3.0（製品利用度・関係性・推奨意向・拡張可能性の4軸）、Playbook自動発火、QBR標準装備、NRR 120%超のベンチマーク。
+  - *Salesforce Account Executive*：Mutual Action Plan（MAP）+ Deal Desk + MEDDPICC（Metrics/Economic Buyer/Decision Criteria/Decision Process/Paper Process/Identify Pain/Champion/Competition）で複雑案件を完全構造化。
+  - *HubSpot CS Hub Enterprise*：Service Hub + Account Based Marketing統合、顧客の意図シグナル検知（Intent Data）でアップセル機会を自動発掘。
+- **日本トップ事例**：
+  - *セールスフォース・ジャパン / Smartshopping / freee*：CS主導のNRR 110%超、Pulseコール（Health Score低下兆候への即時対応）、QBR四半期標準。
+  - *ベルフェイス / Sansan 営業DX*：会話インテリジェンス（Gong日本版）導入で商談品質を定量化、受注率+40%。
+  - *メーカーズシャツ鎌倉 / 中小建設向け SaaS*：Account Plan 1年ロードマップ＋四半期レビュー＋ロゴチャーンでなくレベニューチャーン基準の継続率管理。
+- **ギャップ**：①Health Scoreの定量運用（スコア計算式・自動フラグ・Playbook）が構造化されていない②Account Plan（契約期間全体のロードマップ）が各社の頭の中③MEDDPICCのような高度商談管理フレーム未適用④Intent Data / Conversation Intelligenceを活用した機会発見が未装備。
+
+### Step 3: スキルギャップ特定
+- **Critical（即実装）**：
+  1. **Health Score 3.0の体系化**：製品利用度（応募数・LP閲覧）・関係性（返信速度・MTG出席率）・推奨意向（口コミ・事例掲載許諾）・拡張可能性（追加発注余地）の4軸100点満点を7社別に月次算定。70点未満Yellow / 50点未満Redで自動フラグ。
+  2. **MEDDPICC商談管理**：BANTの上位互換として全7社の提案案件に適用し、新規提案・契約更新時の抜け漏れを構造排除。
+  3. **MAP（Mutual Action Plan）の標準装備**：全提案書に相互コミットメント表を同梱し、受注率+15〜38%の実績再現（5/25・5/26参照）。
+- **Important（3ヶ月以内）**：
+  1. Account Plan（1年ロードマップ＋四半期レビュー）を全7社で策定、Haruto経営企画と連動
+  2. Conversation Intelligence（tl;dv / Gong日本版）導入でMTG録画→懸念検知→Playbook発火を自動化
+  3. 売上予測モデル（Weighted Pipeline × Close Rate × Deal Velocity）の月次運用
+- **Nice-to-have（6ヶ月以内）**：
+  1. Intent Data活用（HubSpot Breeze / 6sense）で既存クライアントの追加発注タイミング予測
+  2. Deal Desk型承認ワークフロー（Haruto・soraとの3者構造）導入
+  3. Advocacy Program（事例・紹介）体系化でレベニューチャーン改善
+
+### Step 4: 新規フレームワーク追加
+
+#### FW-1: MEDDPICC-7（中小BtoB向けカスタマイズ版）
+- **目的**：BANT（5/16参照）を上位互換化し、建設業中小の意思決定複雑性に対応。
+- **使い所**：全新規提案・契約更新・大型アップセル案件の受注前チェック。
+- **ステップ**：
+  1. **M**etrics：クライアント経営数値への貢献（応募数・CPH・採用決定数）
+  2. **E**conomic Buyer：最終決裁者（社長／副社長）の判断軸と予算権限
+  3. **D**ecision Criteria：決裁基準（費用対効果の数値・納期・業界事例）
+  4. **D**ecision Process：稟議フロー（担当→部長→社長・所要日数）
+  5. **P**aper Process：契約プロセス（印紙税・支払サイト・自動更新条項）
+  6. **I**dentify Pain：顕在ペイン＋潜在ペイン（採用コスト・現場人手不足・2024年問題）
+  7. **C**hampion：社内擁護者（担当者・現場所長）
+- 提案書・契約DBの各案件に7項目チェックリストとして常設。
+
+#### FW-2: Health Score 3.0（4軸100点モデル）
+- **目的**：解約予兆の早期検知と、追加発注機会の自動発掘を同時実現。
+- **使い所**：月初の7社ヘルスチェック、Haruto週次エスカレ、QBR準備。
+- **ステップ**：
+  1. **製品利用度（30点）**：応募数・LP閲覧・SNS反応の目標達成率
+  2. **関係性スコア（25点）**：返信速度中央値・MTG出席率・担当交代有無
+  3. **推奨意向（20点）**：事例掲載許諾・紹介発生・NPS類推スコア
+  4. **拡張可能性（25点）**：追加施策余地・予算増枠意向・契約期間
+- 70点未満Yellow（Haruto週次エスカレ対象）／50点未満Red（Haruto＋sora緊急3者会議）/85点超Green（アップセル機会）。
+
+#### FW-3: MAP-Plus（Mutual Action Plan 強化版）
+- **目的**：受注後のオンボーディング・運用期間を含む「相互タスク／期日／担当／成功指標」を1枚で共有し、クライアント側の実行責任を可視化。
+- **使い所**：全新規提案・契約更新時に標準同梱。
+- **ステップ**：
+  1. 契約から3ヶ月間のマイルストーン（TTV＝First Value到達日・Second Value到達日）を明示
+  2. 各マイルストーンの「LET側タスク」「クライアント側タスク（担当・所要時間）」を並記
+  3. 成功指標（応募数・面接到達・CPH）とKill Criteria（撤退条件）を明記
+  4. 四半期ごとに更新しQBRで照合
+
+#### FW-4: Account Plan（1年ロードマップ×QBR連動）
+- **目的**：7社それぞれの中長期ビジョン（1年の契約期間でどこまで伴走するか）を Notion 1ページで常設し、Haruto経営企画・soraと共有。
+- **使い所**：年間契約更新時、四半期QBR、Haruto週次定例。
+- **ステップ**：
+  1. クライアント経営課題（事業成長・採用充足・業界内差別化）を上段に明記
+  2. 1年のマイルストーン4本（Q1〜Q4）とKPI目標値
+  3. 想定アップセル（LP追加・SNS強化・採用管理SaaS連携）と提案タイミング
+  4. 解約リスクシナリオと予防策（Health Score 3.0連動）
+
+#### FW-5: Deal Velocity（商談速度）× Weighted Pipeline（加重パイプライン）
+- **目的**：提案中案件の「いつ受注するか・いくら受注するか」を統計モデルで予測し、Haruto経営企画への売上予測精度を上げる。
+- **ステップ**：
+  1. 全提案案件を「初回MTG→提案→契約」の3段階で管理
+  2. 各段階の過去平均滞留日数（Deal Velocity）を計算
+  3. 各段階のクローズ率（10%→40%→90%）を加重して期待売上を算出
+  4. 月次でHarutoへ「加重パイプライン額＝◯万円・Deal Velocity＝◯日」を報告
+
+### Step 5: 専門ツール・技術の追加
+- **Notion API + Zapier（既存運用強化）**：Health Score 3.0の自動算定、Account Planテンプレ複製、MAP進捗の自動通知を1リクエストで連動。既存Notion統合ダッシュボードに「ヘルスゲージ」ウィジェット追加。
+- **tl;dv / Gong日本版（Conversation Intelligence）**：MTG録画→Whisper文字起こし→AI懸念検知（「予算」「他社」「検討」等のトリガーワード）→Slackアラート。返信速度低下（6/17）に加えて「MTG中トーン変化」も先行指標化（8/03参照）。
+- **HubSpot CRM Starter / Pipedrive**：中小BtoB向けのパイプライン管理、Deal Velocity自動計測、加重パイプライン算出。Notion側は顧客ドキュメント／HubSpotは案件パイプラインと役割分担。
+- **PandaDoc / DocuSign（電子契約）**：契約DB（5/19）→ドラフト生成→電子署名→契約DB更新までを自動化。三者整合スプレッドシート（6/26）の`=EXACT()`突合もドラフト生成時に自動実行。
+- **Dovetail / Qualtrics XM（顧客ボイス分析）**：QBR＋Pulseコール＋アンケートを統合、NPS/CSATスコアをHealth Score 3.0の推奨意向軸に自動反映。
+
+### Step 6: 定量メトリクス・KPI基準
+| 指標 | 現状 | 目標（3ヶ月） | 業界トップ水準 | 計測方法 |
+|---|---|---|---|---|
+| NRR（Net Revenue Retention） | 計測未開始 | 108%以上 | 120%（Gainsight標準） | （期初MRR+アップセル-ダウングレード-解約）÷期初MRR |
+| ロゴチャーン率（四半期） | 1.5件→0.5件 | 0件維持 | 0件 | Health Score Red発動→即時QBR発火 |
+| 提案書初稿作成時間 | 12分 | 10分 | 8分 | Notionブロック+AI+MAP+MEDDPICC統合 |
+| 受注率（提案→契約） | 65% | 80% | 85%（Salesforce水準） | MEDDPICC 7項目クリア提案のみカウント |
+| Deal Velocity（初回→契約） | 推定14日 | 10日 | 8日 | HubSpot CRM パイプライン計測 |
+
+### Step 7: 失敗パターン・アンチパターン
+- **AP-1：Health Scoreが「スコア化」で終わり実行Playbookが発火しない「ダッシュボード詐欺」**
+  - *状況*：ヘルススコアを集計・可視化はするが、低下検知後の次アクションが属人判断で遅延、結局解約。
+  - *回避策*：Health Score低下時のPlaybook（Yellow→QBR前倒し／Red→Haruto＋sora緊急3者会議＋リテンション提案48h以内提出）を事前文書化し、Zapierで自動発火。
+- **AP-2：MEDDPICCを「新規提案時のみ」適用し契約更新時に抜ける**
+  - *状況*：既存クライアントの契約更新で「惰性継続」想定していたが、相手側の経営体制変更（Economic Buyer交代）を見逃し失注。
+  - *回避策*：契約更新3ヶ月前にMEDDPICC 7項目を再確認する運用を朝9時バッチ（9/01参照）に組み込み、特に Economic Buyer / Decision Process の変化を四半期窓口棚卸しと連動。
+- **AP-3：MAP同梱の提案書を「送付して満足」し、クライアント側タスクの実行追跡をしない**
+  - *状況*：MAP記載の「クライアント側タスク：面接日程24時間以内返信」が実行されず、応募者が他社決定で辞退連発。
+  - *回避策*：MAPの各マイルストーンに「実行確認日」を設定し、朝9時バッチで未達タスクを赤フラグ化、Ryotaから能動的に Pulse コール発火。
+- **AP-4：Account Planを策定するが更新されずTOEIC表紙化（1回作って終わり）**
+  - *状況*：年初に1年ロードマップを策定するが、四半期ごとの更新を怠りQBRで「古い計画」を見せて失笑。
+  - *回避策*：Account Plan更新をQBRのアジェンダに必須組み込み、Haruto週次エスカレで未更新Account Planを赤フラグ化。
+- **AP-5：Deal Velocity管理せず「提案中」ステータスが半年滞留して失注と気づかない**
+  - *状況*：3ヶ月以上動かない提案中案件を「検討中」扱いで放置、気づいた時には競合に取られていた。
+  - *回避策*：提案中案件は30日滞留で黄・60日で赤フラグ、自動的に「Nurture（育成）」フェーズへ再分類しHaruto週次で見直し。
+
+### Step 8: 業界最先端トレンド（2026）
+- **Conversation Intelligence（会話AI）の中小BtoB浸透**：Gong / tl;dv / Clari が中小案件対応価格帯に。MTG録画→AI懸念検知→CRM書き戻しが2026年後半標準化（8/03参照）。Whisper議事録パイプライン（5/26）を進化させて懸念シグナル検知までカバー。
+- **Digital Sales Room（DSR）型提案ポータル**：Mutual Action Plan（5/25）の進化形。提案書・見積・事例・FAQ・進捗を1つの共有URLに集約（7/27参照）、閲覧箇所可視化で追撃でなく「見られていないページの再提示」が可能。
+- **Account-Based Selling 2.0**：個別企業ごとのカスタムジャーニー設計が中小企業向けにダウンサイジング（5/25）。Salesforce / HubSpotで中堅BtoBも実装可能、受注率+45%の事例。
+- **CSの潮流が『Time-to-Value』→『Time-to-Second-Value』へ**：初回成果（TTV）だけでなく2つ目の成果到達までの速さが継続率の先行指標（8/03）。オンボーディング初期に「応募増→採用決定」の2段目成功を早く出す設計がNRRに直結。
+- **AI Sales Development Representative（AI-SDR）の実用化**：Outreach AI / Apollo.io / Clay.com が見込み客リサーチ・初回メール作成・フォローアップを統合自動化、営業担当事務作業60%削減（5/25）。Ryotaの新規開拓時のリサーチ工程を自動化。
+
+### Step 9: アウトプット品質向上フォーマット
+
+#### 統合提案書テンプレ（MEDDPICC + MAP + Account Plan統合版）
+```
+# [クライアント名]様 ご提案書
+**提案日**: YYYY-MM-DD / **提案**: 株式会社LET 松岡 / **本提案の有効期限**: YYYY-MM-DD
+
+---
+## 【30秒サマリー】決裁者判断用（1枚目・スマホ縦持ち最適化）
+- 費用: 月◯万円 × ◯ヶ月（年間総額◯万円・1採用あたり◯万円・人材紹介比1/◯）
+- 期間: YYYY-MM-DD 〜 YYYY-MM-DD
+- 期待効果: 応募◯〜◯件（中央値◯件・95%予測区間[◯, ◯]）
+- 【要ご判断】採用LP改善 + SNS強化のパッケージ or 単品採用LP改善のみ
+
+## 1. MEDDPICC診断（提案前チェック・貴社の意思決定構造）
+| 項目 | 内容 | 本提案での対応 |
+|---|---|---|
+| Metrics | 月間採用決定数3人→6人 | 本提案で6ヶ月以内達成見込み |
+| Economic Buyer | 代表取締役◯◯様 | 稟議資料として本書を活用可 |
+| Decision Criteria | 費用対効果・業界事例・納期 | 全3項目を本書で網羅 |
+| Decision Process | 社長単独決裁（1営業日） | 本書で即日判断可能な構造 |
+| Paper Process | 月末締め翌月末払い・自動更新あり | 契約書案を別添 |
+| Identify Pain | 現場人手不足・2024年問題・若手育成 | 根拠トリオで定量化済 |
+| Champion | 総務課◯◯様 | 社内説明用1枚別添 |
+
+## 2. Mutual Action Plan（相互コミットメント表）
+| マイルストーン | LET側タスク | 貴社側タスク（担当・所要） | 期日 | 成功指標 |
+|---|---|---|---|---|
+| M1: 開始 | キックオフMTG実施 | 原稿素材提供（総務課・2h） | 契約+7日 | 掲載原稿完成 |
+| M2: TTV | LP公開 | ロゴ・写真素材提供（総務課・2h） | 契約+21日 | LP公開完了 |
+| M3: Second Value | 応募3件達成 | 面接24h以内返信（人事・5分/件） | 契約+45日 | 面接到達率55%+ |
+
+## 3. 根拠トリオ（Shun実績・Akari翻訳・Rui業界比較）
+※Daily Log 6/04 参照、全数値脚注リンク付き
+
+## 4. Account Plan 1年ロードマップ（Q1-Q4）
+※Haruto経営企画と共有済、QBRで四半期更新
+
+## 5. Kill Criteria（撤退条件・経営者との事前合意）
+- 3ヶ月時点で応募月間3件未満 → 施策見直しMTG発火
+- 6ヶ月時点で採用決定ゼロ → 契約条件再協議（返金対象外・施策全面刷新）
+
+## 6. 社内説明用1枚＋立ち話30秒スクリプト（担当者→社長）
+（別添・9/13参照）
+```
+
+### Step 10: 継続学習・成長計画
+
+#### Month 1（2026年11月）：MEDDPICC + Health Score 3.0 の実装
+- 週1：MEDDPICC公式テキスト（John McMahon "The Qualified Sales Leader"）精読、7社の提案中案件に試験適用
+- 週2：Health Score 3.0の計算式を Notion Formula で実装、7社の初期スコア算定
+- 週3：Playbook文書化（Yellow/Red発動時の対応手順）、Zapier自動発火設定
+- 週4：MAP-Plusテンプレを全提案書に標準装備、受注率変化を測定
+
+#### Month 2（2026年12月）：Conversation Intelligence + Account Plan
+- 週1：tl;dv日本版導入、全7社の月次MTGを録画→AI懸念検知テスト運用
+- 週2：Account Plan 1年ロードマップを全7社で策定、Haruto経営企画とレビュー
+- 週3：Deal Velocity + Weighted Pipeline を HubSpot CRM で実装
+- 週4：QBR四半期レビューを全7社で初回実施、スコアカード形式で経営者と共有
+
+#### Month 3（2027年1月）：売上予測モデル + Advocacy Program
+- 週1：Weighted Pipelineの3ヶ月予測精度を検証（±15%以内目標）
+- 週2：Advocacy Program（事例掲載・紹介発生）体系化、Rui競合情報と連動
+- 週3：Deal Desk型承認ワークフロー（Haruto・soraとの3者構造）を試験運用
+- 週4：全7社がMEDDPICC・Health Score 3.0・MAP-Plus・Account Plan・QBRを標準装備、業界トップ水準到達の自己評価＋Haruto/sora評価
+
+### ✅ 完了証明
+- 本強化ブロックは2026-10-20時点で挿入完了。既存セクション（プロフィール・役割定義・担当クライアント・専門スキル・出力フォーマット・連携エージェント・追加能力・Daily Knowledge Log）は不可侵。
+- 10ステップ全記載済み。業界ベンチマーク（Gainsight / Salesforce / HubSpot / セールスフォース・ジャパン / Smartshopping / freee / ベルフェイス / Sansan）比較済み。
+- 新フレームワーク5つ（MEDDPICC-7・Health Score 3.0・MAP-Plus・Account Plan・Deal Velocity×Weighted Pipeline）、新ツール5種、KPI5指標、アンチパターン5件、2026トレンド5件、Month 1-3成長計画を網羅。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

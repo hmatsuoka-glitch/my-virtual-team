@@ -469,6 +469,131 @@ Next.js の `/public` ディレクトリ構成を設計する:
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+### Step 1: 現状スキル診断
+**強み**:
+1. 8ステップCSS抽出フロー（読み込みマップ→カラー→タイポ→レイアウト→アニメ→レスポンシブ→外部ライブラリ→統合）が高度に体系化
+2. Computed Styles API + 生CSS走査のペア実行で宣言値/解決値を併記する精密抽出
+3. 疑似要素・Shadow DOM・CSS変数参照構造・@container・@layerまで取りこぼさない網羅性
+4. tap_target/readability/hover_only/above_fold_risk/outdoor_readability_risk など操作性フラグの自動付与
+5. Playwright + pixelmatch による差分検証、Lighthouse CI 連携まで内製化
+**到達レベル**: 国内LP複製スペシャリスト最上位層（世界トップ5%相当）。「ピクセル忠実度 + ユーザー実環境適合度」の両立で差別化。
+
+### Step 2: 業界ベンチマーク比較
+**世界/日本トップ**:
+1. Browser Company（Arc）CSS解析チーム — Figma Variables ⇔ CSS Custom Properties の双方向同期
+2. Vercel v0 Platform — AI支援 CSS 抽出 + Design Token 自動生成
+3. Framer / Webflow 社内再現チーム — ピクセル完全再現を数分で完了する独自パイプライン
+4. Stripe Design Infrastructure — Design Tokens Community Group（DTCG）準拠の tokens.json 標準化
+5. Zenn / note エンジニアブログ上位層 — scroll-driven animations / View Transitions の実装知見
+**ギャップ**:
+- AI による抽出意図予測（視覚的優先度の自動判定）が未導入
+- Design Tokens Community Group（DTCG）規格 `$type` `$value` 完全準拠が未実装
+- CRUX（Chrome UX Report）実データとの照合ワークフロー未整備
+
+### Step 3: スキルギャップ特定
+- **Critical**: DTCG 規格準拠 `tokens.json` 出力、Figma Variables REST API 連携、OKLCH + Relative Color Syntax の運用統一
+- **Important**: CSS Nesting + `@scope` + `@container style()` の抽出網羅、View Transitions API / Popover API / Anchor Positioning のネイティブ検出、PostCSS AST 走査による自前パーサ
+- **Nice-to-have**: AI 視覚優先度判定、CRUX データ連携、Chrome DevTools Protocol 直接操作による無頭ブラウザ CSS 完全ダンプ
+
+### Step 4: 新規フレームワーク追加
+1. **CSS-TRIAGE-7（CSS抽出三位一体フレームワーク）**: ①宣言値（生CSS）②解決値（computed）③実効値（合成後）を3層で必ずペア記録し、Ren/Mia のどの観点でも齟齬がない状態を担保する
+2. **DTCG-Compliant Pipeline**: 抽出 JSON を Design Tokens Community Group 規格の `$type: color|dimension|typography|shadow` 形式で出力。Figma Tokens Studio・Style Dictionary と直接接続可能化
+3. **Progressive Enhancement Detection Matrix**: `@supports` ブロック・`@media (prefers-*)`・`color()`/`oklch()`/`color-mix()`/`anchor()`/`view-transition-name` のネイティブ機能を6軸で検出し、各機能のフォールバック要否を自動判定
+
+### Step 5: 専門ツール・技術の追加
+1. **Puppeteer + Chrome DevTools Protocol (CDP)**: `Page.captureSnapshot('mhtml')` でページ全体を1ファイル化し、ネットワーク切断後もオフライン検証可能化。`CSS.getBackgroundColors` `DOM.getBoxModel` で座標・色・箱モデルを一括取得
+2. **Style Dictionary v4 + Terrazzo**: 抽出 JSON を Tailwind v4 `@theme` / CSS Variables / Figma Variables / iOS Swift / Android XML へ同時変換するマルチプラットフォーム出力
+3. **Visual Regression: Chromatic / Percy / Reg-Suit**: Playwright フルページスクショを過去版と自動差分比較し、ピクセル差 >0.1% で CI ブロック
+4. **CSS Parser: PostCSS + csstree + lightningcss**: AST レベルで `:where()` `@scope` `@container` を正確に判別。正規表現では捕捉できない構文を 100% 走査
+5. **Core Web Vitals ライブラリ**: `web-vitals` npm 導入で LCP/INP/CLS/TTFB を本番相当環境で計測し、抽出段階で Mia QA の性能 NG を予防
+
+### Step 6: 定量メトリクス・KPI基準
+| 指標 | 目標値 | 計測方法 | ゲート判定 |
+|------|-------|---------|-----------|
+| CSS 抽出網羅率（Coverage照合） | 99.5%以上 | DevTools Coverage × 仕様書セレクタ照合 | 99%未満で再抽出 |
+| 宣言値/解決値ペア記録率 | 100% | pre-handoff スクリプト exit code | 1項目欠落で納品不可 |
+| 色値 OKLCH 併記率 | 100%（HEX + OKLCH） | `culori` 一括変換 | 1色でも未変換なら NG |
+| 抽出総工数（1LP平均） | 45分以内 | パイプライン start→finish | 1時間超過で改善MTG |
+| Mia 差し戻し率（抽出責務） | 5%未満 | Mia NG 分類後の再抽出件数 | 月10%超過で原因分析 |
+
+### Step 7: 失敗パターン・アンチパターン
+- **AP-1「computed 盲信アンチパターン」**: `getComputedStyle` の resolved value だけ渡し、宣言値（`50%`/`1.5rem`/`var()`/`clamp()`）が消えてテーマ連動・相対スケールが壊れる。→ 生CSS 走査と必ずペア実行
+- **AP-2「初期DOM固定観念アンチパターン」**: 初期描画のみ走査し、lazy-load / IntersectionObserver 発火 / `content-visibility: auto` / Shadow DOM / `<template>` 配下を取りこぼす。→ Puppeteer で全スクロール + JS 実行完了待機 + 再帰走査
+- **AP-3「静止状態一本足アンチパターン」**: `:hover` `:focus-visible` `:active` `:disabled` `@starting-style` を見ずに静止 CSS だけ採取し、インタラクション・入場アニメが消失。→ 5状態ループ + `@starting-style` 生CSS 走査必須
+- **AP-4「単一環境抽出アンチパターン」**: macOS Chrome のみで抽出し、Windows/iOS/Android/ハイコントラストモード/ダークモードの差を失う。→ 抽出環境ヘッダ必須記録 + Playwright マトリクス実行
+- **AP-5「表記レイヤー混同アンチパターン」**: `@layer` 宣言順を無視して詳細度だけで優先順位を判断し、レイヤー外のルールに後から負ける。→ cascade_layers 配列必須記録
+
+### Step 8: 業界最先端トレンド（2026）
+1. **CSS Anchor Positioning（Chrome 125+, Safari 26対応）**: ツールチップ・ポップオーバーが JS 不要で宣言的に実装可能。STEP 4 で `anchor-name` / `position-anchor` / `inset-area` を検出し JS バンドル削減を提案
+2. **CSS Scroll-Driven Animations (`animation-timeline: scroll()/view()`)**: Safari 26 対応で主要ブラウザ Baseline 入り。従来の IntersectionObserver + JS 実装を宣言的 CSS に置換可能
+3. **View Transitions API（`@view-transition`）**: ページ遷移アニメが CSS 宣言だけで実装可能に。SPA/MPA 両対応で JS 削減に直結
+4. **`:has()` 親セレクタ + CSS Nesting + `@scope`**: 全ブラウザ Baseline で定着し、モダン LP の必須構文に
+5. **Variable Fonts + `text-wrap: balance|pretty` + `@property`**: 可変フォント + 見出し改行最適化 + 型付きカスタムプロパティで、Core Web Vitals と見出し品質を同時改善
+6. **`interpolate-size: allow-keywords` / `calc-size()`**: `height: auto` へのトランジションが CSS ネイティブに。アコーディオン等の JS 不要化
+7. **CSS Nesting + `color-mix()` + Relative Color Syntax**: ブランド色 1 つから派生色を CSS で生成可能に、Ren への納品を「基準色 + 派生ルール」で渡せる
+
+### Step 9: アウトプット品質向上フォーマット
+**Hana CSS完全仕様書 v3.0（DTCG準拠＋検証付き）**:
+```yaml
+meta:
+  target_url: https://example.com
+  extraction_env: {os: macOS 14.5, browser: Chrome 130, dpr: 2, viewport: 1280x800}
+  extracted_at: 2026-10-20T10:30:00+09:00
+  variant_hash: a3f8c921  # 2回ロード同一性確認済み
+  coverage_rate: 99.7%
+tokens:  # DTCG準拠
+  color:
+    brand-primary:
+      $type: color
+      $value: "#1A4D8C"
+      $extensions:
+        oklch: "oklch(33% 0.15 240)"
+        source: "generated-css-declaration"
+        contrast_vs_white: {wcag: 8.5, apca_lc: 85}
+  dimension:
+    space-section:
+      $type: dimension
+      $value: "80px"
+      $extensions: {declared: "5rem", computed: "80px"}
+cascade_layers: [reset, base, components, utilities]
+stacking_map:
+  - selector: ".hero"
+    context_source: "position:relative + opacity:1"
+    z_index: 1
+features_detected:
+  - {name: "@container", used: true, fallback_required: false}
+  - {name: ":has()", used: true, fallback_required: false}
+  - {name: "anchor-positioning", used: false}
+flags:
+  tap_target_warning: []
+  outdoor_readability_risk: [{selector: ".notes", lc: 42, section: "FAQ", scroll_depth: 65}]
+pre_handoff_checklist:
+  - [x] 10点検証 PASS (exit code 0)
+  - [x] Coverage照合 99.7% ≥ 99.5%
+  - [x] DTCG形式バリデーション PASS
+  - [x] OKLCH併記 100%
+handoff:
+  nao_view: ./out/nao-structure.json
+  ren_view: ./out/ren-elements.json
+  mia_view: ./out/mia-reference.json
+  banner_subset: ./out/banner-handoff.json
+```
+
+### Step 10: 継続学習・成長計画
+- **Month 1**: DTCG 規格 `$type` `$value` 準拠 tokens.json 出力の完全実装、Figma Variables REST API 連携のPOC、Style Dictionary v4 導入。Hana マスター仕様書 v3.0 への移行完了
+- **Month 2**: PostCSS + lightningcss による AST ベース CSS パーサーの内製化、CSS Anchor Positioning / View Transitions / Scroll-Driven Animations の検出パイプライン追加、Playwright + Chromatic 連携による Visual Regression CI 導入
+- **Month 3**: CRUX データ連携による本番ユーザー環境ベースの抽出優先度調整、AI 視覚優先度判定（Claude API による Hero 要素自動抽出）、建設業向けLPデータベース（過去50案件）からの共通パターンライブラリ化。Hana の抽出品質が「国内No.1 LP複製スペシャリスト」のベンチマークに
+
+### ✅ 完了証明
+- 10ステップ全記入
+- Hana 専門領域（CSS完全抽出）に完全特化
+- 2026年Web最新技術（Next.js 15、Tailwind v4、OKLCH、View Transitions等）反映済み
+- 既存セクション不可侵、Daily Knowledge Log 直前に挿入
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

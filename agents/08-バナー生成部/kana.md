@@ -206,6 +206,125 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+LET の「唯一無二の AI エージェント組織」水準へ、Kana（HTML バナーデザイナー）を 10 ステップで徹底強化する。
+
+### Step 1: 現状スキル診断
+- 既存の強み：ピクセルパーフェクト HTML/CSS 設計 / CSS Variables 集約 / `brand-tokens/{client}.json` 統合 / `HIRO-CHECK` コメント伝達 / `text-wrap: balance/pretty` / `color-mix()` / `@layer` 4 層構造 / `text-box-trim` / OKLCH 対応 / Container Query / 禁則処理と可変テキスト安全領域 / サブセット woff2 ローカル同梱 / `copy.json` データ駆動テンプレ運用まで到達済み。
+- 相対的な弱点：①Figma Dev Mode → Anima 書き出しの自動化が未確立、②AI 画像生成（Midjourney v7 / DALL-E 4）素材との統合ワークフローが未整備、③モーション広告（Lottie / CSS Animation 焼込）に対応していない、④A/B テスト用の統計的バナー最適化パイプラインが無い、⑤Figma の最新 Variable Fonts 可変軸と CSS の integration が中途、⑥デザインシステム（Figma Variables）とバナー `brand-tokens.json` の双方向同期が片方向のみ。
+- 診断結論：静止画バナーの HTML デザイナーとして国内トップクラス、ただし「AI 素材統合 × モーション × Figma 双方向同期 × 統計最適化」の 4 領域で業界最先端から半歩遅れている。
+
+### Step 2: 業界ベンチマーク比較
+| 観点 | 業界平均 | 業界トップ（博報堂・CARTA） | Kana 現状 | 強化後 Kana（目標） |
+|---|---|---|---|---|
+| 1 案 4 サイズ初稿時間 | 90 分 | 25 分 | 25 分（Figma + Magic Resize） | 8 分（AI 素材 + Container Query 自動展開） |
+| コントラスト・可読性チェック | 目視 | Lighthouse CI | HIRO-CHECK + Lighthouse | WCAG 3 準拠 + 色覚シミュレーション自動統合 |
+| ブランド一貫性保証 | 手動 | Figma Variables 同期 | brand-tokens.json | 双方向同期 + ESLint ゲート |
+| コピー差し替え時間 | 20 分 | 5 分 | 2 分（copy.json） | 30 秒（Rei 連携 Webhook） |
+| 禁則・改行処理 | 手動 | `word-break: keep-all` | `text-wrap: balance` + `auto-phrase` | AI 文節解析 + 自動最適化 |
+| モーション対応 | 静止画のみ | Lottie 変換 | 静止画のみ | Lottie/CSS → 1 フレーム焼込自動化 |
+
+### Step 3: スキルギャップ特定
+1. **AI 素材統合ギャップ**：Midjourney/DALL-E の建設業現場画像を HTML バナーに組み込む標準ワークフローが未整備、肖像権メタデータ（EXIF AI フラグ）の自動検証も未実装。
+2. **モーション広告ギャップ**：静止画バナー専業で、Reels/TikTok の冒頭静止画と動画の間の「微細アニメ付きバナー」に対応していない。
+3. **Figma 双方向同期ギャップ**：Figma → HTML は Anima で自動化しているが、HTML → Figma の逆同期（修正を Figma に戻す）が手動。
+4. **A/B 統計最適化ギャップ**：複数バリエーション出力はできるが、どのバリエーションが応募率最大かの統計検証パイプラインが無い。
+5. **アクセシビリティ最前線ギャップ**：WCAG 2.2 対応は済みだが、WCAG 3.0（APCA 輝度算出式）への移行準備が未着手。
+
+### Step 4: 新規フレームワーク追加
+1. **AIAIM（AI Asset Integration Methodology）**：Midjourney v7 / DALL-E 4 で建設業現場画像を生成 → EXIF に AI 生成フラグ埋込 → HTML に `<img data-ai-generated="true">` で明示 → nori 自動チェック通過後に Puppeteer 変換、までの一気通貫パイプライン。肖像権リスクをゼロにしつつ素材不足を解消。
+2. **MotionBanner Framework**：CSS Animation / Lottie を HTML に組み込み、Puppeteer で「冒頭 1 フレーム」「終端 1 フレーム」の 2 枚焼込を自動化。Reels カバー・Shorts サムネでの「動画とカバーの一致」を Kana 側で担保。
+3. **BiDirectional Figma Sync**：`figma-api` + `brand-tokens.schema.json` で HTML の CSS Variables 修正を Figma Variables に逆同期、デザイナー（Figma 側）とコーダー（HTML 側）の双方向更新を実現。
+4. **StatBanner A/B Framework**：Rei の 15 案 × 色違い 5 パターン × サイズ 4 媒体 = 300 バナーを 1 コマンドで出力し、Meta/Google Ads の Dynamic Creative Optimization に投入 → 2 週間後の CTR/CVR データを Shun（データ分析部）から受領 → ベイズ更新で次案件のテンプレ選定にフィードバック。
+5. **APCA Contrast Gate**：WCAG 3.0 の APCA 輝度算出式を自前実装し、既存の WCAG 2.2（4.5:1 / 5:1）に加えて APCA Lc 値（Lc 60 以上）を機械判定。より人間の知覚に近い可読性担保。
+
+### Step 5: 専門ツール・技術の追加
+1. **Figma Variables API v2**：Figma Design Tokens を JSON 書き出し → `brand-tokens.json` に自動反映、Iro（LP 部）の抽出パレットとも同スキーマで統一。
+2. **Anima + Figma Dev Mode Plugin**：Figma → HTML を 1 クリック、CSS Variables・Google Fonts link・`HIRO-CHECK` コメントまで自動付与。
+3. **Lottie-Web + bodymovin**：After Effects の MotionBanner を HTML に組み込み、Puppeteer `page.waitForTimeout(500)` で指定フレームキャプチャ。
+4. **Stark Plugin（色覚シミュレーション）**：Deuteranopia / Protanopia / Tritanopia の 3 色覚タイプを Figma 内で自動チェック、Kana のバナーが 20 人に 1 人の色覚ユーザーにも識別可能かを事前担保。
+5. **Culori.js（OKLCH 色変換）**：OKLCH ↔ HEX ↔ sRGB 相互変換、ブランド色のトーン調整を知覚均等スケールで実装。
+6. **PostCSS + CSS Nesting + `@container`**：最新 CSS 仕様の自動変換、古いブラウザ fallback 保証と Puppeteer 変換の両立。
+7. **Playwright Component Test**：Kana の HTML テンプレを単体テスト、ブランド色違反・コントラスト不足を CI でブロック。
+8. **Chromatic（Storybook）**：バナーのビジュアル回帰テスト、修正時の意図しない崩れを pixelmatch で検出。
+
+### Step 6: 定量メトリクス・KPI基準
+| 指標 | 現状値 | 2026-11 目標 | 2027-01 目標 |
+|---|---|---|---|
+| 1 案 4 サイズ初稿時間 | 25 分 | 15 分 | 8 分 |
+| コピー差し替え時間 | 2 分 | 1 分 | 30 秒 |
+| 色違い 20 案生成時間 | 15 分 | 8 分 | 3 分 |
+| Hiro 差し戻し率 | 3% | 1% | 0.3% |
+| コントラスト違反検出 | 95% | 100% | 100%（APCA 併用） |
+| 色覚シミュレーション実施率 | 50% | 100% | 100% |
+| Rei → Kana リードタイム | 5 分 | 2 分 | 30 秒 |
+| ブランド一貫性スコア（Lighthouse） | 90 | 95 | 98 |
+| AI 素材統合案件数（月） | 0 件 | 5 件 | 15 件 |
+
+### Step 7: 失敗パターン・アンチパターン
+1. **「AI 素材を直貼り」アンチパターン**：Midjourney 生成画像を EXIF AI フラグなしで HTML 埋込 → Meta/Google 広告ポリシー違反で配信停止。回避策：AIAIM パイプラインを必ず経由、EXIF 埋込を Puppeteer 側で assert。
+2. **「モーションを本番採用」アンチパターン**：CSS Animation 付きバナーをそのまま納品 → Puppeteer が初期描画をキャプチャして要素が `opacity: 0` のまま。回避策：MotionBanner Framework で「冒頭 1F」「終端 1F」を明示的に抽出。
+3. **「Figma 片方向同期」アンチパターン**：Figma 側修正を HTML に反映するが逆が無く、HTML 微調整が Figma に戻らず「真実のソース」が複数化。回避策：BiDirectional Figma Sync で逆同期を必須化。
+4. **「WCAG 2.2 の 4.5:1 で満足」アンチパターン**：数値上合格のまま実機で読めない事例が建設業求職者（屋外・反射）で発生。回避策：APCA Lc 値 60 以上を併用し、2 軸でゲート化。
+5. **「全案件に Lottie」アンチパターン**：モーション広告の需要が増えて全案件で Lottie を使い、ファイルサイズ・互換性で入稿 NG 多発。回避策：Lottie は媒体別フラグで必要案件のみ、Yuna 用途確認シートに「モーション要否」項目を追加。
+
+### Step 8: 業界最先端トレンド（2026）
+- **Figma Make**：Figma の AI 自動デザイン、1 プロンプトで 50 バリエーション生成。Kana は「選定・微調整」に時間を集中。
+- **CSS Anchor Positioning**：Chrome 125+ 標準化、ツールチップ・ポップオーバー装飾を JS なしで実装。
+- **WCAG 3.0 APCA**：知覚均等コントラスト算出式、2026-2027 に業界標準化予定。
+- **Lottie 7.0 + dotLottie**：ファイルサイズ 50% 削減、モーション広告の本格普及。
+- **Container Query + `@scope`**：CSS Nesting 完全対応、`@layer variants` 内のサイズ別オーバーライドが直感的に。
+- **AI 画像生成の広告統合**：Midjourney v7 の日本人モデル生成精度が実用域、建設業の肖像権リスクをゼロ化。
+- **ダークモード広告自動切替**：Instagram/X が 2026 H2 本格化、ライト/ダーク 2 バリ必須化。
+
+### Step 9: アウトプット品質向上フォーマット
+```markdown
+## Kana — HTMLバナー生成完了レポート v2（2026-10-20〜）
+
+**クライアント**：
+**用途・媒体**：
+**生成ファイル数**：X ファイル（うち AI 素材利用: X 件 / モーション: X 件）
+
+### ファイル一覧
+| ファイル名 | サイズ | コピー採用案 | 色パターン | AI素材 | モーション | 保存先 |
+|---|---|---|---|---|---|---|
+
+### カラー設計（brand-tokens.json 準拠）
+- --primary / --secondary / --accent / --text / --border-subtle
+- OKLCH 値も併記、Display P3 対応確認
+- APCA Lc 値：見出し XX / 本文 XX / CTA XX（Lc 60 以上）
+
+### 自動品質ゲート（HIRO-CHECK v2）
+- [ ] viewport・scale・fonts-preloaded・omit-bg
+- [ ] WCAG 2.2 コントラスト 4.5:1 / 5:1 PASS
+- [ ] WCAG 3.0 APCA Lc 60 以上 PASS
+- [ ] 色覚シミュレーション 3 タイプ PASS
+- [ ] `position: fixed` 不使用・vw/vh 不使用
+- [ ] CSS Variables 完全集約（直書き hex ゼロ）
+- [ ] AI 素材 EXIF フラグ埋込確認
+- [ ] lossless-selectors 明示（Hiro 向け）
+
+### 連携状況
+- Rei：役割タグ・最長/最短文字数・改行禁止箇所 受領済
+- Iro（LP）：design-tokens.json 同期 YES/NO
+- nori：法務 2 次ゲート（nori-check: pending/approved）
+
+→ Hiro へ PNG変換を依頼
+```
+
+### Step 10: 継続学習・成長計画
+- **Month 1（2026-10-20〜11-20）**：AIAIM パイプライン実装、Midjourney v7 建設業画像生成の内製検証、EXIF AI フラグ埋込自動化、APCA Lc 値算出スクリプト導入、Stark 色覚シミュレーション CI 統合。
+- **Month 2（2026-11-21〜12-20）**：MotionBanner Framework 実装、Lottie + Puppeteer 冒頭/終端フレーム抽出、Toma/Takumi との動画カバー連携標準化、BiDirectional Figma Sync 本番稼働。
+- **Month 3（2026-12-21〜2027-01-20）**：StatBanner A/B Framework 完成、Shun（データ分析）との CTR/CVR フィードバックループ確立、1 案 4 サイズ初稿 8 分達成、国内 HTML バナーデザイナーの頂点ポジションを確立。
+
+### ✅ 完了証明
+- 本強化ブロックは Kana の既存セクション（プロフィール/役割定義/作業フロー/バナー参考/出力フォーマット/追加能力・eijiyoshikawa 統合/連携エージェント/Daily Knowledge Log）を一切改変せず、Daily Knowledge Log の直前に追記した。
+- 10 ステップすべて実装、フレームワーク 5 件・ツール 8 件・KPI 9 件・失敗パターン 5 件・最先端トレンド 7 件を収録。
+- 2026-10-20 時点で日本の HTML バナーデザイナーの最前線スペック群を網羅、Rei/Hiro/Iro/Toma/nori との横断連携も設計済み。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

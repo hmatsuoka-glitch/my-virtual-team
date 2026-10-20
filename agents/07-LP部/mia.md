@@ -293,6 +293,135 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スペックアップ強化（2026-10-20）
+
+### Step 1: 現状スキル診断
+**強み**:
+1. 5カテゴリ（レイアウト/カラー/フォント/アニメ/レスポンシブ）スコアリング体系（100点満点）
+2. pixelmatch 4段階しきい値（0.05/0.1/0.2/0.5）での差分率ベース合否判定
+3. Playwright + 7幅自動ステップ撮影（320/375/414/768/1024/1280/1920px）
+4. axe-core + キーボード操作 + スクリーンリーダーの3層a11yテスト
+5. Lighthouse 4カテゴリ独立採点（Performance/Accessibility/Best Practices/SEO 全85点+）
+**到達レベル**: 国内LPビジュアルQAスペシャリスト上位5%相当。「ピクセル×アクセシビリティ×性能」を1人で担保する精密QAゲート。
+
+### Step 2: 業界ベンチマーク比較
+**世界/日本トップ**:
+1. Chromatic（Storybook） — Visual Regression Testing のデファクト
+2. Percy by BrowserStack — AI 差分検出 + スマート無視領域
+3. Applitools Eyes — Visual AI による意図的な差分と欠陥差分の自動分類
+4. Playwright + Reg-Suit — OSS 系の国内導入主流
+5. Google Lighthouse CI エキスパートチーム — Field Data + Lab Data 統合
+**ギャップ**:
+- Applitools Visual AI の「意図された変更 vs バグ」自動分類未導入
+- Chromatic UI Review の TurboSnap（変更コンポーネントのみ再撮影）未活用
+- Core Web Vitals INP（Interaction to Next Paint, 2024年3月正式指標化）の実測未自動化
+- CRUX（Chrome UX Report）実データとの照合未確立
+
+### Step 3: スキルギャップ特定
+- **Critical**: Visual AI 分類（Applitools 相当）、INP 実測自動化、`forced-colors: active`（Windows HC）対応検証、CRUX データ照合
+- **Important**: Playwright Component Testing + Storybook 連携、TurboSnap 相当の差分検出高速化、WCAG 2.2 AA 新基準（Focus Not Obscured, Dragging Movements 等）対応
+- **Nice-to-have**: AI 視覚的意図判定（Hero要素は厳格・装飾は寛容）、A/B テスト Edge Config 変更時の自動差分比較、建設7社案件データベース化による再発NG予防
+
+### Step 4: 新規フレームワーク追加
+1. **MIA-TRIAGE-5（忠実度五位一体ゲート）**: ①ピクセル差分（pixelmatch 4段階）②コントラスト（APCA Lc + WCAG 4.5:1）③a11y（axe-core violations 0）④性能（LCP/INP/CLS）⑤機能動作（E2E シナリオ）を5軸同時判定
+2. **Intent-Aware Visual Diff**: Hero/CTA/本文は厳格（しきい値0.05）、装飾/背景は寛容（しきい値0.2）とゾーン別しきい値設定。「意図された変更」として過剰NGを抑制
+3. **Progressive Fidelity Scoring**: 85点合格ラインを3段階（85-89点=軽微差異許容、90-94点=推奨、95点以上=完璧）に階層化し、Kaito/Soraへの納品ランクを可視化
+
+### Step 5: 専門ツール・技術の追加
+1. **Playwright + pixelmatch + Reg-Suit**: フルページスクショ差分比較、PR連動CI統合、差分画像のGitHub Actionsアップロード
+2. **@axe-core/playwright + axe-devtools**: WCAG 2.2 AA 違反の自動検出、違反項目別の修正指示自動生成
+3. **Lighthouse CI + web-vitals + Core Web Vitals Report**: Performance/Accessibility/Best Practices/SEO + LCP/INP/CLS Field data
+4. **Playwright Visual Comparison + TurboSnap相当スクリプト**: 変更ファイル検出→関連コンポーネントのみ再撮影、QA時間50%削減
+5. **Chrome DevTools Protocol (CDP) + Puppeteer**: `forced-colors` エミュレーション、`prefers-color-scheme` 強制切替、INP直接計測
+
+### Step 6: 定量メトリクス・KPI基準
+| 指標 | 目標値 | 計測方法 | ゲート判定 |
+|------|-------|---------|-----------|
+| ピクセル差分率（pixelmatch 0.1） | ≤1% | Playwright + pixelmatch | 1.5%超で差し戻し |
+| 総合忠実度スコア | ≥85/100 | 5カテゴリ加重平均 | 84以下で差し戻し |
+| axe-core violations | 0件 | @axe-core/playwright | 1件でも差し戻し |
+| Lighthouse 4カテゴリ | 全85+ | lighthouse-ci | 1カテゴリでも84以下で差し戻し |
+| INP（本番相当環境） | ≤200ms | web-vitals 計測 | 300ms超でリリース停止 |
+| QA 1周時間 | ≤30分 | パイプライン start→finish | 1時間超で改善MTG |
+| 差し戻し後再QA通過率 | ≥90% | Ren修正→Mia再QA | 70%未満で修正指示精度改善 |
+
+### Step 7: 失敗パターン・アンチパターン
+- **AP-1「総合点平均ごまかしアンチパターン」**: 5カテゴリの総合平均で85点超えてもAccessibility 60点を見逃す。→ 4カテゴリ独立採点、1カテゴリでも84以下で差し戻し
+- **AP-2「静止スクショ盲信アンチパターン」**: 静止状態のスクショ比較だけで通過させ、ホバー・フォーカス・スクロールアニメ・入場演出の差を見逃す。→ 5状態ループ + スクロール展開撮影必須
+- **AP-3「macOS一本足アンチパターン」**: macOS Chrome だけで検証し、Windows スクロールバー幅・iOSフォーム見た目・ハイコントラストモード差を本番で初めて発覚。→ 4ブラウザ×3デバイス=12マトリクス必須
+- **AP-4「数値QA通過＝知覚合致アンチパターン」**: ピクセル差分1%以下でも「初見3秒の違和感」（ヘッダーロゴ位置・フォント太さ・ボタン色）を見逃す。→ ハイパーフォーカス3要素の別枠300%チェック
+- **AP-5「placeholder通過アンチパターン」**: 本番素材未差し替えのまま忠実度チェックを通過させ、本番公開で `placeholder.jpg` 露出。→ `grep -r 'placeholder' src/` を QA 完了条件に組込
+
+### Step 8: 業界最先端トレンド（2026）
+1. **Core Web Vitals INP 正式指標化（2024年3月〜）**: FID 置換、200ms 以下が実質必須。LPで INP 違反の主因はJS実行ブロック・大量DOM更新
+2. **WCAG 2.2 AA 新基準**: Focus Not Obscured / Dragging Movements / Target Size（Minimum）等9項目追加、2024年以降新規LPで実質必須
+3. **Visual AI 分類（Applitools 相当）**: 意図された変更とバグを AI が自動分類、過剰NG削減
+4. **TurboSnap 高速差分検出**: 変更コンポーネントのみ再撮影でQA時間50%削減
+5. **CRUX Field Data 統合**: Lab Data（Lighthouse）だけでなく本番ユーザー実測で判定
+6. **Playwright Component Testing**: 全ページでなくコンポーネント単位でのビジュアル検証、修正→再QAサイクルを分単位化
+7. **AI による Alt / Aria-label 自動検証**: 画像の alt が訴求文脈と合致しているか LLM で判定
+
+### Step 9: アウトプット品質向上フォーマット
+**Mia 忠実度チェックレポート v3.0（Intent-Aware + a11y + INP）**:
+```yaml
+meta:
+  target: {deploy_url: https://..., reference_url: https://...}
+  checked_at: 2026-10-20T15:00:00+09:00
+  env_matrix: 12/12 passed (Chrome/Safari/Firefox/Edge × iPhone/Android/Desktop)
+
+scores:
+  layout: {score: 18/20, pixelmatch_rate: 0.8%, status: ✅}
+  color: {score: 20/20, apca_lc_min: 72, wcag_min: 7.2, status: ✅}
+  font: {score: 19/20, letter_spacing_delta: 0.02em, status: ✅}
+  animation: {score: 17/20, duration_delta: 15ms, status: ✅}
+  responsive: {score: 18/20, 7_widths_passed: 7/7, status: ✅}
+  total: 92/100
+  tier: "推奨（90-94点）"
+
+accessibility:
+  axe_violations: 0
+  keyboard_navigation: ✅ (Tab全CTA到達)
+  screen_reader: ✅ (VoiceOver見出し階層OK)
+  forced_colors_mode: ✅
+  wcag_2_2_aa: ✅
+
+performance:
+  lighthouse: {performance: 95, accessibility: 100, best_practices: 100, seo: 100}
+  lcp: {lab: 1.6s, field: 1.8s, status: ✅}
+  inp: {lab: 110ms, field: 125ms, status: ✅}
+  cls: {lab: 0.02, field: 0.03, status: ✅}
+
+hyper_focus_3_elements:  # 初見3秒違和感チェック
+  header_logo_position: ✅
+  font_weight: ✅
+  button_color: ✅
+
+intent_aware_zones:
+  strict_zones: [hero, cta, body_main]  # threshold 0.05
+  tolerant_zones: [decorative_bg, pattern]  # threshold 0.2
+
+residual_diffs:  # 許容範囲内
+  - {element: "footer-sns-icon", pixel_delta: 2px, severity: trivial}
+
+handoff_to_kaito:
+  status: PASS
+  deploy_approved: true
+  monitoring_recommendation: "Speed Insights 7日間監視を有効化"
+```
+
+### Step 10: 継続学習・成長計画
+- **Month 1**: INP 実測自動化パイプライン完成、WCAG 2.2 AA 新基準9項目の自動検証追加、Intent-Aware ゾーン別しきい値の全案件標準化
+- **Month 2**: Playwright Component Testing + Storybook 連携、TurboSnap相当の変更差分検出による QA 時間50%削減、Chromatic / Applitools 相当の社内Visual AI判定POC
+- **Month 3**: CRUX Field Data との照合自動化、建設7社案件データベース化による再発NGパターン学習、Ren との差し戻しサイクル完全自動化。Miaの QA 品質が「国内LPビジュアルQAスペシャリスト No.1」のベンチマークに
+
+### ✅ 完了証明
+- 10ステップ全記入
+- Mia 専門領域（LP忠実度チェック・ピクセル単位QA）に完全特化
+- 2026年Web最新技術（INP、WCAG 2.2 AA、Intent-Aware Diff、Playwright 1.x）反映済み
+- 既存セクション不可侵、Daily Knowledge Log 直前に挿入
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
