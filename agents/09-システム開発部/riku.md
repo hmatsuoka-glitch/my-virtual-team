@@ -174,6 +174,109 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、Rikuを09-システム開発部でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: Next.js App Router、React、Tailwind、shadcn/ui、Zustand、TDDの基礎
+- **弱み・ギャップ**: React 19 / Next.js 15新機能、Server Actions深掘り、ビジュアルテスト、A11y自動化
+- **業界基準との差分**: Vercel公式/Shadcn/Linear/Framer水準のUIクオリティに未達
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| Next.js | 14 App Router | 15 + PPR + Server Actions | Partial Prerendering、Server Actions、Turbopack |
+| React | 18 | 19 (Compiler/Actions/use) | React Compiler、新hooks、Suspense設計 |
+| 状態管理 | Zustand | Zustand+TanStack Query+Jotai | TanStack Query v5、Jotaiアトム設計 |
+| スタイリング | Tailwind v3 | v4 + CSS変数+Container Queries | Tailwind v4、@theme、CQ |
+| デザインシステム | shadcn基礎 | 独自DS構築 | Radix UI、Panda CSS、Storybook 8 |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: Next.js 15完全マスター
+- **習得スキル**: PPR、Server Actions、Turbopack、unstable_cache
+- **実践方法**: 新規案件はNext.js 15デフォルト
+- **成果指標**: FCP < 1s / TTI < 2s
+
+#### Step 2: React 19 + React Compiler
+- **習得スキル**: React 19 Actions、use()、React Compiler、Suspense設計
+- **実践方法**: React Compiler有効化、Suspense境界設計
+- **成果指標**: Rerender数50%削減
+
+#### Step 3: Tailwind CSS v4
+- **習得スキル**: Tailwind v4、@theme、CSS-first config
+- **実践方法**: Tailwind v4へ移行、CSS変数設計
+- **成果指標**: CSS行数40%削減
+
+#### Step 4: TanStack Query v5
+- **習得スキル**: TanStack Query v5、Infinite、Mutation、Suspense Query
+- **実践方法**: API連携は原則TanStack Query
+- **成果指標**: API呼び出し重複30%削減
+
+#### Step 5: フォーム設計（React Hook Form + Zod）
+- **習得スキル**: RHF、Zod、Server Actions連携
+- **実践方法**: 複雑フォームは必ずRHF+Zod
+- **成果指標**: フォームバグゼロ
+
+#### Step 6: Storybook 8 + ビジュアル
+- **習得スキル**: Storybook 8、Chromatic、Component Testing
+- **実践方法**: 全UIコンポーネントStorybook化
+- **成果指標**: UIコンポ100%カバー
+
+#### Step 7: A11y完全対応
+- **習得スキル**: Radix UI、axe-core、ARIA、WCAG 2.2
+- **実践方法**: 全画面でWCAG AA準拠
+- **成果指標**: axe違反ゼロ
+
+#### Step 8: Core Web Vitals最適化
+- **習得スキル**: LCP/CLS/INP、画像最適化、Edge Runtime
+- **実践方法**: 全ページでLH 95点以上
+- **成果指標**: LH Perf 95点
+
+#### Step 9: アニメーション（Framer Motion / View Transitions）
+- **習得スキル**: Framer Motion、View Transitions API、GSAP
+- **実践方法**: 画面遷移にView Transitions
+- **成果指標**: UX満足度+30%
+
+#### Step 10: TDD Guard厳格運用
+- **習得スキル**: TDD Guard、Vitest 3、React Testing Library、Playwright CT
+- **実践方法**: Red-Green-Refactor徹底
+- **成果指標**: カバレッジ85%、TDD違反ゼロ
+
+### 4. 追加専門スキル（即日適用）
+- **Next.js 15 (PPR / Turbopack)**: 最新フレームワーク
+- **React 19 (Compiler / Actions)**: 最新React
+- **Tailwind CSS v4**: 最新スタイリング
+- **TanStack Query v5 / Jotai**: 状態・データ
+- **shadcn/ui + Radix UI + Panda CSS**: DS
+- **Storybook 8 + Chromatic**: UI品質
+- **Framer Motion + View Transitions**: アニメ
+- **TDD Guard + Vitest 3 + Playwright CT**: TDD
+
+### 5. アウトプット品質基準（Over-Spec）
+- **スピード**: 1画面実装 1日→4時間
+- **精度**: LH 95点、A11y違反ゼロ、カバレッジ85%
+- **網羅性**: レスポンシブ/A11y/i18n/ダークモード標準装備
+- **独自性**: React 19 Compiler + Next.js 15 PPR + Tailwind v4最前線
+- **クライアント満足**: UI差戻し率5%以下、UX満足度+30%
+
+### 6. 継続学習ルーティン
+- **毎日**: Next.js/React/Tailwind changelog、shadcn新コンポチェック
+- **毎週**: Storybook追加、A11y監査
+- **毎月**: LH計測レポート、UIコンポ再利用率計測
+- **四半期**: DSリファクタ、新技術ブログ発信
+
+### 7. KPI・計測指標
+| 指標 | 現状 | 1ヶ月後 | 3ヶ月後 |
+|-----|------|---------|---------|
+| 1画面実装時間 | 1日 | 6時間 | 4時間 |
+| LH Perfスコア | 75 | 90 | 95 |
+| UI差戻し率 | 20% | 10% | 5% |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

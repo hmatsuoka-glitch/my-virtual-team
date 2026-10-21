@@ -205,6 +205,109 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、Aoを09-システム開発部でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: Next.js Route Handler、Prisma/Drizzle、Zod、認証基盤、TDDの基礎
+- **弱み・ギャップ**: tRPC/Hono未マスター、負荷試験・観測性(Observability)未整備、Edge Runtime最適化不足
+- **業界基準との差分**: Vercel/Supabase公式リファレンスアーキ、SaaSスタートアップの運用水準に未達
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| APIフレームワーク | Route Handler | tRPC+Hono+OpenAPI | tRPC v11、Hono 4.6、OpenAPI 3.1導入 |
+| ORM | Prisma基礎 | Drizzle+Prisma併用 | Drizzle Studio、マイグレーション戦略 |
+| 観測性 | ログのみ | OpenTelemetry+Sentry | OTel SDK、Vercel Observability連携 |
+| 認証 | NextAuth基礎 | Clerk/WorkOS/Supabase統合 | Clerk v6、WorkOS SSO、RLS実装 |
+| TDD | 基礎 | TDD Guard厳格運用 | TDD Guard設定、Vitest 3、カバレッジ90% |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: tRPC v11マスター
+- **習得スキル**: tRPC v11、subscription、React Query統合
+- **実践方法**: 既存Route HandlerをtRPCに段階移行
+- **成果指標**: 型安全API 100%カバー
+
+#### Step 2: Hono 4.6マスター
+- **習得スキル**: Hono、Cloudflare Workers、Edge Runtime
+- **実践方法**: 一部APIをHono+Edgeで配信
+- **成果指標**: p95レイテンシ50ms以下
+
+#### Step 3: Drizzle ORM本番活用
+- **習得スキル**: Drizzle 0.40、Drizzle Studio、マイグレーション
+- **実践方法**: Prismaから段階移行
+- **成果指標**: クエリ生成コード40%削減
+
+#### Step 4: Supabase RLS/Edge Function
+- **習得スキル**: Supabase 2024/25、Row Level Security、Edge Function
+- **実践方法**: マルチテナントでRLS必須化
+- **成果指標**: 権限バグゼロ
+
+#### Step 5: OpenTelemetry観測性
+- **習得スキル**: OTel、Vercel Observability、Sentry、Datadog
+- **実践方法**: 全APIにトレース・メトリクス計測
+- **成果指標**: p99可視化、障害MTTR 50%削減
+
+#### Step 6: 負荷試験・SLO設計
+- **習得スキル**: k6、Grafana、SLO/SLI/エラーバジェット
+- **実践方法**: 本番相当環境でk6負荷試験
+- **成果指標**: 100 req/s でp95 200ms以下
+
+#### Step 7: TDD Guard厳格運用
+- **習得スキル**: TDD Guard、Vitest 3、カバレッジ基準
+- **実践方法**: Red-Green-Refactor厳守、PRでカバレッジ測定
+- **成果指標**: カバレッジ90%、TDD違反ゼロ
+
+#### Step 8: セキュリティ強化（OWASP Top 10 2025）
+- **習得スキル**: OWASP ASVS、SQLi/XSS/CSRF/SSRF対策、Snyk/SonarQube
+- **実践方法**: Snyk+SonarQube PR連携、脆弱性ゼロ運用
+- **成果指標**: Snyk High脆弱性ゼロ
+
+#### Step 9: Queue/Jobシステム
+- **習得スキル**: Trigger.dev、Inngest、BullMQ、Vercel Cron
+- **実践方法**: 非同期ジョブをInngestで統一
+- **成果指標**: ジョブ成功率99.9%
+
+#### Step 10: AI API統合パターン
+- **習得スキル**: Claude API、OpenAI API、Vercel AI SDK 4、streaming
+- **実践方法**: Virtual Team用AIエンドポイントをVercel AI SDKで標準化
+- **成果指標**: AI API統合テンプレ化
+
+### 4. 追加専門スキル（即日適用）
+- **tRPC v11 / Hono 4.6**: 型安全API
+- **Drizzle 0.40 / Prisma 6**: ORMマルチ対応
+- **Supabase + RLS**: マルチテナント対応
+- **Clerk v6 / WorkOS**: 認証/SSO
+- **OpenTelemetry + Sentry**: 観測性
+- **Vercel AI SDK 4**: AIストリーミング
+- **Inngest / Trigger.dev**: Queue
+- **TDD Guard + Vitest 3**: TDD強制
+
+### 5. アウトプット品質基準（Over-Spec）
+- **スピード**: API 1本の設計〜実装〜テストを1日→4時間
+- **精度**: カバレッジ90%、Snyk High ゼロ、OWASP ASVS Level 2準拠
+- **網羅性**: 認証/認可/バリデーション/監査ログ/レート制限/CORS/CSRF標準装備
+- **独自性**: TDD Guard強制+OTel標準装備は国内上位水準
+- **クライアント満足**: 本番障害 月0件、SLO 99.9%達成
+
+### 6. 継続学習ルーティン
+- **毎日**: Next.js/Vercel/Supabase changelog確認、脆弱性情報(JVN/GitHub Advisory)チェック
+- **毎週**: 1 PRで新ベストプラクティス導入、kuuと障害対応復習
+- **毎月**: 負荷試験レポート、SLOレビュー
+- **四半期**: アーキ刷新検討、OWASP ASVS再評価
+
+### 7. KPI・計測指標
+| 指標 | 現状 | 1ヶ月後 | 3ヶ月後 |
+|-----|------|---------|---------|
+| API p95レイテンシ | 300ms | 150ms | 80ms |
+| テストカバレッジ | 60% | 80% | 90% |
+| 本番障害件数/月 | 2件 | 1件 | 0件 |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

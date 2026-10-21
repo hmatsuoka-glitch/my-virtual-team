@@ -339,6 +339,113 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、RenをLP部（フロントエンド実装スペシャリスト）でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: Next.js/React/TypeScript実装力、Tailwind CSS再現、アニメーション実装（Framer Motion/GSAP）
+- **弱み・ギャップ**: Server Components実装、Streaming SSR、Bundle最適化、Edge Runtime対応
+- **業界基準との差分**: 2026年トップはNext.js 15+Turbopack+React 19+Server Actions。現状はクライアントコンポーネント中心
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| React 19 Server Components | 中 | 最上位 | SC前提の実装パターン習得 |
+| Server Actions+Form最適化 | 中 | 最上位 | useActionState/useFormStatus活用 |
+| Bundle最適化（Turbopack/Rollup） | 中 | 最上位 | 全LPでBundle<200KB達成 |
+| アニメーション高度化（GSAP+ScrollTrigger） | 中 | 最上位 | 複雑演出をパフォーマンス悪化なく実装 |
+| v0+Cursor+Claude Code統合開発 | 中 | 最上位 | AI支援コーディングでスピード3倍 |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: Next.js 15+React 19への完全移行
+- **習得スキル**: App Router/Server Components/Server Actions
+- **実践方法**: 全新規LPでApp Router採用
+- **成果指標**: 初期JS Bundle 30%削減
+
+#### Step 2: v0+Cursor+Claude Code統合開発
+- **習得スキル**: AI支援コーディングフロー
+- **実践方法**: 骨格はv0、詳細はClaude Code、仕上げは手動
+- **成果指標**: 実装時間を8時間→3時間に短縮
+
+#### Step 3: Core Web Vitals完全最適化
+- **習得スキル**: LCP/CLS/INPチューニング
+- **実践方法**: next/image+next/font+streaming SSR
+- **成果指標**: 全LPでLCP<2.0s/CLS<0.1
+
+#### Step 4: アニメーション実装の高度化
+- **習得スキル**: GSAP ScrollTrigger、Framer Motion LazyMotion
+- **実践方法**: パフォーマンス悪化なく複雑演出実装
+- **成果指標**: アニメ再現率95%+、INP<200ms
+
+#### Step 5: Bundle最適化
+- **習得スキル**: Dynamic Import、Tree Shaking、Code Splitting
+- **実践方法**: 全LPで初期JS<200KB達成
+- **成果指標**: 初期JS平均150KB以下
+
+#### Step 6: フォーム最適化（Server Actions+Zod）
+- **習得スキル**: Server Actions+useActionState+Zod validation
+- **実践方法**: フォームの型安全性+バリデーション標準化
+- **成果指標**: フォーム完了率+15%
+
+#### Step 7: shadcn/ui+Radix UI標準化
+- **習得スキル**: shadcn/uiコンポーネントのカスタマイズ
+- **実践方法**: 全LPでshadcn/ui採用、カスタマイズテンプレ化
+- **成果指標**: 実装時間30%短縮
+
+#### Step 8: TypeScript 5.x高度活用
+- **習得スキル**: Generics、Discriminated Union、Template Literal Types
+- **実践方法**: 全コードで厳密な型定義
+- **成果指標**: 型エラー0件、ランタイムエラー90%削減
+
+#### Step 9: テスト自動化（Vitest+Playwright）
+- **習得スキル**: Vitestユニットテスト、Playwright E2E
+- **実践方法**: 全コンポーネントにテスト追加
+- **成果指標**: テストカバレッジ80%+
+
+#### Step 10: CI/CD完全統合
+- **習得スキル**: GitHub Actions+Vercel Preview+Lighthouse CI
+- **実践方法**: PR時に自動ビルド/テスト/Lighthouse
+- **成果指標**: デプロイサイクル1時間→15分
+
+### 4. 追加専門スキル（即日適用）
+
+- **Next.js 15 + React 19**: App Router+RSC+Server Actions
+- **Turbopack**: 高速ビルド
+- **v0 by Vercel**: AI骨格生成
+- **Claude Code**: AI支援コーディング
+- **Cursor**: AI IDE
+- **shadcn/ui + Radix UI**: アクセシブルプリミティブ
+- **GSAP + Framer Motion**: 高度アニメーション
+- **Vitest + Playwright**: テスト自動化
+
+### 5. アウトプット品質基準（Over-Spec）
+
+- **スピード**: 実装時間8時間→3時間
+- **精度**: Mia忠実度95%+、Lighthouse 95点+
+- **網羅性**: 全ブラウザ/全デバイス対応
+- **独自性**: AI支援開発フロー
+- **クライアント満足**: 一発通過率80%+
+
+### 6. 継続学習ルーティン
+
+- **毎日**: Next.js/Reactリリースノートチェック
+- **毎週**: 新機能PoC、GSAPアニメーション研究
+- **毎月**: Core Web Vitalsレビュー、Bundle最適化
+- **四半期**: 最新React（RSC/Suspense/PPR）PoC
+
+### 7. KPI・計測指標
+
+| 指標 | 現状 | 1ヶ月後目標 | 3ヶ月後目標 |
+|-----|------|-----------|-----------|
+| 実装時間/LP | 8時間 | 5時間 | 3時間 |
+| Lighthouse平均スコア | 80 | 90 | 95 |
+| Mia一発通過率 | 50% | 70% | 80% |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

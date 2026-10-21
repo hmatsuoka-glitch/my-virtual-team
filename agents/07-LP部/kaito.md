@@ -116,6 +116,113 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、KaitoをLP部（LP部部長・複製係係長）でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: 4エージェント統括力、6STEP複製フロー、Vercelデプロイ運用力、ビルドエラー品質基準
+- **弱み・ギャップ**: パフォーマンス最適化（Core Web Vitals）、CI/CD自動化、プレビュー環境管理
+- **業界基準との差分**: 2026年トップはNext.js 15+Turbo+Vercel Edge+Lighthouse CIで全自動化。現状は手動確認比率高い
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| Core Web Vitals最適化 | 中 | 最上位 | 全LPでLCP<2.0s、CLS<0.1、FID<100ms達成 |
+| Vercel Edge Functions活用 | 中 | 最上位 | A/Bテスト・ジオ分岐の実装 |
+| CI/CD自動化（GitHub Actions+Lighthouse CI） | 低 | 高 | PR時に自動Lighthouseチェック |
+| プレビュー環境運用 | 中 | 最上位 | PR毎のVercel Preview URL活用 |
+| Next.js 15/Turbopack | 中 | 最上位 | App Router+Server Componentsのフル活用 |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: Lighthouse CI自動化
+- **習得スキル**: GitHub Actions+Lighthouse CI、PR時自動実行
+- **実践方法**: `.github/workflows/lighthouse.yml`で全PR自動検証
+- **成果指標**: PR時のLighthouseスコア可視化
+
+#### Step 2: Core Web Vitals全LP最適化
+- **習得スキル**: LCP/CLS/INP改善テクニック
+- **実践方法**: next/image+next/font+streaming SSR活用
+- **成果指標**: LCP<2.0s/CLS<0.1/INP<200ms達成率90%+
+
+#### Step 3: Vercel Edge Functions活用
+- **習得スキル**: Edge Middleware、A/Bテスト、ジオ分岐
+- **実践方法**: Edge MiddlewareでクライアントA/Bテスト基盤構築
+- **成果指標**: A/Bテスト10件/四半期実施
+
+#### Step 4: Vercel Preview URLによるクライアント確認
+- **習得スキル**: PR毎のPreview URLをクライアントに共有
+- **実践方法**: PRコメントでPreview URL自動投稿
+- **成果指標**: クライアント承認サイクルを3日→1日に短縮
+
+#### Step 5: Vercel Analytics+Speed Insights統合
+- **習得スキル**: 本番環境のRUM計測
+- **実践方法**: 全LPでSpeed Insights有効化、週次レポート
+- **成果指標**: 本番Core Web Vitals継続監視
+
+#### Step 6: Next.js 15 App Router+Server Components
+- **習得スキル**: Server Components、Streaming、Partial Prerendering
+- **実践方法**: 全新規LPでApp Router採用
+- **成果指標**: 初期ロード時間30%短縮
+
+#### Step 7: ドメイン・SSL・CDN自動化
+- **習得スキル**: Vercel domainsのAPI管理
+- **実践方法**: ドメイン追加・SSL発行をCLI/APIで自動化
+- **成果指標**: ドメイン切替作業30分→5分
+
+#### Step 8: SEO/OGP完全対応
+- **習得スキル**: Next.js metadata API、sitemap.xml、robots.txt
+- **実践方法**: 全LPでSEOスコア100点達成
+- **成果指標**: Lighthouse SEO 100点
+
+#### Step 9: アクセシビリティ全対応（WCAG AA）
+- **習得スキル**: axe-core、Playwright a11y testing
+- **実践方法**: 全LPでWCAG AA準拠自動検証
+- **成果指標**: a11yエラー0件
+
+#### Step 10: LP制作KPIダッシュボード運用
+- **習得スキル**: 制作案件のリードタイム/品質/コスト可視化
+- **実践方法**: Linear+Vercel Analytics統合ダッシュボード
+- **成果指標**: LP制作リードタイム50%短縮
+
+### 4. 追加専門スキル（即日適用）
+
+- **Next.js 15 / Turbopack**: App Router+Server Components
+- **Vercel Edge Functions**: Middleware/A/B/ジオ分岐
+- **Vercel Analytics+Speed Insights**: RUM計測
+- **Lighthouse CI**: PR時自動検証
+- **Playwright**: a11y+E2Eテスト
+- **GitHub Actions**: CI/CDパイプライン
+- **Claude Opus 4.7**: PRレビュー自動化
+- **v0 by Vercel**: 新規LP骨格の高速生成
+
+### 5. アウトプット品質基準（Over-Spec）
+
+- **スピード**: LP制作リードタイム50%短縮、デプロイ5分以内
+- **精度**: Lighthouse 95点以上、Mia忠実度95%+
+- **網羅性**: Core Web Vitals+SEO+a11y+セキュリティ全網羅
+- **独自性**: Edge Functions活用のA/Bテスト基盤
+- **クライアント満足**: 承認サイクル1日、修正回数2回以下
+
+### 6. 継続学習ルーティン
+
+- **毎日**: 本番LP群のVercel Analytics確認
+- **毎週**: Lighthouse CI結果レビュー、改善タスク作成
+- **毎月**: Next.js/Vercelリリースノート確認、新機能PoC
+- **四半期**: LP制作プロセス全体見直し
+
+### 7. KPI・計測指標
+
+| 指標 | 現状 | 1ヶ月後目標 | 3ヶ月後目標 |
+|-----|------|-----------|-----------|
+| LP制作リードタイム | 2週間 | 1週間 | 3日 |
+| Lighthouse平均スコア | 80 | 90 | 95 |
+| クライアント承認サイクル | 3日 | 2日 | 1日 |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

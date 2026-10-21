@@ -293,6 +293,113 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、MiaをLP部（ビジュアルQAスペシャリスト）でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: 5カテゴリ100点スコアリング、ピクセル単位検証、差し戻しプロセス運用力
+- **弱み・ギャップ**: Visual Regression自動化（Percy/Chromatic）、動的コンテンツ対応、ブラウザクロス検証
+- **業界基準との差分**: 2026年トップはPlaywright+Percy+Chromatic+Argos CIで自動Visual Regression。現状は手動比較中心
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| Visual Regression自動化（Percy/Chromatic/Argos） | 低 | 高 | PR時に自動Visual Regression実施 |
+| ブラウザクロス検証（Playwright） | 中 | 最上位 | Chrome/Safari/Firefox/Edgeで自動検証 |
+| アクセシビリティ検証（axe-core） | 低 | 高 | WCAG AA準拠を自動検証 |
+| パフォーマンスQA（Lighthouse CI） | 中 | 最上位 | Core Web VitalsをPR時に検証 |
+| AI支援Visual Diff（Claude Vision） | 低 | 高 | 画像差分をAIが評価しコメント生成 |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: Playwright+Percy統合
+- **習得スキル**: Playwright+Percyの連携
+- **実践方法**: PR時に全ページでVisual Regression自動実行
+- **成果指標**: 手動検証時間を2時間→20分に短縮
+
+#### Step 2: ブラウザクロス検証自動化
+- **習得スキル**: Playwrightの複数ブラウザ対応
+- **実践方法**: Chrome/Safari/Firefox/Edgeで並列検証
+- **成果指標**: ブラウザ依存バグ検出率90%+
+
+#### Step 3: アクセシビリティ自動検証（axe-core）
+- **習得スキル**: Playwrightと axe-core統合
+- **実践方法**: 全ページでaxe-coreスキャン、WCAG AA準拠確認
+- **成果指標**: a11yエラー0件達成
+
+#### Step 4: Lighthouse CI統合
+- **習得スキル**: Lighthouse CIをQAゲートに組込
+- **実践方法**: スコア閾値未満は自動差し戻し
+- **成果指標**: 全LPでLighthouse 90点+
+
+#### Step 5: AI支援Visual Diff（Claude Vision）
+- **習得スキル**: Claude Visionで画像比較・差分コメント生成
+- **実践方法**: Percyの差分画像をClaudeに投入し自動コメント
+- **成果指標**: 差分コメント作成時間を60分→10分に短縮
+
+#### Step 6: スコアリング厳格化（85→95点基準）
+- **習得スキル**: QA基準の厳格化と項目拡張
+- **実践方法**: 5カテゴリ→8カテゴリ（SEO/a11y/perfを追加）
+- **成果指標**: 複製LP品質95点+
+
+#### Step 7: デバイス実機検証（BrowserStack連携）
+- **習得スキル**: BrowserStack APIで実機検証
+- **実践方法**: 月1回主要実機で動作確認
+- **成果指標**: 実機不具合率1%以下
+
+#### Step 8: フォント・字詰めレベルの検証
+- **習得スキル**: フォントメトリクス比較、字詰め検証
+- **実践方法**: Puppeteer+Opentype.jsでフォント詳細比較
+- **成果指標**: フォント再現率99%+
+
+#### Step 9: アニメーション検証（Playwright trace）
+- **習得スキル**: Playwright trace+video recording
+- **実践方法**: アニメーションを動画記録しfps/タイミング検証
+- **成果指標**: アニメーション忠実度95%+
+
+#### Step 10: QAレポート自動生成（Claude Opus 4.7）
+- **習得スキル**: 検証結果→HTMLレポート自動生成
+- **実践方法**: スコア+差分+改善指示を1ページレポート化
+- **成果指標**: レポート作成時間ゼロ化
+
+### 4. 追加専門スキル（即日適用）
+
+- **Playwright**: ブラウザクロス検証とVisual Regression
+- **Percy/Chromatic/Argos**: Visual Regression Platform
+- **axe-core**: アクセシビリティ検証
+- **Lighthouse CI**: パフォーマンス/SEO/a11y検証
+- **Claude Vision**: AI画像差分評価
+- **BrowserStack**: 実機検証
+- **Opentype.js**: フォントメトリクス解析
+- **pa11y**: a11y追加検証
+
+### 5. アウトプット品質基準（Over-Spec）
+
+- **スピード**: QA検証時間2時間→20分
+- **精度**: 差分検出率99%、見逃し率0%
+- **網羅性**: ビジュアル+a11y+perf+SEO+クロスブラウザ全網羅
+- **独自性**: AI Visual Diff+自動コメント生成
+- **クライアント満足**: 本番リリース後の不具合0件
+
+### 6. 継続学習ルーティン
+
+- **毎日**: PR時の自動QA結果レビュー
+- **毎週**: QA基準見直しと項目追加
+- **毎月**: 本番LP全件のVisual Regression実施
+- **四半期**: QAツール見直し、新ツールPoC
+
+### 7. KPI・計測指標
+
+| 指標 | 現状 | 1ヶ月後目標 | 3ヶ月後目標 |
+|-----|------|-----------|-----------|
+| QA検証時間/LP | 2時間 | 1時間 | 20分 |
+| 本番リリース後の不具合 | 不明 | 1件以下 | 0件 |
+| 差分検出率 | 85% | 95% | 99% |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

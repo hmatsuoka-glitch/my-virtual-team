@@ -204,6 +204,109 @@ if 単発スライドのみ必要:
 - **templates/monthly-report.md**: 月次レポートの雛形
 - **templates/proposal.md**: 提案書の雛形
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、Soumaを10-資料作成部でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: Google Slides/PPTX/DOCX出力、11テンプレ学習、ブランド一貫性保持
+- **弱み・ギャップ**: Figma/Gamma/Beautiful.ai未活用、データ可視化深化不足、動画・アニメ対応なし
+- **業界基準との差分**: 外資系コンサル/スタートアップ資料（Framer/Linear水準）に未達
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| ツール連携 | Google Slides中心 | Figma/Gamma/Beautiful.ai統合 | Figma Slides、Gamma、Beautiful.ai |
+| データビジュアル | 基礎 | dataviz skill徹底 | パレット設計、SVGチャート |
+| イメージ生成 | ストック素材 | Midjourney v7/Flux/Ideogram | AI画像生成パイプライン |
+| アニメーション | なし | 画面遷移/モーション | PowerPoint Morph、View Transitions |
+| ブランド管理 | テンプレ学習 | デザイントークン化 | Figma Variables、Style Dictionary |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: Figma Slides完全マスター
+- **習得スキル**: Figma Slides、Auto Layout、Variables
+- **実践方法**: Figma Slidesで提案書作成パイプライン化
+- **成果指標**: デザイン品質+30%
+
+#### Step 2: Gamma / Beautiful.ai連携
+- **習得スキル**: Gamma AI、Beautiful.ai、テーマカスタム
+- **実践方法**: ドラフト速報版をGammaで即日生成
+- **成果指標**: 初稿リードタイム50%短縮
+
+#### Step 3: dataviz skill徹底
+- **習得スキル**: dataviz、Recharts/D3、SVGチャート、カラーパレット
+- **実践方法**: 全データ図をdataviz skill準拠に
+- **成果指標**: データ図再利用率+30%
+
+#### Step 4: AI画像生成パイプライン
+- **習得スキル**: Midjourney v7、Flux.1 Pro、Ideogram 2.0
+- **実践方法**: 挿絵・ヒーロー画像をAI生成
+- **成果指標**: 素材調達コスト月5万円削減
+
+#### Step 5: アイコン/イラストDB
+- **習得スキル**: Lucide、Phosphor、Unidraw、Blush
+- **実践方法**: アイコン/イラストDBを統一
+- **成果指標**: 視覚一貫性+30%
+
+#### Step 6: PowerPoint Morph / View Transitions
+- **習得スキル**: Morph遷移、View Transitions
+- **実践方法**: スライド遷移にモーション追加
+- **成果指標**: プレゼン印象スコア+30%
+
+#### Step 7: Figma Variables + デザイントークン
+- **習得スキル**: Figma Variables、Style Dictionary、ブランドトークン
+- **実践方法**: クライアント7社トークン化
+- **成果指標**: ブランド逸脱ゼロ
+
+#### Step 8: python-pptx自動化
+- **習得スキル**: python-pptx、OOXML、スクリプト出力
+- **実践方法**: 定型資料を自動生成
+- **成果指標**: 定型資料時間80%削減
+
+#### Step 9: 動画・GIF対応
+- **習得スキル**: Loom、Rive、Lottie、CapCut
+- **実践方法**: 提案書内に短尺動画を埋込
+- **成果指標**: 提案採択率+15%
+
+#### Step 10: アクセシビリティ
+- **習得スキル**: PPT A11y、コントラスト、代替テキスト
+- **実践方法**: WCAG AA準拠
+- **成果指標**: A11y違反ゼロ
+
+### 4. 追加専門スキル（即日適用）
+- **Figma Slides + Variables**: デザイン基盤
+- **Gamma / Beautiful.ai**: AI資料生成
+- **dataviz skill**: データ可視化
+- **Midjourney v7 / Flux.1 Pro / Ideogram 2.0**: AI画像
+- **Lucide / Phosphor / Blush**: アイコン・イラストDB
+- **python-pptx**: 自動化
+- **Loom / Rive / Lottie**: 動画・モーション
+- **Style Dictionary**: ブランドトークン
+
+### 5. アウトプット品質基準（Over-Spec）
+- **スピード**: 20ページ資料 1日→4時間
+- **精度**: ブランド逸脱ゼロ、A11y違反ゼロ
+- **網羅性**: デザイン/データ図/画像/アイコン/動画統合
+- **独自性**: Figma Slides+AI生成+dataviz統合は国内上位
+- **クライアント満足**: デザイン修正率15%→3%
+
+### 6. 継続学習ルーティン
+- **毎日**: Dribbble/Behance、Pitch/Linear資料15分収集
+- **毎週**: デザイントレンド調査、テンプレ更新
+- **毎月**: AI画像ワークフロー検証、素材DB更新
+- **四半期**: Figma Variables刷新、ブランドDB刷新
+
+### 7. KPI・計測指標
+| 指標 | 現状 | 1ヶ月後 | 3ヶ月後 |
+|-----|------|---------|---------|
+| 20p資料制作時間 | 1日 | 6時間 | 4時間 |
+| デザイン差戻し率 | 15% | 8% | 3% |
+| 提案採択率改善 | +0% | +10% | +20% |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-14

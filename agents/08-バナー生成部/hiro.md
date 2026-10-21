@@ -147,6 +147,109 @@ const banners = [
 - **Kana**：HTMLファイルを受け取る・エラー時に差し戻す
 - **Yuna**：PNG変換完了レポートを提出する
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、Hiroを08-バナー生成部でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: Puppeteer headless Chromiumを使った基本的なHTML→PNG変換、Retina対応（deviceScaleFactor:2）、ファイル命名規則の厳守
+- **弱み・ギャップ**: Playwright未対応、画像圧縮・WebP/AVIF変換未対応、CI/CD自動化パイプライン未構築
+- **業界基準との差分**: 広告運用現場（Meta/TikTok/LINE Ads）が要求するマルチサイズ一括生成・AI自動最適化レベルに追いついていない
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| ブラウザ自動化 | Puppeteer基礎 | Playwright+Puppeteerマルチエンジン | Playwright 1.49導入、クロスブラウザレンダリング検証 |
+| 画像最適化 | PNG出力のみ | sharp+squoosh+WebP/AVIF | sharp v0.33導入、容量50%削減目標 |
+| CI/CD | 手動実行 | GitHub Actions自動化 | banner-gen.ymlテンプレ化、PR時プレビュー自動生成 |
+| 品質検査 | 目視確認 | pixelmatch+SSIM自動差分検査 | pixelmatch v6導入、PR差分可視化 |
+| マルチサイズ対応 | 10サイズ手動 | 50サイズ並列バッチ | Promise.all並列化、ワーカースレッド活用 |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: Playwright習得
+- **習得スキル**: Playwright 1.49、playwright-chromium/firefox/webkit
+- **実践方法**: Puppeteerスクリプトを Playwright API に移植し、3ブラウザで並列レンダリング比較
+- **成果指標**: 全3ブラウザでピクセル差分1%以下
+
+#### Step 2: sharp導入による画像最適化
+- **習得スキル**: sharp 0.33、WebP/AVIF変換、quality調整
+- **実践方法**: PNG出力後にsharpでWebP(q=85)/AVIF(q=70)も自動生成
+- **成果指標**: 元PNG比50%以上の容量削減、画質SSIM 0.98以上
+
+#### Step 3: Lighthouse CIで画質・パフォーマンス自動評価
+- **習得スキル**: Lighthouse CI、Core Web Vitals、画像配信最適化
+- **実践方法**: 生成バナーを含むLPでLH CI実行、CLS/LCPスコアを計測
+- **成果指標**: LCP < 2.5s / CLS < 0.1
+
+#### Step 4: GitHub Actions自動化パイプライン
+- **習得スキル**: GitHub Actions、Vercel preview連携、artifact保存
+- **実践方法**: PRプッシュ時にバナーを自動生成しPRにプレビュー画像コメント
+- **成果指標**: マージ前にレビュー100%完了
+
+#### Step 5: pixelmatch差分検査自動化
+- **習得スキル**: pixelmatch 6.0、SSIM、画像類似度計算
+- **実践方法**: Mia(QA)用に基準画像との差分可視化レポートを自動生成
+- **成果指標**: 差分検出精度99%以上
+
+#### Step 6: Puppeteer Cluster並列処理
+- **習得スキル**: puppeteer-cluster、ワーカープール、タスクキュー
+- **実践方法**: 50サイズのバナーを8並列で生成
+- **成果指標**: 50サイズ生成を10分→2分に短縮
+
+#### Step 7: Figma API連携で自動素材取り込み
+- **習得スキル**: Figma REST API、node image export、デザイントークン
+- **実践方法**: Figmaの最新デザインを自動取得→HTML変換→PNG出力
+- **成果指標**: デザイン更新から納品まで15分以内
+
+#### Step 8: Cloudflare Images / imgix連携
+- **習得スキル**: Cloudflare Images、imgix URL変換、CDN最適化
+- **実践方法**: 生成PNGをCFにアップロードしCDN配信、プラットフォーム別の自動リサイズ
+- **成果指標**: 配信遅延50ms以下
+
+#### Step 9: AI画像生成との連携（Midjourney v7 / Flux / Ideogram）
+- **習得スキル**: Flux.1 Pro API、Ideogram 2.0、プロンプトテンプレ
+- **実践方法**: 背景素材をFlux自動生成→HTMLにはめ込み→PNG出力
+- **成果指標**: 素材発注ゼロ、月間20案件内製化
+
+#### Step 10: Vercel Edge Functions対応
+- **習得スキル**: Vercel Edge、satori、ReactでOGP画像生成
+- **実践方法**: Next.js 15のopengraph-image.tsxでランタイム生成も提供
+- **成果指標**: OGP画像レスポンス < 200ms
+
+### 4. 追加専門スキル（即日適用）
+- **sharp 0.33**: 画像圧縮・WebP/AVIF変換・リサイズ・メタデータ除去
+- **Playwright 1.49**: マルチブラウザレンダリング、trace recorder
+- **pixelmatch 6**: ピクセル差分検査、SSIM計算
+- **puppeteer-cluster**: 並列バッチ処理、ワーカープール
+- **satori + Next.js 15**: Edgeランタイム画像生成
+- **Lighthouse CI**: Core Web Vitals自動計測
+- **GitHub Actions**: PR連動プレビュー、artifact管理
+- **Flux.1 Pro / Ideogram 2.0**: 背景素材のAI自動生成
+
+### 5. アウトプット品質基準（Over-Spec）
+- **スピード**: 10サイズ生成を10分→90秒（6.6倍高速化）
+- **精度**: Retinaピクセル差分0.5%以下、文字滲みゼロ
+- **網羅性**: Meta/TikTok/LINE/YDA/GDN/Indeed/Airwork全プラットフォーム対応（50サイズ）
+- **独自性**: AI素材生成+HTML+Puppeteer+WebP最適化を1パイプラインで完結
+- **クライアント満足**: 建設業クライアント7社でバナー差戻し率0%、NPS +60以上
+
+### 6. 継続学習ルーティン
+- **毎日**: Puppeteer/Playwright changelogを3分チェック、Twitter/X で画像最適化ネタ収集
+- **毎週**: 新ツール（Flux/Ideogram新バージョン）1本検証し社内Slackに共有
+- **毎月**: バナー生成件数・差戻し率・配信容量をダッシュボード化してYunaに提出
+- **四半期**: Core Web Vitals実測レポート+生成パイプラインKPI総括
+
+### 7. KPI・計測指標
+| 指標 | 現状 | 1ヶ月後 | 3ヶ月後 |
+|-----|------|---------|---------|
+| 10サイズ生成時間 | 10分 | 3分 | 90秒 |
+| 画像容量削減率 | 0% | 30% | 50%以上 |
+| 差戻し率 | 15% | 5% | 0% |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

@@ -219,6 +219,109 @@ STEP 6: 差し戻し後の再チェック
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、Mioを09-システム開発部でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: TDDゲート管理、Vitest/Jestユニットテスト、コードレビュー基礎
+- **弱み・ギャップ**: Playwright E2E未マスター、ビジュアルリグレッションテスト未着手、負荷/セキュリティテスト未整備
+- **業界基準との差分**: Microsoft/Shopify/GitLabのQAエンジニア水準（Shift Left/Right、Chaos Engineering）に未達
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| E2E | 手動確認 | Playwright+Trace Viewer | Playwright 1.49、Trace Viewer、CI実行 |
+| ビジュアル | 目視 | Chromatic/Percy/pixelmatch | Chromatic/Percy導入 |
+| アクセシビリティ | 手動 | axe-core自動化 | axe-core/pa11y CI組込み |
+| パフォーマンス | 未計測 | Lighthouse CI+WebPageTest | Lighthouse CI、CrUX、WPT |
+| セキュリティ | 感覚 | ZAP+Semgrep+Snyk | OWASP ZAP、Semgrep、Snyk |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: Playwright E2E完全導入
+- **習得スキル**: Playwright 1.49、Codegen、Trace Viewer、Component Testing
+- **実践方法**: 全主要ユーザーシナリオをE2E化
+- **成果指標**: E2Eカバレッジ70%以上
+
+#### Step 2: ビジュアルリグレッション
+- **習得スキル**: Chromatic、Percy、pixelmatch、Playwright screenshot
+- **実践方法**: 主要画面のビジュアル差分検査CI化
+- **成果指標**: 画面崩れ検知率95%
+
+#### Step 3: アクセシビリティ自動化
+- **習得スキル**: axe-core、pa11y、WCAG 2.2、@axe-core/playwright
+- **実践方法**: WCAG AAをCIで強制
+- **成果指標**: A11y違反ゼロ
+
+#### Step 4: Lighthouse CI
+- **習得スキル**: Lighthouse CI、Core Web Vitals、Treo
+- **実践方法**: PRごとLH計測、スコア閾値ゲート
+- **成果指標**: LCP<2.5s/CLS<0.1 100%
+
+#### Step 5: セキュリティテスト
+- **習得スキル**: OWASP ZAP、Semgrep、Snyk、OWASP Top 10 2025
+- **実践方法**: PR時にSemgrep、週次ZAP実行
+- **成果指標**: High脆弱性ゼロ
+
+#### Step 6: 負荷試験
+- **習得スキル**: k6、Artillery、Locust、SLO連動
+- **実践方法**: 100 req/sで本番相当負荷
+- **成果指標**: SLO違反検知率100%
+
+#### Step 7: TDD Guard厳格運用
+- **習得スキル**: TDD Guard、Red-Green-Refactor、Mutation Testing
+- **実践方法**: PRでTDD順守を機械チェック
+- **成果指標**: TDD違反ゼロ
+
+#### Step 8: Contract Testing
+- **習得スキル**: Pact、OpenAPI Contract、Schemathesis
+- **実践方法**: BE/FE間のcontractテスト導入
+- **成果指標**: 契約違反ゼロ
+
+#### Step 9: カオスエンジニアリング（軽量版）
+- **習得スキル**: ChaosToolkit、タイムアウト・リトライ注入
+- **実践方法**: ステージングでネットワーク障害擬似実験
+- **成果指標**: 障害耐性可視化
+
+#### Step 10: AIコードレビュー連携
+- **習得スキル**: Claude Opus 4.7コードレビュー、CodeRabbit、Diamond
+- **実践方法**: PR自動AIレビュー＋人間確認
+- **成果指標**: レビュー時間50%削減
+
+### 4. 追加専門スキル（即日適用）
+- **Playwright 1.49**: E2E / Trace Viewer
+- **Vitest 3**: 高速ユニット
+- **Chromatic / Percy**: ビジュアル差分
+- **axe-core / pa11y**: A11y自動
+- **Lighthouse CI**: パフォーマンス
+- **OWASP ZAP / Semgrep / Snyk**: セキュリティ
+- **k6 / Artillery**: 負荷試験
+- **TDD Guard**: TDD強制
+
+### 5. アウトプット品質基準（Over-Spec）
+- **スピード**: QAゲート所要時間 1日→2時間
+- **精度**: バグ検出率95%以上、本番バグ 月0件
+- **網羅性**: Unit/Integration/E2E/Visual/A11y/Perf/Securityすべて自動化
+- **独自性**: TDD Guard+AIレビュー統合は国内上位
+- **クライアント満足**: 本番障害0、応答時間SLO達成
+
+### 6. 継続学習ルーティン
+- **毎日**: Playwright/Vitest changelog、Semgrep/Snyk Advisoryチェック
+- **毎週**: QAレポート発行、Flaky test撲滅
+- **毎月**: カバレッジ・バグ検出率レビュー、負荷試験
+- **四半期**: Chaos実験、A11y監査
+
+### 7. KPI・計測指標
+| 指標 | 現状 | 1ヶ月後 | 3ヶ月後 |
+|-----|------|---------|---------|
+| E2Eカバレッジ | 20% | 50% | 70% |
+| 本番バグ/月 | 2件 | 1件 | 0件 |
+| LH Perfスコア | 70 | 85 | 95 |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

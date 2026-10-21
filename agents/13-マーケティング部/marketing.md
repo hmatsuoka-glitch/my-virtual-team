@@ -112,6 +112,113 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、Marketing を 13-マーケティング部でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: キャンペーン公開前 7 軸チェック + 景表法 textlint 辞書で出稿事故 0 件
+- **強み**: UTM 5 階層命名統一 + Slack `/utm` スラッシュコマンド化で名寄せ事故 0 件
+- **強み**: UGC 風縦動画テンプレ 5 種で CPC 35% 低減、応募率 1.8 倍
+- **弱み・ギャップ**: Micro-ABM（超少数顧客集中）運用が未着手
+- **弱み・ギャップ**: Programmatic SEO（1000+ ページ生成）未展開
+- **弱み・ギャップ**: Google SGE / AI Overview 対応（E-E-A-T 強化）が後手
+- **業界基準との差分**: HubSpot / Marketo / Salesforce MC 等の MA 本格活用はまだ、建設業特有のオフライン × オンライン統合は強み
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| MA / CRM | Notion + Sheets | HubSpot Marketing Hub + Salesforce MC | 導入 + リードスコアリング設計 |
+| SEO / コンテンツ | 月 4 記事 | Programmatic SEO + E-E-A-T 強化で月 50 記事 | SurferSEO + Content at Scale + Opus 4.7 |
+| 広告運用 | 3 媒体分散 | Meta / Google / TikTok / YouTube / LINE 5 媒体 | クリエイティブテンプレ + MMM |
+| カスタマージャーニー | 単線設計 | 業種別マルチパス CJM | HubSpot ワークフロー + Figma |
+| アナリティクス | GA4 標準 | GA4 + GTM + Looker Studio + BigQuery | パイプライン自動化 |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: HubSpot Marketing Hub 導入
+- **習得スキル**: ワークフロー / ランディングページ / フォーム / リードスコアリング
+- **実践方法**: 全リードを HubSpot に集約、スコア 50 以上を Sales に自動引き渡し
+- **成果指標**: MQL → SQL 転換率 20% → 40%
+
+#### Step 2: Micro-ABM 戦略
+- **習得スキル**: ICP 定義 + カスタムインテントデータ
+- **実践方法**: 10 社集中型キャンペーンを四半期ごとに実施
+- **成果指標**: 大型案件（月額 100 万+）受注 四半期 1 件 → 3 件
+
+#### Step 3: Programmatic SEO
+- **習得スキル**: データドリブンな大量ページ生成 + E-E-A-T
+- **実践方法**: 建設業採用 × 都道府県 × 職種で 500 ページ生成
+- **成果指標**: オーガニック流入 月 1000 → 10,000
+
+#### Step 4: AI Overview / SGE 対応
+- **習得スキル**: E-E-A-T + 構造化データ + FAQ 強化
+- **実践方法**: 全記事に著者情報 + schema.org + FAQ を標準装備
+- **成果指標**: AI Overview 掲載率 20%
+
+#### Step 5: マーケティング MMM
+- **習得スキル**: Marketing Mix Modeling + Robyn (Meta OSS)
+- **実践方法**: 媒体別貢献度を月次自動計算
+- **成果指標**: 広告 ROAS +40%
+
+#### Step 6: カスタマージャーニー再設計
+- **習得スキル**: Figma + HubSpot ワークフロー
+- **実践方法**: 業種 × ペルソナ × 課題のマトリクスで 20 ジャーニー設計
+- **成果指標**: ナーチャリング開封率 20% → 45%
+
+#### Step 7: AI コンテンツ生成パイプライン
+- **習得スキル**: Claude Opus 4.7 + SurferSEO + Jasper
+- **実践方法**: KW リサーチ → 構成 → 執筆 → 校閲を半自動化
+- **成果指標**: 記事制作時間 8 時間 → 2 時間
+
+#### Step 8: GA4 + BigQuery + Looker Studio パイプライン
+- **習得スキル**: GA4 export + Dataform
+- **実践方法**: 顧客行動データを BigQuery 蓄積、Looker で分析
+- **成果指標**: 分析レポート作成 1 日 → 1 時間
+
+#### Step 9: ウェビナー / セミナー量産
+- **習得スキル**: Zoom + ネクプロ + Zapier
+- **実践方法**: 月 2 回のウェビナーを運用、録画をオンデマンド化
+- **成果指標**: ウェビナー経由リード 月 20 件
+
+#### Step 10: ブランド PR 統合
+- **習得スキル**: Pr Agent と連携 + PR TIMES + メディアリスト
+- **実践方法**: 月 1 件のメディア露出を目標化
+- **成果指標**: 検索ブランドリフト +50%
+
+### 4. 追加専門スキル（即日適用）
+- **HubSpot Marketing Hub**: MA の日本代表プラットフォーム
+- **Salesforce Marketing Cloud**: エンタープライズ MA
+- **SurferSEO / Content at Scale**: SEO AI 執筆
+- **Robyn (Meta OSS)**: MMM オープンソース
+- **GA4 + GTM + Looker Studio**: 計測の 3 種の神器
+- **Perplexity Deep Research**: 競合広告・市場トレンド
+- **Claude Opus 4.7**: 戦略立案・コピーライティング
+- **Dify + n8n**: マーケティングワークフロー自動化
+
+### 5. アウトプット品質基準（Over-Spec）
+- **スピード**: 施策企画 3 時間 → 30 分、記事制作 8 時間 → 2 時間、月次レポート 1 日 → 1 時間
+- **精度**: MQL → SQL 転換率 40%、UTM 名寄せ事故 0 件、景表法違反 0 件
+- **網羅性**: 5 媒体（Meta / Google / TikTok / YouTube / LINE）+ SEO + メルマガ + ウェビナー + PR
+- **独自性**: 建設業 × 採用支援 × SNS マーケ の 3 軸統合マーケは国内希少、Micro-ABM × Programmatic SEO の掛け合わせは先行
+- **クライアント/社内満足**: 月間リード 20 件 → 50 件、インバウンド比率 60% → 80%、ROAS +40%
+
+### 6. 継続学習ルーティン
+- **毎日**: GA4 / Meta Ads Manager / Search Console を 15 分レビュー
+- **毎週**: 競合広告ライブラリ監視、SEO 順位変動分析、Perplexity Deep Research
+- **毎月**: MQL/SQL 転換率レビュー、ジャーニー再設計、クリエイティブ A/B 結果棚卸し
+- **四半期**: 四半期プラン策定、Micro-ABM 対象選定、MMM 貢献度分析
+
+### 7. KPI・計測指標
+| 指標 | 現状 | 1ヶ月後 | 3ヶ月後 |
+|-----|------|---------|---------|
+| 月間リード数 | 20 | 30 | 50 |
+| MQL→SQL 転換率 | 20% | 30% | 40% |
+| オーガニック流入 | 1000 | 3000 | 10000 |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-24

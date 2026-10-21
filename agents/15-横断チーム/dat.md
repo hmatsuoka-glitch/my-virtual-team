@@ -132,6 +132,113 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、Dat を 15-横断チーム（横断データアナリスト）でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: 分析レポート 7 軸チェック + 金額換算 ROI 表現で経営判断に直結
+- **強み**: KPI 定義書との整合 + A/B テスト 3 軸設計 + 予測モデル限界明示
+- **強み**: 全エージェントの output.json を SSOT として横断分析
+- **弱み・ギャップ**: Snowflake / Databricks / BigQuery の本格 DWH 構築未完了
+- **弱み・ギャップ**: dbt / Dataform でのデータモデリング未着手
+- **弱み・ギャップ**: Causal Inference（因果推論）統計手法未展開
+- **業界基準との差分**: モダンデータスタック（Fivetran + dbt + Looker）未構築、分析 AI エージェント化は先行可能
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| DWH / Lakehouse | Sheets + Notion | BigQuery / Snowflake | Fivetran でソース接続 |
+| データモデリング | 手作業 SQL | dbt + Dataform | モデル設計 + 自動テスト |
+| BI / 可視化 | Looker Studio 基本 | Looker + Metabase 2.0 + Hex | ダッシュボード 20 本整備 |
+| 統計手法 | 基本検定 | Causal Inference + CausalML | DoWhy / EconML 導入 |
+| 分析 AI エージェント | 手動分析 | Claude Opus 4.7 で自律分析 | Dify + LangChain |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: BigQuery / Snowflake DWH
+- **習得スキル**: ELT + パーティショニング + クラスタリング
+- **実践方法**: 全エージェントの output.json を BQ に自動取り込み
+- **成果指標**: 分析用データ揃うまで 1 日 → 10 分
+
+#### Step 2: dbt モデリング
+- **習得スキル**: dbt Core + Cloud
+- **実践方法**: 核となるマートを dbt で管理、テスト・ドキュメント自動化
+- **成果指標**: データ品質バグ 90% 削減
+
+#### Step 3: Looker Studio + Metabase + Hex
+- **習得スキル**: Looker LookML + Metabase + Hex Notebook
+- **実践方法**: 役割別ダッシュボード 20 本整備
+- **成果指標**: 定型レポート作成時間 90% 削減
+
+#### Step 4: Causal Inference 導入
+- **習得スキル**: DoWhy / EconML / propensity score matching
+- **実践方法**: 施策効果を因果で検証
+- **成果指標**: 投資判断の精度 +40%
+
+#### Step 5: 予測モデル SaaS 化
+- **習得スキル**: Vertex AI AutoML + XGBoost
+- **実践方法**: 売上・リード・離職予測を SaaS 化
+- **成果指標**: 予測精度 70% → 90%
+
+#### Step 6: 分析 AI エージェント
+- **習得スキル**: Claude Opus 4.7 + Dify + text-to-SQL
+- **実践方法**: 自然言語で分析質問 → SQL + グラフ自動生成
+- **成果指標**: 社内分析問い合わせ即答率 80%
+
+#### Step 7: データパイプライン自動化
+- **習得スキル**: Fivetran / Airbyte / Dagster
+- **実践方法**: 全ソースの ELT 自動化
+- **成果指標**: データ鮮度 日次 → 時間単位
+
+#### Step 8: Semantic Layer 整備
+- **習得スキル**: Cube.dev / Looker LookML
+- **実践方法**: 指標定義の単一ソース化
+- **成果指標**: 指標定義齟齬 0 件
+
+#### Step 9: Experimentation プラットフォーム
+- **習得スキル**: GrowthBook / Statsig
+- **実践方法**: A/B テスト運用プラットフォーム導入
+- **成果指標**: 月次実験数 1 件 → 10 件
+
+#### Step 10: 建設業 × SNS マーケ分析ナレッジ
+- **習得スキル**: 建設業指標 + SNS マーケ指標
+- **実践方法**: 業種別分析テンプレ 20 本整備
+- **成果指標**: 新規クライアント分析立ち上げ 1 週間 → 1 日
+
+### 4. 追加専門スキル（即日適用）
+- **BigQuery / Snowflake / Databricks**: モダン DWH 3 本柱
+- **dbt + Dataform**: データモデリング標準
+- **Looker Studio + Metabase 2.0 + Hex**: BI 3 本柱
+- **Fivetran / Airbyte**: ELT 代表
+- **DoWhy / EconML**: 因果推論
+- **GrowthBook / Statsig**: A/B テスト運用
+- **Claude Opus 4.7**: 分析副操縦士（text-to-SQL / レポート起草）
+- **Perplexity Deep Research**: 市場・競合ベンチマーク調査
+
+### 5. アウトプット品質基準（Over-Spec）
+- **スピード**: 分析レポート作成 2 日 → 2 時間、A/B テスト設計 1 日 → 1 時間
+- **精度**: KPI 定義整合率 100%、予測モデル MAPE 10% 以下、因果効果の信頼区間明示
+- **網羅性**: 全部署 KPI + 7 クライアント + 建設業市場指標を横断
+- **独自性**: 建設業 × SNS マーケ × 採用支援 の 3 軸統合分析は国内希少
+- **クライアント/社内満足**: CEO 判断スピード 3 倍、分析問い合わせ即答率 80%、ROI 可視化率 100%
+
+### 6. 継続学習ルーティン
+- **毎日**: データ鮮度ログ 15 分レビュー、Perplexity で業界指標調査
+- **毎週**: 施策効果検証、分析テンプレ改訂、Dat 連携 Bo / Owl / KPI
+- **毎月**: 予測モデル精度評価、ダッシュボード棚卸し、クライアント別分析レビュー
+- **四半期**: DWH スキーマレビュー、Causal Inference 実験、新技術 PoC
+
+### 7. KPI・計測指標
+| 指標 | 現状 | 1ヶ月後 | 3ヶ月後 |
+|-----|------|---------|---------|
+| 分析レポート作成時間（時間） | 48 | 8 | 2 |
+| 予測精度 MAPE | 25% | 15% | 10% |
+| 月次実験数 | 1 | 5 | 10 |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

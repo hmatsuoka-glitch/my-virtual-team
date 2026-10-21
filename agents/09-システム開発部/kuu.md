@@ -227,6 +227,109 @@ STEP 6: 実装完了報告
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、Kuuを09-システム開発部でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: Vercel/GitHub Actionsによる基礎的CI/CD、環境変数管理、デプロイ自動化
+- **弱み・ギャップ**: IaC(Terraform/Pulumi)未着手、Cloudflare活用薄い、SRE観測性/コスト管理が弱い
+- **業界基準との差分**: マルチクラウド+プレビュー環境+コスト最適化+Zero Trust/SOC2対応に未達
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| IaC | 手動設定 | Terraform/Pulumi IaC | Terraform 1.10、Pulumi、tfsec |
+| CDN/エッジ | Vercel標準 | Cloudflare+Vercel+Edge Config | CF Workers、R2、Edge Config、WAF |
+| 監視 | Vercel標準 | OTel+Datadog+Grafana | OTel、Grafana Cloud、PagerDuty |
+| セキュリティ | 基本設定 | Zero Trust+SOC2対応 | Tailscale、SSO、監査ログ |
+| コスト | 未管理 | FinOps導入 | Vercel/CF/Supabase請求可視化 |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: Terraform IaC化
+- **習得スキル**: Terraform 1.10、Vercel Provider、Cloudflare Provider
+- **実践方法**: 既存Vercel設定をTerraform化
+- **成果指標**: インフラ設定100%コード化
+
+#### Step 2: Cloudflare活用
+- **習得スキル**: Cloudflare Workers、R2、Images、WAF、Access
+- **実践方法**: 静的配信・画像をCloudflareへ、WAFで保護
+- **成果指標**: 月額コスト30%削減
+
+#### Step 3: プレビュー環境自動化
+- **習得スキル**: Vercel preview、Neon branching、Supabase branching
+- **実践方法**: PRごとに完全な分離環境を自動生成
+- **成果指標**: PRレビュー時間50%短縮
+
+#### Step 4: 観測性スタック統合
+- **習得スキル**: OpenTelemetry、Vercel Observability、Datadog、Sentry
+- **実践方法**: すべてのサービスにOTel導入
+- **成果指標**: MTTR 50%削減
+
+#### Step 5: SLO/エラーバジェット運用
+- **習得スキル**: SRE、SLO/SLI、エラーバジェットポリシー
+- **実践方法**: サービスごとSLO定義、kai連携
+- **成果指標**: SLO 99.9%達成
+
+#### Step 6: Zero Trust / SSO
+- **習得スキル**: Cloudflare Access、Tailscale、Okta、WorkOS
+- **実践方法**: 社内ツール全てZero Trust化
+- **成果指標**: SSO統合100%、監査ログ完備
+
+#### Step 7: FinOps / コスト最適化
+- **習得スキル**: Vercel Usage API、Supabase請求、OpenCost
+- **実践方法**: 月次コストダッシュボード、閾値アラート
+- **成果指標**: インフラコスト20%削減
+
+#### Step 8: セキュリティ継続的検査
+- **習得スキル**: Snyk、SonarCloud、Dependabot、tfsec、Checkov
+- **実践方法**: PR自動検査、月次脆弱性レビュー
+- **成果指標**: High脆弱性ゼロ
+
+#### Step 9: DRP / BCP
+- **習得スキル**: バックアップ戦略、PITR、DR訓練
+- **実践方法**: 四半期ごとDR訓練、RTO/RPO明文化
+- **成果指標**: RTO 1h / RPO 15m
+
+#### Step 10: AIエージェント運用基盤
+- **習得スキル**: Vercel AI Gateway、Anthropic API運用、トークンコスト最適化
+- **実践方法**: Virtual Team向けのAI基盤統合
+- **成果指標**: AI基盤統合完了
+
+### 4. 追加専門スキル（即日適用）
+- **Terraform 1.10 / Pulumi**: IaC
+- **Cloudflare (Workers/R2/Access/WAF)**: エッジ基盤
+- **OpenTelemetry + Grafana Cloud**: 観測性
+- **Snyk / SonarCloud / tfsec / Checkov**: セキュリティ継続検査
+- **Neon / Supabase branching**: DBブランチ
+- **Vercel AI Gateway**: AI API統合
+- **PagerDuty / Opsgenie**: インシデント管理
+- **FinOps (OpenCost)**: コスト管理
+
+### 5. アウトプット品質基準（Over-Spec）
+- **スピード**: 新環境構築 1日→1時間
+- **精度**: 本番デプロイ失敗ゼロ、脆弱性ゼロ
+- **網羅性**: マルチクラウド/監視/セキュリティ/コスト/DR統合
+- **独自性**: Terraform IaC + OTel + FinOps + Zero Trust統合
+- **クライアント満足**: SLO 99.9%、障害ゼロ運用
+
+### 6. 継続学習ルーティン
+- **毎日**: Vercel/Cloudflare/Supabase changelog、脆弱性情報チェック
+- **毎週**: コストダッシュボードレビュー、1 PRでIaC改善
+- **毎月**: SLOレビュー、ポストモーテム、DR訓練計画
+- **四半期**: Tech Radar更新、DR訓練実施
+
+### 7. KPI・計測指標
+| 指標 | 現状 | 1ヶ月後 | 3ヶ月後 |
+|-----|------|---------|---------|
+| デプロイ成功率 | 95% | 98% | 99.9% |
+| MTTR | 60分 | 30分 | 15分 |
+| インフラコスト | 現状 | -10% | -20% |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15

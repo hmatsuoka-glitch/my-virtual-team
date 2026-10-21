@@ -59,6 +59,113 @@
 ## 出典
 このエージェントは [eijiyoshikawa/agents](https://github.com/eijiyoshikawa/agents) を参考に my-virtual-team 形式に統合・適合化したものです。
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、Qa を 15-横断チーム（横断QAレビュアー）でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: 5 軸共通基準 + 6 軸クロスチェック + JSON Schema 自動 validation で見逃し率低下
+- **強み**: strengths/quick_wins/critical_fixes/next_iteration 4 区分で心理安全性と改善速度を両立
+- **強み**: 3 点サマリー（verdict/key_message/blocking_issues）で Sora 着手判断 5 分 → 10 秒
+- **弱み・ギャップ**: Continuous QA（制作プロセス各段階の自動 QA）が未整備
+- **弱み・ギャップ**: ISO/IEC TR 24028（Authenticity / Traceability / Explainability）対応が未着手
+- **弱み・ギャップ**: DORA Metrics の制作物応用（制作頻度・リードタイム・差戻し率・修正 LT）が月次集計のみ
+- **業界基準との差分**: Codeium Review 2.0 / Bito AI 等の文書 QA AI 導入未着手、建設業特有の品質証跡（検査記録・施工管理）対応は強み
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| QA メソドロジー | 5 軸共通基準 | Verification + Validation 分離 + ISO 24028 | ISO 準拠フレーム導入 |
+| 自動化 | JSON Schema | 文書 AI QA + スクリーンショット比較 + Visual Regression | Codeium / Bito AI 導入 |
+| 計測 | 見逃し率 | DORA 4 指標 + 品質スコア + MTTR | ダッシュボード自動化 |
+| ペルソナ検証 | 3 ペルソナ | 10 ペルソナ + モバイル実機 + 低速回線 | ユーザビリティラボ構築 |
+| 建設業検証 | 一般基準 | 建設業検査記録 + 施工管理品質 | gen 連携でナレッジ化 |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: Continuous QA パイプライン
+- **習得スキル**: 制作プロセス各段階の自動 QA
+- **実践方法**: GitHub Actions + git hook で提出前自動検証
+- **成果指標**: 再差戻し率 80% 削減
+
+#### Step 2: AI 文書 QA 導入
+- **習得スキル**: Codeium Review 2.0 / Bito AI
+- **実践方法**: ドキュメント・提案書・LP の AI 一次 QA
+- **成果指標**: QA 作業時間 60% 削減
+
+#### Step 3: ISO/IEC TR 24028 対応
+- **習得スキル**: Authenticity / Traceability / Explainability
+- **実践方法**: AI 生成物に 3 軸品質保証を適用
+- **成果指標**: AI 成果物品質スコア 95 以上維持
+
+#### Step 4: DORA Metrics 月次ダッシュボード
+- **習得スキル**: Deployment Frequency / Lead Time / Change Failure / MTTR
+- **実践方法**: 制作部門の DORA を Looker で可視化
+- **成果指標**: 改善サイクル 四半期 → 月次
+
+#### Step 5: Visual Regression
+- **習得スキル**: Percy / Chromatic / Playwright
+- **実践方法**: LP / バナー / 資料のビジュアル差分検出
+- **成果指標**: ビジュアル不整合 0 件
+
+#### Step 6: ペルソナベース QA
+- **習得スキル**: 10 ペルソナ × 動線検証
+- **実践方法**: 実機 + 低速回線 + スクリーンリーダー検証
+- **成果指標**: ユーザビリティ不具合 70% 削減
+
+#### Step 7: QA ナレッジ RAG
+- **習得スキル**: Pinecone + Opus 4.7
+- **実践方法**: 過去指摘・ベストプラクティスを全文ベクトル化
+- **成果指標**: QA 相談回答 30 分 → 1 分
+
+#### Step 8: リスクベースサンプリング
+- **習得スキル**: リスクスコアリング + 新規参画優先
+- **実践方法**: 新規・差戻し歴・初回パターンを優先レビュー
+- **成果指標**: 見逃し率 10% → 2%
+
+#### Step 9: QA KPI 導入
+- **習得スキル**: Escape Rate / Rework Rate / QA Lead Time
+- **実践方法**: QA 自体の KPI を KPI Agent と共有
+- **成果指標**: QA KPI 達成率 95%
+
+#### Step 10: 建設業特化 QA ナレッジ
+- **習得スキル**: 建設業検査記録 + 施工管理
+- **実践方法**: 建設業クライアント案件の QA テンプレ整備
+- **成果指標**: 建設業納品差戻し率 5% → 1%
+
+### 4. 追加専門スキル（即日適用）
+- **Codeium Review 2.0 / Bito AI**: AI 文書 QA
+- **Percy / Chromatic / Playwright**: Visual Regression
+- **JSON Schema / Zod**: スキーマ検証
+- **ISO/IEC TR 24028**: AI 品質保証国際標準
+- **DORA Metrics**: 制作物応用
+- **Claude Opus 4.7**: QA 副操縦士
+- **Notion AI**: 指摘サマリ自動化
+- **Looker Studio**: QA ダッシュボード
+
+### 5. アウトプット品質基準（Over-Spec）
+- **スピード**: QA レビュー時間 40 分 → 10 分、Sora 着手判断 10 秒、差戻し再提出 1 回で完了
+- **精度**: 見逃し率（escape rate） 2% 以下、ビジュアル不整合 0 件、固有名詞誤記 0 件
+- **網羅性**: 5 軸共通基準 + 6 軸クロス + ISO 24028 + DORA + ペルソナ 10 軸
+- **独自性**: 建設業検査記録 × AI 文書 QA × ISO 24028 の統合 QA は国内希少
+- **クライアント/社内満足**: 本番事故 70% 削減、納品差戻し率 5% → 1%、被レビュー者 NPS +30
+
+### 6. 継続学習ルーティン
+- **毎日**: QA 対象キュー棚卸し、過去指摘チェックリスト更新
+- **毎週**: Escape Rate レビュー、DORA 分析、新規指摘パターン追加
+- **毎月**: QA KPI レポート、Visual Regression 整備、ペルソナ更新
+- **四半期**: ISO 24028 棚卸し、建設業検査テンプレ改訂、ベンチマーク比較
+
+### 7. KPI・計測指標
+| 指標 | 現状 | 1ヶ月後 | 3ヶ月後 |
+|-----|------|---------|---------|
+| 見逃し率（escape rate） | 10% | 5% | 2% |
+| QA レビュー時間（分） | 15 | 12 | 10 |
+| 納品差戻し率 | 5% | 3% | 1% |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-22

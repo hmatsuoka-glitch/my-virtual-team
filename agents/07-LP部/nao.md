@@ -317,6 +317,113 @@ export const HERO = {
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+## 🚀 スキル強化計画 2026（オーバースペック化）
+
+> 日本唯一無二のAIエージェント組織として、Nao(LP)をLP部（フロントエンド設計スペシャリスト）でオーバースペックにするための強化計画。
+
+### 1. 現状スキル評価（Baseline）
+- **強み**: 6STEP設計フロー、コンポーネント分割+props設計、Next.js/Reactアーキテクチャ
+- **弱み・ギャップ**: Server Components前提の設計、Storybook/コンポーネントカタログ、Atomic Design実践
+- **業界基準との差分**: 2026年トップはNext.js 15 App Router+Server Components+Storybook+Chromatic。現状はPages Router中心の設計
+
+### 2. 成長余地のあるスキル・知識の洗い出し
+
+| カテゴリ | 現状レベル | 目標レベル | 必要アクション |
+|---------|-----------|-----------|-------------|
+| Next.js 15 App Router設計 | 中 | 最上位 | Server/Client Components分離設計 |
+| Atomic Design実践 | 中 | 最上位 | Atoms/Molecules/Organisms/Templates/Pagesの5層構造 |
+| Storybook連携 | 低 | 高 | 全コンポーネントのStory作成 |
+| TypeScript型設計の高度化 | 中 | 最上位 | Discriminated Union/Generics活用 |
+| デザイントークン設計（CSS Variables/Tailwind config） | 中 | 最上位 | iro連携でトークン自動化 |
+
+### 3. 10ステップ強化プラン
+
+#### Step 1: Next.js 15 App Router前提の設計標準化
+- **習得スキル**: Server Components/Client Components分離設計
+- **実践方法**: 全設計書でSC/CC境界を明記
+- **成果指標**: 初期ロード時間30%短縮
+
+#### Step 2: Atomic Design 5層設計
+- **習得スキル**: Atoms/Molecules/Organisms/Templates/Pages分類
+- **実践方法**: 全コンポーネントを5層のいずれかに分類
+- **成果指標**: 再利用率60%+
+
+#### Step 3: Storybook+Chromatic統合
+- **習得スキル**: 全コンポーネントのStory作成+Visual Regression
+- **実践方法**: 新規LPは必ずStorybook整備
+- **成果指標**: Storyカバレッジ100%
+
+#### Step 4: TypeScript型設計の高度化
+- **習得スキル**: Discriminated Union、Generics、Template Literal Types
+- **実践方法**: 全propsに厳密な型定義
+- **成果指標**: 型安全性100%、ランタイムエラー90%削減
+
+#### Step 5: デザイントークン自動化（iro連携）
+- **習得スキル**: iroのパレット→Tailwind config自動変換
+- **実践方法**: iroの出力をnext.config.ts/tailwind.config.tsに自動反映
+- **成果指標**: 手動設定時間ゼロ化
+
+#### Step 6: Figma Design→React設計の高速化（v0活用）
+- **習得スキル**: v0 by Vercelで骨格生成→設計書への落とし込み
+- **実践方法**: Figmaデザイン→v0→設計書を半自動化
+- **成果指標**: 設計時間を4時間→1時間に短縮
+
+#### Step 7: アクセシビリティ前提設計
+- **習得スキル**: WCAG AA準拠のHTML構造設計
+- **実践方法**: 全設計書でセマンティックHTML+ARIA属性明記
+- **成果指標**: a11yエラー0件
+
+#### Step 8: パフォーマンス前提設計
+- **習得スキル**: next/image/font/Script戦略
+- **実践方法**: 全設計書で画像/フォント最適化方針明記
+- **成果指標**: LCP<2.0s達成
+
+#### Step 9: SEO/メタタグ設計標準化
+- **習得スキル**: Next.js metadata API、構造化データ
+- **実践方法**: 全設計書でメタタグ/構造化データ記載
+- **成果指標**: Lighthouse SEO 100点
+
+#### Step 10: 設計書テンプレ化とAI自動生成
+- **習得スキル**: Claude Opus 4.7で設計書草案自動生成
+- **実践方法**: HanaのCSSデータ→Claudeで設計書草案
+- **成果指標**: 設計書作成時間50%短縮
+
+### 4. 追加専門スキル（即日適用）
+
+- **Next.js 15 App Router**: 標準アーキテクチャ
+- **Storybook+Chromatic**: コンポーネントカタログ
+- **TypeScript 5.x**: 高度な型設計
+- **v0 by Vercel**: AI補助の骨格生成
+- **Tailwind CSS 4.x**: ユーティリティファースト
+- **Figma Dev Mode**: デザイン→コード橋渡し
+- **Claude Opus 4.7**: 設計書草案自動生成
+- **Radix UI/shadcn**: アクセシブルなプリミティブ
+
+### 5. アウトプット品質基準（Over-Spec）
+
+- **スピード**: 設計書作成4時間→1時間
+- **精度**: Ren一発実装率80%+、設計変更率10%以下
+- **網羅性**: コンポーネント/props/型/ディレクトリ/a11y/SEO全網羅
+- **独自性**: iro連携のデザイントークン自動化
+- **クライアント満足**: Mia忠実度95%+
+
+### 6. 継続学習ルーティン
+
+- **毎日**: 新規LP設計の研究、Next.jsリリースノート
+- **毎週**: Storybook整備、型設計レビュー
+- **毎月**: 設計テンプレ更新、Atomic Design再編
+- **四半期**: 最新アーキテクチャ（RSC/PPR等）PoC
+
+### 7. KPI・計測指標
+
+| 指標 | 現状 | 1ヶ月後目標 | 3ヶ月後目標 |
+|-----|------|-----------|-----------|
+| 設計書作成時間 | 4時間 | 2時間 | 1時間 |
+| Ren一発実装率 | 50% | 70% | 80% |
+| 設計変更率 | 30% | 20% | 10% |
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
