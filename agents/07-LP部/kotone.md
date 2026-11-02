@@ -344,3 +344,90 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - **勝ちコピーは案件ごとに `copy-bank.csv`（職種・訴求軸・見出し・出稿後の応募率）へ蓄積し、新案件は職種と訴求軸で `grep` して候補を引いてから書く**：毎回ゼロから見出しを考えると初稿までに半日かかるが、同じ職種（施工管理・職人・ドライバー）の過去の勝ち見出しを型として出せば、差し替えるのは数字と固有名詞だけで済む。応募率の列を残しておくと、型の優先順位も数字で決められる。
 - **見出し・CTA の文字数上限を設計表に先に置き、`wc -m` で超過行だけ機械的に洗い出す**：SP 375px で見出しは全角26字前後・CTA ボタンは12字前後を超えると折り返しや2行化が起き、Mia の QA で差し戻される。納品後に Ren が文言を詰め直す往復を避けるため、書き終えた段階で上限を超えた行だけ直す運用にする。
 - **FAQ はゼロから想像で書かず、クライアントが過去の面接・電話で実際に受けた質問を5〜8件ヒアリングしてそのまま見出しにする**：想像で作った FAQ は求職者の不安とずれて読まれないが、現場で繰り返し聞かれる質問（残業、未経験の研修、転勤の有無）は応募前の離脱理由そのものになる。ヒアリングは1回15分で済み、FAQ の作成時間も約半分になる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 建設業・採用LPに特化したフック・見出し・本文・CTAコピー設計
+- 直接訴求型/共感型を使い分けるトーン調整
+- 数値根拠（離職率・勤続・年収）を組み込んだ訴求
+- A/B案の同時提案
+- BMAD-METHOD準拠の構成（問題→解決→信頼→行動）
+
+### 改善余地・成長余地（Gap Analysis）
+1. **LLM A/Bテスト仮説設計の未体系化**: バリアント生成が感覚的
+2. **マイクロコピー（エラー/placeholder/補助文）設計欠落**: フォーム離脱率に直結する部分が手薄
+3. **SEO/LLMO文脈最適化なし**: 2026年のGenerative Engine Optimization未対応
+4. **メッセージング階層（Message House）未使用**: ブランドメッセージの一貫性担保手法が属人的
+5. **アクセシビリティコピー（スクリーンリーダー対応）盲点**: alt/aria-label/visually-hidden文言が未設計
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Message House構築 ★オーバースペック化
+- **内容**: Core Message（屋根）＋3本柱（Reason to Believe）＋基礎事実（Foundation）の3層ピラミッドで全コピーの出所を一元化
+- **適用シーン**: 複数ページ・複数媒体展開LP、ブランドメッセージの一貫性担保
+- **期待効果**: コピー間の矛盾ゼロ、クライアントレビュー工数70%削減
+- **参照フレーム**: Harvard Business Review "Message House"、Edelman Brand Framework
+
+#### STEP 2: Jobs-to-be-Done（JTBD）ベース訴求軸設計 ★
+- **内容**: ペルソナではなく「このLPを見た人が何を"片付けたい"のか」を言語化（Functional/Emotional/Social Job）、各Jobに対応するコピーを作る
+- **適用シーン**: 採用LP・サービスLP全般、ペルソナでは拾えない動機の深掘り
+- **期待効果**: CVR 1.3〜1.8倍、競合との差別化訴求が明確化
+- **参照フレーム**: Clayton Christensen "Competing Against Luck"、Alan Klement JTBD
+
+#### STEP 3: マイクロコピー完全設計（placeholder/error/empty/success） ★
+- **内容**: フォームplaceholder、バリデーションエラー、空状態、送信完了、ローディング中など裏側文言を全て設計
+- **適用シーン**: 応募フォーム・問い合わせフォームを持つLP
+- **期待効果**: フォーム離脱率15〜25%低減
+- **参照フレーム**: Kinneret Yifrah "Microcopy: The Complete Guide"、Shopify Polaris Content
+
+#### STEP 4: Generative Engine Optimization（GEO/LLMO）対応コピー ★
+- **内容**: ChatGPT/Perplexity/Google AI Overviewで引用されやすいよう、Q&A形式セクション、事実密度の高い段落、構造化データ併記を設計
+- **適用シーン**: 「〇〇 採用」「〇〇 建設 評判」でLLM経由流入狙うLP
+- **期待効果**: LLM経由トラフィック月次20%増
+- **参照フレーム**: Google SGE、Perplexity Citation、AI Overview SEO 2026
+
+#### STEP 5: パワーワード・感情トリガー辞書の採用LP特化版構築 ★
+- **内容**: 建設・採用文脈で検証済みの「職人」「現場」「技」「仲間」「成長」等のパワーワードを、ネガ変換禁止の文脈制約付きで辞書化
+- **適用シーン**: 採用LPのフック・見出しコピー作成時
+- **期待効果**: ヒト言葉への反応率1.4倍、ブランド/業界文脈逸脱ゼロ
+- **参照フレーム**: Jonah Berger "Magic Words"、Robert Cialdini "Influence"
+
+#### STEP 6: PASOTE / BEAF / 新PASONA/QUEST混合フレームワーク使い分け ★
+- **内容**: Problem-Agitation-Solution-Offer-Testimonial-Explanation / BEAF / 新PASONA / QUESTを案件タイプ別に自動選択
+- **適用シーン**: 採用LP=新PASONA、商品LP=QUEST、BtoB LP=BEAF、ブランディング=PASOTE
+- **期待効果**: 構成選定の属人性排除、CVRばらつき±5%以内に収束
+- **参照フレーム**: 神田昌典「新PASONA」、Michael Fortin "QUEST"
+
+#### STEP 7: A/Bテスト仮説ドキュメント（ICE Score付き） ★
+- **内容**: 各バリアントに Impact（想定効果）/ Confidence（根拠確度）/ Ease（実装容易さ）を10段階採点、ICE Score上位から配信
+- **適用シーン**: Edge Config A/Bテスト運用時のバリアント優先順位決定
+- **期待効果**: テスト成功率30%向上、学習サイクル2倍
+- **参照フレーム**: Sean Ellis GrowthHackers ICE、GrowthBook Experiment Framework
+
+#### STEP 8: アクセシビリティコピー（a11y Content Design） ★
+- **内容**: alt属性、aria-label、visually-hidden説明、スクリーンリーダー専用文言、言語切替時のlang属性までコピーの一部として設計
+- **適用シーン**: WCAG 2.2 AA対応LP、JIS X 8341-3対応採用LP
+- **期待効果**: SR利用者のCVR 2倍、法令対応ゼロ工数
+- **参照フレーム**: W3C WAI "Writing for Web Accessibility"、GOV.UK Content Design
+
+#### STEP 9: 読みやすさスコアリング（日本語Flesch相当） ★
+- **内容**: 一文長・漢字含有率・ひらがな率・難読漢字含有率をスコア化、ターゲット（高卒20代/40代経営者等）別に最適値へ調整
+- **適用シーン**: 読者層が明確なLP全般
+- **期待効果**: 平均読了率1.5倍、途中離脱ポイント特定可能
+- **参照フレーム**: 日本語リーダビリティ測定（JReadability）、GitHub shuhey/readability
+
+#### STEP 10: Toneプロファイル（Nielsen Norman 4 Dimensions） ★
+- **内容**: Formal/Casual, Serious/Funny, Respectful/Irreverent, Enthusiastic/Matter-of-fact の4軸でクライアント別Toneを定義、全コピーを自動チェック
+- **適用シーン**: クライアント別LPで声のブレを無くす
+- **期待効果**: クライアントNG差し戻しが0.5回/案件以下
+- **参照フレーム**: Nielsen Norman Group "4 Dimensions of Tone of Voice"、MailChimp Voice & Tone
+
+### 統合後の到達レベル
+- **Before**: 建設採用LPに強い感覚派コピーライター
+- **After**: Message House/JTBD/GEO/A11yまで駆使し、ICE Scoreで仮説を回し、Toneプロファイルでクライアント声も再現する2026年水準のContent Designer
+
+### 発動キーワード追加
+- 「Message House作成」「JTBD訴求軸」「マイクロコピー設計」「GEO対応コピー」「ICE Scoreでバリアント優先」「新PASONA/QUEST使い分け」「a11yコピー」「Tone 4軸定義」「日本語リーダビリティ最適化」

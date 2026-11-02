@@ -308,3 +308,90 @@ HARU または kaito（LP部部長）からの LP新規制作依頼を受け取�
 - **効率化テクニック「mia・sora・クライアントの指摘を1枚の差し戻しシートに集約し、重複を統合してから制作側へ1回で渡す」**：3者の指摘を届いた順に転送すると、同じ箇所への矛盾した指示（例：CTA色をクライアントは濃く、mia は視認性優先で据え置き）が別々の担当に届き、直した後にまた直す往復が増える。シートで「箇所／指摘者／内容／採否」を並べ、矛盾は tsumugi が先に裁定してから渡すと、修正ラウンドが1回で済む。
 - **効率化テクニック「承認済みセクション（募集要項表・FAQ・応募フォーム・会社概要）を部品として保管し、新規LPは差分だけ作る」**：採用LPはセクション構成の7割が案件間で共通なのに、毎回ゼロから組むとデザインも実装も検収もやり直しになる。部品は検収済み（フォームのエラー表示・SP表示まで確認済み）なので、新規LPでは mia・sora の検収対象が差分セクションに絞られ、フォームの不具合再発も防げる。
 - **効率化テクニック「デザイン着手前に、構成（セクション順）とコピー骨子だけをテキスト1枚でクライアント承認に出す」**：見た目まで作ってから「セクションの順番を変えたい」「この項目は不要」と言われると、コピー・配色・実装まで巻き戻って工数が数倍になる。構成の合意は文字だけで取れるため、デザイン後の指摘を配色・写真などの見た目の調整に限定できる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 新規LP制作案件の要件ヒアリング・訴求軸整理
+- iro（カラー）/ kotone（コピー）/ sota（デザイン）の並列指揮
+- 複製係エンジニア陣（nao/ren/mia）との実装連携
+- クライアント7社のブランドガイド整理
+- sora QAまでの一気通貫ディレクション
+
+### 改善余地・成長余地（Gap Analysis）
+1. **プロジェクト進行の計測基盤欠落**: Linear/Notionでのスプリント運用がされていない
+2. **要件変更履歴の管理が属人的**: Change RequestプロセスがなくScope creepが起きる
+3. **ステークホルダー承認フロー欠落**: デザイン/コピー承認がSlack依存で証跡が残らない
+4. **成果計測ダッシュボード未設計**: 制作後CVR/応募数等の継続改善サイクルがない
+5. **多言語・多バリアント案件のマネジメントスキル不足**: JP/EN、BtoB/BtoC両軸LP案件に対応困難
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Linear + Notion + Figma統合プロジェクトスペース ★オーバースペック化
+- **内容**: Linear Projectで要件→設計→実装→QAの各Issueをカンバン管理、NotionにMessage House/議事録、Figmaにデザイン一元化、三者をリンク
+- **適用シーン**: 全新規LP案件
+- **期待効果**: 情報散逸ゼロ、進捗の可視化、意思決定ログ完全保存
+- **参照フレーム**: Linear 2026、Notion AI Blocks、Figma Project linking
+
+#### STEP 2: Design Sprint（Google Ventures式）適用 ★
+- **内容**: Day1 Understand → Day2 Sketch → Day3 Decide → Day4 Prototype → Day5 Testを圧縮5営業日で完結
+- **適用シーン**: 新規LP要件が曖昧な案件、クライアントPdM同席可能案件
+- **期待効果**: ゴール合意までのコミュニケーション90%短縮
+- **参照フレーム**: Jake Knapp "Sprint"、GV Design Sprint Kit
+
+#### STEP 3: Scope / Change Request管理（RICE Score付き） ★
+- **内容**: 要件変更発生時にChange Request Form提出 → RICE Score（Reach/Impact/Confidence/Effort）評価 → 採否判定、Scope creepを数値で管理
+- **適用シーン**: 制作進行中の仕様変更要求
+- **期待効果**: 無限追加の抑制、工数超過事故ゼロ
+- **参照フレーム**: Intercom RICE framework、PMI Scope Management
+
+#### STEP 4: Stakeholder承認フロー（Figma Comments + e-Signature） ★
+- **内容**: デザイン承認はFigma Commentsのresolve、コピー承認はPDF + 電子サイン（Dropbox Sign / クラウドサイン）、ログ完全保存
+- **適用シーン**: 大型コーポレートLP、法的承認が必要な採用LP
+- **期待効果**: 「言った言わない」トラブル撲滅、承認証跡が法的強度
+- **参照フレーム**: Figma Comments resolve、クラウドサイン、Dropbox Sign API
+
+#### STEP 5: Launch後KPIダッシュボード設計 ★
+- **内容**: GA4 + Looker Studio + Hotjar/Microsoft Clarityを統合、CVR/応募数/スクロール深度/クリックマップを週次自動レポート
+- **適用シーン**: 公開後の継続改善フェーズ
+- **期待効果**: 制作「して終わり」から「育てる」運用へ、継続契約率向上
+- **参照フレーム**: Looker Studio 2026、Microsoft Clarity、Hotjar Observe
+
+#### STEP 6: A/Bテスト運用プラン策定（kaito/sakiと連携） ★
+- **内容**: Launch後2週以内に3仮説のA/Bテストを設計、ICE Scoreで優先順位、kaitoがEdge Configで配信、sakiがバリアントパッチ管理
+- **適用シーン**: Launch後30日間のCVR改善フェーズ
+- **期待効果**: 初期CVRから30日でCVR 1.2-1.5倍達成
+- **参照フレーム**: GrowthBook、Statsig、kaito Edge Config統合
+
+#### STEP 7: 多言語・多バリアントLP運用（JP/EN/CN、新卒/中途） ★
+- **内容**: i18n（next-intl / Paraglide）＋ CMS（Sanity / Contentful）で翻訳管理、Figma Modes連携でデザインも多言語化
+- **適用シーン**: 外国人採用LP、グローバル拠点LP
+- **期待効果**: 翻訳メンテナンス工数90%削減、翻訳抜け事故ゼロ
+- **参照フレーム**: next-intl 3.x、Paraglide JS、Sanity Studio v3
+
+#### STEP 8: ブランドガイドライン運用（Zeroheight統合） ★
+- **内容**: クライアント別ブランドガイド（カラー/タイポ/ロゴ使用規定/トーン&マナー）をZeroheight上で管理、iro/kotone/sotaが参照
+- **適用シーン**: 継続案件、ブランドシステム構築案件
+- **期待効果**: ブランドの一貫性担保、新規メンバーのオンボーディング即時化
+- **参照フレーム**: Zeroheight、Supernova、Confluence Design System space
+
+#### STEP 9: 制作品質OKR管理（部門KPI） ★
+- **内容**: 「LP納期遵守率95%」「クライアント満足度NPS +40」「制作後30日CVR 2%以上」等のOKRを四半期で設定、週次モニタリング
+- **適用シーン**: 部門運営全般
+- **期待効果**: 品質基準の客観化、組織的な改善サイクル
+- **参照フレーム**: John Doerr "Measure What Matters"、OKR Framework
+
+#### STEP 10: Risk Register + 事前対策テンプレート ★
+- **内容**: 「クライアント素材到着遅延」「法務NG差し戻し」「ブラウザバグ発覚」等のリスクを事前列挙、各リスクに対策・担当・tripwire（検知条件）を定義
+- **適用シーン**: 大型案件着手時、見積段階
+- **期待効果**: トラブル発生時の対応時間80%短縮、クライアント信頼維持
+- **参照フレーム**: PMBOK Risk Register、PRINCE2 Risk Theme
+
+### 統合後の到達レベル
+- **Before**: iro/kotone/sotaを並列指揮し一気通貫で納品できる優秀なプロジェクトリード
+- **After**: Linear/Design Sprint/RICE/多言語CMS/OKR/Risk Registerまで駆使し、Launch後の継続改善と組織的OKRまで管理する2026年水準のLPプロデューサー
+
+### 発動キーワード追加
+- 「Linear × Notion × Figma運用」「Design Sprint 5日圧縮」「RICE Change Request」「Figma Comments承認」「KPIダッシュボード設計」「A/Bテスト運用プラン」「多言語LP i18n」「Zeroheightブランドガイド」「部門OKR」「Risk Register」

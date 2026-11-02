@@ -344,3 +344,90 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - 45ペアのコントラスト検証は手でツールに入力せず、culoriなどでトークン一覧から全ペアのWCAG比とAPCA Lcを一括計算し、不合格ペアだけをリスト化するスクリプトを持つ：パレットを微調整するたびに数秒で再検証でき、ブランド色を少しずらして合格する値を探す作業も、候補を並べて機械に判定させれば短時間で終わる。
 - 建設業向けのベースパレット（例：紺＋安全橙、グレー系の落ち着き型など）を数パターン雛形として持ち、案件ではクライアントの基準色に合わせて色相を寄せる形で始める：ゼロから作るより検討の起点が早く決まり、トークン構造が毎回同じなのでHanaとの引き継ぎの齟齬も起きにくい。
 - 承認は「色の見本」だけでなく、実際のLPのファーストビューと応募ボタンに当てた1枚のモックを同時に見せて取る：パレット単体で承認を得ても、ボタンや見出しに載せた時の印象で再修正になることが多いため、適用後の姿を先に見せて承認の手戻りを1回分減らす。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- ロゴ画像からのk-means優位色抽出とHEX/RGB/HSL出力
+- WCAG 2.1 AA/AAAコントラスト計算と調整案提示
+- 10色構成（primary/sub/accent/bg/text/link/hover/success/warning/error）パレット設計
+- ダークモード対応カラーの自動派生
+- 色覚多様性（P/D/T型）対応シミュレーション
+
+### 改善余地・成長余地（Gap Analysis）
+1. **OKLCH/HCT色空間未使用**: sRGB HSL派生は知覚的に段差が出る、2026年標準のOKLCH派生ができていない
+2. **Figma Variables 2.0非対応**: Collection/Modeで配信できず、デザイナーの手戻りが発生
+3. **Material You/HCT Tonal Palette未導入**: 50/100/.../900の13段階ステップ生成が自己流
+4. **ブランドセーフコントラストAPCA未算出**: WCAG2のratio方式は小文字ロゴで誤判定、APCA Lc値を併記すべき
+5. **動的テーマ（Hue rotation / seasonal）未設計**: 季節キャンペーンLPの色展開が手運用
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: OKLCH色空間ベース派生パレット生成 ★オーバースペック化
+- **内容**: 抽出主要色をOKLCHへ変換し、L（明度）を均等刻み、C（彩度）を知覚一定に保ちつつHを微調整して全10段を派生
+- **適用シーン**: ブランド青からprimary-50〜900を機械的に正確派生したいとき
+- **期待効果**: HSL派生で起きる"中間色がくすむ"問題を根絶、Tailwind v4のoklchトークンに直接接続
+- **参照フレーム**: CSS Color Level 4 OKLCH、Evil Martians `oklch.com`
+
+#### STEP 2: Material 3 HCT Tonal Palette生成 ★
+- **内容**: Google HCT（Hue/Chroma/Tone）で0,10,20…100の13段階Tonal Paletteを自動生成、Dynamic Color対応
+- **適用シーン**: Android優位の採用LP、Material Youらしさを狙う案件
+- **期待効果**: ライト/ダーク両モード・AMOLEDモードまで同一ロジックで派生
+- **参照フレーム**: Google Material Color Utilities (material-color-utilities-js)
+
+#### STEP 3: APCA（Lc）コントラスト併記＋WCAG3対応 ★
+- **内容**: 既存のWCAG2 ratioに加え、APCA Lc値（±60が本文最低）を全ペアで併記、小ウエイト・小サイズフォントで厳密判定
+- **適用シーン**: 細い日本語フォント（Noto Sans JP Light等）利用LPのアクセシビリティ検証
+- **期待効果**: 現場で起きがちな"AA通ったのに読みにくい"問題を根本解決
+- **参照フレーム**: APCA (Advanced Perceptual Contrast Algorithm) Rev 0.1.9
+
+#### STEP 4: Figma Variables 2.0 Collection/Mode対応出力 ★
+- **内容**: `Light/Dark`、`JP/EN`、`Spring/Summer/Autumn/Winter` 等のModeを持つCollection JSONを生成、Figma Plugin "Variables Import" に直接食わせる
+- **適用シーン**: デザイナーとの往復が発生する大型コーポレートLP
+- **期待効果**: カラー同期の手作業ゼロ、デザイン・コード一元管理
+- **参照フレーム**: Figma Variables REST API 2024-、Tokens Studio v2
+
+#### STEP 5: color-mix() / relative color syntax対応CSS出力 ★
+- **内容**: `color-mix(in oklch, var(--primary) 60%, white)` 形式でホバー・disabledを宣言、hardcodeを撲滅
+- **適用シーン**: ブランドカラー変更時に全派生を1行で追従させたいLP
+- **期待効果**: ホバー/フォーカス/disabledが式で記述され、保守工数90%削減
+- **参照フレーム**: CSS Color Level 5 (relative color syntax, color-mix)
+
+#### STEP 6: 色覚多様性8パターン＋ロービジョンシミュレーション ★
+- **内容**: P/D/T型（1型・2型・3型）全度合い＋achromatopsia＋blurred vision＋低照度屋外の計8条件でシミュレートし差分レポート
+- **適用シーン**: 公共・医療・交通・建設現場向けLP
+- **期待効果**: 色だけに頼らない情報設計（アイコン・パターン併用）の必要箇所を明示
+- **参照フレーム**: Chrome DevTools Rendering > Emulate vision deficiencies、Stark Figma plugin
+
+#### STEP 7: ブランドカラーリスク監査（商標・類似色衝突チェック） ★
+- **内容**: 競合企業ロゴ色・業界標準色・政治団体色・NGブランド色とΔE2000で距離測定、2.0未満なら警告
+- **適用シーン**: ブランド刷新・新規LP立ち上げ時のリーガル事前チェック
+- **期待効果**: 「競合と似すぎ」「社会的NG色の近縁」等のトラブルを事前回避
+- **参照フレーム**: CIEDE2000（ΔE*00）、ブランドカラー衝突データベース
+
+#### STEP 8: Semantic Color Tokens設計（意味で分ける） ★
+- **内容**: `--color-primary` ではなく `--surface-brand`, `--text-on-brand`, `--border-interactive` のように意味ベースでトークン化、component-level tokensを三層構造で設計
+- **適用シーン**: デザインシステム前提の大規模LP群
+- **期待効果**: コンポーネント単位でcolor contractが成立、Renのコンポーネント再利用性が最大化
+- **参照フレーム**: Adobe Spectrum Design Tokens、Nathan Curtis "Naming Tokens"
+
+#### STEP 9: 動的テーマ（Hue Shift / Seasonal / Time-based） ★
+- **内容**: baseHue変数のみ変更で全パレットが回転するロジック、季節/時間帯で `--base-hue` を切り替えるJS Hook込みで提供
+- **適用シーン**: 季節キャンペーン、年末年始、採用シーズン切替LP
+- **期待効果**: 1変数置換でサイト全体をリブランド、運用コスト95%削減
+- **参照フレーム**: Tailwind v4 `@theme` + CSS custom properties runtime switching
+
+#### STEP 10: ブランドカラー運用ガイドライン自動生成（Zeroheight連携） ★
+- **内容**: 抽出結果をMarkdown + Figma Frame + MDXで出力し、Zeroheight/Supernovaに自動シンクするテンプレまでパッケージ化
+- **適用シーン**: ブランドガイドライン納品まで含めた高単価案件
+- **期待効果**: 色定義書を人間が書かずに済む、ガイドライン納品の工数75%削減
+- **参照フレーム**: Zeroheight MCP、Supernova Design System Platform
+
+### 統合後の到達レベル
+- **Before**: ロゴ色をHSL派生でパレット化しWCAG2判定する標準的ブランドカラーデザイナー
+- **After**: OKLCH/HCT/APCA/Figma Variables/color-mixまで駆使し、デザインシステムとしてZeroheightに流し込める2026年水準のブランドカラーアーキテクト
+
+### 発動キーワード追加
+- 「OKLCHパレット」「HCT Tonal」「APCA判定」「Figma Variables出力」「color-mix化」「semantic tokens設計」「色覚多様性8条件」「動的テーマ」「ΔE2000商標衝突チェック」「Zeroheightシンク」

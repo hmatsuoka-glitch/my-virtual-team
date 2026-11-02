@@ -668,3 +668,90 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **ベースライン撮影の共通設定に `animations: 'disabled'`・`caret: 'hide'`・`document.fonts.ready` 待ちを fixture 化し、偽陽性の再撮影を減らす**：アニメーションの途中状態や入力カーソルの点滅、Web フォント読み込み前の撮影が混ざると、実際は崩れていないのに差分率が0.5〜2%出て Ren に不要な差し戻しが発生する。撮影前処理を1か所に固定すれば、再現しない差分を調べる時間が消える。
 - **日付・カウンタ・埋め込み動画など毎回変わる要素は `toHaveScreenshot` の `mask` で除外し、セクション別に `maxDiffPixelRatio` を設定する**：全ページ一律の閾値だとフォームのように許容できる差分が多い箇所に合わせて緩めるしかなく、Hero のような崩れを見逃す。Hero は0.1%、本文は0.5%のようにセクションごとに分ければ、閾値の議論を毎回やらずに済む。
 - **差分が出たときの切り分け順を固定する（①フォント待ち→②lazy 画像を最下部までスクロールして全読み込み→③動的要素のマスク→④それでも残れば実差分）**：順序を決めずに調べると、原因の8割を占める撮影条件の問題に気づくまで時間を使う。①〜③を撮影スクリプト側で自動実行しておけば、手で見る差分は実際の崩れだけになる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- レイアウト・カラー・フォント・アニメーション・レスポンシブの5カテゴリ忠実度チェック
+- スコアリング（各20点×5カテゴリ=100点）と85点合格基準
+- Flexbox/Grid構造のズレ検出
+- SP(375)/TAB(768)/PC(1280)の3サイズ比較
+- NG時のRen差し戻しレポート作成
+
+### 改善余地・成長余地（Gap Analysis）
+1. **目視比較のまま自動化なし**: Playwright/Percy等のVisual Regression Testingが導入されていない
+2. **Core Web Vitals未測定**: LCP/INP/CLSが品質基準から抜けている
+3. **アクセシビリティ監査なし**: axe-core/Lighthouse a11yスコアが基準に入っていない
+4. **ブラウザマトリクス不足**: Safari TP/Firefox Nightlyでの検証が未実施
+5. **アニメーションのpixel diff困難**: Static画像比較で動的要素を見落とす
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Playwright Visual Regression Testing統合 ★オーバースペック化
+- **内容**: `page.screenshot({fullPage: true})` × `toHaveScreenshot()` でBaselineと複製LPを自動diff、±0.1%のピクセル差まで検出
+- **適用シーン**: Mia STEP 1〜5全てを自動化、再チェック時の工数削減
+- **期待効果**: 目視1時間→自動2分、見落としゼロ
+- **参照フレーム**: Playwright 1.49 Visual Comparisons、`@playwright/test` toHaveScreenshot
+
+#### STEP 2: Chromatic/Percy差分レビューUI連携 ★
+- **内容**: PRごとにChromaticへ自動Push、UI diffをレビュワー承認制で管理、承認済みBaselineを更新
+- **適用シーン**: Saki修正PR、デザイン改修のレビューフロー
+- **期待効果**: QA承認ログが残り、差し戻し根拠が明文化される
+- **参照フレーム**: Chromatic Visual Review、Percy by BrowserStack
+
+#### STEP 3: Core Web Vitals自動測定（Lighthouse CI + CrUX） ★
+- **内容**: Lighthouse CIをGitHub Actionsで実行、LCP/INP/CLS/TTFB/FCPを計測、CrUX API実測値と突合
+- **適用シーン**: 本番前の必須ゲート、CWV失格の予兆検知
+- **期待効果**: CWV未達LPが本番公開される事故ゼロ
+- **参照フレーム**: Core Web Vitals 2026 (LCP≤2.5s, INP≤200ms, CLS≤0.1), Lighthouse CI v12
+
+#### STEP 4: axe-core / Pa11y アクセシビリティ自動監査 ★
+- **内容**: WCAG 2.2 AA基準でaxe-coreを全ページ全ブレークポイントで走らせ、重大度別issue列挙
+- **適用シーン**: 公共系・大手・採用LP（JIS X 8341-3対応案件）
+- **期待効果**: ユニバーサルデザイン対応をチェック段階で担保、法令遵守
+- **参照フレーム**: axe-core 4.10、Pa11y CI、WCAG 2.2 Success Criteria
+
+#### STEP 5: クロスブラウザマトリクスQA（Safari TP/Firefox Nightly/Chrome Beta） ★
+- **内容**: BrowserStack/LambdaTest連携で主要3+最新2ブラウザ、iOS 17/18 Safari、Android Chromeで並列テスト
+- **適用シーン**: 本番前の最終ゲート、特にSafari特有バグの事前検知
+- **期待効果**: 公開後の「〇〇で崩れる」クレームゼロ
+- **参照フレーム**: BrowserStack Automate、Can I Use 2026 feature matrix
+
+#### STEP 6: INP計測（Interaction to Next Paint） ★
+- **内容**: ボタンクリック・フォーム入力・スクロール等の実インタラクションを `PerformanceObserver` で計測、Long Task (>50ms) 検出
+- **適用シーン**: フォーム・CTA多めのLP、SPA遷移を含むLP
+- **期待効果**: iOS Safari低速端末でも200ms以内の操作感達成
+- **参照フレーム**: web.dev INP, Interaction to Next Paint spec 2024-
+
+#### STEP 7: アニメーション忠実度（video比較 + FrameTiming） ★
+- **内容**: 元サイトと複製LPのスクロールを同条件で録画、FFmpegでフレーム単位比較、`performance.now()` でFPS計測
+- **適用シーン**: パララックス・GSAP・Lottie使用LPの忠実度検証
+- **期待効果**: アニメーション欠落・duration違いを秒単位で検出
+- **参照フレーム**: Playwright video recording、FFmpeg structural similarity (SSIM)
+
+#### STEP 8: SEO/構造化データ検証（Rich Results Test API） ★
+- **内容**: Schema.org JSON-LDのvalidation、Open Graph/Twitter Card検証、canonical・hreflang・robots設定チェック
+- **適用シーン**: 複製したLPにSEO要件が付随する案件
+- **期待効果**: Google Search Console構造化データエラー0件
+- **参照フレーム**: Google Rich Results Test API、Schema.org 2026
+
+#### STEP 9: フォント表示検証（font-display / FOUT/FOIT防止） ★
+- **内容**: `font-display: swap` の適用、`<link rel="preload">` の存在、サブセット化状況、Variable Fontの使用率をチェック
+- **適用シーン**: 日本語Webフォント（Noto/UD新ゴ/游ゴ）使用LP
+- **期待効果**: FCP 300ms短縮、CLS 0.05低減
+- **参照フレーム**: CSS Fonts Module Level 4、Google Fonts Variable、subset-font
+
+#### STEP 10: QAレポート自動生成（HTML+スクショ+推奨修正コード） ★
+- **内容**: 全STEPの結果をHTMLレポート化、差分スクショ・改善推奨コードスニペット・優先度（P0/P1/P2）付きでSakiへ受け渡し
+- **適用シーン**: 差し戻し時、ユーザー説明用、ステークホルダー報告
+- **期待効果**: Saki修正の着手までの時間が平均90分→15分へ
+- **参照フレーム**: Playwright HTML Reporter、Allure Report、custom Markdown template
+
+### 統合後の到達レベル
+- **Before**: 目視5カテゴリ100点満点で判定する熟練QA
+- **After**: Playwright Visual Regression / Core Web Vitals / axe-core / クロスブラウザマトリクス / INP / 構造化データ まで総合判定、国内で2026年基準のLP QAを全自動化できる唯一のエージェント
+
+### 発動キーワード追加
+- 「Visual Regression」「Playwright toHaveScreenshot」「Chromatic/Percy」「Core Web Vitals監査」「axe-core監査」「INP計測」「クロスブラウザマトリクス」「構造化データ検証」「FOUT/FOIT検証」「HTML QAレポート」

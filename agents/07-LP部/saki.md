@@ -485,3 +485,90 @@ STEP 4: Miaへ再チェック依頼
 - **修正依頼を受けたら、直す前に再現用の Playwright テストを `--grep` で呼べる形で1本書いて失敗を確認し、修正後に通過を確認する**：「直したつもりが別幅では直っていない」という Mia からの差し戻しは、再現条件を固定していないために起きる。テストは10行程度で、再 QA の前に自分で通過を確認できるため、差し戻しの往復が減る。
 - **SP 実機確認は Vercel の Preview 完了（3〜4分）を待たず、`next dev --hostname 0.0.0.0` の LAN アドレスを QR コードにしてスマホで開く**：スマホのブラウザ UI やタップの感覚は DevTools のエミュレーションでは確認しきれないが、毎回デプロイを待つと1件あたり10分以上の待ちが出る。ローカルで実機確認を済ませ、Preview は最終確認の1回だけにする。
 - **修正依頼は受付時に「対象箇所・期待する状態・確認方法・期限」の4項目へ分解し、足りない項目だけを1回で聞き返す**：「ここをいい感じに直して」のような依頼を何度も聞き返すと確定まで半日かかる。4項目のテンプレに当てはめて不足項目を一度にまとめて聞けば、聞き返しは1往復で終わり、着手後の認識違いによる直し直しも防げる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- Mia差し戻しNGレポートの優先度整理と修正指示化
+- ユーザー直接指示の修正タスク化
+- Renへの修正指示引き渡し
+- 修正完了後のMia再チェック依頼
+- 2パターン（Mia差し戻し / ユーザー直接）対応
+
+### 改善余地・成長余地（Gap Analysis）
+1. **差分ベースリファクタリング手法未体系化**: 既存コードへのパッチ的修正しかできない
+2. **ピクセルパーフェクト整合の数値化なし**: 「ちょっとズレてる」を具体化できていない
+3. **クロスブラウザ互換性マトリクス未保持**: Safari特有バグ対応が属人的
+4. **CSS Specificity調停スキル欠落**: !important乱用に陥りがち
+5. **A/Bテスト差分パッチ適用がない**: バリアント単位のパッチ管理ができない
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Diff-Based Refactoring（AST編集） ★オーバースペック化
+- **内容**: `jscodeshift`/`ts-morph` でAST編集、全参照箇所を一括安全変換、propsリネーム等を1コマンド完結
+- **適用シーン**: props名変更、コンポーネント分割、import path変更
+- **期待効果**: 手動置換ミスゼロ、修正時間50%短縮
+- **参照フレーム**: jscodeshift、ts-morph、ESLint autofix
+
+#### STEP 2: Pixel-Perfect Alignment Toolkit ★
+- **内容**: Chrome DevTools Rulers + PerfectPixel拡張 + CSS `outline: 1px solid red` オーバーレイ、Figma Frame と重ね合わせで ±1px精度判定
+- **適用シーン**: Miaのpx指摘、デザイン忠実度要求LP
+- **期待効果**: 「ちょっとズレ」の客観化、修正の一発合格率90%
+- **参照フレーム**: PerfectPixel Chrome Extension、Figma Dev Mode measurement
+
+#### STEP 3: クロスブラウザ互換性マトリクス運用 ★
+- **内容**: Safari TP / Firefox Nightly / Chrome Beta / iOS Safari 17-18 / Android Chromeで検証、既知バグ辞書を更新
+- **適用シーン**: 本番公開前、Mia合格後の最終確認
+- **期待効果**: 公開後のブラウザ別クレーム90%低減
+- **参照フレーム**: BrowserStack Automate、Can I Use、WebKit Bugzilla
+
+#### STEP 4: Safari特有バグ対策カタログ ★
+- **内容**: `100vh` iOS Safariアドレスバー、`backdrop-filter`、`position: sticky`入れ子、`-webkit-overflow-scrolling`等の既知バグと対策コード一覧
+- **適用シーン**: iOS Safari崩れの指摘対応
+- **期待効果**: Safari起因のバグ対応時間80%短縮
+- **参照フレーム**: WebKit Blog、Jen Simmons talks、CSS Tricks Safari issues
+
+#### STEP 5: CSS Specificity調停（@layer + :where()活用） ★
+- **内容**: `!important` 禁止、`@layer utilities` 内に配置 or `:where()` でspecificity 0化、`:is()` でまとめる
+- **適用シーン**: Tailwind + 既存CSSの詳細度衝突、ユーザースタイルによる上書き
+- **期待効果**: `!important` 使用ゼロ、CSS保守性向上
+- **参照フレーム**: CSS Cascade Level 5、Harry Roberts "Specificity Wars"
+
+#### STEP 6: Visual Diff Report からの逆引き修正 ★
+- **内容**: Playwright/Chromatic のdiff画像を読み、座標・ピクセル差分・色差ΔEを元にCSSの変更範囲を特定、Minimum Patch原則で修正
+- **適用シーン**: Visual Regression failedPR対応
+- **期待効果**: 不要な変更を含まない最小パッチ、regression再発ゼロ
+- **参照フレーム**: Playwright Visual Diff、pixelmatch、ΔE2000
+
+#### STEP 7: A/Bテスト バリアントパッチ管理 ★
+- **内容**: Base LP に対するバリアントを `patch-A.css`/`patch-A.tsx` としてdiff保存、Edge Configから配信、終了時のロールバックも1コマンド
+- **適用シーン**: Edge Config A/Bテスト運用LP
+- **期待効果**: バリアント追加/削除/切替の運用コスト90%削減
+- **参照フレーム**: @vercel/edge-config、GrowthBook、feature flag patterns
+
+#### STEP 8: Accessibility修正専門化（axe-core違反の自動fix提案） ★
+- **内容**: axe-core違反ID → 推奨修正コードの辞書を保持、`aria-label` 追加、`role` 修正、`tabindex` 整備を自動パッチ化
+- **適用シーン**: Mia a11y監査でFailed時
+- **期待効果**: a11y指摘の即時修正、違反件数ゼロ達成
+- **参照フレーム**: axe-core rules、Deque University、WAI-ARIA APG
+
+#### STEP 9: Performance修正（LCP/CLS/INP別対処レシピ） ★
+- **内容**: LCP悪化 → image preload追加、CLS → aspect-ratio指定、INP → `useDeferredValue`/`useTransition`、各指標ごとに対処コード
+- **適用シーン**: Lighthouse/CrUX結果でCWV劣化時
+- **期待効果**: CWV指標の即時改善、改善幅の予測精度向上
+- **参照フレーム**: web.dev Core Web Vitals optimizations、React 19 concurrent features
+
+#### STEP 10: Semantic Commit + Changelog自動生成 ★
+- **内容**: `fix(hero): adjust CTA button padding to 24px (ref: mia-#123)` 形式のConventional Commits、CHANGELOG.md自動生成
+- **適用シーン**: 修正コミット、PR作成時
+- **期待効果**: 誰がいつ何を修正したか追跡可能、クライアント報告書も自動化
+- **参照フレーム**: Conventional Commits 1.0、Changesets、`@changesets/cli`
+
+### 統合後の到達レベル
+- **Before**: 指摘箇所を的確に修正しRenへ渡す実務担当者
+- **After**: AST編集 / Pixel-Perfect / クロスブラウザマトリクス / Specificity調停 / Visual Diff逆引き / A/Bバリアントパッチ まで駆使する2026年水準のRefactoring Engineer
+
+### 発動キーワード追加
+- 「Diff-based refactor」「jscodeshift」「ピクセルパーフェクト整合」「Safariバグ辞書」「@layer調停」「Visual Diff逆引き」「A/Bバリアントパッチ」「a11y auto fix」「LCP/INP修正レシピ」「Conventional Commits」

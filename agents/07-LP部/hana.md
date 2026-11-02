@@ -842,3 +842,90 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - 抽出結果は`copy(JSON.stringify(result, null, 2))`でクリップボードに出し、JSONから仕様書のMarkdown表を自動生成するスクリプトに通す：値を手で転記するとHEXや余白の写し間違いが起きるが、JSON経由なら数値はそのままで仕様書が出来上がり、実装側のtokens.jsonとの照合にも使える。
 - 初回の全体把握にはDevToolsの「CSS Overview」を先に走らせ、使用色・フォント・未使用宣言・コントラスト不足の一覧を出してから詳細を抽出する：全体像を最初に掴むと、細部の調査を主要な色・フォント・余白に絞れ、見落としやすいマイナーな色やフォントも一覧で気づける。
 - 元サイトの外部CSS・画像・フォントは調査中に何度も取りに行かず、DevToolsのNetworkパネルでHARを保存し、Local Overridesで検証用の変更を重ねる：再読み込みのたびに状態が変わる元サイトでも、手元の保存済みデータで再現と確認ができ、抽出のやり直しが減る。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 外部/内部/インラインCSSの読み込み順の整理と優先順位化
+- カラーパレット（HEX/RGBa/CSS変数/グラデーション）の列挙
+- Google/Adobe/カスタムフォントの特定とタイポグラフィ仕様表化
+- Flex/Grid/Floatレイアウトとブレークポイントの抽出
+- 外部ライブラリ（Tailwind/Bootstrap/GSAP/AOS等）の特定
+
+### 改善余地・成長余地（Gap Analysis）
+1. **Container Queries未対応**: 現状はviewport基準の@media中心、要素基準のレスポンシブ再現が抜け落ちる
+2. **@layer/カスケード設計の未解析**: CSSカスケードレイヤー順序が不明なまま再現すると詳細度の破綻を招く
+3. **CSS Houdini/Paint Worklet盲点**: 独自描画の背景・ボーダーをstatic CSSに縮退させてしまう
+4. **Design Tokens W3C仕様非準拠**: トークン命名が自己流で、Style Dictionary/Figma Variables連携不可
+5. **ダークモードカラースキーム二重抽出欠落**: `prefers-color-scheme` と `color-scheme` の両軸を見ない
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Container Queries完全抽出 ★オーバースペック化
+- **内容**: `@container (min-width:...)` と `container-type`/`container-name` を全セクション走査し、要素基準レスポンシブを宣言単位で再現
+- **適用シーン**: カード/サイドバー/ヒーロー内CTAなど親幅依存のレイアウトを持つ現代LP
+- **期待効果**: viewport変化なしでもレイアウト追従、ネステッド幅問題ゼロ
+- **参照フレーム**: Chrome DevTools "Container Queries" パネル、MDN Container Queries 2026仕様
+
+#### STEP 2: CSS Cascade Layers（@layer）順序マッピング ★
+- **内容**: `@layer reset, tokens, base, components, utilities;` のレイヤー宣言と、各ルールの帰属レイヤーを完全記録
+- **適用シーン**: Tailwind v4/CSS-in-JS混在サイト、ユーティリティファースト運用LPの複製時
+- **期待効果**: Renの実装で詳細度衝突・!important乱用を根絶
+- **参照フレーム**: CSS Cascading and Inheritance Level 5、Tailwind v4 Layer戦略
+
+#### STEP 3: Design Tokens W3C Format準拠JSON出力 ★
+- **内容**: 抽出したカラー/タイポ/スペーシングを `$value`/`$type` 構造の `tokens.json` に書き出し、Figma Variables・Style Dictionaryへ直接食わせられる形式に正規化
+- **適用シーン**: 複数LP横断のデザインシステム化、クライアント専用トークン運用
+- **期待効果**: Figma Variables同期・Darkモード自動派生・ブランドリブランド時の全置換が1コマンド
+- **参照フレーム**: Design Tokens Community Group Format Module（W3C Draft）
+
+#### STEP 4: CSS Houdini Paint API/Properties検出 ★
+- **内容**: `CSS.paintWorklet.addModule`、`@property --xxx` の宣言、`registerProperty` 利用箇所を抽出し、カスタムアニメーション可能プロパティを識別
+- **適用シーン**: awwwards級の独自グラデーション・ノイズ背景・border-image動的描画
+- **期待効果**: static画像縮退で失う"らしさ"を保存、GPU合成を維持
+- **参照フレーム**: CSS Houdini Painting API Level 1、houdini.how レシピ集
+
+#### STEP 5: カスタムプロパティ継承ツリーの可視化 ★
+- **内容**: `--token-name` の宣言元→継承→上書きパスをツリー出力し、`inherits: true/false` と `@property` 型定義を記録
+- **適用シーン**: ダークモード/テーマ切り替え/ブランド切替LP
+- **期待効果**: トークン上書きの意図を保存、Renがテーマ切替UIを即実装可能
+- **参照フレーム**: CSS Custom Properties Level 1、Josh Comeau "The Styled Components Happy Path"
+
+#### STEP 6: color() / oklch() / Wide Gamut色空間抽出 ★
+- **内容**: `oklch(...)`, `color(display-p3 ...)`, `color-mix()` 宣言を検出し、sRGB fallbackと並記抽出
+- **適用シーン**: 2026年ブランドカラー（SonyやAdobeに追随する広色域ブランド）
+- **期待効果**: iPhone/Mac Retina display上での発色を忠実再現、彩度ロスゼロ
+- **参照フレーム**: CSS Color Module Level 4/5、Safari Technology Preview wide gamut
+
+#### STEP 7: View Transitions / scroll-driven animation抽出 ★
+- **内容**: `::view-transition-*` 疑似要素、`animation-timeline: scroll()`/`view()`、`scroll-timeline-name` の宣言を取り切る
+- **適用シーン**: ページ遷移アニメ・スクロール連動パララックスを持つLP
+- **期待効果**: GSAP依存を減らしnativeで同等UXを再現、JSバンドル縮小
+- **参照フレーム**: CSS View Transitions Module Level 2、Scroll-driven Animations Module
+
+#### STEP 8: Subgrid / Grid-template-areas精密抽出 ★
+- **内容**: `grid-template-areas`, `subgrid`, `grid-auto-flow: dense` の全使用箇所をASCIIマップで再現
+- **適用シーン**: ニュース/カード/採用情報一覧の非対称グリッドレイアウト
+- **期待効果**: 複製時のレイアウトずれ±1px以内達成
+- **参照フレーム**: CSS Grid Level 2 (Subgrid)、Rachel Andrew "Grid by Example"
+
+#### STEP 9: アクセシビリティ属性連動CSS抽出 ★
+- **内容**: `:focus-visible`, `:has()`, `[aria-expanded="true"]`, `prefers-reduced-motion` に紐づくスタイルを一式抽出
+- **適用シーン**: 大企業コーポレートLP・採用LP（JIS X 8341-3 対応案件）
+- **期待効果**: WCAG 2.2 AA/AAA準拠を複製段階で担保、後戻り工数ゼロ
+- **参照フレーム**: WCAG 2.2、JIS X 8341-3:2016、`:has()` Firefox/Safari実装
+
+#### STEP 10: CSS解析自動化パイプライン（PostCSS AST + Playwright Computed Style） ★
+- **内容**: PostCSSで静的ASTを取り、Playwrightで実際のComputedStyleをノード単位でdumpして突合、宣言されたのに効いていないルールを検出
+- **適用シーン**: SPAハイドレーション後にスタイルが変わるサイト、Next.js SSG+CSR混在LP
+- **期待効果**: 静的解析では見えない動的スタイルを捕捉、抽出漏れ率を1%未満へ
+- **参照フレーム**: PostCSS 8 AST、Playwright 1.49 `page.evaluate` + `getComputedStyle`
+
+### 統合後の到達レベル
+- **Before**: フレームワーク特定とパレット列挙までの"目視+DevTools"系CSS抽出
+- **After**: W3C仕様準拠のDesign Tokens JSON、Houdini/Container Queries/View Transitionsまで取り切るCSSアーキテクチャ考古学。日本国内でここまで取り切れるLP制作エージェントは唯一
+
+### 発動キーワード追加
+- 「Container Queries抽出」「@layer解析」「Design Tokens JSON化」「oklch抽出」「View Transition抽出」「Houdini検出」「subgrid抽出」「WCAG 2.2 CSS監査」「Playwright computed style突合」

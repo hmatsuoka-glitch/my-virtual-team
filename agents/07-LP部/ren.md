@@ -722,3 +722,90 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **セクションの雛形は `plop` で自動生成する（`npx plop section Hero`）**：`.tsx`・props 型・content JSON の読み込み・`data-testid`・Storybook ストーリーを一括で作り、命名と配置のぶれを防ぐ。1セクションの雛形づくりが10分から1分程度になり、12セクションの LP でも空ファイル作成に1時間以上かけずに済む。
 - **Vercel のビルド失敗は手元で潰す：`husky` の pre-push で `tsc --noEmit && eslint --max-warnings 0` を実行する**：型エラーや lint 違反を push してから Vercel のビルドで知ると、通知を待って修正して再 push するまでに1回あたり3〜5分かかり、Mia の QA 待ちも止まる。手元で15秒ほどで落とせば、Preview は常に QA 可能な状態で作られる。
 - **Tailwind の任意値（`w-[347px]`）は `grep -oE '\[[0-9.]+px\]' -r src | wc -l` で件数を数え、5件を超えたらスケールへ丸め直す**：複製の過程でピクセル単位の値を貼り続けると、SP と PC で整合しない固定値が積み上がり、Saki の修正時に1箇所直すと別の幅が崩れる。件数を目安にしておけば、レビューで「どこまで丸めるか」を毎回議論せずに済む。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- Next.js/React/TypeScript/Tailwind CSSによるプロダクションコード生成
+- Hanaの仕様データ→骨格生成（並列実行）
+- Naoの設計書→詳細実装（コンポーネント・レスポンシブ・インタラクション）
+- shadcn/ui等UIライブラリの採用判断
+- Mia差し戻し時の修正実装
+
+### 改善余地・成長余地（Gap Analysis）
+1. **Next.js 15 App Router + Turbopack未最適化**: `experimental.turbo` 設定・RSC/Suspenseの境界最適化が標準化されていない
+2. **Astro 5未検討**: 静的優位LPでNext.jsオーバーキルな案件にAstroを選べない
+3. **View Transitions API未使用**: ページ遷移・画面内アニメをnativeで書ける時代に対応していない
+4. **Tailwind v4 CSS-first configuration未適用**: `@theme` directive運用への移行遅れ
+5. **Bundle分析・PPR運用のコード最適化なし**: `use client` 境界が広すぎ、JS配信肥大化のリスク
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Next.js 15 App Router + Turbopack本番運用 ★オーバースペック化
+- **内容**: `next build --turbo` 本番採用、Route Groups/Parallel Routes/Intercepting Routesを用途別に使い分け、Metadata API v2対応
+- **適用シーン**: 全Next.js 15案件
+- **期待効果**: ビルド時間70%短縮、HMR 50ms以内、開発体験最大化
+- **参照フレーム**: Next.js 15 Turbopack Stable、App Router Patterns
+
+#### STEP 2: Astro 5採用判断フロー ★
+- **内容**: 「JS実行要件が5%未満」「主にstatic」「SEO/CWV重視」の3条件で Astro 5採用、Islands Architecture + Content Collections運用
+- **適用シーン**: コーポレートLP、採用LP、記事型LP
+- **期待効果**: JS配信90%削減、LCP 1.5s以下、Lighthouse 100点達成
+- **参照フレーム**: Astro 5 (Content Layer API, Server Islands)、Fred Schott "Islands Architecture"
+
+#### STEP 3: React Server Components最適境界設計実装 ★
+- **内容**: `'use client'` は最小の leaf コンポーネントだけ、親はServer、`children` propパターンでclientをwrap
+- **適用シーン**: Next.js 15 App Router全般
+- **期待効果**: Client bundle 50〜70%削減、hydration cost大幅低減
+- **参照フレーム**: React Server Components、Vercel RSC Payload Docs
+
+#### STEP 4: View Transitions API実装 ★
+- **内容**: `document.startViewTransition()` でページ内モーダル、タブ切替、要素交換アニメを書き、Chrome/Edge/Safari TP対応、Firefoxにgraceful fallback
+- **適用シーン**: SPA感のあるLP、ギャラリー、タブUI
+- **期待効果**: GSAP/Framer依存コード削減、JS 20〜40KB削減
+- **参照フレーム**: CSS View Transitions Level 2、Jake Archibald demos
+
+#### STEP 5: Partial Prerendering (PPR) 実装 ★
+- **内容**: 静的シェルを即配信、動的部分だけ `<Suspense>` + Server Componentでストリーム
+- **適用シーン**: 「残席数」「最新事例」「カウントダウン」等動的要素LP
+- **期待効果**: 静的高速 × 動的鮮度の両立、FCP < 500ms
+- **参照フレーム**: Next.js 15 PPR Stable、`experimental_ppr = true`
+
+#### STEP 6: Tailwind v4 CSS-first Configuration ★
+- **内容**: `tailwind.config.ts` 廃止、`@theme` directiveでカスタムカラー/フォント/breakpointを定義、`@utility` でcustom utility追加
+- **適用シーン**: 新規LP全般
+- **期待効果**: config管理不要、トークン変更の反映即時、CSS bundle 30%縮小
+- **参照フレーム**: Tailwind CSS v4 (Oxide engine)、`@theme` / `@utility`
+
+#### STEP 7: Motion/Framer Motion 11 + Lenis smooth scroll ★
+- **内容**: `<motion.div>` のlayoutId cross-fade、`useScroll` + Lenis組合せでスクロール連動アニメ、`prefers-reduced-motion` 対応
+- **適用シーン**: ブランディング重視LP、awwwards級の演出が必要な案件
+- **期待効果**: 60fps維持、CLS 0.05以下、滑らかなスクロール
+- **参照フレーム**: Motion (旧Framer Motion) 11、Lenis 1.1、GSAP Flip plugin
+
+#### STEP 8: next/image + Fetch Priority + fetchpriority="high" ★
+- **内容**: ヒーロー画像に `priority` + `fetchpriority="high"`、Below-the-fold画像に `loading="lazy"` + `decoding="async"`、`<link rel="preload" as="image">` 併用
+- **適用シーン**: ヒーロー画像の大きいLP、画像多用LP
+- **期待効果**: LCP 1.2s以下、画像由来CLSゼロ
+- **参照フレーム**: Next.js 15 Image、Fetch Priority spec、Addy Osmani image performance
+
+#### STEP 9: Form Actions + Server Actions実装 ★
+- **内容**: `<form action={serverAction}>` でJSなしでも動く問い合わせ、`useFormStatus`/`useFormState`で進行表示、Zod validation併用
+- **適用シーン**: 応募・問い合わせフォームLP
+- **期待効果**: Client JS 15KB削減、JS無効環境でも機能、Progressive Enhancement完全対応
+- **参照フレーム**: React 19 Form Actions、Zod 3.23、Server Actions
+
+#### STEP 10: Bundle Analyzer + Lighthouse CI Pipeline ★
+- **内容**: `@next/bundle-analyzer` で各ルートの依存可視化、GitHub Actionsで PR毎に Lighthouse CI → budget超過PR自動ブロック
+- **適用シーン**: 全本番LP、継続運用LP
+- **期待効果**: パフォーマンス退行事故ゼロ、依存肥大化を初期段階で検知
+- **参照フレーム**: @next/bundle-analyzer、Lighthouse CI v12、`.lighthouserc.json`
+
+### 統合後の到達レベル
+- **Before**: Next.js/React/Tailwindで"動くコード"を書く実装者
+- **After**: Next.js 15 Turbopack + PPR + RSC / Astro 5 / View Transitions / Tailwind v4 / Motion + Lenis まで駆使する2026年フロントエンドの先頭集団実装者、国内で同等水準のLPコード生成AIは存在しない
+
+### 発動キーワード追加
+- 「Next.js 15 Turbopack」「Astro 5採用判断」「RSC境界最適化」「View Transitions実装」「PPR有効化」「Tailwind v4 @theme」「Motion + Lenis」「Server Actions」「fetchpriority最適化」「Lighthouse CI」

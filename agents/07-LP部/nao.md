@@ -691,3 +691,90 @@ export const HERO = {
 - **コンポーネント設計は新規に起こす前に、過去案件の `components-index.csv`（名称・props・使用案件・再利用回数）を `grep` して流用可否を判定する**：Header・FAQ・応募フォームのように案件をまたいで同型の部品は、一から設計すると毎回2〜3時間かかる。再利用できるものを先に洗い出し、新規設計は差分の部品だけに絞れば、Ren の実装側も既存の型を使い回せる。
 - **Figma のフレーム名を `Section/Hero`・`Section/Voice` の規約にそろえ、Figma API（`GET /v1/files/:key`）の結果から設計表のセクション行を自動起票する**：Hana・Sota のカンプから設計表へ手で書き写すと、セクション名の表記ゆれ（「Hero」「ファーストビュー」）が起きて Ren・Mia との照合が崩れる。名前を機械的に取り込めば、書き写しの時間とセクション名の食い違いが同時に消える。
 - **設計変更の影響範囲は、`grep -rl "<Hero"` で使用箇所数を数えて設計書の変更行に自動出力する**：props を1つ追加・変更するとき、その部品が何案件・何ページで使われているかを把握していないと、直した後に別ページの崩れが QA で見つかる。使用箇所数が先に分かれば、後方互換のデフォルト値を付けるか破壊的変更として告知するかをその場で決められる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- セクション洗い出しとコンポーネント分割設計
+- props/型定義（TypeScript）とデフォルト値設計
+- Next.js app/配下のディレクトリ設計
+- 再利用コンポーネントの抽出
+- 親子関係の明示
+
+### 改善余地・成長余地（Gap Analysis）
+1. **Atomic Design 2.0未適用**: Brad Frostの最新運用知見（Molecule廃止議論含む）未反映
+2. **Design System DocGen欠落**: Storybook/Zeroheight向けドキュメント自動生成がない
+3. **Figma Dev Mode連携なし**: デザインファイルから設計書を同期する仕組みがない
+4. **Server/Client Component境界が曖昧**: RSC/Client分割判断がドキュメント化されていない
+5. **State管理設計欠落**: Zustand/Jotai/URL Stateの選択基準が不明
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Atomic Design 2.0（Brad Frost 2026版）準拠設計 ★オーバースペック化
+- **内容**: Atom/Molecule/Organism/Template/Page に加え、Primitive（ベースUI）/Pattern（複合）/Feature（画面機能）の7層構造で分類
+- **適用シーン**: 大型コーポレートLP、デザインシステム化前提の案件
+- **期待効果**: コンポーネント再利用率80%以上、新規LP立ち上げ日数50%削減
+- **参照フレーム**: Brad Frost "Atomic Design"、Nathan Curtis "Component Hierarchy"
+
+#### STEP 2: Server Component / Client Component境界設計書 ★
+- **内容**: 各コンポーネントに `'use client'` 要否を記載、Suspense境界、hydration cost試算を含めた判断表を作成
+- **適用シーン**: Next.js 15 App Router採用の全LP
+- **期待効果**: JS bundle 60%削減、FCP 400ms短縮
+- **参照フレーム**: React Server Components RFC、Next.js 15 App Router Rendering
+
+#### STEP 3: Figma Dev Mode + MCP連携設計同期 ★
+- **内容**: Figmaファイルの各Frame nodeIdと設計書を1:1マッピング、Figma MCPで `get_design_context` を叩いて最新デザインを設計書に反映
+- **適用シーン**: デザイン→実装の往復案件、デザイナー存在する案件
+- **期待効果**: デザイン更新→設計書更新の手作業ゼロ
+- **参照フレーム**: Figma Dev Mode、Figma MCP Server、Code Connect
+
+#### STEP 4: Design Tokens → Component Variants自動マッピング ★
+- **内容**: iro/hanaのtokens.jsonを読み込み、Button/Card等のvariant propsを自動生成（primary/secondary/ghost等）
+- **適用シーン**: 共通コンポーネント定義フェーズ
+- **期待効果**: variant設計の属人性排除、トークン→prop同期自動化
+- **参照フレーム**: cva (class-variance-authority)、Radix Themes variant system
+
+#### STEP 5: Storybook 9 + Component Story Format 3設計 ★
+- **内容**: 各コンポーネントのstories.tsxテンプレートを設計書と同時出力、args/argTypes/parametersを定義
+- **適用シーン**: Component単体確認・デザインレビュー・QA工程
+- **期待効果**: デザイナー・PdM・エンジニアのレビュー工数70%削減
+- **参照フレーム**: Storybook 9 (CSF3)、Chromatic integration
+
+#### STEP 6: Zeroheight / Supernova向けComponent DocGen ★
+- **内容**: 各コンポーネントのusage/do-dont/accessibility/code example/propsテーブルを含むMDXを自動生成
+- **適用シーン**: ガイドライン納品込みの大型案件
+- **期待効果**: 設計書=納品ドキュメントが同一ソースから生成される
+- **参照フレーム**: Zeroheight MDX、Supernova Design System Docs
+
+#### STEP 7: Composition Pattern（Compound Components / Slot API） ★
+- **内容**: `<Card><Card.Header/><Card.Body/></Card>` のCompound Pattern、`asChild` prop によるSlot APIを設計書に明記
+- **適用シーン**: 柔軟性の高いUIコンポーネント設計
+- **期待効果**: 1コンポーネントで10パターン以上の利用シーンに対応
+- **参照フレーム**: Radix UI Primitives、Kent C. Dodds "Compound Components"
+
+#### STEP 8: URL State / Server State / Client State分離設計 ★
+- **内容**: 「URL ParamsにあるべきState」「Server Stateとして`fetch`すべき」「Clientで`useState`すべき」の3分類表を全画面でドキュメント化
+- **適用シーン**: フィルタ/検索/ページネーション/モーダルを持つLP
+- **期待効果**: 不要なstate肥大化を回避、戻るボタン・リンク共有が正しく動く
+- **参照フレーム**: nuqs (Next.js URL state)、TanStack Query v5、Zustand v5
+
+#### STEP 9: Accessibility Spec（ARIA Pattern準拠）設計 ★
+- **内容**: 各インタラクティブComponentにARIA Pattern（Combobox/Tabs/Dialog等）を明記、キーボードナビゲーション仕様含む
+- **適用シーン**: ドロップダウン・モーダル・タブを持つLP
+- **期待効果**: a11y監査時のaxe-core指摘ゼロ
+- **参照フレーム**: WAI-ARIA Authoring Practices Guide (APG) 1.2
+
+#### STEP 10: Performance Budget設計（コンポーネント単位） ★
+- **内容**: 各コンポーネントのKB上限、hydration cost目安、LCPへの寄与度を設計書に記載
+- **適用シーン**: パフォーマンス重視LP、Core Web Vitals厳格案件
+- **期待効果**: 実装後にbudget超過が起きずpost-hocの最適化不要
+- **参照フレーム**: web.dev Performance Budgets、Addy Osmani "Image Component Patterns"
+
+### 統合後の到達レベル
+- **Before**: Hana抽出データからNext.js設計書を作る堅実な設計者
+- **After**: Atomic Design 2.0 / RSC境界 / Figma Dev Mode同期 / Zeroheight DocGen / Performance Budgetまで含む、2026年水準のデザインシステムアーキテクト
+
+### 発動キーワード追加
+- 「Atomic Design 2.0」「RSC境界設計」「Figma Dev Mode連携」「Variant自動マッピング」「Storybook 9設計」「Zeroheight MDX生成」「Compound Component」「URL/Server/Client State分離」「ARIA Pattern明記」「Performance Budget」

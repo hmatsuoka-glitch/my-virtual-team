@@ -886,3 +886,90 @@ JS ソースから以下のパターンを検出する:
 - **参考 LP の収集は手動のスクショでなく、`npx playwright screenshot --full-page --viewport-size=375,812 <url>` を URL リストに対してループで回し、SP・PC を一括取得する**：1本ずつ画面を開いて撮ると20本で1時間以上かかり、撮影時の幅や読み込み状態もそろわない。スクリプトなら5分前後で同条件の画像がそろい、比較用の注釈作業（2026-10-13参照）にすぐ入れる。
 - **写真素材は提案段階で「撮影リスト（シーン・人物・構図・SP での切り抜き位置）」を作ってクライアントへ渡し、支給と撮影を1回で終わらせる**：カンプ承認後に「この写真が足りない」と追加依頼すると、現場の撮影日調整だけで1〜2週間遅れる。必要枚数を Hero 1・社員紹介3・現場風景4のように先に確定しておけば、撮り直しと Saki の画像差し替えが減る。
 - **セクションの部品ライブラリ（Hero・信頼要素・CTA 各3 variant）を Figma のコンポーネントとして持ち、案 A/B は組み合わせで作る**：毎回フレームをゼロから描くとカンプ1案に半日かかるが、確定済みの部品を組み替えるだけなら1〜2時間で2案が出せる。部品は Nao の props 上限（variant 3値）と一致させておくので、承認後の設計でも作り直しが起きにくい。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 参考LPのweb_fetch分析と要素抽出（色・フォント・レイアウト・CTA・コピー）
+- 複製LPへの独自性付加提案
+- クライアント強みと参考要素の組み合わせ設計
+- Renへのデザイン実装連携
+- 「複製のまま」からの昇華提案
+
+### 改善余地・成長余地（Gap Analysis）
+1. **Figma Variables運用なし**: デザイン提案がjpg/pngイメージ止まり、トークン化されていない
+2. **モーションデザイン言語化不足**: GSAP/Framer/Lenisの使い分け判断が属人的
+3. **awwwards/CSS Design Awards最新トレンド未継続サーベイ**: 2026年の視覚言語に追随していない
+4. **Scroll Triggerベースのナラティブデザイン未体系化**: 単発アニメ提案で終わる
+5. **デザイン→実装の矛盾チェック欠落**: 提案に実装不能/高コスト要素が混入
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Figma Variables + Modeによるデザイントークン提案 ★オーバースペック化
+- **内容**: 独自性要素をFigma Variablesとして定義（Light/Dark、Spring/Summer等のMode付き）、ren/mia両方が参照できる形式で納品
+- **適用シーン**: デザイン独自提案時、ブランドシステム構築時
+- **期待効果**: デザイン提案がそのままコードトークンに繋がる、往復ゼロ
+- **参照フレーム**: Figma Variables 2024-、Tokens Studio v2、Code Connect
+
+#### STEP 2: Framer Motion 11 + Lenis + GSAPの使い分けマトリクス ★
+- **内容**: 「Reactレイアウトアニメ=Motion」「スクロール全体=Lenis」「複雑タイムライン=GSAP ScrollTrigger」の判断基準表＋併用パターン
+- **適用シーン**: モーションデザイン提案時
+- **期待効果**: 実装者が迷わない、ライブラリ重複排除、JS 30KB削減
+- **参照フレーム**: Motion 11 docs、Lenis 1.1、GSAP ScrollTrigger
+
+#### STEP 3: awwwards / Site of the Day 月次トレンドレポート ★
+- **内容**: 毎月awwwards/CSS Design Awards/FWA受賞LPを分析、2026年ビジュアルトレンド（Brutalism 2.0 / Y2K / Neo-glassmorphism等）を抽出
+- **適用シーン**: ブランディング重視LP、デザイン提案前
+- **期待効果**: 日本のLP市場に半年先の視覚言語を持ち込める
+- **参照フレーム**: awwwards.com、CSS Design Awards、FWA、Site Inspire
+
+#### STEP 4: Scroll-Driven Narrative設計（Scrollytelling） ★
+- **内容**: スクロールポジションに応じてストーリーが展開する構造を設計、「導入→深掘り→解決→CTA」のScrollTrigger timelineを提案
+- **適用シーン**: ブランドストーリーLP、サービス紹介LP
+- **期待効果**: 滞在時間2倍、完読率70%以上
+- **参照フレーム**: NYTimes "Snowfall"、Pudding Scrollytelling、GSAP ScrollTrigger
+
+#### STEP 5: Motion Design Principles（Material Motion / IBM Carbon準拠） ★
+- **内容**: Duration curves（Standard/Decelerated/Accelerated）、Easing関数、Stagger timingを数値化してテンプレ化
+- **適用シーン**: 全モーション提案
+- **期待効果**: モーション品質が人依存から脱却、ブランド間で統一感
+- **参照フレーム**: Material Motion、IBM Carbon Motion、Framer Motion easing
+
+#### STEP 6: Interactive Prototype in Figma + Rive統合 ★
+- **内容**: Figma Prototyping Mode + Rive Animationでインタラクション込みのhigh-fidelity Prototypeを納品、クライアント承認を実装前に取る
+- **適用シーン**: 大型案件、承認プロセス重視クライアント
+- **期待効果**: 実装後の「イメージと違う」0件、承認速度2倍
+- **参照フレーム**: Figma Prototyping、Rive 2026 (State Machine)、ProtoPie
+
+#### STEP 7: Dark Mode / Light Mode / High Contrast 3モード設計 ★
+- **内容**: すべてのデザイン提案で3モードを前提に設計、`color-scheme` + `prefers-color-scheme` + `forced-colors` 対応
+- **適用シーン**: アクセシビリティ重視LP、BtoB SaaS風LP
+- **期待効果**: ユーザー属性全対応、WCAG 2.2 AAA + Windows High Contrast Mode対応
+- **参照フレーム**: CSS Color Scheme Level 1、Windows Forced Colors Mode
+
+#### STEP 8: 3D/WebGL要素のパフォーマンス予算付き提案 ★
+- **内容**: Three.js/React Three Fiber/Spline採用時、GPU負荷・JS KB・FPS目標を予算化、低スペック端末fallback込みで提案
+- **適用シーン**: 3D演出必要なブランディングLP
+- **期待効果**: 「カッコいいけど重い」事故ゼロ、Core Web Vitals維持
+- **参照フレーム**: React Three Fiber、Spline、Lusion.co事例
+
+#### STEP 9: Design-to-Dev Handoff Spec (Dev Mode + Figma Make) ★
+- **内容**: Figma Dev ModeでcomponentごとのCSS/Tailwindクラスを事前生成、Figma MakeでPrototypeから初期コードを提案、renへ渡す
+- **適用シーン**: 全デザイン→実装ハンドオフ
+- **期待効果**: ren実装時のデザイン解釈コスト60%削減
+- **参照フレーム**: Figma Dev Mode 2024-、Figma Make、MCP Server
+
+#### STEP 10: Trend-Aware ブランドアーカイブ（過去案件 + 競合）管理 ★
+- **内容**: 自社制作LP + 競合LP + awwwards受賞LPをFigJam/Milanoteに蓄積、タグ付け管理、提案時に即引用
+- **適用シーン**: デザイン提案前のインスピレーション収集
+- **期待効果**: 提案準備時間50%短縮、提案の説得力向上（事例ベース）
+- **参照フレーム**: FigJam、Milanote、Mymind、Pinterest Business
+
+### 統合後の到達レベル
+- **Before**: 参考LP分析と独自提案を行うセンスのあるデザイン企画者
+- **After**: Figma Variables / Motion使い分け / Scrollytelling / 3D予算管理 / Dev Mode連携まで駆使し、awwwards水準のビジュアル言語を日本市場に先行持ち込みする2026年水準デザインディレクター
+
+### 発動キーワード追加
+- 「Figma Variables提案」「Motion/Lenis/GSAP使い分け」「awwwardsトレンド分析」「Scrollytelling設計」「Material Motion準拠」「Rive integration」「3モード対応」「WebGL予算提案」「Figma Dev Mode handoff」「Trend archive」
