@@ -570,3 +570,94 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **効率化テクニック「環境変数を Zod で定義した `env.ts` で起動時に検証し、不足・形式不正があれば起動を失敗させる」**：`process.env.X` を各所で直接参照すると、本番で未設定のキーが『特定の画面を開いたときだけ』エラーになり、原因の特定に時間がかかる。起動時に一括で検証すれば、Vercel のプレビュー環境でのキー設定漏れもデプロイ直後に判明し、型も付くので補完が効く。
 - **効率化テクニック「開発用シードを `prisma db seed` で固定シード値の faker により生成し、応募ステータス・職種・欠損データの全パターンを毎回同じ形で再現する」**：手で作ったテストデータは人によって異なり、『自分の環境では再現しない』が起きる。固定シード値のシードなら、バグ報告に『seed 実行後の応募ID◯◯』と書くだけで再現でき、Mio の検証データとも揃えられる。
 - **効率化テクニック「CI は変更ファイルの影響範囲だけテストし（`vitest --changed`）、型チェック・lint・単体を並列に走らせ、E2E は main への統合時だけにする」**：PR ごとに全テストを直列で回すと、待ち時間が長くなりレビューも後ろ倒しになる。影響範囲だけ並列で回せば、通常のPRは数分で結果が返り、重い E2E は統合前の1回に集約できる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- Next.js Route Handler / Hono / Express での API 実装
+- Prisma / Drizzle + PostgreSQL/MySQL/Supabase の DB 層
+- NextAuth / Clerk / Supabase Auth 認証、JWT セッション管理
+- Zod バリデーション、レート制限、CORS、入力サニタイズ、SQLi/XSS/CSRF 対策
+- Vitest / Jest / Supertest による TDD 準拠テスト基盤
+
+### 改善余地・成長余地（Gap Analysis）
+1. Hono.js が選択肢止まりで、Edge/Cloudflare Workers 対応や RPC 型共有が未活用
+2. Prisma 中心で、Drizzle ORM の "SQL 直書きに近い型安全" を全面採用できていない
+3. PostgreSQL 17 の新機能（incremental backup, pgvector 0.7, JSON_TABLE）に無頓着
+4. 可観測性が console.log 止まりで、OpenTelemetry / Sentry Performance が標準化されていない
+5. Server Actions / React Server Components との統合、Clerk の Organizations ベースマルチテナントが未整備
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Hono.js v4 Edge/Node 両対応 + RPC 型共有 ★オーバースペック化
+- **内容**: Hono でルート定義→`hono/client` で riku (FE) が型推論付きの fetch を使う RPC パターン。Edge Runtime 配信で p95 を 50ms 以下。
+- **適用シーン**: 社内 SaaS API、採用管理の軽量 API、Vercel Edge Config と組み合わせたフラグ付き API。
+- **期待効果**: FE/BE の型ずれゼロ、Edge 配信でレイテンシ 1/4。
+- **参照フレーム**: Hono v4、`@hono/zod-openapi`、Cloudflare Workers Bindings。
+
+#### STEP 2: Drizzle ORM 全面採用 + Zod v4 連携 ★オーバースペック化
+- **内容**: Prisma から Drizzle に移行、`drizzle-zod` でスキーマ↔バリデータを自動生成。`drizzle-kit` でマイグレーション、`drizzle-studio` で可視化。
+- **適用シーン**: 新規プロジェクトの DB レイヤー、パフォーマンスクリティカルなクエリ。
+- **期待効果**: バンドルサイズ 50% 削減、SQL レベルの可読性と型安全を両立。
+- **参照フレーム**: Drizzle 0.33+、Zod v4、`drizzle-kit`。
+
+#### STEP 3: PostgreSQL 17 + pgvector によるハイブリッド検索
+- **内容**: PG17 の `JSON_TABLE`、incremental backup、`pg_stat_io` を使いこなす。pgvector 0.7 の HNSW index で埋め込みベースのレコメンド/類似検索を追加。
+- **適用シーン**: 建設業求人のスキルマッチング、ナレッジベース Q&A、重複求人検出。
+- **期待効果**: 検索精度 BM25 比 +25%、JSONB クエリの可読性大幅改善。
+- **参照フレーム**: PostgreSQL 17 Release Notes、pgvector 0.7、Supabase Vector。
+
+#### STEP 4: Server Actions + 'use server' 標準化
+- **内容**: Next.js 15 の Server Actions を "書き込み系 API のデフォルト" に。`next-safe-action` + Zod で input/output 型安全、progressive enhancement 対応。
+- **適用シーン**: フォーム送信、CRUD、楽観的更新を伴う UI。
+- **期待効果**: Route Handler を減らし、API サーフェスを 40% 削減、CSRF 対策はフレームワーク任せに。
+- **参照フレーム**: Next.js 15 Server Actions、`next-safe-action` v7、React 19 Actions。
+
+#### STEP 5: Clerk Organizations + RBAC マルチテナント ★オーバースペック化
+- **内容**: Clerk の Organizations をテナント境界に、Role (`admin/member/viewer`) + Permission をコードで宣言。`auth().has({ permission })` で全エンドポイント保護。
+- **適用シーン**: マルチクライアント管理 SaaS、採用管理のクライアント別分離。
+- **期待効果**: マルチテナント実装工数を 1 スプリントに短縮、権限事故ゼロ。
+- **参照フレーム**: Clerk Organizations、CASL / Oso（代替検討）、SOC2 Type II 要件。
+
+#### STEP 6: OpenTelemetry + Sentry Performance の相互補完
+- **内容**: `@vercel/otel` でトレース発行、Sentry Performance で分散トレースを可視化。各 handler に span を自動注入、DB クエリ・外部 API コールを時系列で追跡。
+- **適用シーン**: 本番障害の根本原因特定、スロークエリ対策。
+- **期待効果**: MTTR 半減、"どのクエリが遅いか" を 10 秒で特定。
+- **参照フレーム**: OpenTelemetry Node SDK、Sentry Node 8、Vercel Observability。
+
+#### STEP 7: Supabase RLS (Row Level Security) + Postgres Policies の標準装備
+- **内容**: 全テーブルに RLS を有効化し、`USING` / `WITH CHECK` ポリシーで "テナント・ユーザー境界" を DB 層で強制。アプリ層のバグがあっても漏洩しない。
+- **適用シーン**: 顧客データを扱うすべての SaaS。
+- **期待効果**: SQLi/権限バグによる情報漏洩を実質ゼロ化。
+- **参照フレーム**: Supabase RLS、PG Row Security、OWASP ASVS v5。
+
+#### STEP 8: Zod v4 + Discriminated Union でドメイン型を厳密化
+- **内容**: API Response を `z.discriminatedUnion` で success/failure を型分岐、タグ付きユニオンで FE 側の網羅性チェックを強制。
+- **適用シーン**: ドメインロジック（決済・求人マッチングなど）を含む全エンドポイント。
+- **期待効果**: FE で "想定外のケース" を発生させないコンパイル保証。
+- **参照フレーム**: Zod v4 (New Schema Core)、TypeScript 5.6 Exhaustive Union。
+
+#### STEP 9: BullMQ / Inngest による非同期ジョブ基盤
+- **内容**: メール送信・レポート生成・ETL・SNS 投稿予約などを BullMQ (Redis) か Inngest (サーバーレス) に委譲。失敗時はバックオフ付きリトライ、DLQ 保存。
+- **適用シーン**: 月次レポート自動生成（akari）、求人データ ETL（shun）。
+- **期待効果**: Web リクエストを 500ms 以下に保ちつつ、重い処理を安全に委譲。
+- **参照フレーム**: BullMQ v5、Inngest 2026、Upstash Redis。
+
+#### STEP 10: Rate Limiting + WAF (Vercel Firewall + Arcjet) ★オーバースペック化
+- **内容**: Vercel Firewall でパスベースのルール、Arcjet で "bot 検知 + rate limit + email validation" をコードから宣言。
+- **適用シーン**: 公開 API、問い合わせフォーム、認証エンドポイント。
+- **期待効果**: ブルートフォース・スクレイピング・スパムをアプリに届く前に遮断。
+- **参照フレーム**: Vercel Firewall、Arcjet 2026、OWASP API Security Top 10 2023。
+
+### 統合後の到達レベル
+**Before**: Prisma + Next.js Route Handler で API を書くバックエンドエンジニア。
+**After**: Hono RPC、Drizzle、PG17 + pgvector、Server Actions、Clerk Orgs、OTEL+Sentry、RLS、BullMQ、Arcjet までを束ねる "SOC2 対応SaaS をワンオペできる BE プロダクションエンジニア"。
+
+### 発動キーワード追加
+- 「Hono で」「Edge Function で」「RPC で型共有」
+- 「Drizzle で書き直し」「Prisma から移行」「zod v4」
+- 「Server Actions」「next-safe-action」「React 19 Actions」
+- 「Clerk Orgs」「マルチテナント」「RBAC 入れて」
+- 「OTEL トレース」「Sentry Performance」「RLS 有効化」「Arcjet で WAF」

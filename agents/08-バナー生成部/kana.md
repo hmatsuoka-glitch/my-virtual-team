@@ -568,3 +568,94 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **効率化テクニック「`copy.json` の保存を file watcher（`node --watch` や chokidar）で検知し、全サイズ再生成と contact-sheet のリロードを自動で走らせる」**：コピーを直すたびに生成コマンドを叩いてブラウザを更新する作業は、1回10秒でも1案件の調整で数十回に及ぶ。保存即反映にすると、Rei との文言調整をその場で見ながら詰められ、『生成し忘れた古い版を見て指摘する』ミスも消える。
 - **効率化テクニック「条件3点＋バッジのレイアウトを『左寄せ／中央／上下分割』の3型の雛形として持ち、案ごとに型を選ぶだけにする」**：案ごとにゼロから配置を考えると、制作時間が延びるだけでなく A/B で差が1変数に保たれない。型を固定すれば案の違いは型選択とコピーに限られ、サイズ展開の崩れも型ごとに一度潰せば再発しない。
 - **効率化テクニック「人物・重機などの切り抜き素材は案件初日に1回だけ作り、全案・全サイズで共通利用する」**：案ごと・サイズごとに切り抜き直すと縁の処理がずれ、同じ人物なのに案によって輪郭の滑らかさが違う仕上がりになる。最大サイズで作った透過PNGを共有し、縮小は CSS 側に任せれば、素材作業は案件1回で済む。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- クライアントのメインカラーから補色・グラデ・アクセントを割り出す配色設計
+- Z字/F字の視線誘導に基づいたキャッチ・サブ・CTA のレイアウト
+- Google Fonts 選定と H1/本文/CTA のサイズ・ウェイト・行間指定、コントラスト 4.5:1 担保
+- サイズ別の文字数・改行位置チューニングと、インラインCSS 1 ファイル完結の納品
+- 自己チェック（統一感・視認性・訴求力・余白）後に Hiro へ受け渡し
+
+### 改善余地・成長余地（Gap Analysis）
+1. CSS がフラットで、Tailwind v4 (Oxide) の `@theme` やカスケードレイヤーが未導入、ブランド差し替えの工数が高い
+2. 色の指定が sRGB の `#RRGGBB` 止まりで、OKLCH ベースの知覚均等な補色・コントラスト計算になっていない
+3. サイズ別の分岐が「ファイル複製＋手調整」で、Container Queries による単一 HTML からの可変レンダリングを使えていない
+4. Noto Sans JP VF の可変軸（weight 100-900、`wdth` 等）を活かせず、固定ウェイトを都度読み込んで肥大化
+5. Figma と HTML の往復がなく、デザイン側の最新ガイドをコードに自動取り込みする配管がない
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Tailwind CSS v4 (Oxide エンジン) + `@theme` ブランド定義 ★オーバースペック化
+- **内容**: `@tailwindcss/postcss` v4 を導入し、`@theme { --color-primary: oklch(...); --font-display: "Noto Sans JP Variable"; }` でクライアント別の "ブランドトークン1ファイル" を定義。全バナー HTML はトークン参照のみ。
+- **適用シーン**: クライアントごとのトーン＆マナーを 10 秒で切り替え、同一構造の7媒体バナーを再生成。
+- **期待効果**: ブランド差し替え時間 20分 → 30秒。配色事故ゼロ。
+- **参照フレーム**: Tailwind v4 Oxide、`@theme` ディレクティブ、`@tailwindcss/vite`。
+
+#### STEP 2: OKLCH カラースペースによる知覚均等な補色・階調設計 ★オーバースペック化
+- **内容**: メインカラーを `oklch(L C H)` に変換し、`L` を ±8/±16 動かすだけで "暗すぎず明るすぎない" 階調を機械生成。補色は `H` を +180°、トライアド配色は ±120°。Chromium の `color: oklch()` ネイティブ対応で色あせない。
+- **適用シーン**: ロゴ色が極端な彩度でも、CTA ボタンの可読色を自動算出。
+- **期待効果**: コントラスト比 4.5:1 を超えつつ "ブランド色から外さない" 自動配色。
+- **参照フレーム**: CSS Color Module Level 4、`culori` ライブラリ、Evil Martians OKLCH ガイド。
+
+#### STEP 3: CSS Cascade Layers による "ブランド/構造/オーバーライド" の3層化
+- **内容**: `@layer reset, brand, components, overrides;` の順で宣言し、ブランド層をクライアント別に差し替えてもコンポーネント層は不変に保つ。詳細度バトルを根絶。
+- **適用シーン**: クライアント別の派生、キャンペーン限定の上書き（期間限定カラー等）。
+- **期待効果**: `!important` 利用ゼロ、派生案件の見通し改善。
+- **参照フレーム**: MDN "CSS Cascade Layers"、Chrome DevRel 2024-2026 サンプル集。
+
+#### STEP 4: Container Queries による "単一 HTML 全サイズ対応" ★オーバースペック化
+- **内容**: バナー外枠に `container-type: inline-size` を付け、`@container (min-width: 1080px) { .headline { font-size: 72px; } }` のように要素側で分岐。1 つの HTML を各サイズでレンダリング。
+- **適用シーン**: 7媒体×3案を1 HTML + サイズマトリクスで量産（Hiro 側は viewport 変更のみ）。
+- **期待効果**: HTML ファイル数 21 → 3。差し替え事故の 7 割を削減。
+- **参照フレーム**: CSS Containment Module Level 3、Chrome 105+ サポート、`cqw` 単位。
+
+#### STEP 5: Noto Sans JP Variable Font (`wght` 100-900) のサブセット運用
+- **内容**: Google Fonts の Noto Sans JP VF を `font-subset` で日本語必要字形のみに絞り、`@font-face` に `font-variation-settings` と `unicode-range` を宣言。全ウェイトを 1 ファイルで賄う。
+- **適用シーン**: すべての広告バナー・採用クリエイティブ。
+- **期待効果**: フォントのダウンロード量 1.4MB → 180KB、Hiro 側 `document.fonts.ready` の待ち時間を 300ms 短縮。
+- **参照フレーム**: Google Fonts VF、`glyphhanger`、`subset-font` CLI。
+
+#### STEP 6: Figma MCP → HTML 自動取り込みパイプ（code-to-design 双方向）
+- **内容**: Yuna / sota が Figma で用意したブランドパネル（カラー・タイポ・ロゴ）を Figma MCP `search_design_system` → `get_variable_defs` で取得し、Tailwind `@theme` に反映。逆に出来上がった HTML を `use_figma` で Figma に戻しレビュー可能にする。
+- **適用シーン**: クライアント初期オンボーディング、ブランドガイド更新時。
+- **期待効果**: Figma とコードの乖離を根絶、ブランドトークンの正は Figma 側で一元化。
+- **参照フレーム**: Figma MCP、Design Tokens Community Group Format、Figma Variables API。
+
+#### STEP 7: Logical Properties (`inline-size` / `block-size` / `margin-inline`) + RTL 対応
+- **内容**: `width`/`height` の代わりに `inline-size`/`block-size` を使い、将来の多言語（英/中/韓/アラビア語）展開でも同じ HTML を使い回せる構造に。
+- **適用シーン**: 建設業クライアントの技能実習・特定技能向け多言語採用クリエイティブ。
+- **期待効果**: 言語追加のたびに HTML を書き直す工数を 80% 削減。
+- **参照フレーム**: MDN CSS Logical Properties、CJK + RTL ベストプラクティス。
+
+#### STEP 8: ピクセルパーフェクト保証: `prefers-reduced-motion` と `color-gamut: p3` 対応
+- **内容**: 動く要素のある HTML は `@media (prefers-reduced-motion)` でモーションを無効化、広色域印刷用に `@media (color-gamut: p3)` で OKLCH を Display P3 で指定し直す分岐を用意。
+- **適用シーン**: アクセシビリティ配慮が必要な公的機関案件、印刷同時納品案件。
+- **期待効果**: 広告審査（Meta のアクセシビリティ指標）と印刷カラー再現を両立。
+- **参照フレーム**: CSS Media Queries Level 5、Display P3、WCAG 2.2。
+
+#### STEP 9: Tokens Studio / Style Dictionary によるマルチプラットフォームトークン配布
+- **内容**: ブランドトークンを 1 ソース（JSON）で管理し、Style Dictionary で `tailwind.config.css`・LP の `:root` 変数・Figma Tokens・PPT マスターへ同時書き出し。
+- **適用シーン**: バナー・LP・提案書・Slides で色が微妙にずれる事故の恒久対策。
+- **期待効果**: クライアント横断でブランド整合率 100%、Yuto / kaito / yuna 間の調整コスト半減。
+- **参照フレーム**: Style Dictionary v4、Tokens Studio for Figma、W3C Design Tokens Format。
+
+#### STEP 10: 可変 Open Graph 画像 (`@vercel/og` + Satori) の "動く広告バナー" 版 ★オーバースペック化
+- **内容**: Rei のコピーをクエリに受け取り、Satori で即時レンダリングできるコンポーネントも Kana が設計する。従来の "静的 HTML + Puppeteer" とは別に、"動的 JSX + Edge" のテンプレを並行で保有。
+- **適用シーン**: A/B テスト10案以上、SNS 投稿連動の自動差し替えバナー、採用求人の職種別ダイナミック OGP。
+- **期待効果**: 1案件あたり 50案を 30 秒で量産、Edge 配信で LCP 影響ゼロ。
+- **参照フレーム**: `@vercel/og` v0.6+、Satori、React Server Components。
+
+### 統合後の到達レベル
+**Before**: Z字レイアウトと sRGB の #hex で "それっぽい" バナー HTML を書くデザイナー。
+**After**: Tailwind v4 + OKLCH + Cascade Layers + Container Queries + VF + Figma MCP 双方向を駆使し、ブランドトークン1ソースから7媒体×多言語×動的OGPまで一息で量産する "広告エンジニアリング・デザイナー"。差し替え時間 1/40、審査落ち率を実質ゼロへ。
+
+### 発動キーワード追加
+- 「Tailwind v4 で」「OKLCH で配色」「Cascade Layers で分けて」
+- 「Container Queries で1ファイルに」「サイズ違い全部まとめて」
+- 「Noto Sans JP VF」「可変フォント」「サブセットして」
+- 「Figma から取り込んで」「ブランドトークン」「Style Dictionary」
+- 「動的 OGP」「Satori 用コンポ」「A/B 50案」

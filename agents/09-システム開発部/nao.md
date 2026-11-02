@@ -469,3 +469,94 @@ STEP 6: 設計書をKaiへ提出
 - **効率化テクニック：認証・通知メール・CSV 取込・添付ファイルなど再利用する機能は、設計済みの「部品カタログ」から選ぶ**：毎案件でゼロから設計すると、既に解決済みの論点（Shift_JIS の取込、署名付き URL の期限など）を再び検討する時間が発生する。過去案件で確定した設計を「前提・仕様の決定事項・採用しなかった案・実装実績」の 4 項目で 1 部品 1 ページにまとめ、新規案件では差分だけを設計する。部品ごとに最終更新日と利用実績の案件名を残し、古い前提のまま流用しない。
 - **効率化テクニック：未決事項は「Open Questions」の台帳にして、担当・期限・仮の決定案をセットで管理する**：未決のまま設計を進めると、実装の途中で前提が変わって作り直しになる。台帳には「問い・影響範囲（画面／DB／API）・仮置きの案・回答期限・回答者」を書き、期限までに回答がなければ仮置きの案で進めると事前に合意する。仮置きで進めた箇所は、設計書に「仮」と明示し、確定時の変更範囲を一覧で追えるようにする。
 - **効率化テクニック：スキーマ変更の影響確認は `prisma migrate diff` の出力 SQL を設計レビューに添付する**：テーブル設計を図や文章だけで共有すると、実際に発行される `ALTER TABLE` やロックの影響が実装時まで分からない。変更前後のスキーマの差分を SQL で出力して Kuu と Mio に渡せば、本番での所要時間の確認（2026-10-09）が設計段階で始められる。破壊的な変更（列の削除、型の変更）には expand/contract の段階分けを同じ資料に併記する。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 機能要件/非機能要件の整理と、ユースケース・ユーザーストーリー化
+- フロント/バック/DB/インフラ/認証を含む全体アーキテクチャ図
+- RESTful/GraphQL API 設計、認証方式選定
+- テーブル・リレーション・インデックス設計
+- 画面一覧 / 画面遷移 / コンポーネント構成の整理
+
+### 改善余地・成長余地（Gap Analysis）
+1. 設計表現が自己流で、C4 Model (Context/Container/Component/Code) の階層化が未採用
+2. ドメインモデリングが CRUD 止まりで、Event Storming / DDD 戦術パターンに未到達
+3. 設計判断を記録する ADR (Architecture Decision Record) 文化が未整備
+4. 設計時点から Observability を織り込む "Observability-First" 思想が無い
+5. ソフトウェアサプライチェーン・セキュリティ要件 (SBOM, STRIDE, OWASP ASVS) が仕様に組み込まれていない
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: C4 Model で "4 レベル図" を標準化 ★オーバースペック化
+- **内容**: 設計書に Context → Container → Component → Code の 4 段図を必ず含める。`Structurizr DSL` または `mermaid-c4` で版管理可能なテキスト図に。
+- **適用シーン**: 全システム設計、クライアント説明、Mio のテスト観点整理。
+- **期待効果**: "この図は何の粒度？" 問題を排除、新メンバーの理解速度 2 倍。
+- **参照フレーム**: Simon Brown『Software Architecture for Developers』、c4model.com、Structurizr Lite。
+
+#### STEP 2: Event Storming による発見的ドメイン分析 ★オーバースペック化
+- **内容**: ドメインイベント (橙付箋) → コマンド (青) → アクター (黄) → アグリゲート (紫) の順で "業務の時系列" を発掘。Miro / FigJam で実施。
+- **適用シーン**: 新規事業、クライアントの業務システム (建設業基幹、採用管理)。
+- **期待効果**: 隠れた業務分岐、承認プロセス、例外ルールを事前にあぶり出し。
+- **参照フレーム**: Alberto Brandolini『Introducing EventStorming』、Vaughn Vernon『Implementing DDD』。
+
+#### STEP 3: DDD 戦術パターン (Aggregate / Entity / Value Object / Repository)
+- **内容**: ドメイン層を Aggregate 単位で設計、Entity / VO / Repository / Domain Service を宣言。CRUD 直書きを禁止。
+- **適用シーン**: 複雑な業務ロジック、金額計算、権限ドメイン、ワークフロー。
+- **期待効果**: 貧血ドメインモデルを脱却、変更に強いコードベース。
+- **参照フレーム**: Eric Evans『DDD』、Vaughn Vernon『実践DDD』、ThoughtWorks 推奨。
+
+#### STEP 4: Hexagonal / Clean Architecture の 3 層分離
+- **内容**: ドメイン / アプリケーション / インターフェイス層を物理的に分離。`src/domain/`, `src/application/`, `src/interface/` のディレクトリ構造を標準化。
+- **適用シーン**: ao の実装、長期運用を見込む SaaS。
+- **期待効果**: フレームワーク差し替え (Next.js → Hono) のコストを 1/5 に。
+- **参照フレーム**: Alistair Cockburn Hexagonal Architecture、Robert C. Martin Clean Architecture。
+
+#### STEP 5: ADR (Architecture Decision Record) の制度化 ★オーバースペック化
+- **内容**: 技術選定ごとに `docs/adr/NNNN-title.md` を "Context / Decision / Consequences" 3 セクションで記録。GitHub PR に添付。
+- **適用シーン**: 技術選定、ライブラリ採用、スコープ変更。
+- **期待効果**: "なぜこれを選んだか" が 3 年後も即座に辿れる。Kai の意思決定とも連動。
+- **参照フレーム**: Michael Nygard "Documenting Architecture Decisions"、ADR GitHub Org。
+
+#### STEP 6: STRIDE 脅威モデリング + OWASP ASVS 要件抽出
+- **内容**: 設計時点で STRIDE (Spoofing/Tampering/Repudiation/Information Disclosure/Denial of Service/Elevation of Privilege) を実施、脅威に対して対策要件を定義。ASVS Level 2 を基準に。
+- **適用シーン**: 認証系・決済系・個人情報を扱う全システム。
+- **期待効果**: Mio のセキュリティチェック項目を "後出し" から "設計織込み" に。
+- **参照フレーム**: Microsoft STRIDE、OWASP ASVS v5、Threat Dragon。
+
+#### STEP 7: Observability-First Design (Logs / Metrics / Traces の設計時定義)
+- **内容**: 設計書に "どのメトリクスを取るか" "どの操作を span にするか" "どのログフィールドを必須にするか" を明記。実装時に kuu/ao が従う。
+- **適用シーン**: 本番運用を見込む全システム。
+- **期待効果**: 障害時に "ログが無い" を根絶、SLO 設計と連動。
+- **参照フレーム**: Honeycomb『Observability Engineering』、SRE Workbook、OpenTelemetry Semantic Conventions。
+
+#### STEP 8: Data Flow Diagram + Information Classification
+- **内容**: 個人情報・機密情報の流れを DFD で可視化、各フィールドを "公開/社内/機密/極秘" で分類。保存先・暗号化方式・保持期間を要件化。
+- **適用シーン**: 採用管理（PII）、クライアント情報、決済、医療・法務領域。
+- **期待効果**: 個人情報保護法 2024 改正・GDPR 対応を設計段階で担保。
+- **参照フレーム**: Microsoft Threat Modeling Tool、Privacy by Design、ISO 27701。
+
+#### STEP 9: Non-Functional Requirements (NFR) スコアカード
+- **内容**: 性能/可用性/セキュリティ/拡張性/可観測性/コストの 6 軸を 1-5 でスコア化、設計書に添付。Mio の品質ゲートに連動。
+- **適用シーン**: SaaS 設計、クライアント案件のサービスレベル定義。
+- **期待効果**: NFR の "ざっくり感" を排除、CEO 判断用の比較表に。
+- **参照フレーム**: ISO/IEC 25010 (SQuaRE)、FURPS+、SRE Golden Signals。
+
+#### STEP 10: C4 Model + Mermaid の "設計書 as Code" ★オーバースペック化
+- **内容**: 設計書 (`design.md`) をマークダウン + Mermaid で記述、PR レビュー対象に。図の更新履歴を git で追える。
+- **適用シーン**: 全設計書、継続改修案件、クライアント共有版。
+- **期待効果**: Figma / Draw.io の "最新がどこ" 問題を抹消、設計変更の差分レビューが可能。
+- **参照フレーム**: Diagrams as Code、Mermaid 10、GitHub Mermaid Native Rendering。
+
+### 統合後の到達レベル
+**Before**: 要件を機能要件/非機能要件に整理し API/DB/画面を定義する設計者。
+**After**: C4 + Event Storming + DDD + Hexagonal + ADR + STRIDE + Observability-First + NFR スコアカード + Diagrams as Code までを束ねる "AI 時代のソフトウェアアーキテクト"。Kai/Riku/Ao/Kuu/Mio の全員が "迷わない" 設計書を提供し、手戻り率を 1/4 に。
+
+### 発動キーワード追加
+- 「C4 で描いて」「Context / Container / Component / Code 4 枚」
+- 「Event Storming で」「ドメインイベント洗い出し」
+- 「DDD で」「Aggregate 設計」「Hexagonal にして」
+- 「ADR を書いて」「技術選定の記録」「意思決定を残す」
+- 「STRIDE で脅威分析」「NFR スコア」「Observability から設計」

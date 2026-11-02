@@ -585,3 +585,94 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：`--shard` で E2E を CI の複数ジョブに分割し、`--only-changed` で PR の確認範囲を絞る**：スイートが増えると PR ごとの全件実行が待ち時間になり、開発側が結果を待たずに次の作業へ移って失敗の見落としが増える。PR では `npx playwright test --only-changed` を使い、main への統合時と夜間に全件を `--shard=1/4` 形式で並列実行して `blob` レポートを統合する。絞り込みで漏れた不具合を夜間の全件で拾えているかを、月次で失敗の検出時点から確認する。
 - **効率化テクニック：不安定なテストは `@flaky` タグで隔離し、本流のゲートから外して期限付きで直す**：1 本の不安定なテストで CI 全体が赤になると、再実行が常態化して本物の失敗も見逃される。`--grep-invert @flaky` で通過判定から外し、別ジョブで毎日実行して成功率を記録する。隔離には原因の仮説と修正期限（2 週間）をタグの近くに書き、期限を過ぎたものは削除か修正を Riku／Ao と決める。
 - **効率化テクニック：探索的テストは 60〜90 分の時間枠とテーマ（チャーター）を決めて行い、メモをそのまま起票の下書きにする**：「一通り触って」と指示すると、時間が膨らむうえ何を見たか記録が残らない。「応募フォームを iOS の LINE ブラウザで、入力途中の離脱と再開に絞って確認する」のようにテーマを 1 文で決め、画面録画とメモを残す。見つけた事象は同じメモから再現手順の欄に直接貼り付けられるため、起票の手間が減る。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- ユニット/統合/E2E の 3 層テスト設計と実装
+- 型安全・命名・デバッグコード残存・責務分離のコードレビュー
+- エッジケース・エラーハンドリング・XSS/SQLi/認証バイパスの検出
+- 差し戻し (具体的修正指示付き) と再チェックのループ
+- `qa-gate.md` チェックリストでのゲート判定 (PASS/CONDITIONAL/FAIL)
+
+### 改善余地・成長余地（Gap Analysis）
+1. TDD Guard のルール化が未徹底で、"テストを後から書く" が検知されない
+2. ミューテーションテスト (Stryker) 未導入で、"テストが機能しないテスト" を見逃す
+3. ファズテスト (fast-check, jsverify) によるプロパティベーステストが未標準化
+4. k6 / Grafana による負荷テストが未整備で、本番 SLO と結びついていない
+5. Playwright Trace Viewer / Visual Regression (Percy, Chromatic) のビジュアル QA が未装備
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: TDD Guard による Red-Green-Refactor 強制 ★オーバースペック化
+- **内容**: `workflows/tdd/tdd-rules.md` を機械チェック化。コミット前フックで "テスト先行 (test file のタイムスタンプ < 実装 file)" を検証、違反時はコミットブロック。
+- **適用シーン**: Riku / Ao の実装全フェーズ。
+- **期待効果**: TDD "やってるつもり" を排除、テストカバレッジ 85% 以上の自律維持。
+- **参照フレーム**: Kent Beck "TDD by Example"、husky + lint-staged、TDD Guard プラグイン。
+
+#### STEP 2: Mutation Testing (Stryker) の標準装備 ★オーバースペック化
+- **内容**: `@stryker-mutator/core` でソースコードを変異させ、テストが落ちない変異 (生存変異) を検出。Mutation Score 75% 以上をゲート基準に。
+- **適用シーン**: ドメインロジック・算定処理・バリデーション層。
+- **期待効果**: "通ってるテスト" が実は何も検証していない事故を排除。
+- **参照フレーム**: Stryker 8、Mutation Testing Handbook、PITest (Java 参考)。
+
+#### STEP 3: Property-Based Testing (fast-check)
+- **内容**: `fast-check` で入力をランダム生成、不変条件 (invariant) を 1,000 ケースで検証。日本語文字列・絵文字・UTF-16 サロゲートペアも網羅。
+- **適用シーン**: パーサー、バリデーション、金額計算、スケジューラ。
+- **期待効果**: "想定していなかった入力" での本番障害を事前に検出。
+- **参照フレーム**: fast-check 3、Haskell QuickCheck、Hypothesis (Python)。
+
+#### STEP 4: k6 + Grafana による負荷テスト基盤
+- **内容**: `k6 run --out influxdb` で p95/p99 を計測、Grafana ダッシュボードで Vercel Function の実測と比較。SLO (p95 < 500ms) 未達は FAIL。
+- **適用シーン**: ローンチ前の負荷検証、キャンペーン直前、スケーリング確認。
+- **期待効果**: 本番で "繋がらない事故" を事前排除、Fluid Compute のメモリ設定を実測で決定。
+- **参照フレーム**: k6 (Grafana Labs)、SRE Workbook、Google SLO Burn Rate。
+
+#### STEP 5: Playwright Trace Viewer + Visual Regression ★オーバースペック化
+- **内容**: `@playwright/test` で E2E を書き、失敗時は `trace.zip` を自動保存。`toHaveScreenshot({ maxDiffPixelRatio: 0.01 })` で視覚差分 1% 超は FAIL。
+- **適用シーン**: Riku の UI 実装、LP、管理画面。
+- **期待効果**: "ピクセル的に崩れた" を人間が気付く前に検出、再現手順の自動保存で debug 時間 半減。
+- **参照フレーム**: Playwright 1.47、Chromatic / Percy、Visual Regression パターン。
+
+#### STEP 6: axe-core + Lighthouse CI によるアクセシビリティゲート
+- **内容**: Playwright 中に `@axe-core/playwright` で WCAG 2.2 AA 違反を検出、Lighthouse CI で Performance/A11y/Best Practices/SEO スコア 90 以上を強制。
+- **適用シーン**: 公開 LP、採用管理、クライアント案件。
+- **期待効果**: 法的要件 (改正障害者差別解消法 2024) 対応、SEO スコア底上げ。
+- **参照フレーム**: WCAG 2.2 AA、axe-core 4.10、Lighthouse CI。
+
+#### STEP 7: Fuzz Testing (jazzer.js) によるセキュリティ強化
+- **内容**: 認証・ファイルアップロード・URL パーサーなど外部入力面を `jazzer.js` でファジング、クラッシュケースを自動蓄積。
+- **適用シーン**: 公開 API、認証エンドポイント、ファイルアップロード。
+- **期待効果**: バッファーオーバー/正規表現 ReDoS/深いネスト JSON などの脆弱性を本番前に検出。
+- **参照フレーム**: Code Intelligence Jazzer.js、OWASP Fuzzing Guide。
+
+#### STEP 8: Contract Testing (Pact) による FE/BE 契約維持
+- **内容**: FE が消費する API コントラクトを Pact で定義、BE 側で Verifier を実行。両者を独立開発しつつ "動かない" を回避。
+- **適用シーン**: Riku/Ao の並列開発、マイクロサービス化。
+- **期待効果**: Integration テストより軽量に、FE/BE 統合バグをゼロ化。
+- **参照フレーム**: Pact 15、Consumer-Driven Contracts、PactFlow。
+
+#### STEP 9: SAST / SCA (Semgrep + Snyk) 統合 ★オーバースペック化
+- **内容**: `semgrep` で OWASP Top10 ルール、`snyk test` で依存ライブラリの CVE 検出。GitHub PR に自動コメント、High は即 FAIL。
+- **適用シーン**: 全 PR、本番デプロイ前。
+- **期待効果**: 依存脆弱性と典型的コードパターン脆弱性を機械的にブロック。
+- **参照フレーム**: Semgrep OSS、Snyk Open Source、OWASP ASVS v5、CWE Top 25。
+
+#### STEP 10: Chaos Engineering (Chaos Monkey / Toxiproxy) の軽量導入
+- **内容**: Staging 環境で `Toxiproxy` を使い "DB レイテンシ +500ms"、"外部 API ランダム失敗" などを注入、障害時の UX を事前検証。
+- **適用シーン**: 本番 SLA のある SaaS、クライアント運用案件。
+- **期待効果**: "外部障害で全部死ぬ" 設計を事前にあぶり出し、リトライ/サーキットブレーカーを設計段階で導入。
+- **参照フレーム**: Netflix Chaos Monkey、Toxiproxy、SRE Chaos Engineering 原則。
+
+### 統合後の到達レベル
+**Before**: ユニット + E2E + 手動レビューで PASS/FAIL を出す QA エンジニア。
+**After**: TDD Guard + Mutation + Property + Load (k6) + Visual Regression + a11y + Fuzz + Contract + SAST + Chaos の "10 面チェック" を標準装備し、Mutation Score 75% / p95 SLO / WCAG AA / CVE Zero を自動ゲート化する "品質プラットフォーム SRE"。
+
+### 発動キーワード追加
+- 「TDD Guard かけて」「Red-Green-Refactor 守って」
+- 「Stryker で変異テスト」「Mutation Score 出して」
+- 「fast-check で」「Property-based で」
+- 「k6 で負荷かけて」「Playwright Trace」「視覚差分」
+- 「axe で a11y」「Semgrep かけて」「Snyk でスキャン」「Toxiproxy で障害注入」

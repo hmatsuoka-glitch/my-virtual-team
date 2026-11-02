@@ -594,3 +594,94 @@ STEP 6: 実装完了報告
 - **効率化テクニック：案件の初期構築を社内テンプレートリポジトリ化し、リージョン・環境変数検証・ヘルスチェックを最初から入れる**：案件ごとに `create-next-app` から組み直すと、`regions: ["hnd1"]`（2026-09-02）、環境変数のスキーマ検証（2026-10-09）、`/api/health` の認証除外（2026-09-09）といった既知の対策を入れ忘れ、本番直前に気づいて手戻りになる。GitHub の Template Repository にこれらを実装済みで置き、README の先頭に「新規案件の初日チェックリスト」を持たせる。テンプレに入れた対策は改訂履歴を残し、既存案件への反映要否は四半期棚卸しで確認する。
 - **効率化テクニック：Renovate のグルーピングで依存更新 PR を週 1 回のまとめ PR に絞る**：パッケージごとに PR が届くと、レビューが細切れになり放置されて脆弱性対応が遅れる。`renovate.json` で `group:allNonMajor` を使い、patch・minor は月曜朝に 1 本へまとめ、major は別 PR として分ける。自動マージは CI が緑で patch のみに限定し、Next.js や Prisma 本体のような基盤パッケージは必ず手動確認に回す。
 - **効率化テクニック：`vercel env pull` を開発者の標準手順にし、環境変数をチャットで受け渡さない**：`.env` の値をチャットや口頭で渡すと、古い値のまま動かして原因調査に時間がかかるうえ、秘密情報が履歴に残る。`vercel link` 後に `vercel env pull .env.local` を実行すれば、Vercel 側の値が常に正本になる。`.env.local` は `.gitignore` 済みであることをテンプレ側の CI で検査し、新規参加者の環境構築がコマンド 2 本で終わる状態にする。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- Vercel / Cloudflare Pages ホスティング + GitHub Actions CI/CD
+- 本番/ステージング/プレビューの3環境分離と環境変数管理
+- ブランチ戦略 (main/develop/feature) とブランチ保護ルール
+- ビルド最適化、Vercel Analytics / Sentry での監視
+- PC/SP の動作確認とビルドログ精査
+
+### 改善余地・成長余地（Gap Analysis）
+1. Vercel Fluid Compute / Edge Function / Function Memory 設計が標準化されていない
+2. Cloudflare Workers / R2 / D1 への多クラウド配置戦略が未定義
+3. Terraform / Pulumi による IaC 化が未整備で、"ポチポチ設定" が属人化
+4. GitHub Actions が個別 YAML 乱立で、reusable workflow / composite action の共通化が未着手
+5. Datadog APM / Sentry Performance の RUM + APM 連携でのビジネスメトリクスが未整備
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Vercel Fluid Compute への全面移行 ★オーバースペック化
+- **内容**: Serverless Functions を Fluid Compute に切り替え、1 インスタンスで複数リクエストを捌くモデルに。コールドスタート/コスト削減を両取り。関数ごとに `memory` / `maxDuration` / `region` を宣言。
+- **適用シーン**: AI API ラッパー、重い DB クエリ、Edge で捌けない Server Actions。
+- **期待効果**: Serverless コスト 40〜70% 削減、p95 レイテンシ 30% 短縮。
+- **参照フレーム**: Vercel Fluid Compute 2025+、`vercel.json` function config、Vercel Pricing 2026。
+
+#### STEP 2: Cloudflare Workers + R2 + D1 のマルチクラウド戦略
+- **内容**: 静的配信とグローバルエッジ処理は Cloudflare Workers、画像/動画は R2、小規模テナントは D1 と分散。Vercel は Next.js の中核のみに絞る。
+- **適用シーン**: ベンダーロックイン回避、海外トラフィック対応、ストレージコスト最適化。
+- **期待効果**: 月額クラウドコスト 20〜50% 削減、2 クラウドの冗長性確保。
+- **参照フレーム**: Cloudflare Workers 2026、R2 Storage、D1 SQLite Serverless。
+
+#### STEP 3: Terraform (OpenTofu) / Pulumi IaC 化 ★オーバースペック化
+- **内容**: Vercel / Cloudflare / Supabase / Clerk / GitHub の設定をすべて IaC で宣言。環境差分は `workspaces` で管理、PR で terraform plan をコメント投稿。
+- **適用シーン**: 新規プロジェクト立ち上げ、環境複製、災害復旧。
+- **期待効果**: 環境構築時間 1 日 → 15 分、属人化ゼロ、監査証跡が自動生成。
+- **参照フレーム**: OpenTofu 1.8+、Pulumi 3、Vercel Provider for Terraform、HashiCorp 認定ベストプラクティス。
+
+#### STEP 4: GitHub Actions Reusable Workflows + Composite Actions
+- **内容**: `.github/workflows/_reusable-*.yml` に共通処理を切り出し、各プロジェクトは `uses: ./.github/workflows/_reusable-ci.yml` で参照。シークレットは Environment secrets + OIDC。
+- **適用シーン**: 複数プロジェクト横断の CI/CD、新規プロジェクト立ち上げ時。
+- **期待効果**: YAML 行数 60% 削減、仕様変更が 1 ファイル修正で全プロジェクトに反映。
+- **参照フレーム**: GitHub Actions Reusable Workflows、OIDC federation、`actions/setup-node@v4`。
+
+#### STEP 5: Vercel OIDC + AWS/Cloudflare 無鍵認証
+- **内容**: Vercel Function から AWS/Cloudflare へのアクセスを OIDC トークンで実行、長期シークレットを排除。IAM Role / Workers Secret の最小権限原則。
+- **適用シーン**: S3/R2 からの画像配信、DynamoDB アクセス、SES メール送信。
+- **期待効果**: 鍵漏洩リスクをゼロ化、ローテーション作業を廃止。
+- **参照フレーム**: Vercel OIDC、AWS STS AssumeRoleWithWebIdentity、Cloudflare Workers OIDC。
+
+#### STEP 6: Datadog APM + RUM + Sentry Performance の統合観測 ★オーバースペック化
+- **内容**: フロント (RUM) → API (APM) → DB の分散トレースを 1 本に。SLO (Service Level Objective) を定義し、エラーバジェットバーンアラート。
+- **適用シーン**: 本番 SaaS、クライアント案件、SLA 契約がある案件。
+- **期待効果**: 障害 MTTR 半減、ビジネスメトリクス (CVR/応募数) との相関分析可能。
+- **参照フレーム**: Datadog APM 2026、Sentry Performance v8、SRE Workbook (Google)。
+
+#### STEP 7: Vercel Firewall + WAF + Attack Challenge Mode
+- **内容**: パスごとにレート制限、Bot 検知、国別アクセス制限。DDoS 時は Attack Challenge Mode を自動 ON。
+- **適用シーン**: 公開 LP、問い合わせフォーム、ログイン画面。
+- **期待効果**: ブルートフォース・スクレイピング・DDoS を正規ユーザーに影響なく遮断。
+- **参照フレーム**: Vercel Firewall 2026、Cloudflare Super Bot Fight Mode、OWASP WAF ベストプラクティス。
+
+#### STEP 8: Preview Deployments のクライアント共有ワークフロー
+- **内容**: PR 作成時に Preview URL + パスワード保護を自動発行、Slack / Linear に通知。Vercel Toolbar コメントで PdM/クライアントがそのまま指摘。
+- **適用シーン**: クライアントレビュー、Nao の設計検証、Mia のビジュアル QA。
+- **期待効果**: レビュー回転 2 日 → 2 時間、クライアント承認プロセスの短縮。
+- **参照フレーム**: Vercel Deployment Protection、Vercel Toolbar、Linear Integration。
+
+#### STEP 9: GitHub Actions のセキュリティ強化 (SLSA Level 2+)
+- **内容**: `permissions: contents: read` を全ワークフロー宣言、Pin to SHA、Dependabot で自動更新、`actions/attest-build-provenance` でサプライチェーン証明。
+- **適用シーン**: 本番デプロイパイプライン、OSS 依存の多い案件。
+- **期待効果**: サプライチェーン攻撃リスクを機械的に遮断、SOC2 / ISO27001 対応時の監査証跡を自動化。
+- **参照フレーム**: SLSA v1.0、GitHub Hardening Guide、OpenSSF Scorecard。
+
+#### STEP 10: GitOps + ArgoCD/FluxCD (大型プロジェクト向け) ★オーバースペック化
+- **内容**: Vercel 外の自前サーバー（Node.js バッチ、ETL など）を Kubernetes に載せる場合、ArgoCD / FluxCD で GitOps 化。Git を Single Source of Truth に。
+- **適用シーン**: スクレイピング・ETL・AI 推論などサーバーレス向きでない重い処理。
+- **期待効果**: ロールバックが git revert で即時、本番構成変更の全履歴が追跡可能。
+- **参照フレーム**: ArgoCD 2.11、Flux v2、CNCF GitOps WG。
+
+### 統合後の到達レベル
+**Before**: Vercel にポチポチ設定、GitHub Actions YAML を個別に書くインフラ担当。
+**After**: Fluid Compute + Cloudflare 多クラウド + IaC (Terraform/Pulumi) + OIDC 無鍵 + Datadog/Sentry 統合観測 + GitOps までを束ねる "AI 時代のサーバーレス SRE"。コスト 40〜70% 削減、MTTR 半減、環境再現 15 分を達成。
+
+### 発動キーワード追加
+- 「Fluid Compute で」「Function Memory 設計」「Edge か Node か」
+- 「Cloudflare Workers に」「R2 に移して」「マルチクラウド」
+- 「Terraform で IaC」「Pulumi で」「環境再現」
+- 「reusable workflow」「composite action」「OIDC で無鍵化」
+- 「Datadog つなげて」「SLO 設定」「エラーバジェット」「WAF 強化」

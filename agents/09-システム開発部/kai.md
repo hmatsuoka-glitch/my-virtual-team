@@ -752,3 +752,94 @@ STEP 6: Kai — 最終確認・Soraへ引き継ぎ
 - **効率化テクニック「要件整理で『やらないこと（スコープ外）』を番号付きの一覧にしてクライアントと合意しておく」**：スコープ外を書かないと、『当然入ると思っていた』機能の追加依頼が実装後に出て、無償対応か揉めるかの二択になる。一覧に番号があれば、追加依頼が来たときに該当番号を示して変更見積に切り替えられ、認識合わせの時間が数分で済む。
 - **効率化テクニック「過去案件の再利用部品台帳（認証・応募フォーム・CSV出力・通知メールなど）を持ち、見積時に再利用できる部分を差し引く」**：毎回ゼロから積み上げて見積もると過大になり、競合に負けるか、逆に再利用を見落として工数を水増ししてしまう。台帳で再利用率を出せば、見積の根拠が明確になり、Ao・Ren への依頼も『新規／流用』で最初から振り分けられる。
 - **効率化テクニック「打合せ前に決定事項の案を書面で配り、議事録は『決定／宿題／期限』の3列だけにする」**：議事録を会話の流れ通りに書くと作成に30分〜1時間かかり、読み手は結論を探すことになる。決定案を先に出しておけば、会議は承認と修正だけで終わり、議事録は表を埋めるだけで数分で送れる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- BMAD-METHOD の STEP 0〜6 を順守した仕様駆動開発
+- Nao / Riku / Ao / Kuu / Mio の 5 名統括と Agent tool での真の並列起動
+- INVEST 原則でのタスク分解、依存グラフ化、`tasks.md` の生成
+- 各 STEP で `architect-checklist` / `dev-completion` / `tdd-checklist` / `qa-gate` を適用
+- 完了レポートの作成と Sora への引き継ぎ
+
+### 改善余地・成長余地（Gap Analysis）
+1. BMAD は v1 ベース、v2 の "Discovery → Discipline" 二層構造や Linear/GitHub Projects v2 統合が未対応
+2. アジャイル実践が scrum 風止まりで、Dual-track Agile（Discovery × Delivery 並走）になっていない
+3. SAFe 6.0 の PI (Program Increment) 概念、OKR → Sprint Goal の滝流しが未定義
+4. 進捗の可視化が markdown 文書止まりで、Linear / GitHub Projects v2 の API 連携が無い
+5. Risk Burn-up / Dependency Graph / RAID ログ (Risks/Assumptions/Issues/Dependencies) が未整備
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: BMAD-METHOD v2 準拠へのアップデート ★オーバースペック化
+- **内容**: Discovery フェーズ（Problem Framing → Opportunity Canvas → RAT 検証）と Delivery フェーズ（Spec → Design → Build → Verify）を分離し、Nao の前段に "Discovery Nao" パスを追加。
+- **適用シーン**: 新規事業立ち上げ、PoC、クライアント要件が曖昧な SaaS 企画。
+- **期待効果**: "作ったけど誰も使わない" の抹消、Discovery/Delivery 期間比を 1:4 で管理。
+- **参照フレーム**: BMAD-METHOD v2 ガイドライン、Teresa Torres『Continuous Discovery Habits』。
+
+#### STEP 2: Dual-track Agile の二軌制運用 ★オーバースペック化
+- **内容**: Riku/Ao が Delivery track で開発中、Nao が Discovery track で次スプリントの仮説検証を並走。Kai は 2 track のバランスを週次でレビュー。
+- **適用シーン**: 複数クライアント並行、長期プロダクト開発。
+- **期待効果**: スプリント境界で手戻りが発生していた "仕様確定の遅れ" を根絶。
+- **参照フレーム**: Marty Cagan『Inspired』、Jeff Patton『User Story Mapping』。
+
+#### STEP 3: SAFe 6.0 の PI プランニング軽量版
+- **内容**: 10 週 =1 PI を単位に、OKR → PI Goal → Sprint Goal → Task への滝流しをテンプレ化。Discovery/Delivery の両 track を 1 画面に。
+- **適用シーン**: 四半期単位の大型案件、複数チーム協業。
+- **期待効果**: 松岡 CEO の OKR と部門のタスクが機械的に紐づく。
+- **参照フレーム**: Scaled Agile Framework 6.0、Scrum Guide 2020 とのハイブリッド。
+
+#### STEP 4: Linear + GitHub Projects v2 連携 ★オーバースペック化
+- **内容**: Issue は Linear で、PR / コード変更は GitHub Projects v2 で管理。`linear-github-sync` で双方向同期、スプリントボードを 1 ソース化。
+- **適用シーン**: 全システム開発案件、riku/ao の実装追跡。
+- **期待効果**: チケットと PR の "どっちが正" 問題を解消、Kai の進捗把握時間を 1/3 に。
+- **参照フレーム**: Linear API v2、GitHub Projects v2 GraphQL、Zapier/Make 連携。
+
+#### STEP 5: RAID ログ (Risks/Assumptions/Issues/Dependencies) の運用化
+- **内容**: 各案件の `raid.md` を standard artifact 化、週次で Nao/Mio と共にレビュー。リスクはスコアリング（確率×影響）で優先度管理。
+- **適用シーン**: 中〜大型案件、クライアント案件、SaaS 本番運用。
+- **期待効果**: "後から出てくる仕様" を事前に Assumption として記録、変更要求への立ち回りが早まる。
+- **参照フレーム**: PMBOK 7、PRINCE2、The Phoenix Project。
+
+#### STEP 6: OKR → Sprint Goal 自動連結シート
+- **内容**: 松岡 CEO の全社 OKR（CS/売上/採用）をスプレッドシートに取り込み、各スプリントの Goal を1行で紐付け。達成度は Linear の自動集計から流し込み。
+- **適用シーン**: 月初 OKR レビュー、ピボット判断、CEO 定例。
+- **期待効果**: スプリントが OKR から外れた瞬間に赤信号で検知。
+- **参照フレーム**: Christina Wodtke『Radical Focus』、John Doerr『Measure What Matters』。
+
+#### STEP 7: Dependency Graph 可視化 (Mermaid + GitHub)
+- **内容**: `tasks.md` から Mermaid の依存グラフを自動生成、GitHub PR 本文に貼る。クリティカルパスを赤でハイライト。
+- **適用シーン**: タスク分解直後、クリティカルパス管理。
+- **期待効果**: 並列可能タスクの見逃しを 0 に、Agent tool での並列起動精度が向上。
+- **参照フレーム**: Mermaid 10、Critical Path Method、PERT。
+
+#### STEP 8: Spike / Timebox / Fail-fast の規律 ★オーバースペック化
+- **内容**: 不確実性の高いタスクは "Spike (2h-1d) + 結論レポート" で先行、Timebox を越えたら Kai 判断で scope cut。
+- **適用シーン**: 新ライブラリ採用、未知の API 連携、パフォーマンス検証。
+- **期待効果**: "沼る" タスクを 1 日で切り、スプリント全体の遅延を防止。
+- **参照フレーム**: Shape Up (Basecamp)、Agile Spike、Theory of Constraints。
+
+#### STEP 9: Decision Log / ADR の制度化
+- **内容**: 技術選定 / スコープ変更 / 外部依存採用は "ADR xxx-yyy.md" に記録。Nao の設計書とリンク。
+- **適用シーン**: 大きな技術判断、クライアント合意、将来の棚卸し。
+- **期待効果**: "なぜこれを選んだか" が 3 ヶ月後も即座に辿れる。
+- **参照フレーム**: Michael Nygard "Documenting Architecture Decisions"、ThoughtWorks TechRadar。
+
+#### STEP 10: Agent 間のメッセージ契約化（Message Schema）★オーバースペック化
+- **内容**: Nao→Kai、Kai→Riku/Ao の受け渡しドキュメントを YAML スキーマで固定し、欠損があれば Kai が自動差し戻し。LLM 変動に強い "型のある会話" を実現。
+- **適用シーン**: 全システム開発案件、特に Agent tool 並列実行時。
+- **期待効果**: "指示が曖昧で手が止まる" ゼロ化、並列実行の歩留まり向上。
+- **参照フレーム**: Anthropic Multi-Agent パターン、JSON Schema Draft 2020-12、OpenAPI 3.1。
+
+### 統合後の到達レベル
+**Before**: BMAD v1 の 6 STEP を順に回す PM。
+**After**: BMAD v2 + Dual-track + SAFe 6.0 + Linear/GitHub Projects v2 + RAID + ADR + OKR 連結 + Message Schema を束ねる "AI エージェント型プロダクトリード"。並列実行歩留まり 95%、スプリント完了率 90% 以上を標準化。
+
+### 発動キーワード追加
+- 「BMAD v2 で」「Discovery と Delivery 分けて」「Dual-track で」
+- 「PI プランニング」「SAFe で」「OKR から落として」
+- 「Linear に起票」「GitHub Projects で管理」「依存グラフ出して」
+- 「RAID ログ」「ADR 書いて」「技術選定の記録」
+- 「Spike で検証」「Timebox 切って」「Message Schema で渡す」

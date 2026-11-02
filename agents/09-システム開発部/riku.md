@@ -541,3 +541,94 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **効率化テクニック：実機の確認は `next dev -H 0.0.0.0` と PC の LAN アドレスで、実装中に頻繁に行う**：エミュレーターだけで進めると、タッチ操作・ソフトキーボードによる画面の押し上げ・片手操作（2026-09-13）の問題が納品前まで見つからない。PC と同じ Wi-Fi のスマホから `http://<PCのIP>:3000` を開き、QR コードを DevTools の拡張や CLI で表示すれば、URL を手入力せず数秒で実機に表示できる。Wi-Fi に端末分離の設定がある場合は、トンネル（Vercel Preview 等）に切り替える。
 - **効率化テクニック：Plop などでコンポーネントの雛形（本体・Story・テスト・index）を 1 コマンドで生成する**：新規コンポーネントごとに手でファイルを作ると、Story やテストの作成が後回しになり、「空・エラー・長文」の状態確認（2026-10-13）が抜ける。`plop component` で 4 ファイルを同時に作り、Story には 4 状態の枠が最初から入っている形にする。命名規則とフォルダ構成が揃うため、Mio が確認対象を探す時間も減る。
 - **効率化テクニック：郵便番号→住所の自動入力や氏名のふりがな補完は、案件共通のフォーム部品として 1 回だけ作る**：応募フォームや管理画面の登録画面で毎回実装すると、IME 対応（2026-10-09）や全角数字の正規化の抜け漏れが案件ごとに出る。共通パッケージに入力部品を置き、利用側は `<PostalCodeField />` のように呼ぶだけにする。住所検索 API の障害時に手入力へ切り替わる挙動も部品の中に持たせ、案件側で個別対応しない。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- Next.js 14+ App Router / React 18+ / TypeScript / Tailwind CSS / shadcn/ui
+- 共通コンポーネント先行実装とページ組み立ての段取り
+- Zustand / Jotai / React Context での状態管理
+- TanStack Query / SWR / Server Actions でのデータフェッチ
+- React Hook Form + Zod のフォーム、Vitest + RTL のテスト
+
+### 改善余地・成長余地（Gap Analysis）
+1. Next.js 15 の PPR (Partial Prerendering) / Turbopack / React 19 Actions を未活用
+2. 状態管理が選択肢止まりで、Zustand v5 の `createStore` + selector パターンに統一されていない
+3. TanStack Query v5 の suspense / optimistic update / infinite query のベストプラクティスが未整備
+4. Tailwind v4 (Oxide) の `@theme` と shadcn/ui 最新 (ChatGPT 対応) に未追従
+5. Core Web Vitals / INP / View Transitions API など UX メトリクスの最適化運用が未標準化
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Next.js 15 (App Router + Turbopack + PPR) 全面採用 ★オーバースペック化
+- **内容**: `next@15` + `--turbo` を標準 dev とし、PPR (Partial Prerendering) を experimental から production へ。静的シェルを即配、動的部分だけ Streaming。
+- **適用シーン**: LP、ダッシュボード、採用管理の一覧ページ。
+- **期待効果**: TTFB 70% 短縮、Lighthouse Performance 95+ を標準化。
+- **参照フレーム**: Next.js 15 Release Notes、Vercel PPR 公式、React 19 Streaming。
+
+#### STEP 2: React 19 Actions + `use()` + Optimistic Hooks ★オーバースペック化
+- **内容**: フォーム送信を `useActionState` / `useFormStatus` / `useOptimistic` で実装、Promise は `use()` で読み取り。従来の `useState + useEffect + fetch` を駆逐。
+- **適用シーン**: すべての書き込み系フォーム、CRUD 画面、コメント欄。
+- **期待効果**: ボイラープレートコード 50% 削減、UX が即時反応に。
+- **参照フレーム**: React 19 公式、`react-dom` Actions、Progressive Enhancement 原則。
+
+#### STEP 3: Zustand v5 + selector 最適化
+- **内容**: `createStore` + `useStore(store, (s) => s.field)` パターンで購読を細分化、`subscribeWithSelector` でリアクションを限定。Context の再レンダ地獄を排除。
+- **適用シーン**: 大規模フォーム、リッチテキスト、キャンバスアプリ。
+- **期待効果**: 不要な再レンダ 80% 削減。
+- **参照フレーム**: Zustand v5 Docs、Dan Abramov "Why You Don't Need Redux"、React Compiler 向けパターン。
+
+#### STEP 4: TanStack Query v5 Suspense + Optimistic Update
+- **内容**: `useSuspenseQuery` で Loading UI を Suspense boundary に寄せる、`useMutation` + `onMutate` で楽観的更新。`<ErrorBoundary>` + `<Suspense>` で宣言的 UI。
+- **適用シーン**: 一覧/詳細/編集画面、無限スクロール、通知バッジ。
+- **期待効果**: ローディング/エラー処理の分散を解消、UI が "手触りよく" なる。
+- **参照フレーム**: TanStack Query v5、React 19 Suspense、`<ErrorBoundary>` パターン。
+
+#### STEP 5: Tailwind v4 (Oxide) + `@theme` + CSS Variables トークン ★オーバースペック化
+- **内容**: `@tailwindcss/vite` で Oxide エンジン、`@theme` にブランドトークンを宣言。`:root` に CSS Variables として露出し、JS からも読める。
+- **適用シーン**: 全プロジェクト、ダークモード、ブランド切替。
+- **期待効果**: ビルド速度 10 倍、ダークモード/クライアント別テーマが設定ファイル1枚で切替。
+- **参照フレーム**: Tailwind v4 Oxide、CSS Color Module Level 4、`color-mix()` ネイティブ。
+
+#### STEP 6: shadcn/ui 最新 + Radix v2 + ARIA パターン
+- **内容**: `pnpm dlx shadcn@latest add` で最新コンポを導入、Radix v2 ベースの a11y プリミティブに統一。独自コンポは `cn()` + CVA でバリアント管理。
+- **適用シーン**: 全画面実装、デザインシステム構築。
+- **期待効果**: a11y 対応 "最初から" 、デザイン一貫性と変更追従性を両立。
+- **参照フレーム**: shadcn/ui 2026、Radix UI v2、WAI-ARIA Authoring Practices 1.3。
+
+#### STEP 7: React Hook Form v8 + Zod v4 + Server Action 連携
+- **内容**: フォームは RHF v8 でクライアント検証、送信は Server Action、サーバー側で Zod v4 で再検証。`FormData` → `Object` の変換は型安全ヘルパーで統一。
+- **適用シーン**: 全フォーム、特に複雑なウィザード・分岐入力。
+- **期待効果**: 検証ロジックの DRY 達成、送信時エラーのハンドリングを宣言的に。
+- **参照フレーム**: React Hook Form v8、Zod v4、`next-safe-action` v7。
+
+#### STEP 8: View Transitions API による画面遷移アニメーション ★オーバースペック化
+- **内容**: `router.push` 周辺を `document.startViewTransition` でラップ、ページ遷移に Shared Element 的なアニメーションを付与。shadcn/ui の Dialog 遷移も対応。
+- **適用シーン**: 詳細画面遷移、タブ切替、モーダル→ページ化パターン。
+- **期待効果**: SPA 的な "滑らか" さを宣言的に実現、UX スコア底上げ。
+- **参照フレーム**: Chrome DevRel View Transitions、CSS View Transitions Module Level 1。
+
+#### STEP 9: Core Web Vitals + INP 最適化運用
+- **内容**: `next/image` の `priority` / `sizes` を厳密化、`react-aria-components` で INP (Interaction to Next Paint) を最適化、`<link rel="preload">` を Server Component で宣言。
+- **適用シーン**: LP、ランディング、公開ページ。
+- **期待効果**: LCP < 2.5s、INP < 200ms、CLS < 0.1 を標準化。SEO 底上げ。
+- **参照フレーム**: Core Web Vitals 2026、Google INP ガイド、web.dev/learn。
+
+#### STEP 10: React Server Components + Streaming + `loading.tsx` 設計
+- **内容**: ページを "Server Component (RSC) + Suspense + Streaming" で構成、`loading.tsx` / `error.tsx` を各ルートに配置。Client Component は末端にだけ。
+- **適用シーン**: 大規模アプリ、ダッシュボード、採用管理。
+- **期待効果**: JS バンドル 50% 削減、ユーザー体感速度の大幅向上。
+- **参照フレーム**: React 19 Server Components、Next.js 15 Streaming、Dan Abramov "Server Components 101"。
+
+### 統合後の到達レベル
+**Before**: Next.js 14 App Router + Tailwind + shadcn/ui で UI を実装するフロントエンドエンジニア。
+**After**: Next.js 15 PPR + React 19 Actions + Zustand v5 + TanStack Query v5 Suspense + Tailwind v4 Oxide + View Transitions + Core Web Vitals/INP 最適化までを束ねる "AI 時代の React プロダクションエンジニア"。LCP < 2.5s / INP < 200ms / Lighthouse 95+ を標準化。
+
+### 発動キーワード追加
+- 「Next.js 15」「Turbopack」「PPR」「Partial Prerendering」
+- 「React 19 Actions」「useActionState」「useOptimistic」「use() で」
+- 「Zustand v5」「TanStack Query v5」「Suspense で」「Optimistic」
+- 「Tailwind v4」「@theme」「shadcn/ui 最新」「View Transitions」
+- 「Core Web Vitals」「INP 下げて」「RSC 中心に」「loading.tsx」

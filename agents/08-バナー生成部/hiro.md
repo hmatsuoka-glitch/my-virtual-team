@@ -508,3 +508,94 @@ const banners = [
 - **効率化テクニック「撮影の待機は `networkidle0` をやめ、`document.fonts.ready` と全画像の `decode()` 完了だけを待つ」**：`networkidle0` は通信が500ms止まるまで待つ仕様で、1枚ごとに最低0.5秒の固定待ちが入る。フォントと画像の準備完了だけを `Promise.all` で待てば、必要な条件を満たしつつ待ち時間を省ける。7サイズ×複数案では合計で数十秒の差になり、アナリティクス等の外部通信で待ちが伸びる事故も避けられる。
 - **効率化テクニック「容量規定を超えた PNG は、pngquant の品質範囲を段階的に下げて自動再圧縮し、規定内に収まる最大品質を採用する」**：容量超過のたびに画質スライダーを手で調整し直すと、1枚で数分かかる上に担当で画質がばらつく。`80-95 → 70-90 → 60-80` のように段階を決めて自動で試し、通った最初の段階で止めれば、写真の劣化を必要最小限にでき、採用した品質値もレポートに残せる。
 - **効率化テクニック「出力ファイル名を `{client}_{媒体}_{案}_{WxH}.png` のルールでスクリプトが自動付与する」**：手でリネームすると案名の打ち間違い・サイズの取り違えが起き、Yuna の期待枚数表との突合で『どの1枚が違うか』を探す手間が出る。名前を案件シートの列と同じキーで生成しておけば、突合は文字列の一致確認だけで機械的に済む。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- Puppeteer（headless: 'new'）+ Chromium を deviceScaleFactor:2 で駆動した Retina PNG 書き出し
+- `page.waitForNetworkIdle` を `document.fonts.ready` + 画像 `decode()` 待ちに置換した高速化
+- pngquant 段階再圧縮（80-95 → 70-90 → 60-80）による容量規定内の自動フィット
+- `{client}_{媒体}_{案}_{WxH}.png` の機械命名によるピッキング事故ゼロ化
+- Yuna への出力枚数・ファイルサイズ・解像度の確認レポート納品
+
+### 改善余地・成長余地（Gap Analysis）
+1. 単発 `puppeteer.launch` を案件ごとに起こしており、BrowserContext プーリング未導入でブラウザ起動コスト（1〜2秒×枚数）が丸残り
+2. 書き出しが PNG 固定で AVIF/WebP の広告仕様（Meta/TikTok は WebP 直受け可）に未対応、容量削減余地40〜70%を取り逃している
+3. HTML→画像のパイプラインが Puppeteer 一択で、Satori + Resvg-js の "文字列→SVG→PNG" で動くエッジ側高速パスを持っていない
+4. sharp のパイプライン化（リサイズ・シャープ・カラープロファイル付与）が未整備、Retina 2x から 1x 配信版を同時生成できていない
+5. 画像生成の品質検証（SSIM / pHash / 文字 OCR）が目視止まりで、Mia 的ピクセルQAをバナーに適用していない
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Puppeteer v24 + BrowserContext プーリング ★オーバースペック化
+- **内容**: `puppeteer.launch()` を案件単位で1回だけ呼び、`browser.createBrowserContext()` を枚数分発行して並列ショット。Chromium プロセスを使い回し、起動コストを N 回 → 1 回へ圧縮する。
+- **適用シーン**: 7媒体×3案×2解像度 = 42枚のような一括書き出し。
+- **期待効果**: 42枚で起動コストを従来60秒超から2秒以下に短縮。全体スループットは実測 3〜5倍。
+- **参照フレーム**: Puppeteer v24 docs `BrowserContext`、Chromium Headless Shell、PptrPool パターン。
+
+#### STEP 2: Playwright への二枚看板化（Chromium/WebKit/Firefox クロスエンジン QA） ★オーバースペック化
+- **内容**: 主力は Puppeteer のまま、`@playwright/test` を "出力検証" 専用に導入。同じ HTML を 3 エンジンで撮って差分 SSIM≥0.98 を保証、WebKit 固有のフォント合字差を検知する。
+- **適用シーン**: iOS Safari / Instagram 内ブラウザで崩れる案件、絵文字・合字が入る採用クリエイティブ。
+- **期待効果**: iOS Safari で広告が崩れていた "検知できない1割" を納品前に発見。
+- **参照フレーム**: Playwright Trace Viewer、`toHaveScreenshot({ maxDiffPixelRatio })`。
+
+#### STEP 3: Satori + Resvg-js のサーバーレス即時生成パス
+- **内容**: Vercel OG と同系の Satori で JSX→SVG を生成、Resvg-js で SVG→PNG へ落とすパイプを "即納用" に用意。Chromium を起こさずに 100ms 級の書き出しが可能。
+- **適用シーン**: Instagram ストーリーの時間限定差し替え、A/B クリエイティブ量産。
+- **期待効果**: 1枚あたり 1200ms → 80〜120ms。Edge Function 化すれば CDN 直配信も可能。
+- **参照フレーム**: `@vercel/og` v0.6+、`satori` 0.11+、`@resvg/resvg-js`。
+
+#### STEP 4: sharp パイプラインによる媒体別マスタリング ★オーバースペック化
+- **内容**: Puppeteer から Buffer で受け、`sharp().resize().toFormat('avif'|'webp'|'png')` のストリームで Retina 2x / 1x / 広告審査用 72dpi を一発生成。sRGB プロファイル付与と ICC 剥がし、EXIF 削除も自動。
+- **適用シーン**: Meta広告（WebP 可）、Indeed（PNG 必須）、TikTok（AVIF 推奨）など媒体別の受け入れ最適化。
+- **期待効果**: 容量を平均55%削減、1案件あたり審査落ち再入稿ゼロ。
+- **参照フレーム**: `sharp` 0.33、Google 推奨ネクストジェネレーション画像指標、Meta Image Specs 2026。
+
+#### STEP 5: AVIF / WebP ネクストジェン出力の正式サポート
+- **内容**: 出力マトリクスを `{png, webp, avif}` × `{2x, 1x}` の 6 変種に拡張。媒体仕様表（Yuna 管理）と連動して必要な変種だけを出力。
+- **適用シーン**: TikTok For Business、Meta Advantage+、X広告の高解像・軽量入稿。
+- **期待効果**: LP 内再利用時の LCP を平均 400ms 短縮、入稿サイズ上限ギリギリ案件の救済。
+- **参照フレーム**: AVIF Spec 2.0、`libaom` tuning、Core Web Vitals 2026 lab targets。
+
+#### STEP 6: pngquant / oxipng / mozjpeg の3段ハイブリッド圧縮
+- **内容**: 段階再圧縮を pngquant 単体から `pngquant → oxipng -o 6 → (JPEG変種のみ) mozjpeg` のパイプへ拡張。品質しきい値を SSIM ≥ 0.985 で自動判定。
+- **適用シーン**: 容量規定 150KB / 1MB 等が厳しい媒体、Indeed のアップロード制限。
+- **期待効果**: 画質スコアを保ったまま追加で平均 15〜25% の容量削減。
+- **参照フレーム**: oxipng v9、mozjpeg 4.1、SSIM 計算 `image-ssim`。
+
+#### STEP 7: SSIM / pHash による自動ピクセルQA（Mia パターンのバナー適用）
+- **内容**: Kana の HTML を "正" とし、Chromium と Playwright/WebKit の双方で撮った PNG を SSIM と pHash で比較。差分 1% 超または pHash Hamming>4 で自動 NG。
+- **適用シーン**: 全案件の納品前自動ゲート。
+- **期待効果**: 「見た目でわからないズレ」を機械で検知、Yuna への返却率を1桁%台まで低減。
+- **参照フレーム**: `image-ssim-js`、`sharp-phash`、Mia ピクセル差分 1% ルール。
+
+#### STEP 8: 可変フォント（Noto Sans JP VF）プリロードと `document.fonts.ready` の厳格化
+- **内容**: Chromium 側に Noto Sans JP Variable を `@font-face` + `font-display: block` で先読みし、`document.fonts.load('700 48px "Noto Sans JP"')` を全ウェイト分 await。字形取り違えによる "明朝化事故" を根絶。
+- **適用シーン**: 建設業クライアント案件の重めウェイト（Black / ExtraBold）のキャッチ。
+- **期待効果**: ウェイトずれ・字形フォールバックのリジェクト率をゼロへ。
+- **参照フレーム**: CSS Fonts Module Level 4、Noto Sans JP VF、`FontFace.load()`。
+
+#### STEP 9: Puppeteer-Cluster / BullMQ による並列ジョブ基盤
+- **内容**: 大型案件（50枚超）は `puppeteer-cluster` または BullMQ ワーカーに流し、同時 N=4 でレンダリング。失敗ジョブは自動リトライ 3 回、失敗時のみ Yuna に通知。
+- **適用シーン**: 月末のクライアント一括納品、キャンペーン連動の多バリエーション入稿。
+- **期待効果**: 50枚で 15分→3分台。手戻り時の再実行コストが実質ゼロ。
+- **参照フレーム**: `puppeteer-cluster` v0.24、BullMQ v5、Redis 7。
+
+#### STEP 10: OpenTelemetry 計装 + 納品メトリクスダッシュボード
+- **内容**: 各ジョブに `trace_id` を付与、`render_duration_ms` / `output_bytes` / `ssim_score` / `avif_savings_pct` を OTEL で記録、Grafana / Vercel Observability に流す。Yuna はダッシュボードで全案件の品質を一望できる。
+- **適用シーン**: 月次の品質改善ミーティング、クライアント向け納品品質レポート。
+- **期待効果**: 「どの媒体で何秒・何KB・SSIM いくつ」が可視化され、改善 PDCA が週次で回る。
+- **参照フレーム**: OpenTelemetry Node SDK 1.26、Grafana Loki、Vercel Observability。
+
+### 統合後の到達レベル
+**Before**: Puppeteer 単発起動で PNG を書き出し、容量超過を手で調整するバナー書き出し担当。
+**After**: Puppeteer v24 プーリング・Satori 即時書き出し・sharp マスタリング・AVIF/WebP対応・SSIM 自動QA・OTEL可観測性までを一本のパイプで提供する "日本に 1 人しかいないバナーレンダリング SRE"。42枚案件のスループットを 3〜5倍、容量を平均55%削減、審査落ち再入稿をゼロに。
+
+### 発動キーワード追加
+- 「WebP で書き出して」「AVIF 版も作って」「Retina と 1x を同時に」
+- 「Satori で即時生成」「Edge で OG 画像」「Vercel OG」
+- 「SSIM で差分見て」「ピクセル QA」「フォントずれ検知」
+- 「50枚一括で」「並列レンダー」「BullMQ 投入」
+- 「レンダリング遅い」「OTEL トレース見たい」「納品品質ダッシュボード」
