@@ -309,3 +309,100 @@
 - **効率化テクニック：差し戻しコメントは観点ID別の定型文ライブラリ（NG例・合格例1行・直す範囲）を持ち、毎回の文章作成は固有の箇所の引用だけにする**：コメントを毎回書き起こすと、合格例の1行（09-13記録）が抜けやすく、同じ観点でも書き方が揺れる。定型文なら、観点IDの月次集計（10-13記録）とそのまま対応し、制作部のセルフチェック表への移管も定型文を流用できる。
 - **効率化テクニック：再提出された成果物は全文を読み直さず、前回版との差分を機械で出し、差分と同型箇所の走査結果だけを確認する差分限定モード（07-07記録）を標準にする**：全文の再レビューは、前回通った箇所の確認に時間を使う。ただし、差分外に影響する修正（用語の一括置換など）は全文確認に戻し、確認範囲を判定に明記する。
 - **効率化テクニック：不具合の指摘は、再現手順・環境・期待結果・実結果（10-09記録）の4欄を持つ入力フォームで受け付け、環境欄は端末・OS・ブラウザのプルダウンにする**：自由文で書くと環境が抜け、実装者の再現確認の往復が発生する。フォームなら、未入力の指摘は送信できず、再現できなかった場合の「未確認」判定も欄の組み合わせで機械的に付けられる。
+
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 5軸共通基準（completeness/accuracy/consistency/feasibility/format_compliance）
+- 6軸クロスチェック（KPI定義・数値・クライアント情報・スケジュール・予算・出典）
+- JSON Schema自動検証による構造的ゼロ化
+- 3軸テストカバレッジ（機能/境界値/異常系）
+- 被レビュー者フレンドリーな4区分レビュー（strengths/quick_wins/critical_fixes/next_iteration）
+
+### 改善余地・成長余地（Gap Analysis）
+1. 文書・JSON中心で、システム系の品質特性（信頼性・性能・セキュリティ）が弱い
+2. 国際標準（ISO/IEC 25010）への準拠が未整理
+3. 本番監視（SRE Golden Signals, OpenTelemetry）が未導入
+4. アクセシビリティ監査（axe-core / Pa11y）が未標準化
+5. カオスエンジニアリング・障害注入による耐性検証が無い
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: ISO/IEC 25010 品質特性8軸適用 ★オーバースペック化
+- **内容**: 従来5軸に加えて ISO/IEC 25010 の8品質特性（Functional Suitability / Performance Efficiency / Compatibility / Usability / Reliability / Security / Maintainability / Portability）を全成果物の該当カテゴリにマッピング。レビュー時に対応するサブ特性までチェック
+- **適用シーン**: システム開発・LP・自動化スクリプト・資料・SNS運用の全成果物
+- **期待効果**: 品質議論の共通言語化、国際標準準拠の説明責任
+- **参照フレーム**: ISO/IEC 25010:2023 System and Software Quality Models
+
+#### STEP 2: SRE Golden Signals（Latency/Traffic/Errors/Saturation） ★オーバースペック化
+- **内容**: Google SRE Book の Golden Signals を本番稼働中の自動化ワークフロー・社内Webツールに適用。SLI（Service Level Indicator）/ SLO（Objective）/ SLA を定義し、Error Budgetが尽きたら新機能リリースを止める運用
+- **適用シーン**: Owl設計の受注ワークフロー、Boの自動化ジョブ、社内ツール
+- **期待効果**: 可用性目標の数値化、障害時対応の優先順位の明確化
+- **参照フレーム**: Google SRE Book "Monitoring Distributed Systems" (Beyer et al.), Alex Hidalgo "Implementing SLOs"
+
+#### STEP 3: OpenTelemetry 全スタック統一観測 ★オーバースペック化
+- **内容**: Logs / Metrics / Traces を OpenTelemetry SDK（Node/Python）で統一収集→ Grafana Tempo / Honeycomb / Datadog に送信。LLM Agent（owl, bo）までトレースを一気通貫
+- **適用シーン**: 本番稼働するすべてのサービスとエージェント
+- **期待効果**: 「どこで遅延しているか」が秒で特定、障害分析時間90%削減
+- **参照フレーム**: CNCF OpenTelemetry Spec, Charity Majors "Observability Engineering"
+
+#### STEP 4: Chaos Engineering（Litmus / Chaos Mesh） ★オーバースペック化
+- **内容**: Netflix発祥のChaos Engineering をCNCF Litmus / Chaos Mesh で実装。本番類似環境で「Snowflake接続遮断」「Zapier API 500連発」「Chatwork API レート制限」を意図的に注入し、回復挙動を検証
+- **適用シーン**: 四半期1回の障害演習、新機能リリース前
+- **期待効果**: 本番障害時のMTTRを半減、Dark Siteへの切替練度向上
+- **参照フレーム**: Netflix Chaos Monkey (Casey Rosenthal), CNCF Litmus / Chaos Mesh, "Chaos Engineering" O'Reilly
+
+#### STEP 5: axe-core / Pa11y アクセシビリティ監査 ★オーバースペック化
+- **内容**: 全LP・社内Webツールに axe-core（Deque）/ Pa11y（OSS）のCI統合を必須化。WCAG 2.2 Level AA 準拠を自動チェック、違反はPR時点でブロック。lighthouse CI も併用
+- **適用シーン**: LP部（kaito/mia）納品物、社内ツールUI
+- **期待効果**: アクセシビリティ訴訟リスク排除、SEO評価向上
+- **参照フレーム**: WCAG 2.2 / W3C, Deque Systems axe-core, Pa11y.org
+
+#### STEP 6: Visual Regression Testing（Chromatic / Percy） ★オーバースペック化
+- **内容**: LP・資料・バナー等のビジュアル成果物に Chromatic（Storybook）/ Percy（BrowserStack）/ Playwright screenshot comparison でピクセル比較を導入。デザイン変更時のレビューを機械化
+- **適用シーン**: LP修正、デザインシステム変更、資料テンプレ変更
+- **期待効果**: 意図しないデザイン崩れゼロ化、Mia（LP忠実度チェック）の工数削減
+- **参照フレーム**: Chromatic by Storybook, Percy.io, Playwright toHaveScreenshot
+
+#### STEP 7: Semantic Code Review（Diffblue / CodeRabbit） ★オーバースペック化
+- **内容**: PRレビューに CodeRabbit AI / Diffblue Cover などのAIレビュアーを組込。コード理解・テスト提案・影響範囲分析を自動化し、人間レビュアーは設計判断に集中
+- **適用シーン**: システム開発部（kai/riku/ao）のPR
+- **期待効果**: レビュー時間50%削減、見逃しバグの発見率向上
+- **参照フレーム**: CodeRabbit.ai, Diffblue Cover, "AI-Augmented Software Development" ACM
+
+#### STEP 8: Security Review Framework（OWASP + ISO/IEC 27001） ★オーバースペック化
+- **内容**: OWASP Top 10 / OWASP ASVS Level 2 / ISO/IEC 27001 Annex A のうち該当する統制を全成果物にマッピング。Semgrep / Snyk / Trivy によるSAST/SCAをCIで必須化
+- **適用シーン**: システム開発成果物、個人情報を扱う自動化、クライアント案件
+- **期待効果**: セキュリティ事故ゼロ化、クライアント信頼獲得
+- **参照フレーム**: OWASP ASVS 4.0.3, ISO/IEC 27001:2022, Semgrep.dev / Snyk / Trivy
+
+#### STEP 9: LLM Output Evaluation（Ragas / Promptfoo / DeepEval） ★オーバースペック化
+- **内容**: LLM生成物（SNS原稿、資料ドラフト、Agent応答）を Ragas（RAG評価）/ Promptfoo（Prompt A/Bテスト）/ DeepEval で自動評価。Faithfulness / Answer Relevance / Context Precision / Hallucination率を数値化
+- **適用シーン**: Agent出力の品質評価、プロンプト改善サイクル
+- **期待効果**: LLM品質の客観評価、Hallucination 事故の構造的削減
+- **参照フレーム**: Ragas (ExploreAI), Promptfoo.dev, DeepEval by Confident AI
+
+#### STEP 10: DORA Metrics 制作物応用（4Key Metrics） ★オーバースペック化
+- **内容**: Nicole Forsgren "Accelerate" の DORA Metrics（Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR）を制作成果物にも適用。Elite / High / Medium / Low のパフォーマンスバンドで月次評価
+- **適用シーン**: 全部署の生産性・品質月次モニタリング、kpi エージェントと連携
+- **期待効果**: 品質と速度の両立度を客観測定、改善サイクルの加速
+- **参照フレーム**: Nicole Forsgren "Accelerate" (DORA Report), Google DORA 2026 State of DevOps
+
+### 統合後の到達レベル
+**Before**: 5軸共通基準+6軸クロス+JSON Schemaで文書系の品質を担保する中間QA。
+**After**: ISO/IEC 25010 × SRE Golden Signals × OpenTelemetry × Chaos Engineering × axe-core × Visual Regression × AI Code Review × OWASP × LLM Eval × DORA Metrics を統合し、文書からシステム、LLM出力まで国際標準準拠で品質を保証する「日本国内唯一の横断品質工学QA」へ。
+
+### 発動キーワード追加
+- ISO/IEC 25010 / 品質特性 / Functional Suitability
+- SRE Golden Signals / SLI / SLO / Error Budget
+- OpenTelemetry / Grafana Tempo / Honeycomb / 可観測性
+- Chaos Engineering / Litmus / Chaos Mesh / 障害注入
+- axe-core / Pa11y / WCAG 2.2 / アクセシビリティ監査
+- Chromatic / Percy / Visual Regression / ピクセル比較
+- CodeRabbit / Diffblue / AI Code Review
+- OWASP Top 10 / ASVS / Semgrep / Snyk / Trivy
+- Ragas / Promptfoo / DeepEval / LLM品質評価
+- DORA Metrics / Accelerate / 4Key Metrics

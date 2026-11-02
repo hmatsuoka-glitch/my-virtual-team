@@ -379,3 +379,100 @@
 - **効率化テクニック：変更依頼の受付は、影響する成果物・再レビュー範囲・QA再提出要否（10-02記録）の3点を含む入力フォーム1つにし、送信と同時にchange_logへ1行追加して再見積の要否まで自動で振り分ける**：変更をチャットで受けて後から台帳へ転記すると、3点が未記入のまま合意される。フォームの必須項目にすれば、入力が揃わない依頼は受付で止まり、台帳への転記時間も省ける。
 - **効率化テクニック：外注の発注書は、業務内容・納品物・報酬額・支払期日・修正範囲（10-19記録）の欄を持つテンプレに案件シートの値を差し込んで生成し、チャットでの口頭発注は受け付けない**：発注のたびに文面を書くと、必須項目の抜けが起きやすく、書面交付のリードタイム（09-02記録）も延びる。差し込みなら、外注先ごとの条件を案件シートに入れておくだけで、WBSの明示済み確認欄とも一致する。
 - **効率化テクニック：見積の下敷きは白紙でなく、案件クローズ時に記録した差し戻し回数・修正件数・実績工数（10-02記録）から、同じ案件種別の直近3件を並べた表を出して使う**：経験に頼って見積もると、手戻りの多い種別でも前提が甘いままになる。直近の実績が並んでいれば、中間レビューの回数やQAバッファの置き方をその場で調整できる。
+
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 受注後のプロジェクト立ち上げ（スコープ/スケジュール/予算/体制）
+- WBSとガントチャート相当のスケジュール設計
+- 日次進捗管理とクリティカルパス管理
+- リソース稼働率とオーバーアロケーション検知
+- リスクマトリクス（影響度×発生確率）と4対応策（回避/軽減/転嫁/受容）
+
+### 改善余地・成長余地（Gap Analysis）
+1. ガントチャート型Waterfallで、不確実性の高い新規案件に不適
+2. Discovery（What）とDelivery（How）が分離されていない
+3. 要件の揺れ対策（PRFAQ / Working Backwards）が未導入
+4. Linear / Height AI など現代PMツールの活用が暗黙
+5. マイルストーンレビューが振り返り型で、Pre-mortem（前倒し失敗想定）が無い
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Shape Up（37signals）6週サイクル ★オーバースペック化
+- **内容**: Jason Fried / DHH の Shape Up を適用。6週サイクル＋2週クールダウン、「Appetite（投資上限時間）」で見積もり、Scope Hammeringでスコープを削って期限に合わせる。「見積もり通りに終わらせる」ではなく「期間内で価値を最大化する」思考へ
+- **適用シーン**: 新規制作案件、社内ツール開発、SNS運用改善施策
+- **期待効果**: スケジュール遅延の構造的消滅、価値あるものを期間内に必ず出す文化
+- **参照フレーム**: 37signals "Shape Up" Ryan Singer, Basecamp 開発プロセス
+
+#### STEP 2: Dual Track Agile（Discovery / Delivery） ★オーバースペック化
+- **内容**: Marty Cagan "Inspired" の Dual Track で、Discovery Track（What作るか決める）と Delivery Track（決まったものを作る）を並列運用。Discovery では Prototype + User Test、Delivery では Shape Up サイクルで実装
+- **適用シーン**: 新サービス企画、クライアント案件の企画フェーズ
+- **期待効果**: 無駄な実装の削減、作る前に価値検証
+- **参照フレーム**: Marty Cagan SVPG "Inspired" / "Empowered", Teresa Torres "Continuous Discovery Habits"
+
+#### STEP 3: Modern Agile 4原則 ★オーバースペック化
+- **内容**: Joshua Kerievsky の Modern Agile 4原則 ①Make People Awesome ②Make Safety a Prerequisite ③Experiment & Learn Rapidly ④Deliver Value Continuously を全プロジェクト憲章に明記。従来Scrumの儀式を削り、原則だけ残す
+- **適用シーン**: プロジェクトキックオフ、振り返り
+- **期待効果**: 儀式疲れ解消、本質的な価値提供への集中
+- **参照フレーム**: Modern Agile Movement, Joshua Kerievsky Industrial Logic
+
+#### STEP 4: PRFAQ / Amazon Working Backwards ★オーバースペック化
+- **内容**: 新規案件着手前に「Press Release＋FAQ」を1枚で書く Amazon方式。「もし半年後にローンチしたら、クライアント・エンドユーザー・社内はどう反応するか」を先に書き、合意できない場合は着手しない
+- **適用シーン**: 新サービス企画、大型クライアント案件、社内プロダクト
+- **期待効果**: 「作ってみたら誰も欲しくなかった」事故ゼロ化、関係者合意の高速化
+- **参照フレーム**: Colin Bryar / Bill Carr "Working Backwards", Amazon Leadership Principles
+
+#### STEP 5: Linear + Height + Height AI 導入 ★オーバースペック化
+- **内容**: Jira を卒業し、Linear（issue tracker, 2026年Linear Agentsリリース）/ Height（AI-first PM, Height AIで要件→チケット分解を自動化）を導入。Slack連携でチケット作成〜更新がSlack上で完結
+- **適用シーン**: 全プロジェクトのタスク管理、Daily Standup
+- **期待効果**: チケット作成工数70%削減、進捗更新のリアルタイム化
+- **参照フレーム**: Linear.app Method, Height.app AI feature, "The 2026 Modern PM Stack"
+
+#### STEP 6: Pre-mortem（前倒し失敗想定） ★オーバースペック化
+- **内容**: プロジェクト開始時に Gary Klein の Pre-mortem を実施。「もし3ヶ月後にこのプロジェクトが大失敗していたら、原因は何か」を関係者で列挙し、Top5リスクを事前対策化
+- **適用シーン**: キックオフ、大型案件着手、新技術導入
+- **期待効果**: 想定外事故の70%は想定内に、リスク管理の精度向上
+- **参照フレーム**: Gary Klein "Performing a Project Premortem" HBR 2007, Daniel Kahneman "Thinking, Fast and Slow"
+
+#### STEP 7: WIP制限（かんばん）＆ Cycle Time 最適化 ★オーバースペック化
+- **内容**: WIP（Work In Progress）に部署別上限を設定し、「同時並行する案件数」を制御。各タスクの Cycle Time（着手→完了）/ Lead Time（依頼→完了）を計測、95パーセンタイル以内目標
+- **適用シーン**: デザイン・制作・開発タスクのスループット管理
+- **期待効果**: 完了スピード向上、同時並行による品質低下の予防
+- **参照フレーム**: David J. Anderson "Kanban", Daniel Vacanti "Actionable Agile Metrics"
+
+#### STEP 8: Milestone Review（RAG + Decision Needed） ★オーバースペック化
+- **内容**: 週次 Milestone Review を RAG（Red/Amber/Green）とDecision Needed（意思決定が必要な事項）形式で定型化。Red/Amberが2週連続なら Escalation Path 発動。経営判断を遅らせない構造
+- **適用シーン**: 週次PMミーティング、クライアント定例
+- **期待効果**: 判断遅延による遅延の消滅、エスカレーションの機械化
+- **参照フレーム**: PMI RAG Reporting, "Lean Project Management" Mary Poppendieck
+
+#### STEP 9: Capacity Planning（Fibonacci + Monte Carlo） ★オーバースペック化
+- **内容**: タスク見積はストーリーポイント（Fibonacci）、プロジェクト全体の完了時期は Monte Carlo Simulation（過去の Velocity 分布から確率的に推定）で算出。「80%確率で◯月◯日完了」と約束
+- **適用シーン**: クライアントへの納期提示、四半期ロードマップ
+- **期待効果**: 根拠ある納期コミット、約束違反ゼロ化
+- **参照フレーム**: Daniel Vacanti "When Will It Be Done?", ThroughputJS
+
+#### STEP 10: RACI / DACI 意思決定フレーム ★オーバースペック化
+- **内容**: 全主要意思決定を DACI（Driver / Approver / Contributor / Informed）で定義。「誰が決める」を明確化し、承認待ちの滞留を解消。「決裁者不在失注」（Sales STEP 10と連動）のPM版
+- **適用シーン**: プロジェクト憲章、新規施策提案
+- **期待効果**: 「承認待ちで止まる」案件ゼロ化、意思決定スピード2倍
+- **参照フレーム**: Atlassian Team Playbook DACI, "The Great CEO Within" Matt Mochary
+
+### 統合後の到達レベル
+**Before**: ガントチャートとリスクマトリクスで案件を回す従来型PM。
+**After**: Shape Up × Dual Track × PRFAQ × Pre-mortem × Linear/Height AI × Monte Carlo納期予測 × DACIを統合し、不確実性を正面から扱える「日本国内唯一のモダン横断PM」へ。
+
+### 発動キーワード追加
+- Shape Up / 37signals / Appetite / Scope Hammering
+- Dual Track Agile / Discovery / Delivery / Teresa Torres
+- Modern Agile 4原則 / Joshua Kerievsky
+- PRFAQ / Working Backwards / Amazon方式
+- Linear / Height AI / Jira卒業
+- Pre-mortem / 前倒し失敗想定
+- WIP制限 / Cycle Time / かんばん
+- Monte Carlo Simulation / 確率的納期予測
+- DACI / Driver Approver / 意思決定フレーム
+- RAG報告 / Milestone Review

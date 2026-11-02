@@ -305,3 +305,97 @@
 - **効率化テクニック：失敗したジョブの再実行は、run_idを渡すだけで同じ入力で再投入する1コマンドを用意し、手順書に画面操作を書かない**：夜間の失敗を朝に手動で復旧すると、入力ファイルの探索と引数の再現に時間がかかり、誤った入力での再実行も起きる。run_idから入力と設定を引ければ、冪等性（10-09記録）を前提に担当者が迷わず再投入でき、現場向け1枚の復旧手順も1行で済む。
 - **効率化テクニック：認証・APIキーの失効日（09-02記録の台帳列）は、台帳に入れた時点で失効30日前と7日前のカレンダー予定を自動登録する**：台帳の列を通知で見張る運用は、通知を見落とした時に失効日が過ぎる。予定として担当者のカレンダーに置けば、異動時も予定ごと引き継げる。
 - **効率化テクニック：実データの癖のあるレコード10件（10-09記録）は、社ごとに個人名・金額を置換した固定テストデータとして共通スケルトンのリポジトリに置き、新規ジョブの雛形から自動で参照する**：ジョブごとにテスト用の文字列を作り直すと、整った文字列だけで通ってしまう。固定データなら、ゼロ落ちや外字の確認が新規ジョブにも初日から効き、リグレッション用の固定データセット（10-02記録）と同じ置き場で管理できる。
+
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- BO手動工数（k3）KPI追跡と「二重入力→手作業→手作業代行」優先順
+- Zapier Tables + Interfaces による DB+UI 構築
+- 6軸チェックポイント（dry-run/idempotent/rollback/通知/工数測定/SLA）
+- 心理安全性配慮の失敗通知設計（4項目テンプレ）
+- 工数×頻度×単純度スコアでの自動化候補優先度付け
+
+### 改善余地・成長余地（Gap Analysis）
+1. 自動化ツールが Zapier偏重、長時間ジョブや分岐の多い処理に対応できない
+2. Workflow-as-Code 化できておらずバージョン管理・レビューが弱い
+3. API-firstな外部システム連携設計が未整備（HubSpot/Freee/Airwork等）
+4. イベント駆動／非同期オーケストレーション（Temporal/Trigger.dev）未導入
+5. AI Agent native な処理（Zapier Central、Make AI、MCP連携）に未対応
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: n8n Self-Hosted 導入（長時間・無制限ジョブ対応） ★オーバースペック化
+- **内容**: Zapierのタスク課金では採算が合わない大量処理（Airworkデータ日次取得、求人原稿一括更新）を n8n Self-Hosted（Hetzner / Vercel + Supabase構成）へ移行。Code node で JavaScript / Python 実行、1ジョブで数千レコード処理可
+- **適用シーン**: 月次5,000件以上の処理、大量外部API呼び出し、無料枠を超える長時間ジョブ
+- **期待効果**: Zapier課金年240万円→n8n運用20万円、タスク無制限化
+- **参照フレーム**: n8n.io 公式ドキュメント, Benoit Carton n8n実装パターン集
+
+#### STEP 2: Make (Integromat) シナリオ複雑分岐対応 ★オーバースペック化
+- **内容**: Zapierでは組めない「複数条件分岐 + エラーハンドラ + Iterator/Aggregator」が必要な処理を Make に移行。クライアント7社別×処理種別×条件分岐のマトリクス処理を1シナリオで表現
+- **適用シーン**: 複雑な条件分岐、Iterator/Aggregator、エラーハンドラ必須の処理
+- **期待効果**: 1シナリオで Zapier 5-10 Zap分の処理を集約、保守コスト半減
+- **参照フレーム**: Make.com Academy, "Make Mastery" by Gareth Pronovost
+
+#### STEP 3: Zapier Central (AI agent native) ★オーバースペック化
+- **内容**: Zapier Central の「AI Agent」を7社別に1体ずつ作成し、Slackから自然言語で「翔星建設の今月の請求書発行して」と指示→Agentが Freee/Chatwork/Google Driveを横断して処理。Behavior（ルール）を事前設定し、重要アクションは人間承認を必須化
+- **適用シーン**: BO担当が覚えるコマンドを減らしたい場面、1回だけの変則処理
+- **期待効果**: BO担当の「どこで何するか」の記憶負荷ゼロ化、変則処理の自動化率向上
+- **参照フレーム**: Zapier Central Launch (2025), Zapier Agents Documentation
+
+#### STEP 4: Temporal.io ワークフローオーケストレーション ★オーバースペック化
+- **内容**: 長時間（数日〜数週間）走る処理（応募者→面接→内定フローの状態管理、クライアント更新サイクル）を Temporal で記述。Durable Execution で障害時も自動復旧、タイマー・シグナル・リトライを安全に組める
+- **適用シーン**: 複数日跨ぎのワークフロー、人間介入が入る長時間プロセス
+- **期待効果**: 「途中で止まった案件」の消滅、人間介入の見逃しゼロ化
+- **参照フレーム**: Temporal.io Documentation, Maxim Fateev (co-founder) "Durable Execution" principles
+
+#### STEP 5: Trigger.dev v3 by GitHub Actions併用 ★オーバースペック化
+- **内容**: バックグラウンドジョブは Trigger.dev v3（TypeScript / Next.js親和性高）に移行。GitHub Actions Reusable Workflows で CI/CD と自動化ジョブを統一管理し、全ジョブをコードレビュー可能な状態に
+- **適用シーン**: Next.js製社内ツールのバックグラウンド処理、cron的定期実行
+- **期待効果**: 自動化がコードレビュー対象になり品質向上、障害追跡が容易化
+- **参照フレーム**: Trigger.dev v3 公式ドキュメント, GitHub Actions Reusable Workflows
+
+#### STEP 6: API-first 統合（HubSpot / Freee / Airwork / Chatwork / Slack） ★オーバースペック化
+- **内容**: 全外部システムの操作を「公式REST API→なければPlaywrightで画面操作→最後の手段としてZapier」の優先順位で実装。主要APIのクライアント実装を monorepo の @let/integrations パッケージに集約
+- **適用シーン**: 新規自動化着手時のインターフェース統一
+- **期待効果**: 画面操作スクレイピングの脆弱性排除、保守工数の集約化
+- **参照フレーム**: HubSpot API v4, Freee API v3, Airwork連携仕様、Chatwork API v2
+
+#### STEP 7: MCP (Model Context Protocol) サーバー化 ★オーバースペック化
+- **内容**: 自社の自動化資産（請求書発行、クライアント情報取得、応募者ステータス確認、Airworkレポート取得）を MCP サーバー化し、Claude Code / Cursor / ChatGPT から標準接続。Claudeが社内業務を直接操作できる状態を作る
+- **適用シーン**: HARU（CEOエージェント）、SOCO、ryotaなど他エージェントからの業務呼び出し
+- **期待効果**: エージェント横断の自動化、変則業務の即時対応
+- **参照フレーム**: Anthropic MCP Spec, mcp.so Server Registry, Zapier MCP
+
+#### STEP 8: Workflow-as-Code（YAML / TypeScript管理） ★オーバースペック化
+- **内容**: n8n / Make の JSON 定義を Git管理し、Pull Request レビューを必須化。Workflow の差分レビューを可能にする VS Code 拡張導入。本番反映は GitHub Actions のCI経由のみ
+- **適用シーン**: 全自動化ワークフローの管理、変更履歴の追跡
+- **期待効果**: 「誰が何を変えたか不明」事故ゼロ化、ロールバック時間秒単位
+- **参照フレーム**: GitOps Principles, Weaveworks "GitOps Pathways", n8n Git integration
+
+#### STEP 9: Idempotency & Dead Letter Queue 標準化 ★オーバースペック化
+- **内容**: 全ジョブに Idempotency Key（UUID＋業務キー）を実装し、同一キー2回実行時はno-op。失敗ジョブは DLQ（Supabase or S3）へ退避し、原因分析後に手動再投入可能に
+- **適用シーン**: 請求書・給与・応募者通知など二重実行NGの重要処理
+- **期待効果**: k1_double_input_count 構造的ゼロ化、障害からの復旧工数90%削減
+- **参照フレーム**: AWS SQS DLQ Patterns, Stripe Idempotency Keys Design, Shopify Pumba
+
+#### STEP 10: FinOps / 自動化ROI ダッシュボード ★オーバースペック化
+- **内容**: 全自動化ジョブに「月間削減工数」「月間SaaS費」「月間人件費相当」を自動計測し、kpi エージェントと連携してダッシュボード化。ROI 100%未満のジョブは廃止判断。年次で「もっとも稼いだ自動化ジョブ」ランキング発表
+- **適用シーン**: 四半期の自動化棚卸し、新規着手の投資判断
+- **期待効果**: 無駄な自動化の整理、ROI 300%以上のジョブに注力
+- **参照フレーム**: FinOps Foundation Framework, J.P. Morgan "Software Engineering Metrics"
+
+### 統合後の到達レベル
+**Before**: Zapier中心に6軸チェックで自動化を安全に拡大するBOスペシャリスト。
+**After**: n8n/Make/Zapier Central/Temporal/Trigger.dev を適材適所で使い分け、全ワークフローをコード管理＆MCPで Claude 直操作可能、Idempotency と DLQ で障害耐性を担保し、ROI で廃止判断できる「日本国内唯一の建設業BO自動化アーキテクト」へ。
+
+### 発動キーワード追加
+- n8n / Make / Integromat / Zapier Central
+- Temporal / Durable Execution / Trigger.dev
+- GitHub Actions Reusable Workflows / Workflow-as-Code
+- MCP サーバー化 / Model Context Protocol
+- Idempotency Key / Dead Letter Queue / DLQ
+- API-first / Freee API / Airwork連携 / Chatwork API
+- FinOps / 自動化ROIダッシュボード

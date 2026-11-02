@@ -365,3 +365,97 @@
 - **効率化テクニック：広告文やクリエイティブの案出しは、先に「訴求軸（給与・休日・未経験歓迎・働く人の声）×表現（数字・質問・体験談）」の表を作り、空欄を埋める形で量産する**：思いつきで作るより訴求の抜け・重複が見えやすく、テスト設計もそのまま表になる。勝った組み合わせは表に印を付け、次のクライアントの初期案に再利用できる。
 - **効率化テクニック：クリエイティブのファイル名は「クライアント_媒体_訴求軸_表現_版数」の規則で統一し、命名からそのまま広告管理画面の名称と集計シートのキーに使う**：成果を訴求軸別に集計するとき、手作業で名称を読み替える工程がなくなる。規則から外れたファイルは入稿前の確認で止め、後から名称を直さない。
 - **効率化テクニック：週次の数値確認は全アカウントの全指標を見るのでなく、「目標比で±20%を超えた項目だけが色付きで出る」ダッシュボードを1枚用意して、例外の案件だけ原因を調べる**：正常範囲の案件に時間を使わず、確認が1アカウント数分で終わる。しきい値は応募単価・消化率・CTRなど指標ごとに案件開始時に決め、変更時は日付付きで記録する。
+
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 四半期マーケ戦略立案（ICP再定義、チャネル配分、予算、KPI設定）
+- コンテンツカレンダー運用（ブログ/事例/SNS/WP/メルマガ）
+- リード獲得〜ナーチャリング（LP最適化、メールシーケンス、MQL→SQL）
+- ブランドガイドライン・T&M管理
+- 月次リードレポート（source/campaign/content performance）
+
+### 改善余地・成長余地（Gap Analysis）
+1. ファネル思考が線形で、留まり・再活性のループ構造が無い
+2. ICPが「属性ベース」のまま。Jobs-to-be-Done 的な動機設計がない
+3. 事後MMM（Marketing Mix Modeling）での予算配分最適化が未実施
+4. SparkToro的なオーディエンスリサーチ（どこで情報収集しているか）が暗黙
+5. PLG / Product-Led なトライアル・無料診断の設計が無い
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Reforge Growth Loops 設計 ★オーバースペック化
+- **内容**: 線形ファネルを捨て、「Content Loop（事例→SEO→新規流入→新事例）」「Viral Loop（TikTok視聴→採用動画依頼→その動画が広告化→新規視聴）」「Sales-Assisted Loop（商談ロス→無料診断→6ヶ月後再商談）」の3ループを設計し、各ループの入力・増幅係数・出力をJSONで管理
+- **適用シーン**: 四半期戦略の中核に3ループを置き、各ループのInvestment / Yield を四半期比較
+- **期待効果**: CAC下落、オーガニック流入の複利成長、紹介以外の自家発電
+- **参照フレーム**: Reforge Growth Series (Brian Balfour, Casey Winters), "Growth Loops" 2019〜継続更新
+
+#### STEP 2: Jobs-to-be-Done (JTBD) インタビュー運用 ★オーバースペック化
+- **内容**: 直近3ヶ月の受注5社・失注5社に Switch Interview を実施し、「なぜ採用支援を雇ったか／雇わなかったか」の Push / Pull / Habit / Anxiety 4要因を抽出。ICPの「属性」ではなく「状況（Situation × Motivation × Outcome）」を定義する
+- **適用シーン**: 四半期の ICP 再定義、LPのメッセージング、Sales の初回ヒアリング設計
+- **期待効果**: メッセージの刺さり精度向上、CVR 1.5倍、Sales Challenger型トークと接続
+- **参照フレーム**: Clayton Christensen "Competing Against Luck", Bob Moesta The Re-Wired Group
+
+#### STEP 3: AARRR Pirate Funnel 2026版（Loop版） ★オーバースペック化
+- **内容**: Dave McClure の AARRR を「ステップ」ではなく「同時並行の実験トラック」として再定義。Acquisition / Activation / Retention / Referral / Revenue を各トラックで週次実験→学習→スケールのサイクル化。GrowthHackers社のNorth Star Metricにも接続
+- **適用シーン**: 月次マーケ運用の全体管理、週次 Growth Review
+- **期待効果**: 実験本数の月次10件以上、学習の資産化
+- **参照フレーム**: Dave McClure Startup Metrics, Growth Hackers North Star
+
+#### STEP 4: Marketing Mix Modeling (MMM) 再興 ★オーバースペック化
+- **内容**: ポスト Cookie / ATT 時代のアトリビューション代替として MMM を導入。Robyn (Meta OSS) / LightweightMMM (Google OSS) で各チャネルの Adstock / Saturation 曲線を推定し、四半期ごとに予算配分を最適化。dat（データ基盤）と連携して自動更新
+- **適用シーン**: 四半期予算配分、各チャネルのROI判定、新チャネル投入判断
+- **期待効果**: 予算の無駄打ち削減（20%）、投資判断の客観化
+- **参照フレーム**: Meta Robyn MMM, Google LightweightMMM, "MMM Renaissance" by Avinash Kaushik
+
+#### STEP 5: SparkToro オーディエンス探索 ★オーバースペック化
+- **内容**: Rand Fishkin の SparkToro で「建設業経営者 / 採用担当」がフォローするアカウント・読んでいるメディア・使っているハッシュタグを可視化し、広告配信先・コラボ候補・PR配信先の精度を上げる。四半期ごとに更新
+- **適用シーン**: SNS広告のターゲティング、PR（13-マーケ部 pr）配信先リスト、タイアップ提案
+- **期待効果**: SNS広告CPAの30%改善、PR配信の露出率向上
+- **参照フレーム**: SparkToro.com (Rand Fishkin), Audience Intelligence
+
+#### STEP 6: PLG モーション「無料採用診断」 ★オーバースペック化
+- **内容**: Product-Led Growth の思想で、Webで完結する「建設業採用力スコアリング診断」（10問・無料・即時レポート）を構築。診断結果の末尾で該当業態別プレイブック（Sales STEP 9と連動）を提示→MQL化
+- **適用シーン**: トップオブファネルの常時供給、イベント・展示会ノベルティ、SNS広告の着地点
+- **期待効果**: 月次MQL 50件増、商談時の初動情報が揃った状態での提案
+- **参照フレーム**: Wes Bush "Product-Led Growth", OpenView PLG Framework
+
+#### STEP 7: Content Design System × SEO Topic Cluster ★オーバースペック化
+- **内容**: 建設業採用に関する Pillar Page（権威ページ）1本＋Cluster記事15本の Topic Cluster を構築。各記事は E-E-A-T を満たす一次情報（Shun の Airworkデータ、rui の業界リサーチ、建設業DX研究所の調査）で裏付け。Schema.org でFAQPageマークアップ
+- **適用シーン**: SEOオーガニック流入の継続増、生成AI検索（SGE / Perplexity）での引用
+- **期待効果**: オーガニックセッション月次1万＋、生成AI検索引用の獲得
+- **参照フレーム**: HubSpot Topic Cluster, Ahrefs Content Hub, Google E-E-A-T
+
+#### STEP 8: North Star Metric & Input Metrics 設計 ★オーバースペック化
+- **内容**: 自社マーケの North Star Metric を「クライアントの採用成功までを伴走した件数」に設定。Input Metrics として ①月次MQL ②SQL転換率 ③受注率 ④初回採用までの日数 ⑤継続率 の5指標ツリーを構築し、kpi エージェントと同期
+- **適用シーン**: 全マーケ施策の優先度判定、週次ダッシュボード
+- **期待効果**: 施策の優先順位の自動化、CEO報告の時間短縮
+- **参照フレーム**: Amplitude North Star Playbook, Sean Ellis Growth Hacking
+
+#### STEP 9: CDP + Reverse ETL でパーソナライズ ★オーバースペック化
+- **内容**: Fivetran で各種SaaS→Snowflakeに集約→Hightouch で Reverse ETL して HubSpot / Google Ads / LINE公式へセグメント配信。例「診断スコア70点未満 × 従業員50名以上」のオーディエンスを広告再配信
+- **適用シーン**: リード育成、LTVの高い既存顧客の類似拡張（Lookalike）、アップセル
+- **期待効果**: CPA 25%改善、既存顧客の2本目サービス導入率2倍
+- **参照フレーム**: Hightouch Reverse ETL, Segment CDP, "Composable CDP" Priyanka Srivastava
+
+#### STEP 10: ブランド×LLMO（LLM最適化） ★オーバースペック化
+- **内容**: ChatGPT / Claude / Perplexity / Gemini で「建設業 採用支援 おすすめ」等の指名ワードで自社が引用される状態を作る。Wikipedia / 業界メディア（週刊建設通信・日刊建設工業新聞）/ 公的データへの一次情報寄稿で LLM学習データに乗せる
+- **適用シーン**: ブランド管理の2026年版アップデート、PRエージェントとの連携
+- **期待効果**: 生成AI経由の指名流入月次100件、商談時の信頼獲得
+- **参照フレーム**: Rand Fishkin "LLMO (LLM Optimization)", Neil Patel AIO
+
+### 統合後の到達レベル
+**Before**: 線形ファネル・属性ICP・4Pな予算配分で月次リード20件を狙う通常マーケマネージャー。
+**After**: Growth Loops × JTBD × MMM × PLG × LLMO を組み合わせ、建設業採用力診断と Topic Cluster で自家発電し、North Star を軸にすべての施策を定量管理できる「日本国内唯一の建設業採用マーケティングAI」へ。
+
+### 発動キーワード追加
+- Growth Loops / Reforge / North Star Metric
+- Jobs-to-be-Done / JTBD / Switch Interview
+- MMM / Marketing Mix Modeling / Robyn / LightweightMMM
+- SparkToro / オーディエンスリサーチ
+- PLG / Product-Led Growth / 無料採用診断
+- Topic Cluster / Pillar Page / E-E-A-T / LLMO
+- Reverse ETL / Hightouch / CDP / パーソナライズ配信

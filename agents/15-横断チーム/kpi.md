@@ -372,3 +372,100 @@
 - **効率化テクニック：目標値の入力は、指標ID・期間・目標値・適用開始日（10-09/10-13記録）を持つスプレッドシート1枚を正本にし、取り込みジョブでSSOTへ反映する**：目標をダッシュボードごとに手で書き換えると、改定した時に表示が揃わず、過去月の達成率が新目標で再計算される事故も起きる。正本1枚なら、改定履歴が行として残り、適用開始日の欠けた行は取り込み時に弾ける。
 - **効率化テクニック：新しい指標の定義フォーム（10-13記録）には、既存指標の名称・分子・分母との類似度を自動で出し、似た指標がある場合は「別指標にする理由」を必須入力にする**：「応募数」「エントリー数」のように似た指標が増えると、画面ごとに数字が違う原因の調査に時間がかかる。登録時に重複候補を出せば、後から統合する手間と過去月の再計算を避けられる。
 - **効率化テクニック：層別ビュー（08-27/09-01記録）は経営者・工事部長・採用担当ごとに作り込まず、指標の並びと表示形式をテンプレ1つに固定して、層ごとの違いは表示する指標IDの一覧だけで持つ**：層ごとに画面を複製すると、定義変更のたびに全画面を直す必要がある。テンプレ固定なら、配置のバージョン固定（09-13記録）も守りやすく、スマホ幅の確認（09-09記録）もテンプレ1回で済む。
+
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 日次/週次/月次のKPI自動集計と可視化
+- 異常値検知3段階アラート（INFO/WARNING/CRITICAL）
+- 予実分析と部門別パフォーマンス比較
+- 全エージェント出力の収集→集計パイプライン
+- ボトルネック特定と改善提案
+
+### 改善余地・成長余地（Gap Analysis）
+1. KPI群がフラットで、North Star / Input Metrics のツリー構造が無い
+2. 異常検知が静的閾値（±20%）で、季節性・成長率を加味しない
+3. 建設業採用の先行指標（Leading Indicator）と遅行指標の区別が暗黙
+4. OKRとKPIが分離されており戦略との紐付けが弱い
+5. 経営ダッシュボードのストーリー性（「なぜその数字か」の因果連鎖）が薄い
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: North Star Metric フレームワーク実装 ★オーバースペック化
+- **内容**: Amplitude North Star Playbookに基づき、全社の North Star Metric を「クライアントの採用成功までを伴走できた累計件数」に設定。Input Metrics は ①月次新規MQL ②SQL転換率 ③受注率 ④初回採用までの日数 ⑤年次継続率 の5つに限定し、ツリー構造JSONで管理
+- **適用シーン**: 四半期OKR設計、全エージェントのKPI整合性チェック
+- **期待効果**: 戦略と数値の整合性100%、意思決定の優先順位の自動化
+- **参照フレーム**: Amplitude "The North Star Playbook" John Cutler, Sean Ellis Growth Hacking
+
+#### STEP 2: Leading / Lagging Indicator ペア化 ★オーバースペック化
+- **内容**: 全KPIを「Leading（先行指標：行動量・活動品質）」と「Lagging（遅行指標：成果）」でペア定義。例「Lagging=受注金額 / Leading=初回商談数・MEDDPICCスコア平均」。先行指標に異常があれば遅行指標の予測値を自動調整
+- **適用シーン**: 月次レビュー、予測精度向上
+- **期待効果**: 悪い兆候を2〜4週間前に察知、手遅れゼロ化
+- **参照フレーム**: Covey "7 Habits" Lead/Lag Measures, "The 4 Disciplines of Execution" (4DX) Chris McChesney
+
+#### STEP 3: OKR × KPI ブリッジ運用 ★オーバースペック化
+- **内容**: John Doerr "Measure What Matters" に基づき四半期OKRを3つ以内に限定し、各Key Result を既存KPIと紐付け。達成度は 0.0-1.0 で算出、0.7が理想（0.9以上は目標が低すぎた、0.5未満は再設計）
+- **適用シーン**: 四半期キックオフ、月次中間レビュー
+- **期待効果**: 戦略の実行力向上、OKR達成確率の客観判定
+- **参照フレーム**: John Doerr "Measure What Matters", Christina Wodtke "Radical Focus"
+
+#### STEP 4: 季節性考慮の動的閾値（ARIMA / Prophet） ★オーバースペック化
+- **内容**: 静的±20%閾値を卒業し、Meta Prophet / ARIMA で各KPIの季節性・成長トレンドを学習→動的予測区間（例95%信頼区間）を自動算出。区間外のみアラート
+- **適用シーン**: 季節変動の大きい応募数・求人応募倍率などの異常検知
+- **期待効果**: 誤報率80%削減、重要アラートの見逃しゼロ化
+- **参照フレーム**: Meta Prophet, statsmodels ARIMA, "Forecasting: Principles and Practice" Hyndman & Athanasopoulos
+
+#### STEP 5: 建設業採用KPIツリー（業界固有指標） ★オーバースペック化
+- **内容**: 建設業採用特化のKPIツリーを設計。Top「採用成功数」 → ①応募獲得数 → ②面接実施率 → ③内定承諾率 ④入社後3ヶ月定着率 の階層。業界ベンチマーク（職業別有効求人倍率）と並べて相対評価可能に
+- **適用シーン**: 全クライアントダッシュボード、Sales/Marketingの共通言語
+- **期待効果**: 建設業の採用改善サイクルを数値で回せる唯一のエージェントに
+- **参照フレーム**: 厚労省 職業別一般職業紹介状況, 国交省 建設技能者数統計, リクルート建設業採用白書
+
+#### STEP 6: Cohort Dashboard & LTV/CAC 可視化 ★オーバースペック化
+- **内容**: 月次新規クライアントのコホート継続率・累積LTV・CAC回収月数をヒートマップ可視化。LTV/CAC比 3以上、CAC Paybackが12ヶ月以内を目標とする SaaS型指標を導入
+- **適用シーン**: 月次経営会議、投資判断
+- **期待効果**: 単月売上に惑わされず事業の構造的健全性を把握
+- **参照フレーム**: David Skok "SaaS Metrics 2.0", Bessemer Venture Partners "State of the Cloud" LTV/CAC
+
+#### STEP 7: EVM (Earned Value Management) / 進捗管理 ★オーバースペック化
+- **内容**: 四半期OKRやクライアント案件に EVM（PV/EV/AC/SPI/CPI）を適用。計画価値・実績価値・実コストから「スケジュール効率」「コスト効率」を数値化
+- **適用シーン**: 大型プロジェクト進行、OKR中間レビュー
+- **期待効果**: 「遅れている気がする」を数値化、再優先順位の客観化
+- **参照フレーム**: PMBOK EVM, Quentin Fleming "Earned Value Project Management"
+
+#### STEP 8: Mochary Method 風 Weekly Status ★オーバースペック化
+- **内容**: Matt Mochary の "Weekly Report" テンプレ（Wins / Losses / Learnings / What's Next / Where I Need Help / Metrics）を全エージェント週次アウトプットに標準化。KPIと定性情報を一体化
+- **適用シーン**: 毎週月曜のオール会議、CEO報告
+- **期待効果**: 数字だけでは見えない課題の早期発見、組織学習の加速
+- **参照フレーム**: Matt Mochary "The Great CEO Within", Mochary Method Weekly Report Template
+
+#### STEP 9: ストーリー型 Executive Dashboard ★オーバースペック化
+- **内容**: 数字の羅列ではなく「導入 → 現状 → 原因 → 打ち手」の4ブロックで経営ダッシュボードを構成。各ブロックに Metabase 埋め込み図＋1段落のナラティブ（LLM自動生成＋人手校正）
+- **適用シーン**: 月次経営会議、投資家・金融機関報告
+- **期待効果**: 経営判断の質向上、報告書の作成工数70%削減
+- **参照フレーム**: Cole Nussbaumer Knaflic "Storytelling with Data", Edward Tufte "The Visual Display of Quantitative Information"
+
+#### STEP 10: Decision Journal / 意思決定ログ ★オーバースペック化
+- **内容**: 経営意思決定ごとに「意思決定日 / 選択肢 / 選んだ理由 / 期待結果 / 期限 / 実績 / 事後の学び」をJSONで記録。Shane Parrish "Decision Journal" を社内実装し、意思決定の質を四半期レビュー
+- **適用シーン**: 経営会議、採用意思決定、投資判断
+- **期待効果**: 「結果論評価」ではなく「意思決定時点の質」で学習、Hindsight Bias 排除
+- **参照フレーム**: Shane Parrish Farnam Street "Decision Journal", Annie Duke "Thinking in Bets"
+
+### 統合後の到達レベル
+**Before**: 日次〜月次のKPI集計と静的閾値アラートを配信する一般的なダッシュボードマネージャー。
+**After**: North Star / Lead-Lag / OKR / Prophet動的閾値 / 建設業採用KPIツリー / EVM / Decision Journal を統合し、ストーリー型Executive Dashboardで経営判断の質を上げる「日本国内唯一の建設業採用KPIアーキテクト」へ。
+
+### 発動キーワード追加
+- North Star Metric / Input Metrics / NSMツリー
+- Leading Indicator / Lagging Indicator / 先行遅行ペア
+- OKR / Measure What Matters / John Doerr
+- Prophet / ARIMA / 動的閾値 / 季節性考慮
+- 建設業採用KPIツリー / 業界ベンチマーク
+- LTV/CAC / Cohort / CAC Payback
+- EVM / Earned Value Management / SPI / CPI
+- Weekly Report / Mochary Method
+- Storytelling with Data / ナラティブダッシュボード
+- Decision Journal / 意思決定ログ

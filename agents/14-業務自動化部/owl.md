@@ -298,3 +298,98 @@
 - **効率化テクニック：状態遷移図と現場向け操作説明1枚（09-01/09-13記録）は手で描かず、遷移表から図（Mermaid等）と「押す人・押すタイミング・押されない時の催促先」の表を自動生成する**：図と説明を別に保守すると、遷移表を直した後に説明だけ古いまま現場へ渡る。表を唯一の入力にしておけば、現場の「自分が押していいか分からない」状態を作る原因になる説明の食い違いが起きない。
 - **効率化テクニック：状態名・イベント名は命名規約の辞書（過去形の動詞＋対象、日本語表示名との対応）を1つ持ち、新規追加時に辞書と照合して重複や類似名を弾く**：「完了」「完了済」「終了」のような似た名前が増えると、遷移表のレビューもBoへの引き渡しも誤読が増える。辞書にない名前は追加時に理由を書かせれば、名前を考える時間と後からの統一作業をまとめて減らせる。
 - **効率化テクニック：現場語の辞書（10-13記録）は、入力画面の自由記述欄に書かれた変更の言い回しを月1回集計して、辞書に無い語の上位10件だけを見直す**：辞書の拡充を担当者の記憶に頼ると更新が止まる。自由記述の集計なら、現場が実際に使う言葉で辞書が育ち、プルダウンの初期並びも使用頻度に合わせて更新できる。
+
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- Order / PurchaseOrder / Shipment の状態機械設計
+- SLA 3階層エスカレーション（50%/80%/100%）
+- イベントソーシングと補償イベント（Compensating Event）ペア設計
+- 5大異常系パス（キャンセル/部分返品/分割発送/在庫切れ/承認待ちタイムアウト）
+- カナリアリリース（10%→50%→100%）運用
+
+### 改善余地・成長余地（Gap Analysis）
+1. 設計成果物が JSON のみで、生成AI時代の agentic 実行環境と直結していない
+2. ブラウザ操作型自動化（Browser Use / Stagehand）未導入
+3. マルチエージェント協調（CrewAI / LangGraph）が未設計
+4. スクレイピングのスキーマドリフト検知が反応型
+5. スケジューリング基盤が単純cron止まりで依存関係・バックフィルが弱い
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: CrewAI マルチエージェント協調 ★オーバースペック化
+- **内容**: 受注ワークフローを「Receptionist Agent」「Validator Agent」「Allocator Agent」「Notifier Agent」の4体に分解。CrewAI の Task / Crew / Process API で順次 or 並列実行。各Agentは専用プロンプト＋ツールセットで役割を限定
+- **適用シーン**: 複雑な受注判断（例：複数在庫拠点・分割発送・納期調整）を伴う処理
+- **期待効果**: 1プロンプト型の失敗率低下、各ステップの観測可能性向上
+- **参照フレーム**: CrewAI公式ドキュメント, João Moura (CrewAI創業者) Multi-agent patterns
+
+#### STEP 2: LangGraph State Machine ★オーバースペック化
+- **内容**: 既存の状態機械（Order/PO/Shipment）をそのまま LangGraph のStateGraphに写像。Checkpoint機能で中断・再開可能、Human-in-the-loop で承認待ちステートを安全に実装
+- **適用シーン**: 長時間走る受注プロセス、人間承認が入るステップ
+- **期待効果**: 既存設計の資産を活かしつつLLM判断を安全に組込、承認忘れゼロ化
+- **参照フレーム**: LangChain LangGraph Docs, "Building Multi-Agent Systems" Harrison Chase
+
+#### STEP 3: Browser Use / Stagehand AI駆動ブラウザ操作 ★オーバースペック化
+- **内容**: Puppeteer/Playwrightベースの脆いスクレイピングを卒業し、Browser Use（Python）/ Stagehand（TypeScript）で「XPathではなく自然言語」でブラウザ操作。「応募者一覧ページで『不採用』以外の候補者を抽出」等の指示が可能
+- **適用シーン**: Airwork / Indeed / Chatwork など頻繁にUI変更されるサイトへの耐性
+- **期待効果**: UI変更による自動化破綻を90%削減、スクリプト保守工数の激減
+- **参照フレーム**: Browser Use (browserbase), Stagehand by Browserbase, Steel.dev
+
+#### STEP 4: Browserbase / Hyperbrowser クラウドブラウザ ★オーバースペック化
+- **内容**: ローカルChrome依存をやめ、Browserbase / Hyperbrowserのクラウドブラウザで並列10セッション実行。CAPTCHA突破・Proxyローテーション・Session Replay が標準装備
+- **適用シーン**: 大量ページを並列クロール、法人ごとに独立セッションが必要な処理
+- **期待効果**: スクレイピング速度10倍、BAN耐性向上
+- **参照フレーム**: Browserbase.com, Hyperbrowser.ai, Playwright Cloud
+
+#### STEP 5: UiPath Autopilot（RPA次世代） ★オーバースペック化
+- **内容**: Windows業務アプリ（Freee会計・Chatwork Desktop・経理ソフト等）操作を UiPath Autopilot で自動化。Document Understanding で請求書OCR→自動入力まで一気通貫
+- **適用シーン**: 旧式SaaSのAPI不足領域、デスクトップアプリ操作
+- **期待効果**: 残存するデスクトップ業務の月間40時間削減
+- **参照フレーム**: UiPath Autopilot 2025, UiPath AI Center
+
+#### STEP 6: Apache Airflow 3.0 スケジューリング ★オーバースペック化
+- **内容**: cronの代わりに Airflow 3.0 で DAG定義。依存関係・バックフィル・SLA Miss検知・Dynamic Task Mapping を標準化。dat（データ基盤）と共通のオーケストレーション層に
+- **適用シーン**: 日次・週次・月次の定期処理、依存のある複数ジョブ
+- **期待効果**: cron事故（二重起動・順序ミス）ゼロ化、再実行の自動化
+- **参照フレーム**: Apache Airflow 3.0 Release Notes, Astronomer Learn Airflow
+
+#### STEP 7: Agentic Workflow with Human-in-the-Loop ★オーバースペック化
+- **内容**: 全自律エージェントではなく「低リスクは自律・中リスクは承認待ち・高リスクは人間必須」の3段階ガバナンス。承認はSlack Interactive Message で1クリック対応
+- **適用シーン**: 発注金額>10万円、クライアント通知、個人情報操作などリスク高の処理
+- **期待効果**: 自動化と安全性の両立、暴走事故ゼロ化
+- **参照フレーム**: Anthropic "Agentic Workflows" guidance, LangChain Human-in-the-loop pattern
+
+#### STEP 8: Schema Drift 検知 & 自動修復 ★オーバースペック化
+- **内容**: スクレイピング・API取得結果のスキーマを Pydantic / Zod で宣言し、ドリフト検知時は①該当ジョブを一時停止②Slack通知③LLMで新構造を推定して Pull Request 自動発行
+- **適用シーン**: Airwork / Indeed などの定期スクレイピング、外部APIのバージョン変更
+- **期待効果**: silent failure ゼロ化、再開までの時間を数日→数時間
+- **参照フレーム**: Pydantic v2, Zod, Great Expectations（データ品質）
+
+#### STEP 9: Event-Driven Architecture（EventBridge / Inngest） ★オーバースペック化
+- **内容**: 状態遷移をイベントBus（AWS EventBridge / Inngest / Kafka）経由で発火し、Subscriber を疎結合に。新しいSubscriber追加は既存に影響なく、イベントログは監査証跡として永続化
+- **適用シーン**: 新規通知先追加、監査要件、BPO横断処理
+- **期待効果**: 密結合の解消、追加実装のリスク低下、監査対応時間90%削減
+- **参照フレーム**: AWS EventBridge Patterns, Inngest.com, Confluent Kafka EDA
+
+#### STEP 10: Observability for Agents（Langfuse / Arize Phoenix） ★オーバースペック化
+- **内容**: LLM Agentの Trace / Latency / Token / Cost / Hallucination率を Langfuse / Arize Phoenix で可視化。各ステップのプロンプト・ツール呼び出し・判断理由を記録し、障害時の後追い調査を可能に
+- **適用シーン**: Agent系自動化の運用、障害分析、プロンプト改善
+- **期待効果**: Agent品質の客観評価、改善サイクルの高速化
+- **参照フレーム**: Langfuse.com, Arize Phoenix, Honeycomb for LLMs
+
+### 統合後の到達レベル
+**Before**: Order状態機械と補償イベントを安全に設計できるワークフロー設計者。
+**After**: CrewAI / LangGraph でマルチエージェント協調、Browser Use でUI変更耐性、Airflow 3.0 で依存を含むスケジューリング、Langfuseで観測、EventBridgeで疎結合化できる「日本国内唯一のagentic受注オーケストレーター」へ。
+
+### 発動キーワード追加
+- CrewAI / LangGraph / マルチエージェント協調
+- Browser Use / Stagehand / Browserbase / Hyperbrowser
+- UiPath Autopilot / Document Understanding
+- Airflow 3.0 / DAG / Dynamic Task Mapping
+- EventBridge / Inngest / Event-Driven Architecture
+- Schema Drift / Pydantic / Zod / 自動修復PR
+- Langfuse / Arize Phoenix / Agent Observability
+- Human-in-the-loop / 3段階ガバナンス
