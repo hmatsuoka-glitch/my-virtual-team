@@ -665,3 +665,98 @@
 - UTMパラメータはその場で打たず、媒体・キャンペーン・クリエイティブをプルダウンで選ぶと`utm_source`などの付与済みURLが出るシートを1つ持つ：表記ゆれ（`indeed`と`Indeed`）でGA4上の流入元が分裂すると後から名寄せが必要になるため、入力時点で選択式にして防ぐのが最も安い。
 - 報告に毎月使う指標の定義（応募＝フォーム送信完了、面接＝Airworkのステータス等）は1枚の定義シートに固定し、レポートの注記欄はその行へのリンクにする：月ごとに定義を書き直すと比較できなくなる手戻りが起きるが、定義を一元化すれば変更時もその1か所と変更日の記録だけで済む。
 - Looker Studioのレポートは7社分を別々に作らず、1つのテンプレートをコピーし、コピー時のデータソース差し替え画面でクライアントごとのシートに切り替える：デザイン修正をテンプレ側で行えば、各社へ展開する時はコピーし直すだけで済む。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- Airwork管理画面データ分析（閲覧数・応募数・離脱率）
+- GA4データ読み取り
+- Instagram / Xインサイト分析
+- 採用ファネル分析（認知→閲覧→応募→内定→入社）
+- Clarity（ヒートマップ）データ解釈
+
+### 改善余地・成長余地（Gap Analysis）
+1. **因果推論**: 施策効果をCausalImpact / DIDで定量化できていない
+2. **GA4+BigQuery統合**: GA4イベント生データのBQ Export活用未体系
+3. **Looker Studio Pro**: モダンBIダッシュボードの最適化未習得
+4. **SHAP解釈可能AI**: 応募予測モデルの説明責任対応なし
+5. **LLM-powered insight**: Claude活用のインサイト自動生成未体系
+6. **ヒートマップAI**: Microsoft Clarity Copilotの活用不足
+7. **アトリビューション分析**: Multi-Touch Attribution / Shapley Value未適用
+8. **コホート分析**: 月次応募者コホートの定着率追跡未体系
+9. **統計的検定**: A/Bテストの統計的有意性判定が感覚的
+10. **データストーリーテリング**: "Why/So What/Now What" フレーム未徹底
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: GA4 + BigQuery生データ分析 ★オーバースペック化
+- **内容**: GA4 BigQuery Exportでイベント粒度の生データを取得し、SQL + Looker Studio Proでカスタムレポート構築。管理画面では見えない深掘り分析。
+- **適用シーン**: LP運用全クライアント、詳細ユーザー行動分析
+- **期待効果**: 分析解像度10倍、ユーザー行動の真因発見
+- **参照フレーム**: GA4 BigQuery Export Schema / "Advanced Google Analytics 4" / Charles Farina Blog
+
+#### STEP 2: CausalImpact / DID による因果推論
+- **内容**: Google CausalImpact (Bayesian Structural Time Series) / Difference-in-Differencesで施策前後の真の因果効果を測定。
+- **適用シーン**: 施策変更前後の効果検証、季節性除外が必要な時
+- **期待効果**: 施策評価精度+300%、無駄打ち継続防止
+- **参照フレーム**: Google CausalImpact / "Causal Inference: The Mixtape" / Judea Pearl / Econometrics
+
+#### STEP 3: Looker Studio Pro / Tableau Pulse モダンBI
+- **内容**: Looker Studio Proのレポート自動化・AI Insights Alerts・パーソナライズドビューを駆使し、クライアント別ダッシュボード構築。
+- **適用シーン**: 全クライアントの常設ダッシュボード
+- **期待効果**: 月次レポート作成時間90%削減、クライアント確認頻度5倍
+- **参照フレーム**: Looker Studio Pro 2026 / Tableau Pulse / "The Big Book of Dashboards"
+
+#### STEP 4: SHAP解釈可能AI × 応募予測モデル
+- **内容**: XGBoost / LightGBMで応募予測モデル構築し、SHAP値で各求人の応募増減要因を定量説明。クライアント報告に活用。
+- **適用シーン**: 応募低迷クライアントの要因分析、求人票改善提案
+- **期待効果**: 応募要因説明の説得力2倍、改善施策の精度向上
+- **参照フレーム**: SHAP (Lundberg) / "Interpretable Machine Learning" (Molnar) / Vertex AI Explainable AI
+
+#### STEP 5: Claude Opus 4.7 LLM-powered Insight Automation
+- **内容**: データサマリー・前月比・ベンチマークをプロンプトに流し、Claudeで分析コメント・改善提案ドラフト・経営報告スライドを自動生成。
+- **適用シーン**: 全月次レポート作成、クライアントMTG資料準備
+- **期待効果**: レポート執筆時間85%削減、品質ばらつき解消
+- **参照フレーム**: Claude Opus 4.7 Docs / "Analytics with LLM" (Databricks 2026) / Prompt Engineering
+
+#### STEP 6: Microsoft Clarity Copilot × ヒートマップAI
+- **内容**: ClarityのAI Copilotでヒートマップ・セッションリプレイを自然言語クエリ。離脱ホットスポット・ラグ・デッドクリックを自動検出。
+- **適用シーン**: LP運用クライアント、UX改善サイクル
+- **期待効果**: UX課題発見スピード10倍、改善施策量産化
+- **参照フレーム**: Microsoft Clarity Copilot 2026 / UX Analytics Framework / NN/g Heuristics
+
+#### STEP 7: Multi-Touch Attribution (MTA) / Shapley Value
+- **内容**: GA4 Data-Driven Attribution + Markov Chain + Shapley Valueで、SNS・LP・求人媒体の貢献度を定量化。従来の最終クリック偏重を是正。
+- **適用シーン**: 広告予算配分、媒体評価、ROI説明時
+- **期待効果**: 広告予算配分最適化で応募数+30%、ROI説明力2倍
+- **参照フレーム**: GA4 DDA / "Marketing Attribution Modeling" / Shapley Value Game Theory
+
+#### STEP 8: コホート分析 × 定着率追跡
+- **内容**: 月次応募者コホート単位で面接合格→内定承諾→入社→3/6/12ヶ月定着率を可視化。採用ソース別・媒体別の定着率ランキング。
+- **適用シーン**: 四半期・半期レビュー、採用ソース評価
+- **期待効果**: 応募クオリティ指標の提供、クライアント依存度向上
+- **参照フレーム**: Cohort Analysis Playbook / Mixpanel Retention / HR Analytics
+
+#### STEP 9: Bayesian A/Bテスト × Sequential Testing
+- **内容**: 従来の頻度論的A/Bテスト（固定サンプル・pハッキング）からベイジアンA/B・Sequential Testingへ移行。小サンプルでも有意判定可能に。
+- **適用シーン**: LP・バナー・求人票A/Bテスト全般
+- **期待効果**: テスト期間50%短縮、意思決定スピード2倍
+- **参照フレーム**: "Bayesian A/B Testing" (Chris Stucchio) / Sequential Probability Ratio Test / Google Optimize後継
+
+#### STEP 10: データストーリーテリング（Why/So What/Now What）
+- **内容**: 全レポートを"Why (なぜ重要) / So What (何がわかった) / Now What (次に何をする)"の3段構造で記述。dataviz skill準拠の可視化。
+- **適用シーン**: 全レポート・ダッシュボード・経営報告
+- **期待効果**: クライアント意思決定スピード3倍、満足度+40%
+- **参照フレーム**: "Storytelling with Data" (Cole Nussbaumer) / dataviz skill / McKinsey SCQA
+
+### 統合後の到達レベル
+- Before: 管理画面の数値コピペ、感覚ベースの分析コメント、属人レポート
+- After:
+  1. **GA4 BQ Export×Looker Studio Pro×Claude** で分析解像度10倍&自動化
+  2. **CausalImpact×SHAP×ベイジアンA/B** で真の因果と要因を定量説明
+  3. **MTA×コホート×データストーリー** で建設業採用の意思決定アナリストNo.1
+
+### 発動キーワード追加
+- 「GA4 BigQuery」「CausalImpact」「因果推論」「DID」「Looker Studio Pro」「SHAP」「XGBoost」「Clarity Copilot」「Multi-Touch Attribution」「Shapley Value」「コホート」「ベイジアンA/B」「Sequential Testing」

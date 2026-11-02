@@ -368,3 +368,98 @@
 - 開発環境では`{% if target.name == 'dev' %}where event_date >= date_sub(current_date(), interval 7 day){% endif %}`を共通マクロにして、devの実行だけ直近7日に絞る：本番は全期間のまま、開発中のビルド時間とスキャン量を大きく減らせる。ただしJOIN膨張テストなど件数に依存するテストはdevでは条件を緩める。
 - 本番テーブルの変更検証は`CREATE TABLE dev.x CLONE prod.x`でゼロコピークローンを作ってから行う：BigQueryのクローンは元テーブルとの差分分しか保存料金がかからず、数秒で作れるので、本番データを壊す心配なく再集計・スキーマ変更を試せ、問題があればクローンを捨てるだけで済む。
 - SQLの書式は人が直さず、pre-commitに`sqlfluff fix`（BigQuery方言）を入れてコミット時に自動整形する：レビューの指摘がインデントや大文字小文字になると本質的な指摘が埋もれるため、書式は機械に任せてレビューをロジックとテストの確認に集中させる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- Webクローラー・スクレイピングの設計と実装
+- ETL/ELTパイプライン構築
+- データ品質管理とバリデーション
+- データウェアハウス・データマート設計
+- KPI Dashboard Agentへのデータ供給
+
+### 改善余地・成長余地（Gap Analysis）
+1. **モダンデータスタック**: dbt / Fivetran / Airbyte / Dagsterの最新統合未整備
+2. **BigQuery最適化**: パーティショニング・クラスタリング・BI Engine活用未体系
+3. **リアルタイムストリーミング**: Pub/Sub + Dataflow / Kafkaのストリーミング処理なし
+4. **データコントラクト**: Protobuf / Data Contract による型安全性未確立
+5. **AI/MLパイプライン**: Vertex AI / MLflow連携のMLOps未体系
+6. **データカタログ**: Dataplex / Collibra / Atlanによる横断検索未導入
+7. **プライバシー・ガバナンス**: PII検出・マスキング・差分プライバシー未整備
+8. **コスト最適化**: BigQuery / Snowflakeクエリコスト削減プラクティス未体系
+9. **CDC（Change Data Capture）**: リアルタイムDB同期なし
+10. **LLM-powered ETL**: Claude / GPT-4oによる非構造データ構造化未活用
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: dbt + Dagster モダンデータスタック統合 ★オーバースペック化
+- **内容**: dbt Core/CloudでData Transformation、DagsterでOrchestration、FivetranでIngestion。全データパイプラインをコード化・テスト駆動化。
+- **適用シーン**: 全データパイプライン構築、既存SQL手動運用の刷新
+- **期待効果**: パイプライン保守コスト60%削減、障害復旧時間90%短縮
+- **参照フレーム**: dbt Labs Docs / Dagster 2026 / "Analytics Engineering" (Tristan Handy)
+
+#### STEP 2: BigQuery パフォーマンス・コスト最適化
+- **内容**: パーティショニング（_PARTITIONDATE）・クラスタリング・MATERIALIZED VIEW・BI Engineを駆使し、クエリコストとレイテンシを最小化。
+- **適用シーン**: 月次クエリコストが肥大化、クエリ遅延時
+- **期待効果**: BigQueryコスト-70%、クエリ速度10倍
+- **参照フレーム**: BigQuery Best Practices 2026 / Google Cloud Blog / "BigQuery Deep Dive"
+
+#### STEP 3: Pub/Sub + Dataflow リアルタイムストリーミング
+- **内容**: Airwork / Indeed Webhook・SNSイベントをPub/Subで受け取り、Dataflow (Apache Beam) で即時処理→BigQueryにストリーミング挿入。
+- **適用シーン**: 応募リアルタイム通知、SNSエンゲージメント即時集計
+- **期待効果**: データ鮮度を日次→秒単位、意思決定スピード100倍
+- **参照フレーム**: Google Cloud Pub/Sub / Dataflow / Apache Beam 2026
+
+#### STEP 4: Data Contract × Protobuf 型安全化
+- **内容**: データソース ↔ パイプライン ↔ 分析層の間でData Contract (Protobuf schema) を定義。スキーマ破壊的変更を事前防止。
+- **適用シーン**: 全データパイプライン、Airwork仕様変更時
+- **期待効果**: スキーマ破壊障害ゼロ化、信頼性向上
+- **参照フレーム**: Data Contract Specification / Protobuf / "Data Mesh" (Zhamak Dehghani)
+
+#### STEP 5: Vertex AI × MLflow MLOpsパイプライン
+- **内容**: 応募予測モデル・チャーン予兆モデル・LTV予測モデルをVertex AIで学習→MLflowで実験管理→Model Registryで本番化。
+- **適用シーン**: Shunの予測分析支援、Akariのレポート自動化
+- **期待効果**: モデル本番化スピード10倍、A/Bテスト容易化
+- **参照フレーム**: Vertex AI 2026 / MLflow 3.0 / "MLOps Engineering at Scale"
+
+#### STEP 6: Dataplex データカタログ・リネージ
+- **内容**: Dataplex / Atlanで全データ資産（テーブル・ダッシュボード・レポート）のメタデータ・リネージを一元化。データ発見性向上。
+- **適用シーン**: 新規分析着手時、データオーナーシップ確認時
+- **期待効果**: データ発見時間90%削減、重複分析ゼロ化
+- **参照フレーム**: Google Cloud Dataplex / Atlan / Collibra / DAMA-DMBOK
+
+#### STEP 7: PII検出・マスキング・差分プライバシー
+- **内容**: Cloud DLP (Data Loss Prevention) で個人情報自動検出・マスキング。応募者情報は差分プライバシーで統計処理のみ可能に。
+- **適用シーン**: 全採用関連データ、クライアント横断分析時
+- **期待効果**: PII漏洩リスクゼロ化、個人情報保護法完全遵守
+- **参照フレーム**: Google Cloud DLP / 個人情報保護法2026改正 / Apple Differential Privacy
+
+#### STEP 8: CDC (Debezium / Datastream) リアルタイム同期
+- **内容**: クライアントATS / Airwork DB の変更をDebezium / Google Datastreamで即座にBigQueryに反映。日次バッチ廃止。
+- **適用シーン**: リアルタイム応募状況可視化、障害復旧時のポイントインタイムリカバリ
+- **期待効果**: データ遅延日次→1秒以内、障害時復旧5分
+- **参照フレーム**: Debezium / Google Datastream / "Streaming Systems" (Tyler Akidau)
+
+#### STEP 9: LLM-powered 非構造データ構造化
+- **内容**: 求人票テキスト・応募者職務経歴書・SNSコメントをClaude Opus 4.7で構造化（職種・スキル・感情）→BigQueryに格納。
+- **適用シーン**: テキストデータの属性抽出、感情分析、スキルタグ付け
+- **期待効果**: 構造化精度95%以上、分析対象データ10倍拡大
+- **参照フレーム**: Claude API / "LLM for ETL" (Datastax 2026) / LangChain Document Loaders
+
+#### STEP 10: コスト最適化・FinOps for Data
+- **内容**: BigQuery / Snowflake / Lookerコストを可視化し、Query Review・Slot予約最適化・インフラ縮退を定期実施。
+- **適用シーン**: 月次コストレビュー、ピークトラフィック対応
+- **期待効果**: データ基盤コスト-50%、ROI説明力2倍
+- **参照フレーム**: FinOps Foundation / "Data Economy FinOps" 2026 / BigQuery Slots Pricing
+
+### 統合後の到達レベル
+- Before: バッチETL中心、スキーマ変更に弱い、手動運用多数
+- After:
+  1. **dbt×Dagster×BigQuery最適化** でモダンデータスタック国内有数レベル
+  2. **CDC×ストリーミング×Data Contract** でリアルタイム&堅牢性両立
+  3. **LLM-ETL×Vertex AI×FinOps** でAI時代のデータ基盤を圧倒的コスト効率で実現
+
+### 発動キーワード追加
+- 「dbt」「Dagster」「Fivetran」「BigQuery最適化」「Pub/Sub」「Dataflow」「Data Contract」「Vertex AI」「MLflow」「Dataplex」「DLP」「CDC」「Debezium」「Datastream」「FinOps」

@@ -539,3 +539,98 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - 指示書に貼る参考画像は最大2枚（構図用1枚・配色用1枚）に絞り、それぞれ「どこを参考にするか」を1行で添える。3枚以上貼ると、デザイナーも生成AIも複数の参考を混ぜて解釈し、どれにも似ていない折衷案が出て、やり直しの指示を足すことになる
 - Figma のマスターは Auto Layout と制約（Constraints）で組み、文言や主役素材を差し替えると8サイズへそのまま反映される構造にする。サイズごとに手でレイアウトを組むと、文言変更のたびに8回の修正が必要で、サイズ間の差異（10/09 の更新日時の不一致）の原因にもなる
 - 修正ラウンドの上限を指示書に「2回まで」と明記し、2回で収まらない場合は指示書の書き方の問題として一度仕切り直す。回数の目安がないと細かい修正指示が際限なく続き、1案件の制作時間が膨らむ。3回目に入った時点で、どの欄が曖昧だったかを指示書側で直す
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- バナー・サムネイルのデザイン指示書作成
+- カラー・フォント・レイアウトの方向性定義
+- Canva / Figma / Adobe向けの制作指示
+- クライアントブランドに合わせたビジュアルトーン設計
+- A/Bテスト用バリエーション指示
+
+### 改善余地・成長余地（Gap Analysis）
+1. **生成AI画像運用**: Midjourney v7 / Flux 1.1 Pro / Imagen 4 Ultra のプロンプトエンジニアリング未整備
+2. **ブランド一貫性自動化**: Figma Variables + Design Tokens による色・タイポグラフィ統制が未体系
+3. **サムネCTRデータ分析**: TikTok / YouTube Shorts のサムネCTR定量比較A/Bテスト未確立
+4. **動的バナー生成**: Dynamic Creative Optimization (DCO) 対応バナー設計未導入
+5. **アクセシビリティ**: WCAG 2.2 準拠のコントラスト・読みやすさチェック未適用
+6. **視線誘導F/Zパターン**: アイトラッキング知見による構図設計が感覚的
+7. **求人媒体別最適化**: Indeed PLUS / Airwork / dodaのサムネ仕様差分対応が属人的
+8. **採用候補者ペルソナ×ビジュアル**: ペルソナ別の色・顔・ポーズ最適化ロジックなし
+9. **動画サムネ連動CTR**: 動画視聴率とサムネCTRの連動分析が未体系
+10. **AI生成素材IPクリア**: Midjourney / Flux 商用利用規約・肖像権運用が未整備
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Midjourney v7 / Flux 1.1 Pro プロンプトエンジニアリング ★オーバースペック化
+- **内容**: 建設業・採用訴求に特化したプロンプトテンプレート100選を構築。--sref（スタイル参照）とキャラクター一貫性ツール（--cref）を駆使してブランド統一。
+- **適用シーン**: 現場写真の素材が足りない時、理想的な作業シーン画像が必要な時
+- **期待効果**: 素材調達コスト90%削減、CTR+25%
+- **参照フレーム**: Midjourney v7 Docs / Flux 1.1 Pro Prompt Guide / "AI Visual Design System" (Awwwards 2026)
+
+#### STEP 2: Figma Variables × Design Tokens によるブランド統制
+- **内容**: クライアント7社それぞれのCustom Design System (Primary/Secondary/Accent + タイポ) をFigma Variablesで管理。バナー量産時に自動適用。
+- **適用シーン**: 全バナー制作、クライアント追加時のオンボーディング
+- **期待効果**: ブランド逸脱ゼロ化、量産スピード3倍
+- **参照フレーム**: Figma Variables 2026 / W3C Design Tokens Spec / Material 3 Expressive
+
+#### STEP 3: サムネCTR A/Bテスト 定量比較プロトコル
+- **内容**: 1本の動画に対し3種類のサムネを用意し、TikTok Smart Thumbnail / YouTube Thumbnail Test で定量比較。CTR+2pt未満は不採用。
+- **適用シーン**: 全動画サムネ制作時
+- **期待効果**: サムネCTR平均+30%、動画視聴数+40%
+- **参照フレーム**: YouTube "Test & Compare" 2026仕様 / TikTok Creator Dashboard
+
+#### STEP 4: Dynamic Creative Optimization (DCO) 対応バナー設計
+- **内容**: Meta Advantage+ / Google Performance Max 向けに、ヘッドライン・画像・CTAを分離した"モジュラーバナー"を納品。AIが組み合わせ最適化。
+- **適用シーン**: 広告運用クライアント（Meta/Google）、Indeed PLUS 画像バナー
+- **期待効果**: 広告CPA 30%削減、クリエイティブ試行回数10倍
+- **参照フレーム**: Meta Advantage+ Creative / Google DCO Playbook 2026
+
+#### STEP 5: WCAG 2.2 準拠コントラスト・読みやすさチェック
+- **内容**: 全バナーに対しContrast Checker (Stark / Able) で4.5:1以上を保証。色覚多様性シミュレーションも通過必須。
+- **適用シーン**: 全バナー・サムネ納品前
+- **期待効果**: アクセシビリティ対応CPA-15%、公共調達案件対応可能化
+- **参照フレーム**: WCAG 2.2 / 色覚バリアフリーガイドライン(CUDO) / Figma Stark Plugin
+
+#### STEP 6: 視線誘導F/Zパターン × アイトラッキング設計
+- **内容**: Attention Insight / Neurons でAI視線予測を実施し、1秒注視率を定量化。F型/Z型/Golden Triangle型の構図を使い分け。
+- **適用シーン**: LPファーストビューバナー、サムネイル設計時
+- **期待効果**: 注視率+40%、ファーストビューCTR+25%
+- **参照フレーム**: Neurons Predict Pro / NN/g "Eye Tracking Report 2026" / Golden Ratio Composition
+
+#### STEP 7: 求人媒体別フォーマット辞書 2026
+- **内容**: Indeed PLUS / Airwork / doda / リクナビNEXT / Wantedly / Youtrust / バイトル の2026年最新サムネ仕様を1枚のマトリクスで管理。
+- **適用シーン**: 求人広告バナー・サムネ制作時
+- **期待効果**: 媒体別入稿不備ゼロ化、入稿往復時間90%削減
+- **参照フレーム**: Indeed PLUS Image Policy 2026 / Airwork入稿ガイド2026Q3版
+
+#### STEP 8: ペルソナ×ビジュアル最適化マトリクス
+- **内容**: 「20代男性未経験」「30代主婦パート」「50代経験者」等ペルソナ別の反応ビジュアル要素（人物年齢・ポーズ・色温度）をA/Bデータから辞書化。
+- **適用シーン**: ペルソナ指定の求人広告バナー
+- **期待効果**: ペルソナ別CVR+35%、無駄なバナー試作50%削減
+- **参照フレーム**: Pymetrics ペルソナ心理学 / "Visual Persona Match" (Nielsen 2026)
+
+#### STEP 9: 動画サムネ↔視聴率連動分析
+- **内容**: サムネCTR・初動視聴率・平均視聴時間を1画面に統合し、Shunと連携して"サムネ品質スコア"を可視化。
+- **適用シーン**: 月次レポート作成時、サムネ改善サイクル
+- **期待効果**: 動画初動視聴率+20%、サムネ最適化ROI 2倍
+- **参照フレーム**: YouTube Analytics API / TikTok Creator Analytics / Looker Studio統合
+
+#### STEP 10: AI画像IPクリアランス運用フロー
+- **内容**: Midjourney Pro / Flux / Imagen の商用利用ライセンス記録、人物肖像権同意、AI生成明示表示をNoriと連携して運用。
+- **適用シーン**: AI生成画像を含む全バナー案件
+- **期待効果**: 法的リスクゼロ化、炎上リスク予防
+- **参照フレーム**: Midjourney Pro License / Flux Commercial Terms / JIAA AI広告表示指針2026
+
+### 統合後の到達レベル
+- Before: 感覚ベースのデザイン指示、CTR改善は属人、素材調達に時間
+- After:
+  1. **Midjourney v7 × Figma Variables** で素材調達コスト90%削減＆ブランド統制自動化
+  2. **DCO × AI視線予測 × A/Bテスト** でCTR+30%・CPA-30%のデータドリブン設計
+  3. **求人媒体別辞書 × ペルソナ別最適化** で建設業採用に特化した日本No.1レベルの精度
+
+### 発動キーワード追加
+- 「Midjourney v7」「Flux」「Imagen」「DCO」「Design Tokens」「サムネCTR」「アイトラッキング」「WCAG」「Advantage+」「Performance Max」「ペルソナ別ビジュアル」「Figma Variables」

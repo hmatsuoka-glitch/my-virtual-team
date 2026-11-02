@@ -324,3 +324,98 @@ Agent 3（Market Researcher）と **並列で実行** される。
 - 検討して不採用にした事例は、理由を1行（規模が違う／成果が実数で追えない／法的に使えない等）付けて「却下リスト」に残す：数か月後に別案件で同じ事例を再び見つけて同じ検証をやり直す無駄を防ぎ、却下理由が溜まると探索の最初の絞り込み条件にもなる。
 - 官公庁・業界団体のPDF報告書は、画面で読み進めず`pdftotext -layout report.pdf - | grep -n "キーワード"`で数値の位置を先に絞ってから該当ページだけを読む：100ページ超の報告書でも必要な数字と見出しを数分で特定でき、引用時のページ番号の記録にもそのまま使える。
 - 事例探索の着手前に「何が分かれば提案の結論が変わるか」を3行で書き、それに答える事例が揃った時点で探索を打ち切る：上限を決めずに探すと関連事例が増えるだけで提案が進まないため、判断に使う問いを先に固定して調査の止め時を作る。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- イシュー抽象化によるアナロジー検索軸の定義
+- 異業種・海外事例のWeb検索による収集
+- 転用可能性の分析と言語化
+- 構造的類似性による事例マッピング
+- JSON形式の構造化アウトプット
+
+### 改善余地・成長余地（Gap Analysis）
+1. **Deep Research活用**: Perplexity Deep Research / Elicit / GPT Deep Researchの体系活用未確立
+2. **学術文献アクセス**: Semantic Scholar / Google Scholar / ConnectedPapers未活用
+3. **アナロジー深度**: 表層アナロジーに留まり、構造的類似性の深掘り不足
+4. **抽象化レベル管理**: Analogical Reasoningの階層的抽象化手法未体系
+5. **海外事例ソース**: Stripe Press / a16z / First Round Review等の良質ソース未巡回
+6. **アナロジー検証**: 類似度の定量評価（Structure Mapping Theory）未適用
+7. **特許・学術論文**: Google Patents / USPTO / J-PlatPat活用なし
+8. **ケーススタディDB**: HBS / INSEAD / Wharton事例DB未参照
+9. **ベンチマークマトリクス**: 事例の多次元比較表作成が属人的
+10. **逆アナロジー**: "異業種からの"ではなく"同業界への逆輸入"の視点欠如
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Perplexity Deep Research × GPT Deep Research 併用 ★オーバースペック化
+- **内容**: Perplexity Deep Research / GPT Deep Research / Gemini Deep Research の3エンジンでクロスリサーチ。結果を統合して盲点を潰す。
+- **適用シーン**: 全アナロジー案件の初動30分
+- **期待効果**: リサーチ網羅性3倍、見逃し事例0件
+- **参照フレーム**: Perplexity Pro 2026 / OpenAI Deep Research / Gemini 2.5 Deep Research
+
+#### STEP 2: Elicit × Semantic Scholar 学術文献リサーチ
+- **内容**: Elicit (AI研究要約) + Semantic Scholar + ConnectedPapersで学術論文からの構造的類似性事例を発掘。社会科学・組織論・経営学論文を活用。
+- **適用シーン**: アカデミック裏付けが欲しい時、新規戦略提案
+- **期待効果**: 提案の学術的裏付け2倍、クライアント信頼度向上
+- **参照フレーム**: Elicit.com 2026 / Semantic Scholar API / Connected Papers / Google Scholar
+
+#### STEP 3: Structure Mapping Theory による構造的類似度定量化
+- **内容**: Dedre Gentnerの Structure Mapping Theory を適用し、事例間の構造的類似度を定量評価。表層一致ではなく深層一致を優先。
+- **適用シーン**: 複数候補事例から最適な1つを選定する時
+- **期待効果**: アナロジー転用成功率+200%、浅い類似性の排除
+- **参照フレーム**: "Analogy and Similarity" (Gentner) / "Mental Leaps" (Holyoak & Thagard)
+
+#### STEP 4: 階層的抽象化フレームワーク
+- **内容**: イシューを「表層（業界用語）→中間（機能）→抽象（原理）」の3層で抽象化。各層でアナロジー検索を実施。
+- **適用シーン**: 全アナロジー検索の起点設計
+- **期待効果**: アナロジー候補数5倍、思考の深度向上
+- **参照フレーム**: 抽象化の階層 (Watanabe) / "The 5 Elements of Effective Thinking" / Design Thinking
+
+#### STEP 5: 良質海外ソース定期巡回
+- **内容**: Stripe Press / a16z Future / First Round Review / Benedict Evans / HBR / MIT Sloan Review を週次モニタリング。1,000事例をDB化。
+- **適用シーン**: 新規トピック探索、月次インテリジェンスレポート
+- **期待効果**: 良質事例のストック2倍、提案瞬発力向上
+- **参照フレーム**: Stripe Press / a16z Future / First Round Review / HBR Must Reads 2026
+
+#### STEP 6: 特許・学術論文からの技術転用事例
+- **内容**: Google Patents / USPTO / J-PlatPatで特定業界の最新特許を調査し、技術・プロセスの転用可能性を評価。
+- **適用シーン**: 技術的差別化、イノベーション提案
+- **期待効果**: 技術特許起点の提案可能化、競合先行防止
+- **参照フレーム**: Google Patents / USPTO / J-PlatPat / "Patent Analytics 2026"
+
+#### STEP 7: HBS/INSEAD ケーススタディDB活用
+- **内容**: Harvard Business School / INSEAD / Wharton のケーススタディDB (HBR Store) を活用。経営課題別のアナロジー事例を即出し。
+- **適用シーン**: 経営戦略提案、QBR資料作成
+- **期待効果**: 経営レベル提案の説得力2倍、クライアント経営層への訴求
+- **参照フレーム**: Harvard Business School Cases / INSEAD / "The Case Study Handbook"
+
+#### STEP 8: 多次元ベンチマークマトリクス
+- **内容**: 事例を7軸（業界・規模・課題構造・施策・成果・期間・コスト）で分析するマトリクスをテンプレート化。
+- **適用シーン**: 全アナロジーレポート、クライアント比較分析
+- **期待効果**: 比較分析時間50%削減、意思決定サポート品質向上
+- **参照フレーム**: McKinsey Framework / BCG Matrix / Analogical Mapping
+
+#### STEP 9: 逆アナロジー（Reverse Analogy）
+- **内容**: 「他業界→当業界」だけでなく「当業界の成功事例→他業界への適用可能性」の逆視点を導入。クライアント独自性の発見。
+- **適用シーン**: 既存成功事例を再評価する時、知財化検討時
+- **期待効果**: クライアント独自資産の発見、新規事業の種発掘
+- **参照フレーム**: "Reverse Innovation" (Govindarajan) / 創造性研究
+
+#### STEP 10: 建設業DX2026レポート × 2024年問題事例DB
+- **内容**: 建設業DX白書2026 / 2024年問題フォローアップ事例 / i-Construction 2.0 事例をDB化。建設業7社向け特化アナロジー。
+- **適用シーン**: 建設業クライアント（ナワショウ・宮村・清一・翔星）全提案
+- **期待効果**: 建設業特化のアナロジー質で業界内No.1
+- **参照フレーム**: 国交省 建設業DX白書2026 / i-Construction 2.0 / 建設技能人材不足白書 / Gen連携
+
+### 統合後の到達レベル
+- Before: Web検索中心、表層的類似、海外事例の網羅性不足
+- After:
+  1. **Perplexity×GPT×Gemini Deep Research** × 学術論文で網羅性日本No.1
+  2. **Structure Mapping×階層抽象化** で構造的類似性の精度世界レベル
+  3. **建設業DX特化DB×逆アナロジー** で業界内唯一無二のアナロジー起点提案
+
+### 発動キーワード追加
+- 「Deep Research」「Perplexity」「Elicit」「Semantic Scholar」「ConnectedPapers」「Structure Mapping」「階層抽象化」「HBS事例」「特許検索」「J-PlatPat」「逆アナロジー」「建設業DX」「2024年問題」
