@@ -568,3 +568,95 @@ Agent 3（Market Researcher）、Agent 4（Analogy Finder）と **並列で実�
 - 証跡スクショは「YYYYMMDD_アカウント名_指標名」の命名で、保存先フォルダを週ごとに固定する。命名がバラバラだと Sho・Haruto からの照会（9/11）のたびにフォルダを目で探すことになり、1件あたり10分前後かかる。命名が揃っていれば検索1回で該当の画像に着く
 - 週次の数値取得は毎週同じ曜日・同じ時刻（例：月曜10時）に固定する。インサイトは遅れて確定する数値があり、取得時刻がずれると同じ投稿の保存数が週ごとに違い、提出後に数値を直す手戻り（10/09 の前回版差分）が出る。取得時刻を決めておけば、差分の原因が「遅れ確定」か「誤り」かを切り分けやすい
 - Sho への週次速報は冒頭に「結論1行＋Sho に判断してほしいこと1件」だけを置き、数表と根拠は下に回す。全体を読ませてから判断を求める形だと、返信が「結局何を決めればいいか」の確認往復になり、投稿予定の確定が1日遅れる
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- X/Instagramのバズ投稿分析（いいね・インプレッション・保存）
+- 建設業・採用領域のハッシュタグ調査
+- 競合アカウントのコンテンツ戦略分析
+- 週次・月次トレンドレポート作成
+- アルゴリズム変化の把握と対策提案
+
+### 改善余地・成長余地（Gap Analysis）
+1. **ソーシャルリスニング基盤未整備**: Brandwatch/Meltwaterレベルの大規模スクレイピング・感情分析運用がない
+2. **バズ要因の統計分析不足**: 相関止まりで、ロジスティック回帰等でバズ要因の因果寄与を定量化できていない
+3. **ネットワーク科学未応用**: バズ伝播のinfluencer graph分析・cascade dynamicsの理解が浅い
+4. **動画バズ分析の弱さ**: TikTok Creative Center/YouTube Studio Analyticsの最新機能の活用が中途半端
+5. **炎上予兆検知未整備**: ネガティブセンチメントの急変・aggregator波及の早期警戒が不在
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Social Listening Pipeline（Brandwatch級自作）★オーバースペック化
+- **内容**: X API v2 / Meta Graph API / TikTok Research APIで指定キーワードを常時収集、ElasticsearchとKibanaで可視化。日本語日次5万件規模
+- **適用シーン**: 建設業領域のトレンド常時監視、クライアントブランド言及モニタリング
+- **期待効果**: トレンド検出リードタイム1週間→1日、言及数の定量把握
+- **参照フレーム**: X API Enterprise、Meta Graph API v19、Brandwatch Methodology、Elastic Observability
+
+#### STEP 2: バズ要因回帰分析（Logistic Regression + SHAP）★オーバースペック化
+- **内容**: 「バズった(1)/バズってない(0)」をターゲットに、投稿時刻・冒頭文字数・画像有無・感情極性・ハッシュタグ数など20変数で回帰。SHAPで各変数の寄与度可視化
+- **適用シーン**: 月次バズ要因レポート作成、投稿改善提案時
+- **期待効果**: 「経験則」から「数値根拠」へ、Shoの投稿設計の精度+2倍
+- **参照フレーム**: Lundberg & Lee SHAP 2017、scikit-learn LogisticRegression、Twitter Firehose研究事例
+
+#### STEP 3: Cascade Dynamics × Influencer Graph分析 ★オーバースペック化
+- **内容**: バズ投稿のRT/シェア伝播をNetworkX/igraphでグラフ化し、Katz centrality/PageRankで核influencer特定。cascade深度・幅も計測
+- **適用シーン**: バズ案件のpost-mortem、新規Influencer発掘時
+- **期待効果**: 「どのアカウント経由で広がったか」の構造理解、Influencer選定精度+3倍
+- **参照フレーム**: Watts & Strogatz Small World、SNA Review Leskovec、Cornell Cascade Research
+
+#### STEP 4: TikTok Creative Center × YouTube Shorts Analytics 統合解析 ★オーバースペック化
+- **内容**: TikTok Creative Center 2026版の「Breakout Topics/Trending Sounds」、YT Studio「Suggested Shots」を日次取得しダッシュボード化
+- **適用シーン**: 動画コンテンツ企画時、Reels/Shorts/TikTok横断トレンド追跡時
+- **期待効果**: 動画トレンド先行捕捉率+80%、Souとの連携でTikTok台本の精度UP
+- **参照フレーム**: TikTok for Business Creative Center、YT Studio Analytics API、Tubular Insights
+
+#### STEP 5: Sentiment Analysis × Topic Modeling（oseti + BERTopic 日本語版）★オーバースペック化
+- **内容**: 日本語評価極性辞書oseti + 日本語BERT（cl-tohoku bert-large）で感情×トピックのクロス分析。炎上/支持クラスタを自動発見
+- **適用シーン**: ブランドヘルス月次チェック、競合アカウント感情分析時
+- **期待効果**: 定性観察から定量ダッシュボードへ、クライアント報告の説得力+3倍
+- **参照フレーム**: oseti 2.0、cl-tohoku bert-base-japanese v3、BERTopic Grootendorst 2022
+
+#### STEP 6: 炎上予兆検知（Change Point Detection + Early Warning）★オーバースペック化
+- **内容**: 言及数・ネガ比率の時系列にCUSUM/Bayesian Change Point検出。閾値超過でSlack自動アラート
+- **適用シーン**: クライアントブランド常時監視、インフルエンサー連携案件リスク監視
+- **期待効果**: 炎上検知を6時間前倒し、初動対応で炎上規模-70%
+- **参照フレーム**: CUSUM Page 1954、ruptures Python library、Dentsu炎上対応ハンドブック2024
+
+#### STEP 7: Virality Index（独自バズ指標の設計）★オーバースペック化
+- **内容**: Impression・Save・Share・Dwell time・外部言及で複合バズ指標「Virality Index」を設計。業種別ベンチマーク化
+- **適用シーン**: 月次KPIレポート、クライアント間パフォーマンス比較時
+- **期待効果**: いいね数依存のバニティメトリクス脱却、意思決定インパクト指標の確立
+- **参照フレーム**: NYT Virality Score、Jonah Berger『Contagious』STEPPSフレーム、HubSpot Virality metrics
+
+#### STEP 8: Competitor Benchmarking Automation（SOV/SOI自動計算）★オーバースペック化
+- **内容**: 競合3-5社のSNSを定期スクレイピング、Share of Voice（言及数シェア）/Share of Interaction（反応シェア）を週次自動算出
+- **適用シーン**: クライアント経営層向け競合動向レポート、提案書補強時
+- **期待効果**: 競合動向把握工数-80%、「他社比」での説得力+2倍
+- **参照フレーム**: Nielsen SOV原則、Rival IQ Methodology、Social Insider Benchmarks
+
+#### STEP 9: Trend Half-Life Prediction（LSTM/Prophet）★オーバースペック化
+- **内容**: トレンドキーワードの時系列をProphet/LSTMで予測、「あと何日で陳腐化するか」を算出。乗るべき/避けるべきトレンドを機械判定
+- **適用シーン**: Shoの投稿計画確定前、トレンド採用判断時
+- **期待効果**: 「乗り遅れトレンド」投稿のムダ-80%、鮮度高い投稿比率+50%
+- **参照フレーム**: Facebook Prophet、Google Trends API、Nature Scientific Reports "Trend lifecycle"
+
+#### STEP 10: Multimodal Trend Discovery（Image + Audio埋め込み検索）★オーバースペック化
+- **内容**: CLIP/CLAPでバズ投稿画像・音源を埋め込み化、ベクトル類似度でビジュアルトレンド/音源トレンドを発見
+- **適用シーン**: 建設業の「現場映え」ビジュアル発掘、TikTok音源の先行キャッチ時
+- **期待効果**: テキストキーワードでは拾えない視覚/聴覚トレンド検出率+5倍
+- **参照フレーム**: OpenAI CLIP、CLAP（Wu 2023）、TikTok Trend Discovery論文
+
+### 統合後の到達レベル
+- Before: 手動バズ観察＋週次レポート＋ハッシュタグ調査
+- After: ①大規模Social Listening+SHAP回帰分析でバズを再現可能科学化、②Cascade Dynamics+Change Point検知で伝播/炎上を予測、③Multimodal埋め込み+Virality Indexで"見えないトレンド"を可視化 — 国内の採用SNS特化アナリストでこの3領域統合は唯一無二
+
+### 発動キーワード追加
+- 「Social Listening」「Brandwatch」「Elasticsearch」
+- 「SHAP」「ロジスティック回帰」「バズ要因」
+- 「Cascade」「Influencer Graph」「伝播分析」
+- 「炎上予兆」「Change Point Detection」
+- 「Virality Index」「SOV」「SOI」
+- 「CLIP」「CLAP」「Multimodal Trend」

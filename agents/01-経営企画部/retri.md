@@ -330,3 +330,95 @@ Google Drive に過去の提案資料がある場合、関連資料を検索・�
 - クライアント別に「表記辞書」（正式社名・担当者名の漢字・工種・現場名・よく出る専門用語）を1ファイルで持ち、文字起こし直後に一括置換をかける。同音異字の手直しを毎回目視で拾う時間が消え、辞書に1行足すだけで次回以降の誤記が減るため、提出前の照合は辞書にない新出語だけで済む。
 - 日付・金額・人名の3種を文字起こしから正規表現で一括抽出して一覧にし、一覧の各行だけを録音と突合する。全文を聞き直すより突合範囲が1割前後に絞られ、クライアントから最も指摘されやすい数値・期日・氏名の誤りは確実に潰せる。
 - 90分を超える会議は終了後にまとめず、30分ごとの区切りで構造化を進める（休憩や話題の切り替わりが目安）。記憶が鮮明な間に聞き取り不能箇所や略語を確認でき、会議後の作業が最後の区切り分だけになるため、議事録の共有を会議当日中に出せる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- Notion MCP での議事録検索・取得
+- Google Drive 過去資料の検索・取得
+- 議事録構造化（会議タイトル・参加者・議題・アクションアイテム抽出）
+- 機密情報フラグ運用（confidential_notes 分離）
+- JSON出力形式の統一
+
+### 改善余地・成長余地（Gap Analysis）
+1. **音声/動画会議からの直接構造化不足**: テキスト議事録を前提とし、Zoom/Meet録画からのdirect抽出フローが未実装
+2. **知識グラフ化できていない**: 議事録間の文脈横断検索・エンティティ関連性抽出が不在
+3. **アクションアイテムの追跡自動化不足**: 抽出後の「誰がやったか」のフォローアップが人手依存
+4. **多言語会議対応不足**: 建設業海外展開クライアントの英中韓混在会議処理が未対応
+5. **議事録の後続価値化（Second Brain化）が弱い**: 単発ファイル保存に留まり、横断検索やインサイト抽出に活用されていない
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Whisper large-v3 + Diarization音声→議事録自動化 ★オーバースペック化
+- **内容**: Zoom/Meet録画をWhisper large-v3で高精度文字起こし、pyannote.audio v3で話者分離。GPT-4o/Claudeで議事録構造化まで自動化
+- **適用シーン**: 全オンライン会議・現場インタビュー録音の処理時
+- **期待効果**: 議事録作成時間90分→5分、記述漏れ-80%
+- **参照フレーム**: OpenAI Whisper large-v3、pyannote.audio 3.1、Claude Sonnet 4.5音声処理
+
+#### STEP 2: ナレッジグラフ化（Neo4j + LlamaIndex）★オーバースペック化
+- **内容**: 議事録から人物・企業・課題・施策エンティティを抽出し、Neo4jで知識グラフ化。LlamaIndex Graph RAGで横断検索
+- **適用シーン**: クライアント課題の文脈横断分析、過去議論の関連性可視化時
+- **期待効果**: 「あの時誰が何を言った」検索が1日→30秒、新規提案の過去議論連動率+3倍
+- **参照フレーム**: Neo4j Knowledge Graph、LlamaIndex PropertyGraphIndex、Microsoft GraphRAG
+
+#### STEP 3: アクションアイテム自動Follow-up（Linear/Asana API連携）★オーバースペック化
+- **内容**: 抽出したアクションアイテムをLinear/Asana/Notion DBへ自動チケット化、担当者Slack通知、期限3日前リマインダー
+- **適用シーン**: 全会議の議事録確定時
+- **期待効果**: アクション完了率60%→92%、「言いっぱなし」の撲滅
+- **参照フレーム**: Linear API 2025、Notion API Database、Zapier Agent orchestration
+
+#### STEP 4: 多言語会議統合処理 ★オーバースペック化
+- **内容**: 英中韓混在会議でWhisper + DeepL/Google Translate v3で言語検出→翻訳→統一議事録。原文併記で機微ニュアンス保持
+- **適用シーン**: 建設業海外展開クライアント・外国人技能実習生関連会議時
+- **期待効果**: 多言語議事録工数-70%、翻訳齟齬起因の実行遅延ゼロ化
+- **参照フレーム**: DeepL API Pro、Google Cloud Translation v3、ISO/IEC 25010 翻訳品質
+
+#### STEP 5: Second Brain Vector検索（PGVector + Reciprocal Rank Fusion）★オーバースペック化
+- **内容**: 全議事録をtext-embedding-3-largeで埋め込み、PGVector保存。質問時にハイブリッド検索（BM25 + Vector）+ RRF融合
+- **適用シーン**: 「3ヶ月前の〇〇社MTGで出た話題」等の文脈検索時
+- **期待効果**: 検索精度 recall@10 で+40%、ナレッジ再利用率+5倍
+- **参照フレーム**: PGVector 0.7、OpenAI text-embedding-3-large、Reciprocal Rank Fusion（Cormack 2009）
+
+#### STEP 6: 議事録品質メトリクス（ROUGE/BERTScore自動評価）★オーバースペック化
+- **内容**: 構造化議事録を金のラベル（人手サンプル）とROUGE-L・BERTScore比較。月次で品質スコア化
+- **適用シーン**: 自動議事録品質の継続改善時
+- **期待効果**: 要約品質BERTScore 0.78→0.88、属人的な品質ばらつき解消
+- **参照フレーム**: Lin『ROUGE』（2004）、Zhang『BERTScore』（2019）、Google Research summarization eval
+
+#### STEP 7: 機密情報自動検出（PII Scanner + 社内NDA分類）★オーバースペック化
+- **内容**: Presidio/AWS Comprehend PII検出で個人情報・財務情報・NDA対象ワードを自動フラグ。マスキング後に外部LLM送信
+- **適用シーン**: 外部AI使用時のPII漏洩防止、NDA締結クライアント案件時
+- **期待効果**: 個人情報漏洩事故ゼロ化、個情法2022準拠100%
+- **参照フレーム**: Microsoft Presidio、AWS Comprehend PII、個情法改正2022 要配慮個人情報
+
+#### STEP 8: C2PA Provenance議事録透明性証明 ★オーバースペック化
+- **内容**: AI生成議事録にC2PA Content Credentials埋め込み、「どのモデル・いつ生成・何を元に」を暗号署名で証跡化
+- **適用シーン**: 法的拘束力ある会議（契約交渉・労使会議）の議事録時
+- **期待効果**: AI生成改ざんリスクゼロ化、裁判証拠能力の担保
+- **参照フレーム**: C2PA 1.3 spec、Adobe Content Credentials、EU AI Act Art.50
+
+#### STEP 9: Sentiment & Topic動的トラッキング（BERTopic + VADER）★オーバースペック化
+- **内容**: 時系列の議事録群で話題（BERTopic）とセンチメント（日本語VADER改）の推移をトラッキング。クライアント関係性温度を可視化
+- **適用シーン**: 月次クライアントヘルスチェック、提案前のクライアント感情温度把握時
+- **期待効果**: クライアント離反予兆検知を2ヶ月前倒し、保守受注率+30%
+- **参照フレーム**: BERTopic（Grootendorst 2022）、oseti（日本語評価極性辞書）、Harvard IV-4
+
+#### STEP 10: Executive Summary 3層自動生成（30s/3min/15min）★オーバースペック化
+- **内容**: 同じ議事録から「30秒Elevator」「3分Email用」「15分Deep Dive」の3層サマリーをLLMで並列生成。読者役職別配布
+- **適用シーン**: 経営層・現場・バックオフィス向け議事録配信時
+- **期待効果**: 役職別情報粒度最適化、議事録既読率+2倍、意思決定スピード+40%
+- **参照フレーム**: Pyramid Principle（Barbara Minto）、SCQAフレーム、HBR Writing for Executives
+
+### 統合後の到達レベル
+- Before: Notion/Drive議事録のテキスト抽出とJSON構造化
+- After: ①音声→構造化→ナレッジグラフ化→Actionチケット化のEnd-to-End自動化、②PII検出+C2PA証跡で法的信頼性担保、③3層サマリー+Sentiment Trackingで経営に効くインサイト出力 — 国内の議事録AIで「法的証跡＋多言語＋知識グラフ＋Follow-up自動化」統合は唯一無二
+
+### 発動キーワード追加
+- 「Whisper 文字起こし」「diarization」「話者分離」
+- 「ナレッジグラフ」「Graph RAG」「Neo4j」
+- 「アクションアイテム追跡」「Linear/Asana連携」
+- 「PII検出」「個情法 自動マスキング」
+- 「3層サマリー」「Executive summary」
+- 「Sentiment tracking」「クライアント温度 可視化」

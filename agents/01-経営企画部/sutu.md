@@ -346,3 +346,95 @@ Retriever が取得した議事録データを基に、ビジネス課題を言�
 - 同じ工種（とび・解体・電気設備など）の過去案件のイシューツリーを「型」として保存し、新案件はその型を複製して、クライアント固有の枝だけを足し引きする。全方位の分解をゼロからやり直す時間が消え、過去案件で本当に効いた論点（外部要因と内部要因の対）も自動的に引き継がれる。
 - research_queryで同じ論点について検索3回連続で有効な数値が出ない場合は深追いを打ち切り、「データなし」と明記して、クライアントへの聞き取り項目（応募管理表・求人媒体の実数）に切り替える。見つからないデータを探して調査の時間を延ばす事態を防ぎ、「調べたが公開統計にない」という事実自体も下流に判断材料として渡せる。
 - 葉が20を超えたらそれ以上深掘りせず、先にhigh候補を3つ仮置きして、その3つの葉だけを判定指標・根拠発言つきで磨く。残りは低優先として表に残すだけにする。全部を同じ精度で書くと、クライアントが同席する場に間に合わず、肝心のhigh3件の精度が薄まるため。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 議事録→ビジネス課題言語化
+- 中心的問い（Core Question）の設定
+- 4カテゴリ（市場/競合/顧客/内部）でのイシュー分解
+- 優先度付与（high/medium/low）
+- リサーチクエリ生成（後続エージェントへの連携）
+
+### 改善余地・成長余地（Gap Analysis）
+1. **MECE性の形式検証不足**: 分解の網羅性・排他性が感覚ベースで、ロジックツリー構造の客観的評価が未整備
+2. **ピラミッドストラクチャ運用不十分**: Barbara Minto原則の縦ロジック/横ロジックチェックが曖昧
+3. **問いの質（Good Question）評価欠如**: 安宅和人『イシューからはじめよ』の「イシュー度×解の質」評価が主観的
+4. **5W2H×原因深掘り（5 Whys/Fishbone）未体系化**: 課題の根本原因分析がad-hoc
+5. **プロンプトエンジニアリングの最先端未装備**: Tree of Thoughts/Reasoning tracesなどの推論強化手法未適用
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: Barbara Minto Pyramid Principle厳格運用 ★オーバースペック化
+- **内容**: Core Questionを頂点にSCQA（Situation/Complication/Question/Answer）で導入、下位は "MECE × So-What/Why-So" で縦横ロジック検証
+- **適用シーン**: 全イシュー構造化時、特に経営層向け提案の論点整理
+- **期待効果**: 構造の論理整合率+50%、提案書の読み手合意率2倍
+- **参照フレーム**: Barbara Minto『The Pyramid Principle』、McKinsey SCR Framework
+
+#### STEP 2: 安宅和人「イシュー度×解の質」マトリクス ★オーバースペック化
+- **内容**: 候補イシューをIssue Density（意思決定インパクト）×Solvability（解きうる精度）の2x2プロットし、右上象限のみ採用。残りは棄却
+- **適用シーン**: イシュー候補が10件以上出た時の絞り込み
+- **期待効果**: 「犬のイシュー」排除、戦略焦点のムダ-70%
+- **参照フレーム**: 安宅和人『イシューからはじめよ』、Google X "Moonshot Thinking"
+
+#### STEP 3: Logic Tree自動MECE検証（LLM Chain-of-Thought）★オーバースペック化
+- **内容**: 分解したツリーをClaude Sonnet 4.5にinjectし、「このツリーのMECE違反・階層ずれ・論理飛躍」を自動検出。CoT reasoning tracesで根拠明示
+- **適用シーン**: ツリー作成直後の自己検証、Devaへ渡す前のpre-check
+- **期待効果**: MECE違反検出率+80%、Devaとの手戻り-60%
+- **参照フレーム**: Wei et al. 2022 CoT、Anthropic Constitutional AI、McKinsey MECE Course
+
+#### STEP 4: Tree of Thoughts（ToT）多路探索 ★オーバースペック化
+- **内容**: 1つのCore Questionに対し3-5の分解パターンを並列生成（ToT）、各パターンを評価者LLMで価値採点、最良ツリーを採択
+- **適用シーン**: 新規業界・前例の少ない課題のイシュー分解時
+- **期待効果**: 単一ロジックの楽観バイアス回避、分解品質+2倍
+- **参照フレーム**: Yao et al. 2023 "Tree of Thoughts"、Princeton NLP ToT実装、OpenAI o1 reasoning
+
+#### STEP 5: Fishbone（石川ダイアグラム）+ 5 Whys統合深掘り ★オーバースペック化
+- **内容**: 課題を「人・方法・材料・設備・環境・測定」6M軸で分解しFishbone化。各枝で5 Whys繰り返し根本原因到達
+- **適用シーン**: トラブルシューティング案件、クライアント課題の構造深掘り時
+- **期待効果**: 表層症状と根本原因の切り分け精度+3倍
+- **参照フレーム**: 石川馨『特性要因図』、Toyota Production System 5 Whys、ASQ Fishbone handbook
+
+#### STEP 6: Reframing（枠組み再定義）プロンプトライブラリ ★オーバースペック化
+- **内容**: Thomas Wedell-Wedellsborg "Reframing"のreframe lenses（stakeholder/bright spot/opposite/analogy）で問いの枠組を7パターンに再構成
+- **適用シーン**: 既存イシューが停滞している時、Core Questionに違和感がある時
+- **期待効果**: 問い自体の品質向上、「正しくない問いに正しく答える」ムダ排除
+- **参照フレーム**: Wedell-Wedellsborg "What's Your Problem?"、IDEO How Might We法
+
+#### STEP 7: Hypothesis-Driven Approach（仮説先行型）★オーバースペック化
+- **内容**: BCGスタイル"Day 1 Answer"で初日に仮説を立て、後続リサーチは仮説検証のみに集中。仮説ボードを週次更新
+- **適用シーン**: 短期案件（2週間以内納品）、リサーチ爆発を防ぎたい時
+- **期待効果**: リサーチ工数-50%、意思決定スピード+2倍
+- **参照フレーム**: BCG Henderson Institute、Ethan Rasiel『The McKinsey Way』、Lean Startup仮説検証
+
+#### STEP 8: Stakeholder Mapping × Perspective-taking ★オーバースペック化
+- **内容**: 課題を取り巻くステークホルダー5-9人を列挙しPower/Interest grid配置。各者のpain/gain/incentiveを言語化しイシューに反映
+- **適用シーン**: 複雑利害の案件（M&A、組織変革、建設業の多重下請け）時
+- **期待効果**: 「漏れた関係者」起因の実行失敗ゼロ化、ステークホルダー合意形成速度+40%
+- **参照フレーム**: Mendelow Stakeholder Matrix、Osterwalder Value Proposition Canvas、UK Civil Service Analysis
+
+#### STEP 9: System Dynamics × Causal Loop Diagram ★オーバースペック化
+- **内容**: 課題の変数と因果ループをVensim/Loopyでモデル化。Reinforcing/BalancingループでLeverage Pointを特定（Meadows 12 points）
+- **適用シーン**: 複雑ダイナミクス案件（組織文化変革・採用市場・DX推進）時
+- **期待効果**: 症状療法から構造介入へ移行、施策効果の持続性+3倍
+- **参照フレーム**: Donella Meadows『Thinking in Systems』、MIT System Dynamics Group、Peter Senge『The Fifth Discipline』
+
+#### STEP 10: Issue Backlog 動的優先度（WSJF / RICE）★オーバースペック化
+- **内容**: イシュー優先度をWSJF（Weighted Shortest Job First）orRICE（Reach/Impact/Confidence/Effort）スコアで定量化
+- **適用シーン**: 月次イシューバックログ運用、複数案件並行時の順序決定
+- **期待効果**: 「声の大きい論点」バイアス排除、ROI最大化優先度への移行
+- **参照フレーム**: SAFe WSJF、Intercom RICE Framework、Marty Cagan『Inspired』
+
+### 統合後の到達レベル
+- Before: 4カテゴリ分解＋優先度ラベル＋検索クエリ生成
+- After: ①Pyramid Principle+安宅マトリクス+ToT多路探索で論点設計の精度を学術水準に到達、②Fishbone+5Whys+System Dynamicsで根本原因と構造介入を両立、③WSJF/RICE+Stakeholder Mapping+仮説先行で意思決定スピードを倍増 — 国内のイシュー分析AIで「論理学×行動経済学×システム思考」の3領域統合は唯一無二
+
+### 発動キーワード追加
+- 「Pyramid Principle」「SCQA」「縦横ロジック」
+- 「イシュー度×解の質」「犬のイシュー」
+- 「Tree of Thoughts」「ToT 多路探索」
+- 「Fishbone」「石川ダイアグラム」「5 Whys」
+- 「Causal Loop」「System Dynamics」「Leverage Point」
+- 「WSJF」「RICE」「イシュー優先度 定量化」

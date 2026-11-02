@@ -520,3 +520,95 @@
 - 提案書は本文に着手する前に、結論1枚（施策の方向性・想定成果・必要予算の3点）だけを先にクライアント担当者へ見せ、方向性の合意を取ってから詳細を作る。本文を数十ページ書いた後に方向性ごと却下される最悪の手戻りが消え、Devaの批判も結論1枚の段階で一次レビューを受けられる。
 - 月次レポートの「次月アクション」欄は、翌月のレポートの冒頭チェック表に自動で引き継ぎ、「実施／未実施／理由」の3列だけ埋める。振り返りの文章をゼロから書く時間が消え、クライアントにも約束した施策の消化状況が一目で伝わるため、未実施の理由（承認待ち・素材不足）が次の施策に反映される。
 - 過去提案を流用する時は、元の提案書の数値と固有名詞を黄色で塗って「差し替え必須」と見えるようにしてから編集を始め、全て塗りが消えたことを提出前条件にする。別案件の数値が残る事故をチェックリストの目視に頼らず、色が残っているかどうかだけで機械的に防げる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 事業計画書・月次KPIレポート作成
+- サービス/クライアント単位の収益シミュレーション
+- TAM/SAM/SOM分析による新規提案の事業性評価
+- OKR設計、競合ポジショニング分析
+- Strategist/Devil's Advocate連携での戦略検証
+
+### 改善余地・成長余地（Gap Analysis）
+1. **ROI計算の因果推論レベルが低い**: 相関止まりで、Difference-in-Differences等の因果推論手法未搭載
+2. **シナリオプランニングの構造化不足**: Shellスタイルの定性的シナリオ・PESTEL統合が感覚ベース
+3. **動的KPIツリー不在**: KPI間の因果ネットワーク（Driver Tree）が平面的で、ボトルネック特定が属人的
+4. **データドリブン以前のData-infrastructureの弱さ**: dbt/metrics layer/semantic layerが整備されず、同じ指標で部門ごと数値が割れる
+5. **サステナビリティ経営（CSRD/SSBJ）への対応不足**: 2026年以降の非財務情報開示準備が未着手
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: 因果推論ROI（Difference-in-Differences + Propensity Score）★オーバースペック化
+- **内容**: 施策実施店舗 vs 対照店舗でDiD分析、Propensity Score Matchingで selection bias補正。「施策の正味効果」を統計的に推定
+- **適用シーン**: 新規SNS施策・採用広告キャンペーンのROI判定時
+- **期待効果**: ROI推定精度+3倍、「相関を因果と誤認」する戦略事故ゼロ化
+- **参照フレーム**: Angrist & Pischke『Mostly Harmless Econometrics』、EconML Python library、Google DiD Playbook
+
+#### STEP 2: Shell式Scenario Planning 2x2マトリクス ★オーバースペック化
+- **内容**: 「2大不確実性 × 2値」で4シナリオ構築（Shell/GBN方式）。各シナリオにearly indicator・contingent action設定
+- **適用シーン**: 中長期事業計画作成時、特に3年以上の計画
+- **期待効果**: 単一シナリオ依存の経営判断リスク回避、環境変化時のpivot速度+2倍
+- **参照フレーム**: Shell Scenarios Team Methodology、Peter Schwartz『The Art of the Long View』、GBN Scenario Thinking
+
+#### STEP 3: KPI Driver Tree + Semantic Layer（dbt + Cube.dev）★オーバースペック化
+- **内容**: 売上/利益から末端行動指標までのDriver Treeを構築し、dbt + Cube.devでsemantic layer実装。全社員が同じ指標定義でBI参照
+- **適用シーン**: KPIレポート基盤整備時、月次KPI会議の数値齟齬解消時
+- **期待効果**: 部門間KPI数値不一致ゼロ化、ボトルネック特定時間-70%
+- **参照フレーム**: dbt Semantic Layer（dbt Labs 2024）、Cube.dev headless BI、Netflix Metrics Store事例
+
+#### STEP 4: Jobs To Be Done（JTBD）× 採用市場再定義 ★オーバースペック化
+- **内容**: Clayton Christensen JTBD理論で「建設業の採用担当が本当に雇いたい"Job"」を再定義。forces of progress 4軸で分析
+- **適用シーン**: 新サービス企画・既存サービス刷新・新規クライアント提案時
+- **期待効果**: 「競合サービス視点」ではなく「顧客ジョブ視点」で差別化、受注単価+30%
+- **参照フレーム**: Christensen『Competing Against Luck』、Alan Klement JTBD workshop、ReWired Group four forces
+
+#### STEP 5: ROIC Tree×現場KPI紐付け（マッキンゼー式）★オーバースペック化
+- **内容**: 全社ROICを「売上成長・利益率・資本効率」に分解し、各現場KPI（応募数/CPA/工数）まで紐付け。経営指標と現場指標を一本化
+- **適用シーン**: 月次経営会議資料作成、クライアント経営層向け提案時
+- **期待効果**: 経営層vs現場の指標断絶解消、投資意思決定の精度+2倍
+- **参照フレーム**: McKinsey『Valuation』第6版、ROIC Tree設計ガイド、オムロン ROIC経営事例
+
+#### STEP 6: SSBJ/CSRD対応 サステナ経営KPI統合 ★オーバースペック化
+- **内容**: 2026年SSBJ基準公表に向けGHG排出量Scope1-3・人的資本可視化（男女賃金差・育児休業取得率）を事業計画KPIに統合
+- **適用シーン**: 中期経営計画作成、上場クライアント・大企業クライアント提案時
+- **期待効果**: 2027年以降のサステナ開示義務先取り、ESG投資家向け説明資料品質+3倍
+- **参照フレーム**: SSBJ サステナビリティ開示基準案2024、EU CSRD（2024発効）、GRI Standards 2021
+
+#### STEP 7: Blue Ocean Strategy ERRC + Buyer Utility Map ★オーバースペック化
+- **内容**: Kim & Mauborgne式ERRC（Eliminate/Reduce/Raise/Create）とBuyer Utility Map 6段階×6レバーで新規市場創造機会を発見
+- **適用シーン**: 既存市場飽和クライアントへの新サービス企画時
+- **期待効果**: 競合比較から脱却、価格競争回避で粗利+40%
+- **参照フレーム**: Kim & Mauborgne『Blue Ocean Shift』、INSEAD Blue Ocean Strategy Institute
+
+#### STEP 8: Growth Loops & Compounding Metrics ★オーバースペック化
+- **内容**: Reforge式Growth Loop設計（Acquisition→Retention→Referral）を事業に実装。線形Funnelから複利ループへ移行
+- **適用シーン**: SNS運用・採用マーケ戦略策定時、特にリファラル採用設計時
+- **期待効果**: CAC回収期間-50%、オーガニック成長率+2倍
+- **参照フレーム**: Reforge Growth Series、Brian Balfour "Growth Loops"、Shopify/Dropbox成長事例
+
+#### STEP 9: Wargaming型競合シミュレーション ★オーバースペック化
+- **内容**: 自社/競合3社/潜在参入者チームに分かれ4ラウンドのWargame実施。各社の次手を仮想対戦し自社戦略を淬練
+- **適用シーン**: 四半期戦略レビュー、新規参入検討時
+- **期待効果**: 「競合が沈黙する」楽観シナリオ排除、競合反撃による計画崩壊リスクを事前検知
+- **参照フレーム**: Benjamin Gilad『Business War Games』、McKinsey Business Chess、米軍Red Teaming教範
+
+#### STEP 10: Agentic AI戦略オフィス（Multi-Agent Boardroom）★オーバースペック化
+- **内容**: Haruto + Deva + Fuca + Retri + Sutu の多エージェントディベート（LangGraph/CrewAI実装）で戦略案を自動精緻化
+- **適用シーン**: 重要戦略決裁前の最終レビュー、HARU不在時の代替意思決定支援
+- **期待効果**: 戦略品質の属人性排除、意思決定スピード+5倍、Multi-Agent合議の国内先進事例化
+- **参照フレーム**: LangGraph Multi-Agent 2025、CrewAI Hierarchical Process、MIT Center for Collective Intelligence
+
+### 統合後の到達レベル
+- Before: 事業計画書+KPIレポート+定性戦略論
+- After: ①因果推論ROI+Driver Tree+Semantic Layerで"数値の真実性"を担保、②Scenario Planning+Wargaming+Blue Oceanで戦略多様性を制度化、③SSBJ/CSRD対応+Multi-Agent Boardroomで2026年経営企画の最先端 — 国内の中小企業向け経営企画AIでこの3点統合は唯一無二
+
+### 発動キーワード追加
+- 「DiD」「Difference-in-Differences」「因果推論ROI」
+- 「Scenario Planning」「2x2マトリクス」「Shell式」
+- 「KPI Driver Tree」「semantic layer」「dbt」
+- 「JTBD」「Jobs To Be Done」「顧客ジョブ」
+- 「SSBJ」「CSRD」「サステナKPI」
+- 「Wargame」「Blue Ocean」「Growth Loop」

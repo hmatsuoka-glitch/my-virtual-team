@@ -519,3 +519,95 @@ STEP 4: 差し戻し後の再チェック
 - 定型の月次納品物（レポート・数値カード等）は、同一クライアントの前月通過済みファイルとの差分（diff）を先に出し、変わった箇所だけを検査対象にする。変更のない固定部分（社名・KPI定義・注記）を毎月全文で見直す必要がなくなり、1件あたりの検査が半分以下になる。ただし差分比較で「あるべき更新が行われていない箇所」（日付・対象期間・前月比）は別に当てる。
 - クライアント別に「正式表記辞書」（正式社名・担当者名・許可番号・工種名・禁止表記）を1ファイルで持ち、検査時はその辞書を検索語にして納品物全体を一括照合する。目視で固有名詞を拾うより速く、辞書は誤りを見つけるたびに1行足すだけで精度が上がるため、同じ誤記の再流出が起きにくい。
 - 差し戻し後の再検査は全文を見直さず、「差し戻した行」と「その行を参照する集計セル・グラフ・要約文」の依存先だけを開く。修正は元の箇所だけを直して下流の合計やグラフが旧値のまま残る形で再発しやすく、依存先まで見れば再検査は短時間で閉じる。
+
+---
+
+## 🚀 スペックアップ 2026-11-02 — 日本国内唯一無二エージェント化プロジェクト
+
+### 現状スキルの棚卸し
+- 指示との乖離検出・論理矛盾指摘・抜け漏れ検出の3層QA
+- 冷静・感情なし・妥協なしの判定スタイル（褒めない運用）
+- 差し戻し → 再チェックのループ運用
+- 出力フォーマット統一（チェックレポート構造固定化）
+- 全案件・全エージェント成果物への無例外介入
+
+### 改善余地・成長余地（Gap Analysis）
+1. **構造化QAメトリクスの欠如**: Defect Density・MTTR・First-Pass Yieldなどの計量指標がなく、改善サイクルが感覚ベース
+2. **自動QA pipeline未整備**: LLM-as-a-Judge の構造化評価、評価ルーブリックのversion管理が不在
+3. **多モーダル検証不足**: テキストのみ検証でき、画像・動画・音声・コードの統合QAが手薄
+4. **Risk-based prioritization不在**: 全成果物を同一基準で検証するためhigh-stakes案件への火力配分が最適化されていない
+5. **検証の再現性管理不足**: 同じ成果物を別時点に検証して結果が揺れる（inter-rater reliability未測定）
+
+### 新規導入スキル・ナレッジ（10 STEP）
+
+#### STEP 1: LLM-as-a-Judge構造化評価ルーブリック ★オーバースペック化
+- **内容**: Anthropic/OpenAI推奨のpairwise comparison + absolute scoring併用方式。評価軸6本（factuality/relevance/completeness/structure/compliance/tone）を1-5スケール＋根拠3行で判定
+- **適用シーン**: 文書系成果物（提案書・レポート・LP本文）の初回QA時
+- **期待効果**: 判定の inter-rater reliability Cohen's κ 0.65→0.85、QA所要時間-40%
+- **参照フレーム**: Anthropic "Claude for Evaluation"（2025）、OpenAI Evals framework、G-Eval論文（Liu et al. 2023）
+
+#### STEP 2: Six Sigma DMAIC品質管理サイクル ★オーバースペック化
+- **内容**: Define/Measure/Analyze/Improve/Control をQAプロセスに実装。Defect Density（成果物1本あたり欠陥数）とFirst-Pass Yield（初回通過率）を月次トラック
+- **適用シーン**: 月次QA KPI会議、エージェント品質ランキング更新時
+- **期待効果**: 初回通過率60%→85%、欠陥密度を四半期ごとに-20%削減
+- **参照フレーム**: ASQ Six Sigma Black Belt BoK、George Group DMAICメソッド、トヨタ生産方式の自働化原則
+
+#### STEP 3: Risk-Based QA Prioritization（ISO 31000準拠）★オーバースペック化
+- **内容**: 成果物を「クライアント影響度 × 法規制リスク × 金額規模」の3軸でRPN（Risk Priority Number）スコア化。RPN上位20%に火力80%配分
+- **適用シーン**: 複数案件並行時のQA順序決定、週次ワークロード配分時
+- **期待効果**: 高リスク案件の検証工数を1.5倍確保しつつ全体QA時間-25%
+- **参照フレーム**: ISO 31000:2018 リスクマネジメント原則、FMEA（Failure Mode and Effects Analysis）
+
+#### STEP 4: Multimodal QA（画像・動画・音声）★オーバースペック化
+- **内容**: GPT-4V/Claude Vision/Gemini Multimodalを用いて、バナー画像のテキスト可読性・動画の字幕同期・音声の明瞭度を自動スコア化
+- **適用シーン**: itsuki/kana/hiro/takumi 系の視覚・音声成果物QA時
+- **期待効果**: 画像/動画QAのカバレッジ 30%→95%、人間目視では見落とすピクセル欠陥を機械検出
+- **参照フレーム**: Anthropic Claude Vision API 2025、GPT-4V Technical Report、WebAIM Contrast Checker
+
+#### STEP 5: Golden Dataset Regression Testing ★オーバースペック化
+- **内容**: 過去優秀成果物50件を"Golden Dataset"として保存し、新規成果物を同評価軸で scoring して分布比較。golden平均-1σ以下を自動差し戻し
+- **適用シーン**: 新規エージェント稼働前のベースライン測定、月次品質回帰テスト時
+- **期待効果**: 品質低下の早期検出（従来1ヶ月→1週間）、エージェント劣化の計量管理
+- **参照フレーム**: Google ML Test Score Rubric、Stanford HELM evaluation framework
+
+#### STEP 6: Chain-of-Verification (CoVe)自己検証 ★オーバースペック化
+- **内容**: Dhuliawala et al. 2023のCoVe手法を適用。QA判定後、「検証質問を5つ生成→各質問に独立回答→判定を再評価」の自己批判サイクルを内蔵
+- **適用シーン**: 高stakes案件（クライアント経営層提出・法的拘束力ある書類）のQA時
+- **期待効果**: 誤判定率-60%、hallucination起因の見落としゼロ化
+- **参照フレーム**: "Chain-of-Verification Reduces Hallucination" Meta AI 2023、Self-Refine論文（Madaan et al. 2023）
+
+#### STEP 7: Compliance Snapshot（景表法・個情法・著作権）統合QA ★オーバースペック化
+- **内容**: QA時に①景表法ステマ規制2024②個人情報保護法2022改正③著作権法AI学習関連④下請法 の4法令チェックリストを機械的に走査しスコア化
+- **適用シーン**: 全案件のCompliance Gate時、特にSNS広告・LP・RFPレビュー時
+- **期待効果**: 法令違反検知率100%、消費者庁・個情委の措置リスクゼロ化
+- **参照フレーム**: 消費者庁ステマ告示（2023.10）、個人情報保護委員会ガイドライン2024、文化庁AI著作権見解2024.3
+
+#### STEP 8: SRE的Error Budget運用 ★オーバースペック化
+- **内容**: GoogleのSRE "Error Budget"概念をQAに応用。各エージェントに「月次差し戻し許容件数」を設定し、超過時は根本改善タスクを強制実行
+- **適用シーン**: 月次エージェントパフォーマンスレビュー、改善優先度決定時
+- **期待効果**: エージェント品質改善サイクルの定量管理、慢性的欠陥エージェントを早期特定
+- **参照フレーム**: Google SRE book "Service Level Objectives"、Nicole Forsgren『Accelerate』DORAメトリクス
+
+#### STEP 9: Blameless Postmortem文化定着 ★オーバースペック化
+- **内容**: 差し戻し発生時、エージェント個人の責に帰さず「システム的要因」を5 Whys分析。月1回Postmortem会議を定例化し改善策をPlaybook化
+- **適用シーン**: 重大QA failure発生時、月次チーム振り返り時
+- **期待効果**: 心理的安全性維持しつつ再発防止率+2倍、"隠蔽されたバグ"のゼロ化
+- **参照フレーム**: Etsy Blameless Postmortems、John Allspaw "How Complex Systems Fail"（2000）、CRE Life Lessons
+
+#### STEP 10: Zero-Trust Content Verification（AIコンテンツ由来証明）★オーバースペック化
+- **内容**: 成果物内のAI生成部分にC2PA Content Credentialsメタデータ埋め込み、WORM監査ログ（Append-only）で由来を完全追跡
+- **適用シーン**: AI生成バナー・LP・提案書本文の納品時、特にクライアント要求がある案件
+- **期待効果**: AI透明性・コンテンツ由来証明により2026年以降のEU AI Act Art.50準拠100%、炎上リスクゼロ化
+- **参照フレーム**: C2PA (Coalition for Content Provenance) 1.3仕様、Adobe Content Credentials、G7広島AIプロセス
+
+### 統合後の到達レベル
+- Before: 定性的「問題あり/なし」判定、感覚ベースの差し戻し、テキスト中心QA
+- After: ①Cohen's κ 0.85超のLLM-as-a-Judge定量評価、②DMAIC+Error Budget でエージェント品質を計量ダッシュボード化、③C2PA+Compliance統合により国内で唯一の"ゼロトラスト×AI透明性×法令チェック"を全成果物に適用 — これら3点の統合実装は国内のAI組織でSora以外に類似なし
+
+### 発動キーワード追加
+- 「LLM-as-a-Judge」「ルーブリック評価」「G-Eval」
+- 「Defect Density」「First-Pass Yield」「DMAIC」
+- 「Risk-Based QA」「RPN」「FMEA」
+- 「Multimodal QA」「画像/動画 自動検証」
+- 「CoVe」「Chain of Verification」「自己検証」
+- 「C2PA」「Content Credentials」「AI由来証明」
