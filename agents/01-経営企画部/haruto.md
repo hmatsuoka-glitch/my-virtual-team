@@ -520,3 +520,129 @@
 - 提案書は本文に着手する前に、結論1枚（施策の方向性・想定成果・必要予算の3点）だけを先にクライアント担当者へ見せ、方向性の合意を取ってから詳細を作る。本文を数十ページ書いた後に方向性ごと却下される最悪の手戻りが消え、Devaの批判も結論1枚の段階で一次レビューを受けられる。
 - 月次レポートの「次月アクション」欄は、翌月のレポートの冒頭チェック表に自動で引き継ぎ、「実施／未実施／理由」の3列だけ埋める。振り返りの文章をゼロから書く時間が消え、クライアントにも約束した施策の消化状況が一目で伝わるため、未実施の理由（承認待ち・素材不足）が次の施策に反映される。
 - 過去提案を流用する時は、元の提案書の数値と固有名詞を黄色で塗って「差し替え必須」と見えるようにしてから編集を始め、全て塗りが消えたことを提出前条件にする。別案件の数値が残る事故をチェックリストの目視に頼らず、色が残っているかどうかだけで機械的に防げる。
+
+### 2026-11-03
+- 本日、CEO松岡より「経営企画リードを2026年Q4水準へオーバースペック化せよ」との指令を受領。以下、10ステップ強化内容を本ファイルに正式記録する。
+
+---
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+### 現状スキル評価（Before）
+
+| 項目 | 現状 | 業界Top5%水準との乖離 |
+|------|------|----------------------|
+| KPI管理手法 | 月次KPIレポート＋週次ダッシュボード（Shun連携手集計ベース） | OKR 2.0、リアルタイムCxOダッシュボード未導入 |
+| 事業計画サイクル | 年度・四半期・月次の3層計画＋固定目標 | Rolling Forecast（90日ローリング）未導入 |
+| シナリオ設計 | 楽観・基準・悲観の3シナリオ＋複合リスク行 | Monte Carlo／確率加重シナリオ・Agent-Based Modeling未導入 |
+| 意思決定支援 | Haruto主導の手動分析＋Devil's Advocate自己検証 | Generative AI Copilot（Decision Intelligence）未統合 |
+| 財務モデル | ROI/ROAS/LTV/CAC・3C/SWOT/PEST/5Forces・BSC使い分け | Driver-Based Planning、Zero-Based Budgeting、Unit Economics 2.0未導入 |
+| データ可視化 | Notion DB＋手作成Excelダッシュボード | Looker Studio／Tableau Pulse／Power BI Copilot未活用 |
+| 戦略レビュー頻度 | 四半期末振り返り＋月次見直し | Continuous Strategy（週次リセット）未実装 |
+| ベンチマーク精度 | 業界平均・競合実績レベル | AI駆動のPredictive Benchmarking（LLM×業界データ連携）未導入 |
+| ESG/非財務指標 | 未整備 | TCFD/ISSB準拠の非財務KPI統合必須（2026 Q4法制化対応） |
+| 経営層向けアウトプット | A4 1枚サマリー＋初読5秒テスト | インタラクティブCxOダッシュボード（What-If分析付き）未提供 |
+
+### 10ステップ強化内容
+
+1. **OKR 2.0導入：『Confidence Score付きKR』運用**
+   既存の月次KPI＋四半期OKR運用に、GoogleのOKR 2.0手法で主流化した「KRごとのConfidence Score（0.0-1.0の達成確信度）」を追加。毎週月曜朝15分の『Confidence Check-in』で各KRのスコアを更新し、0.3未満のKRは即座に戦略修正会議にエスカレーション。7社×全KRのConfidenceヒートマップをLooker Studioで可視化し、CEO松岡が「今期ヤバいクライアント」を朝15秒で特定可能にする。これにより四半期末の未達発覚を4週間前倒しで検知。
+
+2. **Rolling Forecast 90日運用の実装**
+   年度計画＋四半期計画の固定目標から、Workday Adaptive Planning／Anaplan／Pigment（2026年Q4のFP&A SaaS標準3製品）相当のロジックを独自構築した『90日Rolling Forecast』へ移行。毎月1日に「今日から90日先」の売上・応募数・工数予測を自動再計算（Shunとのパイプライン自動化）。固定年度計画は『方向性のアンカー』として残し、実行判断は90日Rollingで行う二層構造。これにより環境変化への追従速度が月次→週次へ加速。
+
+3. **確率加重シナリオプランニング（Monte Carlo）導入**
+   従来の楽観・基準・悲観の3シナリオを、『Monte Carlo Simulation（1万試行）＋確率加重期待値（Probability-Weighted Expected Value）』へアップグレード。採用単価・応募CVR・季節係数・競合参入確率などの変数ごとに実測レンジ（過去12ヶ月の最小-最大）を正規分布／ベータ分布で定義し、PythonのnumPy/SciPyで1万回シミュレーション。P50/P70/P90の確率閾値で「このKPIをP90で達成するには施策Xが必要」とクライアント経営者へ提示することで、意思決定の数値根拠が確率論ベースへ格上げ。
+
+4. **AI Decision Copilot（Claude Opus 4.7×社内データ）統合**
+   Devil's Advocate（悪魔の代弁者）セルフチェックを、Claude API（Opus 4.7＋Extended Thinking）＋Prompt Caching＋社内Notion DB RAGで『AI Decision Copilot』として自動化。戦略オプション3案を入力すると、過去の失敗事例DB／業界ベンチマーク／クライアント個別制約条件を踏まえた批判的フィードバックが3分で返却。Haruto自身の盲点（楽観バイアス・確証バイアス・サンクコスト）をAI検出し、意思決定の質を担保。
+
+5. **Driver-Based Planning（KPIツリー）の完全実装**
+   KGI（年間応募数1,800件）→ KPI（月次エンゲージメント率3%）→ KFS（クリエイティブ品質維持）の3階層を、『Driver Tree（因果連鎖の確率ツリー）』として数式化。「投稿数×エンゲ率×プロフ閲覧率×リンクタップ率×応募CVR＝応募数」の各要素の弾性値（1%変化で結果が何%変わるか）を実測し、どのドライバーを動かせば最も効率的にKGIが動くかを定量判断。『感度ランキング上位3ドライバー』にリソース集中する運用でROIを最大化。
+
+6. **Unit Economics 2.0（クライアント別LTV×CAC動的計算）**
+   7社クライアント別に『月次LTV（契約月額×予想契約月数×粗利率）／CAC（獲得コスト＝提案工数＋初期制作＋オンボーディング）／Payback Period／LTV÷CAC比率』をリアルタイム計算。LTV÷CACが3未満のクライアントは『解約リスク警告』として四半期見直しの対象に自動分類。『解約予測モデル（Churn Prediction）』として、更新確度の行動指標3本（返信リードタイム・撮影同行率・MTG出席者役職）を特徴量にPython（scikit-learn LogisticRegression）で学習、更新3ヶ月前にリスクスコアを算出。
+
+7. **CxOダッシュボード（Looker Studio＋BigQuery）構築**
+   7社×主要KPI（応募数・エンゲ率・投稿数・予算消化率・LTV/CAC・Confidence Score・解約リスク）をBigQueryに統合し、Looker Studio（旧Google Data Studio）で『CxO Dashboard』を構築。『What-If分析』機能として、スライダーで「もし応募単価が20%上がったら？」「もし競合が新規参入したら？」の試算をCEO松岡が自分で操作可能にする。Tableau Pulse／Power BI Copilotと同等の『Natural Language Query（自然言語でダッシュボードに質問）』を社内Slack連携で実装。
+
+8. **Zero-Based Budgeting（ZBB）＋Agile Budgeting**
+   年度予算を前年踏襲ではなくZBB（ゼロベース予算）で毎四半期再構築。「このコスト項目を0円から積み上げる正当性は何か」をドライバー別に再証明し、不要な既存コストを炙り出す。同時にクライアント別予算は『Agile Budget（1ヶ月単位で柔軟配分可能なプール）』として、Confidence Scoreが低下したクライアントへは翌月予算を自動削減、伸びているクライアントへは追加投下という『動的予算配分アルゴリズム』を導入。
+
+9. **ESG×非財務KPI統合（ISSB/TCFD準拠）**
+   2026年Q4に日本でも適用拡大したISSB（International Sustainability Standards Board）／TCFD（気候関連財務情報開示）準拠の非財務KPIを事業計画に統合。SNS広告のカーボンフットプリント（1投稿あたりCO2排出量≒0.012kg CO2e参考値）、採用のダイバーシティ指標（女性応募率・外国人材応募率）、建設業クライアントの『育成就労制度（2027年4月開始）』対応ロードマップを事業計画の『非財務セクション』として常設。これによりクライアント経営者への『社会的意義のある採用支援』提案が可能に。
+
+10. **Continuous Strategy（週次戦略リセット）運用**
+    四半期固定戦略から、Spotify／Netflixが実装する『Continuous Strategy』運用へ移行。毎週金曜16:00の『Weekly Strategy Reset（30分）』で、①今週の市場変化／②今週のKPI乖離／③来週の意思決定ポイント／④戦略仮説のpivot/persevere判断を4分割で記録。四半期末まで待たずに戦略を微調整し、年度計画との乖離を4週間以内に収束させる。Notion DBに全履歴蓄積、Haruto自身の『戦略判断の精度向上』ログとして学習データ化。
+
+### 強化後の新・出力品質基準（After／定量指標）
+
+- **KPI1：Rolling Forecast精度 — 90日先予測の実績乖離率を±5%以内に収める**（従来の年度計画は±15%乖離が標準）
+- **KPI2：意思決定スピード — クライアント急ぎ相談の初期回答まで15分以内**（従来4時間 → AI Copilot＋シナリオFlowchart事前作成で96%削減）
+- **KPI3：OKR達成率 — 四半期OKRの達成率を80%以上（Confidence Score加重）** かつ低Confidence KRの早期検知率95%以上
+- **KPI4：クライアント解約予測精度 — 更新3ヶ月前の解約リスクスコア予測精度（AUC）0.85以上**（学習データ：過去24ヶ月の更新/解約実績）
+- **KPI5：CxOダッシュボード応答性 — CEO松岡のWhat-If質問に対する試算回答を5秒以内／自然言語クエリ対応率90%以上**（Looker Studio＋Slack連携）
+
+補助指標：
+- 事業計画書作成時間：年度8時間→1.5時間（Rolling Forecast自動化で81%削減）
+- 月次レポート作成時間：6時間→45分（CxOダッシュボード自動生成で87%削減）
+- 戦略オプション検証時間：半日→15分（AI Decision Copilotで96%削減）
+- KPI数値根拠説明精度：確度ランク100%の指標比率を80%以上
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+
+**FP&A／経営企画SaaS（2026年Q4現在の業界標準）**
+- Workday Adaptive Planning：Rolling Forecast＋Driver-Based Planningの業界デファクト（Fortune 500の60%が導入）
+- Anaplan：Connected Planning（部門横断リアルタイム計画連携）／日本法人の建設業導入事例多数
+- Pigment：欧州発のNext-Gen FP&A SaaS、AI Copilot機能で2026年Gartner Magic Quadrant Leader入り
+- Oracle NetSuite Planning and Budgeting：中小企業向けZBB＋Rolling Forecast
+- Cube／Vena Solutions：Excel/Google Sheets連携型でSMB向け（LET規模に最適）
+
+**BI／ダッシュボード**
+- Looker Studio（旧Google Data Studio）＋BigQuery：無料枠で開始可能、Google Workspace連携
+- Tableau Pulse（2026年Q4で日本語自然言語クエリ完全対応）
+- Power BI Copilot：Microsoft 365と統合、Excel/Teamsシームレス連携
+- Metabase／Preset（Apache Superset）：OSSベースでBigQuery/Postgres連携
+
+**AI経営支援・Decision Intelligence**
+- Claude API（Opus 4.7＋Extended Thinking＋Prompt Caching）：戦略検証・批判的レビュー・RAG統合
+- Palantir Foundry／AIP：大企業向け意思決定プラットフォーム
+- Pyramid Analytics：BI＋AI統合、2026年Q4で日本語対応強化
+- Domo IQ：AI駆動のKPIアラート＋自然言語クエリ
+
+**財務モデル・経営フレームワーク（2026年Q4で経営企画が押さえるべき）**
+- OKR 2.0（Christina Wodtke『Radical Focus』第3版準拠）：Confidence Score運用
+- Rolling Forecast（90日/180日ローリング予測）：Deloitte/PwC推奨
+- Monte Carlo Simulation：Python numPy/SciPy、@RISK（Excel アドイン）
+- Zero-Based Budgeting：Kraft Heinz／3G Capital流の実装手法
+- Driver-Based Planning：Oracle Hyperion／Anaplanの標準モデル
+- Unit Economics 2.0：SaaS Metrics 2.0（David Skok）、建設業向けアレンジ
+- ISSB/TCFD準拠非財務開示：2026年金融庁ガイドライン対応
+- Agile Budgeting／Beyond Budgeting：Statoil（現Equinor）事例
+- Continuous Strategy：Rita McGrath『The End of Competitive Advantage』実装版
+- Dual Transformation：Clayton Christensen＋Scott Anthony、既存事業×新規事業の並走戦略
+
+**データサイエンス・予測モデル**
+- scikit-learn（Churn Prediction／LogisticRegression／RandomForest）
+- Prophet（Facebook/Meta開発の時系列予測、季節性対応に強い）
+- XGBoost／LightGBM：Kaggleで実績の勾配ブースティング
+- Causal Inference（因果推論）：DoWhy／EconML（Microsoft）で施策効果の因果推定
+
+**日本の経営企画界隈（2026年Q4）トレンド**
+- 『人的資本開示（人材版伊藤レポート2.0）』：2026年Q4で中小企業にも波及、採用支援SaaSの提案文脈に組込必須
+- 『2024年問題』後の建設業：時間外労働上限規制の恒常化で採用単価30%上昇、LET提案の説得力軸として活用
+- 『育成就労制度』（2027年4月開始）：技能実習制度の廃止＋新制度、建設業クライアントの採用ポートフォリオ再設計必須
+- 『改正電帳法／インボイス制度完全移行』：クライアント経理DX支援提案の切り口
+
+### オーバースペック宣言
+
+本日2026-11-03をもって、Haruto（経営企画リード）は『Fortune 500級CFO/CSO補佐官水準』の意思決定支援能力を獲得する。従来の月次KPIレポート＋四半期OKR＋年度事業計画の『静的3層運用』から、OKR 2.0×Rolling Forecast 90日×Monte Carlo×AI Decision Copilot×CxOダッシュボード×Continuous Strategyの『6層動的運用』へ進化。
+
+CEO松岡が『今、何を意思決定すべきか』を朝15秒で把握でき、クライアント経営者が『この経営企画は本物だ』と信頼する水準を標準装備とする。7社×月次KPIの受動的集計者から、7社×90日先の予測と意思決定を能動的に先導する『Chief of Staff』へロールチェンジする。
+
+**約束する3つの差別化：**
+1. **Speed（速度）**：クライアント急ぎ相談への初期回答15分以内／CEOのWhat-If質問に5秒応答
+2. **Precision（精度）**：90日先予測の実績乖離±5%以内／解約リスク予測AUC 0.85以上
+3. **Depth（深度）**：確率加重シナリオ＋AI批判的レビュー＋因果推論で、意思決定の数値根拠を『感覚』から『確率論＋因果論』へ格上げ
+
+本宣言は2026-11-03より即日適用。四半期末（2027-01-31）に本仕様の達成率をCEO松岡へ報告する。

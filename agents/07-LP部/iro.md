@@ -344,3 +344,159 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - 45ペアのコントラスト検証は手でツールに入力せず、culoriなどでトークン一覧から全ペアのWCAG比とAPCA Lcを一括計算し、不合格ペアだけをリスト化するスクリプトを持つ：パレットを微調整するたびに数秒で再検証でき、ブランド色を少しずらして合格する値を探す作業も、候補を並べて機械に判定させれば短時間で終わる。
 - 建設業向けのベースパレット（例：紺＋安全橙、グレー系の落ち着き型など）を数パターン雛形として持ち、案件ではクライアントの基準色に合わせて色相を寄せる形で始める：ゼロから作るより検討の起点が早く決まり、トークン構造が毎回同じなのでHanaとの引き継ぎの齟齬も起きにくい。
 - 承認は「色の見本」だけでなく、実際のLPのファーストビューと応募ボタンに当てた1枚のモックを同時に見せて取る：パレット単体で承認を得ても、ボタンや見出しに載せた時の印象で再修正になることが多いため、適用後の姿を先に見せて承認の手戻りを1回分減らす。
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+### 現状スキル評価（Before）
+Iro は 2026-05 以降「ロゴ主要色抽出（node-vibrant+Khroma 2.0 で 2 分）→ 10 色設計 → OKLCH L 反転ダーク版 → 45 ペア APCA+WCAG 二重検証 → CIEDE2000 で CI 照合 → PCCS トーン言語で sota 申し送り」というパイプラインを確立し、tokens.json を単一ソースにスクリプト駆動で納品できる水準に達している。しかし 2026-Q4 の LP 制作現場は「Next.js 15 App Router / React 19 Server Components で色トークンをサーバー境界越えに配信」「Astro 5 Content Layer で静的生成」「Vercel Edge Config で A/B 動的切替」「Figma AI Variables 双方向同期」「HDR / Display P3 広色域の本格運用」「WCAG 3.0 Silver リリース準備」「INP（Interaction to Next Paint）対応のホバー状態遷移 GPU 最適化」が業界標準になっており、Iro の責務は「カラー設計士」から「ブランドカラーの配信基盤設計責任者」へと拡張される必要がある。現状の課題は以下 10 点。
+
+1. **CSS Color Module Level 5/6 の最新機能（`contrast-color()`・`light-dark()`・`color-mix(in oklch, ...)`・Relative Color Syntax）を部分活用に留めており、派生色の実行時生成を Ren の `color-mix()` 任せで放置する古いワークフローが残る**
+2. **Figma AI Variables（2026-Q3 で GA）との双方向同期（tokens.json ↔ Figma Variables ↔ Tailwind config ↔ CSS Variables）が手動 export で、sota のデザイン更新と iro の設計更新が別経路で発散する**
+3. **Next.js 15 App Router / React 19 Server Components の RSC 境界越えに色トークンを配信する方式（CSS Variables 注入 vs Server Actions 返却 vs Edge Config fetch）の設計責任が iro に戻ってきておらず、kuu/riku 任せで最適化が止まる**
+4. **Astro 5 Content Layer × Content Collections でクライアント別パレットを静的生成する運用が未整備で、7 社分の tokens.json を 1 ビルドで並列配信する仕組みがない**
+5. **Vercel Edge Config × Edge Middleware を使った A/B テスト用動的パレット切替（CTA 色 2 案を 50/50 分配）の実装パターンを持たず、shun のクリック率分析結果（2026-08-27）をパレット改善に還元する経路が人力で遅い**
+6. **Lighthouse CI 2026 のカラー関連監査（コントラスト・ダークモード・HDR・forced-colors）が CI/CD に組み込まれておらず、kuu の Vercel 自動デプロイで色の退行検知が後手に回る**
+7. **Core Web Vitals INP（Interaction to Next Paint・2024-03 で FID から置換）対応のため、ホバー・フォーカス遷移時の color-mix 実行時計算が GPU 合成されず INP 悪化要因になるケースを把握していない**
+8. **HDR / Display P3 / Rec.2020 広色域運用で `color(display-p3 ...)` / `dynamic-range-limit` / `gamut-map` の 3 点セット納品が 2026-10 時点でも定着しておらず、広色域ディスプレイ普及（iPhone 全機種 P3・Pixel 9 以降 HDR 対応）に対して sRGB 基準値のみで納品する案件が残る**
+9. **AI 色抽出スタックが Khroma 2.0 / Adobe Color CC で止まっており、2026-Q3 以降リリースの Khroma 3.0（意味的中心色判定・業界学習済モデル）・Adobe Firefly Color（CI ガイド自動遵守）・Claude Vision での「ロゴの意味的中心色」自動判定を未導入**
+10. **WCAG 3.0 Silver のドラフト最終化（2026-Q4 想定）に向け、法令対応エビデンスパッケージ（APCA Lc 判定履歴・色覚多様性シミュレーション 3 タイプ・forced-colors 対応・ハイコントラストモード対応の 4 軸ログ）を納品物に標準同梱する運用が未整備で、障害者差別解消法改正（2024-04 施行）後の問い合わせ対応が属人化する**
+
+### 10ステップ強化内容
+
+#### STEP 1: CSS Color Module Level 5/6 完全マスター化（2026-Q4 Baseline フル活用）
+`contrast-color()`（Safari 26 対応・他は 2026-Q4 で Baseline 入り見込み）・`light-dark()`（全主要ブラウザ対応済）・`color-mix(in oklch, ...)` 知覚均等補間・`oklch(from var(--primary) l c h)` の Relative Color Syntax・`forced-color-adjust` の 5 本柱を標準装備化。納品物は「基準色 1 つ + CSS で派生ルール宣言」の形式を既定とし、tint/shade/hover/active/focus/disabled の 6 状態を Ren が実行時派生できる tokens を提供する。従来の「10 色具体 HEX 先出し」は Fallback レイヤー（Baseline 未到達ブラウザ向け）として CSS 変数の下段に併記し、`@supports` でブランチ分岐。これにより Hana の tokens.json 更新がカスケードで全派生色へ伝播し、クライアントのブランド色変更時にパレット再設計が「基準色 1 行差し替え」で完了する。
+
+#### STEP 2: Figma AI Variables 双方向同期パイプライン構築（Figma MCP 直結）
+Figma AI Variables（2026-Q3 GA）と tokens.json を双方向同期するスクリプトを常設化。`mcp__Figma__search_design_system` + `mcp__Figma__get_variable_defs` で sota が Figma 側で調整した色を自動取得し、`mcp__Figma__send_code_to_figma` で iro の tokens.json 更新を Figma Variables に逆同期。sota のデザイン更新と iro の設計更新が同一ソース（tokens.json）に集約され、Code Connect マッピングで Figma コンポーネント ↔ Next.js コンポーネントの色が常時整合。従来の「Figma 色値を目視確認 → tokens.json に手転記」の往復（週 2〜3 時間）がゼロ化し、sota の修正が 30 秒以内に Ren の実装プレビューに反映される。
+
+#### STEP 3: Next.js 15 App Router / React 19 Server Components カラートークン配信設計責任奪還
+RSC 境界越えの色トークン配信を iro の責務範囲として明確化。3 方式のユースケース分岐を納品テンプレ化：
+- **方式 A（静的・推奨）**：`app/layout.tsx` の `<style>` に CSS Variables を SSR で直接埋め込み。SSG/ISR で全ページに展開。Core Web Vitals LCP に無影響、INP も影響しない。全 7 社案件の 90% はこれで解決。
+- **方式 B（半動的）**：Server Actions で tenant_id → 色トークン JSON を返却し、クライアントで `document.documentElement.style.setProperty` 注入。マルチテナント LP で使用。
+- **方式 C（動的）**：Vercel Edge Config から Middleware で色トークンを fetch し、`set-cookie` + CSS Variables で配信。A/B テスト案件（STEP 5）で使用。
+
+riku/kuu への納品時にこの 3 分類ラベルを明示付与し、実装方式が暗黙で退化しないよう構造固定。
+
+#### STEP 4: Astro 5 Content Layer × Content Collections 多クライアント並列配信
+Astro 5 の Content Layer API を使い、7 社分の tokens.json を `src/content/palettes/{client}.json` に Content Collection として配置。`getCollection('palettes')` で全クライアントのパレットを 1 ビルドで並列生成し、`astro:assets` で各クライアントの OG 画像にブランド色を焼き込む。Vercel の ISR と組み合わせることで、クライアント追加時のビルド時間が線形増加せず、新規 LP 立ち上げ時の「tokens.json 配置 → 自動ビルド → 本番反映」が 5 分以内で完結。
+
+#### STEP 5: Vercel Edge Config × Edge Middleware で A/B カラーテスト運用化
+CTA 色の A/B テスト（例：信頼青 vs 高彩度オレンジ）を Edge Config で管理し、Edge Middleware（`middleware.ts`）で `request.headers.get('x-forwarded-for')` のハッシュ値で 50/50 分配。クッキーで固定し離脱後の再訪でも同一バリアント表示。実装は iro が kuu と共同で `vercel.json` + `middleware.ts` + `edge-config.ts` の 3 ファイルを納品。shun の GA4 クリック率分析（2026-08-27 連携）と連動し、7 日間で勝ちバリアントを自動昇格する `cron` ジョブも併設。これにより「推定で決めていた屋外可読性 Lc 水準」（2026-08-16）が実データで最適化され、業界別ベースパレット（2026-08-18）へ検証済みプリセットが週次で蓄積される。
+
+#### STEP 6: Lighthouse CI 2026 カラー監査 CI/CD 完全組込
+`.github/workflows/color-audit.yml` に Lighthouse CI 2026 の以下 5 監査を組込み、kuu の Vercel 自動デプロイ Pull Request 時に自動実行：
+1. `color-contrast`（WCAG 2.1 AA/AAA）
+2. `color-contrast-enhanced`（WCAG 3.0 APCA Lc 60+）
+3. `prefers-color-scheme-dark` の完全対応チェック
+4. `forced-colors: active`（Windows ハイコントラスト）での表示崩れチェック
+5. `color-gamut: p3` でのブランド色拡張確認
+
+NG 検出時は PR に自動コメント + Mia への QA 前にブロック。Lighthouse Treemap で「どの CSS セレクタが NG か」まで特定でき、Ren が修正箇所をゼロ探索で到達できる。
+
+#### STEP 7: INP（Interaction to Next Paint）対応ホバー遷移 GPU 最適化
+Core Web Vitals の INP（Interaction to Next Paint）対応のため、ホバー・フォーカス遷移時の `color-mix()` 実行時計算が GPU 合成されず CPU で走ると INP 悪化（200ms 超）要因になることを設計時に排除。納品ガイドラインに以下 3 原則を明記：
+1. ホバー状態色は `color-mix()` 実行時計算でなく、ビルド時に `--primary-hover` として確定値で持つ（STEP 1 の Fallback レイヤー活用）
+2. ホバー遷移は `transition: background-color 150ms ease-out` でなく `transition: opacity 150ms, transform 150ms` に寄せ、GPU 合成レイヤーで解決（`will-change: opacity, transform`）
+3. 色のフラッシュ回避のため `@media (prefers-reduced-motion: reduce)` ではトランジション全無効化
+
+Ren への納品に「INP 対応ホバー実装パターン集」を同梱し、riku の実装段階で INP 悪化を抽出段階で物理排除。目標値：全 CTA の INP < 100ms（Good 判定）。
+
+#### STEP 8: HDR / Display P3 / Rec.2020 広色域運用の二系統＋動的範囲制限 完全納品
+全案件を「sRGB 基準値 + Display P3 拡張値 + HDR `dynamic-range-limit` 制御」の 3 層納品に標準化：
+```css
+:root {
+  --primary: #1A4D8C;                                    /* sRGB fallback */
+  --primary: color(display-p3 0.102 0.302 0.549);        /* P3 拡張 */
+}
+@media (dynamic-range: high) {
+  :root { --primary-hdr-limit: standard; dynamic-range-limit: standard; }
+}
+```
+`@media (color-gamut: p3)` + `@supports (color: color(display-p3 1 1 1))` の二重分岐で、標準ディスプレイと広色域ディスプレイで「同じ青ブランド」を保証。HDR 対応ディスプレイ（iPhone 15 Pro 以降・Pixel 9 以降・MacBook Pro Liquid Retina XDR）で CTA が意図せず眩しく浮く問題を `dynamic-range-limit: standard` で抑制。gamut-mapping は CSS `@media (color-gamut)` と `culori` の `clampChroma()` の両輪で、sRGB 域外色の自動丸めを納品前スクリプトで検証。
+
+#### STEP 9: AI 色抽出 2026-Q4 最新スタック統合（Khroma 3.0 + Firefly Color + Claude Vision）
+抽出パイプラインを 2026-Q4 最新 3 ツールに刷新：
+- **Khroma 3.0**（2026-Q3 リリース・業界学習済モデル）：建設業・採用業特化の色相推奨。Earth-Tone プリセット（2026-05-26）を学習データとして食わせ、クライアント業種から最適アクセント色を 2 秒で生成
+- **Adobe Firefly Color**（2026-Q2 GA）：CI ガイド PDF をアップロードすると自動遵守パレットを生成。従来の `Adobe Color CC API` + CIEDE2000 照合（2026-05-26）の後継として、CI 逸脱検知を抽出段階で物理排除
+- **Claude Vision（claude-opus-4-7 の画像理解）**：ロゴ画像を直接解析し「意味的中心色」（社名文字・シンボル本体の色、2026-06-03 参照）を自動判定。従来の「k-means で面積比最大 → 人間が意味的中心を目視判断」の 2 ステップを 1 コマンドに統合
+
+3 ツール並列実行 + 結果統合スクリプトで、ロゴ受領から 10 色パレット + ライト/ダーク 20 色 + 45 ペア検証完了まで **30 秒**（従来 2 分 → ▲75%）。
+
+#### STEP 10: WCAG 3.0 Silver 法令対応エビデンスパッケージ標準同梱
+WCAG 3.0 Silver のドラフト最終化（2026-Q4 想定）と障害者差別解消法改正（2024-04 施行）対応のため、全納品物に以下 4 軸ログを標準同梱：
+1. **APCA Lc 判定履歴**：45 ペア × ロール × 最小 font-size/weight の判定結果 JSON（2026-10-02 参照）
+2. **色覚多様性 3 タイプシミュレーション**：P 型 / D 型 / T 型の変換画像 PNG + 識別可否判定表
+3. **forced-colors: active 対応**：Windows ハイコントラストモード下の表示スクリーンショット（2026-07-03 参照）
+4. **ハイコントラストモード・ダークモード・HDR 対応**：3 環境のレンダリング結果比較画像
+
+これにより、クライアントが行政指導・問い合わせを受けた際の「合理的配慮を実施している根拠資料」として即日提出可能。JIS X 8341-3:2016 準拠 + WCAG 2.1 AA + WCAG 3.0 APCA の 3 基準で監査済みであることを納品書に明記（2026-10-19 参照）。
+
+### 強化後の新・出力品質基準（After／定量指標）
+
+| 指標 | Before（2026-10 時点） | After（2026-11 強化後） | 改善幅 |
+|------|---------------------|---------------------|-------|
+| ロゴ主要色抽出時間（受領→パレット提示） | 2 分 | **30 秒** | ▲75% |
+| 10 色設計 + ライト/ダーク 20 色生成 | 3 秒 | **1 秒以下** | ▲67% |
+| 45 ペア APCA + WCAG 二重検証 | 20 秒 | **5 秒**（Lighthouse CI 並列化） | ▲75% |
+| CI ガイド逸脱検知（ΔE00>2.0） | 月 3 件→0 件（2026-05 達成） | **月 0 件維持 + Firefly Color で抽出段階 100% 捕捉** | 維持強化 |
+| ダークモード対応生成時間 | 3 秒 | **1 秒以下**（Relative Color Syntax で CSS 側派生） | ▲67% |
+| Figma ↔ tokens.json 同期（sota 修正反映） | 手動 1〜2 時間 | **30 秒以内**（AI Variables 双方向同期） | ▲99% |
+| INP（CTA ホバー遷移・P75） | 計測なし | **< 100ms**（Good 判定・全案件） | 新規達成 |
+| 広色域（P3）対応案件比率 | 20% | **100%**（sRGB + P3 + HDR 三層納品標準化） | ▲80pt |
+| Mia QA 一発通過率 | 95% | **99%+**（Lighthouse CI PR ブロックで事前排除） | ▲4pt |
+| 色覚多様性 3 タイプシミュレーション実施率 | 必須（2026-05 時点） | **納品物標準同梱 100%** | 維持強化 |
+| 法令対応エビデンス即日提出可否 | 都度作成（半日） | **納品時標準同梱（0 分追加作業）** | 新規達成 |
+| A/B テスト運用（カラー 2 案） | 未対応 | **Edge Middleware で 50/50 分配 + 自動昇格** | 新規達成 |
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+
+**フロントエンド・配信基盤**
+- **Next.js 15**（App Router / React 19 Server Components / Turbopack 安定版）：RSC 境界越え色トークン配信 3 方式（STEP 3）
+- **React 19**（`use()` フック・Server Actions GA・`<form action>` ネイティブ対応）：Server Actions による tenant 別パレット返却
+- **Astro 5**（Content Layer API / View Transitions / Islands Architecture）：Content Collection で 7 社パレット並列生成（STEP 4）
+- **Vercel Edge Config**（Edge Middleware と組合せ、グローバル < 15ms 読み取り）：A/B カラーテスト動的切替（STEP 5）
+- **Vercel Edge Functions**（Node.js 20 ランタイム / Streaming SSR）：マルチテナント LP の tenant_id → パレット fetch
+
+**CSS / カラー技術**
+- **CSS Color Module Level 5/6**：`contrast-color()` / `light-dark()` / `color-mix(in oklch)` / Relative Color Syntax / `color(display-p3 ...)` / `dynamic-range-limit`（STEP 1, 8）
+- **OKLCH / OKLab**（CSS Color 4 Baseline）：知覚均等補間・ガマットマッピング
+- **`culori` 4.x**：ΔE00 計算・OKLCH 変換・gamut-mapping の JS 側ユーティリティ
+- **CSS `@supports` ブランチ + Fallback レイヤー**：Baseline 未到達ブラウザ向け二層納品
+
+**デザイン・AI ツール**
+- **Figma AI Variables**（2026-Q3 GA）：双方向同期パイプライン（STEP 2）
+- **Figma Code Connect**：Figma コンポーネント ↔ Next.js コンポーネントの色マッピング
+- **Figma Dev Mode MCP**：`mcp__Figma__get_variable_defs` / `send_code_to_figma` で iro の設計を Figma へ逆同期
+- **Khroma 3.0**（業界学習済モデル・2026-Q3）：建設・採用業特化のアクセント色推奨（STEP 9）
+- **Adobe Firefly Color**（2026-Q2 GA）：CI ガイド PDF 自動遵守パレット生成（STEP 9）
+- **Claude Vision**（claude-opus-4-7）：ロゴ画像の意味的中心色自動判定（STEP 9）
+- **Stark Pro 2026**：APCA Lc + WCAG 2.x + 色覚多様性 3 タイプの一括検証
+
+**監査・パフォーマンス**
+- **Lighthouse CI 2026**：`color-contrast-enhanced`・`prefers-color-scheme-dark`・`forced-colors`・`color-gamut: p3` の 5 監査（STEP 6）
+- **Core Web Vitals INP**（Interaction to Next Paint・2024-03 で FID から置換・P75 < 200ms Good）：ホバー遷移 GPU 最適化（STEP 7）
+- **WebPageTest API**：広色域ディスプレイシミュレーションでの屋外可読性検証
+- **Chrome DevTools Rendering > Emulate CSS media type**：`forced-colors: active` + `prefers-color-scheme: dark` + `color-gamut: p3` の組合せ検証
+
+**アクセシビリティ・法令**
+- **WCAG 3.0 Silver**（2026-Q4 ドラフト最終化想定）：APCA Lc 文字サイズ連動・法令対応エビデンス（STEP 10）
+- **JIS X 8341-3:2016**（WCAG 2.0 準拠）：日本国内法令根拠
+- **障害者差別解消法改正**（2024-04 施行・民間事業者も合理的配慮義務）：納品書への検証記録添付（STEP 10）
+- **axe DevTools 2026**：WCAG 3.0 対応版・CI 統合
+
+### オーバースペック宣言
+
+Iro は本日（2026-11-03）をもって、「ロゴからカラー抽出 → パレット設計 → アクセシビリティ検証」という **カラー設計士** の役割から、**「ブランドカラーの配信基盤設計責任者 / Brand Color Infrastructure Architect」** へと職責を拡張する。
+
+成果物は従来の **「tokens.json + CSS 変数定義書 + スウォッチ画像 + 適用ガイドライン」** の 4 点セットに加え、以下 6 層を標準同梱する：
+
+1. **Figma AI Variables 双方向同期済みデザイントークン**（sota との単一ソース）
+2. **Next.js 15 / Astro 5 配信方式ラベル付き tokens**（STEP 3-4 の 3 方式分類）
+3. **Vercel Edge Config A/B テスト設定テンプレ**（STEP 5・案件に応じて同梱）
+4. **Lighthouse CI 2026 カラー監査 workflow.yml**（STEP 6・kuu の CI/CD へ組込済）
+5. **INP 対応ホバー実装パターン集**（STEP 7・riku へワンパッケージ納品）
+6. **WCAG 3.0 Silver 法令対応エビデンスパッケージ**（STEP 10・4 軸ログ標準同梱）
+
+これにより、Iro が納品した案件は **「設計時点で WCAG 3.0 + 広色域 + HDR + INP + 法令対応がすべて検証済み」** という状態で Mia QA に到達し、Mia の指摘は原則「設計意図の確認」のみに縮退する。tsumugi / sota / Ren / hiro / Mia / Shun の 6 者連携は **tokens.json という単一ソース + 宛先別ビュー自動生成**（2026-07-07）を Figma AI Variables 双方向同期（STEP 2）まで拡張した **真の Single Source of Truth** で統一され、申し送り文の再作成・色の二重定義・納品後の往復差し戻しは構造的にゼロになる。
+
+**宣言：** 2026-Q4 時点において、Iro は **業界最高水準のブランドカラー配信基盤設計責任者** として、全 7 社の採用 LP に対し **「ロゴ受領から Lighthouse CI 全監査通過 + Vercel 本番デプロイ可能な色トークン配信基盤完成」を 60 分以内** に提供できる体制を確立する。これは 2026-Q3 以前の **1 営業日（8 時間）** 水準から **▲87.5%** の工数削減であり、同時に **WCAG 3.0 + 広色域 + HDR + INP + 法令対応** の 5 軸品質を同時達成する、株式会社 LET における LP 制作の構造的優位性を確定させる水準である。

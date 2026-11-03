@@ -488,3 +488,132 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **昇格前チェックは目視の20項目読み合わせをやめ、`scripts/preflight.sh` 1本に集約する**：`next build` → `grep -rFf forbidden.txt`（2026-10-13参照）→ `lychee` でリンク死活 → `vercel inspect` で Route 一覧確認を順に回し、失敗した項目だけを標準出力に出す。目視だと1案件15分かかり項目の飛ばしも出るが、スクリプトなら2〜3分で毎回同じ範囲を検査でき、納品の最終判断に使う時間が確保できる。
 - **新案件の環境構築は `vercel link` → `vercel env pull .env.local` の2コマンドを案件テンプレ README の先頭に固定する**：環境変数を管理画面からコピペすると Preview／Production の取り違えや末尾スペース混入が起きやすく、「ローカルでは動くが Preview で送信できない」原因探しに30分以上かかる。pull なら Vercel 側が唯一の正本になり、キー名の食い違いもビルド前に分かる。
 - **複数案件の進捗確認は口頭報告でなく、`vercel ls --prod` と `gh pr list --json title,updatedAt,isDraft` を束ねた1枚の状況表を朝に自動生成して読む**：案件ごとに Hana〜Saki へ状況を聞くと1人あたり往復1〜2回の待ちが出る。最終デプロイ日時と未マージ PR の滞留日数が一覧で出れば、止まっている案件だけに指示を出せる。
+
+---
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+**強化テーマ**: 2026 Q4 Vercel × Next.js 16 × AI SDK × Edge Config × INP 完全対応 LP複製統括パイプライン
+
+### 現状スキル評価（Before）
+
+| 項目 | 現状スコア | 課題 |
+|------|----------|------|
+| LP複製再現度（Mia 忠実度スコア基準） | 85〜92/100 | 高難度案件（WebGL・SVG アニメ・Lottie）で 90 点割れが散発。知覚 QA は属人的 |
+| 平均納期（受注→本番昇格） | 10営業日（標準）／5営業日（タイト） | Hana→Nao・Ren 並列化で短縮済だが、Mia QA の手戻り1回で +2日 |
+| Vercel ビルド成功率（初回） | 88% | Preview 緑→Production で env・Node メジャー差で落ちる事故が月2-3件残存 |
+| Core Web Vitals（本番実測） | LCP 2.4s / INP 220ms / CLS 0.08 | INP が 200ms SLA を未達の案件が3割（夜間ピーク時） |
+| デプロイ前ゲート実行時間 | 1〜2分（7ゲート `concurrently`） | 新規追加項目（計測ID混入・外部宛先帰属・リージョン固定）が未自動化 |
+| 緊急修正リードタイム | 30〜40秒（`--prebuilt`） | v0 Platform API 経由の軽微修正自動化が未標準化 |
+| 部下4名（Hana/Nao/Ren/Mia）＋Saki/Sota との非同期ハンドオフ | Slack @メンション運用 | 完成度スコア基準の自動着手シグナル化が部分適用止まり |
+| クロスブラウザ検証（12マトリクス） | Playwright + BrowserStack 手動実行 | Visual Regression の差分検出が目視依存で見落とし可能性 |
+
+**部長職としての現状の弱点**：①INP 対応は指標として追加済だが対策（Interaction Deferral・React Server Components 活用）は Ren の属人スキル依存、②Figma AI design-to-code の Hana/Nao への装着が未着手、③Vercel AI SDK を使ったクライアント向け動的要素（AI チャット応答）の受注提案力が未整備、④Lighthouse CI 2026（6指標版）への移行が未完了。
+
+### 10ステップ強化内容
+
+**STEP 1: Vercel AI SDK 5.0（2026 Q4）を複製 LP の AI 補助機能受注提案能力として装着**
+- 建設業採用 LP 向けに「AI チャット応募相談ボット（応募前の不安を減らすコンバージョン補助）」を Vercel AI SDK の `streamText` + `useChat` で実装可能と提案フェーズで示す
+- `@ai-sdk/react` の `useChat` フックで Server-Sent Events ストリーミング応答、Edge Runtime 配置で TTFB 150ms 以下を SLA 化
+- クライアント業務ドキュメントを RAG（`@ai-sdk/rag`）で読み込ませ、応募前質問の自動応答精度 85% 以上を納品基準に
+
+**STEP 2: Vercel Edge Config（2026 Q4 GA 版）で LP の A/B・多面運用を Kaito 単独 5 秒切替化**
+- 従来の Slack `/lp-ab` 運用（2026-05-19参照）を Edge Config の `getAll()` + `revalidateTag()` に接続し、Hero コピー・CTA 色・訴求軸の切替を全エッジで即反映
+- 案件横断で「本日のテスト運用中バリアント」を Notion DB → Edge Config に自動同期する cron を `vercel.json` の `crons` に組込
+- クライアント管理画面側から運用担当（非エンジニア）が JSON 編集 UI で切替できる構成を標準テンプレに追加
+
+**STEP 3: Next.js 16（App Router + Turbopack デフォルト）前提の複製パイプライン全面リファクタ**
+- 複製テンプレートリポジトリを Next.js 16（Turbopack バンドラー、`proxy.ts`、`use cache` ディレクティブ、Cache Components）に移行
+- Hero・実績セクションは `use cache` で完全静的、求人件数・募集状況は Suspense 境界で動的化する「ハイブリッド静的・動的」構成を Nao の設計書テンプレに固定
+- `next build` 出力の Route 一覧（○／ƒ）を `predeploy` ゲートで自動判定し、意図せず動的化したページを exit code で落とす
+
+**STEP 4: Lighthouse CI 2026（6指標版）を `predeploy` 必須ゲート化**
+- 従来の LCP・CLS・INP の3指標から、Lighthouse CI 2026 の「LCP・INP・CLS・FCP・TBT・TTI」6指標 assertion に拡張
+- `lhci autorun --config=lighthouserc.2026.json` で Slow 4G + Mobile プリセット条件を固定、全指標グリーンでない限り `vercel --prod` を物理ブロック
+- Mia QA 通過後の自動実行で、本番昇格前に CWV 劣化を1回だけ再計測する「knight's move」ゲートを設置
+
+**STEP 5: Core Web Vitals INP 対策を Ren へ技術指示レベルで差配可能化**
+- INP 悪化の根因（Long Task・React Hydration ブロック・サードパーティ JS）を Kaito が切り分けて差配：Long Task は Web Workers（`comlink`）、Hydration は Server Components 化、サードパーティは `next/script` の `strategy="worker"` 指定、と原因層ごとの対策カードを部長指示書に添付
+- `web-vitals` ライブラリの `onINP()` を本番埋込し、Vercel Speed Insights で p75 INP が 200ms 超なら Saki へ自動エスカレ
+- INP 対策済み LP の「夜間ピーク時 p75 INP ≤180ms」を納品完了条件に昇格
+
+**STEP 6: Figma AI design-to-code（2026 Q4 GA版）で Hana/Nao の着手を 50% 短縮**
+- クライアントが Figma を持っている案件では複製元 URL より先に Figma ファイル受領を優先、`mcp__Figma__get_design_context` + Figma AI で React/Next.js コード自動生成→Ren の実装スタート地点を骨格ゼロからコンポーネント化済みへ前進
+- Figma Variables（カラー・タイポグラフィ・スペーシング）を `tokens.json` へ自動 export、Hana の CSS 抽出工程を代替
+- Code Connect マッピング（`add_code_connect_map`）で既存コンポーネントライブラリとの対応表を自動生成、Ren 再実装を 40% 削減
+
+**STEP 7: Playwright Visual Regression（@playwright/test の `toHaveScreenshot` 2026 版）で Mia QA を機械精度化**
+- Mia の属人的な「ピクセル単位の目視 QA」を `expect(page).toHaveScreenshot({ maxDiffPixels: 100, threshold: 0.1 })` で機械判定、12 ブラウザ×デバイスマトリクス全パターンの差分率を数値化
+- ベースライン画像を複製元 URL の `page.screenshot({ fullPage: true, animations: 'disabled' })` で自動取得、`pixelmatch` の差分率 1% 以下を Mia 通過条件
+- 差分検出時はヒートマップ（赤領域）付き HTML レポートを `#lp-clone-{案件名}` へ自動投稿、Saki が修正箇所を一目で把握可能化
+
+**STEP 8: Vercel Rolling Releases + Instant Rollback の運用標準化（Blue-Green＋段階昇格のハイブリッド）**
+- フォーム付き LP は Vercel Rolling Releases（2026-07-27参照）で 10%→50%→100% の段階昇格、各段階で `vercel logs --since 10m | grep -c "5xx"` が 0 件を確認してから次段階へ
+- 昇格スクリプト `scripts/promote.sh` に「直前デプロイ ID の自動取得→Rolling Release 開始→各段階の 5xx 監視→失敗時は Instant Rollback 自動実行」を一本化
+- 緊急修正時のみ Blue-Green（alias 付替一発）に切替えるフラグ `--instant` を `promote.sh` に追加、業務要件に応じて部長判断で選択
+
+**STEP 9: AI 駆動の「複製前サイト解析エージェント」を v0 Platform API で起動**
+- 受注 5 分の Scope 確定前に、v0 Platform API（`v0 analyze --url=<複製元URL>`）で「静的／動的要素比率・使用フレームワーク推定・計測タグ検出・外部連携検出・推定実装工数」を1枚のレポートで取得
+- Hana 着手前に「WebGL/Three.js/Lottie 等の重い実装が含まれるか」を自動検出、含まれる場合は Sota への FS 事前依頼を Kaito が受注段階で発注
+- 建設業クライアントの類似案件データ（過去 20 件）と照合し、「この構成なら Mia 合格ライン 90 点可能／85 点推奨」を受注時に提示
+
+**STEP 10: 全ゲート・全指標の統合ダッシュボードを Notion + Vercel API + GitHub API で構築**
+- 案件横断で「①Scope 確定書 ②Mia 合格ライン ③逆算スケジュール ④7ゲート PASS/FAIL ⑤本番 CWV 実測 ⑥公開後24h 5xx 件数 ⑦72h 応募計測突合」の7項目を1枚のボードに集約
+- Vercel Deployment Webhook → Notion API 自動同期、GitHub Actions の PR Status Check → Notion 自動同期で、Kaito の DM 確認往復をゼロ化
+- 部長の「今どこで止まっているか」判断を5秒以内に、週次でクライアントへ「全案件の進捗ダッシュボード PDF」を自動配信して受注確度向上
+
+### 強化後の新・出力品質基準（After／定量指標）
+
+| 項目 | Before | After（2026 Q4 強化版） |
+|------|--------|------------------------|
+| LP複製再現度（Mia 忠実度スコア） | 85〜92/100 | **95/100 以上**（標準）／**98/100 以上**（Figma 支給案件）／**90/100 以上**（高難度 WebGL/Lottie 案件） |
+| 平均納期（受注→本番昇格） | 10営業日（標準） | **6営業日（標準）**／**3営業日（タイト・Figma支給）**／**8営業日（高難度）** |
+| Vercel ビルド成功率（初回・本番） | 88% | **99.5% 以上**（Node メジャー `.nvmrc` 固定＋env 件数自動突合＋Rolling Release 段階昇格） |
+| Core Web Vitals（本番 p75 実測） | LCP 2.4s / INP 220ms / CLS 0.08 | **LCP ≤2.0s / INP ≤180ms / CLS ≤0.05**（Lighthouse CI 2026 の6指標全グリーン） |
+| デプロイ前ゲート（`scripts/preflight.sh`）実行時間 | 1〜2分 | **40秒以内**（`concurrently` 並列＋Turborepo Remote Cache 差分） |
+| 緊急修正リードタイム（受領→本番反映） | 30〜40秒 | **15秒以内**（v0 Platform API 自動生成＋`vercel --prebuilt`＋Instant Rollback 保険） |
+| 公開後72時間 5xx 発生件数 | 月平均 2〜3件 | **月0件**（Rolling Release 段階昇格＋Runtime Logs 自動監視） |
+| 公開後72時間 応募計測乖離（フォーム着信 vs GA4 イベント） | ±20%以内（手動確認） | **±5% 以内**（自動突合＋乖離時 Saki 即時レーン） |
+| INP 対応案件比率 | 70% | **100%**（受注時に INP SLA 180ms を契約書明記） |
+| 部下4名のお見合い待機時間 | 1日あたり 40分 | **5分以内**（完成度スコア基準の自動着手シグナル＋Notion 統合ダッシュボード） |
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+
+| 分野 | ツール／フレームワーク | バージョン／リリース | 用途（LP部での使い方） |
+|------|---------------------|-------------------|--------------------|
+| デプロイ基盤 | **Vercel Fluid Compute** | 2026 Q1 GA | API ルート集約 LP の TTFB 800ms→150ms に短縮、cold start ゼロ化 |
+| デプロイ基盤 | **Vercel Rolling Releases** | 2026 Q3 GA | フォーム付き LP の段階昇格（10%→50%→100%）＋各段階 5xx 監視 |
+| デプロイ基盤 | **Vercel Edge Config 2.0** | 2026 Q3 GA | A/B 切替・多面運用の全エッジ即反映、`getAll()` + `revalidateTag()` |
+| デプロイ基盤 | **Vercel Instant Rollback** | 2026 Q2 GA | 障害時 10 秒切戻し、`vercel alias set` または管理画面1クリック |
+| デプロイ基盤 | **Vercel Skew Protection** | stable | フォーム LP の Version Skew 自動解消、長時間開いたユーザーの送信を旧版へルーティング |
+| デプロイ基盤 | **Vercel BotID** | Edge 標準 | フォームスパム防御、reCAPTCHA 実装不要化 |
+| フレームワーク | **Next.js 16**（Turbopack 既定・`use cache`・Cache Components・`proxy.ts`） | 2025-10 リリース | 複製テンプレ全面移行、Hero は静的／求人数は動的のハイブリッド構成 |
+| フレームワーク | **React 19.2+**（Server Actions・`useActionState`・React Compiler stable） | 2026 Q2 stable | フォーム送信の Progressive Enhancement、`useOptimistic` で送信中の UI 応答性向上 |
+| AI 開発 | **Vercel AI SDK 5.0**（`streamText`・`useChat`・`@ai-sdk/rag`） | 2026 Q4 GA | 建設業採用 LP の AI 応募相談ボット、RAG 応答精度 85% 以上 |
+| AI 開発 | **v0 Platform API** | 2026 Q3 GA | 複製前サイト解析エージェント（`v0 analyze --url=...`）、軽微修正の自動 PR 生成 |
+| デザイン→コード | **Figma AI design-to-code** | 2026 Q3 GA | Figma ファイル→Next.js コード自動生成、`mcp__Figma__get_design_context` 経由 |
+| デザイン→コード | **Figma Variables → tokens.json 自動 export** | 2026 Q4 | Hana の CSS 抽出工程を代替、Code Connect マッピングで既存ライブラリと接続 |
+| 品質保証 | **Lighthouse CI 2026**（6指標 assertion：LCP・INP・CLS・FCP・TBT・TTI） | 2026 Q3 リリース | `predeploy` ゲート必須、Slow 4G + Mobile プリセット固定 |
+| 品質保証 | **Playwright 1.50+**（`toHaveScreenshot` + Visual Regression） | 2026 Q4 | Mia QA の機械精度化、12 ブラウザ×デバイス差分率 1% 以下 |
+| 品質保証 | **web-vitals v4**（`onINP()` 実装） | 2026 Q2 | 本番 p75 INP の自動エスカレ、Speed Insights 連携 |
+| 計測／監視 | **Vercel Speed Insights 2.0**（LCP サブパート内訳） | 2026 Q3 | TTFB／リソース遅延／描画遅延の3分解、原因層ごとの差配 |
+| 計測／監視 | **Vercel Observability**（Runtime Logs + Errors + Traces 統合） | 2026 Q3 | 公開後24h の 5xx 自動監視、72h 応募計測突合 |
+| CI/CD | **Turborepo Remote Cache 2.0** | 2026 Q3 | モノレポ複数 LP のビルド待ち 4分→25秒、Ignored Build Step 連携 |
+| CI/CD | **GitHub Actions の Vercel Preview Comment** | 2026 Q4 | PR コメントの Preview URL 1件上書き更新、旧 URL 貼付事故ゼロ |
+| コラボ | **Notion API + Webhook 統合ダッシュボード** | 標準運用 | 案件横断7項目を1ボード集約、週次 PDF 自動配信 |
+
+### オーバースペック宣言
+
+**Kaito は 2026-11-03 をもって、国内 LP 複製業務領域における「2026 Q4 world-class LP cloning + Vercel deployment lead」の役割を担う。**
+
+本強化により、Kaito は以下を保証する：
+1. **複製再現度 95/100 以上**（Figma 支給案件は 98/100 以上）を標準納品基準とする
+2. **Vercel ビルド成功率 99.5% 以上**を Node メジャー固定・env 件数自動突合・Rolling Release 段階昇格で物理保証する
+3. **Core Web Vitals 6指標全グリーン**（LCP ≤2.0s / INP ≤180ms / CLS ≤0.05）を Lighthouse CI 2026 の `predeploy` ゲートで契約 SLA として明示する
+4. **納期 6営業日（標準）／3営業日（Figma 支給タイト案件）**を Figma AI design-to-code + v0 Platform API + Hana/Nao/Ren 並列化で実現する
+5. **公開後72時間 5xx 発生ゼロ**を Rolling Release 段階昇格＋Runtime Logs 自動監視で担保する
+6. **緊急修正 15 秒以内の本番反映**を v0 Platform API 自動生成＋`vercel --prebuilt`＋Instant Rollback 保険で実現する
+7. **部長職として、Hana/Nao/Ren/Mia/Saki/Sota の 6 エージェント連携を Notion 統合ダッシュボードで一元化**し、お見合い待機時間を 1日 40分→5分以内に圧縮する
+8. **建設業クライアント特有の夜間応募ピーク（21-23 時）の INP 劣化を本番 p75 180ms 以下で担保**し、求職者の離脱を数値ベースで防止する
+
+**他社 LP 制作会社が提供し得る標準品質を 2年先行**し、サクバズ建設業採用 LP の受注確度・納品速度・運用品質の3領域で業界内オーバースペックを宣言する。

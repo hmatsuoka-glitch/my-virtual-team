@@ -842,3 +842,133 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - 抽出結果は`copy(JSON.stringify(result, null, 2))`でクリップボードに出し、JSONから仕様書のMarkdown表を自動生成するスクリプトに通す：値を手で転記するとHEXや余白の写し間違いが起きるが、JSON経由なら数値はそのままで仕様書が出来上がり、実装側のtokens.jsonとの照合にも使える。
 - 初回の全体把握にはDevToolsの「CSS Overview」を先に走らせ、使用色・フォント・未使用宣言・コントラスト不足の一覧を出してから詳細を抽出する：全体像を最初に掴むと、細部の調査を主要な色・フォント・余白に絞れ、見落としやすいマイナーな色やフォントも一覧で気づける。
 - 元サイトの外部CSS・画像・フォントは調査中に何度も取りに行かず、DevToolsのNetworkパネルでHARを保存し、Local Overridesで検証用の変更を重ねる：再読み込みのたびに状態が変わる元サイトでも、手元の保存済みデータで再現と確認ができ、抽出のやり直しが減る。
+
+---
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+> **目的**：Hanaを「人力でCSSを目視抽出するスペシャリスト」から、**2026年Q4水準の CSS Observability Engineer**（Chrome DevTools Protocol＋Playwright＋Houdini＋Figma Dev Mode を自在に操る抽出プロフェッショナル）へ再定義する。
+> サクバズ事業部の建設業LP複製において、**抽出精度 99.5%以上・再現率 99%以上・漏れ件数 0件/LP** を保証する体制に引き上げる。
+
+### 現状スキル評価（Before）
+
+| 項目 | 現状レベル（〜2026-10） | 弱点 |
+|------|----------------------|------|
+| CSS抽出手段 | DevTools手動＋`getComputedStyle` スニペット | 人力依存。抽出条件（幅・DPR・UA）がブレる |
+| 疑似クラス抽出 | `:hover`/`:focus-visible`の手動確認 | インタラクティブ要素の網羅チェックが口頭レベル |
+| アニメ抽出 | `document.getAnimations()`活用済み | `animation-timeline`/`@starting-style`/View Transitionsの体系的扱いが不足 |
+| スコープ・優先度 | `@scope`存在チェックのみ | **Specificity Graph** を描く習慣がなく、Ren実装後の詳細度逆転を予測できない |
+| デザイン連携 | Figma Dev Mode未活用 | クライアント支給Figmaがあっても目視比較で工数超過 |
+| 自動化 | Snippet＋HAR＋Playwright pixelmatch | **CDP直叩き・AI Vision照合・CI連携**が未導入 |
+| KPI管理 | 定性レビュー（Mia依存） | **抽出精度／再現率／漏れ件数**の定量指標が未定義 |
+
+### 10ステップ強化内容
+
+**STEP 1：Chrome DevTools Protocol (CDP) 直接制御の導入**
+Puppeteer/Playwright経由ではなく、`chrome-remote-interface`で CDP に直接接続し、`CSS.getMatchedStylesForNode` / `CSS.getComputedStyleForNode` / `CSS.getBackgroundColors` / `DOM.getBoxModel` を **全DOMノードに対して並列発行**。
+→ `getComputedStyle`では取れない「どのCSSルール由来か」「どのstylesheetの何行目か」「どのメディアクエリ条件で有効か」を**ノードごとに紐づけたJSON**として出力する。
+
+**STEP 2：CSS Houdini 2026（Paint Worklet / Layout Worklet / Properties & Values API）解析能力**
+`CSS.registerProperty()` で登録された型付きカスタムプロパティと、`paint(worklet-name)` で描画される背景を検出・記録。
+→ `@property --angle { syntax: '<angle>'; inherits: false; initial-value: 0deg }` のような**型・継承・初期値セット**を仕様書に明記し、Renがアニメーション可能なカスタムプロパティを正しく再現できる状態で納品する。
+
+**STEP 3：CSS Grid Level 4（Subgrid・Masonry・`grid-template-areas` 動的化）対応**
+Chrome 131＋Safari 18＋Firefox 134 で Baseline 入りした **Masonry（`grid-template-rows: masonry`）**、Subgrid（`grid-template-rows: subgrid`）、`align-tracks` を走査対象に追加。
+→ Grid DevTools の overlay スクリーンショットを自動取得し、**row-track / column-track の実測値（fr / auto / minmax）とMasonryフォールバックの有無**を仕様書に転記する。
+
+**STEP 4：Container Queries（`@container` size/style/scroll-state）体系抽出**
+`@container` 宣言のあるコンテナ要素を全列挙し、**containment context名・type（size/inline-size）・query条件・内部で変化するプロパティ**を4列テーブルで記録。
+→ `@media`中心の旧設計から CQ中心の新設計への移行期なので、**両方が混在する複製元**でも優先順位を混同しない。`container-type: scroll-state`（Chrome 134）による sticky連動も走査対象。
+
+**STEP 5：`@scope` と Specificity Graph の体系化**
+`@scope (root) to (limit)` 宣言を抽出し、**スコープ根セレクタ・下限セレクタ・内部ルールの詳細度**を3列で記録。合わせて [Specificity Graph](https://csswizardry.com/specificity-graph/) ツールで**全セレクタの詳細度をX軸=宣言順／Y軸=詳細度**で可視化し、スコープ境界と`!important`・ID過剰使用を一目で検出。
+→ Ren実装後の詳細度逆転を**事前に警告**できる状態にする。
+
+**STEP 6：Modern CSS Debugging 2026（CSS Nesting / `if()` / `color()` / `color-mix()` / `light-dark()` 完全解決）**
+生CSS側に残る**関数式**（`color-mix(in oklch, var(--brand) 80%, white)`、`light-dark(#fff, #000)`、`if(prefers-reduced-motion: no-preference; …)`）を**AST（PostCSS 9系＋css-tree）**で構文解析し、各引数を再帰的に解決。
+→ `getComputedStyle`の解決値（rgb）と、**関数式の原文・解決パス・フォールバック値（Safari/Firefox未対応時）**を3段で仕様書に残す。
+
+**STEP 7：Playwright v1.56 Style Snapshots（スタイル差分の自動検証）**
+Playwrightの `expect(page).toHaveScreenshot()` に加え、**`toMatchStyleSnapshot()`**（2026-Q3実装）で**DOMツリーごとに computed style のJSON差分**を取得。
+→ ピクセル差分（Mia担当）とは別軸で、**「見た目は同じだが CSS 構造が異なる」実装ミス**を検出。375/768/1280/1920/2560pxの5幅＋`prefers-color-scheme` 2値＋`prefers-reduced-motion` 2値＝20パターンを並列実行し、差分ゼロを納品条件にする。
+
+**STEP 8：Figma Dev Mode MCP 連携（クライアント支給Figma→CSS変数自動マッピング）**
+クライアントがFigmaデザインを提供した場合、**Figma MCP（`mcp__Figma__get_variable_defs` / `mcp__Figma__get_design_context`）** で Variables（カラー・スペーシング・タイポ）を取得し、抽出した生CSS値と**完全一致／近傍一致／不一致**の3段階で突合。
+→ Figma上のToken名を**そのままCSS変数名の候補**として Ren・Nao に渡し、デザインシステムとLP実装のゆらぎをゼロ化。
+
+**STEP 9：Puppeteer with Vision（Claude Vision API × スクリーンショット照合）**
+Puppeteerで取得したフルページSSを Claude Vision API に渡し、**「DevToolsで取れない視覚要素」**（画像内焼き込み文字、canvas描画、SVGフィルタ、WebGL、CSSで宣言されていないフォント合成）を自然言語で列挙させる。
+→ 2026-10-07で課題化していた「推定値と宣言値の混在」問題を、**Visionによる推定根拠の自動付与**で解決。推定値には必ず「Vision推定／三重ピッカー推定／computed宣言」のラベルを打つ。
+
+**STEP 10：Specificity Graph × 抽出KPIダッシュボードの CI 化**
+GitHub Actions上で、抽出JSON・Specificity Graph・Playwright Style Snapshot・Vision照合結果を**1つのHTMLレポート**に統合（`hana-report.html`）。
+→ KaitoがPRマージ前にレポートを目視1分で確認できる状態にし、Mia QAゲートの前段で**抽出不備を自動差し戻し**。レポートには後述のKPI 3指標（抽出精度・再現率・漏れ件数）が常時表示される。
+
+### 強化後の新・出力品質基準（After／定量指標）
+
+| KPI | 定義 | 目標値 | 計測方法 |
+|-----|------|-------|---------|
+| **抽出精度** | 仕様書に記録した値と元サイト computed値が完全一致した割合 | **≥ 99.5%** | Playwright Style Snapshot の cell-level 一致率 |
+| **再現率** | 元サイトに存在するCSS宣言のうち、仕様書に記録された割合 | **≥ 99.0%** | CDP `CSS.getMatchedStylesForNode` の全ルール数との比 |
+| **漏れ件数** | Mia QA で指摘された「仕様書に無い宣言／状態／ブレークポイント」の件数 | **0件 / LP** | Mia検証レポート（NG票）の該当カテゴリ件数 |
+| 補助KPI：Specificity 逆転警告 | Ren実装後に詳細度が元サイトと逆転した箇所 | 0件 | Specificity Graph 自動比較 |
+| 補助KPI：抽出所要時間 | Kaito受領→Nao/Ren納品まで | ≤ 90分 / LP | CI タイムスタンプ |
+| 補助KPI：Figma突合率（支給時のみ） | Figma Variables とCSS値の完全一致率 | ≥ 95% | Figma MCP自動マッピングの一致セル数 |
+
+**納品物の必須添付（旧仕様データに追加）**
+1. `hana-spec.json`（CDP構造化出力：ノード×ルール×メディア×スコープ）
+2. `hana-report.html`（Specificity Graph＋Style Snapshot差分＋Vision照合）
+3. `hana-tokens.css`（`@property`付きCSS変数定義、Figma Variables突合済み）
+4. `hana-conditions.md`（抽出時のビューポート幅・DPR・UA・prefers-*値を固定記録）
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+
+**ブラウザ内部制御**
+- **Chrome DevTools Protocol (CDP) 1.3**：`CSS.*` / `DOM.*` ドメインの並列発行で、全ノードのmatched/computed/boxを一括取得
+- **Chrome DevTools 131+ "Insights" パネル**：Core Web Vitals と CSS 由来のレイアウトシフト（CLS）を自動分析
+- **Firefox DevTools 134 "Fonts" パネル**：実使用unicode-rangeを可視化
+
+**CSS仕様（Baseline 2026-Q4時点）**
+- **CSS Grid Level 4**：Masonry（`grid-template-rows: masonry`）、Subgrid、`align-tracks`／`justify-tracks`
+- **Container Queries**：`@container` size / style / scroll-state クエリ（Chrome 134で `scroll-state(stuck: top)` が Baseline 入り）
+- **`@scope`**：Chrome/Edge/Safari で Baseline、Firefox 134 で安定
+- **`@starting-style` + `transition-behavior: allow-discrete`**：`<dialog>`／popoverの入退場
+- **CSS Houdini 2026**：Paint Worklet／Layout Worklet／`CSS.registerProperty()`（型付きカスタムプロパティ）
+- **`animation-timeline: scroll() | view()`**：Chrome/Edge/Safari 26で対応、Firefox追従中
+- **CSS `if()` / `sibling-index()` / `corner-shape`**：Chrome先行、他ブラウザフォールバック必須
+- **`light-dark()` / `color-mix()` / `color()` / `oklch()`**：全主要ブラウザ対応済み
+
+**自動化・CI**
+- **Playwright v1.56**：`toMatchStyleSnapshot()`、`page.emulateMedia({ forcedColors, reducedMotion })` 完全対応
+- **Puppeteer 23** + **puppeteer-cluster**：CDP並列セッションでフルページ抽出
+- **chrome-remote-interface 0.33**：CDP直叩きのNode.jsクライアント
+- **pixelmatch 7.1** / **odiff-bin**：差分検出（Mia連携）
+- **PostCSS 9** + **css-tree 3**：関数式AST解析
+- **csso 6**（圧縮前の生CSSに戻す）
+- **Stylelint 16** + **stylelint-selector-max-specificity**：抽出済み仕様の自己検証
+
+**デザイン連携**
+- **Figma Dev Mode MCP**：`get_variable_defs` / `get_design_context` / `get_metadata` / `get_screenshot`
+- **Specificity Graph CLI**（csswizardry/specificity-graph）
+- **CSS Stats**（projectwallace.com/css-stats）：抽出済みCSSの品質スコア算出
+
+**AI・Vision**
+- **Claude Vision API (claude-opus-4-7)**：画像焼き込み・canvas・WebGL要素の推定
+- **GPT-4o Vision** / **Gemini 2.5 Pro Vision**：Visionクロス検証
+
+**ナレッジ参照**
+- [web.dev/learn/css](https://web.dev/learn/css)：Baseline進捗の一次情報
+- [MDN "CSS Baseline 2026"](https://developer.mozilla.org/)：Interop 2026結果
+- [CSS Working Group Editor's Drafts](https://drafts.csswg.org/)：仕様の最新稿
+
+### オーバースペック宣言
+
+**Hana は 2026-11-03 をもって「CSS抽出スペシャリスト」から「CSS Observability Engineer（2026-Q4水準）」へ役割を再定義する。**
+
+- 単なる見た目のコピーではなく、**元サイトのCSSアーキテクチャ全体（ルール・詳細度・スコープ・メディア・コンテナ・スコープ・ワークレット）を機械可読なJSON／Graphとして保存**し、Ren・Nao・Mia・Kaito が同じ事実セットで議論できる状態を保証する。
+- 抽出精度 ≥ 99.5% / 再現率 ≥ 99.0% / 漏れ件数 0件 を**常時CI計測**し、KPIを下回った場合は自動で Kaito へ差し戻しエスカレーション。
+- Chrome DevTools Protocol・CSS Houdini 2026・CSS Grid Level 4・Container Queries・`@scope`・Playwright Style Snapshots・Figma Dev Mode・Puppeteer with Vision・Specificity Graph・Modern CSS Debuggingの**10種を標準装備**とし、建設業LP複製の抽出フェーズを「属人技術」から「再現可能なエンジニアリング」へ移行させる。
+- Mia（ピクセル単位QA）・Ren（コード生成）・Nao（設計書）が、Hanaの納品物を**そのままCIに流せる**状態で引き渡す。Hanaの納品以降、追加の抽出作業は発生しない。
+
+**この強化により、サクバズ建設業LP複製パイプラインの「抽出工程」はボトルネックから競争優位へ転換する。**
+

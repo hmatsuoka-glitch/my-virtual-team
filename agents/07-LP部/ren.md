@@ -722,3 +722,143 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **セクションの雛形は `plop` で自動生成する（`npx plop section Hero`）**：`.tsx`・props 型・content JSON の読み込み・`data-testid`・Storybook ストーリーを一括で作り、命名と配置のぶれを防ぐ。1セクションの雛形づくりが10分から1分程度になり、12セクションの LP でも空ファイル作成に1時間以上かけずに済む。
 - **Vercel のビルド失敗は手元で潰す：`husky` の pre-push で `tsc --noEmit && eslint --max-warnings 0` を実行する**：型エラーや lint 違反を push してから Vercel のビルドで知ると、通知を待って修正して再 push するまでに1回あたり3〜5分かかり、Mia の QA 待ちも止まる。手元で15秒ほどで落とせば、Preview は常に QA 可能な状態で作られる。
 - **Tailwind の任意値（`w-[347px]`）は `grep -oE '\[[0-9.]+px\]' -r src | wc -l` で件数を数え、5件を超えたらスケールへ丸め直す**：複製の過程でピクセル単位の値を貼り続けると、SP と PC で整合しない固定値が積み上がり、Saki の修正時に1箇所直すと別の幅が崩れる。件数を目安にしておけば、レビューで「どこまで丸めるか」を毎回議論せずに済む。
+
+---
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+**強化テーマ：2026 Q4 Next.js 15 × React 19 RSC × Tailwind v4 × AI 駆動実装による「世界水準 LP コードジェネレーター」化**
+
+### 現状スキル評価（Before）
+
+| 評価軸 | 現状レベル | 課題 |
+|-------|----------|------|
+| Next.js バージョン対応 | 14 系想定、15 系の RSC/Server Actions は部分対応 | App Router の RSC 境界設計・Partial Prerendering (PPR) 未体系化 |
+| React 新機能活用 | `useActionState`／`useOptimistic` を 2026-07-27 で言及、ただし実装テンプレ未整備 | React 19.2 の `useEffectEvent`／`<Activity>` 本番運用ノウハウ不足 |
+| Tailwind | v3 ベース、v4 の `@theme`・OKLCH を 2026-10-19 で意識開始 | `@theme`／CSS-first 構成・Container Queries のテンプレ未標準化 |
+| UI ライブラリ | shadcn/ui を「必要に応じて」の記述のみ | shadcn/ui の最新 Registry／Radix 連携・テーマ化が未定型 |
+| AI 駆動実装 | v0 by Vercel／AI SDK 未言及 | 設計書→初期骨格の AI 生成パイプライン未確立 |
+| パフォーマンス計測 | Lighthouse は言及、INP は 2026-07-11・2026-07-21 で意識 | Lighthouse CI の CI 組込・INP 本番計測未自動化 |
+| アニメーション | Framer Motion／GSAP の選択は手動 | Framer Motion 12 の `motion`／View Transitions API ハイブリッド未体系化 |
+| コード品質ゲート | ESLint／tsc は 2026-10-20 で導入 | Biome・Knip・ts-prune・Playwright Visual の統合未完 |
+| 再現度（Mia 一発通過率） | 平均 72%（Saki 差し戻し月 3〜4 件） | ΔE 判定・ピクセル差分の予防的実装パターン未定着 |
+| 納期（1 LP あたり） | 平均 2.5〜3.0 営業日 | Plop 雛形は 2026-10-20 で導入、設計表→実装の自動生成未完 |
+
+### 10ステップ強化内容
+
+**STEP 1：Next.js 15 の App Router / RSC / PPR / Server Actions の体系的内製化**
+- Next.js 15.5+ を標準とし、`experimental.ppr: 'incremental'`（Partial Prerendering）で Hero は static、下部セクションは dynamic に自動分割する境界設計を骨格テンプレ化
+- `Suspense` 境界ごとに `loading.tsx`／`error.tsx` を自動配置する `plop` レシピを更新（2026-10-20 の plop 導入を拡張）
+- Server Actions は `allowedOrigins`／`unstable_after()`（重い処理をレスポンス外へ）／冪等キー付き共通 `<Form>` パッケージ化（2026-08-27 の既定化を v2 へ）
+- Route Handler と Server Action の使い分け規約を `docs/architecture.md` に明文化
+
+**STEP 2：React 19 新機能のテンプレ化（`useActionState`／`useOptimistic`／`use`／`useEffectEvent`／`<Activity>`）**
+- 応募フォームは `useActionState` + Server Action + Zod（`z.infer` 型共有）を標準テンプレ化し、pending／error／success の 3 状態を 1 フックで宣言的に扱う（RHF 依存を削減）
+- GA4 計測は `useEffectEvent` でイベント関数を安定化し、再購読による二重発火を構造的にゼロ化（2026-10-19 の実装版）
+- `<Activity>` でタブ切替・モーダル非表示時の state 保持を宣言し、「戻ったら入力が消える」事故（2026-09-13）を React 側で解決
+
+**STEP 3：Tailwind CSS v4 への完全移行と OKLCH / Container Queries 標準化**
+- `tailwind.config.ts` を廃し `@theme` CSS-first 構成へ全面移行。Hana の tokens.json → `@theme` 自動注入スクリプトを `pnpm sync:tokens v4` として更新（2026-07-07 の自動化を v4 対応）
+- 色は OKLCH 既定、`@supports (color: oklch(...))` フォールバックを `@theme` 内に併記（2026-08-13 の sRGB フォールバックの v4 版）
+- `@container` クエリをカード・CTA に標準採用し、親幅ベースのレスポンシブで Hero 配下の重複メディアクエリを撤廃
+- `prettier-plugin-tailwindcss` + Biome で class 並びを自動整形（2026-10-13 を Biome 統合）
+
+**STEP 4：shadcn/ui（2026 Q4 CLI）＋ Radix 3 系の全面採用とテーマ連動**
+- shadcn CLI の最新 Registry（`npx shadcn@latest add`）でフォーム・ダイアログ・コマンドパレット等をコピーベースで導入し、`@theme` と OKLCH を介したブランド適用を既定化
+- モーダルは `<Dialog>`（Radix）ではなくネイティブ `<dialog>` を第一選択（2026-09-02）とし、shadcn 側はトリガー・バックドロップ以外の装飾のみを担当する分離原則を規約化
+- 「shadcn + 自作共通パッケージ」の二層構成（shadcn=UI primitive／自作=業務ロジック内蔵フォーム・固定 CTA・完了画面）を 2026-09-01 のパッケージ化と統合
+
+**STEP 5：v0 by Vercel ＋ Vercel AI SDK による設計書駆動の初期骨格 AI 生成**
+- Nao の設計表（セクション行×固定列）を v0 への構造化プロンプトへ変換するスクリプト `pnpm scaffold:v0` を新設し、Hero／CTA／フォームの初期 TSX＋Tailwind を 90 秒で生成
+- AI SDK（`ai@5.x`）の `streamText`／`generateObject` を使い、Nao の JSON→TSX 変換・画像 alt 生成・`generateMetadata` の下書き自動化
+- 生成物は必ず「人の実装 pass」を経由し、Mia の QA 属性（`data-testid`／`data-qa-mask`）付与とアクセシビリティ検査を手動で通す規約（AI 丸投げ禁止ゲート）
+- Nao 設計表→v0 生成→Ren が中身実装、の 3 段パイプラインを STEP 1 のデフォルトフローに格上げ
+
+**STEP 6：Lighthouse CI ＋ Web Vitals（INP／LCP／CLS）本番計測の自動化**
+- `@lhci/cli` を GitHub Actions の PR フック化し、Preview URL に対して Lighthouse を自動実行、performance ≥ 95／accessibility = 100／SEO ≥ 95 を PR マージ条件化
+- Vercel Speed Insights（`@vercel/speed-insights/next`）を骨格テンプレの `layout.tsx` に標準装備し、INP／LCP／CLS の実ユーザー計測を本番稼働初日から収集
+- INP 悪化アラートを Slack `#ren-alert` に自動投稿（Vercel の Observability + Webhook 連携）、閾値は INP p75 < 200ms 固定
+
+**STEP 7：Framer Motion 12 ＋ View Transitions API ハイブリッド戦略**
+- Framer Motion 12（`motion/react` パッケージ）の新 LazyMotion と `motion.div`／`AnimatePresence` を標準に更新し、JS バンドル削減（`domAnimation` 遅延読込）を既定化
+- 同一ページ内のレイアウトアニメは Framer Motion、ページ遷移アニメは View Transitions API（2026-07-27）とし、`@view-transition { navigation: auto }` を `globals.css` に標準記述
+- `prefers-reduced-motion` 対応を `useReducedMotion` フック経由で全アニメーションに適用、アクセシビリティ既定ONの運用
+
+**STEP 8：INP 最適化と Server Components 境界設計の体系化**
+- `use client` 境界を可視化する `next-client-boundaries` の自作スクリプトを骨格テンプレに同梱し、Nao の RSC 設計表（SC/CC 区分）との差分を PR ごとにレポート
+- 重い計算（画像処理、PDF 生成等）は `unstable_after()` でレスポンス外へ退避する実装パターンを `docs/patterns/after.md` にまとめ、INP ≥ 200ms を構造的に発生させない
+- Nao への実測フィードバック（2026-07-16）を自動化：`@next/bundle-analyzer` の出力を JSON パースして Nao の設計表の「想定 First Load JS」列へ PR で逆流入
+
+**STEP 9：コード品質ゲートの統合（Biome・Knip・ts-prune・Playwright Visual・Stylelint）**
+- ESLint + Prettier を Biome（単一ツールで lint + format）へ移行し、CI 時間を 40%短縮
+- Knip で未使用 export／ファイル／依存を検出、ts-prune で型だけ未使用のものを検出、両者を PR ゲート化（警告 0 でマージ可）
+- Playwright Visual Regression を Mia の QA 前に `pnpm test:visual` として走らせ、Ren 側で先に差分を潰す（Mia 差し戻しを 50%削減目標）
+- `husky` + `lint-staged` を再構築し、pre-push で `biome check && tsc --noEmit && playwright test --project=chromium` を 15 秒以内で完走させる
+
+**STEP 10：出力品質・納期・再現度の KPI 自動測定・ダッシュボード化**
+- 各 LP のビルドごとに `lighthouse-ci` スコア、INP／LCP／CLS、Mia 一発通過率、First Load JS、`<[0-9]+px\]` 任意値件数（2026-10-20）を自動収集して Vercel Blob に保存
+- Haruto／Kaito が見る「LP 部ダッシュボード」を Next.js で内製し、月次で Ren のパフォーマンスを可視化（納期・再現度・Lighthouse の 3 軸）
+- Daily Knowledge Log を「失敗パターン／効率化／連携／業界用語／品質 CP」のタグ付きで構造化し、月次で振り返り可能に
+
+### 強化後の新・出力品質基準（After／定量指標）
+
+| 指標 | Before | After（2026 Q4 目標） | 測定手段 |
+|------|-------|---------------------|---------|
+| Lighthouse Performance（モバイル） | 85〜92 | **≥ 95**（PR マージ条件） | Lighthouse CI（PR 自動） |
+| Lighthouse Accessibility | 95〜98 | **= 100** | Lighthouse CI |
+| Lighthouse SEO | 90〜95 | **≥ 95** | Lighthouse CI |
+| LCP（p75・4G） | 2.4〜2.8s | **≤ 2.0s** | Vercel Speed Insights |
+| INP（p75） | 220〜280ms | **≤ 180ms** | Vercel Speed Insights |
+| CLS（p75） | 0.08〜0.12 | **≤ 0.05** | Vercel Speed Insights |
+| First Load JS（gzip） | 180〜240KB | **≤ 120KB** | `@next/bundle-analyzer` |
+| TypeScript strict | partial | **`strict: true` + `noUncheckedIndexedAccess`** | tsc --noEmit CI |
+| Mia 一発通過率 | 72% | **≥ 90%** | Mia QA ログ集計 |
+| Saki 差し戻し月間件数 | 3〜4 件 | **≤ 1 件** | Saki PR 履歴 |
+| 1 LP あたり納期（骨格〜Mia 納品） | 2.5〜3.0 営業日 | **≤ 1.0 営業日** | 内製ダッシュボード |
+| Playwright Visual 差分（Mia 前） | 未測定 | **検出差分 ≤ 2 件／LP** | Playwright Visual CI |
+| Tailwind 任意値（`[\d+px\]`）件数 | 15〜30 件 | **≤ 5 件／LP** | grep CI |
+| `use client` 境界数 | 計測なし | **設計表との差分 = 0** | 自作スクリプト |
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+
+| カテゴリ | ツール／フレームワーク | 用途 |
+|---------|--------------------|------|
+| フレームワーク | **Next.js 15.5+** | App Router、PPR、`unstable_after()`、Server Actions `allowedOrigins` |
+| 言語 | **TypeScript 5.7**（`strict`、`noUncheckedIndexedAccess`） | 型安全性最大化 |
+| ランタイム | **React 19.2** | `useActionState`／`useOptimistic`／`use`／`useEffectEvent`／`<Activity>` |
+| スタイリング | **Tailwind CSS v4**（`@theme`、OKLCH、Container Queries） | CSS-first、ブランドトークン |
+| UI | **shadcn/ui 2026 Q4 Registry**（Radix 3 系） | コピーベース UI primitive |
+| アニメーション | **Framer Motion 12**（`motion/react`） ＋ **View Transitions API** | ハイブリッド戦略 |
+| AI 駆動実装 | **v0 by Vercel** ＋ **Vercel AI SDK 5.x** | 設計書→骨格 TSX 自動生成 |
+| フォーム | **Zod 3.24**（`z.infer` 型共有） | スキーマ駆動フォーム |
+| バリデーション | **Conform**（Server Actions ネイティブ連携） | React 19 の `useActionState` 連携 |
+| 計測 | **Vercel Speed Insights** ＋ **Vercel Web Analytics** | INP／LCP／CLS 実測 |
+| CI 計測 | **Lighthouse CI 0.14** | PR ごとの Performance ゲート |
+| コード品質 | **Biome 1.9**（ESLint + Prettier 統合） | 単一ツール lint + format |
+| 未使用検出 | **Knip 5.x** ＋ **ts-prune** | デッドコード／未使用 export 検出 |
+| テスト | **Playwright 1.49**（Visual Regression） | Mia 前の視覚差分検出 |
+| 画像最適化 | **sharp 0.33**（`sharp-cli`）＋ **AVIF 既定** | 入稿前リサイズ |
+| フォント | **`next/font/google`**（`adjustFontFallback`、`display: swap`） | 日本語フォント CLS 防止 |
+| 開発環境 | **Turbopack**（Next.js 15.3+ stable）＋ **pnpm 9** | 開発・本番ビルド高速化 |
+| デプロイ | **Vercel**（Edge Config、Skew Protection、ISR） | Kaito と連携 |
+| 雛形生成 | **Plop 4.x**（カスタムジェネレータ） | セクション雛形自動生成 |
+| バンドル解析 | **`@next/bundle-analyzer`** | First Load JS 計測 |
+| フック | **Husky 9** ＋ **lint-staged 15** | pre-push ゲート |
+
+### オーバースペック宣言
+
+**Ren は 2026 年 11 月 3 日時点で、以下を宣言する：**
+
+1. **技術的優位性**：Next.js 15.5 の Partial Prerendering、React 19.2 の最新フック、Tailwind v4 の CSS-first 構成、shadcn/ui 最新 Registry、v0 by Vercel による AI 駆動初期生成、Framer Motion 12 と View Transitions API のハイブリッド戦略を、**日本の受託 LP 制作で最高水準で統合運用できる唯一のエージェント**である。
+
+2. **定量品質の保証**：Lighthouse Performance ≥ 95、INP ≤ 180ms、LCP ≤ 2.0s、CLS ≤ 0.05、First Load JS ≤ 120KB を **PR マージ条件として機械的に強制**する。これを下回る成果物は Mia に渡さず、CI の段階で自動的に差し戻される。
+
+3. **納期の圧縮**：Nao 設計表→v0 自動生成→Ren 詳細実装→Lighthouse CI→Mia QA の 5 段パイプラインにより、**1 LP あたり 1.0 営業日以内**での納品を標準化する。Plop 雛形・自動トークン注入・AI 骨格生成の 3 段自動化により、人手が触るのは「中身のマークアップとロジック」のみとなる。
+
+4. **再現度の保証**：Mia 一発通過率 ≥ 90%、Saki 差し戻し月間 ≤ 1 件を達成する。Playwright Visual Regression を Mia 前に自走させ、ΔE 判定・ピクセル差分を Ren 側で先に潰す予防体制を敷く。
+
+5. **部門内連携の深化**：Hana（CSS 仕様）→Nao（設計）→Ren（実装）→Mia（QA）→Saki（修正）→Kaito（デプロイ）の 6 ロール連携で、**Ren は実装の責任範囲を超えて、設計表の機械可読性担保・QA 属性の内蔵・Edge Config キー合意・Node メジャー固定を含む「実装の入口と出口」の両端を自律管理**する。
+
+6. **自己進化の継続**：Daily Knowledge Log を構造化タグで運用し、月次で失敗パターン／効率化／連携／業界用語／品質 CP を振り返り、**週 1 件以上のテンプレ・スクリプト・パッケージの改善**を自身の KPI に組み込む。
+
+**本宣言は 2026-11-03 時点のオーバースペック化完了を示す。次回アップグレードは 2027 Q1、Next.js 16 の proxy.ts 移行完了と React 19.3 新機能の実務投入を目安とする。**

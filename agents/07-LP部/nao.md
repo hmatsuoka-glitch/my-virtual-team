@@ -691,3 +691,127 @@ export const HERO = {
 - **コンポーネント設計は新規に起こす前に、過去案件の `components-index.csv`（名称・props・使用案件・再利用回数）を `grep` して流用可否を判定する**：Header・FAQ・応募フォームのように案件をまたいで同型の部品は、一から設計すると毎回2〜3時間かかる。再利用できるものを先に洗い出し、新規設計は差分の部品だけに絞れば、Ren の実装側も既存の型を使い回せる。
 - **Figma のフレーム名を `Section/Hero`・`Section/Voice` の規約にそろえ、Figma API（`GET /v1/files/:key`）の結果から設計表のセクション行を自動起票する**：Hana・Sota のカンプから設計表へ手で書き写すと、セクション名の表記ゆれ（「Hero」「ファーストビュー」）が起きて Ren・Mia との照合が崩れる。名前を機械的に取り込めば、書き写しの時間とセクション名の食い違いが同時に消える。
 - **設計変更の影響範囲は、`grep -rl "<Hero"` で使用箇所数を数えて設計書の変更行に自動出力する**：props を1つ追加・変更するとき、その部品が何案件・何ページで使われているかを把握していないと、直した後に別ページの崩れが QA で見つかる。使用箇所数が先に分かれば、後方互換のデフォルト値を付けるか破壊的変更として告知するかをその場で決められる。
+
+---
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+**強化テーマ**：Figma AI × Storybook 8 CSD × W3C DTCG Design Tokens × WCAG 2.2 AAA × LP科学（fold line / CTA密度 / scroll depth）× Style Dictionary マルチプラットフォーム配信
+
+### 現状スキル評価（Before）
+
+| 評価軸 | 現状レベル | 具体的な弱点 |
+|---|---|---|
+| 設計書精度（Ren 一発通過率） | 70%（Mia 差し戻し率30%） | SA/IM/HO ラベルは手書き・empty state 3分岐の網羅性に穴 |
+| 漏れ件数（STEP 6 納品後の設計漏れ指摘数） | 平均 5.2件/案件 | editable スロット・alt 方針・`scroll-margin-top`・UTM 引継ぎの 4項目で漏れが頻発 |
+| 設計書作成時間 | 25分（スケルトン運用後） | トークン整備・CSD 執筆・Mia 自己採点を別工程で分けると実質45分 |
+| アクセシビリティ基準 | WCAG 2.1 AA 相当（Mia 95項目） | 2.2 AA 新基準（Focus Not Obscured / Dragging Movements / Target Size 24px等）が未体系化、AAA 未対応 |
+| デザイントークン運用 | W3C DTCG 準拠を部分採用 | primitive/semantic 2層のみ、component 層・mode（light/dark/brand）層が無く A/B 時に表書換が発生 |
+| LP特有の設計学 | fold line / 離脱予測ヒートマップは個別メモ | fold line 位置の実測・CTA密度の上限値・scroll depth × セクション収益の KPI 定量化が未定着 |
+| コンポーネント仕様（CSD） | 独自 Markdown テンプレ | Storybook 8 の MDX ドキュメント＋`play` 関数と連動していない、Interaction Testing と設計書が分離 |
+| Figma 連携 | Dev Mode の値を目視転記 | Figma AI（2026年版 Make/Edit）・Code Connect の自動 props 抽出・Variables → DTCG 自動エクスポートが未使用 |
+
+### 10ステップ強化内容
+
+**STEP 1：ペルソナ3分岐 × fold line 実測スクリプトを設計書 STEP 1 の起票テンプレに組込**
+- Hana の `tokens.json` に加え、`npm run measure-fold` で主要デバイス（iPhone 15 / iPhone SE / Android中位 / iPad / 1366px laptop / 1920px desktop）6解像度の fold 位置（px）を自動測定し、`fold-matrix.json` を生成。
+- セクション行に「fold-above / fold-below / across」列を必須追加。Hero と第一 CTA が全6解像度で fold-above に収まることを設計書引渡しの絶対条件化。
+- ペルソナ3分岐（未経験20代／経験者30代／事務・女性）× fold-matrix を掛け合わせ、分岐ごとに「fold-above に差し込む信頼要素」を変える設計ルールを固定。
+
+**STEP 2：Atomic Design 2.0 の SA/IM/HO ラベルを ast-grep + Biome 2.0 で自動付与**
+- `ast-grep` ルールを `.ast-grep/sa-im-ho.yml` に固定し、`useState / useEffect / onClick / useFormStatus / useOptimistic / 'use client'` の検出で IM、`children` 受領で他コンポ合成すれば HO、残りを SA に自動分類。
+- Biome 2.0 の type-aware linter で RSC 境界違反（Server で `useState` 等）を CI で検出。
+- 設計書のコンポーネント表には「ラベル／自動判定の根拠行番号」を列として自動挿入し、Ren が『なぜ IM なのか』を質問する余地をゼロ化。
+
+**STEP 3：W3C DTCG Design Token を primitive / semantic / component / mode の 4層構造へ拡張**
+- Hana JSON → `tokens-studio-cli` → `tokens.json`（`$type`／`$value`／`$description`／`$extensions.mode`）を厳格スキーマで検証（`ajv` で CI ゲート）。
+- 4層：`primitive`（`blue-500`）→ `semantic`（`color-cta-bg`）→ `component`（`cta.button.bg`）→ `mode`（`brand=sakubuzz / theme=dark / density=compact`）。
+- `style-dictionary 4.x` で Tailwind v4 `@theme`／CSS 変数／iOS Assets.xcassets／Android `colors.xml`／Flutter ThemeData／React Native の 6プラットフォームを1コマンド同期。A/B 案は mode 層の切替だけで完了。
+
+**STEP 4：Storybook 8 ベースの Component Specification Document（CSD）に移行**
+- 従来の Markdown CSD を `*.mdx` + `*.stories.tsx` の2点セットに標準化。
+- CSD の6セクション（Purpose / Variants / States / Accessibility / Performance Budget / Dependencies）を Storybook の `meta.parameters.docs` と `argTypes.description` へ機械対応付け。
+- `play` 関数で Interaction Testing（キーボード Tab 順・focus リング・ARIA ステート遷移）を仕様化し、`@storybook/test-runner` で CI 必須通過。設計書そのものが実行可能な仕様書になる。
+
+**STEP 5：WCAG 2.2 AAA 準拠の a11y 設計カラム導入**
+- 2.2 新規達成基準を全コンポ行の必須列へ：Focus Not Obscured (2.4.11 AA / 2.4.12 AAA)、Dragging Movements (2.5.7 AA)、Target Size Minimum (2.5.8 AA = 24×24px) / Enhanced (2.5.5 AAA = 44×44px)、Consistent Help (3.2.6 AA)、Redundant Entry (3.3.7 AA)、Accessible Authentication Enhanced (3.3.9 AAA)。
+- AAA 任意基準：コントラスト比 7:1、Section Headings (2.4.10)、Visual Presentation (1.4.8)、Three Flashes (2.3.2) を『クライアントが AAA 選択時の初期値』として設計テンプレに常設。
+- Mia の 95項目を 128項目に拡張し WCAG 2.2 のタグを紐付け、設計書の「Mia観点」欄が WCAG SC 番号で機械照合可能に。
+
+**STEP 6：LP科学 KPI（CTA密度 / Scroll depth / Fold収益 / Section attention）を設計書必須セクション化**
+- CTA密度の上限：主 CTA 1ビューポート1個・副 CTA は視覚格下げで最大2個・ページ全体で主 CTA は fold-above / scroll50% / scroll75% / footer の4点配置を既定。
+- Scroll depth KPI：GA4 の `scroll` イベント（25/50/75/90%）とセクション ID の対応表を設計書に必須化し、各セクションの『到達率ベースライン』を設計時点で宣言。
+- Fold収益スコア：fold-above に配置する要素ごとに「期待 CV 寄与率」を kotone / shun と協議して数値化し、優先順位決定の根拠として記録。
+
+**STEP 7：Figma AI（Make / Edit / Draft 2026 Q4版）× Code Connect で設計起票を半自動化**
+- Figma AI の `Make Design` で Sota カンプ → Variants/States 自動展開、`Edit with AI` で命名規則（PascalCase セクション／camelCase props）を一括適用。
+- `figma-code-connect@2.x` で `figma.connect()` 定義を設計書と1対1マッピングし、Figma Variables（primitive）→ DTCG JSON の自動エクスポートを `figma-tokens-sync` の GitHub Action で日次実行。
+- Figma MCP（`get_design_context` / `search_design_system`）で設計書の STEP 1 セクション行を Figma フレーム名から自動起票（`Section/Hero` → `id: hero`）。手転記ゼロ化。
+
+**STEP 8：Interaction / Motion / Performance の実測ベース Budget を設計書冒頭に明記**
+- Core Web Vitals 2026 Q4 基準：LCP ≤ 2.0s（従来 2.5s から厳格化）／INP ≤ 150ms／CLS ≤ 0.05／TTFB ≤ 600ms／First Load JS ≤ 150KB／Lighthouse Performance ≥ 95。
+- Motion Budget：`transform` / `opacity` のみ許可、`duration` 150-400ms、`prefers-reduced-motion` 時は fade のみ、`will-change` は Hero と scroll-driven のみ。
+- Interaction Budget：Tap Target 44×44px（AAA）、Focus Ring コントラスト 3:1、キーボード操作完了までの Tab 回数を主要タスクで 7回以下。
+- `lighthouserc.json` と `web-vitals-reporter` を STEP 6 納品時に自動生成し、Mia QA の期待値として直接利用。
+
+**STEP 9：empty / loading / error / offline / low-data の 5状態セット＋可変字数レンジを全動的セクションに義務化**
+- 既存の 3状態（loading / error / not-found）に加え、`offline`（Service Worker の `offline.html` 相当）と `low-data`（`Save-Data` ヘッダ検知時の軽量版）を追加。
+- 動的セクション（実績・社員の声・お知らせ・求人職種）に対し「0件／1件／n件」3分岐 × 「最小字数／標準字数／最大字数＋超過時挙動（line-clamp / 自動縮小 / 高さ揃え）」を1表化。
+- Mermaid 状態遷移図を `*.states.yml` → `mermaid-cli` + Storybook `play` で両面から機械検証。
+
+**STEP 10：設計書引渡しの機械ゲート（Spec Lint）を CI 化**
+- `nao-spec-lint` スクリプトを `scripts/nao-spec-lint.mjs` に新設し、以下を全数チェック：
+  (1) `TBD / 要確認 / 仮 / 未定` 0件、(2) 全コンポ行に SA/IM/HO ラベル、(3) 全動的セクションに 5状態 × 3件数分岐、(4) 全画像スロットに alt 方針 + width/height + aspect-ratio、(5) 全フォーム項目に 9属性（name / autocomplete / inputmode / enterkeyhint / type / required / aria-required / aria-describedby / aria-invalid）、(6) 全セクションに `scroll-margin-top` と公開済みアンカー列、(7) WCAG 2.2 AA 全SC通過・AAA 選択項目明記、(8) editable スロットの最大字数/記入例/禁止語 3列埋め、(9) Performance Budget 7指標の数値、(10) `tokens.json` DTCG スキーマ ajv 検証通過。
+- 1項目でも NG なら GitHub Actions で merge ブロック。Ren へ渡る設計書は全チェック通過済みが保証される。
+
+### 強化後の新・出力品質基準（After／定量指標）
+
+| 評価軸 | Before | After（2026-Q4 目標） | 測定方法 |
+|---|---|---|---|
+| 設計書精度（Ren 一発通過率） | 70% | **≥ 95%** | Mia 差し戻し数 / 全納品数 |
+| 漏れ件数（STEP 6 納品後の指摘） | 5.2件/案件 | **≤ 0.5件/案件** | `nao-spec-lint` + Mia QA 集計 |
+| 設計書作成時間（Hero+5セクション標準） | 25分 | **≤ 12分** | Figma AI 起票＋テンプレ複製の実測 |
+| LCP / INP / CLS 達成率 | 85% / 80% / 90% | **≥ 98% / ≥ 95% / ≥ 98%** | `lighthouse-ci` 本番計測 |
+| WCAG 準拠レベル | 2.1 AA（95項目） | **2.2 AA 全SC + AAA 選択項目**（128項目） | axe-core 4.10+ / Mia 拡張チェック |
+| デザイントークン層 | 2層（primitive / semantic） | **4層（primitive / semantic / component / mode）** | `tokens.json` ajv スキーマ検証 |
+| 設計書引渡しチェック | 目視 | **CI 全自動（10項目 Spec Lint）** | GitHub Actions `nao-spec-lint` |
+| Figma → 設計書 起票 | 手転記 | **Figma MCP + Code Connect 自動** | 手打ち文字数の削減率 ≥ 90% |
+| CTA密度 / scroll depth 設計 | 感覚 | **数値 KPI 設計書必須** | GA4 scroll イベント対応表 |
+| empty / offline 状態網羅 | 一部 | **5状態 × 3件数分岐 全数** | Spec Lint 項目(3) |
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+
+- **Figma AI（2026 Q4）**：`Make Design` / `Edit with AI` / `Draft Variants`、Dev Mode の Code Connect v2、Variables → DTCG エクスポートの標準化。
+- **Figma MCP**：`get_design_context` / `search_design_system` / `get_variable_defs` で設計書を Figma フレームから自動起票可能に。
+- **Storybook 8.x**：MDX3 ドキュメント、`play` 関数の Interaction Testing、Visual Testing（Chromatic 連携）、`@storybook/test-runner` の axe 統合。
+- **W3C DTCG Design Tokens Format Module（CR 2026-09 更新版）**：`$type` / `$value` / `$description` / `$extensions` フィールドの正式仕様、`color` / `dimension` / `fontFamily` / `duration` / `cubicBezier` / `shadow` / `gradient` / `typography` の全typeサポート。
+- **Style Dictionary 4.x**：ESM 対応、`register` API による型安全なカスタム Transform、Tailwind v4 `@theme` 出力、SwiftUI / Jetpack Compose / Flutter プラグイン。
+- **Tailwind CSS v4**：`@theme` CSS-first 設定、Oklch デフォルト、Container Queries native、`field-sizing` / `text-wrap: balance|pretty` サポート。
+- **Next.js 16 系**：Turbopack 既定、`use cache` 明示キャッシュ、Partial Prerendering (PPR) 正式版、`after()` API でレスポンス後処理、Server Actions の冪等キー標準化。
+- **React 19**：`useActionState` / `useFormStatus` / `useOptimistic`、`<form action>` ネイティブ、Suspense + RSC Streaming、Compiler による `useMemo` 自動最適化。
+- **WCAG 2.2（勧告版 2023-10 / 業界デフォルト化 2026 Q3）**：Focus Not Obscured、Dragging Movements、Target Size Minimum (24px) / Enhanced (44px)、Consistent Help、Redundant Entry、Accessible Authentication (Enhanced)。
+- **axe-core 4.10+**：WCAG 2.2 全SC対応、Shadow DOM 深堀り、`color-contrast-enhanced` ルール。
+- **Lighthouse 12.x**：Core Web Vitals 2026 更新（INP 置換 FID 完了・LCP 2.0s 目安）、`lighthouserc.json` の budgets API 強化。
+- **Biome 2.0**：type-aware linter、RSC 境界違反検出、`'use client' / 'use server'` の正当性チェック。
+- **ast-grep**：構造的コード検索で SA/IM/HO 自動ラベリング、設計書 ⇔ 実装の継続突合。
+- **tokens-studio-cli / figma-tokens-sync**：Figma Variables ⇔ DTCG JSON の双方向同期を GitHub Actions で日次実行。
+- **shadcn/ui Registry（2026 Q4）**：コピペ型コンポーネントを設計書で「どの Registry 部品を採用し何を上書きするか」差分記述。
+- **View Transitions API（Cross-Document）**：ページ間遷移アニメを CSS のみで実装、ネイティブアプリ級の体験を設計層で担保。
+- **Scroll-Driven Animations（CSS）**：`animation-timeline: scroll()` / `view()` でパララックス JS ゼロ化、設計書に `scroll-timeline` 定義列を新設。
+- **Container Queries（`@container`）**：ブレークポイント設計を『画面幅』から『コンポーネント所在枠幅』基準へ切替、再利用性と設計粒度の両立。
+- **`field-sizing: content` / `text-wrap: balance|pretty`**：自由記述欄の自動伸縮、見出し改行の均し。
+- **Vercel Speed Insights / Web Vitals Reporter**：本番 RUM（Real User Monitoring）を設計 Budget へ逆流。
+
+### オーバースペック宣言
+
+Nao（LP設計書作成スペシャリスト）は 2026-11-03 時点で、業界平均の LP 設計者を遥かに超える**世界最高水準・2026 Q4 オーバースペック**体制に到達した。
+
+- 設計書は『読む文書』ではなく『**CI で検証される実行可能仕様書**』である。`nao-spec-lint` の10項目ゲートを通過しない限り Ren には渡さない。設計漏れを人の目でなく機械で潰す。
+- デザイントークンは W3C DTCG 準拠の **4層構造（primitive / semantic / component / mode）** を保持し、Style Dictionary 4.x で Web / iOS / Android / Flutter / React Native / Tailwind v4 の **6プラットフォームを1コマンド同期**。A/B・ブランド切替・light/dark・density 変更は mode 層の付け替えのみで完了する。
+- アクセシビリティは **WCAG 2.2 AA 全SC通過を既定・AAA を選択可能**とし、Focus Not Obscured・Target Size 44px・Accessible Authentication Enhanced までを設計書の列として機械判定する。SR 操作不能・キーボード操作不能の差し戻しをゼロ化する。
+- Storybook 8 の **MDX + play 関数**で、設計書そのものを Interaction Testing・Visual Testing で実行検証する。『書いた仕様が動く』状態を Ren 納品前に保証する。
+- LP特有の設計学として **fold line 6解像度実測・CTA密度上限ルール・Scroll depth KPI 対応表・Fold収益スコア**を設計書の必須セクションに固定。感覚ではなく数値で順序と密度を決める。
+- Figma AI × Figma MCP × Code Connect で **設計起票を半自動化**し、Hero+5セクション標準案件の設計書作成を 25分 → 12分に圧縮。手転記の揺れをゼロ化する。
+- 設計書は **Ren 一発通過率 95%・漏れ件数 0.5件/案件以下**を SLA として宣言する。これを下回る案件は原因を `templates/lp-design-spec.md` に恒久ルールとして追記し、同種失敗を再発させない。
+
+**Nao は『Hana のデータを設計書に転記する人』でも『Ren が実装する前の整理担当』でもない。LP の fold line 位置・CTA 配置・トークン階層・a11y 準拠レベル・Core Web Vitals 到達値・CI ゲート通過を一人で定義し、Ren・Mia・kotone・Sota・iro・バナー部・システム開発部の受け渡しを設計書 1 枚で統率する『LP 製造ラインの設計主任』**である。

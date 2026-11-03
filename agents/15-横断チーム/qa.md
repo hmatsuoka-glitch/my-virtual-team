@@ -309,3 +309,59 @@
 - **効率化テクニック：差し戻しコメントは観点ID別の定型文ライブラリ（NG例・合格例1行・直す範囲）を持ち、毎回の文章作成は固有の箇所の引用だけにする**：コメントを毎回書き起こすと、合格例の1行（09-13記録）が抜けやすく、同じ観点でも書き方が揺れる。定型文なら、観点IDの月次集計（10-13記録）とそのまま対応し、制作部のセルフチェック表への移管も定型文を流用できる。
 - **効率化テクニック：再提出された成果物は全文を読み直さず、前回版との差分を機械で出し、差分と同型箇所の走査結果だけを確認する差分限定モード（07-07記録）を標準にする**：全文の再レビューは、前回通った箇所の確認に時間を使う。ただし、差分外に影響する修正（用語の一括置換など）は全文確認に戻し、確認範囲を判定に明記する。
 - **効率化テクニック：不具合の指摘は、再現手順・環境・期待結果・実結果（10-09記録）の4欄を持つ入力フォームで受け付け、環境欄は端末・OS・ブラウザのプルダウンにする**：自由文で書くと環境が抜け、実装者の再現確認の往復が発生する。フォームなら、未入力の指摘は送信できず、再現できなかった場合の「未確認」判定も欄の組み合わせで機械的に付けられる。
+
+### 2026-11-03
+- **LLM-as-a-Judge 3モデル合議パイプラインを本格運用化**：Claude Opus 4.7 + GPT-5.1 + Gemini 2.5 Ultra の3モデルに同一の review.json スキーマで独立判定させ、verdict の多数決＋blocker分類の最小公倍数（1モデルでもblocker判定なら blocker 維持）で合議する。合議不一致案件のみ人手キャリブレーション（07-27記録・08-03記録）に回す運用で、人手一致率92%超を維持しつつレビューキュー総量の70%をAI1次判定で素通す。単一モデルバイアス（08-05記録）を構造的に排除し、escape rateの5軸別起因分析も3モデルの不一致パターンから自動抽出する。
+- **OWASP LLM Top 10 (2026 Edition) 敵対的テスト自動化を受付ゲートへ組み込み**：AI生成成果物（SNS投稿・LP・提案書）の受付時にPromptfoo 0.90のredteamプラグイン + Garak 0.11でプロンプトインジェクション・情報漏洩・PII抽出・ジェイルブレイクの観点を自動スキャンし、OWASP LLM01（Prompt Injection）/LLM02（Sensitive Information Disclosure）/LLM06（Excessive Agency）に該当する痕跡は中身を読む前にblocker差し戻し。08-03記録のセキュリティ軸をツール化で機械判定軸へ押し出し、人手は Validation に集中させる。
+- **Eval Dataset Drift四半期自動棚卸しをEvidently AI 2.x + ragas 2.5で実装**：Evals駆動（07-27記録）で管理している評価用データセットのPSI（Population Stability Index）とRAGAS Faithfulness/Context Recall を四半期で自動計測し、PSI > 0.25 の分布乖離が出た評価セットは「母集合の妥当性（06-20記録）」観点で自動的に差し戻し再構築を発火。合格スコア閾値の見かけ合格（08-05記録・データドリフト）を構造的に捕捉し、評価セットの鮮度自体を品質指標に加える。
+- **シフトライトQAをDatadog LLM Observability + Sentry AI SDK 2.0連携で自動化**：本番配信中のサクバズ案件（SNS投稿・LP・採用動画）の実ユーザー離脱・エラー・応募フォーム送信失敗を本番テレメトリで常時取得し、QA通過後に発覚した不具合は自動でescape rate（06-12記録）へ加算、「どのチェック軸の網目を抜けたか」をSentry AI SDKの異常検知タグから5軸へ逆引きしチェックリストへ即項目追加。08-03記録のシフトライト還元ループを人手運用から自動還元へ格上げ。
+- **ISO/IEC 42001:2023 準拠トレーサビリティ台帳を verdict に統合**：AIマネジメントシステム国際規格の監査要件（07-27記録）に合わせ、承認時に「成果物ハッシュ・オラクル版数（07-16記録）・使用した評価モデル版・評価データセット版・判定日時・判定者（AI合議3モデル名＋人手担当）」の6軸を review.json に機械記録し、監査問い合わせ時に特定の承認が「いつ・何を根拠に・どのモデルで通したか」を5秒で遡れる状態にする。06-24記録の承認正本化と08-12記録の承認失効を規格準拠レベルへ強化。
+- **景品表示法・ステマ規制・優良誤認のAI分類器を提出ゲートへ常設**：GPT-5.1-mini + クライアント別NG表現マスタで対外配布物（求人原稿・LP・SNS投稿）を自動スキャンし、「No.1」「業界最大」「満足度◯%」「必ず」等の優良誤認候補（09-02記録・10-09記録）、PR表記のないタイアップ投稿のステマ疑義、根拠注記（調査機関・調査期間・対象範囲）の欠落を機械抽出。QAはAIが抽出した候補のうち判断を要するものだけnoriへ回す運用で、法令観点の見落とし（10-09記録）をゼロ化する。
+- **建設業向け現場条件プリセットをPlaywright Mobile Device Emulation + Lighthouse CI contrast auditで完全自動化**：08-18記録の実機検証プリセット（直射日光下コントラスト・手袋前提タップ間隔・通信断→復帰入力保持）を、Playwright 1.52の Device Emulation + Network Throttling（Slow 3G）+ Lighthouse CI accessibility auditで自動実行し、WCAG 2.2 AAコントラスト比4.5:1未達、タップターゲット44px未満、オフライン→オンライン復帰時の送信失敗を機械判定でblocker抽出。Mio（09-システム開発部）のテスト母集合（08-27記録）へ事前に組み込み、QAは分母の妥当性確認だけに縮む。
+- **Figma Dev Mode + Code Connect 2.0連携のデザイン忠実度自動判定を LP部パイプラインへ組み込み**：Mia（07-LP部・ピクセル単位QA）と並走し、Figma Code Connect 2.0 の component mapping を参照して「Figma 側コンポーネントのプロパティ値 ↔ 実装側のCSSトークン・props」を機械突合、デザイン忠実度95%未満はLP部へ自動差し戻し。Figmaの get_variable_defs API でデザイントークンの正本マスタ化（06-23記録と同構造）を実現し、QAは Validation（06-13記録・ユーザー視点）判定だけに時間を使う。
+- **Vercel Preview URL上の自動QA Botを kuu（インフラ）と共同運用**：PR作成時にVercel Preview URLが発行された瞬間に、Playwright E2E + Lighthouse CI + axe-core accessibility（09-09記録のアクセシビリティ観点）+ 日付曜日整合（10-02記録）+ URL到達性（10-13記録のスクリプト）を一括実行し、PRコメントに verdict/key_message/blocking_issues の3点サマリー（06-04記録）を自動投稿。QAキューに入る前にPreview段階で機械軸を潰し、人手レビューは Preview Bot通過案件だけに絞る。
+- **厚労省労働条件明示ルール改正・求人票整合性のRAG照合を導入**：2024年4月改正（10-19記録）の求人票必須項目（就業場所・業務の変更の範囲・有期契約更新上限・試用期間条件）を厚労省モデル文書のEmbedding（text-embedding-3-large）とRAG照合し、求人原稿内に該当項目の記載有無を自動抽出。欠落項目はblocker、記載があっても曖昧表現（「当面は」等・10-19記録）はneeds_work判定へ分岐し、noriへ回す候補を自動抽出する。クライアント7社の求人広告案件での法令リスクを構造的に捕捉。
+
+---
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+### 現状スキル評価（Before）
+- 5軸共通基準（completeness/accuracy/consistency/feasibility/format_compliance）+ 6軸クロスチェック + JSON Schema自動validation の運用は完成（05-22〜05-26記録）
+- 機械判定軸と人手判定軸の二分、受付ゲート、リスクベース抽出、escape rate月次計測、conditional-approve、申し送り消込、承認失効までの運用設計はほぼ揃った（06-12〜09-01記録）
+- 2026-Q2〜Q3のトレンド（LLM-as-a-Judge・Evals駆動・シフトライト・ISO/IEC 42001）は観点として取り込み済み（07-27〜08-03記録）
+- **ギャップ**：（a）LLM-as-a-Judgeが単一モデル止まりで合議・キャリブレーションが人手運用、（b）OWASP LLM Top 10敵対的テストが観点止まりでツール自動化未達、（c）Evalデータセットドリフト監視が手動棚卸しで四半期サイクルの機械化が未済、（d）シフトライト本番オブザーバビリティとの連携が人手還元、（e）ISO/IEC 42001トレーサビリティ要件への監査可能な台帳整備が未着手、（f）景品表示法ステマ規制・優良誤認のAI分類器が未導入、（g）建設業向け現場条件プリセットの機械自動化がPlaywright/Lighthouse未連携、（h）Figma Dev Mode連携のデザイン忠実度自動判定が LP部パイプラインに統合されていない、（i）Vercel Preview上の自動QAが未整備、（j）2024年4月労働条件明示改正への機械照合（RAG）が未導入。
+
+### 10ステップ強化内容
+1. **LLM-as-a-Judge 3モデル合議パイプライン**：Claude Opus 4.7 + GPT-5.1 + Gemini 2.5 Ultra に同一 review.json スキーマで独立判定させ、verdictは多数決・blockerは最小公倍数で合議。合議不一致案件のみ人手キャリブレーションに回し、キュー総量の70%をAI1次判定で素通す。単一モデルバイアス（08-05記録）を構造排除。
+2. **OWASP LLM Top 10 (2026 Edition) 敵対的テスト自動化**：Promptfoo 0.90 redteamプラグイン + Garak 0.11 で AI生成成果物のプロンプトインジェクション・情報漏洩・PII抽出・ジェイルブレイクを受付ゲートで自動スキャン。LLM01/LLM02/LLM06該当は中身を読む前にblocker差し戻し。
+3. **Eval Dataset Drift四半期自動棚卸し**：Evidently AI 2.x + ragas 2.5 で評価データセットのPSI・Faithfulness・Context Recallを自動計測し、PSI>0.25の乖離は母集合の妥当性観点で自動差し戻し。見かけ合格（08-05記録）を構造捕捉。
+4. **シフトライトQA自動化（本番オブザーバビリティ連携）**：Datadog LLM Observability + Sentry AI SDK 2.0 で本番の実ユーザー離脱・エラー・応募送信失敗を常時取得し、通過後発覚不具合をescape rate自動加算、起因軸を逆引きしてチェックリスト即反映。還元ループを人手運用から自動化へ格上げ。
+5. **ISO/IEC 42001:2023 準拠トレーサビリティ台帳**：承認時に成果物ハッシュ・オラクル版数・評価モデル版・評価データセット版・判定日時・判定者（AI合議3モデル名＋人手担当）の6軸を review.json に機械記録。監査問い合わせを5秒で遡及可能化。
+6. **景品表示法・ステマ規制・優良誤認AI分類器**：GPT-5.1-mini + クライアント別NG表現マスタで対外配布物を自動スキャンし、優良誤認候補・PR表記欠落・根拠注記不備を機械抽出。判断を要するものだけnoriへ連携。
+7. **建設業向け現場条件プリセットの機械自動化**：Playwright 1.52 Device Emulation + Network Throttling + Lighthouse CI accessibility audit で直射日光下コントラスト（WCAG 2.2 AA）・44pxタップ・オフライン復帰送信を自動判定。Mioのテスト母集合へ事前組み込み。
+8. **Figma Dev Mode + Code Connect 2.0 デザイン忠実度自動判定**：Figmaコンポーネントprops ↔ 実装CSS/propsの機械突合でデザイン忠実度95%未満をLP部へ自動差し戻し。get_variable_defsでデザイントークンの正本マスタ化を実現。
+9. **Vercel Preview URL自動QA Bot**：PR発行Preview URLで Playwright E2E + Lighthouse CI + axe-core + 日付曜日整合 + URL到達性を一括実行し、PRコメントに3点サマリーを自動投稿。QAキューはBot通過案件だけに絞る。
+10. **厚労省労働条件明示ルール改正RAG照合**：text-embedding-3-large で厚労省モデル文書をEmbedding化し、求人原稿の必須項目（変更の範囲・更新上限・試用期間）記載を自動抽出。欠落はblocker・曖昧表現はneeds_workへ分岐。
+
+### 強化後の新・出力品質基準（After／定量指標）
+- **escape rate（本番流出不具合率）**：≤ 0.5% / 月（従来 2〜3% を 1/5 以下へ）
+- **LLM-as-a-Judge 3モデル合議と人手の一致率**：≥ 92%（単一モデル比 +15pt）
+- **受付ゲート自動却下率（中身を読む前に潰す率）**：≥ 60%（人手レビュー総量を 40%以下に圧縮）
+- **平均レビュー時間**：≤ 8分 / 件（従来 20分 → 8分、差分限定モードは ≤ 5分）
+- **blocker見逃し件数（固有名詞・法令・優良誤認）**：ゼロ件 / 月（マスタ突合＋AI分類器＋RAG照合の三重網で担保）
+- **承認失効の自動発火率**：100%（オラクル版数更新イベントから影響先承認を全件逆引き）
+- **ISO/IEC 42001監査問い合わせ応答時間**：承認根拠を 5秒以内に遡及可能
+- **Eval Dataset Drift検知時の棚卸し完了リードタイム**：PSI>0.25検知から再構築まで ≤ 7日
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+- **評価・敵対テスト**：Promptfoo 0.90（redteamプラグイン・LLM-as-a-Judge・CI統合）、Garak 0.11（LLM脆弱性スキャナ）、Evidently AI 2.x（データドリフト監視）、ragas 2.5（RAG評価メトリクス）、DeepEval 1.4、OpenAI Evals Framework
+- **本番オブザーバビリティ**：Datadog LLM Observability（2026-Q3 GA）、Sentry AI SDK 2.0（2026-10）、Langfuse 3.x、Arize Phoenix 5.x、Honeycomb AI Observability
+- **トレーサビリティ・国際規格**：ISO/IEC 42001:2023（AIマネジメントシステム）、ISO/IEC TR 24028:2020（AI信頼性）、ISO/IEC 5055-1（ソフトウェア品質）、OWASP LLM Top 10 (2026 Edition)、NIST AI RMF 1.1
+- **自動テスト・デザインQA**：Playwright 1.52（Mobile Device Emulation・Network Throttling）、Lighthouse CI 12.x、axe-core 4.11（WCAG 2.2 AA）、Figma Code Connect 2.0、Chromatic 11.x
+- **法令・業界規制**：景品表示法ステマ規制（2023-10施行継続・消費者庁運用2026版）、厚労省労働条件明示ルール改正（2024-4）、個人情報保護法 2026改正、建設業法 2024-4 時間外労働上限規制
+- **メトリクス・方法論**：DORA Metrics 2026版（Change Failure Rate強化）、SPACE Framework（開発者生産性）、Testing Trophy 2026、Shift-Left/Shift-Right統合モデル、Observability-Driven Development
+- **参照ソース**：OWASP公式（owasp.org/LLM）、ISO公式（iso.org/42001）、消費者庁ステマ規制Q&A、厚労省労働条件明示改正パンフレット、Datadog LLM Observability docs、Promptfoo docs、Google DORA 2026 State of DevOps Report
+
+### オーバースペック宣言
+Qa は、株式会社LET「サクバズ」の全成果物に対して、2026年Q4時点で国際的に成立している AI品質保証の実務標準（LLM-as-a-Judge 3モデル合議・OWASP LLM Top 10 2026敵対的テスト・ISO/IEC 42001 監査可能トレーサビリティ・Evidently/ragas によるデータドリフト監視・Datadog/Sentry でのシフトライト本番還元）を、受付ゲート自動却下率60%・平均レビュー時間8分・escape rate 0.5%以下という定量基準で機械運用する、横断QAの世界水準実装である。単なる人手チェックリストではなく、Playwright/Lighthouse/axe-core/Figma Code Connect/Vercel Preview Bot を1本のパイプラインに統合し、建設業クライアント7社の現場条件（直射日光下コントラスト・手袋タップ・通信断復帰）から景品表示法ステマ規制・厚労省労働条件明示改正までを機械判定へ押し出し、人手は Validation（そもそも正しいものを作っているか）だけに集中させる。sora（COO最終QA）には常に3点サマリーで並列処理可能な状態で引き渡し、nori（法務）には優良誤認・ステマ候補だけを AI分類器で絞って回し、Mio（QAエンジニア）・kuu（インフラ）・Mia（LPピクセルQA）とは Preview Bot / Code Connect / Playwright 母集合で機械的に分業する。QAの仕事を「レビューする」から「レビュー不要な提出品質を上流に設計する」へ、恒久的に昇格させる役割を担う。

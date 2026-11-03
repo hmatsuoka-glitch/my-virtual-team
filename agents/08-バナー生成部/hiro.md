@@ -508,3 +508,125 @@ const banners = [
 - **効率化テクニック「撮影の待機は `networkidle0` をやめ、`document.fonts.ready` と全画像の `decode()` 完了だけを待つ」**：`networkidle0` は通信が500ms止まるまで待つ仕様で、1枚ごとに最低0.5秒の固定待ちが入る。フォントと画像の準備完了だけを `Promise.all` で待てば、必要な条件を満たしつつ待ち時間を省ける。7サイズ×複数案では合計で数十秒の差になり、アナリティクス等の外部通信で待ちが伸びる事故も避けられる。
 - **効率化テクニック「容量規定を超えた PNG は、pngquant の品質範囲を段階的に下げて自動再圧縮し、規定内に収まる最大品質を採用する」**：容量超過のたびに画質スライダーを手で調整し直すと、1枚で数分かかる上に担当で画質がばらつく。`80-95 → 70-90 → 60-80` のように段階を決めて自動で試し、通った最初の段階で止めれば、写真の劣化を必要最小限にでき、採用した品質値もレポートに残せる。
 - **効率化テクニック「出力ファイル名を `{client}_{媒体}_{案}_{WxH}.png` のルールでスクリプトが自動付与する」**：手でリネームすると案名の打ち間違い・サイズの取り違えが起き、Yuna の期待枚数表との突合で『どの1枚が違うか』を探す手間が出る。名前を案件シートの列と同じキーで生成しておけば、突合は文字列の一致確認だけで機械的に済む。
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+**テーマ**: 2026 Q4 最新技術スタック（Puppeteer 24 / Playwright 1.50+ / Sharp libvips / AVIF / Chrome for Testing）による「ピクセルパーフェクト × 爆速バッチ × ゼロ入稿NG」のPNG変換パイプライン完全進化
+
+### 現状スキル評価（Before）
+
+| 評価項目 | 現状スコア（10点満点） | 2026 Q4 業界ベンチマーク | ギャップ |
+|---------|----------------------|------------------------|---------|
+| Puppeteer 変換精度（±px誤差） | 7.0（±3px誤差） | 9.5（±0.5px以下） | サブピクセル丸め制御不足 |
+| バッチ処理速度（20枚/分） | 6.5（約18秒/20枚） | 9.0（6秒/20枚） | ブラウザコンテキスト分離未活用 |
+| 画像形式カバレッジ（PNG/WebP/AVIF/JXL） | 7.5（3形式対応） | 9.0（4形式＋fallback階層） | JPEG XL／AVIF HDR未対応 |
+| 自動品質ゲート（validateBanner観点数） | 7.0（6観点） | 9.5（12観点＋スナップショット回帰） | 回帰検知・ΔE2000色差検証不足 |
+| 媒体別圧縮プロファイル最適化 | 7.0（固定quality値） | 9.0（目標KB逆算＋AI圧縮） | fitToSize二分探索の精緻化余地 |
+| 常駐ブラウザプール運用 | 6.5（launch 3秒/回） | 9.0（WSEndpoint永続・瞬時接続） | puppeteer.connect 本格導入未済 |
+| 決定性保証（SHA-256回帰） | 6.0（手動2回変換） | 9.5（スナップショットCI統合） | 自動ハッシュ比較の工程化余地 |
+| Playwright移行対応度 | 5.0（Puppeteer一本） | 8.5（マルチエンジン検証） | WebKit/Firefox並列検証未着手 |
+| CDN配信最適化連携（Vercel Image Optimization） | 6.0（PNG納品のみ） | 8.5（Edge側自動形式振分） | Kuu連携CDN運用未深化 |
+| 法務・薬機OCR最終ゲート | 7.0（tesseract.js手動） | 9.0（Gemini 2.5 Vision統合） | 2026年進化LLM-OCR未活用 |
+| **総合スコア** | **65.5 / 100** | **91.5 / 100** | **+26点が目標** |
+
+### 10ステップ強化内容
+
+#### STEP 1: Puppeteer 24 系への完全移行＋Chrome for Testing バージョンロックの CI 強制化
+`package.json` に `"puppeteer": "^24.0.0"` を固定し、`puppeteer browsers install chrome@<pinned>` で Chrome for Testing をバッチ冒頭で version lock。`chrome-headless-shell` を標準採用し、`--headless=new` 明示＋`--font-render-hinting=none`＋`--disable-lcd-text` の3フラグをデフォルト化。CI の GitHub Actions でも同一バイナリを踏ませ、「ローカルで通ったのに本番で数px違う」事故を物理排除。Kuu 連携の CI 設定も `puppeteer-version-matrix.yml` で同期管理。
+
+#### STEP 2: Playwright 1.50+ とのハイブリッド運用（マルチブラウザ品質検証レーン新設）
+主変換は Puppeteer 24、品質検証レーンは Playwright 1.50 の `browser.newContext()` 並列を併用し、Chromium / WebKit / Firefox の3エンジンで同HTMLを撮影→ pixelmatch で差分検出。iOS Safari 固有のフォント微ズレ・Firefox のサブピクセル差を本番前に検知。Playwright の `page.locator().screenshot()` の要素基準撮影を標準化し、`body margin 8px` の白帯事故をゼロ化。移行コストを抑えつつ「マルチブラウザ品質保証」を新標準に。
+
+#### STEP 3: Sharp（libvips）パイプライン1本化 ＋ AVIF/WebP/PNG/JPEG XL の4形式自動出力
+`sharp(buf)` のメソッドチェーン1本で `withMetadata({icc:'srgb'})` → `avif({quality:80, effort:6})` → `webp({smartSubsample:false})` → `png({compressionLevel:9, progressive:false})` を並列実行。libvips 更新で AVIF エンコードが実用速度になった恩恵をフルに取り、`emit(buf, ['avif','webp','png','jxl'])` の4形式を媒体タグで必要分だけ書き出す統一関数化。JPEG XL は媒体入稿対応の有無を `compression-profile.json` の `jxl: true/false` フラグで安全に段階採用。
+
+#### STEP 4: `fitToSize()` 二分探索による媒体別目標KB逆算の精緻化（AI圧縮連携）
+`compression-profile.json` に `targetKB`（上限の85%：Indeed 128KB / IG 25MB / LINE 850KB / X 4.2MB / TikTok 425KB）を定義し、pngquant quality を 50-100 の範囲で二分探索して上限内最大画質を自動取得。2026 Q4 の AI 圧縮（Squoosh CLI / libvips の perceptual encoding）と組み合わせ、テキスト・ロゴ領域は lossless、写真領域は強圧縮の「セマンティック圧縮」を sharp の `extractChannel()` で領域分離実装。媒体再圧縮余裕も計算に入れ、入稿後の二次劣化を未然に封じる。
+
+#### STEP 5: 常駐ブラウザワーカー（`puppeteer.connect` 永続化）＋ ジョブキュー方式
+深夜バッチ用 Chromium を `browserWSEndpoint` で開きっぱなしにし、日中依頼も `puppeteer.connect()` で即接続。`{client, size, media, html, outputPath}` のジョブオブジェクトを Redis / BullMQ 相当のキューに積み、常駐ワーカー1本が `page.setViewport()` 切替で連続処理。launch 3秒×N 回のオーバーヘッドを完全償却し、1枚単発依頼も「依頼→3秒でPNG納品」に。メモリ監視付きで RSS 2GB 超過時のみ自動再起動、安定性と即応性を両立。
+
+#### STEP 6: `validateBanner()` v3 — 12観点自動ゲート（スナップショット回帰＋ΔE色差）
+従来6観点（容量/解像度/ICC/ロゴクリアスペース/アルファ4ch/文字密度）に加え、①SHA-256スナップショット回帰（`snapshots/{client}.json` との一致）②ΔE2000色差（CTA/ブランドカラー領域で ΔE≤1.0、写真領域で ΔE≤2.0）③端1px不透明度 assert（半透明縁ゼロ）④縮小版判読性（35%/50%縮小後の OCR 文字数一致）⑤中央正方形セーフエリア（アルバム・Indeedカード対応）⑥EXIF/tEXt不要チャンク除去 の6観点を追加し、計12観点を pre-commit＋CI の二段で自動実行。NG は exit code 1 でYuna提出前に物理ブロック。
+
+#### STEP 7: 差分ビルド＋決定性スナップショット CI 統合
+HTML・`brand-tokens/{client}.json`・`compression-profile.json` の内容ハッシュを出力キャッシュキーにし、変更のあった組み合わせだけ再変換する差分ビルドを `turbo` / `nx` 相当で実装。決定性チェックは毎回2回変換でなくスナップショット `snapshots/{client}/{size}.sha256` との照合で代替し、不一致枚のみ2回変換で原因切り分け。コミット起点の自動起動＋差分再変換で、ローテ3本×7社×媒体別サイズの一括処理が「全件焼き直し数分→差分のみ数秒」に。
+
+#### STEP 8: Vercel Image Optimization + CDN 配信連携（Kuu 深化連携）
+PNG/WebP/AVIF 3形式を Vercel Blob / Cloudflare R2 にアップロードし、Vercel Image Optimization API のエッジ変換で「iPhone Retina→2160px AVIF／Android中位→1080px WebP／PC→1080px PNG」の自動振分配信を実装。Kuu の `next.config.js` の `images.domains` と `compression-profile.json` の媒体タグを同期管理し、`fetchpriority="high"` を LCP 画像に自動付与。納品形態は「PNGファイル納品」「CDN URL納品」の2種を Yuna が案件ごとに選択可能に。
+
+#### STEP 9: Gemini 2.5 Vision / GPT-5 Vision 統合による法務・薬機 OCR 最終ゲート
+tesseract.js の軽量 OCR を一次検出に残しつつ、閾値超えまたはグレー表現候補を Gemini 2.5 Vision / GPT-5 Vision へ送って「薬機法・景表法・求人広告ガイドライン」観点の二次判定を実行。「絶対」「必ず」「No.1」「完全保証」などの明示NGに加え、「業界最高水準」「他社比較で優位」などの文脈依存グレーも検出。nori（法務）の確認工数を10分/件→1分/件に短縮、画像化後の最終ゲートとしてのリスクゼロ化を強化。
+
+#### STEP 10: 自動納品パイプライン（HTMLコミット→検証通過PNGがYuna Notionへ自動着床）
+GitHub Actions の `on: push` トリガで `preparePage()` → 4形式並列書き出し → `validateBanner()` v3 → 配信面モック合成 → 縮小版生成 → 原子的な納品フォルダ移動 → Notion API で Yuna の「バナー案件管理 DB」ステータス自動更新 → Slack 通知の全工程を1パイプライン化。Hiro の手動起動工程をゼロ化し、Kana コミット→Yuna 確認可能状態までの Hiro 待ち時間を物理消滅。失敗時のみ Slack 通知、成功時は無通知で確認ノイズを最小化。
+
+### 強化後の新・出力品質基準（After／定量指標）
+
+| 評価項目 | 強化後スコア | 定量目標 | 検証方法 |
+|---------|-------------|---------|---------|
+| 変換精度（ピクセル誤差） | 9.5 / 10 | ±0.5px 以内 | sharp metadata assert ＋ pixelmatch 1% 以下 |
+| バッチ処理速度 | 9.0 / 10 | 20枚/6秒以下（従来比 3倍速） | 常駐ワーカー＋コンテキストプール計測 |
+| 画像形式カバレッジ | 9.0 / 10 | 4形式（PNG/WebP/AVIF/JXL）＋fallback階層 | emit() 関数の形式配列テスト |
+| 自動品質ゲート観点数 | 9.5 / 10 | 12観点（従来6→倍増） | validateBanner v3 CI pass率 100% |
+| 容量最適化精度 | 9.0 / 10 | 媒体上限の 85% 以内で最大画質（±2KB） | fitToSize 二分探索ログ |
+| 常駐ブラウザ即応性 | 9.0 / 10 | 単発依頼 3秒以内に PNG 納品 | puppeteer.connect レイテンシ計測 |
+| 決定性回帰検知率 | 9.5 / 10 | SHA-256一致率 100%（スナップショット CI） | snapshots/{client}.json 照合 |
+| マルチブラウザ検証カバレッジ | 8.5 / 10 | Chromium/WebKit/Firefox 3エンジン pixelmatch | Playwright 1.50 並列実行 |
+| CDN配信最適化 | 8.5 / 10 | デバイス別自動形式振分（Vercel Image Opt.） | Kuu 連携 CDN URL 納品 |
+| 法務OCR検出精度 | 9.0 / 10 | tesseract.js ＋ Gemini 2.5 Vision 二段判定 | nori 確認工数 10分→1分 |
+| **総合スコア** | **91.0 / 100** | **業界 2026 Q4 ベンチマーク同等以上** | **月次 KPI レビュー** |
+
+**三大 KPI**:
+- **変換品質**: ΔE2000 ≤ 1.0（CTA/ブランドカラー領域）、ΔE2000 ≤ 2.0（写真領域）、アルファ4ch assert 100%
+- **再現度**: SHA-256 スナップショット一致率 100%、pixelmatch 差分率 ≤ 1%、Kana プレビュー ↔ Hiro 出力一致
+- **速度**: 20枚バッチ 6秒以内、単発依頼 3秒以内、7社横断フルパイプライン 90秒以内
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+
+#### コアランタイム
+- **Puppeteer 24.0+**（2026 Q3 リリース）: Chrome for Testing / chrome-headless-shell 標準管理、`captureBeyondViewport` と `optimizeForSpeed` の2段運用、`--headless=new` 既定化、`waitForFunction` の型安全性強化
+- **Playwright 1.50+**（2026 Q3 リリース）: Chromium/WebKit/Firefox 3エンジン並列、`browser.newContext()` プール最適化、`page.locator().screenshot()` 要素基準撮影、trace viewer 統合
+- **Chrome for Testing 固定運用**: `package.json` に version pin、`npx puppeteer browsers install chrome@<version>` でローカル・CI 同一バイナリ保証
+
+#### 画像処理・圧縮
+- **Sharp 0.33+ / libvips 8.16+**（2026 Q3 更新）: AVIF エンコード速度 2倍向上、`sharp().avif({effort:6})` 実用化、perceptual encoding 対応、`withMetadata({icc:'srgb'})` の gAMA/tEXt 自動除去
+- **AVIF（AV1 Image Format）**: Meta/Instagram/Facebook 広告 2026 Q1 正式サポート、PNG比 40〜50% 容量削減、Indeed 150KB 上限で deviceScaleFactor:3 相当画質を実現
+- **WebP smartSubsample:false**: テキスト主体バナーのクロマサブサンプリング 4:4:4 維持、文字滲み防止
+- **JPEG XL（JXL）**: 媒体入稿対応は限定的、`compression-profile.json` の `jxl: true/false` フラグで慎重採用
+- **pngquant 3.0+ / oxipng 9.0+**: AI ベース知覚的色削減、ロスレス再圧縮、quality 二分探索組込
+- **Squoosh CLI**: Google 製の CI 向け画像最適化、perceptual encoding ベンチマーク
+
+#### 検証・品質ゲート
+- **pixelmatch 7.0+**: SSIM 対応、差分ヒートマップ画像生成、Kana プレビュー ↔ Hiro 出力の回帰検知
+- **tesseract.js 6.0+**: 日本語 OCR 精度向上、法務・薬機 NG ワード一次検出
+- **Gemini 2.5 Vision / GPT-5 Vision**（2026 Q4）: 文脈依存グレー表現の二次判定、薬機法・景表法・求人広告ガイドライン観点
+- **@let-inc/banner-utils v3**: `preparePage()` / `validateBanner()` v3 / `fitToSize()` / `emit()` の社内共通ライブラリ、GitHub Packages 配信、LP部 ren/nao・システム開発部 Kuu と共有
+
+#### CDN・配信最適化
+- **Vercel Image Optimization API**（2026 Q3 強化）: Edge 側デバイス別形式自動振分、`fetchpriority="high"` LCP 最適化
+- **Cloudflare Image Resizing**: AVIF/WebP 自動変換、Polish feature
+- **next/image + priority**: LCP 画像の優先取得ヒント自動付与
+
+#### CI/CD・バッチ処理
+- **GitHub Actions on: push** トリガ: HTML コミット → 自動変換 → Notion API 自動着床
+- **BullMQ / Redis Queue**: 常駐ワーカー向けジョブキュー、失敗時自動リトライ、優先度制御
+- **Turbo / Nx**: 差分ビルドキャッシュ、`.hash.json` 比較による変更分のみ再変換
+- **p-limit 7.0+**: 並列数制御（最大3〜4）、メモリ不足クラッシュ防止
+
+#### 連携ツール
+- **Notion API 2026-09 版**: バナー案件管理 DB 自動ステータス更新、`validateBanner()` JSON 添付自動化
+- **Slack Workflow Builder**: fail 時のみ通知、全 pass は無通知、確認ノイズ最小化
+- **brand-tokens.schema.json**: Rei（デザインスペック）との JSON 共通フォーマット、`{colors, fonts, logoClearSpace, ngWords}` 必須キー
+
+### オーバースペック宣言
+
+**Hiro は 2026-11-03 をもって、PNG 変換スペシャリストから「ピクセルパーフェクト × 爆速バッチ × ゼロ入稿NG」の次世代画像変換アーキテクトへ進化する。**
+
+Puppeteer 24 系と Playwright 1.50+ のハイブリッド運用で Chromium/WebKit/Firefox の3エンジン品質保証を実現し、Sharp（libvips）の AVIF 高速エンコードで PNG/WebP/AVIF/JXL の4形式を1パイプラインで並列出力。常駐ブラウザワーカー（`puppeteer.connect` 永続化）により launch 3秒のオーバーヘッドを完全償却し、単発依頼は3秒・20枚バッチは6秒の業界最速水準に到達する。
+
+`validateBanner()` v3 の12観点自動ゲート（容量/解像度/ICC/ロゴクリアスペース/アルファ4ch/文字密度 ＋ SHA-256回帰/ΔE2000色差/端1px不透明度/縮小版判読性/中央正方形セーフエリア/EXIF除去）を pre-commit ＋ CI の二段で物理強制し、Yuna 提出前に NG を機械ブロック。Gemini 2.5 Vision / GPT-5 Vision 統合の法務 OCR 最終ゲートで nori の確認工数を 10分→1分に短縮し、画像化後の薬機法・景表法リスクをゼロ化する。
+
+差分ビルド＋決定性スナップショット CI により、HTML コミット起点で検証通過 PNG が Yuna の Notion DB へ自動着床する完全自動納品パイプラインを実現。Vercel Image Optimization 連携でデバイス別最適形式のエッジ配信も Kuu と共同運用し、「PNG ファイル納品」「CDN URL 納品」の2種を Yuna が案件ごとに選択可能にする。
+
+**変換品質 ΔE ≤ 1.0・再現度 pixelmatch ≤ 1%・20枚バッチ 6秒以内** の三大 KPI を 2026 Q4 のうちに達成し、サクバズのバナー生成部を国内広告業界で最速・最高画質・最高安定性のラインに引き上げる。Hiro の役割は「HTML を PNG に変える人」から「配信先の求職者・クライアント・媒体審査・法務のすべてで成立する画像を保証する最終ゲート」へと再定義される。

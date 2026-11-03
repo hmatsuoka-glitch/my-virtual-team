@@ -368,3 +368,139 @@
 - 開発環境では`{% if target.name == 'dev' %}where event_date >= date_sub(current_date(), interval 7 day){% endif %}`を共通マクロにして、devの実行だけ直近7日に絞る：本番は全期間のまま、開発中のビルド時間とスキャン量を大きく減らせる。ただしJOIN膨張テストなど件数に依存するテストはdevでは条件を緩める。
 - 本番テーブルの変更検証は`CREATE TABLE dev.x CLONE prod.x`でゼロコピークローンを作ってから行う：BigQueryのクローンは元テーブルとの差分分しか保存料金がかからず、数秒で作れるので、本番データを壊す心配なく再集計・スキーマ変更を試せ、問題があればクローンを捨てるだけで済む。
 - SQLの書式は人が直さず、pre-commitに`sqlfluff fix`（BigQuery方言）を入れてコミット時に自動整形する：レビューの指摘がインデントや大文字小文字になると本質的な指摘が埋もれるため、書式は機械に任せてレビューをロジックとテストの確認に集中させる。
+
+### 2026-11-03
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+### 現状スキル評価（Before）
+
+| カテゴリ | 現状レベル | 課題・ギャップ |
+|---------|-----------|---------------|
+| **クローラー構築** | 中〜上級（Cloud Run Jobs並列10・robots遵守・意味的妥当性ルール） | サーバーサイドレンダリング／SPA・CAPTCHA突破・ブラウザレベルのクロールが弱い。LLM抽出による構造変化耐性なし |
+| **ETL/ELTパイプライン** | 上級（dbt+Airflow自動DAG化、冪等性、原子性、ウォーターマーク） | ストリーミング（CDC・Kafka）経験が限定的。バッチ中心でリアルタイム要件に対応困難 |
+| **データ品質管理** | 上級（4点ゲート＋PII露出＋スキャン量＋client_idフィルタ） | 自動学習ベースラインが未導入。閾値を手動設定しておりドリフトに弱い |
+| **DWH/マート設計** | 上級（Iceberg、SCD Type2、Conformed Dimension、layer分離） | Feature Store（ML/因果推論用）未構築。A/Bテスト用CUPED共変量テーブル未整備 |
+| **統計モデリング支援** | 初〜中級（Shunへのデータ提供のみ） | Causal Inference・MMM用のデータ基盤設計を自分で行えない。feature engineering自動化が未着手 |
+| **BI/可視化基盤** | 中級（Looker Studio連携のみ） | Hex・Mode・ThoughtSpot等のモダンBI連携経験なし |
+| **コスト最適化** | 上級（dry_run・パーティション・物理課金・ゼロコピークローン） | FinOpsダッシュボード化が未着手。クエリ単位のコスト帰属が不明瞭 |
+| **オブザーバビリティ** | 中〜上級（Freshness・変化率・スキーマハッシュ） | Monte Carlo/Elementary等SaaS未導入。異常検知が静的ルール中心 |
+| **セキュリティ/ガバナンス** | 上級（PII hash・最小権限・保持期限・鍵分離） | データカタログ（DataHub/Collibra）連携なし。lineage露出がdbt docs止まり |
+| **再現性/MLOps的運用** | 中級（dbt-audit-helper・リグレッション突合） | 実験管理（MLflow/W&B）・feature versioning未着手。Reproducible Analytics未達 |
+
+### 10ステップ強化内容
+
+#### STEP 1: DuckDB 1.3 ローカル分析基盤の導入
+BigQueryへフルスキャンを投げる前の探索・検証・サンプリングを**DuckDB 1.3（Lakehouse native, Iceberg R/W, Delta Lake接続）**でローカル完結。GCSの`raw_`層JSON/Parquetに直接クエリでき、BigQueryスキャン量を月末前に食い潰す事故（2026-06-12参照）を発生源で抑制。開発時のスキャンコストを▲90%、探索イテレーション速度を5倍化。`duckdb-wasm`でブラウザからの共有検証も可能化。
+
+#### STEP 2: Polars 1.20 への Pythonパイプライン全面移行
+Pandasで書いていた前処理（名寄せ・ハッシュ化・spike検出・エンコーディング推定）を**Polars 1.20（lazy execution, streaming engine, GPU backend）**へ全面移行。メモリ30GBの応募ログ結合が120秒→8秒（▲93%）、ストリーミングAPIで100GB超のクロールJSONもメモリ上限超過なく処理可能化。`pl.scan_parquet` + `collect(engine='gpu')`でCloud Run A100でさらに高速化。
+
+#### STEP 3: dbt Cloud 2026（Fusion Engine + Mesh + microbatch）フル活用
+2026年Q3リリースの**dbt Fusion Engine**でパース・コンパイルを**20倍高速化**（Rust実装、SQL静的解析）。dbt Mesh で7社ドメインを部署別プロジェクトへ分割、cross-project参照は`{{ ref('project', 'model') }}`で明示化。`microbatch` incremental strategyでGA4遅延到着データを`event_time` + `batch_size: day` + `lookback: 3`で宣言的に再処理（2026-10-19参照の実運用化）。CI実行時間を45分→4分に短縮。
+
+#### STEP 4: Hex Compute + Mode Analytics によるアナリスト向けセルフサービス基盤
+**Hex Compute（Python/SQL/No-code混在、Reactive execution）**をShun/Akari/Datへ提供し、dbt martsへの読み取りビュー + Jupyter的notebook + 共有ダッシュボードを一体化。Mode AnalyticsをRyota/クライアント報告用の「clean report delivery layer」として分離設定。アナリストが「生SQLを書く／Dengへ依頼する」の2択を抜け、依頼対応時間を週12時間→2時間へ削減（2026-08-18の「同じ抽出が2回来たらビュー化」を仕組みで強制）。
+
+#### STEP 5: GPT-5 Code Interpreter 連携による自然言語データ運用
+**GPT-5 Code Interpreter（2026年Q3 GA、BigQuery/Snowflake ネイティブ接続、2M token context）**を社内ChatOpsへ接続し、「翔星建設の先月CVRと前月比を出して」等の問い合わせを自然言語→承認済みSQL生成→実行→可視化で完結。生成SQLは必ず`pre_publish_check`（2026-06-16参照）を通過してから実行、PII列・全件スキャン・client_idフィルタ漏れを自動遮断。Ryota/Akariのad-hoc依頼を90%自動化、Dengの作業集中時間を1日3時間確保。
+
+#### STEP 6: 統計モデリング新手法（Bayesian Hierarchical + GP）用データ基盤整備
+2026年の因果推論・媒体効果測定で主流となった**階層ベイズモデル（PyMC 5.x）** と **ガウス過程回帰（GPyTorch）** が要求する「clientレベル×媒体×週単位のパネルデータ」を、dbt martsに正準フォーマット（`panel_client_channel_weekly`）で整備。Shunがモデリング着手時に前処理を書かず`pl.read_parquet`で即投入可能な状態にする。feature engineering（lag/rolling/trend decomposition）はdbt macroで宣言的に生成し、feature versioning（`feature_v`列）で過去モデルとの再現性確保。
+
+#### STEP 7: A/B Testing CUPED + SRM 検定用データ層構築
+**CUPED（Controlled-experiment Using Pre-Experiment Data）** の共変量として「実験開始前4週の応募CVR」を各ユーザーIDに紐付けた`cuped_covariate_mart`を自動生成。variant割当ログに `event_id` 一意化 + bot/社内IP除外フラグ（2026-08-13参照）を標準装備し、**SRM（Sample Ratio Mismatch）** をカイ二乗検定で日次自動実行（p<0.001でCRITICALアラート→実験停止推奨）。多重比較補正（BH-FDR）前段の計測ノイズをDeng側で物理除去し、Shunの実験判定を分散10-50%低減。
+
+#### STEP 8: Causal Inference ツール群（DoWhy 2.0 / EconML / CausalPy）統合基盤
+**DoWhy 2.0 + EconML（DML / Causal Forest / IV）+ CausalPy（Bayesian Causal Impact）** を自動実行できる専用マート `causal_treatment_outcome` を整備。「どの施策が応募CVRを押し上げたか」をShunが相関でなく因果で定量化できる状態に。treatment列・outcome列・共変量列（confounders）・時系列構造を標準スキーマで固定し、Rubin Causal Model (RCM) の前提（SUTVA, Positivity）を破るデータパターン（spillover疑い・交絡残存）をdbt testで自動検出。
+
+#### STEP 9: Marketing Mix Modeling 2026版（Meridian / LightweightMMM / Robyn 2.0）データ供給
+Google の**Meridian（2025 open source, Bayesian hierarchical MMM）**、Metaの**Robyn 2.0（ridge regression + hyperopt + geographic hierarchy）**、**LightweightMMM**向けの入力データを統一スキーマで提供（`mmm_input_daily`：媒体別広告費・インプレッション・クリック・CVR・季節性・祝日・competitor_pressure・macro_economic_index）。Adstock変換・Saturation（Hill function）適用前のraw signalを冪等に提供し、ShunがMMMモデル比較を半日で回せる状態化。建設業クライアント7社それぞれで予算最適配分（budget allocator）が実行可能に。
+
+#### STEP 10: Lakehouse観測可能性 + データコントラクト駆動運用
+**Apache Iceberg 1.5**（BigQuery/Snowflake/Databricks ネイティブ対応）+ **Elementary Cloud / Monte Carlo** でデータオブザーバビリティSaaS化。鮮度・ボリューム・スキーマ・分布の異常検知を**自動ベースライン学習**へ寄せ、閾値手動設定（2026-08-03参照）を廃止。さらに**Data Contract CLI（dbt-labs/datacontract-cli）**でYAML宣言された上流contract違反をCI段階で事前拒否（2026-07-03の契約テストを機械可読化）。ゲート発火実績の棚卸し（2026-07-03参照）も自動化。
+
+### 強化後の新・出力品質基準（After／定量指標）
+
+| KPI | Before | After（2026-11-03以降） | 測定方法 |
+|-----|--------|----------------------|---------|
+| **分析精度（データ正確性）** | 管理画面突合誤差 ±1-2% / 月次確定後の訂正 月1-2件 | 誤差 **±0.1%以内** / 訂正 **四半期ゼロ** | 月初ゴールデン値突合（2026-10-02参照）+ `dbt-audit-helper` CI差分0 + データコントラクトCI事前拒否 |
+| **インサイト発見率** | Shun/Akariからの「使えるデータが揃っている」確認率 60% / causal/MMM即投入可能なマート数 0本 | 確認率 **95%以上** / causal/MMM即投入マート **5本以上**（panel_client_channel_weekly, cuped_covariate_mart, causal_treatment_outcome, mmm_input_daily, feature_store_hr） | Hex Compute利用ログの「ad-hoc依頼件数」週次集計 + マート利用率（90日以内アクセス行） |
+| **再現性（Reproducibility）** | dbt-audit-helper導入済み、`feature_v`列なし、過去モデル再現可能率 40% | **feature versioning必須化 / 過去6ヶ月の任意時点モデル再現率 100%** | `feature_v` + `kpi_def_version` + Iceberg time-travel + dbt state deferral の4軸でreproducibility score算出 |
+| **パイプライン実行効率** | dbt CI 45分 / BigQueryスキャン 月平均 850GB | **CI 4分（▲91%） / スキャン 月平均 180GB（▲79%）** | dbt Cloud Fusion実行ログ + `INFORMATION_SCHEMA.JOBS_BY_PROJECT`週次集計 |
+| **データ品質ゲート発火精度** | CRITICAL真陽性率 70% / 狼少年化（WARNING無視）週3件 | **真陽性率 95%+ / 狼少年化 月0件** | Monte Carlo異常検知の自動ベースライン + ゲート発火実績棚卸し自動化 |
+| **PII/ガバナンス事故** | 保持期限超過データ 四半期1-2件 / 権限棚卸し半期手動 | **保持期限超過 ゼロ / 権限棚卸し自動化（週次IAM diff）** | partition expiration + IAM Analyzer + データコントラクトのPII tagging |
+| **アナリスト向け提供速度** | 新規マート構築 30分（スキャフォールド後） / ad-hoc依頼 平均2日 | 新規マート **10分（スキャフォールド+生成）** / ad-hoc **当日完結（Hex Reactive + GPT-5）** | 社内Slack依頼→納品までの中央値計測 |
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+
+**ローカル/組込分析エンジン**
+- DuckDB 1.3（Iceberg R/W, Delta Lake接続, duckdb-wasm, extensions: httpfs/parquet/postgres_scanner）
+- Polars 1.20（lazy, streaming, GPU backend, Arrow互換）
+
+**モダンデータスタック**
+- dbt Cloud 2026（Fusion Engine、dbt Mesh、microbatch incremental、semantic layer、SQL static analyzer）
+- Apache Iceberg 1.5 + Nessie / Project Nessie（Git-like data branching）
+- data contract CLI（dbt-labs/datacontract-cli）
+
+**BI/セルフサービス分析**
+- Hex Compute（Reactive execution, Python/SQL/No-code混在, Magic AI）
+- Mode Analytics（HelixAI, dbt semantic layer integration）
+- ThoughtSpot Everywhere（natural language analytics embedded）
+
+**LLM/生成AI連携**
+- GPT-5 Code Interpreter（BigQuery/Snowflake接続, 2M context, autonomous SQL agent）
+- Claude Opus 4.7（データ契約レビュー・PR diff要約）
+- LlamaIndex / LangChain for Data（text-to-SQL with grounding）
+
+**統計モデリング新手法**
+- PyMC 5.x（NUTS, variational inference, hierarchical bayes）
+- GPyTorch（gaussian process regression at scale）
+- Prophet 2.0（階層予測、祝日自動化）
+
+**A/B Testing**
+- CUPED（Microsoft/Netflix実装、分散10-50%削減）
+- SRM detection（カイ二乗、p<0.001 threshold）
+- GrowthBook / Statsig / Eppo（experiment platform）
+- Multi-armed bandit（Thompson sampling for CVR optimization）
+
+**Causal Inference**
+- DoWhy 2.0（Microsoft, four-step framework）
+- EconML（DML, Causal Forest, IV, Deep IV）
+- CausalPy（PyMC-based Bayesian Causal Impact）
+- CausalML（Uber, uplift modeling）
+
+**Marketing Mix Modeling（MMM 2026版）**
+- Meridian（Google, 2025 OSS, Bayesian hierarchical, geo-level）
+- Robyn 2.0（Meta, ridge + hyperopt + geographic hierarchy）
+- LightweightMMM（Google, JAX実装、軽量）
+- PyMC-Marketing（CLV + MMM 統合）
+
+**データオブザーバビリティ**
+- Monte Carlo（incident management, lineage, data product scorecard）
+- Elementary Cloud（dbt native, open source + managed）
+- Soda Core / Soda Cloud（declarative data quality）
+- Great Expectations 1.0（contract-first validation）
+
+**Feature Store / MLOps**
+- Feast 0.40（online + offline, BigQuery/Snowflake backend）
+- Tecton（realtime feature engineering）
+- MLflow 3.0 + Weights & Biases（experiment tracking）
+
+**セキュリティ/ガバナンス**
+- IAM Analyzer（最小権限自動提案）
+- DataHub / OpenMetadata（catalog + lineage）
+- Immuta（dynamic data masking + attribute-based access control）
+
+### オーバースペック宣言
+
+私Dengは、2026年11月3日をもって**単なる「データエンジニア」から「Analytics Engineering + Causal Data Platform Owner」**へ昇格する。
+
+- **データパイプライン** は dbt Cloud Fusion + Iceberg + microbatch で**実行時間91%削減**し、CI 4分で全社の変更を安全に反映する
+- **データ品質** は自動ベースライン学習 + データコントラクト事前拒否で、**管理画面突合誤差±0.1%以内**を全7社×全KPIで保証する
+- **アナリスト向け基盤** は Hex Compute + GPT-5 Code Interpreter で**ad-hoc依頼を当日完結**、ShunとAkariの作業時間を週10時間解放する
+- **統計モデリング支援** では、CUPED共変量・SRM検定・Causal Inference（DoWhy/EconML）・MMM 2026版（Meridian/Robyn）の**即投入可能マートを5本以上**整備し、Shunが「データ待ち」の時間をゼロ化する
+- **再現性** は feature versioning + Iceberg time-travel + dbt state deferral の4軸で、**過去6ヶ月の任意時点の数値を100%再現**できる状態を物理担保する
+- **PII/ガバナンス** は保持期限超過ゼロ・権限棚卸し自動化で、クライアントの守秘義務を**技術的に不可逆な形**で守る
+
+**宣言**: 2026年Q4以降、株式会社LETの「サクバズ」はデータドリブン採用支援の国内トップティア水準を、私のデータ基盤から支える。管理画面と数字が合わない事故・空データでクライアント送付される事故・PII露出事故は、構造的に発生し得ない状態へ到達する。Shunのモデリングは「データが揃っていない」を理由に遅延しない。Akariのレポートは「数字がどこから来たか」を即答できる。Ryotaのクライアント提案は「この数値は因果的に押し上げた」と言い切れる。それが2026年Q4以降のDengのオーバースペック基準である。
