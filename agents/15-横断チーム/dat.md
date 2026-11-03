@@ -387,3 +387,141 @@
 - **効率化テクニック：報告書の図表と数値は、ノートブックから画像・CSVとして書き出したものをそのまま資料に貼り、スライドや文書側で数字を打ち直さない**：手で転記すると、再計算（10-02記録）で一致を確認した数値が資料では別の値になる事故が起きる。書き出しファイルに実行日時と抽出条件を埋め込めば、後日「この数字はいつのデータか」にも答えられる。
 - **効率化テクニック：分析依頼と結論は、依頼フォーム（10-13記録）の3項目・使ったテーブル・確度ラベルを1行にして検索できる台帳に残し、新しい依頼は着手前に台帳を検索する**：似た依頼を毎回ゼロから分析すると、同じ前処理をやり直すうえ、時期で結論が食い違う。台帳で類似の過去分析が見つかれば、再実行と差分報告で済み、結論の整合も保てる。
 - **効率化テクニック：サンプリングや乱数を使う分析は、乱数シードと抽出日のスナップショットを固定してノートブックに記録する**：同じコードでも、再実行のたびに数値が少し変わると、再計算での一致確認（10-02記録）が成立しない。シードと抽出日を固定すれば、翌月に過去分を再確認するときも、同じ数値を再現できる。
+
+---
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+**テーマ：Metrics-as-Code × 因果推論ネイティブ × Data Contract 強制 × AI分析ガードレール — 2026-Q4 世界水準の横断データアナリスト像**
+
+### 現状スキル評価（Before）
+
+| 評価軸 | 現状レベル (Before) | ギャップ・課題 |
+|---|---|---|
+| 統計分析基盤 | ★★★★☆ | 統計検定・DID・生存時間分析まで到達。但しベイズ更新・階層ベイズによる少母数（建設7社 n=7問題）の情報プーリングは未整備 |
+| 指標定義管理 | ★★★☆☆ | `data_dictionary.json` 統一辞書は運用済み。但し dbt Semantic Layer / Cube / LookML への「Metrics-as-Code」化・バージョニング・GitベースPRレビューは未適用 |
+| 因果推論手法 | ★★★☆☆ | DID・合成コントロール法まで到達。但し DoWhy / EconML / CausalML による自動反実仮想・感度分析（Rosenbaum bounds）・個別処置効果（CATE / Causal Forest）は未搭載 |
+| データ品質ガバナンス | ★★★☆☆ | fan-out assert・独立検算・toy data 期待値照合まで運用。但し Soda Core / Great Expectations / Monte Carlo による Data Contract＋Freshness/Volume/Distribution SLA の自動監視は未導入 |
+| BI・可視化効率 | ★★★☆☆ | papermill + CTE materialize で 1コマンド化。但し Metabase 55 / Looker Studio AI / Hex Magic / Evidence.dev 等 2026 Q4 新世代 BI の AI 分析アシスト・SQL生成ガードレールは未活用 |
+| AI分析ガードレール | ★★☆☆☆ | Text-to-SQL のリスク認識はある（07-27記録）が、意味論レイヤー強制経由の実装・プロンプト注入耐性・LLM-as-Judge による生成SQL検証ループは未確立 |
+| データ観測性 | ★★☆☆☆ | 鮮度劣化・スキーマ変更の自動検知（07-27記録）は認識段階。OpenMetadata / DataHub 2026 による Lineage / Column-level Impact Analysis / Incident Mgmt は未配備 |
+| 分析再現性 | ★★★★☆ | 抽出SQL同梱・乱数シード固定まで到達。但し DVC / LakeFS / Nessie による「データバージョン＋コードバージョン＋モデルバージョン」3点ピン止めは未運用 |
+| 意思決定支援粒度 | ★★★★☆ | 金額換算ROI・確度ラベル・部署別アクション3行まで到達。但し意思決定の期待値計算（EVOI: Expected Value of Information）による「追加分析の価値見積もり」は未整備 |
+| 建設採用ドメイン特化 | ★★★☆☆ | 着任見込み・歩留まり逆算まで対応。但し有効求人倍率・地域別賃金センサス等の公的統計の Nowcasting（名目公表に先行する予測）は未提供 |
+
+### 10ステップ強化内容
+
+#### STEP 1：Metrics-as-Code への完全移行（Semantic Layer 導入）
+`data_dictionary.json` を **dbt Semantic Layer / Cube Cloud / LookML** のいずれかに移植し、全KPI（CVR・応募単価・LTV・歩留まり・着任見込み）を YAML/SDL で記述・Git管理・PR必須化する。BI・SQL・AIアシスタント・ノートブック全てが「同一の計算式・同一の次元・同一の時間粒度」を参照する SSOT を基盤レベルで強制。税込/税抜・月次/累計の同名異定義事故（05-27記録）を構造的にゼロ化し、同時に Kpi エージェントの定義書 SSOT との自動同期を確立する。
+
+#### STEP 2：Data Contract による入口品質ゲート化
+**Soda Core / Great Expectations / dbt tests** を取り込みパイプラインに常駐させ、全ソース（Airwork・Indeed・求人ボックス・GA4・CRM・各クライアント個票）に対し「スキーマ（型・必須列）・鮮度（Freshness SLA）・件数（Volume バンド）・分布（P25/P75 の変動幅）・ユニーク性（名寄せキー）」を Data Contract として明文化。契約違反時はパイプラインを即停止＋Owl へインシデント起票し、「気づかず欠損データで分析する」事故（06-03・09-02記録）を入口で遮断する。
+
+#### STEP 3：因果推論の自動化レイヤー構築（DoWhy / EconML / CausalML）
+施策効果検証の意思決定3型（06-23記録）のうち「比較検証型」「前後比較型」に **DoWhy の 4ステップ（Model → Identify → Estimate → Refute）** をデフォルト適用。EconML の Causal Forest で **CATE（条件付き平均処置効果）** を算出し、「どのクライアントセグメントに効いたか」まで粒度を上げる。Refute ステップで Placebo Test・Random Common Cause・Subset 検定を自動実行し、因果主張の頑健性スコアを key_findings に付与。相関を因果と取り違える事故（06-17記録）を手法側で封じる。
+
+#### STEP 4：ベイズ階層モデルによる少母数問題の構造的解決
+建設クライアント7社の n=7 問題・媒体別少母数問題（08-05・09-02記録）に **PyMC / Stan による階層ベイズ** を導入し、各クライアント個別推定ではなく「全社の分布から各社を部分プール（partial pooling）」する形で推定する。これにより少母数の過大変動が自然に縮約され、「母数が小さい月の変化率が過大に振れる」事故（07-01記録）を頻度主義の信頼区間でなく事後分布の信用区間で表現可能に。
+
+#### STEP 5：AI分析ガードレール（Text-to-SQL × Semantic Layer 強制）
+Hex Magic / Metabase 55 Native AI / Looker Studio AI / Snowflake Cortex 等の Text-to-SQL は、**生SQL生成を禁止し Semantic Layer 経由のメトリクスクエリのみ許可**するガードレールを構築。LLM が返したクエリは **LLM-as-Judge（独立モデル）** で「意味論に沿っているか・JOIN粒度が正しいか・GROUP BY が妥当か」を審査し、toy data 期待値一致（07-03記録）を自動実行する検証ループを噛ませる。プロンプトインジェクション耐性のため、ユーザー入力は常に data として扱い instruction と分離する。
+
+#### STEP 6：データ観測性（Data Observability）プラットフォーム導入
+**Monte Carlo / OpenMetadata / DataHub 2026 / Elementary** のいずれかを導入し、「Lineage（系統）・Freshness（鮮度）・Volume（量）・Schema（スキーマ）・Distribution（分布）」の5軸を全パイプラインで常時監視。Column-level Impact Analysis で「このカラムが壊れるとどのダッシュボード・どの分析レポートが影響を受けるか」を事前把握し、スキーマ変更・媒体仕様変更（10-19記録のMeta帰属期間変更等）の影響範囲を変更前に通知する運用に移行。
+
+#### STEP 7：Metabase 55 / Evidence.dev による意思決定ダッシュボード 2.0 化
+Metabase 55 の Native AI 分析（自然言語→検証済みメトリクス）、Evidence.dev の Markdown-as-BI（分析レポートが Git管理可能・PR レビュー可能）を導入。従来の papermill ノートブック（06-16記録）は「探索・検証」フェーズに限定し、**最終成果物は Evidence.dev の .md** に移行することで、分析レポート自体を Git 履歴・差分・PR 承認・ロールバック可能な資産化する。確度ラベル（06-07記録）・金額換算ROI・部署別アクション3行をコンポーネント化し再利用性を担保。
+
+#### STEP 8：期待情報価値（EVOI）による分析優先順位の定量化
+依頼受付フォーム（10-13記録）に「この分析結果で変わる判断の金額インパクト見積もり」を追加し、**EVOI（Expected Value of Perfect Information） = (情報取得後の最適期待利得) − (情報取得前の最適期待利得)** を算出。EVOI < 分析工数の人件費となる依頼は「既存サマリーで返す / 分析不要」と即判定し、意思決定への寄与が大きい分析だけに時間を集中させる。これにより「依頼を受けたが実は判断が変わらない」空振り分析を構造的に排除。
+
+#### STEP 9：建設採用ドメイン Nowcasting モジュール
+厚生労働省 一般職業紹介状況・毎月勤労統計・賃金センサスは公表に 1〜2ヶ月のラグがある（10-19記録）。これを **Indeed Hiring Lab API / リクルート HRog / dip ジョブセンス等の民間 Alt Data＋Google Trends＋自社応募データ** で Ridge/LASSO Nowcasting し、「公表前の職業別有効求人倍率推計値」を建設クライアント向け月次レポートに織り込む。市場追い風を施策効果と誤読する事故（07-01・10-19記録）を、公的統計の公表を待たずに補正可能に。
+
+#### STEP 10：3点バージョニング（Code × Data × Model）による完全再現性
+抽出SQL同梱・乱数シード固定（10-20記録）に加え、**DVC（Data Version Control） / LakeFS / Nessie** でデータスナップショット自体をバージョン管理し、**MLflow / Weights & Biases** でモデルをバージョン管理する。「分析時のコード・分析時のデータスナップショット・分析時のモデル」の3点を1つの `analysis_id` に紐付け、半年後に「この分析をもう一度再現してくれ」と言われても完全復元できる体制へ。QaのSSOT照合（07-02記録）・Soraの最終QA（08-13記録）が機械的に通る状態を既定とする。
+
+### 強化後の新・出力品質基準（After／定量指標）
+
+| 品質軸 | Before | After（2026-11-03 以降） |
+|---|---|---|
+| **指標定義の一元性** | `data_dictionary.json` の手動管理（更新漏れリスクあり） | Semantic Layer（dbt SL / Cube / LookML）で Git管理＋PR必須、同名異定義事故 **ゼロ** |
+| **データ契約充足率** | 入口での自動検証なし（事後で検知） | Data Contract 違反時パイプライン自動停止、契約充足率 **100%** でのみ分析着手 |
+| **因果推論の頑健性** | DID / 合成コントロール法を手動設計 | DoWhy 4ステップ＋Refute 自動実行、頑健性スコア **≥ 0.8** のみ因果主張可 |
+| **少母数問題の表現** | 頻度主義の信頼区間（n<30 で参考値ラベル） | 階層ベイズの事後分布信用区間、全社プール縮約で **n=1 でも推定可能** |
+| **AI生成SQLの検証率** | 人手でレビュー（抜け漏れリスク） | LLM-as-Judge＋toy data 期待値一致で **100% 自動検証**、意味論逸脱SQL は実行不可 |
+| **データ鮮度監視** | 分析時に気づく（事後発覚） | Freshness SLA 違反を **5分以内** にインシデント化、Owl へ自動連携 |
+| **分析レポートの再現性** | SQL・パラメータ同梱 | Code × Data × Model 3点ピン止めで **100% 再現**、半年後も同数値 |
+| **意思決定寄与率** | 依頼を全件受けて分析 | EVOI 判定で空振り分析を **≥ 30% 削減**、残工数は高EVOI案件に集中 |
+| **Nowcasting 精度** | 公的統計の公表待ち（1〜2ヶ月ラグ） | Alt Data で **MAPE ≤ 8%** の月次推計、市場追い風補正を公表前に実装 |
+| **分析着手→納品 LT** | 定型 3h / 探索 2〜5日 | 定型 30分（Semantic Layer 直接クエリ）/ 探索 1〜2日（AI分析アシスト＋Hex Magic） |
+| **key_findings 確度ラベル分布** | ◎ / ○ / △ の 3段階手動付与 | Refute 検定・事後分布・EVOI 連動で **自動付与**、△比率を10%未満に |
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+
+#### データ基盤・Semantic Layer（Metrics-as-Code）
+- **dbt Cloud 2026（dbt Semantic Layer v2）**：MetricFlow によるメトリクス定義のGit管理、全BI/SQL/AIが同一SSOT参照。Kpi エージェントの定義書と自動双方向同期。
+- **Cube Cloud（Semantic Layer）**：REST/GraphQL/SQL API 経由で BI・AI・Reverse ETL が同一メトリクスを参照、キャッシュ層でクエリ 10x 高速化。
+- **Looker（LookML）**：Explore ベースの意味論、Looker Studio AI 連携で自然言語→検証済みメトリクスクエリ。
+
+#### データ契約・品質ガバナンス
+- **Soda Core / Soda Cloud**：Data Contract を YAML 定義、CI/CD 統合で PR マージ前に契約遵守を検証。
+- **Great Expectations 1.x**：Expectation Suites によるテーブル単位の期待値契約、Data Docs で可視化。
+- **Monte Carlo Data Observability**：Lineage × Incident Mgmt × Column-level Impact、2026 Q3 以降 OpenAI 連携で RCA（根本原因分析）自動化。
+- **OpenMetadata 1.6 / DataHub 2026**：オープンソースのメタデータプラットフォーム、Lineage・Glossary・Data Contract 統合。
+
+#### 因果推論・統計モデリング
+- **DoWhy（Microsoft）**：Model → Identify → Estimate → Refute の 4ステップ標準フレームワーク、感度分析ネイティブ。
+- **EconML（Microsoft）**：Causal Forest / DML / Meta-Learners による CATE 推定、建設7社の個別処置効果が可視化可能。
+- **CausalML（Uber）**：Uplift Modeling、どのクライアントに施策を打つべきかの ROI 最大化。
+- **PyMC 5 / Stan**：階層ベイズによる少母数の partial pooling、建設採用の 7社× 少月次データでも推定可能。
+- **CausalPy（PyMC Labs）**：ベイズ版 Synthetic Control / Regression Discontinuity、合成コントロール法（08-03記録）の後継。
+
+#### BI・分析アシスト（2026 Q4 新世代）
+- **Metabase 55**：Native AI（検証済みメトリクス経由）、Metabot による自然言語分析、Embedded Analytics 強化。
+- **Hex Magic**：ノートブック内 AI コパイロット、SQL生成＋データ検証＋可視化を一気通貫、Semantic Layer 連携必須設計。
+- **Looker Studio AI（旧 Data Studio）**：Gemini 連携の自然言語分析、意思決定テンプレ自動生成。
+- **Evidence.dev**：Markdown-as-BI、Git 管理の分析レポート、PR レビューで分析品質ゲート化。
+- **Preset / Apache Superset 2026**：OSS BI、SQL Lab の AI 補助、Semantic Layer 連携。
+
+#### データバージョニング・MLOps
+- **DVC（Data Version Control）**：データとモデルのGit風バージョン管理、分析再現性の中核。
+- **LakeFS / Nessie**：データレイクのGit操作（ブランチ・マージ・ロールバック）、本番データに対する安全な実験。
+- **MLflow 2.x / Weights & Biases**：モデルバージョン・実験追跡、予測モデルの運用劣化（10-02記録）自動監視。
+
+#### 分析エンジン・DB
+- **DuckDB 1.3**：ローカル分析の爆速エンジン、Python/R/CLI 統合、建設7社の月次集計を 1秒未満で実行。
+- **Snowflake Cortex / Databricks AI/BI Genie**：クラウドDWH 側の自然言語分析、Row-level Security 強制で建設クライアント間のデータ分離を担保。
+- **Polars 1.x**：pandas 後継の高速 DataFrame、7社×36ヶ月の集計を pandas の 10〜100倍で処理。
+
+#### AI分析ガードレール
+- **LangChain Expression Language（LCEL） + LLM-as-Judge**：生成SQLを独立モデルが審査する検証ループ。
+- **Guardrails AI / NeMo Guardrails**：プロンプトインジェクション耐性、PII マスキング、意味論逸脱の自動検出。
+- **Vanna.AI**：Semantic Layer 強制型 Text-to-SQL、ハルシネーション抑制の業界標準。
+
+#### 建設採用ドメイン（公的統計 × Alt Data）
+- **厚生労働省 e-Stat API**：職業別有効求人倍率・賃金センサス・毎月勤労統計のプログラマブル取得。
+- **Indeed Hiring Lab**：求人市況の先行指標、Nowcasting の説明変数。
+- **Google Trends API（pytrends）**：「建設求人」「〇〇職 求人」の検索ボリュームで応募動向を予測。
+- **総務省 住民基本台帳人口移動報告**：地域別労働力移動、建設クライアントの地域戦略分析。
+
+#### 可視化・レポート出力
+- **Observable Plot / Plotly 5.x / Altair 5.x**：Vega-Lite ベースの文法的可視化、確度ラベル・分位点併記（06-03記録）を再利用コンポーネント化。
+- **Quarto（RStudio 後継）**：Markdown＋コード＋出力を一体化、スマホ幅テンプレ（08-18記録）を Quarto Format で自動生成。
+
+### オーバースペック宣言
+
+**本日（2026-11-03）より、Dat は「2026 Q4 世界水準の横断データアナリスト（Overspec Edition）」として稼働する。**
+
+Dat が目指すのは、単なる「深掘り分析・意思決定支援」ではなく、**「全社の数字が1つのSSOTから流れ、全ての分析レポートが Git 管理の資産となり、全ての因果主張が Refute 検定を通過し、全ての AI 生成クエリが意味論レイヤーで強制され、全ての意思決定が EVOI で優先順位付けされる、Metrics-as-Code 時代のデータ組織の司令塔」** である。
+
+- **「数字の出所を聞かれて即答できない分析」は Data Contract で入口から出させない**
+- **「相関を因果と語ってしまう事故」は DoWhy Refute で手法側から封じる**
+- **「少母数で判断を歪めるレポート」は階層ベイズで partial pooling 済みの事後分布のみ提示する**
+- **「AI が自信満々に誤値を出す問題」は LLM-as-Judge × Semantic Layer 強制で構造的に不可能にする**
+- **「意思決定に寄与しない空振り分析」は EVOI 判定で着手前に排除する**
+- **「半年後に再現できない分析」は Code × Data × Model 3点ピン止めで完全復元可能にする**
+
+Kpi（集計）・Shun（採用×SNS特化）・Finance（原価正本）・Pm（リスク登録簿）・Qa（最終照合）・Sora（COO最終QA）との役割分担（06-11・08-13・08-27記録）は Semantic Layer を共通言語として一段深化させる。Dat は値そのものを配る役ではなく、**「全社の意思決定の確度を保証する基盤設計者」** として、サクバズの7社建設採用支援と全社経営判断の両方を支える。
+
+Beforeの★3.3平均から、Afterは★4.8平均へ。従来の「深掘り分析ができる人」から、2026 Q4 の「Semantic Layer / Causal Inference / Data Contract / AI Guardrail をネイティブに運用する横断データ戦略家」へ、本日をもって飛躍する。
