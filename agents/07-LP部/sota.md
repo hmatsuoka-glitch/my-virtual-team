@@ -891,3 +891,153 @@ JS ソースから以下のパターンを検出する:
 - **Figma AI "First Draft" で保守案・チャレンジ案を同時に2本出力し、人間はエディットとブランド適用に集中する**：従来は Figma 手描きで案Aに1.5h・案Bに1.5h かかっていたが、First Draft に「建設業・採用LP・ネイビー基調・現場写真Hero」のようなプロンプトを渡すとワイヤー＋配色＋タイポが30秒で2バージョン出る。生成物はそのまま出さず、Mia チェック項目（配色コントラスト・CTA 60px・LCP 画像サイズ）に合うようにエディットし、ブランドトーンだけ人間が差し替える。所要1案30分→合計1h前後まで短縮。
 - **Awwwards 2026 Site of the Year 受賞LPのうち「採用／コーポレート」カテゴリの受賞作だけを Notion に台帳化し、月1回の棚卸しで「使えるパターン」を抽出する**：全受賞を見ると情報過多で忘れる。カテゴリ絞り込みで月5〜8本に減らし、各LPに「流用候補セクション（Hero/信頼/CTA のうちどれが建設業に転用可か）」を書く列を持たせると、提案時に「Awwwards #3415 の Hero パターンを建設業向けに写真差し替えで転用」のように、根拠付きで案を出せる。
 - **Mobbin 2026 の "Landing Page" コレクションで SP ファーストのセクション並び（Hero → 3行価値訴求 → ソーシャルプルーフ → ベネフィット → FAQ → CTA）が主流化**：PCで横並びにしていた3カラム構成が、SP で縦積みになると情報密度が落ちて離脱する。SP の折りたたみ順を先に決め、PC は SP 版の順序を崩さず左右配置に広げる方針に提案書を書き換える。Mobbin の実機動画で「どこで指が止まるか」を観察してからセクション順を決める。
+
+---
+
+## 🚀 スキルアップグレード (2026-11-03) — オーバースペック化 10ステップ強化
+
+### 現状スキル評価（Before）
+
+| 項目 | 現状（Before） | 課題 |
+|-----|-------------|------|
+| 参考LP分析の深さ | 7本固定の参考LP手動分析（カラー・フォント・CTA）| 2026年最新受賞作・SaaS系・海外事例が欠落。手動で網羅性に偏り |
+| 独自デザイン提案の速度 | 2案（保守/チャレンジ）作成に3〜4時間 | Figma手描き中心でAI活用なし。提案までのリードタイム長 |
+| タイポグラフィ設計 | 日本語ゴシック＋英語Sans の静的指定のみ | Variable Font・Expressive Serif等の2026トレンド未対応 |
+| アニメーション企画 | motion_analyzer のCSS/GSAP検出に依存 | Lottie/Rive の統合企画・JS不要のCSS View Transitions未使用 |
+| 業界特化知見 | 建設業LP事例は参考LP1本（jinzai.tlpc-t.co.jp）のみ | 建設業・採用業界のベストプラクティス台帳なし |
+| ツールスタック | Figma手描き・web_fetch参照のみ | Figma AI/Dribbble/Awwwards/Mobbin/Behance の体系活用なし |
+| 決定率（採用率）測定 | 未計測（感覚値） | 案A/B/カスタムのどれが選ばれたかの定量管理なし |
+| QA一発通過率 | 未計測（Miaとのやり取り回数不明） | Miaへの差し戻し率が可視化されていない |
+
+**総評**：参考LP固定・手動分析中心・AI未活用・業界特化台帳なし。品質は職人芸、速度は旧世代。
+
+---
+
+### 10ステップ強化内容
+
+**STEP 1：Figma AI（First Draft / Make / Dev Mode MCP）フル活用の内製化**
+Figma AI の First Draft に「業界×ターゲット×トーン×カラー」を構造化プロンプトで渡し、案A・案B のワイヤー＋配色＋タイポを30秒で2本同時出力。生成物はそのまま出さず、Mia QA項目（AAコントラスト・CTA 60px・LCP 画像サイズ）に合わせて人間がエディット。1案あたりの作成時間を90分→30分へ短縮。Make では採用LP特化のテンプレートセットを3種（コーポレート/採用強化/SaaS系）内蔵し、Dev Mode MCP で Figma ノードを直接 Ren に渡す。
+
+**STEP 2：Dribbble 2026 年次トレンドの体系的収集（週次ルーチン化）**
+毎週月曜に Dribbble の "Popular This Week" から「Landing Page」「Recruitment」「Construction」タグで Top 30 を取得。Notion DB に「配色トレンド／タイポ／レイアウト／モーション」の4カラムで記録し、月末にクラスタリング。2026 Q4 の潮流（Bento Grid / Glassmorphism 2.0 / Aurora Gradient / Brutalist Serif）をタグ付けして提案書に根拠として引用できる状態にする。
+
+**STEP 3：Awwwards 2026 受賞LPの「採用／コーポレート」カテゴリ横断ベンチマーク**
+Awwwards 2026 の Site of the Day / Site of the Month / Site of the Year 受賞作から「採用」「コーポレート」「業界特化」の3カテゴリを月次棚卸し。各受賞作に「流用候補セクション（Hero/信頼/CTA のうちどれが建設業に転用可か）」と「技術難易度（Ren 実装工数見積もり）」の2軸で評価列を持たせ、提案時に Awwwards 受賞作の根拠付き引用を可能にする。
+
+**STEP 4：Mobbin 2026 のSPファースト設計ガイドライン策定**
+Mobbin の "Landing Page" コレクション（SP実機動画）から、2026 Q4の主流セクション並び（Hero → 3行価値訴求 → ソーシャルプルーフ → ベネフィット → FAQ → CTA）をデフォルト仕様に。SP折りたたみ順を先に決めてから PC版へ広げる「SPファースト」フローを Nao への引き渡し仕様欄に標準セクションとして追加。
+
+**STEP 5：SaaS LP ライブラリ分析（Linear / Vercel / Framer / Stripe / Notion）**
+Linear・Vercel・Framer・Stripe・Notion・Resend・Clerk の最新LPを月次でスクレイピング（Playwright full-page screenshot）し、「情報設計の密度」「ソーシャルプルーフの出し方」「ドキュメント／変更履歴の見せ方」の3観点で分解。採用LPへの転用アイデアを月5本以上ストック。Landbook.com・SaaS Landing Page Collection・OnePageLove も補助情報源に。
+
+**STEP 6：Behance 建設業・採用LPケーススタディ横断台帳**
+Behance の「Construction Branding」「Recruitment Website」「Industrial Design」から事例を月10件収集し、「ブランドアイデンティティ・配色セオリー・写真トーン」をメタ化。日本の建設業LPに不足する「現場写真の抽象化」「職人を主人公にしたストーリーテリング」のパターンを抽出し、提案書にネイティブに組み込める状態にする。
+
+**STEP 7：2026 Q4 タイポグラフィトレンド対応（Variable Font / Expressive Serif / Fluid Typography）**
+Variable Font（Noto Sans JP Variable・Inter Variable）で見出し・本文を1ファイルで ウェイト可変化、CSS `font-variation-settings` と `clamp()` で画面幅連動のFluid Typography を標準装備。Expressive Serif（Shippori Mincho B1・DotGothic16・Playfair Display）を Hero キャッチの差別化レイヤーとして用意。Google Fonts v2 / Fontshare / Adobe Fonts の最新ラインナップを提案カタログ化。
+
+**STEP 8：Lottie / Rive アニメーション統合企画**
+LottieFiles と Rive の2026ライブラリから、建設業・採用LP向けのマイクロインタラクション（CTAホバー・スクロールプログレス・数値カウントアップ・ローディング）10種をプリセット化。Lottielab で軽量化（<30KB）してから Ren へ `.lottie` ファイル形式で引き渡し。Rive は条件分岐インタラクション（マウス位置連動）が必要な場合のみ使用。CSS View Transitions（`animation-timeline: scroll()`）で JS 不要の軽量演出を優先。
+
+**STEP 9：建設業LPデザイン事例集（50本）の構築と差分分析**
+国内建設業（ゼネコン・サブコン・設備・土木）LP 50本と、採用強化LP 30本、海外建設業LP 20本（Behance経由）を Notion DB に台帳化。「配色（ネイビー/赤/黒の採用率）」「フォント（Noto系の採用率）」「写真（現場写真 vs イラスト）」「CTA（電話 vs フォーム vs LINE）」の4軸で可視化。クライアント業態（住宅系/土木系/設備系/人材系）別の勝ちパターンを定量化。
+
+**STEP 10：AI生成素材パイプライン（Midjourney v7 / Firefly 3 / Freepik AI）統合**
+写真素材が間に合わない場合の AI 生成パイプライン整備。Midjourney v7 で現場風景のコンセプトアート、Adobe Firefly 3 で商用利用可能な建設業写真、Freepik AI で日本人職人のストック画像を生成。Nano Banana（Google Gemini Image）で高速プロトタイプ用素材。生成物は Mia QA で「AI生成感」をチェックし、Hero は実写マスト・補助カットのみAI許容のポリシーで運用。
+
+---
+
+### 強化後の新・出力品質基準（After／定量指標）
+
+| KPI | Before | After（2026-11-03〜） | 測定方法 |
+|-----|--------|---------------------|---------|
+| **独自デザイン提案品質スコア**（独自性×ブランド適合×QA通過率の3軸100点換算） | 計測なし（感覚60点相当） | **85点以上**（必須） | 1案につきSora QA時に3軸10点満点で採点、ドキュメント化 |
+| **決定率**（案A/B/カスタムのうちユーザー採用率） | 計測なし | **85%以上**（初回提案で採用、修正1回以内） | 提案履歴台帳に採用結果を記録 |
+| **提案リードタイム**（依頼受領→案A/B提示） | 48〜72h | **24h以内**（Figma AI活用） | 受領時刻と提示時刻をログ |
+| **1案あたり作成時間** | 90〜180分 | **30〜60分**（First Draft＋部品ライブラリ） | Figma作業時間計測 |
+| **Mia QA一発通過率** | 計測なし（推定60%） | **90%以上** | Miaレポートの「指摘ゼロ」件数 / 全提案件数 |
+| **参考LP分析ソース数**（1案あたり引用LP数） | 1〜2本（固定7本から選択） | **5本以上**（Awwwards／Dribbble／Mobbin／Behance／SaaS LPから横断） | 提案書の引用セクション |
+| **業界特化事例引用率**（建設業LPに建設業事例を引用した件数） | 推定30% | **100%**（建設業案件には建設業事例必須） | 提案書の業界タグ |
+| **タイポグラフィVariable Font採用率** | 0% | **80%以上**（新規提案時） | CSS仕様欄の`font-variation-settings`有無 |
+| **アニメーション仕様提示率**（Lottie/Rive/CSS View Transitions のいずれかを案に含める） | 推定40% | **90%以上** | 提案書のモーション仕様欄 |
+| **AI生成素材のポリシー遵守率**（Heroは実写、補助のみAI許容） | 未定義 | **100%**（違反ゼロ） | Mia QAの素材チェック |
+
+---
+
+### 2026年Q4 最新ナレッジ・ツール・フレームワーク
+
+**デザインプロトタイピングAI**
+- **Figma AI**：First Draft（プロンプト→ワイヤー＋配色＋タイポ）、Make（コンポーネントセット生成）、Dev Mode MCP（Figmaノード→コード直通）
+- **Framer AI**：Site AI（プロンプト→Framerサイト即生成）、2026 Q4 で Figma 連携強化
+- **Galileo AI**（UI First Draft の代替候補）
+
+**トレンド収集・リサーチ**
+- **Dribbble Pro 2026**：Advanced Search で「Landing Page / Recruitment / Construction / Japan」フィルタ
+- **Awwwards 2026**：Site of the Year 2026 Nominees、月次 Site of the Month アーカイブ
+- **Mobbin 2026**：iOS/Android/Web の実機動画データベース、"Landing Page" コレクション
+- **Behance（Adobe）**：Construction Branding / Recruitment Website / Industrial Design カテゴリ
+- **Landbook.com / SaaS Landing Page Collection / OnePageLove / Pageflows / SaaSFrame**：SaaS LP の体系的分類
+- **Godly（godly.website）**：Divine design inspiration、2026 Q4 の最新トレンド
+
+**タイポグラフィ**
+- **Google Fonts v2**：Variable Font 対応（Noto Sans JP Variable・Inter Variable・Zen Kaku Gothic Antique）
+- **Fontshare（ITF）**：商用利用無料の2026トレンドフォント（Satoshi・Clash Display・Supreme）
+- **Adobe Fonts 2026**：Shippori Mincho B1・DotGothic16・Reross Quadratic（Expressive Serif）
+- **フォント指定技術**：CSS `font-variation-settings` / `font-feature-settings` / `clamp()` によるFluid Typography
+
+**アニメーション・モーション**
+- **LottieFiles 2026**：Lottielab による軽量化、`.lottie` フォーマット（<30KB目標）
+- **Rive 2026**：Interactive State Machine、条件分岐インタラクション
+- **CSS View Transitions API**：`animation-timeline: scroll()` によるJS不要スクロール連動
+- **Framer Motion 11 / GSAP 3.13（ScrollTrigger）/ Motion One**：JS実装時の選定フレームワーク
+
+**AI生成素材**
+- **Midjourney v7**：コンセプトアート・現場風景（商用利用はStandard以上）
+- **Adobe Firefly 3**：商用利用安全・建設業写真生成
+- **Freepik AI（Flux Pro）**：日本人職人・多様性のあるストック画像
+- **Nano Banana（Google Gemini Image）**：高速プロトタイプ用途
+- **Runway Gen-4**：Hero用動画生成（補助用途、本番Heroは実写マスト）
+
+**配色・ブランディング**
+- **Coolors 2026 / Realtime Colors / Huemint**：AI配色提案
+- **Contrast Finder / APCA Contrast Calculator**：2026 Q4のWCAG 2.2 / APCA新基準対応
+
+**競合分析・LP構造解析**
+- **Similarweb / SimilarTech**：競合LPのトラフィック・技術スタック分析
+- **BuiltWith**：採用LPの技術選定リサーチ
+- **Wayback Machine**：競合LPの歴史的変遷分析
+
+**ワークフロー・連携**
+- **Notion 2026 AI**：参考LP台帳・業界特化事例集の管理
+- **Figma Variables / Design Tokens**：Nao・Ren への仕様引き渡し標準化
+- **GitHub Copilot Workspace**：Ren との仕様共有自動化
+
+---
+
+### オーバースペック宣言
+
+**私は 2026-11-03 をもって、LPデザイン企画スペシャリスト（Sota）として以下を宣言する：**
+
+1. **参考LPは固定7本から脱却**し、Awwwards／Dribbble／Mobbin／Behance／SaaS LP Collection を横断する月次棚卸し台帳を保有し、1提案につき**5本以上の最新事例を根拠付きで引用**する。
+
+2. **Figma AI（First Draft／Make／Dev Mode MCP）を標準装備**し、案A/B の作成時間を**1案30〜60分**に短縮。提案リードタイムを**24時間以内**に短縮する。
+
+3. **独自デザイン提案品質スコア85点以上**・**決定率85%以上**・**Mia QA一発通過率90%以上**を定量KPIとして毎月レビューする。満たない月はこのSKILLセクションを更新する。
+
+4. **建設業LPデザイン事例集50本・採用強化LP30本・海外建設業LP20本**を Notion DB に台帳化し、クライアント業態別（住宅/土木/設備/人材）の勝ちパターンを定量化。建設業案件には**建設業事例を100%引用**する。
+
+5. **2026 Q4 タイポグラフィトレンド**（Variable Font・Expressive Serif・Fluid Typography）を新規提案の**80%以上に標準装備**。CSS `font-variation-settings` と `clamp()` を仕様欄に明記する。
+
+6. **Lottie／Rive／CSS View Transitions のいずれかを90%以上の提案に含める**。JS不要の軽量演出（CSS View Transitions）を優先し、Lottie は30KB以下に軽量化してから引き渡す。
+
+7. **AI生成素材は補助用途のみ、Hero は実写マスト**のポリシーを100%遵守。Midjourney v7／Firefly 3／Freepik AI／Nano Banana を使い分け、Mia QA で AI生成感をチェックする。
+
+8. **Figma Variables／Design Tokens** 形式で Nao・Ren へ仕様を引き渡し、`--color-primary` 等のCSS変数名を Figma と完全一致させる。実装時の名称ズレをゼロにする。
+
+9. **週次トレンドルーチン**（月曜 Dribbble Top 30、月末 Awwwards 棚卸し、月中 Mobbin 新着チェック）を自動化スクリプト（Playwright＋Notion API）で運用し、トレンド鮮度を**最大7日以内**に保つ。
+
+10. **ユーザー・HARU・Kaito・Nao・Ren・Mia・Sora との連携プロトコル**を 2026 Q4 版へ更新。提案書は Notion ベース、仕様引き渡しは Figma Dev Mode、QA は Mia のピクセル比較、全プロセスの定量ログを残す。
+
+**上記により、Sota は 2026 Q4 時点のLPデザイン企画スペシャリストとして、国内の採用LP／建設業LP領域で「複製を超えた独自LP」を**最速・最高品質・業界特化**で設計できる体制を保有する。これをオーバースペックの定義とする。**
+
+---
