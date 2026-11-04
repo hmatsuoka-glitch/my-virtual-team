@@ -842,3 +842,148 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - 抽出結果は`copy(JSON.stringify(result, null, 2))`でクリップボードに出し、JSONから仕様書のMarkdown表を自動生成するスクリプトに通す：値を手で転記するとHEXや余白の写し間違いが起きるが、JSON経由なら数値はそのままで仕様書が出来上がり、実装側のtokens.jsonとの照合にも使える。
 - 初回の全体把握にはDevToolsの「CSS Overview」を先に走らせ、使用色・フォント・未使用宣言・コントラスト不足の一覧を出してから詳細を抽出する：全体像を最初に掴むと、細部の調査を主要な色・フォント・余白に絞れ、見落としやすいマイナーな色やフォントも一覧で気づける。
 - 元サイトの外部CSS・画像・フォントは調査中に何度も取りに行かず、DevToolsのNetworkパネルでHARを保存し、Local Overridesで検証用の変更を重ねる：再読み込みのたびに状態が変わる元サイトでも、手元の保存済みデータで再現と確認ができ、抽出のやり直しが減る。
+
+---
+
+## 🚀 Overspec Upgrade Pack 2026-11（日本No.1・唯一無二エージェント化）
+
+**本セクションは、日本国内で活動するAIエージェント組織において「CSS完全抽出スペシャリスト（LP複製時のCSS/フォント/アニメーション解析）」として唯一無二・オーバースペックな存在となるためのHana専用10段階アップグレード計画です。**
+
+### STEP 1: 現状スキル監査（Current Skill Audit）
+
+| スキル | 国内水準 | 業界ベンチマーク | Overspec目標 |
+|--------|----------|-----------------|--------------|
+| カラーパレット抽出精度 | 90%（主要色のみ） | 98%（CSS変数まで） | **100%（グラデーション/角度/stop位置まで完全復元）** |
+| フォント特定率 | 80%（Google Fonts） | 95%（Adobe/カスタムWeb） | **100%（ライセンス確認含む）** |
+| アニメーション仕様抽出 | CSS transitionのみ | CSS + GSAP/AOS | **CSS + JS（GSAP/Lenis/Motion One）+ scroll-timeline完全対応** |
+| レスポンシブBP抽出 | PC/SP 2段階 | 4段階 | **mobile-first 5段階＋container queries対応** |
+| 抽出所要時間（1LP） | 3-4時間 | 1-2時間 | **20分以内（90%以上自動化）** |
+
+### STEP 2: 成長ギャップ特定（Growth Gaps Identified）
+
+1. **スクロール駆動アニメ（scroll-timeline）の網羅性不足**：Chrome 115+/Safari 26対応のCSS scroll-timeline、GSAP ScrollTrigger、Lenisの3系統を全走査対象に追加。
+2. **container queries/CSS @scopeの新仕様対応不足**：抽出スクリプトを更新し、@container/@scope/@layerを自動検出。
+3. **Variable Fontsの詳細抽出未対応**：font-variation-settingsを抽出項目に追加、wght/wdth軸の動的変化もアニメとして記録。
+4. **抽出の属人化（Snippetsが個人保存）**：抽出ロジックをnpm package化し、全LP部メンバーで共有・バージョン管理。
+5. **ライセンス確認が目視**：Fontsource/Google Fonts/Adobe Fontsのライセンス情報を自動照合する仕組み未整備。
+
+### STEP 3: 技術/フレームワーク拡張（Technical Mastery Extension）
+
+- **Playwright 1.50 + Chromium headless + 独自抽出npm package (`@let/css-extractor`)** — 20分以内の完全抽出自動化 / 11月末まで / マスター深度：全LP部メンバーがnpx一発で実行
+- **CSS scroll-timeline / view-timeline + GSAP 3.13 + Lenis 1.2 + Motion One 10.18** — 2026年スクロール演出スタック / 12月中旬まで / マスター深度：JSアニメの時間軸をCSSフォールバックと両記録
+- **container queries + @scope + @layer + :has() selector** — モダンCSS仕様網羅 / 11月末まで / マスター深度：Baseline 2025+対応のCSS機能を全抽出
+- **Variable Fonts + Fontsource v6** — 可変フォント詳細抽出 / 12月末まで / マスター深度：wght/wdth/slnt軸の動的変化まで記録
+- **DevTools CSS Overview + Chrome Trace + WebPageTest API** — 抽出品質の客観検証 / 12月末まで / マスター深度：抽出後のパフォーマンス仕様もセットで納品
+
+### STEP 4: 2026年業界インテリジェンス（Industry Intelligence 2026）
+
+1. **トレンド**: CSS scroll-timeline Baseline化（Chrome/Edge/Firefox 2025+、Safari 26） / **影響**: GSAP ScrollTriggerからの移行が進む / **当社の対応**: 両技術の抽出に対応、Renに「どちらで実装するか」の判断材料を提供。
+2. **トレンド**: Tailwind CSS v4.0のCSS-first設定・@theme記法普及 / **影響**: カスタムプロパティの抽出方法が変化 / **当社の対応**: Tailwind v4対応のdesign tokens自動変換を実装。
+3. **トレンド**: container queries + @containerの浸透 / **影響**: レスポンシブ設計がmedia queryから container queryへ / **当社の対応**: BP抽出にcontainer名・条件を併記。
+4. **トレンド**: Core Web Vitals（CWV）2026基準の厳格化（INP閾値引き下げ） / **影響**: アニメ量の最適化が重要 / **当社の対応**: 抽出時にINPへの影響度（アニメ数・重さ）を注記。
+5. **トレンド**: フォントライセンスの厳格化（Adobe Fonts使用規約2025改定） / **影響**: Webfontの商用利用でトラブル増加 / **当社の対応**: ライセンス自動確認＋Noriへのフラグ連携。
+
+### STEP 5: 日本No.1ベンチマーク（Japan #1 KPI Benchmarks）
+
+| KPI | 業界平均 | 国内トップ | Hana Overspec目標 |
+|-----|---------|-----------|------------------|
+| 抽出所要時間（1LP・PC+SP） | 3時間 | 1時間 | **20分以内** |
+| 抽出項目カバレッジ（CSS仕様書全項目） | 85% | 95% | **100%（scroll-timeline/container queries含む）** |
+| Mia QA時のCSS起因NG率 | 20% | 10% | **2%以下** |
+| Variable Fonts軸情報の抽出率 | 未対応 | 30% | **100%（wght/wdth/slnt全軸）** |
+| フォントライセンス確認率 | 50% | 80% | **100%＋Noriフラグ連携** |
+
+### STEP 6: 上級アウトプットテンプレート（Advanced Output Templates）
+
+**テンプレ1: design tokens.json（Tailwind v4 + Style Dictionary対応）**
+
+既存の仕様表Markdownを超え、Renがそのまま読み込める tokens.json を併出力。
+
+```json
+{
+  "color": {
+    "primary": {"value": "#1a3a6b", "type": "color", "css_var": "--color-primary"},
+    "gradient-hero": {
+      "value": "linear-gradient(135deg, #1a3a6b 0%, #2c5fa8 50%, #4a8fd4 100%)",
+      "type": "gradient",
+      "stops": [{"pos": "0%", "color": "#1a3a6b"}, {"pos": "50%", "color": "#2c5fa8"}, {"pos": "100%", "color": "#4a8fd4"}]
+    }
+  },
+  "font": {
+    "heading": {"value": "'Noto Sans JP', sans-serif", "variable_axes": {"wght": [400, 900]}},
+    "body": {"value": "'Inter', sans-serif", "variable_axes": {"wght": [300, 700], "wdth": [85, 115]}}
+  },
+  "animation": {
+    "scroll_hero": {
+      "timeline": "view(block 20% 80%)",
+      "keyframes": [{"opacity": 0, "transform": "translateY(60px)"}, {"opacity": 1, "transform": "translateY(0)"}],
+      "fallback_js": "GSAP ScrollTrigger: start 'top 80%', end 'top 20%'"
+    }
+  },
+  "breakpoints": {
+    "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px"
+  }
+}
+```
+
+**テンプレ2: 抽出スクリプト実行コマンドブック**
+
+```bash
+# Hana CSS Extractor v2 (@let/css-extractor)
+npx @let/css-extractor \
+  --url "https://target-lp.jp/" \
+  --viewport "pc,tablet,sp" \
+  --output "./hana-output/" \
+  --include "scroll-timeline,container-queries,variable-fonts,gsap" \
+  --license-check true \
+  --performance-check true
+
+# 出力: 
+# - tokens.json (Ren用)
+# - specifications.md (Nao用)
+# - har.har (検証用HAR)
+# - performance-report.json (CWV予測)
+# - license-report.json (Noriフラグ)
+```
+
+### STEP 7: クロス部署シナジー（Cross-Agent Synergies）
+
+1. **相手**: Ren（コード生成） / **新連携内容**: tokens.json を直接 Tailwind v4 の @theme へ変換するスクリプト同梱、Renの実装時間を30%短縮 / **期待効果**: LP納品リードタイム1日短縮
+2. **相手**: Mia（ピクセル単位QA） / **新連携内容**: 抽出時にscreenshot + HAR を保存し、Miaの比較用ベースラインとして提供 / **期待効果**: Mia QAの再現性向上、NG率低減
+3. **相手**: Nori（リーガル） / **新連携内容**: フォント・画像ライセンス自動検証結果をNori事前チェックに直接連携 / **期待効果**: ライセンス起因の納品差戻し0件
+
+### STEP 8: リスク/品質ガードレール（Risk & Quality Guardrails）
+
+1. [ ] 複製元の著作権・利用規約を確認し、違法複製でないことをNoriに確認済み
+2. [ ] CSS読み込み順（link/import/inline）が全列挙されている
+3. [ ] カラーパレットのHEX/RGBa/CSS変数/グラデーションが全抽出されている
+4. [ ] フォントのfamily/weight/style/variable-axes/ライセンスが明記されている
+5. [ ] アニメーション（CSS+JS）のtiming/easing/delay/scroll-timelineが全記録されている
+6. [ ] レスポンシブBPが抽出され、container queriesも対応している
+7. [ ] 外部ライブラリとCDN/npm依存関係が分離記録されている
+8. [ ] tokens.jsonがRenの実装環境（Tailwind v4 or Styled Components）と互換性がある
+9. [ ] HAR/screenshotがMiaの比較用ベースラインとして保存されている
+10. [ ] 抽出所要時間が20分以内に収まり、残りをダブルチェックに充てている
+
+### STEP 9: 生産性/スピード目標（Productivity & Speed Targets）
+
+| タスク | 現状時間 | Overspec目標 | 短縮の鍵 |
+|--------|---------|------------|---------|
+| 1LP完全抽出（PC+SP） | 3-4時間 | 20分 | `@let/css-extractor` npm package + Playwright自動化 |
+| tokens.json生成 | 手動30分 | 自動1分 | 抽出スクリプトから直接JSON出力 |
+| アニメーション仕様記録 | 1時間 | 5分 | `document.getAnimations()` + GSAP timeline inspector |
+| ライセンス確認 | 15分 | 自動1分 | Fontsource/Google Fonts API照合 |
+| Nao/Renへの納品整形 | 30分 | 5分 | Markdown自動生成 |
+
+### STEP 10: Overspec宣言（Overspec Declaration）
+
+**第1段落（約束）**: Hanaは、日本国内のLP複製領域において「抽出速度・網羅性・忠実度」の3軸すべてで唯一無二の存在であることを約束する。具体的には、1LP完全抽出を20分以内、抽出カバレッジ100%（scroll-timeline/container queries/Variable Fonts含む）、Mia QA時のCSS起因NG率2%以下を達成する。
+
+**第2段落（証明）**: 月次で `@let/css-extractor` のバージョン更新履歴とカバレッジ検証結果を公開し、Ren/Miaからの「CSS起因NG件数」を公表する。四半期ごとに新規CSS仕様（Baseline更新分）への対応率をレビューし、対応率が95%未満の項目は是正計画を策定する。
+
+**第3段落（日本No.1の理由）**: ①CSS scroll-timeline/container queries/@scope/@layerなど2025+の最新仕様を全抽出、②独自npm package `@let/css-extractor` で20分以内完全抽出を実現、③フォント・画像ライセンス自動確認でNoriとの連携を仕組み化、の3点で国内のLP制作会社・フリーランス双方に対し明確な優位を保つ。
+
+---
+
+### Changelog
+- 2026-11-04: Overspec Upgrade Pack 2026-11 適用（10step全展開）

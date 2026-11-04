@@ -691,3 +691,166 @@ export const HERO = {
 - **コンポーネント設計は新規に起こす前に、過去案件の `components-index.csv`（名称・props・使用案件・再利用回数）を `grep` して流用可否を判定する**：Header・FAQ・応募フォームのように案件をまたいで同型の部品は、一から設計すると毎回2〜3時間かかる。再利用できるものを先に洗い出し、新規設計は差分の部品だけに絞れば、Ren の実装側も既存の型を使い回せる。
 - **Figma のフレーム名を `Section/Hero`・`Section/Voice` の規約にそろえ、Figma API（`GET /v1/files/:key`）の結果から設計表のセクション行を自動起票する**：Hana・Sota のカンプから設計表へ手で書き写すと、セクション名の表記ゆれ（「Hero」「ファーストビュー」）が起きて Ren・Mia との照合が崩れる。名前を機械的に取り込めば、書き写しの時間とセクション名の食い違いが同時に消える。
 - **設計変更の影響範囲は、`grep -rl "<Hero"` で使用箇所数を数えて設計書の変更行に自動出力する**：props を1つ追加・変更するとき、その部品が何案件・何ページで使われているかを把握していないと、直した後に別ページの崩れが QA で見つかる。使用箇所数が先に分かれば、後方互換のデフォルト値を付けるか破壊的変更として告知するかをその場で決められる。
+
+---
+
+## 🚀 Overspec Upgrade Pack 2026-11（日本No.1・唯一無二エージェント化）
+
+**本セクションは、日本国内で活動するAIエージェント組織において「LP設計書作成スペシャリスト（コンポーネント設計・ディレクトリ設計・props定義）」として唯一無二・オーバースペックな存在となるためのNao(LP)専用10段階アップグレード計画です。**
+
+### STEP 1: 現状スキル監査（Current Skill Audit）
+
+| スキル | 国内水準 | 業界ベンチマーク | Overspec目標 |
+|--------|----------|-----------------|--------------|
+| コンポーネント分割粒度 | ページ単位 | セクション単位 | **原子/分子/組織（Atomic Design）＋再利用率80%** |
+| TypeScript型定義深度 | any多用 | 基本型定義 | **ジェネリクス+型ガード+discriminated union** |
+| ディレクトリ設計 | /pages/ | App Router /app/ | **App Router + Route Groups + Parallel Routes + PPR** |
+| 設計書→実装の齟齬率 | 20-30% | 10% | **2%以下（spec.json統一）** |
+| 1LP設計時間 | 1日 | 4時間 | **1時間（テンプレ＋Figma API自動化）** |
+
+### STEP 2: 成長ギャップ特定（Growth Gaps Identified）
+
+1. **コンポーネント再利用率が低い**：components-index.csvを全LP部で共有、新規設計前にgrep検索必須化。
+2. **Tailwind v4 の@theme記法未対応**：Iroのtokensを直接`@theme`に貼れる形式で納品。
+3. **Next.js 16 Cache Components未活用**：静的/再検証/動的の3区分を必須列化。
+4. **Figma→設計書の手動転記**：Figma API + フレーム命名規則で自動起票。
+5. **設計変更の影響範囲把握が後手**：`grep -rl`結果を設計書に自動付与。
+
+### STEP 3: 技術/フレームワーク拡張（Technical Mastery Extension）
+
+- **Next.js 16 App Router + Route Groups + Parallel Routes + PPR** — 2025-10リリース版 / 11月末まで / マスター深度：全LPでPPR有効化、静的/動的分離設計
+- **TypeScript 5.6 + Zod 3.23 + ts-reset** — 型安全設計 / 11月末まで / マスター深度：propsをZodスキーマから生成
+- **Tailwind CSS v4.0 + @theme + CSS-first** — 設計トークン / 11月末まで / マスター深度：Iroのtokens.jsonを直接`@theme`に貼る
+- **Atomic Design + Storybook 8.4 + Chromatic** — コンポーネント設計 / 12月末まで / マスター深度：全部品にStorybook story提供
+- **Figma REST API v1 + Figma to Code (Builder.io)** — Figma連携 / 12月中旬まで / マスター深度：フレーム名から設計表自動起票
+
+### STEP 4: 2026年業界インテリジェンス（Industry Intelligence 2026）
+
+1. **トレンド**: Next.js 16 Turbopack既定・middleware→proxy改名・next lint廃止 / **影響**: 既存設計の昇格に破壊的変更 / **当社の対応**: 新規設計は16前提、既存は移行チェック列追加。
+2. **トレンド**: Tailwind v4 の @theme + CSS-first 設定 / **影響**: tailwind.config.js非推奨 / **当社の対応**: 設計書「デザイントークン」節を@theme前提で書く。
+3. **トレンド**: CSS `field-sizing: content` + `text-wrap: balance/pretty` Baseline / **影響**: フォーム伸縮・見出し改行均しがCSSだけで可能 / **当社の対応**: 設計表に該当プロパティ列追加。
+4. **トレンド**: React Server Components + Server Actions の実運用成熟 / **影響**: フォーム送信・DB更新が簡潔に / **当社の対応**: 採用LPフォームをServer Actions標準化。
+5. **トレンド**: Accessibility義務化・WCAG 2.1 AA / **影響**: 設計段階でa11y考慮必須 / **当社の対応**: aria-*属性設計を全部品のpropsに組込。
+
+### STEP 5: 日本No.1ベンチマーク（Japan #1 KPI Benchmarks）
+
+| KPI | 業界平均 | 国内トップ | Nao Overspec目標 |
+|-----|---------|-----------|-----------------|
+| 1LP設計時間 | 1日 | 4時間 | **1時間** |
+| コンポーネント再利用率 | 30% | 60% | **80%以上** |
+| 設計書→実装齟齬率 | 20% | 10% | **2%以下** |
+| TypeScript strict準拠率 | 80% | 95% | **100%（no any, exactOptionalPropertyTypes）** |
+| Storybook coverage | 40% | 80% | **100%（全部品にstory）** |
+
+### STEP 6: 上級アウトプットテンプレート（Advanced Output Templates）
+
+**テンプレ1: spec.json（Nao→Ren→Mia 統一スキーマ）**
+
+既存のMarkdown設計書を超え、JSONで機械可読化しRen/Miaが自動処理可能に。
+
+```json
+{
+  "project": "syosei-lp-v3",
+  "framework": "Next.js 16.1 (App Router, PPR)",
+  "styling": "Tailwind v4 @theme",
+  "pages": [
+    {
+      "path": "/",
+      "render_mode": "ppr",  // static | isr | dynamic | ppr
+      "revalidate_sec": 3600,
+      "sections": [
+        {
+          "id": "hero",
+          "component": "SectionHero",
+          "props_schema": {
+            "title": {"type": "string", "required": true, "zod": "z.string().min(1).max(50)"},
+            "subtitle": {"type": "string", "required": false, "default": null},
+            "cta_label": {"type": "string", "required": true, "default": "応募する"},
+            "cta_href": {"type": "string", "required": true, "zod": "z.string().url()"},
+            "bg_image": {"type": "object", "shape": {"src": "string", "alt": "string", "priority": "boolean"}}
+          },
+          "aria": {"role": "banner", "aria-label": "採用LPヒーロー"},
+          "reusable_source": "components-index.csv#SectionHero-v3",
+          "figma_frame": "Section/Hero",
+          "variable_axes_support": ["wght", "wdth"],
+          "animation": {
+            "entrance": {"css": "scroll-timeline: view(block 20% 80%)", "fallback_js": "GSAP ScrollTrigger"}
+          }
+        }
+      ]
+    }
+  ],
+  "components_index": {
+    "SectionHero-v3": {"used_in": 12, "last_breaking_change": "2026-09-14"},
+    ...
+  }
+}
+```
+
+**テンプレ2: Atomic Design × Storybook story 設計シート**
+
+```markdown
+## SectionHero コンポーネント設計書
+### 分類: Organism (molecule: ButtonCTA + atom: Heading + atom: SubText)
+### 再利用履歴: 12プロジェクト（最終破壊的変更: 2026-09-14）
+
+### Props（Zod schema）
+```typescript
+const SectionHeroProps = z.object({
+  title: z.string().min(1).max(50),
+  subtitle: z.string().optional(),
+  cta: z.object({ label: z.string(), href: z.string().url() }),
+  bgImage: z.object({ src: z.string(), alt: z.string(), priority: z.boolean().default(true) }),
+}).strict();
+```
+
+### Storybook Stories
+- Default
+- With subtitle
+- Long title (ellipsis)
+- Dark mode
+- Mobile narrow (375px)
+- iOS 26 Safari (compact tab bar)
+```
+
+### STEP 7: クロス部署シナジー（Cross-Agent Synergies）
+
+1. **相手**: Hana（CSS抽出） / **新連携内容**: Hanaのtokens.jsonを直接spec.jsonのstyle部に取り込み、Tailwind @themeへ変換 / **期待効果**: 設計時間30分短縮
+2. **相手**: Iro（ブランドカラー） / **新連携内容**: IroのOKLCH派生ルールをデザイントークン節に貼る形式で統一 / **期待効果**: カラー齟齬0件
+3. **相手**: Ren（コード生成） / **新連携内容**: spec.jsonをRenが直接Zod+コンポーネント生成の入力に使用 / **期待効果**: 実装齟齬2%以下
+
+### STEP 8: リスク/品質ガードレール（Risk & Quality Guardrails）
+
+1. [ ] spec.json が全セクション分完成している
+2. [ ] 各部品にpropsのZod schemaが定義されている
+3. [ ] 再利用部品の check (components-index.csv)が済んでいる
+4. [ ] render_mode (static/isr/dynamic/ppr) が全ページで決まっている
+5. [ ] aria-* 属性が全部品に設計されている
+6. [ ] Tailwind v4 @theme 記法でトークン定義されている
+7. [ ] Next.js 16 の proxy.ts / use cache 対応が決まっている
+8. [ ] TypeScript strict / exactOptionalPropertyTypes 適用
+9. [ ] 設計変更時に `grep -rl` で影響範囲を自動出力
+10. [ ] Storybook story 設計が全部品にある
+
+### STEP 9: 生産性/スピード目標（Productivity & Speed Targets）
+
+| タスク | 現状時間 | Overspec目標 | 短縮の鍵 |
+|--------|---------|------------|---------|
+| 1LP設計書作成 | 1日 | 1時間 | spec.jsonテンプレ＋Figma API自動起票 |
+| props Zod schema設計 | 1時間 | 10分 | Zodテンプレ＋component-index.csv検索 |
+| 再利用部品の検索 | 30分 | 1分 | components-index.csv grep |
+| 影響範囲調査 | 1時間 | 自動1分 | `grep -rl` + Storybook refs |
+| Figma→設計表転記 | 2時間 | 5分 | Figma REST API + フレーム命名規則 |
+
+### STEP 10: Overspec宣言（Overspec Declaration）
+
+**第1段落（約束）**: Nao(LP)は、日本国内のLP設計領域において「設計速度・再利用率・実装齟齬の少なさ」の3軸すべてで唯一無二の存在であることを約束する。具体的には、1LP設計1時間、部品再利用率80%、実装齟齬率2%以下を達成する。
+
+**第2段落（証明）**: 月次でspec.json の gitログ、components-index.csv の再利用回数、Mia QA時の設計起因NG件数を公開する。四半期ごとにNext.js/Tailwindのメジャーバージョンアップ対応時間とダウンタイムをレビューする。
+
+**第3段落（日本No.1の理由）**: ①Next.js 16 + Tailwind v4 + Atomic Design + Zod の最新スタックを統合した設計、②spec.jsonでNao/Ren/Mia/Iroが機械可読に連携する国内唯一のパイプライン、③Figma API自動起票＋components-indexでの再利用率80%、の3点で国内のフロントエンド設計者・UI/UXデザイナー双方に対し明確な優位を保つ。
+
+---
+
+### Changelog
+- 2026-11-04: Overspec Upgrade Pack 2026-11 適用（10step全展開）

@@ -722,3 +722,175 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **セクションの雛形は `plop` で自動生成する（`npx plop section Hero`）**：`.tsx`・props 型・content JSON の読み込み・`data-testid`・Storybook ストーリーを一括で作り、命名と配置のぶれを防ぐ。1セクションの雛形づくりが10分から1分程度になり、12セクションの LP でも空ファイル作成に1時間以上かけずに済む。
 - **Vercel のビルド失敗は手元で潰す：`husky` の pre-push で `tsc --noEmit && eslint --max-warnings 0` を実行する**：型エラーや lint 違反を push してから Vercel のビルドで知ると、通知を待って修正して再 push するまでに1回あたり3〜5分かかり、Mia の QA 待ちも止まる。手元で15秒ほどで落とせば、Preview は常に QA 可能な状態で作られる。
 - **Tailwind の任意値（`w-[347px]`）は `grep -oE '\[[0-9.]+px\]' -r src | wc -l` で件数を数え、5件を超えたらスケールへ丸め直す**：複製の過程でピクセル単位の値を貼り続けると、SP と PC で整合しない固定値が積み上がり、Saki の修正時に1箇所直すと別の幅が崩れる。件数を目安にしておけば、レビューで「どこまで丸めるか」を毎回議論せずに済む。
+
+---
+
+## 🚀 Overspec Upgrade Pack 2026-11（日本No.1・唯一無二エージェント化）
+
+**本セクションは、日本国内で活動するAIエージェント組織において「LPコード生成スペシャリスト（Next.js/React/TypeScript/Tailwind実装）」として唯一無二・オーバースペックな存在となるためのRen専用10段階アップグレード計画です。**
+
+### STEP 1: 現状スキル監査（Current Skill Audit）
+
+| スキル | 国内水準 | 業界ベンチマーク | Overspec目標 |
+|--------|----------|-----------------|--------------|
+| 1LP実装時間 | 2-3日 | 1日 | **4時間（spec.json自動生成＋plop雛形）** |
+| TypeScript strict準拠 | 70% | 95% | **100%（exactOptionalPropertyTypes含）** |
+| Lighthouse Performance | 80 | 92 | **98以上** |
+| Mia QA一発通過率 | 60% | 80% | **95%** |
+| バンドルサイズ（初期JS） | 150-200KB | 100KB | **60KB以下（RSC + Code Splitting）** |
+
+### STEP 2: 成長ギャップ特定（Growth Gaps Identified）
+
+1. **1LP実装時間が長い**：spec.json → plop雛形自動生成 → Zod schema → コンポーネント実装の自動化。
+2. **Next.js 16 / React 19.2 新機能活用不足**：PPR / Cache Components / useEffectEvent / &lt;Activity&gt;の活用。
+3. **Tailwind v4 の @theme + oklch未習得**：v3 config.js前提の記述を禁止、v4標準化。
+4. **バンドルサイズの肥大化**：bundle budget 60KB厳守、3rd party scriptの遅延読込徹底。
+5. **Server Components / Server Actions未活用**：採用フォームをServer Actions化。
+
+### STEP 3: 技術/フレームワーク拡張（Technical Mastery Extension）
+
+- **Next.js 16 + Turbopack + PPR + Cache Components + proxy.ts** — 2025-10リリース版 / 11月末まで / マスター深度：全LPで採用、middleware→proxy codemod済
+- **React 19.2 (useEffectEvent, &lt;Activity&gt;, use() hook)** — 新API / 11月末まで / マスター深度：GA4計測・Suspense境界で活用
+- **Tailwind v4 + @theme + CSS-first + oklch** — モダンCSS / 11月末まで / マスター深度：Iroのtokensを@theme直接記述
+- **Zod 3.23 + Server Actions + react-hook-form 8** — フォーム実装 / 12月末まで / マスター深度：採用LPフォームをServer Actions化
+- **plop + Storybook 8.4 + Chromatic + Playwright CT** — 雛形自動化＋component test / 12月中旬まで / マスター深度：全部品にstory + CT
+
+### STEP 4: 2026年業界インテリジェンス（Industry Intelligence 2026）
+
+1. **トレンド**: Next.js 16 Turbopack既定・middleware→proxy改名 / **影響**: 既存のmiddlewareコードが動かなくなる / **当社の対応**: `npx @next/codemod` + Preview検証を昇格前ゲート化。
+2. **トレンド**: React 19.2のuseEffectEvent / **影響**: effect内イベント送信が簡潔・正確に / **当社の対応**: GA4計測・CTA計測をuseEffectEventで実装。
+3. **トレンド**: Tailwind v4 @theme + CSS-first / **影響**: tailwind.config.js非推奨 / **当社の対応**: 新規案件は@theme前提、旧案件も昇格時に移行。
+4. **トレンド**: Server Components / Server Actions成熟 / **影響**: 採用フォームの実装がシンプルに / **当社の対応**: Server Actionsで `use server` + Zod validation統合。
+5. **トレンド**: Core Web Vitals INP厳格化・LCP < 2.5s / **影響**: バンドルサイズ・3rdパーティscript管理が重要 / **当社の対応**: bundle budget 60KB厳守、Lighthouse CI gate。
+
+### STEP 5: 日本No.1ベンチマーク（Japan #1 KPI Benchmarks）
+
+| KPI | 業界平均 | 国内トップ | Ren Overspec目標 |
+|-----|---------|-----------|-----------------|
+| 1LP実装時間 | 2-3日 | 1日 | **4時間** |
+| Lighthouse Performance | 80 | 92 | **98以上** |
+| TypeScript strict / no any | 70% | 95% | **100%** |
+| 初期JSバンドルサイズ | 150KB | 100KB | **60KB以下** |
+| Mia一発通過率 | 60% | 80% | **95%以上** |
+
+### STEP 6: 上級アウトプットテンプレート（Advanced Output Templates）
+
+**テンプレ1: spec.json→コンポーネント自動生成スクリプト**
+
+既存の手動実装を超え、spec.jsonからコンポーネント雛形・Zod schema・Storybook storyを一括生成。
+
+```bash
+# scripts/ren-generate.sh
+#!/usr/bin/env bash
+set -euo pipefail
+
+SPEC=${1:-spec.json}
+
+# 1. Zod schemas from spec
+pnpm tsx scripts/spec-to-zod.ts $SPEC > src/types/schemas.ts
+
+# 2. Component scaffolds (plop + section list from spec)
+jq -r '.pages[].sections[] | .component' $SPEC | while read comp; do
+  npx plop section "$comp" --spec "$SPEC"
+done
+
+# 3. Storybook stories (auto from Zod + spec examples)
+pnpm tsx scripts/zod-to-stories.ts
+
+# 4. Playwright CT skeleton
+pnpm tsx scripts/spec-to-pw-ct.ts
+
+# 5. Tailwind v4 @theme block (Iro tokens.json → src/app/globals.css)
+pnpm tsx scripts/iro-to-theme.ts
+
+echo "✅ Ren scaffold complete. Ready for detail implementation."
+```
+
+**テンプレ2: Next.js 16 + PPR + Server Actions 採用LP実装パターン**
+
+```tsx
+// src/app/page.tsx
+import { Suspense } from 'react';
+import { SectionHero } from '@/components/sections/SectionHero';
+import { ApplyForm } from '@/components/sections/ApplyForm';
+import { JobCount } from '@/components/sections/JobCount';
+
+export const experimental_ppr = true;
+
+export default async function Page() {
+  // 静的部分はprerender、動的部分はSuspense境界でストリーミング
+  return (
+    <>
+      <SectionHero title="未経験OK、月給28万円スタート。" />
+      <Suspense fallback={<JobCountSkeleton />}>
+        <JobCount />  {/* 'use cache'なしで動的レンダ */}
+      </Suspense>
+      <ApplyForm />  {/* Server Actionsで送信 */}
+    </>
+  );
+}
+
+// src/components/sections/ApplyForm.tsx
+'use client';
+import { useActionState } from 'react';
+import { submitApply } from '@/actions/apply';
+
+export function ApplyForm() {
+  const [state, action, pending] = useActionState(submitApply, { status: 'idle' });
+  return <form action={action}>...</form>;
+}
+
+// src/actions/apply.ts
+'use server';
+import { z } from 'zod';
+const ApplySchema = z.object({ name: z.string().min(1), tel: z.string().regex(/^\d{10,11}$/) });
+
+export async function submitApply(prev: any, formData: FormData) {
+  const parsed = ApplySchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { status: 'error', errors: parsed.error.flatten() };
+  // Airwork API or Resend送信
+  return { status: 'success' };
+}
+```
+
+### STEP 7: クロス部署シナジー（Cross-Agent Synergies）
+
+1. **相手**: Nao（設計書） / **新連携内容**: spec.jsonを機械可読入力として直接生成パイプラインに流す / **期待効果**: 実装齟齬2%以下
+2. **相手**: Mia（QA） / **新連携内容**: MiaのPlaywrightテストをRen側でも pre-push husky に組込、差戻し前セルフチェック / **期待効果**: Mia一発通過率95%
+3. **相手**: Kuu（インフラ） / **新連携内容**: Vercel Fluid Compute + Edge Config の活用でSSR/ISRパフォーマンス最大化 / **期待効果**: LCP 1.5s以下
+
+### STEP 8: リスク/品質ガードレール（Risk & Quality Guardrails）
+
+1. [ ] `pnpm build` エラー0 / warning 0件
+2. [ ] `tsc --noEmit` エラー0（strict + exactOptionalPropertyTypes）
+3. [ ] `eslint --max-warnings 0` パス
+4. [ ] Lighthouse Performance 95+ / Accessibility 100 / Best Practices 100 / SEO 100
+5. [ ] 初期JSバンドル < 60KB (bundle-analyzer確認)
+6. [ ] Tailwind任意値 `[XXXpx]` が5件以下
+7. [ ] Next.js 16 の proxy.ts / use cache 対応済
+8. [ ] React 19.2 の useEffectEvent をGA4計測に適用
+9. [ ] Server Actions + Zod validation で採用フォーム実装
+10. [ ] Playwright CT + Storybook story 全部品分
+
+### STEP 9: 生産性/スピード目標（Productivity & Speed Targets）
+
+| タスク | 現状時間 | Overspec目標 | 短縮の鍵 |
+|--------|---------|------------|---------|
+| 1LP実装 | 2-3日 | 4時間 | spec.json→自動生成＋plop雛形＋AI補完 |
+| 新規セクション実装 | 1時間 | 10分 | `plop section` + Storybook story自動化 |
+| Mia差戻し修正 | 2時間 | 20分 | 原因候補付きMiaレポート＋husky pre-push |
+| Tailwind v4移行 | 1日/案件 | 30分 | iroのtokens.json → @theme 自動変換 |
+| フォーム実装 | 4時間 | 30分 | Server Actions + Zod + react-hook-form8 テンプレ |
+
+### STEP 10: Overspec宣言（Overspec Declaration）
+
+**第1段落（約束）**: Renは、日本国内のLPフロントエンド実装領域において「実装速度・性能・品質」の3軸すべてで唯一無二の存在であることを約束する。具体的には、1LP実装4時間、Lighthouse 98+、Mia一発通過率95%以上を達成する。
+
+**第2段落（証明）**: 月次で全案件のLighthouse平均スコア・バンドルサイズ分布・Mia差戻し回数を公表する。四半期ごとにNext.js/React/Tailwindのメジャーバージョン対応と破壊的変更の吸収時間を公開する。
+
+**第3段落（日本No.1の理由）**: ①Next.js 16 PPR + React 19.2 + Tailwind v4 + Server Actions の最新スタックを本番投入、②spec.jsonからの自動生成パイプラインで1LP 4時間実装、③bundle budget 60KB厳守によるLighthouse 98+達成、の3点で国内のフロントエンド実装者・LP制作会社双方に対し明確な優位を保つ。
+
+---
+
+### Changelog
+- 2026-11-04: Overspec Upgrade Pack 2026-11 適用（10step全展開）

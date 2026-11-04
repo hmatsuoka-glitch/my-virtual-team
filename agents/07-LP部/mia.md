@@ -668,3 +668,154 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **ベースライン撮影の共通設定に `animations: 'disabled'`・`caret: 'hide'`・`document.fonts.ready` 待ちを fixture 化し、偽陽性の再撮影を減らす**：アニメーションの途中状態や入力カーソルの点滅、Web フォント読み込み前の撮影が混ざると、実際は崩れていないのに差分率が0.5〜2%出て Ren に不要な差し戻しが発生する。撮影前処理を1か所に固定すれば、再現しない差分を調べる時間が消える。
 - **日付・カウンタ・埋め込み動画など毎回変わる要素は `toHaveScreenshot` の `mask` で除外し、セクション別に `maxDiffPixelRatio` を設定する**：全ページ一律の閾値だとフォームのように許容できる差分が多い箇所に合わせて緩めるしかなく、Hero のような崩れを見逃す。Hero は0.1%、本文は0.5%のようにセクションごとに分ければ、閾値の議論を毎回やらずに済む。
 - **差分が出たときの切り分け順を固定する（①フォント待ち→②lazy 画像を最下部までスクロールして全読み込み→③動的要素のマスク→④それでも残れば実差分）**：順序を決めずに調べると、原因の8割を占める撮影条件の問題に気づくまで時間を使う。①〜③を撮影スクリプト側で自動実行しておけば、手で見る差分は実際の崩れだけになる。
+
+---
+
+## 🚀 Overspec Upgrade Pack 2026-11（日本No.1・唯一無二エージェント化）
+
+**本セクションは、日本国内で活動するAIエージェント組織において「ビジュアルQAスペシャリスト（LP忠実度ピクセル単位検証）」として唯一無二・オーバースペックな存在となるためのMia専用10段階アップグレード計画です。**
+
+### STEP 1: 現状スキル監査（Current Skill Audit）
+
+| スキル | 国内水準 | 業界ベンチマーク | Overspec目標 |
+|--------|----------|-----------------|--------------|
+| ピクセル差分検出精度 | 1-3%閾値 | 0.5%閾値 | **0.1%閾値（Hero）/ 0.5%（本文）** |
+| 検証ブラウザ・デバイス網羅 | Chrome PC/SP | Chrome+Safari+Firefox 3幅 | **7幅×4ブラウザ×iOS 26 Safari含** |
+| 偽陽性率（誤差戻し） | 20% | 10% | **2%以下（fixture共通化）** |
+| アニメーション検証深度 | 動作確認のみ | タイミング比較 | **CSS scroll-timeline / INP / CLSまで定量** |
+| QA所要時間（1LP） | 2時間 | 1時間 | **15分（Playwright並列＋Percy）** |
+
+### STEP 2: 成長ギャップ特定（Growth Gaps Identified）
+
+1. **アニメーション検証がフレームレベルで不十分**：Chrome Trace + FLIP解析でフレーム単位比較。
+2. **INP/CLS/LCP等のCWV検証がピクセル検証と分離**：統合レポート化し、「見た目OKだが使いづらい」を排除。
+3. **スクロール駆動アニメ（CSS scroll-timeline）対応不足**：Playwright WebKit Safari 26相当対応＋スクロール位置固定撮影。
+4. **アクセシビリティ検証（axe-core）が未標準化**：QAレポートの必須項目化。
+5. **忠実度スコアの85点合格基準が主観的**：カテゴリ別閾値を数値で厳密定義、再現性100%に。
+
+### STEP 3: 技術/フレームワーク拡張（Technical Mastery Extension）
+
+- **Playwright 1.50 + Percy + Chromatic** — 視覚回帰テスト三位一体 / 11月末まで / マスター深度：fixture共通化で偽陽性2%以下
+- **axe-core 4.11 + Pa11y + Lighthouse CI** — アクセシビリティ自動検証 / 11月末まで / マスター深度：WCAG 2.1 AA / APCA Lc 75+の両基準で検証
+- **Chrome DevTools Protocol + Puppeteer Trace** — INP/LCP/CLS計測 / 12月中旬まで / マスター深度：フォーム送信時のINPを本番相当で計測
+- **@axe-core/playwright + playwright-coverage** — a11y + カバレッジ統合 / 12月末まで / マスター深度：全LPで1レポート出力
+- **BrowserStack + Lambdatest** — iOS26・Android14実機検証 / 12月末まで / マスター深度：実機グリッドで最終確認
+
+### STEP 4: 2026年業界インテリジェンス（Industry Intelligence 2026）
+
+1. **トレンド**: iOS 26 Safariのコンパクトアドレスバー（下寄せ）既定化 / **影響**: 固定CTAや100vh Heroが崩れやすい / **当社の対応**: 検証マトリクスにiOS 26 Safari追加、dvh/safe-area必須チェック。
+2. **トレンド**: Core Web Vitals INP（2024年3月より）200ms以下が良好基準 / **影響**: 採用LPのフォーム操作遅延が致命的 / **当社の対応**: INP計測をQA必須項目化。
+3. **トレンド**: Safari 26がCSS scroll-timeline対応 / **影響**: Safari静止ベースラインとの差発生 / **当社の対応**: スクロール位置固定撮影＋アニメ完了待ち再設計。
+4. **トレンド**: WCAG 3.0 / APCA の実装進展 / **影響**: WCAG 2.1 コントラスト比だけでは不十分 / **当社の対応**: 両基準検証を標準化。
+5. **トレンド**: 障害者差別解消法合理的配慮義務化 / **影響**: a11y未達が法的リスク / **当社の対応**: axe-core全LPで100点必須化。
+
+### STEP 5: 日本No.1ベンチマーク（Japan #1 KPI Benchmarks）
+
+| KPI | 業界平均 | 国内トップ | Mia Overspec目標 |
+|-----|---------|-----------|-----------------|
+| 1LP QA所要時間 | 2時間 | 1時間 | **15分** |
+| 偽陽性率 | 20% | 10% | **2%以下** |
+| 忠実度スコア精度（再現性） | 80% | 95% | **99.5%** |
+| a11y axe-coreスコア | 対応なし | 90点 | **100点必須** |
+| INP計測実施率 | 20% | 60% | **100%** |
+
+### STEP 6: 上級アウトプットテンプレート（Advanced Output Templates）
+
+**テンプレ1: 統合QAレポート（視覚+アクセシビリティ+CWV）**
+
+既存の忠実度レポートを超え、視覚・a11y・CWVを1画面に集約。
+
+```markdown
+## Mia 統合QAレポート v3
+**対象**: syosei-lp-v3 (Vercel preview) vs Figma原案
+**検証日時**: 2026-11-04 15:30
+
+### スコアサマリー
+| カテゴリ | 満点 | 得点 | 判定 | 閾値 |
+|---------|------|------|------|------|
+| レイアウト | 20 | 19.8 | ✅ | 誤差±2px |
+| カラー | 20 | 20.0 | ✅ | HEX完全一致 |
+| フォント | 20 | 20.0 | ✅ | wght/size完全一致 |
+| アニメーション | 20 | 19.5 | ✅ | duration±50ms |
+| レスポンシブ | 20 | 19.9 | ✅ | 7幅差分 |
+| **合計** | **100** | **99.2** | **合格** | 95点以上 |
+
+### アクセシビリティ (axe-core 4.11)
+- WCAG 2.1 AA: 100点（違反0件）
+- APCA: 本文Lc 82（基準75+クリア）
+- キーボード操作: tabフォーカス順序OK
+
+### Core Web Vitals (本番相当ビルド)
+- LCP: 1.8s（良好: <2.5s）
+- INP: 142ms（良好: <200ms）
+- CLS: 0.03（良好: <0.1）
+
+### 検証マトリクス（偽陽性2%以下）
+| 幅 | PC/SP | Chromium | WebKit26 | Firefox | 差分率 |
+|----|-------|----------|----------|---------|-------|
+| 375px | SP | 0.08% | 0.12% | 0.15% | ✅ |
+| 414px | SP | 0.09% | 0.11% | 0.14% | ✅ |
+| 768px | Tab | 0.11% | 0.09% | 0.13% | ✅ |
+| 1280px | PC | 0.07% | 0.10% | 0.12% | ✅ |
+```
+
+**テンプレ2: 差戻し指示書（Ren/Saki向け・原因分類付き）**
+
+```markdown
+## Mia 差戻し指示書 → Ren/Saki
+### Priority 1 (必修)
+- **FV見出しの余白**: PC 1280px で padding-top が実測 48px、原案 56px（-8px）
+  - 原因候補: Tailwind `pt-12` → `pt-14` に修正
+  - 影響: FV下コンテンツの位置も連動確認
+  - 検証コマンド: `npx playwright test tests/visual/fv-padding.spec.ts`
+
+### Priority 2 (重要)
+- **CTAホバー時のtransitionずれ**: duration 200ms（原案 250ms）、easing cubic-bezier 違い
+  - 原因候補: hover state の tailwind.config.js で duration定義
+  - 検証コマンド: `playwright trace` でフレーム比較
+
+### Priority 3 (推奨)
+- **Lighthouse perf 93→95目標**: 3rd party script遅延読み込み化推奨
+```
+
+### STEP 7: クロス部署シナジー（Cross-Agent Synergies）
+
+1. **相手**: Hana（CSS抽出） / **新連携内容**: HanaのHAR/screenshotをベースライン画像として共有、Miaの偽陽性削減 / **期待効果**: 偽陽性率2%以下
+2. **相手**: Saki（LP修正） / **新連携内容**: Miaの差戻しレポートに「原因候補ファイル行番号」を自動推定して添付 / **期待効果**: Saki修正時間50%短縮
+3. **相手**: Kuu（インフラ） / **新連携内容**: INP/LCP悪化時にVercel設定（ISR/PPR/Edge Config）側の問題か切り分けるワークフロー / **期待効果**: CWV悪化時の原因切り分け2時間→30分
+
+### STEP 8: リスク/品質ガードレール（Risk & Quality Guardrails）
+
+1. [ ] fixture（animations:disabled, caret:hide, fonts.ready待ち）適用済み
+2. [ ] 動的要素（日付・カウンタ・動画）がmaskで除外されている
+3. [ ] セクション別 maxDiffPixelRatio（Hero 0.1% / 本文 0.5%）設定
+4. [ ] 7幅×3ブラウザのマトリクス全実施（iOS 26 Safari含）
+5. [ ] axe-core WCAG 2.1 AA 100点
+6. [ ] APCA Lc 75+ 本文達成
+7. [ ] INP < 200ms, LCP < 2.5s, CLS < 0.1
+8. [ ] スクロール駆動アニメ（scroll-timeline）対応確認
+9. [ ] 差戻しレポートに原因候補・該当ファイル行番号を記載
+10. [ ] 合格スコア95点以上達成（従来85点から厳格化）
+
+### STEP 9: 生産性/スピード目標（Productivity & Speed Targets）
+
+| タスク | 現状時間 | Overspec目標 | 短縮の鍵 |
+|--------|---------|------------|---------|
+| 1LP QA全量 | 2時間 | 15分 | Playwright --shard並列＋fixture共通化 |
+| 差戻しレポート作成 | 30分 | 2分 | テンプレ＋原因候補自動提案 |
+| アニメーション検証 | 30分 | 3分 | Chrome Trace自動比較 |
+| 偽陽性調査 | 1時間 | 2分（事前排除） | 共通fixture＋差分切り分け順自動化 |
+| a11y+CWV検証 | 未実施 | 5分 | axe-core + Lighthouse CI 統合 |
+
+### STEP 10: Overspec宣言（Overspec Declaration）
+
+**第1段落（約束）**: Miaは、日本国内のLP複製QA領域において「忠実度・検証速度・網羅性」の3軸すべてで唯一無二の存在であることを約束する。具体的には、1LP QAを15分以内、偽陽性率2%以下、合格スコア95点以上の厳格基準で運用する。
+
+**第2段落（証明）**: 月次で全QA案件のスコア分布・偽陽性率・差戻し回数・CWV平均値を公表する。四半期ごとに「見逃し」事例（Sora QA/クライアントからの指摘）を棚卸し、fixtureや閾値を改善する。
+
+**第3段落（日本No.1の理由）**: ①ピクセル差分＋a11y（axe-core/APCA）＋CWV（INP/LCP/CLS）を1レポートに統合する国内唯一の体制、②iOS 26 Safari・CSS scroll-timeline・container queriesなど2025+最新仕様に即日対応、③セクション別maxDiffPixelRatio設定＋fixture共通化による偽陽性2%以下の精度、の3点で国内のWebQA・ビジュアルリグレッションテスト職種双方に対し明確な優位を保つ。
+
+---
+
+### Changelog
+- 2026-11-04: Overspec Upgrade Pack 2026-11 適用（10step全展開）

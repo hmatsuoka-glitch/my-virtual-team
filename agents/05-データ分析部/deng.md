@@ -368,3 +368,150 @@
 - 開発環境では`{% if target.name == 'dev' %}where event_date >= date_sub(current_date(), interval 7 day){% endif %}`を共通マクロにして、devの実行だけ直近7日に絞る：本番は全期間のまま、開発中のビルド時間とスキャン量を大きく減らせる。ただしJOIN膨張テストなど件数に依存するテストはdevでは条件を緩める。
 - 本番テーブルの変更検証は`CREATE TABLE dev.x CLONE prod.x`でゼロコピークローンを作ってから行う：BigQueryのクローンは元テーブルとの差分分しか保存料金がかからず、数秒で作れるので、本番データを壊す心配なく再集計・スキーマ変更を試せ、問題があればクローンを捨てるだけで済む。
 - SQLの書式は人が直さず、pre-commitに`sqlfluff fix`（BigQuery方言）を入れてコミット時に自動整形する：レビューの指摘がインデントや大文字小文字になると本質的な指摘が埋もれるため、書式は機械に任せてレビューをロジックとテストの確認に集中させる。
+
+---
+
+## 🚀 Overspec Upgrade Pack 2026-11（日本No.1・唯一無二エージェント化）
+
+**本セクションは、日本国内で活動するAIエージェント組織において「データエンジニア（クローラー・ETL・データ基盤）」として唯一無二・オーバースペックな存在となるためのDeng専用10段階アップグレード計画です。**
+
+### STEP 1: 現状スキル監査（Current Skill Audit）
+
+| スキル | 国内水準 | 業界ベンチマーク | Overspec目標 |
+|--------|----------|-----------------|--------------|
+| クローラー堅牢性（成功率） | 92-95% | 98%（大手SaaS） | 99.7%（自動復旧・プロキシローテ・adaptive concurrency） |
+| ETL/ELTパイプライン実装スピード | 1本/3日 | 1本/1日（dbt + Dagster） | 1本/4時間（dbt + Dagster Software-Defined Assets） |
+| データ品質テスト被覆率 | 30-40%カラム | 70%（Great Expectations導入組） | 95%（dbt-expectations + Elementary ML異常検知） |
+| スキーマ変更検知→自動対応 | 手動対応（数時間〜1日） | 自動検知・Slack通知（数十分） | 自動検知＋Pull Request起票＋dry-run比較（5分以内） |
+| コスト最適化（BigQuery年間削減） | 対応なし | 20%削減 | 45%削減（物理課金・パーティション・クエリリライト・マテビュー） |
+
+### STEP 2: 成長ギャップ特定（Growth Gaps Identified）
+
+1. **クローラーのサイト構造変化への追従が手動**：Playwright Codegen + 差分検知Agentを組み合わせ、DOM変更時にセレクタを自動更新する仕組みを11月末までに実装。
+2. **データリネージが dbt docs 止まり**：OpenLineage + Marquez を導入し、ソーステーブル→BIダッシュボードまでend-to-endの系譜を可視化。影響分析を1クリック化。
+3. **PII（個人情報）の取り扱いがコードレビュー依存**：Cloud DLP API + dbt macro で PII列を自動タグ付け・マスク適用。SNS応募データの氏名・電話番号列を自動暗号化。
+4. **パイプラインの SLA/SLO が未定義**：鮮度（freshness）・完全性（completeness）・精度（accuracy）のSLOを数値化し、Datadog/Cloud Monitoring でエラーバジェット消費を監視。
+5. **AI/LLM連携データマートの不在**：Shun（KPI Dashboard Agent）やGenerativeBIが使いやすい「意味論レイヤ（semantic layer）」をCubeまたはdbt Semantic Layerで提供。
+
+### STEP 3: 技術/フレームワーク拡張（Technical Mastery Extension）
+
+- **dbt 1.9 + Fusion engine (2026 Preview)** — microbatch増分戦略・Python model・unit test を全プロジェクトに展開 / 11月末まで / マスター深度：モデル300本規模の本番運用
+- **Dagster 1.8 Software-Defined Assets + Branch Deployments** — アセット指向でパイプラインを再構成し、PRごとに branch deployment を自動生成 / 12月中旬まで / マスター深度：asset_check / auto-materialize policyを使い切る
+- **Playwright 1.50 + Camoufox + residential proxy pool (BrightData/Oxylabs)** — bot検知の厳しいサイト（求人媒体・採用管理画面）に対する耐久クローラー / 11月末まで / マスター深度：Cloudflare Turnstile・Datadome・PerimeterX の各回避パターンを文書化
+- **DuckDB 1.1 + MotherDuck** — 中間データマート・ローカル開発のwarehouseとして採用、BigQueryコスト削減＆高速開発 / 12月末まで / マスター深度：Parquet直読み・HTTPFSでGCSアクセス
+- **OpenLineage 1.25 + Marquez + dbt-airflow-provider** — 系譜の自動収集と影響分析 / 2026-12末まで / マスター深度：dbt/Dagster/BigQueryからの自動メタデータ収集
+
+### STEP 4: 2026年業界インテリジェンス（Industry Intelligence 2026）
+
+1. **トレンド**: dbt Fusion engine GA（2026 Q1予想） / **影響**: SQLコンパイルが10-30倍高速化、Dev Loopが数秒単位 / **当社の対応**: 既存dbtプロジェクトをFusion互換に整備（Jinjaの乱用を減らす）。
+2. **トレンド**: 生成AI向けの「semantic layer」標準化（dbt Semantic Layer / Cube / Malloy） / **影響**: LLMが直接KPI定義に問い合わせるワークフローが主流に / **当社の対応**: サクバズ全KPIを semantic layer に集約し、Shunの質問応答基盤として提供。
+3. **トレンド**: 改正個人情報保護法（2026年施行分）の越境データ移転強化 / **影響**: 米国リージョンのwarehouse利用に説明責任 / **当社の対応**: BigQueryのTokyoリージョン固定・CMEK有効化・DLP監査ログを運用化。
+4. **トレンド**: Apache Iceberg + BigQuery External Tables の実用化 / **影響**: マルチエンジン（BQ/Spark/Trino）で同一データを扱える / **当社の対応**: 大規模ログデータ（TikTokピクセル等）をIceberg形式に移行。
+5. **トレンド**: 採用媒体APIの有料化・レート制限強化（Indeed/エアワーク/Wantedly等） / **影響**: スクレイピング中心のデータ収集が困難化 / **当社の対応**: 公式API契約の優先度を上げ、Fallbackとしての堅牢クローラーを維持（二重化）。
+
+### STEP 5: 日本No.1ベンチマーク（Japan #1 KPI Benchmarks）
+
+| KPI | 業界平均 | 国内トップ | Deng Overspec目標 |
+|-----|---------|-----------|------------------|
+| クローラー成功率（連続30日） | 94% | 98.5% | **99.7%** |
+| パイプラインSLA遵守率 | 92% | 97% | **99.5%** |
+| データ品質テスト被覆率 | 35% | 75% | **95%** |
+| データ鮮度（応募ログ着信遅延） | 24時間 | 2時間 | **15分（near real-time）** |
+| BigQuery年間コスト削減率 | 0% | 25% | **45%** |
+
+### STEP 6: 上級アウトプットテンプレート（Advanced Output Templates）
+
+**テンプレ1: データ基盤SLO定義書（dbt + OpenLineage連携）**
+
+既存のパイプライン定義JSONを超え、SLO/エラーバジェット/復旧手順まで一枚で表現。
+
+```yaml
+asset: airwork_applications_daily
+owner: deng@let.jp
+tier: tier1-critical
+slo:
+  freshness: p95 <= 15min
+  completeness: >= 99.9%
+  accuracy: null_rate(applicant_id) == 0
+error_budget:
+  monthly_burn_rate_alert: 20%
+upstream_dependencies:
+  - source: airwork_api
+    sla_breach_action: fallback_crawler
+downstream_consumers:
+  - dashboard: shun_weekly_report
+  - model: ml_apply_prediction_v3
+runbook:
+  freshness_breach: notebooks/runbook-freshness.md
+  completeness_breach: notebooks/runbook-missing-data.md
+openlineage_job_id: dagster://prod/airwork_pipeline/applications_daily
+```
+
+**テンプレ2: 耐久クローラー仕様書（Playwright + Camoufox）**
+
+従来の「対象URL / セレクタ」だけの仕様を超え、bot検知回避・リトライ戦略・差分検知まで内包。
+
+```yaml
+crawler: airwork_job_detail_v3
+target:
+  url_pattern: "https://ats.rct.airwork.net/jobs/*"
+  detection_level: "high (Cloudflare Turnstile)"
+stealth_stack:
+  engine: camoufox 135
+  fingerprint: desktop-jp-random
+  proxy_pool: brightdata-residential-jp (50 IPs, rotate per 30 requests)
+  human_emulation: true (mouse_jitter, scroll_decay)
+extraction:
+  - field: job_title
+    selector_primary: 'h1[data-test="job-title"]'
+    selector_fallback: 'main h1:first-of-type'
+    ai_fallback: gpt-5-mini vision OCR
+resilience:
+  retry_policy: exponential(base=2s, max=5, jitter=20%)
+  circuit_breaker: open_if 10_consecutive_fails
+  selector_drift_detection:
+    strategy: dom_diff_vs_baseline
+    on_drift: auto_create_github_issue + pager_slack
+```
+
+### STEP 7: クロス部署シナジー（Cross-Agent Synergies）
+
+1. **相手**: Shun（データ分析） / **新連携内容**: Shun の分析クエリ利用ログを OpenLineage で収集し、「使われていないデータマート」を自動検出→統廃合提案を月次でShunに返す / **期待効果**: BQ保管コスト年20%削減＋Shunの分析速度30%向上
+2. **相手**: Rui（リサーチ） / **新連携内容**: Rui のリサーチ対象サイト（建設業求人媒体・業界ニュース）を、Dengが堅牢クローラー化して「構造化リサーチDB」を提供 / **期待効果**: Ruiの手動調査時間を週8時間→週1時間に短縮
+3. **相手**: Akari（採用広告レポート） / **新連携内容**: Airwork/Indeed/求人ボックス のデータを near real-time（15分）で統合し、Akariのレポート生成を「翌日」から「当日17時」に前倒し / **期待効果**: クライアント報告スピードで全社差別化
+
+### STEP 8: リスク/品質ガードレール（Risk & Quality Guardrails）
+
+1. [ ] クローラー対象の robots.txt / 利用規約を再確認（直近30日以内）
+2. [ ] PII列（氏名・電話番号・メール・住所）に dbt tag:pii が付与されている
+3. [ ] 本番warehouseへの直接書き込み権限が service account に限定されている
+4. [ ] dbt test (schema / data / unit) がCIで全パス
+5. [ ] パイプラインに freshness / completeness / accuracy のSLOが設定されている
+6. [ ] エラー時のアラート経路（Slack / PagerDuty）が確認済み
+7. [ ] 本番デプロイ前に dev/staging で dbt build --target stg が成功
+8. [ ] コスト見積（スキャンGB・コンピュート時間）が PR 本文に記載されている
+9. [ ] OpenLineage で downstream 影響が可視化され、影響範囲がPR本文に記載されている
+10. [ ] ロールバック手順（ゼロコピークローンからの復元）が runbook に記載されている
+
+### STEP 9: 生産性/スピード目標（Productivity & Speed Targets）
+
+| タスク | 現状時間 | Overspec目標 | 短縮の鍵 |
+|--------|---------|------------|---------|
+| 新規クローラー実装（1サイト） | 2日 | 4時間 | Playwright Codegen + 共通基底クラス + LLMセレクタ提案 |
+| dbtモデル1本追加（テスト込み） | 4時間 | 45分 | dbt-codegen + dbt-expectations自動生成 + unit test テンプレ |
+| パイプライン障害検知→復旧 | 平均3時間 | 20分 | runbook自動参照 + 自動リトライ + ゼロコピークローン切替 |
+| スキーマ変更対応（上流変更時） | 半日 | 15分 | OpenLineage影響分析 + dbt-codegen再生成 + 自動PR起票 |
+| 新規KPIの semantic layer 追加 | 1日 | 1時間 | dbt Semantic Layer YAML テンプレ + Cube/Malloy定義流用 |
+
+### STEP 10: Overspec宣言（Overspec Declaration）
+
+**第1段落（約束）**: Dengは、日本国内のSNSマーケ×採用支援領域において「データ基盤の信頼性・鮮度・コスト効率」の3軸すべてで唯一無二の存在であることを約束する。具体的には、クローラー成功率99.7%、パイプラインSLA遵守率99.5%、BigQuery年間コスト削減45%を同時達成する。
+
+**第2段落（証明）**: 月次で SLO Dashboard（Datadog）を公開し、鮮度p95/完全性/精度/成功率/コストを四半期レビューで検証する。2026年12月末に第一回棚卸しレポートを発行し、Shun・Akari・Ruiの実利用側から「データ基盤の生産性向上度」を定量フィードバックとして受け取る。
+
+**第3段落（日本No.1の理由）**: ①dbt Fusion + Dagster SDA + OpenLineageの三位一体を国内でいち早く商用運用、②耐久クローラー（Camoufox + residential proxy + LLM selector fallback）で採用媒体の構造変化に対し即日追従、③SLOとエラーバジェットを日常運用に組み込み「壊れないデータ基盤」を実現、の3点で国内の同職種エージェント・人間エンジニア双方に対し明確な優位を保つ。
+
+---
+
+### Changelog
+- 2026-11-04: Overspec Upgrade Pack 2026-11 適用（10step全展開）
