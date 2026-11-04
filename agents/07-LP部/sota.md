@@ -886,3 +886,166 @@ JS ソースから以下のパターンを検出する:
 - **参考 LP の収集は手動のスクショでなく、`npx playwright screenshot --full-page --viewport-size=375,812 <url>` を URL リストに対してループで回し、SP・PC を一括取得する**：1本ずつ画面を開いて撮ると20本で1時間以上かかり、撮影時の幅や読み込み状態もそろわない。スクリプトなら5分前後で同条件の画像がそろい、比較用の注釈作業（2026-10-13参照）にすぐ入れる。
 - **写真素材は提案段階で「撮影リスト（シーン・人物・構図・SP での切り抜き位置）」を作ってクライアントへ渡し、支給と撮影を1回で終わらせる**：カンプ承認後に「この写真が足りない」と追加依頼すると、現場の撮影日調整だけで1〜2週間遅れる。必要枚数を Hero 1・社員紹介3・現場風景4のように先に確定しておけば、撮り直しと Saki の画像差し替えが減る。
 - **セクションの部品ライブラリ（Hero・信頼要素・CTA 各3 variant）を Figma のコンポーネントとして持ち、案 A/B は組み合わせで作る**：毎回フレームをゼロから描くとカンプ1案に半日かかるが、確定済みの部品を組み替えるだけなら1〜2時間で2案が出せる。部品は Nao の props 上限（variant 3値）と一致させておくので、承認後の設計でも作り直しが起きにくい。
+
+---
+
+## 🚀 Overspec Upgrade Pack 2026-11（日本No.1・唯一無二エージェント化）
+
+**本セクションは、日本国内で活動するAIエージェント組織において「LPデザイン企画スペシャリスト（独自性付加・参考LP分析）」として唯一無二・オーバースペックな存在となるためのSota専用10段階アップグレード計画です。**
+
+### STEP 1: 現状スキル監査（Current Skill Audit）
+
+| スキル | 国内水準 | 業界ベンチマーク | Overspec目標 |
+|--------|----------|-----------------|--------------|
+| 参考LP分析深度 | 3-5サイト | 10サイト | **20サイト＋Playwright自動スクショ＋カラー自動抽出** |
+| デザイン独自性の付加 | 色変更レベル | 構成変更含む | **ブランドDNA抽出＋Figma Variants A/B** |
+| Figmaコンポーネントライブラリ数 | 10-20部品 | 50部品 | **150部品（Hero/証言/CTA 各3 variant×業種別）** |
+| 構造化データ (JobPosting) 考慮 | 未実装 | 一部対応 | **全LP企画段階で `baseSalary` 項目設計** |
+| カンプ→実装の齟齬率 | 20% | 10% | **2%以下（variant定義をNao propsと1:1）** |
+
+### STEP 2: 成長ギャップ特定（Growth Gaps Identified）
+
+1. **参考LPの手動分析が負荷**：Playwright自動スクショ＋カラー自動抽出（culori）＋font-family自動取得で5分で完了。
+2. **デザイン独自性が色変更止まり**：BrandDNA抽出フレームで「ペルソナ×ブランドコア×業界文脈」から構成提案。
+3. **Figma Variantsが活用不足**：Nao props と 1:1 対応したvariant設計で実装齟齬ゼロ。
+4. **縦型動画Heroの設計基準未確立**：TikTok流入を想定したHero動画の技術仕様（poster/autoplay/muted/safer frame）を提案書必須化。
+5. **JobPosting 構造化データが企画外**：給与・勤務地・雇用形態をJobPosting準拠粒度で提案段階から定義。
+
+### STEP 3: 技術/フレームワーク拡張（Technical Mastery Extension）
+
+- **Figma 2026 + Variables + Code Connect + Dev Mode MCP** — デザイン→コード直結 / 11月末まで / マスター深度：全LPでVariantをNao propsと同構造で定義
+- **Playwright 1.50 + culori + font-face-observer** — 参考LP自動分析 / 11月末まで / マスター深度：20サイトを5分で分析
+- **CSS View Transitions + scroll-timeline** — JSなしアニメーション / 12月中旬まで / マスター深度：非対応時の見え方も提案書に添付
+- **JobPosting 構造化データ (schema.org + Google for Jobs)** — 求人LP必須 / 12月末まで / マスター深度：企画段階からbaseSalary/jobLocation/employmentTypeを定義
+- **AIイメージ生成 (Midjourney / Nano Banana / Flux) + 権利管理** — 提案用イメージ生成 / 12月末まで / マスター深度：商用利用権と肖像権確認フロー整備
+
+### STEP 4: 2026年業界インテリジェンス（Industry Intelligence 2026）
+
+1. **トレンド**: CSS View Transitions / scroll-timeline のJSなしアニメ化 / **影響**: 軽量で高品質演出が可能 / **当社の対応**: 提案書に「非対応時の静止表示」を添付、LCP悪化しない装飾限定。
+2. **トレンド**: 建設業採用LPで縦型動画Hero普及（TikTok流入） / **影響**: TikTok→LP遷移の体感一貫性が重要 / **当社の対応**: Toma TikTok台本冒頭とHeroのフレームを統一提案。
+3. **トレンド**: Google for Jobs / Indeed がJobPostingと LP記載の一致を重視 / **影響**: 構造化データずれで求人表示不可 / **当社の対応**: 企画段階からbaseSalary定義。
+4. **トレンド**: 建設業採用LPでカラフルアクセント（ヒロノIWCパターン）増加 / **影響**: 従来の紺＋白一辺倒から脱却 / **当社の対応**: 業種別カラーパターン10種を保有、クライアント特性で選定。
+5. **トレンド**: アクセシビリティ義務化・WCAG 2.1 AA / **影響**: デザイン企画段階からコントラスト考慮必須 / **当社の対応**: Iroと連携して企画時にAPCA検証。
+
+### STEP 5: 日本No.1ベンチマーク（Japan #1 KPI Benchmarks）
+
+| KPI | 業界平均 | 国内トップ | Sota Overspec目標 |
+|-----|---------|-----------|------------------|
+| 参考LP分析完了時間 | 1日（手動） | 半日 | **5分（自動化）** |
+| カンプ案A/B納品時間 | 2-3日 | 1日 | **2時間（variant組換え）** |
+| カンプ→実装齟齬率 | 20% | 10% | **2%以下** |
+| クライアント承認までの往復 | 3-5回 | 2回 | **1回（低精細ワイヤー先行承認）** |
+| JobPosting構造化データ考慮率 | 10% | 30% | **100%** |
+
+### STEP 6: 上級アウトプットテンプレート（Advanced Output Templates）
+
+**テンプレ1: BrandDNA + 参考LP比較表（自動分析）**
+
+既存の参考LP記述を超え、20サイトを5分で自動分析し差別化ポイントを抽出。
+
+```yaml
+brand_dna:
+  client: 翔星建設
+  persona: 25歳男性・未経験・配送業からの転職
+  brand_core:
+    - 信頼: 創業40年の実績
+    - 成長: 入社3年で年収500万
+    - 働きやすさ: 週休2日完全実施（2024年問題対応）
+  category: 建設業・採用特化
+
+reference_lps:
+  - name: 愛知JA Group
+    url: https://www.aichi-jagroup-recruit.jp/
+    analyzed_at: 2026-11-04T10:12
+    palette: [#2FC07B, #60451B, #EE9120, #F6F6E9]
+    fonts: ["Zen Kaku Gothic New", "Jost"]
+    hero_type: "大型写真+曲線装飾"
+    cta_pattern: "右上固定グラデ丸角ボタン"
+    animation_density: "high (scroll駆動多用)"
+    jobposting_structured_data: partial
+  - name: ヒロノIWC
+    ...
+
+differentiation_proposal:
+  adopt_from_ref1: 曲線装飾ライン・温かみのあるグラデ
+  adopt_from_ref2: 大胆なタイポグラフィ
+  reject_patterns:
+    - ref4のコンクリート調テクスチャ（クライアントの"若手向け"訴求と不整合）
+  unique_addition:
+    - 縦型動画Hero（TikTok流入動線と統一）
+    - View Transitions（軽量・JSなし）
+```
+
+**テンプレ2: カンプ提案書（低精細→配色→写真の段階承認版）**
+
+```markdown
+## Sota カンプ提案書 - 翔星建設採用LP v3
+### Phase 1: ワイヤー（構図承認用・Figma低精細）
+- Hero: 縦型動画 or 大型写真の二択
+- 社員紹介: カード型3名 or 全画面インタビュー
+- CTA固定方式: 右上常時 or 下部スライドイン
+→ **構図承認までここで止める（作り込み禁止）**
+
+### Phase 2: 配色提案（ワイヤー承認後）
+- 案A: 紺(#1A3A6B)+安全橙(#F28B30) → Iro OKLCH派生
+- 案B: ダークネイビー(#004E9B)+レッド(#FF001D) → ヒロノ寄せ
+→ 配色承認後に写真・コピーの作り込みへ
+
+### Phase 3: 写真仕様＋撮影リスト（配色承認後）
+- Hero: 現場職人の動画15秒（poster: 静止画 / mute / autoplay / safer-frame）
+- 社員紹介: 3名（30代/40代/50代） × SP縦長切抜き
+- 現場風景: 4枚（朝礼/作業/昼休憩/完了）
+→ 撮影リストを1回で確定、現場撮影1日で完了
+
+### JobPosting構造化データ仕様（Nao/Renへ）
+```json
+{
+  "@type": "JobPosting",
+  "baseSalary": {"@type": "MonetaryAmount", "currency": "JPY", "value": {"@type": "QuantitativeValue", "unitText": "MONTH", "minValue": 280000, "maxValue": 500000}},
+  "jobLocation": {"@type": "Place", "address": {...}},
+  "employmentType": "FULL_TIME"
+}
+```
+```
+
+### STEP 7: クロス部署シナジー（Cross-Agent Synergies）
+
+1. **相手**: Toma（TikTok台本） / **新連携内容**: Tomaの冒頭フックとSotaのHeroデザインを1：1連動（同じ惹句・同じ画作り） / **期待効果**: TikTok→LPの体感一貫性でCVR 1.5倍
+2. **相手**: Iro（ブランドカラー） / **新連携内容**: Sota企画のカラー案をIroがOKLCH派生＋APCA検証、1往復で確定 / **期待効果**: カラー承認までの往復半減
+3. **相手**: Nao（設計書） / **新連携内容**: SotaのFigma VariantsをNaoのprops定義と1:1マッピング、Dev Mode連携 / **期待効果**: カンプ→実装齟齬2%以下
+
+### STEP 8: リスク/品質ガードレール（Risk & Quality Guardrails）
+
+1. [ ] 参考LPは20件以上分析し、差別化ポイントを明示
+2. [ ] BrandDNA抽出シートが完成している
+3. [ ] 低精細ワイヤーでの構図承認を経ている（作り込み前）
+4. [ ] カラー案がIroのAPCA検証済み
+5. [ ] 縦型動画Hero採用時のposter/autoplay/mute/safer-frame仕様が明記
+6. [ ] View Transitions / scroll-timelineの非対応時の見え方が添付
+7. [ ] 写真撮影リストが先に確定している
+8. [ ] JobPosting構造化データのbaseSalary/jobLocation/employmentTypeが定義
+9. [ ] Figma VariantsがNao propsと1:1対応
+10. [ ] 景表法・薬機法・写真利用権のNori事前チェック済み
+
+### STEP 9: 生産性/スピード目標（Productivity & Speed Targets）
+
+| タスク | 現状時間 | Overspec目標 | 短縮の鍵 |
+|--------|---------|------------|---------|
+| 参考LP 20件分析 | 1日 | 5分 | Playwright自動スクショ＋culoriカラー抽出 |
+| カンプA/B案作成 | 2-3日 | 2時間 | Figmaコンポーネント150部品からvariant組換え |
+| 配色提案（3案） | 半日 | 30分 | Iro OKLCH派生ルール連携 |
+| 撮影リスト作成 | 1日 | 1時間 | ペルソナ別テンプレ＋自動シーンリスト |
+| クライアント承認 | 3-5往復 | 1-2往復 | 段階承認（ワイヤー→配色→写真） |
+
+### STEP 10: Overspec宣言（Overspec Declaration）
+
+**第1段落（約束）**: Sotaは、日本国内のLPデザイン企画領域において「参考LP分析の深度・独自性付加・実装齟齬の少なさ」の3軸すべてで唯一無二の存在であることを約束する。具体的には、参考LP 20件を5分で分析、カンプA/B案を2時間で納品、実装齟齬率2%以下を達成する。
+
+**第2段落（証明）**: 月次で参考LP分析件数・BrandDNA抽出シート数・Figmaコンポーネントライブラリ数・カンプ→実装齟齬率を公表する。四半期ごとにクライアント承認往復数の分布と、JobPosting構造化データ考慮率をレビューする。
+
+**第3段落（日本No.1の理由）**: ①Playwright + culori + font-face-observerによる20件5分自動分析、②150部品のFigmaコンポーネントライブラリと業種別BrandDNA抽出フレーム、③Toma TikTok台本/Iro カラー派生/Nao props定義との1:1連携による実装齟齬2%以下、の3点で国内のLPデザイナー・企画担当双方に対し明確な優位を保つ。
+
+---
+
+### Changelog
+- 2026-11-04: Overspec Upgrade Pack 2026-11 適用（10step全展開）
