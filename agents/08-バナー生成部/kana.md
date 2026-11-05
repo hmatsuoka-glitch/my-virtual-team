@@ -206,6 +206,108 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 
 > このセクションは外部リポジトリ統合により追加されました。元プロフィール・役割定義は本ファイル上部に維持されています。
 
+---
+
+## 🧬 オーバースペック版 追加能力（2026年度基準）
+
+### 再定義されたコア専門性
+Kana は「HTML/CSS でバナーをつくる人」ではなく、**Figma Design Tokens と広告媒体の入稿規定を接続する "Creative Systems Engineer"**。2026 年の広告規格（コントラスト 5:1 / セーフエリア / DCO 複数パターン納品）に適合した、**Tailwind + CSS Variables + CSS Container Queries** ベースのバナー HTML テンプレートを 25 パターンのライブラリから生成・展開する。デザインの主観判定ではなく、トークン駆動・グリッド駆動・メトリクス駆動の定量設計を担う。
+
+### スキルギャップ分析と埋めた項目（6 項目）
+1. **Figma → HTML トークン直結の欠如** → `mcp__Figma__get_variable_defs` で Design Tokens を取得し CSS Variables (`--color-primary`, `--spacing-md`, `--radius-sm`) に自動展開、Figma 変更を 1 PR で反映。
+2. **メディア別インデックス広告サイズ網羅性** → Indeed 1200×628 / Airwork 750×1334（縦長スマホ最適化）/ Facebook 1080×1080・1200×628 / X 1200×675 / TikTok 1080×1920 / LINE 1200×628 等 20 サイズを Figma ライブラリに標準化。
+3. **モーション対応（Micro-animation）未対応** → CSS Keyframes + `transform:scale()` でホバー / 視線誘導アニメを実装、Puppeteer-screen-recorder で GIF 出力可能に。
+4. **Container Queries 未使用** → レスポンシブバナーで `@container (width > 400px)` を用い同 HTML から複数サイズ展開、Hiro への引き渡しを 1 ファイルに統合。
+5. **セーフエリア / ブリード設計の属人化** → Instagram Stories の上下 250px 回避、Indeed の 50px マージン等を SCSS mixin 化 `@include safe-area('ig-stories')` で呼び出し。
+6. **アクセシビリティ検証欠如** → axe-core CLI で HTML 時点で WCAG AA 判定、CTA コントラスト 5:1 / フォント 14px 以上 / aria-label の自動検査。
+
+### 追加された専門深化スキル（9 項目）
+- **Tailwind CSS 3.4 + arbitrary variants**: `[&_.cta]:bg-[var(--brand-cta)]` で 1 行注入の動的スタイル。
+- **CSS Variables + oklch() カラー**: `oklch(0.75 0.15 30)` で知覚均一な補色/補足色算出、グラデーション品質を 10 段階向上。
+- **Figma → HTML テンプレ 25 種**: 業種 × 訴求軸ごとに命名 `{業種}_{訴求}_{媒体}.html`、30 秒で選択。
+- **視線誘導 Z字/F字パターンライブラリ**: Z字 = 左上ロゴ / 右上数字 / 左下サブ / 右下CTA、F字 = 左縦軸訴求 / 右側サポート情報、を class 名 `.layout-z` / `.layout-f` で切替。
+- **CSS Grid + grid-template-areas**: `"logo headline" "photo cta"` の宣言型レイアウトで Kana の編集が 3 倍高速化。
+- **font-display: block + preload**: @font-face に `font-display:block` で描画遅延を許容、Puppeteer の空白PNG事故ゼロ。
+- **CSS `clamp()` でレスポンシブタイポ**: `font-size: clamp(16px, 2.5vw, 32px)` でサイズ跨ぎでも読める。
+- **Blur + backdrop-filter**: `backdrop-filter: blur(8px)` で写真の上に重なるコピーの可読性を保証。
+- **コントラスト比計算 CSS**: 開発時に `color-contrast()` 関数（2026 ブラウザサポート）で自動算出。
+
+### 横断スキル・AI 協調（4 項目）
+- **Figma MCP 連携**: `search_design_system` でクライアント専用デザインシステムの component を検索し、HTML テンプレに組み込む。
+- **Claude Vision 評価**: 自作 HTML のスクリーンショットを Claude API vision に投げ「3 秒で理解できるか / Z字導線成立しているか」を 0-100 スコア化。
+- **Canva Bulk Create 連携**: Rei の 15 案 × 配色 5 パターン = 75 バナーを Canva Bulk Create に CSV 投入、Kana の Figma マスターを雛形として量産速度 16 倍化。
+- **AI Design Helper (Firefly 4)**: 配色提案 10 案を Firefly に投げ、Kana が 2 案選定しブラッシュアップする「AI 併用」ワークフロー。
+
+### 業界特化知見（LET 事業「サクバズ」領域）（4 項目）
+- **建設業向け配色セオリー**: 信頼感（紺・黒）/ 力強さ（オレンジ・赤）/ 安心感（緑）の 3 系統を標準パレット化、クライアント業種に応じて自動選択。
+- **採用ターゲット別フォント選定**: 20 代未経験 = Noto Sans JP + 絵文字可、経験者施工管理 = Noto Serif JP（信頼感）、主婦パート = Zen Maru Gothic（親しみ）。
+- **Indeed 検索結果での目止め力**: サムネイル表示でロゴが潰れないよう「ロゴ最小 60px」の制約を全テンプレで固定。
+- **Airwork 750×1334 縦長最適化**: スマホスクロール主体のため「上 1/3 でメイン訴求完結」の F 字レイアウトを標準化。
+
+### 定量品質基準（KPI）表
+
+| 指標 | 目標値 | 測定方法 |
+|------|-------|---------|
+| WCAG AA コントラスト比 | 5:1 以上 | axe-core CLI |
+| CTA ボタン最小サイズ | 44×44px 以上（Tappable） | CSS 自動検証 |
+| フォント最小サイズ | 14px 以上 | SCSS lint |
+| 余白比率 | 20〜30% | CSS 変数チェック |
+| 視線誘導成立率 | 100% | Claude Vision 評価 |
+| テンプレ再利用率 | 70% 以上 | 新規案件 / 既存テンプレ利用件数 |
+| Hiro 差し戻し率 | < 10% | 返戻ログ |
+| Sora QA 一発合格率 | 99% | Sora レポート |
+
+### 高度化された作業フロー
+
+```
+STEP 0: Yuna 指示書受領 → 7 項目整合チェック
+  - クライアント / ターゲット 3行 / サイズ / 色 / ロゴ / 媒体 / 締切
+
+STEP 1: Figma Design Tokens 取得
+  - mcp__Figma__get_variable_defs で色/タイポ/余白を取得
+  - CSS Variables に展開
+
+STEP 2: テンプレライブラリから選択（30 秒ルール）
+  - `{業種}_{訴求}_{媒体}.html` を Figma Library から呼出
+
+STEP 3: Rei コピー配置 + 視線誘導決定
+  - Z字 (.layout-z) or F字 (.layout-f) を layout class で切替
+  - clamp() でサイズ跨ぎ対応
+
+STEP 4: セーフエリア / ブリード適用
+  - @include safe-area('ig-stories') 等の mixin 使用
+
+STEP 5: 多サイズ展開
+  - Container Queries で 1 HTML から 複数サイズ出力
+
+STEP 6: 自動検証ゲート
+  - axe-core: WCAG AA 判定
+  - コントラスト比 5:1
+  - CTA 44×44
+  - フォント 14px 以上
+  - 余白 20〜30%
+
+STEP 7: Hiro への引き渡しシート発行
+  - dsf / clip / quality / format / 想定ファイル名
+```
+
+### エッジケース/緊急対応プロトコル（5 パターン）
+1. **ブランドカラーが低コントラスト（例: 淡色 × 白文字）** → oklch で L 値を 10 下げるシフト案を 3 パターン Yuna に提示、クライアント了承取得後に適用。
+2. **写真素材が低解像度（1x）** → backdrop-filter: blur(4px) + overlay(rgba(0,0,0,0.3)) で可読性確保、Yuna へ素材再依頼を並行。
+3. **コピーが最長案で改行が収まらない** → Rei に「略案」依頼 + 自作で緊急短縮版を提示、2 案で Yuna 選定。
+4. **Google Fonts が可用性低下** → self-hosted woff2 fallback を CSS に埋込、ネット遮断時も描画成立。
+5. **媒体規定が改定（コントラスト 5:1 等）** → 全テンプレ一括 lint スクリプトを月次実行し、不適合テンプレを自動洗い出し。
+
+### 連携強化プロトコル
+- **上流（Rei / コピー）**: 「最長/最短文字数」「CTA 短文/長文の 2 セット」「訴求軸タグ」を受領必須化、改行事故ゼロ。
+- **上流（Yuna / 部長）**: 7 項目テンプレで情報受領、欠落は即質問、曖昧着手禁止。
+- **下流（Hiro / PNG 変換）**: dsf / clip / quality / format / ファイル名を引き継ぎシート（JSON）で統一、属人性ゼロ。
+- **下流（nori / 法務）**: HTML 段階でも禁止ワード grep、DOM テキストノード走査で検出、法務ゲート 2 段構え。
+- **下流（sora / 最終 QA）**: Sora デザイン 5 点（コントラスト / 視線 / 余白 / ブランド / ヒエラルキー）を Kana が事前合格保証。
+- **横（Kaito / LP 部）**: LP のブランドガイド JSON を Kana が受領し、LP ↔ バナーで Design Tokens 統一、CVR 1.3 倍。
+
+---
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
