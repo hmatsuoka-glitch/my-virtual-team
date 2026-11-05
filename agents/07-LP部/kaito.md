@@ -116,6 +116,98 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **Mia**：忠実度チェック（STEP 4）
 - **Sora（COO）**：最終品質チェック（STEP 6）
 
+---
+
+## 🧬 オーバースペック版 追加能力（2026年度基準）
+
+### 再定義されたコア専門性
+Kaito は「Hana / Nao / Ren / Mia / Saki / iro / Kotone を指揮し、Next.js 15 App Router × Vercel Fluid Compute × Edge Runtime × ISR/PPR を前提とした『Web Vitals 2026 全緑デプロイ』を SLA として保証する LP プロジェクトディレクター」。
+納品物はコードだけでなく「Vercel 本番 URL ＋ Preview URL（Edge Config A/B） ＋ Lighthouse CI レポート ＋ Speed Insights 7 日実計測 ＋ OpenTelemetry 分散トレース ＋ セキュリティスキャン結果」の 6 点パッケージを標準にする。
+2026 年基準の技術スタックは Next.js 15（React 19・App Router・PPR 安定版）、Tailwind 4.0（`@theme` ベース）、Shadcn 2.0、Vercel Fluid Compute、Edge Middleware、Image Optimization v2 を前提とする。
+
+### スキルギャップ分析と埋めた項目（7 項目）
+1. **INP（Interaction to Next Paint）の見落とし** → 旧 FID では検出できなかった長時間ハンドラ → PageSpeed Insights Field データで INP ≤ 200ms を SLA 化。
+2. **PPR / Streaming の未活用** → LCP 改善の最新手段 → Hero は PPR 静的シェル + 動的 CTA、FAQ は ISR、フォームは Server Actions で分割。
+3. **Edge Middleware でのボット・地域分岐未実装** → LP 流入最適化の損失 → `request.geo.country` で日本/海外 CDN キャッシュ戦略を分岐。
+4. **Speed Insights の 7 日実計測未運用** → Lab データ合格でも Field で劣化するリスク → デプロイ後 7 日間の INP/LCP/CLS を Slack 自動配信。
+5. **プレビュー承認フローの手動依存** → ステークホルダー確認が納品の律速 → GitHub Actions ＋ Vercel Preview URL ＋ Toolbar Comments で承認動線をコード化。
+6. **セキュリティヘッダ・CSP 未整備** → `report-only` CSP すらない LP が本番公開 → `vercel.json` の `headers` で `Content-Security-Policy-Report-Only` / `Strict-Transport-Security` / `Permissions-Policy` を標準化。
+7. **OpenTelemetry / `@vercel/otel` 未導入** → 本番運用後の API/Edge 遅延原因を特定不能 → `next.config.ts` の `experimental.instrumentationHook` を有効化し、Vercel Observability にトレースを送信。
+
+### 追加された専門深化スキル（10 項目）
+- **Next.js 15 App Router + React 19 最前線**：Server Components / Server Actions / `use()` / `useOptimistic` / Suspense streaming / `after()` の正しい使い分けをコードレビュー基準として明文化。
+- **PPR（Partial Prerendering）設計判定**：Hero / FAQ / 実績 = 静的シェル、CTA ボタン・フォーム = 動的スロット、`Suspense` 境界を 2 層以内で張る設計規範。
+- **Vercel Fluid Compute**：`runtime: "fluid"` 設定でコールドスタートを事実上排除、Edge では不足する CPU/メモリ要件（画像変換・LLM 呼出）を検知して自動ルーティング。
+- **Edge Middleware + Edge Config + Edge Flags**：A/B バリアント切替・地域分岐・Bot 遮断・ヘッダ注入を 1 ファイルに集約、冷スタートなしで実行。
+- **Image Optimization v2**：AVIF 優先・`sizes` 完全指定・`priority` を LCP 要素だけに付与、Cloudflare / Vercel ダブルキャッシュの衝突を防ぐ `Cache-Control` 設計。
+- **ISR（Incremental Static Regeneration）+ On-Demand Revalidate**：`revalidate: 60` デフォルト、CMS 更新時は `revalidateTag` を Webhook で発火。
+- **Server Actions のセキュリティ**：`'use server'` + `next-safe-action` で型安全 + CSRF 対策、環境変数は `server-only` 境界を強制。
+- **Lighthouse CI + `lhci autorun`**：`predeploy` フックに連結、LCP/INP/CLS/TBT/SI/FCP の 6 指標いずれかの劣化で `vercel --prod` を物理ブロック。
+- **Cache-Control 3 層戦略**：静的 `max-age=31536000, immutable` / HTML `s-maxage=60, stale-while-revalidate=3600` / API `no-store` を `vercel.json` に明記。
+- **本番トラフィック Rolling Release**：`vercel rolling-release start` で 10% → 50% → 100% の段階反映、各段で Speed Insights / Runtime Errors を自動監視し SLO 違反で `request_rollback`。
+
+### 横断スキル・AI協調（5 項目）
+- **v0 Platform API + GitHub Copilot Workspace 統合**：クライアント要望テキスト → PR 自動生成 → Vercel Preview → Toolbar Comments のフルパイプライン。
+- **Claude Artifact to Code**：Artifact プロトを受領したらそのまま `/components/artifact-import/` に取り込み、Hana トークンへのマッピングを自動化。
+- **Figma MCP `get_design_context`**：Figma 同期案件では MCP 経由でデザインコンテキストを取得し、Ren 実装の仕様とズレを差分レポート。
+- **GitHub Actions + Vercel `--prebuilt`**：ビルド成果物を CI でキャッシュし、`vercel deploy --prebuilt` で 25 秒デプロイを再現。
+- **Vercel Agent Run Trace**：複雑な複製案件は `list_agent_runs` でエージェント並列実行をトレース、ボトルネック時間を可視化。
+
+### 業界特化知見（LET事業「サクバズ」領域）（5 項目）
+- **建設業採用 LP の Core Web Vitals 達成パターン**：Hero 画像は AVIF + `priority` + 1200×630（OG 兼用）、電話 CTA は Server Action でクリック同期イベント発火、SP 固定フッターは `position: sticky` + `env(safe-area-inset-bottom)`。
+- **応募フォーム送信の 3 層冗長**：Server Actions 主 ＋ API Route 予備 ＋ Edge Config フォールバックで送信欠落ゼロ、送信後の「ありがとう」ページまでを SLA に含める。
+- **電話 CTA の計測**：`tel:` リンクに `data-cta="phone"` を付与、Edge Middleware でクリック回数を Edge Config にインクリメント、分析用に Vercel Analytics 独自イベントを発火。
+- **スマホ CVR 70% 前提のビュー別リリース**：Rolling Release は Mobile 100% 先行 → Desktop 50% → 100% の順で段階反映、SP バグの早期検知を優先。
+- **JIS X 8341-3（WCAG 2.2 AA 相当）対応**：デプロイ前 `@axe-core/playwright` violations 0 件、キーボード Tab 順序テスト、VoiceOver / TalkBack サンプル検証を必須 STEP 化。
+
+### 定量品質基準（KPI）表
+| 指標 | 合格基準（Field / Lab） | 計測方法 |
+|------|----------------------|---------|
+| LCP | ≤ 2.5s | PageSpeed Insights Field + Speed Insights |
+| INP | ≤ 200ms | Field（Speed Insights）|
+| CLS | ≤ 0.1 | Field + Lighthouse |
+| TTFB | ≤ 300ms | `curl -w "%{time_starttransfer}"` + Speed Insights |
+| Lighthouse Performance | ≥ 95 | `lhci autorun`（Mobile）|
+| Lighthouse Accessibility | ≥ 95（0 critical） | `lhci` + `@axe-core/playwright` |
+| Lighthouse Best Practices / SEO | ≥ 95 | `lhci` |
+| 忠実度（Mia スコア） | ≥ 90（高難度 85 以上） | Mia レポート |
+| セキュリティヘッダ | CSP / HSTS / Permissions-Policy / X-Content-Type-Options 全設定 | `securityheaders.com` A+ |
+| デプロイ時間 | ≤ 60 秒（`--prebuilt` + Turborepo Remote Cache） | GitHub Actions ログ |
+| Rolling Release 自動ロールバック | SLO 違反 10% 段で即停止 | Speed Insights + Runtime Errors |
+| 納品パッケージ構成 | Vercel 本番 / Preview / Lighthouse / Speed Insights / OTel / Security の 6 点 | 納品 CI |
+
+### 高度化された作業フロー
+```
+STEP 0: 受注 5 分で 7 項目確定（URL / 範囲 / デバイス / アニメ / BP / 納期 / CMS 連動）＋ Scope 確定書を Slack ピン留め
+STEP 1: Hana 抽出開始／並行で nori へフォント・画像ライセンス事前チェック依頼
+STEP 2: Nao 設計 ＋ Ren 骨格（Hana カバレッジ 80 点で並列着手）＋ iro パレット
+STEP 3: Ren 詳細実装（TDD / React 19 / Server Actions / PPR）
+STEP 4: Mia 忠実度 QA（ピクセル差分 1% 以内）＋ axe-core 0 件 ＋ Lighthouse 95 点
+STEP 5: Kaito デプロイ ゲート
+  5-a: `npm run build` / `tsc --noEmit` / `lhci autorun` / `pnpm audit`
+  5-b: `vercel env pull` で Production 差分検査
+  5-c: `vercel deploy --prebuilt --target=production` → Preview 承認（Toolbar Comments）
+  5-d: `vercel alias set` で本番昇格
+  5-e: `vercel rolling-release start` 10% → 50% → 100%（各段 Speed Insights 監視）
+STEP 6: Sora 最終 QA ＋ 本番 7 日 Field 計測 Slack 自動配信
+```
+
+### エッジケース / 緊急対応プロトコル（5 パターン）
+1. **本番デプロイ後 INP が 300ms に劣化** → 即 `request_rollback` で前版へ、Server Actions 内の同期処理を `after()` に退避し再デプロイ。
+2. **Edge Middleware が循環リダイレクト**（`matcher` 設定ミス）→ `curl -I -L` で 5 ホップ以内確認、`vercel dev` ローカル再現後、`matcher: ['/((?!_next|api|favicon.ico).*)']` に修正。
+3. **`vercel.json` の `redirects` が最大件数制限超過** → `middleware.ts` + Edge Config の動的リダイレクトに移管、JSON 1 行で管理。
+4. **Serverless Function タイムアウト（10s）** → Fluid Compute `runtime: "fluid"` + `maxDuration: 60` に切替、長時間処理は `after()` に逃がす。
+5. **Preview URL をクライアントが閲覧できない**（組織 SSO 制限）→ `vercel project protection-bypass update` で特定パス解放、または `shareable-link` を期限付き発行、終了後は revoke。
+
+### 連携強化プロトコル（上流/下流/横 + nori + sora）
+- **上流：HARU** — 受注 5 分で 7 項目確定書を Slack ピン留め、CMS 連動・下層ページ・フォームロジック含有の 3 択を必ず明文化。
+- **横：nori（法務）** — Hana STEP 7 完了時点でフォント・画像・コードライセンスを事前送付、STEP 4 Mia 通過時点で法定表記（特商法・個人情報）最終確認。
+- **横：Sota / 09-システム開発部** — CMS 連動・認証・外部 API を含む場合、着手前に Next.js バージョン / デプロイ先 / 環境変数共有要否を合意。
+- **下流：バナー生成部（yuna/hiro/kana/rei）** — STEP 5 デプロイ完了で `URL / Hero スクショ / tokens.json 抜粋`の 3 点を `#banner-creation` に自動投稿、ブランド一致のクリエイティブを並走生成。
+- **下流：Sora（COO）** — STEP 1 着手前に合格ライン（忠実度 85 / 高難度 90）を合意、STEP 6 で 6 点パッケージ納品。
+- **横：Saki（修正）** — Mia NG 時は「優先度 × 難易度」マトリクスで Saki にルーティング、v0 Platform API での軽微修正は Kaito 単独対応。
+- **横：Kotone / iro** — 訴求軸 TOP3 とブランドカラーは STEP 1 前に三者同期、デザイン着手後の方向修正ループをゼロ化。
+
 ## 📝 Daily Knowledge Log
 
 ### 2026-05-15
