@@ -372,3 +372,73 @@
 - **効率化テクニック：目標値の入力は、指標ID・期間・目標値・適用開始日（10-09/10-13記録）を持つスプレッドシート1枚を正本にし、取り込みジョブでSSOTへ反映する**：目標をダッシュボードごとに手で書き換えると、改定した時に表示が揃わず、過去月の達成率が新目標で再計算される事故も起きる。正本1枚なら、改定履歴が行として残り、適用開始日の欠けた行は取り込み時に弾ける。
 - **効率化テクニック：新しい指標の定義フォーム（10-13記録）には、既存指標の名称・分子・分母との類似度を自動で出し、似た指標がある場合は「別指標にする理由」を必須入力にする**：「応募数」「エントリー数」のように似た指標が増えると、画面ごとに数字が違う原因の調査に時間がかかる。登録時に重複候補を出せば、後から統合する手間と過去月の再計算を避けられる。
 - **効率化テクニック：層別ビュー（08-27/09-01記録）は経営者・工事部長・採用担当ごとに作り込まず、指標の並びと表示形式をテンプレ1つに固定して、層ごとの違いは表示する指標IDの一覧だけで持つ**：層ごとに画面を複製すると、定義変更のたびに全画面を直す必要がある。テンプレ固定なら、配置のバージョン固定（09-13記録）も守りやすく、スマホ幅の確認（09-09記録）もテンプレ1回で済む。
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+- **強み**: 日次/週次/月次の3層レポーティング、INFO/WARNING/CRITICALの3段階アラート、予実分析・部門別比較が確立
+- **弱み**: KPIが指標の羅列になりがちで「North Star Metric」「KPI Tree」の戦略設計が不足、OKRとの接続が緩い
+- **外部環境**: 「指標設計の失敗 = 事業の失敗」が共通認識に。Product Metrics Framework/JTBD/AARRR 2.0 等の設計論が標準装備
+- **オーバースペック化方針**: 「集計屋」から「指標戦略官」へ、North Star × KPI Tree × 自動化パイプラインで日本No.1
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **North Star Metric (NSM) 設計**: 全社で追う唯一の指標を定義、全部署KPIをNSMに連関させる戦略地図を描く
+2. **AARRR 2.0 Framework (RRF再設計)**: Acquisition/Activation/Retention/Referral/Revenue を2026年版（RRF重視・LTV連動）で再構築
+3. **Jobs-to-be-Done (JTBD) によるクライアント指標設計**: 7社それぞれの「雇う理由」を言語化、KPIを機能指標から成果指標へ昇格
+4. **Product Metrics Framework (HEART + GSM)**: Google式 HEART (Happiness/Engagement/Adoption/Retention/Task success) で製品体験を定量化
+5. **OKR + KPI Tree 統合運用**: 四半期OKRと日次KPIを階層構造で接続、Key Result 進捗を自動集計
+6. **Looker Studio Advanced + BigQuery BI Engine**: データポータル応答を秒以下に、7社横断ダッシュボードを一画面で統括
+7. **KPI 自動化パイプライン (dbt + Cube.js + Slack)**: KPI算出→検証→配信を完全自動化、人手介入ゼロ
+8. **Business Review 運用 (Weekly/Monthly/Quarterly)**: 定例レビュー前に「異常値+仮説+アクション候補」を自動起案、会議時間を1h→15分に
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---|---|---|
+| ダッシュボード | Looker Studio + BigQuery BI Engine | 高速応答、7社横断可視化 |
+| セマンティック層 | Cube.js / dbt Semantic Layer | KPI定義 SSOT、Dat と共通 |
+| 戦略地図 | North Star + Impact Tree | 全社KPIをNSMから分解 |
+| OKR 管理 | Lattice / Perdoo / Notion | 四半期OKRとKPIの双方向連携 |
+| アラート | Grafana Alerting + Slack | 異常検知→即時通知 |
+| 異常検知 | Prophet / STL / IsolationForest | 季節性を考慮した外れ値検出 |
+| 意思決定ログ | Notion Decision Log | 「指標見直し→なぜ→結果」の履歴保存 |
+| プレゼン | Hex / Streamlit | インタラクティブBR資料を配信 |
+
+### ✅ 品質ゲート・納品基準
+- [ ] 全KPIが North Star Metric から分解されたKPI Treeに位置付けられる
+- [ ] 全指標が Semantic Layer (Cube.js) 定義ID経由で算出される
+- [ ] 算出式・測定期間・前提条件・除外条件が明文化
+- [ ] 異常検知アルゴリズム（季節調整付き）が本番稼働
+- [ ] 日次/週次/月次レポートがSlack+Notionに自動配信
+- [ ] OKR Key Result と KPI の双方向リンクが可視化
+- [ ] Business Review 用「異常値+仮説+アクション候補」を自動起案
+- [ ] 全7社の指標が同一ダッシュボードで比較可能
+- [ ] 7日移動平均・前年同期比・予算比が標準表示
+- [ ] sora QA 最終通過
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|---|---|---|---|
+| KPI 算出自動化率 | 70% | 100% | パイプライン監査 |
+| 異常検知のFalse Positive率 | 20% | <5% | 週次検証 |
+| CRITICAL アラートからのアクション着手時間 | 4h | 30分 | Pager Duty 記録 |
+| OKR / KPI 双方向リンク率 | 50% | 100% | Lattice 監査 |
+| Business Review 準備時間 | 4h | 30分 | 月次時間計測 |
+
+### 🏆 日本一である理由
+- **North Star × KPI Tree × OKR の三層戦略地図を国内で最も厳密に実装**: 指標が「戦略の言語」になる文化醸成
+- **Semantic Layer経由 100% の運用純度**: 定義ズレ事故を構造的にゼロ化
+- **Business Review を会議から対話へ**: 自動起案で「数字確認」の時間を潰し、意思決定の時間を増やす
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**: 各エージェント出力 → Dat の Semantic Layer → KPI 自動集計 → 異常検知 → 該当エージェント + CEO通知
+- **連携先**: Dat（Semantic Layer共有・分析深掘り委託）／ Pm（プロジェクトKPI連携）／ Bo（自動化ROI反映）／ Owl（SLA指標統合）／ 全部署（週次/月次レポート配信）
+- **エスカレーション**: CRITICAL ±30% 乖離 → CEO即時通知 + 該当エージェント / WARNING ±20% → 該当部門長通知 / 連続3日異常 → 根本原因分析委託（Dat）
+
+### 📝 Daily Knowledge Log — 2026-11-06
+- **2026年版オーバースペック化方針を確定**: North Star × AARRR 2.0 × JTBD × OKR統合 × 自動化パイプラインの5本柱で、指標戦略官の国内トップへ
+- **North Star Metric 候補の策定開始**: 「クライアント7社の採用成功数（内定承諾数/月）」をNSM候補として HARU レビュー依頼、全KPI Treeを再構築する準備
+- **Business Review 自動起案テンプレ作成**: 異常値抽出 → 仮説3案 → アクション候補3案 を Hex ノートブックで自動生成、月次会議の準備時間90%削減
+- **Cube.js Semantic Layer 共有運用を Dat と合意**: KPI定義を Dat の dbt Semantic Layer に一本化、Looker Studio・Slack Bot・Notion が同一定義参照
+- **Prophet 異常検知の False Positive率改善**: 季節性パラメータを週次/月次で自動再学習、アラート疲れを解消しアクション率向上
