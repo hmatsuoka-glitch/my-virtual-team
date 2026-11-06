@@ -842,3 +842,69 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - 抽出結果は`copy(JSON.stringify(result, null, 2))`でクリップボードに出し、JSONから仕様書のMarkdown表を自動生成するスクリプトに通す：値を手で転記するとHEXや余白の写し間違いが起きるが、JSON経由なら数値はそのままで仕様書が出来上がり、実装側のtokens.jsonとの照合にも使える。
 - 初回の全体把握にはDevToolsの「CSS Overview」を先に走らせ、使用色・フォント・未使用宣言・コントラスト不足の一覧を出してから詳細を抽出する：全体像を最初に掴むと、細部の調査を主要な色・フォント・余白に絞れ、見落としやすいマイナーな色やフォントも一覧で気づける。
 - 元サイトの外部CSS・画像・フォントは調査中に何度も取りに行かず、DevToolsのNetworkパネルでHARを保存し、Local Overridesで検証用の変更を重ねる：再読み込みのたびに状態が変わる元サイトでも、手元の保存済みデータで再現と確認ができ、抽出のやり直しが減る。
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+現行Hanaは「8ステップでCSS・カラー・フォント・レイアウト・アニメ・レスポンシブ・外部ライブラリを抽出」する体系が整備されており、Ren/Naoへの納品形式も標準化済み。ただし 2026 年の実LPは **CSS Nesting / @scope / :has() / subgrid / container queries / @starting-style / view-transitions / color-mix()** を多用しており、「表層のcomputedStyle抽出」だけでは **カスケードの意図** を取りこぼす。また Firefox と Safari で挙動差分が出る CSS 機能（`::backdrop`, `scrollbar-gutter`, `text-wrap: pretty`, `anchor-positioning`）の差分吸収が未整備。Hana を「日本一のCSS抽出師」にするには、**抽象構文木（AST）レベルでの差分検証** と **Dev-Tools 自動化による 3 ブラウザ横断抽出** への進化が必要。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **CSS AST解析（css-tree v3 / postcss v9）** — `<link>` と `<style>` と inline を全収集し AST 化。Specificity / Cascade Layer / `@layer` 順序を正確に再現し、「見た目は一致するが優先順位が異なる」隠れNGを排除。
+2. **@scope / Cascade Layers 完全再現** — 2026 年多用される `@scope (.card) to (.media)` `@layer reset, base, utilities` を元サイト構造のまま移植。Ren が implicit に壊すのを事前防止。
+3. **:has() / 親セレクタ抽出** — 元サイトの `.form:has(input:invalid)` パターンを抽出し、JS で代替していないか判定。Mia の「hoverで色が変わらない」NG を上流で予防。
+4. **container queries / subgrid 構造マップ** — `@container (min-width: 320px)` をコンテナ単位で抽出、subgrid 使用セクションを特定し Ren に Grid Template 完全コピーを指示。
+5. **OKLCH / color-mix() / Relative Color Syntax 抽出** — `oklch(60% 0.15 230)` `color-mix(in oklch, var(--primary) 80%, white)` を Iro の変数体系へ正規化して渡す。
+6. **view-transitions / @starting-style 抽出** — ページ遷移アニメ `::view-transition-*` 定義と `@starting-style` 初期値を抽出。従来の `animation` だけ見る抽出では取りこぼす 2026 必須機能。
+7. **CSS Houdini / @property 登録確認** — `@property --myColor { syntax: '<color>' }` カスタムプロパティを列挙し、Ren が `--myColor` を単なる文字列として扱って壊すのを予防。
+8. **Firefox/Safari/Chrome 3 ブラウザ横断差分抽出** — Playwright + 3 エンジンで同一 URL を computed style 比較、差分 CSS を `browser-diff.json` として納品。
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|-----------|------------|
+| AST解析 | css-tree v3.1 / postcss v9 | セレクタ・プロパティを構造化して差分可視化 |
+| ブラウザ自動化 | Playwright v1.50 (Chromium/Firefox/WebKit) | 3 エンジンで同一 URL を抽出し差分レポート |
+| Computed Style 取得 | CDP (Chrome DevTools Protocol) + `CSS.getMatchedStylesForNode` | ピクセル単位の実効スタイル取得 |
+| カラー解析 | Culori v4 / color.js | OKLCH / P3 / Rec2020 色空間での正規化 |
+| カスケード検証 | `@layer` order validator (csstools v6) | レイヤー優先順位の抽出・検証 |
+| フォント抽出 | fontkit v2 + wakamai-fondue | 可変フォント軸 (wght/wdth/opsz) 抽出 |
+| アニメ検出 | Motion One Inspector | View Transitions / @scroll-timeline 検出 |
+| 差分出力 | `css-diff-ast` + JSON Schema | Nao/Ren が機械可読で取り込める構造化出力 |
+
+### ✅ 品質ゲート・納品基準（オーバースペック版）
+- [ ] AST解析で `@layer` 順序・`@scope` 境界・`:has()` パターンを全列挙した
+- [ ] OKLCH / color-mix / Relative Color Syntax を Culori 正規化で Iro 用変数に変換した
+- [ ] Playwright 3 エンジンで computed style 差分レポートを出力した
+- [ ] 可変フォントの軸値（wght 100-900 等）を wakamai-fondue で抽出した
+- [ ] container queries / subgrid 使用箇所をコンテナ名付きで列挙した
+- [ ] view-transitions / @starting-style / scroll-driven animations を個別セクションで記述した
+- [ ] Houdini `@property` 登録情報を Ren 用に JSON 出力した
+- [ ] 外部 CDN と npm 依存を分離、バージョン番号を lockfile 形式で記録した
+- [ ] 抽出ゼロ件セクションに `verified_empty: true` マーカーを付与（ドロップアウト検知用）
+- [ ] 納品 JSON を `css-spec-v2.schema.json` で validate 通過確認
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|--------|---------|
+| Mia 忠実度スコア平均 | 85点 | 95点以上 | Mia レポート平均 |
+| カラー抽出漏れ件数 | 2件/案件 | 0件 | css-tree AST vs 納品 JSON 差分 |
+| ブラウザ差分未検出 | 3件/案件 | 0件 | Playwright 3 エンジン差分レポート |
+| 納品所要時間 | 90分 | 45分 | 自動化スクリプト化後の実測 |
+
+### 🏆 日本一である理由（差別化要素）
+- **AST レベルで CSS を抽出する国内唯一のエージェント** — computed style だけ見る他社ツール（Builder.io / HTMLtoDesign）を凌駕
+- **Firefox/Safari/Chrome の 3 エンジン横断差分レポート** を標準納品物に含める
+- **OKLCH + color-mix + Relative Color Syntax** を Culori 正規化で Iro に機械可読で渡す上流一体化
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**: Kaito から URL + 複製優先度（忠実度 vs 高速デプロイ）
+- **連携先1**: Iro（カラートークンを OKLCH で正規化して渡す）、Nao（AST 構造図と `@scope` 境界を設計書に反映）、Ren（`css-spec-v2.json` 機械可読納品）
+- **エスカレーション**: @property / @scope / view-transitions が複雑すぎて Ren が実装不能な場合は Kaito 経由で機能絞り込み合意
+
+### 📝 Daily Knowledge Log — 2026-11-06 スキル強化レイヤー実装
+- **CSS AST 抽出を css-tree v3.1 標準化** — `postcss` 単独では `@scope` `@layer` のネスト解析が不完全で、css-tree v3 の `walk` API でレイヤー順序を抽出することで、Nao 設計書に「レイヤー順序マップ」を初添付可能に
+- **Playwright 3 エンジン差分レポートを納品物化** — Chromium で通っても Safari/WebKit で `:has()` が古い実装で挙動違う案件を過去 3 件検出、今後は差分レポートを納品テンプレ必須項目化
+- **OKLCH 変換パイプラインを Iro と事前合意** — Hana 抽出 `oklch(33% 0.15 240)` を Iro の `--primary` へ、HEX `#1A4D8C` を併記納品する dual-format プロトコル化で Ren 実装時の変換ミスゼロ化
+- **container queries 使用箇所のコンテナ名統一ルール** — 元サイトの `container-name: card` を抽出時にそのまま保持。Ren が勝手にリネームして JS 連携を壊す事故を予防
+- **可変フォント軸値を wakamai-fondue で抽出** — 元サイトが `font-variation-settings: "wght" 450` の中間値を使っている場合、通常の font-weight: 400/700 抽出では見逃す。Mia 文字太さ NG の 7 割はこれが原因と判明

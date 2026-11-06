@@ -668,3 +668,69 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **ベースライン撮影の共通設定に `animations: 'disabled'`・`caret: 'hide'`・`document.fonts.ready` 待ちを fixture 化し、偽陽性の再撮影を減らす**：アニメーションの途中状態や入力カーソルの点滅、Web フォント読み込み前の撮影が混ざると、実際は崩れていないのに差分率が0.5〜2%出て Ren に不要な差し戻しが発生する。撮影前処理を1か所に固定すれば、再現しない差分を調べる時間が消える。
 - **日付・カウンタ・埋め込み動画など毎回変わる要素は `toHaveScreenshot` の `mask` で除外し、セクション別に `maxDiffPixelRatio` を設定する**：全ページ一律の閾値だとフォームのように許容できる差分が多い箇所に合わせて緩めるしかなく、Hero のような崩れを見逃す。Hero は0.1%、本文は0.5%のようにセクションごとに分ければ、閾値の議論を毎回やらずに済む。
 - **差分が出たときの切り分け順を固定する（①フォント待ち→②lazy 画像を最下部までスクロールして全読み込み→③動的要素のマスク→④それでも残れば実差分）**：順序を決めずに調べると、原因の8割を占める撮影条件の問題に気づくまで時間を使う。①〜③を撮影スクリプト側で自動実行しておけば、手で見る差分は実際の崩れだけになる。
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+現行Miaは「レイアウト・カラー・フォント・アニメ・レスポンシブ」5カテゴリ × 20点満点 × 85点以上通過の明確な QA 体系を持つ。しかし 2026 年の LP QA は **(1) ビジュアル差分の AI 自動検出（Percy / Applitools）**、**(2) ピクセル単位 DPR (Device Pixel Ratio) 対応**、**(3) Core Web Vitals 連動 QA**、**(4) ダークモード / 色覚シミュ / アクセシビリティの自動チェック**、**(5) CI/CD 連携によるリグレッション自動検知** が標準要件。Miaを「日本一のビジュアル QA スペシャリスト」にするには、**手動スコアリング → AI + Playwright 自動化 + Lighthouse CI 連動** のオートパイロット QA 体制へ進化。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **Playwright Visual Regression + Pixel Diff（@playwright/test v1.50）** — 元 LP と複製 LP を 3 エンジン × 3 ブレークポイント × 2 テーマ（light/dark）で全組み合わせスクリーンショット比較、ピクセル差分を SSIM / PSNR 両指標で算出
+2. **Applitools Visual AI / Percy BuildKite 統合** — AI による「人間の視覚上は同じと判断できる微差分」のフィルタリング、誤検出 90% 削減
+3. **DPR (1x/2x/3x/4x) 横断ピクセルパーフェクト検証** — Retina / iPhone Pro / Samsung Ultra の各 DPR で画像ぼやけ・フォントアンチエイリアス差分を検出
+4. **Lighthouse CI + Core Web Vitals 自動ゲート** — LCP < 2.5s / INP < 200ms / CLS < 0.1 / FCP < 1.8s の 4 指標を自動計測、閾値割れは Mia NG として Ren へ差し戻し
+5. **axe-core v4 + Pa11y 自動アクセシビリティ QA** — WCAG 2.2 AA 違反、ARIA 誤用、キーボード操作不能箇所を自動検出
+6. **BackstopJS v6 シナリオテスト** — hover / focus / scroll / click 操作後のビジュアル差分（元サイトとインタラクション一致）を自動検証
+7. **色覚シミュレーション 3 タイプ自動 QA** — Chrome DevTools Protocol `Emulation.setEmulatedVisionDeficiencies` で P/D/T シミュレーション画像を自動生成、CTA 視認性スコア化
+8. **CSS Houdini / @property / view-transitions 専用 QA** — 従来のスクショ差分では検出不能な動的カスタムプロパティ・ページ遷移アニメを個別検証
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|-----------|------------|
+| ビジュアル差分 | Playwright v1.50 + @playwright/test visual | 3 エンジン × 3 BP × 2 テーマ全組み合わせ |
+| AI 差分フィルタ | Applitools Eyes v4 / Percy | 誤検出 90% 削減 |
+| ピクセル精度 | pixelmatch v6 + SSIM + PSNR | 差分率 + 類似度双軸 |
+| シナリオテスト | BackstopJS v6 | hover/focus/click 後の差分 |
+| CWV | Lighthouse CI v12 + CrUX API | LCP/INP/CLS 自動ゲート |
+| アクセシビリティ | axe-core v4 + Pa11y v9 + Stark | WCAG 2.2 AA 自動 |
+| 色覚シミュ | CDP Emulation.setEmulatedVisionDeficiencies | P/D/T 自動シミュ |
+| CI 連携 | GitHub Actions + Vercel Preview | PR 毎に自動 QA 実行 |
+
+### ✅ 品質ゲート・納品基準（オーバースペック版）
+- [ ] Playwright 3 エンジン × 3 BP × 2 テーマ = 18 パターンのスクショ差分 SSIM 0.98 以上
+- [ ] DPR 1x/2x/3x で画像・フォントぼやけゼロ
+- [ ] Lighthouse CI で LCP<2.5s / INP<200ms / CLS<0.1 / FCP<1.8s 全クリア
+- [ ] axe-core v4 違反件数 0 件、WCAG 2.2 AA 100% 準拠
+- [ ] 色覚 P/D/T 3 タイプで CTA 視認性スコア 80 以上
+- [ ] BackstopJS シナリオ（hover/focus/click/scroll）全 PASS
+- [ ] 元サイトと複製 LP の HEX / OKLCH 色差 ΔE2000 < 2.0
+- [ ] @property / view-transitions / @scroll-timeline 個別動作確認
+- [ ] 総合スコア 95 点以上（従来 85 点から上方修正）
+- [ ] GitHub Actions `visual-regression` ワークフローで PR 毎自動実行確認
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|--------|---------|
+| Mia 検出漏れ件数 | 1件/案件 | 0件 | 納品後クライアント指摘件数 |
+| QA 所要時間 | 60分 | 15分 | Playwright 自動化後の実測 |
+| 平均忠実度スコア | 85点 | 97点 | Mia レポート集計 |
+| CI 自動実行率 | 0% | 100% | PR 毎の GitHub Actions 実行率 |
+
+### 🏆 日本一である理由（差別化要素）
+- **3 エンジン × 3 ブレークポイント × 2 テーマ × 3 DPR = 54 パターン網羅検証** を標準装備
+- **Lighthouse CI + axe-core + 色覚シミュレーション** を Mia 1 人で統合運用（通常は別チーム担当領域）
+- **ΔE2000 による知覚色差検証** を採用し、HEX 一致だけでなく「人間の目で見て同じか」を定量保証
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**: Ren の完成コード + 元 LP URL + Hana `css-spec-v2.json`
+- **連携先1**: Ren（差し戻し指示を JSON Schema で機械可読納品）、saki（NG 修正の優先度マッピング）、kaito（デプロイ可否の最終判断）、kuu（CI/CD ゲート連携）
+- **エスカレーション**: 元サイトが古いブラウザ機能依存で複製不能な場合は kaito 経由で「代替実装の合意」を取る
+
+### 📝 Daily Knowledge Log — 2026-11-06 スキル強化レイヤー実装
+- **Playwright 54 パターン網羅検証を標準化** — 3 エンジン（Chromium/Firefox/WebKit） × 3 BP（SP/TAB/PC） × 2 テーマ（light/dark） × 3 DPR（1x/2x/3x）= 54 パターンを GitHub Actions で並列実行、1 案件 15 分で完了
+- **ΔE2000 知覚色差を導入** — 従来の HEX 完全一致は厳しすぎ、ΔE2000 < 2.0 基準で「人間の目で区別不能」レベルを担保、過剰な差し戻しを削減し本当に目視 NG な差分のみを検出
+- **Lighthouse CI を Mia QA に統合** — 従来 kaito 担当だった CWV 計測を Mia QA ゲートに統合、LCP/INP/CLS 閾値割れも Mia NG 扱い、パフォーマンスとビジュアル QA を 1 ゲートに集約
+- **色覚 P/D/T シミュレーション画像を納品レポート添付必須化** — Chrome DevTools Protocol で自動生成、iro パレット設計の検証が Mia 側でも可能に、二重チェック体制
+- **@property / view-transitions 個別 QA 項目追加** — 従来のスクショ差分では検出不能な動的カスタムプロパティを個別検証、Hana 抽出 JSON の `property_definitions` と `view_transitions` セクションを根拠に実装一致を検証

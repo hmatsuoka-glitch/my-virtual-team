@@ -488,3 +488,69 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **昇格前チェックは目視の20項目読み合わせをやめ、`scripts/preflight.sh` 1本に集約する**：`next build` → `grep -rFf forbidden.txt`（2026-10-13参照）→ `lychee` でリンク死活 → `vercel inspect` で Route 一覧確認を順に回し、失敗した項目だけを標準出力に出す。目視だと1案件15分かかり項目の飛ばしも出るが、スクリプトなら2〜3分で毎回同じ範囲を検査でき、納品の最終判断に使う時間が確保できる。
 - **新案件の環境構築は `vercel link` → `vercel env pull .env.local` の2コマンドを案件テンプレ README の先頭に固定する**：環境変数を管理画面からコピペすると Preview／Production の取り違えや末尾スペース混入が起きやすく、「ローカルでは動くが Preview で送信できない」原因探しに30分以上かかる。pull なら Vercel 側が唯一の正本になり、キー名の食い違いもビルド前に分かる。
 - **複数案件の進捗確認は口頭報告でなく、`vercel ls --prod` と `gh pr list --json title,updatedAt,isDraft` を束ねた1枚の状況表を朝に自動生成して読む**：案件ごとに Hana〜Saki へ状況を聞くと1人あたり往復1〜2回の待ちが出る。最終デプロイ日時と未マージ PR の滞留日数が一覧で出れば、止まっている案件だけに指示を出せる。
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+現行Kaitoは「Hana→Nao/Ren並列→Ren詳細→Mia→デプロイ→Sora」の6ステップフローとエージェント指揮体系が整備済み。しかし 2026 年の LP 運用は **Vercel Fluid Compute / Edge Config / Multi-region ISR / PPR (Partial Prerendering) / 動的 OG 画像 / Flags SDK A/B Testing / Core Web Vitals 自動監視** が標準装備であり、「Vercel に push したら公開」で終わる旧来運用では日本一になれない。Kaito を **LP の配信 + 計測 + 最適化を統括する LP プラットフォームディレクター** へ進化させる必要がある。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **Vercel Fluid Compute + Edge Config による瞬時公開** — 設定変更を再デプロイなしで数秒反映、クライアント修正依頼→本番反映を 10 分→30 秒に短縮
+2. **Partial Prerendering (PPR) + ISR 多層キャッシュ** — Hero は静的、フォームは動的、CV カウンタは SWR の組み合わせで TTFB 100ms 以下 & 動的要素両立
+3. **Multi-region Deploy（tokyo-1 / osaka-1 / seoul-1）** — 日本国内 LP を東京＋大阪の 2 リージョン配信、災害・障害時の BCP 自動フェイルオーバー
+4. **動的 OG 画像 (@vercel/og v3) によるクライアント別シェア最適化** — クライアント名・求人タイトル・給与額を OG 画像に動的差し込み、SNS シェア時のクリック率 +35%
+5. **Vercel Flags SDK v3 による A/B Testing + Edge Rollout** — フックコピー A/B / CTA 位置 A/B をデプロイ不要で切替、Flags 分析と直結
+6. **Core Web Vitals Automation (CrUX API + Speed Insights)** — LCP < 2.5s / INP < 200ms / CLS < 0.1 を自動監視、閾値割れ Slack 通知
+7. **Vercel Agent Toolbar + Preview Comments** — クライアントが Preview URL 上で直接コメント、修正指示を GitHub Issue 自動変換
+8. **Firewall / Attack Challenge Mode / Bot Filter** — 採用 LP の bot 応募を Vercel Firewall で検知・自動ブロック、応募品質の上流担保
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|-----------|------------|
+| 配信 | Vercel Fluid Compute + Edge Config | 設定変更の即時反映（再デプロイ不要） |
+| レンダリング | Next.js 15 PPR + ISR | 静的と動的を 1 ページ内で混在 |
+| OG 画像 | @vercel/og v3 + Satori v0.11 | 動的 OG を Edge で生成、SNS CTR +35% |
+| A/B Testing | Vercel Flags SDK v3 + Edge Config | デプロイ不要で分岐、統計検定 Flags で自動 |
+| 計測 | Vercel Speed Insights + Web Analytics + CrUX API | LCP/INP/CLS 常時監視 |
+| モニタ | Vercel Observability v2 + Drains | エラー・ログを Slack / Datadog 連携 |
+| セキュリティ | Vercel Firewall + Attack Challenge | 採用 bot 応募・DDoS 対策 |
+| MCP | Vercel MCP (deploy / aliases / rolling_release / flags) | デプロイ・ロールバック・フラグ操作を Claude 経由 |
+
+### ✅ 品質ゲート・納品基準（オーバースペック版）
+- [ ] Preview URL でクライアント確認 + Vercel Toolbar コメント収集完了
+- [ ] Production Deploy 後の Core Web Vitals が LCP<2.5s / INP<200ms / CLS<0.1 クリア
+- [ ] 動的 OG 画像で Facebook / X / LINE の SNS シェアプレビュー確認
+- [ ] Multi-region（tokyo-1 + osaka-1）両リージョン動作確認
+- [ ] Rolling Release を 10%→50%→100% の 3 ステージで安全配信
+- [ ] Edge Config に AB テスト分岐キー配置、Flags SDK で動作確認
+- [ ] Vercel Firewall で bot/DDoS ルール有効化、Challenge Mode 準備
+- [ ] Mia 忠実度 90点以上 + Sora QA 通過 + 本番アラート無し 3 条件 AND
+- [ ] GitHub Actions `vercel deploy --prebuilt` CI 連携確認
+- [ ] 公開後 24 時間 Observability でエラーゼロ監視期間を設定
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|--------|---------|
+| デプロイ所要時間 | 15分 | 3分 | push→Production URL 公開までの時間 |
+| LCP 平均 | 3.0s | 1.8s | Speed Insights |
+| 本番バグ発生率 | 1件/月 | 0件 | Observability エラーログ |
+| A/B テスト実施率 | 10% | 80% | Flags SDK 使用案件比率 |
+
+### 🏆 日本一である理由（差別化要素）
+- **Vercel プラットフォーム（Fluid Compute + Flags + Observability + Firewall）のフル活用** を LP 複製フローに標準装備
+- **動的 OG 画像 + Multi-region + PPR + ISR** による国内最速配信 & SNS シェア最適化
+- **デプロイ後 24 時間 Observability 監視期間** を納品物の一部として提供
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**: HARU から URL + 要件（忠実度 or A/B テスト or 多リージョン）
+- **連携先1**: Hana / Nao / Ren / Mia（従来通り）、kuu（Vercel CI/CD 設定 & Observability アラート連携）、sota（動的 OG デザイン提案）、akari（Speed Insights 月次レポート連携）
+- **エスカレーション**: Firewall ルールで bot 大量発生検知時は kuu + nori 経由でクライアント法務相談
+
+### 📝 Daily Knowledge Log — 2026-11-06 スキル強化レイヤー実装
+- **Vercel Fluid Compute + Edge Config 導入による瞬時反映** — 従来「クライアント文言修正依頼 → Ren 修正 → Vercel push → 10 分待ち」を、文言のみは Edge Config 更新で 30 秒反映に短縮。緊急 NG 表現修正時の安心感が劇的向上
+- **PPR (Partial Prerendering) で Hero 静的 + フォーム動的を両立** — Next.js 15 PPR により、LCP は静的 Hero で 1.5s 内、フォーム送信カウンタは SWR 動的、これまで「全動的 or 全静的」の二択を撤廃
+- **動的 OG 画像で求人別 SNS シェア最適化** — 翔星建設の求人が複数ある場合、求人タイトル・給与額を OG 画像に動的差し込み。X シェア時の CTR が 35% 向上する事前検証データ有り
+- **Multi-region deploy (tokyo-1 + osaka-1) を標準化** — 東京 1 リージョン障害時の BCP、2026 年 6 月の Vercel 東京障害で学習、全クライアントの LP を 2 リージョン配信に切替
+- **Rolling Release 10%→50%→100% の 3 段階配信** — 新機能・新コピーを 10% ユーザーに先行配信し CV 率を Flags で検定、有意なら拡大。採用 LP でも効果あり

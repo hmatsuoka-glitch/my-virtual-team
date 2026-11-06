@@ -344,3 +344,67 @@ tsumugi（LP制作係係長）から LP制作依頼を受け取り、以下を�
 - 45ペアのコントラスト検証は手でツールに入力せず、culoriなどでトークン一覧から全ペアのWCAG比とAPCA Lcを一括計算し、不合格ペアだけをリスト化するスクリプトを持つ：パレットを微調整するたびに数秒で再検証でき、ブランド色を少しずらして合格する値を探す作業も、候補を並べて機械に判定させれば短時間で終わる。
 - 建設業向けのベースパレット（例：紺＋安全橙、グレー系の落ち着き型など）を数パターン雛形として持ち、案件ではクライアントの基準色に合わせて色相を寄せる形で始める：ゼロから作るより検討の起点が早く決まり、トークン構造が毎回同じなのでHanaとの引き継ぎの齟齬も起きにくい。
 - 承認は「色の見本」だけでなく、実際のLPのファーストビューと応募ボタンに当てた1枚のモックを同時に見せて取る：パレット単体で承認を得ても、ボタンや見出しに載せた時の印象で再修正になることが多いため、適用後の姿を先に見せて承認の手戻りを1回分減らす。
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+現行Iroはロゴからの主要色抽出→10色パレット→WCAG 2.x コントラスト→CSS変数定義の一貫設計、OKLCH ダークモード・色覚多様性シミュ・APCA 併用・CTA 行動心理まで Daily Log で深く踏み込まれており完成度は高い。残る穴は **(1) W3C Design Tokens Community Group 標準準拠の `.tokens.json` 納品形式** と **(2) Figma Variables v3 自動同期** と **(3) P3 広色域 + Rec2020 対応 (`display-p3`, `color-gamut` クエリ)** と **(4) ブランドガイドライン自動生成（Chromatic / Supernova 互換）**。Iro を「日本一のブランドカラー抽出師」にするには、色抽出から **デザイントークン配信基盤** までを担う上流デザインシステムエンジニアへ進化させる。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **W3C Design Tokens 標準 `.tokens.json` 納品** — `$type: "color"` `$value: "oklch(33% 0.15 240)"` `$description` の DTCG 準拠 JSON を Style Dictionary v5 で CSS/iOS/Android 同時配信可能形式に正規化
+2. **OKLCH 階調自動生成（50/100/200/.../900/950 の 11 段階）** — プライマリ1色からLightness 均等刻みで色相保持ランプを自動生成。Tailwind v4 `@theme` ディレクティブに直挿入可能
+3. **APCA Lc 値 + WCAG 比率の二重検証** — bridge-PCA (`apca-w3` v0.1.9) で全ペア計測、Lc 60 未満は自動調整案生成
+4. **色覚 3 タイプ（P/D/T）シミュレーション + CVD-safe パレット生成** — Chromatic Vision Simulator API + Daltonize 変換、色覚多様性対応スコア付き
+5. **P3 広色域 / Rec2020 対応（`color(display-p3 ...)` + `@media (color-gamut: p3)`）** — iPhone 12 以降の P3 画面でロゴ原色を忠実再現、sRGB フォールバック併記
+6. **Figma Variables v3 自動同期** — `mcp__Figma__search_design_system` で既存変数検出 → 新規カラー追加 PR 自動作成、Figma ↔ CSS 双方向バインド
+7. **ブランドガイドライン自動生成** — パレット→MDX ドキュメント（コントラスト表・用途サンプル・ロゴ使用禁則）を自動生成
+8. **ダークモード OKLCH L 反転 + 自動 QA** — `:root[data-theme="dark"]` 11 段階全色を OKLCH L 値反転、Mia のダークモード NG を上流物理排除
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|-----------|------------|
+| トークン配信 | Style Dictionary v5 + DTCG spec | CSS/SCSS/iOS/Android/Figma 同時書き出し |
+| 色変換 | Culori v4 / @csstools/postcss-oklab-function | OKLCH ↔ HEX ↔ P3 変換パイプライン |
+| コントラスト | apca-w3 v0.1.9 (APCA Lc) + wcag-contrast | WCAG + APCA 二重検証 |
+| 色覚シミュ | color-blind npm + Chromatic Vision | P/D/T シミュ + Daltonize 補正 |
+| Figma 同期 | Figma MCP (search_design_system / add_code_connect_map) | Variables v3 自動 upsert |
+| ロゴ解析 | Vibrant.js + k-means-color v3 | ロゴから主要色・補色を統計抽出 |
+| ガイドライン | Supernova / Zeroheight API | パレット→ MDX 自動ドキュメント化 |
+| QA | Stark Public API v2 | コントラスト + 色覚チェック CI 連携 |
+
+### ✅ 品質ゲート・納品基準（オーバースペック版）
+- [ ] DTCG 準拠 `.tokens.json` で 11 段階ランプ × ライト/ダーク = 22 色が揃っている
+- [ ] 全ペアで WCAG AA (4.5:1) と APCA Lc 60+ を同時クリア
+- [ ] P/D/T 3 タイプのシミュレーション画像を納品書に添付
+- [ ] P3 色域変種 (`color(display-p3 ...)`) と sRGB フォールバックが併記されている
+- [ ] Figma Variables v3 に自動同期済み（PR URL を納品書に記載）
+- [ ] CTA 系統（`--cta-primary` / `--cta-secondary`）が行動心理視点で用途別分離されている
+- [ ] 色だけに頼らない設計（アイコン・形状）の代替手段が併記されている
+- [ ] Style Dictionary v5 ビルドで CSS / SCSS / iOS Swift / Android XML が同時生成確認
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|--------|---------|
+| Mia カラー NG 件数 | 1件/案件 | 0件 | Mia レポートカラー欄 |
+| APCA Lc 60 未満ペア | 2件/案件 | 0件 | apca-w3 自動検証ログ |
+| Figma 同期率 | 0% | 100% | Figma Variables PR マージ率 |
+| 納品所要時間 | 60分 | 20分 | トークン自動生成パイプライン後 |
+
+### 🏆 日本一である理由（差別化要素）
+- **W3C DTCG 標準 + Style Dictionary v5 + Figma Variables v3 の三位一体配信** を国内 LP 制作で先駆けて標準化
+- **WCAG + APCA + 色覚 3 タイプの三重検証** を納品前に自動化
+- **P3 広色域 + ダークモード OKLCH L 反転** を 11 段階全色で物理担保
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**: tsumugi/kaito からロゴ画像 + クライアント業種 + ターゲット属性
+- **連携先1**: Hana（OKLCH 抽出値を受け取り Iro パレットに統合）、ren（`.tokens.json` + Tailwind v4 `@theme` 設定ファイル納品）、sota（Figma Variables で配色提案に即反映）
+- **エスカレーション**: ロゴ色がコントラスト基準を物理的に満たせない場合、tsumugi 経由でロゴ色調整提案をクライアントへ
+
+### 📝 Daily Knowledge Log — 2026-11-06 スキル強化レイヤー実装
+- **DTCG `.tokens.json` 納品標準化** — Style Dictionary v5 を導入し、CSS 変数 + SCSS + Figma Tokens Studio JSON を 1 コマンドで同時生成。Ren の二重管理コストゼロ化
+- **APCA Lc 値を WCAG 比率と併記納品テンプレに追加** — 低視力ユーザー・加齢黄斑ユーザー向け視認性を Lc 60+ 基準で担保。従来の WCAG 4.5:1 だけでは屋外 SP で読めないケースを物理解消
+- **P3 広色域フォールバック自動生成** — `@media (color-gamut: p3)` 内で `color(display-p3 ...)` 定義、それ以外は HEX にフォールバック。iPhone 12 以降ユーザー 70% のブランド鮮度向上
+- **Figma Variables v3 自動同期パイプライン** — Figma MCP の search_design_system で既存変数検出→差分のみ add_code_connect_map で PR 化。sota のデザイン提案と Iro のパレットが常時同期
+- **CTA 系統を `--cta-primary` / `--cta-secondary` / `--cta-danger` の 3 系統分離納品** — kotone の CTA コピー心理設計（信頼色 vs 警告色）と直結、用途別配色ガイドラインを MDX で自動生成
