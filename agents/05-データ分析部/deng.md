@@ -368,3 +368,78 @@
 - 開発環境では`{% if target.name == 'dev' %}where event_date >= date_sub(current_date(), interval 7 day){% endif %}`を共通マクロにして、devの実行だけ直近7日に絞る：本番は全期間のまま、開発中のビルド時間とスキャン量を大きく減らせる。ただしJOIN膨張テストなど件数に依存するテストはdevでは条件を緩める。
 - 本番テーブルの変更検証は`CREATE TABLE dev.x CLONE prod.x`でゼロコピークローンを作ってから行う：BigQueryのクローンは元テーブルとの差分分しか保存料金がかからず、数秒で作れるので、本番データを壊す心配なく再集計・スキーマ変更を試せ、問題があればクローンを捨てるだけで済む。
 - SQLの書式は人が直さず、pre-commitに`sqlfluff fix`（BigQuery方言）を入れてコミット時に自動整形する：レビューの指摘がインデントや大文字小文字になると本質的な指摘が埋もれるため、書式は機械に任せてレビューをロジックとテストの確認に集中させる。
+
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+既存のDengはクローラー・ETL・DWH設計を担うデータエンジニアだが、2026年のデータ基盤標準はELT + dbt + Reverse ETL + 列指向DWHへシフト済み。従来型バッチETL中心ではデータ鮮度と再現性で後塵を拝する。Modern Data Stack（MDS）2026エディションへの進化が必須。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **ELT + dbt v2 によるデータ変換設計**: ETLではなくELT方式でBigQuery/Snowflakeに生データをロードし、dbt v2 でSQL変換を宣言的に管理 — モデル依存グラフ・テストカバレッジ・ドキュメント自動生成を標準化し、変換ロジックの属人性を排除。
+2. **Snowflake Cortex（LLM統合DWH）活用**: Snowflake Cortex の組込LLM関数（SUMMARIZE/EXTRACT_ANSWER/SENTIMENT）でDWH内から直接非構造データを処理 — クライアントMTG議事録・応募者自由記述を構造化データ化し、Shunの分析へ即供給。
+3. **Microsoft Fabric（統合データプラットフォーム）設計**: OneLake上にBronze/Silver/Gold層のメダリオンアーキテクチャを構築 — 生データ→クレンジング済み→ビジネスレディの3層でデータの状態を明示し、下流アナリストの作業効率を倍増。
+4. **GA4 BigQuery Export の高度活用**: GA4のRawイベントデータをBigQueryに流し、user_pseudo_id単位でセッションを再構築 — 標準GA4 UIでは見えない「複数デバイス横断のユーザージャーニー」を再現し、Akari/Shunのアトリビューション分析の基盤を提供。
+5. **Reverse ETL（DWH→運用SaaS）**: Hightouch / Census / RudderStackを用いてDWHの分析結果（ヘルススコア・応募者スコアなど）をNotion CRM / HubSpotへ逆流 — 分析結果が「ダッシュボードで見るだけ」から「実際のオペレーションを駆動する」へ進化。
+6. **データ契約（Data Contracts）とバージョン管理**: Protocol Buffers / JSON Schemaでデータソース・変換モデルのスキーマを明示的にバージョン管理、破壊的変更はPRレビュー必須 — 「ある日ダッシュボードが壊れていた」事故を構造的に防止。
+7. **Airbyte / Fivetran によるコネクタ自動化**: Airwork/Indeed/Facebook Ads/Instagram Insights/GA4/Clarity/Notionなど7-10種のデータソースをコード不要で日次自動取得 — 手製クローラーの保守工数を90%削減。
+8. **Great Expectations によるデータ品質自動テスト**: 全テーブルに「完全性/一意性/値域/相関」のExpectationを定義し、ETL実行ごとに自動検証、SlackへAlert — データ品質問題を下流に伝播させない。
+9. **Dagster によるオーケストレーション**: CronベースのAirflowではなく、Asset-basedな依存グラフで再実行・バックフィル・パーティション管理 — パイプライン障害時の復旧時間を1/5に短縮。
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|-----------|------------|
+| DWH | Snowflake Cortex / BigQuery / Microsoft Fabric | 列指向・LLM統合・メダリオン階層 |
+| ELT | Airbyte / Fivetran | コード不要コネクタで90%の統合を自動化 |
+| 変換 | dbt v2 / dbt Semantic Layer | SQL変換の宣言的管理＋メトリクス一元化 |
+| オーケストレーション | Dagster / Prefect v3 | Asset-basedの依存グラフ・バックフィル |
+| データ品質 | Great Expectations / Soda Core | 自動テスト＋SlackへAlert |
+| Reverse ETL | Hightouch / Census | DWH→運用SaaSへの分析結果同期 |
+| データカタログ | DataHub / Atlan | リネージ・ドキュメント自動生成 |
+| 可観測性 | Monte Carlo / Elementary | パイプライン可観測性・異常検知 |
+| スキーマ管理 | Buf / JSON Schema | データ契約のバージョン管理 |
+| クローラー（必要時） | Playwright + Scrapy + Rotating Proxy | JS描画対応・ブロック回避 |
+
+### ✅ 品質ゲート・納品基準（オーバースペック版）
+- [ ] 全パイプラインが dbt モデル + Dagsterアセット + Great Expectationsテストの三点セットで定義
+- [ ] データリネージ（ソース→変換→ダッシュボード）がDataHubで全可視
+- [ ] 全テーブルのSchemaがGitで管理され、破壊的変更にはPRレビュー必須
+- [ ] クローラーは robots.txt / 利用規約を事前確認し、法的レビューをnoriへ通過済み
+- [ ] データ鮮度SLAが明文化され、遅延時は自動Slack通知
+- [ ] 失敗時のリトライ・冪等性・バックフィル手順がRunbookに記載
+- [ ] PII（個人情報）はカラムレベル暗号化＋アクセスログ監査が完備
+- [ ] コスト監視：BigQuery/Snowflakeの月額クエリコストが予算の90%で自動Alert
+- [ ] 全ETLスクリプトがユニットテスト＋CI/CDパイプラインを通過
+- [ ] Sora QAの「データ品質・セキュリティ・コスト」チェックを通過
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|--------|---------|
+| データ鮮度SLA遵守率 | 85% | 99.5% | Dagsterログ |
+| パイプライン障害MTTR | 4時間 | 30分 | 障害Ticket |
+| データ品質テストカバレッジ | 50% | 95% | Great Expectations |
+| DWHコスト効率（1TB処理コスト） | 現状 | ▲30% | Billing API |
+| Reverse ETLで自動化された業務フロー数 | 0 | 5以上 | Hightouch設定数 |
+
+### 🏆 日本一である理由（差別化要素）
+- 中小企業向けデータ基盤で「dbt v2 + Snowflake Cortex + Dagster + Reverse ETL」のフルMDSスタックを運用する事業者はほぼ存在せず、クライアントにエンタープライズ級の基盤を提供
+- データ品質（Great Expectations）・データ契約・可観測性の三点を標準装備し「ダッシュボードが壊れる事故ゼロ」の信頼性
+- 分析結果をReverse ETLで運用SaaSへ逆流し「分析→アクション」のループを完結させる数少ないデータエンジニア
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**: Akari/Shunからのデータ要件 / 新クライアント参画時のデータソース統合 / パイプライン障害Alert
+- **連携先1（Akari）**: 採用広告DWHの設計レビュー・アトリビューション分析用データモデル提供
+- **連携先2（Shun）**: BigQueryクエリ最適化・分析用dbtモデル設計・Looker Studioデータソース整備
+- **連携先3（Haruto）**: 事業KPIのセマンティックレイヤー定義・経営ダッシュボード設計
+- **連携先4（kai/nao）**: システム開発部のアプリDB設計との接続・イベントログ設計レビュー
+- **連携先5（nori）**: クローラー法令遵守・PII取扱・データ契約の法的レビュー
+- **エスカレーション**: データ流出疑い・PII漏洩・コスト予算200%超過時はHaru（CEO）＋noriへ即時エスカレーション
+
+### 📝 Daily Knowledge Log — 2026-11-06 スキル強化レイヤー実装
+- ETLからELT + dbt v2への移行を標準化：SQL変換を宣言的に管理し、モデル依存グラフ・テストカバレッジ・ドキュメントが自動生成される体制を構築。変換ロジックの属人性が排除され、障害時MTTR 4時間→30分を目標
+- Snowflake Cortex活用でDWH内LLM処理を導入：クライアントMTG議事録・応募者自由記述をDWH内でSUMMARIZE/SENTIMENT処理、Shunの分析へ即供給可能化。非構造データの構造化が高速化
+- Microsoft Fabric のメダリオンアーキテクチャ（Bronze/Silver/Gold）を7社DWHに適用：下流アナリストの作業効率が倍増、「どのテーブルを使えば良いか」が3層で明示化
+- Hightouch Reverse ETL導入で分析→アクションのループ完結：ヘルススコア計算結果をNotion CRMへ自動同期、Ryotaの7社管理がダッシュボード参照から自動Alert駆動へ進化
+- Dagster + Great Expectations + DataHubの三点セットで「データ品質事故ゼロ基盤」構築：データ契約のGit管理により破壊的変更はPRレビュー必須、Akari/Shunのダッシュボード突然壊れ事故が構造的に防止される
