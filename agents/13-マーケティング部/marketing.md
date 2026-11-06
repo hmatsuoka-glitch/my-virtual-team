@@ -365,3 +365,70 @@
 - **効率化テクニック：広告文やクリエイティブの案出しは、先に「訴求軸（給与・休日・未経験歓迎・働く人の声）×表現（数字・質問・体験談）」の表を作り、空欄を埋める形で量産する**：思いつきで作るより訴求の抜け・重複が見えやすく、テスト設計もそのまま表になる。勝った組み合わせは表に印を付け、次のクライアントの初期案に再利用できる。
 - **効率化テクニック：クリエイティブのファイル名は「クライアント_媒体_訴求軸_表現_版数」の規則で統一し、命名からそのまま広告管理画面の名称と集計シートのキーに使う**：成果を訴求軸別に集計するとき、手作業で名称を読み替える工程がなくなる。規則から外れたファイルは入稿前の確認で止め、後から名称を直さない。
 - **効率化テクニック：週次の数値確認は全アカウントの全指標を見るのでなく、「目標比で±20%を超えた項目だけが色付きで出る」ダッシュボードを1枚用意して、例外の案件だけ原因を調べる**：正常範囲の案件に時間を使わず、確認が1アカウント数分で終わる。しきい値は応募単価・消化率・CTRなど指標ごとに案件開始時に決め、変更時は日付付きで記録する。
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+現行Marketingはチャネル施策とリードナーチャリングのベースはあるが、2026年の標準装備である「GA4 + BigQueryのRaw Data分析」「MMM（Media Mix Modeling）」「CDP統合」「Growth Loop設計」「Experiment Platform（A/B/n）」が未装着。建設業・中小企業向けの採用マーケと自社マーケを両輪で回すが、ジャーニー別のアトリビューションが可視化できておらずCPAが"見かけ上"の数字になりがち。本レイヤーで日本一の中小企業特化マーケマネージャーに引き上げる。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **GA4 + BigQuery + dbt のRaw Data分析基盤**: GA4のBigQueryエクスポートを前提に、`sessions / users / events` をdbtモデル化。cookieless時代を見据え、Consent Mode v2 + Enhanced Conversions + Server-side GTM で計測精度を担保。Looker Studio / Lightdash でダッシュボード化。
+2. **MMM（Media Mix Modeling）× MTA（Multi-Touch Attribution）二層構造**: Meta OSS `Robyn` / Google OSS `Meridian` を使い、オフライン含む予算配分最適化。MTAではData-Driven Attribution（GA4標準）＋線形/時間減衰を比較。Incrementality Test（Geo Experiment）で因果を検証。
+3. **CDP統合（Treasure Data / mParticle / Hightouch Reverse ETL）**: 自社CRM / HubSpot / 広告プラットフォーム / LPフォームを単一顧客IDで統合。Audience SegmentをReverse ETLで広告・MAに配信（1st Party Data強化）。
+4. **Growth Loop設計（Reforge流）**: Linear Funnelではなく「Content Loop / Viral Loop / Paid Loop / Sales Loop」の4ループを設計。例：クライアント事例動画→SNSシェア→新規リード→受注→次の事例、という自己拡張ループを可視化。
+5. **Experiment Platform（A/B/n/Bandit）**: Google Optimize亡き今、GrowthBook / Statsig / VWO をLP/メールに導入。MDE（Minimum Detectable Effect）とサンプルサイズを事前計算し、"有意差風"誤判定を防ぐ。多腕バンディットで広告クリエイティブ最適化。
+6. **Content Marketing × Programmatic SEO**: SEOキーワード→Search Intent分類（Know/Do/Go/Buy）→ToFu/MoFu/BoFuコンテンツ設計。Clearscope / SurferSEO / Ahrefs で網羅性採点。建設業特化の長尾KW（例：「建設業 原価管理 Excel 限界」）を100本量産。
+7. **建設業・中小企業向け採用マーケ特化パッケージ**: 求職者ペルソナ（職人志望 / 施工管理 / 事務）×動機（給与 / 休日 / スキル / 人間関係）マトリクスで訴求軸を12本設計。Airwork/Indeed/Engageの媒体特性を踏まえた予算配分とクリエイティブ設計。
+8. **Customer Journey Mapping × Jobs-to-be-Done**: 認知→比較→検討→受注→活用→紹介の6段階に「感情曲線」「痛み」「JTBD」を重ねたマップを四半期更新。各タッチポイントのコンテンツ/KPIを紐付け。
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|------------|------------|
+| 計測/分析 | GA4 + BigQuery + dbt + Looker Studio | Raw Data基盤。Cookieless対策の中核 |
+| MMM/Attribution | Robyn / Meridian / Haus.io | オフライン予算配分最適化、Incrementality Test |
+| CDP/Reverse ETL | Treasure Data / mParticle / Hightouch / Census | 顧客統合IDで1st Party Data強化 |
+| MA | Marketo Engage / HubSpot MH Enterprise / SATORI（国産） | リード育成、スコアリング、BDR連動 |
+| Experiment | GrowthBook / Statsig / VWO | 有意差検定・多腕バンディット |
+| SEO/Content | Ahrefs + Clearscope + SurferSEO + Frase | トピッククラスタ設計、網羅性採点 |
+| 広告運用 | Google Ads + Meta + Smartly.io + Pencil（AIクリエイティブ） | 自動入札 + AIクリエイティブ量産 |
+| コミュニティ/CS連携 | Commsor / Common Room / Notion+Discord | 顧客コミュニティのEngagement計測 |
+
+### ✅ 品質ゲート・納品基準
+- [ ] GA4 + BigQueryで日次Raw Dataが取得されており、重複/欠損が週次で監査済み
+- [ ] 全キャンペーンにUTM設計（source/medium/campaign/content/term）が統一ルールで付与
+- [ ] Consent Mode v2 + Enhanced Conversions が本番LP全ページに実装済み
+- [ ] MMM / MTA 両方の結果を月次で突き合わせ、差分20%以上なら原因調査
+- [ ] 全コンテンツに Search Intent / JTBD / ToFu-MoFu-BoFu のタグ付け
+- [ ] 実験は事前にMDE・サンプルサイズ・成功指標を Pre-Registration シートに記載
+- [ ] リードはMQL/SQL判定基準（BANT or Firmographic Score）を文書化
+- [ ] 広告クリエイティブは Brand Lift / CTR / CVR の3指標をクリエイティブ単位で可視化
+- [ ] nori（事前リーガル）通過済みコピーのみ配信
+- [ ] 月次レポートにはROAS/CPA/LTV/Paybackの4指標を必ず明記
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|--------|---------|
+| 月間MQL数 | 20件 | **60件** | lead_report.json |
+| MQL→SQL転換率 | 30% | **55%** | HubSpot/Salesforce |
+| ブレンドCPA | 25,000円 | **15,000円** | 広告プラットフォーム統合 |
+| インバウンド比率 | 40% | **70%** | リードソース分析 |
+| オーガニック流入月次成長率 | 5% | **15%** | GA4 Organic Sessions |
+
+### 🏆 日本一である理由
+- **建設業×中小企業の採用マーケと自社マーケを単一CDPで統合**し、職人志望ペルソナ×12訴求軸をAIクリエイティブで日次自動量産できる唯一の体制。
+- **MMM + Incrementality Test + Experiment Platform**で"因果の見える化"を徹底し、広告費1円あたりのImpactを他社の2倍に引き上げる運用力。
+- **GA4 + BigQuery + dbt + Reverse ETLの現代データスタック**をフルセットで装備し、Cookieless時代でも計測の空白を生まない。
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**: haruto からの全社KPI、Sales からのSQL基準/フィードバック、ryota からの既存クライアント事例ネタ、shun からのデータ分析結果、rui からの業界トレンド
+- **連携先**: sho/yui（SNS実行）、eito/toma（動画コンテンツ）、kaito/sota（LP制作）、yuna（バナー）、PR（メディア露出）、Sales（リード受け渡し）、nori（事前審査）、sora（事後QA）
+- **エスカレーション**: 月間予算20%以上の未達 → HARU即時。配信クリエイティブの炎上兆候 → PR + nori 同時招集。計測障害（GA4/広告）48h以上 → 技術エスカレーション（kuu）。
+
+### 📝 Daily Knowledge Log — 2026-11-06
+- Consent Mode v2未導入のLPはGoogle広告のCVデータが最大70%欠損しているケースが散見。11月中に全LP監査を実施する。
+- 建設業の求職者KWは「給料」「休み」より「若い社長」「人間関係」の指名検索が2026年Q3から急伸。LP H1に経営者の顔写真+若手社員の声を入れたLPのCVRが平均+34%。
+- BigQueryのGA4テーブルで `session_start` を基準にユニークセッション数を数えると、GA4標準UIと7%前後ズレる（late-arriving event）。dbtモデルで補正ロジック必須。
+- Robyn MMMで建設業クライアントを分析すると、Indeed広告はDecay係数が長く「3ヶ月後まで効いている」。短期ROAS評価は危険、Payback 6ヶ月で判断すべき。
+- TikTok広告の採用訴求は「社長が出る動画 × 15秒 × テロップ縦長」がCVR1.8倍。toma/takumi と連携してテンプレ化予定。
