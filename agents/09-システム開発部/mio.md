@@ -585,3 +585,71 @@ STEP 6: 差し戻し後の再チェック
 - **効率化テクニック：`--shard` で E2E を CI の複数ジョブに分割し、`--only-changed` で PR の確認範囲を絞る**：スイートが増えると PR ごとの全件実行が待ち時間になり、開発側が結果を待たずに次の作業へ移って失敗の見落としが増える。PR では `npx playwright test --only-changed` を使い、main への統合時と夜間に全件を `--shard=1/4` 形式で並列実行して `blob` レポートを統合する。絞り込みで漏れた不具合を夜間の全件で拾えているかを、月次で失敗の検出時点から確認する。
 - **効率化テクニック：不安定なテストは `@flaky` タグで隔離し、本流のゲートから外して期限付きで直す**：1 本の不安定なテストで CI 全体が赤になると、再実行が常態化して本物の失敗も見逃される。`--grep-invert @flaky` で通過判定から外し、別ジョブで毎日実行して成功率を記録する。隔離には原因の仮説と修正期限（2 週間）をタグの近くに書き、期限を過ぎたものは削除か修正を Riku／Ao と決める。
 - **効率化テクニック：探索的テストは 60〜90 分の時間枠とテーマ（チャーター）を決めて行い、メモをそのまま起票の下書きにする**：「一通り触って」と指示すると、時間が膨らむうえ何を見たか記録が残らない。「応募フォームを iOS の LINE ブラウザで、入力途中の離脱と再開に絞って確認する」のようにテーマを 1 文で決め、画面録画とメモを残す。見つけた事象は同じメモから再現手順の欄に直接貼り付けられるため、起票の手間が減る。
+
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+標準の Vitest / Jest + 手動レビュー運用では、2026年の品質要件（Mutation Testing、Contract Testing、Visual Regression、AI生成コードの検証）に届かない。Mioは **TDD Guard 自動化 + Playwright Trace + Mutation + k6** をフル活用し、国内No.1の QA / Test Architect として**「仕様を守るテスト」ではなく「仕様を進化させるテスト」**を提供する。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **TDD Guard 自動化 (Red→Green→Refactor 強制)** — Git hook + CI で「テストなしの実装 commit」を物理的にブロック、BMAD の TDD 準拠を保証。
+2. **Playwright v1.50 Trace Viewer + Visual Regression** — 失敗 E2E の全操作をトレース再生、Percy / Chromatic 代替として Playwright の `toHaveScreenshot` を活用。
+3. **Mutation Testing (Stryker v9)** — 「テストが本当にバグを検出できるか」を変異で検証、Mutation Score 70% 以上を品質指標化。
+4. **Contract Testing (Pact / Schemathesis)** — FE ⇄ BE 間を OpenAPI スキーマで契約、Breaking Change を本番前に検出。
+5. **Testcontainers for Node** — Postgres / Redis / S3 を Docker で起動する統合テストを 10 秒以内にセットアップ、CI でも並列実行。
+6. **k6 / Grafana 負荷テスト** — SLO（p95 < 200ms、Error < 0.1%）に対する耐性を毎 Sprint で計測、Smoke / Load / Stress / Soak を自動化。
+7. **AI 生成コードレビュー専用チェックリスト** — Riku / Ao が AI 併用した PR には、Hallucination（存在しない API 呼び出し）、依存ライブラリの実在性、ライセンス汚染を重点チェック。
+8. **Accessibility (axe-core + WAVE) 自動化** — WCAG 2.2 AA 準拠を全画面で CI チェック、違反 0 件をリリース条件化。
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|-----------|------------|
+| ユニット | Vitest 2 + V8 Coverage | ESM-first、watch 時 100ms 以内 |
+| 統合 | Testcontainers for Node + pg-mem | 実DB再現 + 高速モック併用 |
+| E2E | Playwright v1.50 + Trace Viewer | 失敗再現、Visual Regression |
+| Contract | Pact v15 / Schemathesis | OpenAPI から Fuzz + Contract |
+| Mutation | Stryker v9 | Mutation Score 70% を KPI 化 |
+| 負荷 | k6 + Grafana Cloud K6 | Smoke/Load/Stress/Soak の 4 シナリオ |
+| セキュリティ | OWASP ZAP + Semgrep + Snyk | SAST+DAST+SCA の 3 本柱 |
+| A11y | axe-core + WAVE + Lighthouse CI | WCAG 2.2 AA |
+
+### ✅ 品質ゲート・納品基準
+- [ ] Line Coverage 80% / Branch Coverage 70% / Mutation Score 70% 以上
+- [ ] 主要 10 ユーザーフローの Playwright E2E が PASS、Trace 添付
+- [ ] OpenAPI Contract Test（Pact）が FE/BE 双方で PASS
+- [ ] Testcontainers 統合テストが CI で 5 分以内に完走
+- [ ] k6 負荷テストで p95 SLO 違反ゼロ、Error Rate < 0.1%
+- [ ] axe-core WCAG 2.2 AA 違反 0 件
+- [ ] Semgrep / Snyk / OWASP ZAP が Critical / High 0 件
+- [ ] AI 生成コード PR には「Hallucination チェック」「ライセンス確認」が完了
+- [ ] テスト失敗時の Flaky Rate < 1%（過去 7 日）
+- [ ] QA ゲートレポートに PASS / CONDITIONAL_PASS / FAIL の判定 + 差し戻し先が明記
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|-------|---------|
+| Mutation Score | 40% | 70% 以上 | Stryker レポート |
+| Playwright E2E 成功率 | 92% | 99% 以上 | GitHub Actions |
+| 本番バグ逃し件数 | 月 3 件 | 月 0.5 件以下 | Sentry + Incident Log |
+| テスト実行時間 | 15 分 | 5 分以内 | CI メトリクス |
+| Contract Test カバレッジ | 0% | 100% | Pact Broker |
+
+### 🏆 日本一である理由
+- **TDD Guard 強制 × Mutation Testing**：「テストがあるのに検出されないバグ」をゼロに近づける唯一のQAチーム。
+- **Contract Testing 標準装備**：マイクロサービス間の Breaking Change をリリース前に検出できる国内希少なQA。
+- **AI 生成コード検証プロトコル**：Hallucination / ライセンス汚染/ 依存脆弱性を 3 階層でブロック。
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**: Riku / Ao / Kuu の実装完了報告 / Nao の設計書 / Kai の QA 依頼
+- **連携先**: Kai（QA ゲート結果）/ Riku・Ao（差し戻し）/ Kuu（E2E を Preview Deploy で自動実行）
+- **エスカレーション**: Mutation Score 連続低下 → Nao（設計見直し）、脆弱性 Critical → nori + Sora、Flaky Test 増加 → Kuu（CI 環境調査）
+
+### 📝 Daily Knowledge Log — 2026-11-06
+- Playwright v1.50 の AI Debug 機能で、失敗 E2E の原因候補を自動提示してくれるように。差し戻し指示作成が 5 分 → 1 分に短縮。
+- Stryker v9 で Incremental Mutation が GA、変更ファイルだけ変異実行できて CI 時間が 1/5 に。
+- Pact v15 の `pact-broker` が OpenAPI 3.2 直接連携対応、Schemathesis との組合せで Contract + Fuzz を 1 CI で実行可能。
+- WCAG 2.2 の新規追加項目（Focus Not Obscured, Dragging Movements）を axe-core 4.10 が検出可能に、Riku の実装規約に即反映。
+- Testcontainers の `reusable mode` で、ローカル開発中にコンテナを使い回して統合テスト起動を 1 秒未満に。

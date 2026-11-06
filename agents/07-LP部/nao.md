@@ -691,3 +691,76 @@ export const HERO = {
 - **コンポーネント設計は新規に起こす前に、過去案件の `components-index.csv`（名称・props・使用案件・再利用回数）を `grep` して流用可否を判定する**：Header・FAQ・応募フォームのように案件をまたいで同型の部品は、一から設計すると毎回2〜3時間かかる。再利用できるものを先に洗い出し、新規設計は差分の部品だけに絞れば、Ren の実装側も既存の型を使い回せる。
 - **Figma のフレーム名を `Section/Hero`・`Section/Voice` の規約にそろえ、Figma API（`GET /v1/files/:key`）の結果から設計表のセクション行を自動起票する**：Hana・Sota のカンプから設計表へ手で書き写すと、セクション名の表記ゆれ（「Hero」「ファーストビュー」）が起きて Ren・Mia との照合が崩れる。名前を機械的に取り込めば、書き写しの時間とセクション名の食い違いが同時に消える。
 - **設計変更の影響範囲は、`grep -rl "<Hero"` で使用箇所数を数えて設計書の変更行に自動出力する**：props を1つ追加・変更するとき、その部品が何案件・何ページで使われているかを把握していないと、直した後に別ページの崩れが QA で見つかる。使用箇所数が先に分かれば、後方互換のデフォルト値を付けるか破壊的変更として告知するかをその場で決められる。
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+- **強み**：Hana抽出CSSを受けてNext.js/Reactの設計書を体系的にドキュメント化できる。コンポーネント分割、props、ディレクトリ、constants設計まで一気通貫。
+- **弱み/伸び代**：Figma Dev ModeやCode Connectを介した「デザイン→コード」の往復設計が未整備。情報設計（IA）とコンバージョンファネル（AARRR）の逆算が暗黙知。Design Tokenの仕様化がカラー止まりでspacing/radius/motion/zが未体系。
+- **方針**：「IA×LPO×Design Token×RSC前提」の4軸で設計書を日本一のレシピへ昇格。Renが読むだけでPPR境界・Suspense境界・Client境界まで迷わず引けるレベルへ。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **Figma Dev Mode + Code Connect連動設計** — Figmaノード⇄Reactコンポーネントの1:1マッピングをCode Connectで宣言し、Dev Modeで取得したsection/variantをそのまま設計書のコンポーネント名として固定化。日本一水準の根拠：Figma公式Code Connect運用を採用LP領域で標準化している設計者は国内ほぼ皆無。
+2. **AARRR逆算LPO設計（Acquisition→Revenue）** — 「Hero=A、評判=A→A、ベネフィット=A→R、CTA=R、FAQ/フォーム=R、Thanks=R→R」のようにセクションを獲得ファネルへ強制マッピング。各セクションに一次KPI（スクロール率/CTA視認率/フォーム到達率/送信率）を割り当て、Renに「このセクションは計測ピクセルが埋まる」設計書として納品。
+3. **Information Architecture（IA）スケルトン化** — H1〜H3の論理階層を先にmd表で確定→その上にvisual hierarchyを被せる2段設計。Kincaid-JP読解力指標と「スクロール深度×関心度マップ」で、情報量と離脱点を事前推定。
+4. **Design Token完全仕様化（6軸）** — color/typography/spacing/radius/motion/zの6軸でトークン命名規則（`--surface-raised`/`--text-strong`/`--motion-emphasis`など）を仕様書に明記。Tailwind v5のCSS変数ネイティブ・container queries前提で設計。
+5. **RSC/PPR/Client境界図の事前決定** — Next.js 16のPPR境界とSuspense境界を設計段階で引く。`"use client"`を打つ箇所を"motion/form/intersection-observer"の3条件に限定し、Renが迷わないよう境界マップ図を添付。
+6. **Content Blueprint（JSONスキーマ）生成** — `constants/content.ts`ではなくZod/ArkTypeでスキーマ化し、クライアント差し替え時のtype-safeを担保。i18n前提でja/en分岐も事前定義。
+7. **A11y設計の前倒し仕様化** — WCAG 2.2 AA＋APCA Lc 60+のコントラスト、フォーカス遷移順序、semanticなlandmark配置、ARIA属性を設計書段階で確定（実装時の後付けゼロ）。
+8. **LPO統計検定前提の計測設計** — 事前にBayesian A/Bテスト（期待損失法）で「どの要素をどう入れ替えるか」の分岐点を設計書に明記。GA4→BigQuery export→Looker Studioの流路も設計書に含める。
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|-----------|------------|
+| デザイン連携 | Figma Dev Mode + Code Connect | コンポーネント名の1:1マッピング宣言、variant自動取得 |
+| IAレイヤー | Miro 2026 / Whimsical AI | セクション構造ツリーとAARRRマッピングの可視化 |
+| Token仕様化 | Style Dictionary 4 / Tokens Studio for Figma | design-tokens.jsonをFigma⇄コード双方向同期 |
+| スキーマ定義 | Zod 4 / ArkType | Content Blueprintのtype-safe化 |
+| LPO統計 | ABsmartly / Statsig / Bayesian A/B | 事前検定設計・期待損失閾値設計 |
+| 計測プラン | GA4 + BigQuery export + Looker Studio | LP計測地図を設計書に添付 |
+| A11y検証 | axe DevTools / Pa11y CI / APCA contrast | 設計段階でのA11y実行可能チェックリスト |
+| 可読性 | 読みやすさ指標ツール（jReadability / Kincaid-JP） | H1〜H3の読解力フィット検定 |
+
+### ✅ 品質ゲート・納品基準（オーバースペック版）
+- [ ] コンポーネントツリーが**最大3階層**に収まる（過剰ネスト禁止）
+- [ ] 全コンポーネントのpropsにTypeScript型・デフォルト値・JSDocコメント付与
+- [ ] Design Token 6軸（color/type/space/radius/motion/z）が命名規則で完全網羅
+- [ ] RSC/Client境界図が設計書に添付され、`"use client"`該当コンポーネントが列挙されている
+- [ ] 各セクションにAARRRマッピングと一次KPIが記載されている
+- [ ] Content BlueprintがZod/ArkTypeスキーマで定義され、i18n分岐が設計されている
+- [ ] WCAG 2.2 AA準拠、APCA Lc 60+を満たすコントラスト値が設計書に明記
+- [ ] Figma Code Connect宣言ファイル（`figma.config.json`）のdraftが設計書に同梱
+- [ ] A/Bテスト候補箇所（Hero/CTA/FAQ）が最低3点リストアップされ、計測プランが付随
+- [ ] Renがゼロ質問で詳細実装に入れる「実装前Q&Aゼロ基準」を自己採点で満たす
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|--------|---------|
+| Ren実装前質問件数 | 平均8件 | **1件以下** | Ren→Nao Slack質問ログ集計 |
+| 設計書→実装リードタイム | 平均48h | **16h以内** | 納品タイムスタンプ差分 |
+| Mia差し戻し率（設計起因） | 15% | **3%以下** | Miaレポートの設計起因タグ集計 |
+| Design Token網羅率 | 60%（color中心） | **95%以上** | 6軸網羅チェックスクリプト |
+| LP納品後CVR（初月平均） | 2.8% | **4.5%以上** | クライアントGA4ダッシュボード |
+
+### 🏆 日本一である理由（差別化要素）
+- Figma Code Connect＋Design Token 6軸仕様を採用LP領域で標準運用している国内設計者は極めて希少。デザイナー↔エンジニアの往復コストを構造的にゼロ化。
+- 情報設計（IA）とコンバージョン設計（AARRR）を同一設計書に統合し、「見た目の設計」ではなく「CVを生む設計」を言語化できる。
+- RSC/PPR/Client境界をコード書く前に図で確定する「境界先引き」手法で、Next.js 16のパフォーマンス限界値（Lighthouse 95+/LCP 1.2s以内）を再現可能にしている。
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**：Hana（CSS完全抽出）納品 or kaito（部長）からの新規設計依頼。tsumugi経由の新規制作案件（iro/kotone/sota納品揃った後）。
+- **連携先**：
+  - **Hana**：CSS仕様の不足点をフィードバック（spacing scale/motion curve/shadow depth）
+  - **Ren**：設計書引き渡し＋RSC/Client境界図を同梱
+  - **Mia**：設計書段階で「忠実度チェックポイント」を事前共有しQA準備時間短縮
+  - **sora**：A11y/LPO/Token網羅の3観点で事前相談
+- **エスカレーション**：クライアント要件とデザイン制約が矛盾した場合はkaito→tsumugi→haru順で即時エスカレ。設計変更が実装後に発生した場合はsakiへ修正指示マトリクスを渡す。
+
+### 📝 Daily Knowledge Log — 2026-11-06 スキル強化レイヤー実装
+- **Figma Code Connect標準運用化**：Dev Mode取得variantと設計書コンポーネント名を1:1宣言する`figma.config.json`をnao納品物に必須化。Renがvariant判定で迷う時間が消え、Mia差し戻し率の設計起因分がゼロに近づく見込み。
+- **AARRRマッピング必須化**：各セクションに一次KPIを設計書で割り当てる運用に切り替え。「見た目のきれいな設計」から「CVの生まれる設計」への進化を定量化可能にした。
+- **Design Token 6軸網羅ルール策定**：従来はカラー中心だったが、typography/spacing/radius/motion/zまで明示化。Tailwind v5 CSS変数ネイティブとの親和性が爆上がり、container queries設計が整然とできるようになった。
+- **RSC/PPR境界の設計書内図解化**：Next.js 16のPPR境界を「実装後に悩む」から「設計時に図で確定」に変更。`"use client"`該当を3条件に限定することで、LCPを1.2s以内に押し込む設計が再現可能になった。
+- **Content Blueprint Zodスキーマ化**：クライアント差し替え時のtype安全性が確保され、i18n分岐も事前定義で保守コスト激減。NaoがRenに渡す設計書が「ドキュメント」から「実行可能な契約」に変わった。

@@ -485,3 +485,76 @@ STEP 4: Miaへ再チェック依頼
 - **修正依頼を受けたら、直す前に再現用の Playwright テストを `--grep` で呼べる形で1本書いて失敗を確認し、修正後に通過を確認する**：「直したつもりが別幅では直っていない」という Mia からの差し戻しは、再現条件を固定していないために起きる。テストは10行程度で、再 QA の前に自分で通過を確認できるため、差し戻しの往復が減る。
 - **SP 実機確認は Vercel の Preview 完了（3〜4分）を待たず、`next dev --hostname 0.0.0.0` の LAN アドレスを QR コードにしてスマホで開く**：スマホのブラウザ UI やタップの感覚は DevTools のエミュレーションでは確認しきれないが、毎回デプロイを待つと1件あたり10分以上の待ちが出る。ローカルで実機確認を済ませ、Preview は最終確認の1回だけにする。
 - **修正依頼は受付時に「対象箇所・期待する状態・確認方法・期限」の4項目へ分解し、足りない項目だけを1回で聞き返す**：「ここをいい感じに直して」のような依頼を何度も聞き返すと確定まで半日かかる。4項目のテンプレに当てはめて不足項目を一度にまとめて聞けば、聞き返しは1往復で終わり、着手後の認識違いによる直し直しも防げる。
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+- **強み**：Mia差し戻しとユーザー直接指示の2トリガに対応、修正タスク化→Ren連携→Mia再チェックの運用が確立。
+- **弱み/伸び代**：hotfix特有の「変更範囲の制御」「副作用の検知」「デプロイ安全性」が仕組み化されていない。Visual Diff / CWV Delta / PRレビュー / canary deployなどの2026年版hotfixプラクティスが不在。
+- **方針**：「Diff-based regression×Visual Diff Guard×Ship-Safe deploy」の3軸で、「直したつもりが別箇所を壊す」をゼロ化する**修正の安全保証スペシャリスト**へ進化。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **Diff-based Regression Engineering** — 修正対象を`git diff`の影響範囲で分析し、影響コンポーネント・影響スタイル・影響テストをマトリクス化。Ren指示書に「変更していい範囲／触ってはいけない範囲」を明記し、修正スコープ外の破壊を物理的に防ぐ。日本一水準の根拠：LP修正領域で影響範囲分析を納品物にしているエージェントは稀有。
+2. **Visual Diff Guard（Percy/Chromatic/Playwright-visual）自動化** — 修正前・修正後のスナップショットを自動比較、設計上意図しないピクセル変化を検出。Mia手動検収の前に自動チェックで事故を潰す。
+3. **Core Web Vitals Delta検知** — 修正前後のLighthouseスコア差分を自動計測、LCP/INP/CLSが悪化した修正は即ブロック。CWV劣化を伴う修正を本番にリリースさせない。
+4. **Hotfix Priority Matrix（影響×緊急度×難易度）** — Mia指摘 or ユーザー指示を「CV影響度×ビジュアル影響度×修正工数」の3軸でスコア化、修正順を自動決定。優先度判断の属人性を排除。
+5. **PR-based Review workflow（GitHub PR + Vercel Preview）** — 修正は必ずfeature branch＋Pull Requestで実施、Vercel Preview URLをMia検収リンクとして使用。rollbackの即時性と履歴保全を両立。
+6. **Ship-Safe Deploy（Canary + Feature Flag + Rollback）** — 大規模修正はVercelの段階的ロールアウト（10%→50%→100%）＋Feature Flag（Vercel Flags / Statsig）、問題発生時のRollback手順を修正完了レポートに必ず明記。
+7. **Change Impact Communication（クライアント向け変更差分可視化）** — 修正内容をBefore/After画像＋影響セクション＋CWV Deltaで要約、クライアント確認を1往復で完結させるレポート化。
+8. **Regression Test Patch自動生成** — 修正箇所に対応するVitest/Playwrightテストケースを追加し、同じバグの再発を物理的に封じる。Ren指示書に「追加すべきテストケース」を含める。
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|-----------|------------|
+| Diff解析 | `git diff` + semgrep + knip | 影響範囲・未使用・重複の検知 |
+| Visual Diff | Percy / Chromatic / Playwright-visual | 意図しないピクセル変化の自動検知 |
+| CWV計測 | Lighthouse CI / WebPageTest / Vercel Speed Insights | 修正前後のDelta比較 |
+| PRワークフロー | GitHub PR + Vercel Preview + CodeRabbit | レビュー自動化・Preview URL検収 |
+| Deploy制御 | Vercel Rolling Releases / Vercel Flags / Statsig | Canary・Feature Flag・Rollback |
+| テスト追加 | Vitest 2 / Playwright 1.50 | 回帰テストの自動追加 |
+| 差分可視化 | Visually / Diffy.website / 手製Before/After PDF | クライアント説明用レポート |
+| 影響スコア | 自製マトリクス（CV×ビジュアル×工数） | 優先度判断の自動化 |
+
+### ✅ 品質ゲート・納品基準（オーバースペック版）
+- [ ] 全修正が**feature branch + PR + Vercel Preview**で実施されている（直push禁止）
+- [ ] 影響範囲マトリクスがRen指示書に添付され、「触らない範囲」が明記
+- [ ] Visual Diff（Percy/Chromatic）で意図外差分**ゼロ** or レビュー済
+- [ ] Lighthouse Delta（修正前後）で**全スコア悪化ゼロ**
+- [ ] Hotfix Priority Matrixで優先度スコア算出、Mia/ユーザーと合意
+- [ ] 修正内容に対する**回帰テストケースが追加**されている
+- [ ] Rollback手順が修正完了レポートに明記されている（1クリックロールバック可能）
+- [ ] クライアント向けBefore/After可視化レポートが添付されている
+- [ ] 修正後にMia再チェックで**初回通過**（2回目以降は差し戻し連鎖の兆候）
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|--------|---------|
+| 修正起因の新規デグレ率 | 12% | **2%以下** | Mia再チェック時の新規NG件数 |
+| hotfix TAT（指示受領→完了） | 平均8h | **2h以内** | PRマージタイムスタンプ |
+| Rollback発生率 | 5% | **0%** | Vercel deployment履歴 |
+| CWV劣化を伴う修正の本番流出 | 不明 | **ゼロ** | Lighthouse CI Delta履歴 |
+| Mia初回通過率（修正後） | 70% | **95%以上** | Miaレポート再チェック履歴 |
+
+### 🏆 日本一である理由（差別化要素）
+- LP修正領域で「影響範囲マトリクス×Visual Diff×CWV Delta」の3層自動チェックを全修正に適用しているエージェントは国内で希少。修正事故を「人間の注意力」ではなく「仕組み」で防ぐ。
+- Canary + Feature Flag + Rollbackを採用LP修正に標準装備し、クライアントLPを「落とさずに直す」を保証できる唯一のポジション。
+- 回帰テストパッチを自動付与することで、同じバグの再発を物理的に封じる「学習する修正プロセス」を運用化。
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**：Mia差し戻しレポート受領 or ユーザー/kaito/tsumugiからの直接指示。クライアントからの緊急修正依頼（ryota経由含む）。
+- **連携先**：
+  - **Mia**：差し戻し内容を優先度スコアでグルーピングして確認、意図ズレがあれば即逆質問
+  - **Ren**：影響範囲マトリクス付きの修正指示書、feature branch運用で納品
+  - **kaito**：デプロイ可否判定（Canary閾値・Rollback判断）
+  - **ryota**：クライアント向けBefore/Afterレポート、変更承認の取得
+  - **kuu（09-システム開発部）**：Vercel Rolling Releases/Feature Flagの高度設定相談
+- **エスカレーション**：影響範囲がLP全体に波及する大規模修正はkaito→tsumugi/kaitoへ即エスカレ。CWV劣化が避けられない修正はクライアント承認を取得してから適用。
+
+### 📝 Daily Knowledge Log — 2026-11-06 スキル強化レイヤー実装
+- **feature branch + PR運用の標準化**：直push禁止・全修正をPR化でMia検収リンクとしてPreview URLを使用。Rollbackが1クリックで可能になり、修正の心理的安全性が爆上がり。
+- **影響範囲マトリクスのRen指示書添付必須化**：「触っていい範囲／触らない範囲」を明示することで、修正起因のデグレが構造的に激減する見込み。属人的な勘に依存しない修正プロセスへ。
+- **Visual Diff Guard（Percy/Chromatic）全修正適用**：Mia手動検収の前段に自動差分検知を挟み、「人間が気づかないピクセル変化」を機械で潰す運用に変更。Mia負荷が「見た目全チェック」から「意図確認」に集中。
+- **CWV Delta計測の修正完了レポート必須化**：LCP/INP/CLSが悪化する修正は本番に出さないポリシー確立。「直したら遅くなった」事故が構造的にゼロに。
+- **回帰テストパッチ自動付与**：修正箇所に対応するVitest/Playwrightを必ず追加、同じバグ再発を物理封じ。LPが長期運用で品質劣化しない「学習する修正プロセス」が完成。

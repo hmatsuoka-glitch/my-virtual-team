@@ -722,3 +722,77 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **セクションの雛形は `plop` で自動生成する（`npx plop section Hero`）**：`.tsx`・props 型・content JSON の読み込み・`data-testid`・Storybook ストーリーを一括で作り、命名と配置のぶれを防ぐ。1セクションの雛形づくりが10分から1分程度になり、12セクションの LP でも空ファイル作成に1時間以上かけずに済む。
 - **Vercel のビルド失敗は手元で潰す：`husky` の pre-push で `tsc --noEmit && eslint --max-warnings 0` を実行する**：型エラーや lint 違反を push してから Vercel のビルドで知ると、通知を待って修正して再 push するまでに1回あたり3〜5分かかり、Mia の QA 待ちも止まる。手元で15秒ほどで落とせば、Preview は常に QA 可能な状態で作られる。
 - **Tailwind の任意値（`w-[347px]`）は `grep -oE '\[[0-9.]+px\]' -r src | wc -l` で件数を数え、5件を超えたらスケールへ丸め直す**：複製の過程でピクセル単位の値を貼り続けると、SP と PC で整合しない固定値が積み上がり、Saki の修正時に1箇所直すと別の幅が崩れる。件数を目安にしておけば、レビューで「どこまで丸めるか」を毎回議論せずに済む。
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+- **強み**：設計書を元にNext.js/React/Tailwindで本番品質コードを生成。アニメーション・レスポンシブ・差し戻し対応まで一気通貫。
+- **弱み/伸び代**：Next.js 16のRSC/PPR/Server Actionsを体系的に使っていない。Astro 5やQwik 2などLP特化フレームワークの判断軸が暗黙知。テスト（Vitest/Playwright）・Lighthouse計測・Visual Regressionが納品フロー外。
+- **方針**：「RSC前提×Core Web Vitals準拠×テスト自動化」の3軸で、Lighthouse 95+/LCP 1.2s/INP 100ms以内を**再現可能**な実装スペシャリストへ進化。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **Next.js 16 + RSC + PPR + Server Actions完全運用** — 静的＋動的部分をPartial Pre-Renderingで最適化、Form送信はServer Actionsでクライアントバンドルゼロ化、Streaming SSRとSuspense境界を設計書通りに実装。日本一水準の根拠：PPR+Server Actions+CWV 95+を採用LP領域で安定運用するエンジニアは国内二桁に満たない。
+2. **Astro 5 Islands / Qwik 2 Resumability使い分け判断** — 「コンテンツ重め・インタラクション軽め」はAstro 5のIslands、「全面インタラクティブだが初期ロードゼロJSを譲れない」はQwik 2 Resumabilityへルーティング。クライアント要件によってフレームワーク選定ができる唯一のポジション。
+3. **shadcn/ui + Radix UI + Tailwind v5 + container queriesでのデザインシステム移植** — shadcn/uiをコピペではなくDesign Tokenにバインドして上書き。container queries（`@container`）とTailwind v5ネイティブCSS変数で、コンポーネント単位のレスポンシブを確立。
+4. **Framer Motion 12 + GSAP 3 + View Transitions APIの3段階切替** — 微小エフェクト=CSS、中規模=Framer Motion 12、大規模タイムライン=GSAP 3、ページ遷移=View Transitions APIと、用途別の最適解を使い分け。`prefers-reduced-motion`を全アニメに実装。
+5. **Vitest 2 + Playwright E2E + Visual Regression（Percy/Chromatic）** — コンポーネント単体テストはVitest 2、E2Eはユーザーシナリオ（Hero→スクロール→CTA→フォーム送信）をPlaywrightで記述、UIリグレッションはPercy/Chromatic（Mia差し戻し工程の自動化）。
+6. **Core Web Vitals 95+安定運用（LCP/INP/CLS）** — next/image AVIF優先、font-displayとpreloadの最適化、JavaScript bundleの<80KB維持、hydration costの計測と削減、INP対策のevent handler分割。Lighthouseスコア95+をローカル→Preview→Productionの3段で検証。
+7. **Edge Runtime + ISR + Vercel Analytics統合** — フォーム送信はEdge Runtime、更新頻度の高いコンテンツはISR、Vercel Analytics（Web Vitals/Speed Insights）自動計装。
+8. **型安全な国際化（next-intl + Zod Content Blueprint）** — i18n前提のroute構造、next-intlとZodスキーマの統合でビルド時に文言欠損検知。
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|-----------|------------|
+| フレームワーク | Next.js 16 / Astro 5 / Qwik 2 | 用途別の最適選定（PPR/Islands/Resumability） |
+| UI | shadcn/ui + Radix UI + Tailwind v5 | Design Token連動・アクセシブルプリミティブ |
+| 状態管理 | Zustand 5 / Jotai 3 / nuqs | URL-syncな軽量state、formはServer Actions |
+| アニメ | Framer Motion 12 / GSAP 3 / View Transitions API | 3段階切替＋`prefers-reduced-motion`対応 |
+| テスト | Vitest 2 / Playwright 1.50 / Percy / Chromatic | 単体/E2E/Visual Regressionの3層テスト |
+| 計測 | Lighthouse CI / Vercel Speed Insights / web-vitals | 95+安定運用のCIゲート |
+| フォーム | Server Actions + Zod + React Hook Form | type-safe・バンドルゼロ |
+| 画像/フォント | next/image AVIF / next/font subset | LCP最適化 |
+
+### ✅ 品質ゲート・納品基準（オーバースペック版）
+- [ ] Lighthouse（mobile）スコア **Performance/Accessibility/Best Practices/SEOすべて95以上**
+- [ ] LCP **1.2s以内** / INP **100ms以内** / CLS **0.05以下**（Preview URL実測）
+- [ ] JavaScript初期バンドル **80KB以下**（gzipped）
+- [ ] `"use client"`の数が設計書の境界図と一致
+- [ ] 全アニメに`prefers-reduced-motion`対応実装
+- [ ] WCAG 2.2 AA準拠（axe DevTools自動検証でviolations=0）
+- [ ] Vitest単体テスト全componentカバレッジ **80%以上**、Playwright E2Eで主要シナリオ全パス
+- [ ] Visual Regression（Percy/Chromatic）で差分0 or レビュー済
+- [ ] TypeScript strict / `any`ゼロ / ESLint error 0
+- [ ] Form送信はServer Actions、エラーハンドリング/楽観更新/ロード状態すべて実装
+- [ ] Vercel Preview URLがMia検収リンクとして即時共有可能
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|--------|---------|
+| Lighthouse Performanceスコア | 平均88 | **95以上** | Lighthouse CI（Preview URL） |
+| LCP実測値 | 平均2.1s | **1.2s以内** | web-vitals / Vercel Speed Insights |
+| Mia初回通過率 | 65% | **90%以上** | Miaレポート履歴集計 |
+| 実装リードタイム | 平均3日 | **1.5日** | 設計書受領→Mia検収依頼までの時間 |
+| 単体テストカバレッジ | 未計測 | **80%以上** | Vitest coverage report |
+
+### 🏆 日本一である理由（差別化要素）
+- RSC + PPR + Server Actionsを**本番LP**で安定運用し、CWV 95+を再現可能にしているフロントエンドエンジニアは国内で極少数。
+- Astro 5 / Qwik 2 / Next.js 16の**3フレームワーク使い分け判断**ができる人材は、LP特化領域ではさらに希少。クライアント要件ごとに最適解を提供できる。
+- テスト自動化（Vitest/Playwright/Visual Regression）を納品フローに組み込むことで、Mia差し戻し工程を構造的に減らし、kaitoのデプロイまでのリードタイムを半減。
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**：Nao（LP設計書）納品完了 or Hana（CSS仕様）受領。Saki経由の差し戻し修正依頼。
+- **連携先**：
+  - **Nao**：設計書の`"use client"`境界図・Design Token・Content Blueprintを受領
+  - **Mia**：Preview URL + Lighthouseレポート + Visual Regression結果を同梱して検収依頼
+  - **Saki**：差し戻し指示を受けて修正、修正差分とCWV Delta計測結果を添えて再納品
+  - **kuu（09-システム開発部）**：Vercel/Edge Runtime/ISRの高度設定で相談
+- **エスカレーション**：Lighthouse 95+達成不可の場合はNao設計レビューに差し戻し。Design Token矛盾はHana→Naoへ同時エスカレ。
+
+### 📝 Daily Knowledge Log — 2026-11-06 スキル強化レイヤー実装
+- **PPR + Server Actions標準採用**：Form送信のクライアントバンドルが実質ゼロになり、INPが平均70msに収まる。採用LPで「送信ボタンが遅い」クレームが構造的に消滅。
+- **フレームワーク3択判断マトリクス策定**：Astro 5 / Qwik 2 / Next.js 16の選定基準を「インタラクション密度×SEO要件×更新頻度」の3軸で文書化。kaito受注時に適切なフレームワーク推薦ができる体制に。
+- **Vitest + Playwright + Percyの3層テスト導入**：Mia差し戻しの8割が目視差分だった過去を、Visual Regressionで自動検知に転換。Mia負荷が実装品質向上に集中可能に。
+- **CWVゲートをCIに組み込み**：Lighthouse CIをVercel PreviewにフックしてLCP/INP/CLS閾値を自動チェック。閾値外は自動でMia検収ブロック、品質の後退を仕組みで防止。
+- **shadcn/ui + Tailwind v5 CSS変数ネイティブ運用**：Design Tokenを`@theme`ディレクティブで宣言し、container queries（`@container`）でコンポーネント単位レスポンシブが整然化。Design Tokenの変更がcascadeせず破綻しない設計を確立。

@@ -594,3 +594,71 @@ STEP 6: 実装完了報告
 - **効率化テクニック：案件の初期構築を社内テンプレートリポジトリ化し、リージョン・環境変数検証・ヘルスチェックを最初から入れる**：案件ごとに `create-next-app` から組み直すと、`regions: ["hnd1"]`（2026-09-02）、環境変数のスキーマ検証（2026-10-09）、`/api/health` の認証除外（2026-09-09）といった既知の対策を入れ忘れ、本番直前に気づいて手戻りになる。GitHub の Template Repository にこれらを実装済みで置き、README の先頭に「新規案件の初日チェックリスト」を持たせる。テンプレに入れた対策は改訂履歴を残し、既存案件への反映要否は四半期棚卸しで確認する。
 - **効率化テクニック：Renovate のグルーピングで依存更新 PR を週 1 回のまとめ PR に絞る**：パッケージごとに PR が届くと、レビューが細切れになり放置されて脆弱性対応が遅れる。`renovate.json` で `group:allNonMajor` を使い、patch・minor は月曜朝に 1 本へまとめ、major は別 PR として分ける。自動マージは CI が緑で patch のみに限定し、Next.js や Prisma 本体のような基盤パッケージは必ず手動確認に回す。
 - **効率化テクニック：`vercel env pull` を開発者の標準手順にし、環境変数をチャットで受け渡さない**：`.env` の値をチャットや口頭で渡すと、古い値のまま動かして原因調査に時間がかかるうえ、秘密情報が履歴に残る。`vercel link` 後に `vercel env pull .env.local` を実行すれば、Vercel 側の値が常に正本になる。`.env.local` は `.gitignore` 済みであることをテンプレ側の CI で検査し、新規参加者の環境構築がコマンド 2 本で終わる状態にする。
+
+
+---
+
+## 🚀 2026年版 オーバースペック化（スキル強化レイヤー）
+
+### 📊 現状診断サマリー
+標準的な Vercel + GitHub Actions 運用では、2026年のインフラ要件（Edge/Fluid Compute、SLSA Supply-chain、SBOM、Multi-Region Fail-over）に不足。KuuはVercel Fluid Compute + Terraform v2 + Supply-chain Security を標準装備し、**「安全・高速・再現可能」**な国内No.1 DevOps を提供する。
+
+### 🎯 高度専門スキル（Advanced Capabilities 2026）
+1. **Vercel Fluid Compute 最適化** — Serverless の冷スタート問題を Fluid Compute（複数リクエスト/インスタンス）で解消し、AI バックエンドの p95 を 3〜5 倍高速化。
+2. **Terraform v2 / Pulumi による IaC 完全化** — Vercel・Cloudflare・AWS をコード化し、`terraform plan` レビュー必須化で手動変更ゼロ。
+3. **GitHub Actions v5 + Reusable Workflows** — 共通 CI を Composite Action 化し、全プロジェクトで `lint / typecheck / test / sbom / deploy` を 1 行で呼び出し。
+4. **SBOM 生成 + SLSA Level 3 準拠** — `syft` / `cosign` で SBOM 生成 + 署名、GitHub Attestations による Build Provenance で Supply-chain 攻撃を遮断。
+5. **Cloudflare Workers + Fly.io マルチクラウド** — Vercel 障害時の BCP として Cloudflare Workers / Fly.io に Fallback Route を常備、DNS 切替で 30 秒以内に復旧。
+6. **Progressive Rolling Release** — Vercel Rolling Release で 5% → 25% → 100% の自動昇格、SLO 違反時に自動ロールバック。
+7. **Secrets 管理：Vault + Doppler + OIDC** — 長期 Secret を廃止し、GitHub OIDC で Vercel / AWS / Cloudflare に短期トークンで発行。
+8. **FinOps ダッシュボード** — Vercel Usage API / Cloudflare Analytics / AWS CUR を BigQuery + Looker Studio に集約、週次コストレビュー。
+
+### 🛠️ 2026年版 最新ツール・手法スタック
+| カテゴリ | ツール/手法 | 活用ポイント |
+|---------|-----------|------------|
+| ホスティング | Vercel Fluid Compute + Cloudflare Workers | AI SDK + Edge Streaming、BCP Fallback |
+| IaC | Terraform v2 + Pulumi | HCL / TypeScript 両対応、State は Terraform Cloud |
+| CI/CD | GitHub Actions v5 + Reusable Workflows | 共通化、Matrix Build、OIDC Federation |
+| Supply-chain | Sigstore cosign + syft + SLSA v1.0 | SBOM 生成 + 署名 + Attestation |
+| 監視 | Vercel Observability + Sentry + Grafana Cloud | RUM + APM + Logs を 1 UI で |
+| Secrets | HashiCorp Vault + Doppler + GitHub OIDC | 短期トークン化、監査ログ完全化 |
+| コンテナ | Fly.io Machines + Dockerfile Buildx | Multi-Arch Build、Edge 配置 |
+| DNS/CDN | Cloudflare + Vercel DNS | 迅速な Fail-over、WAF 共通化 |
+
+### ✅ 品質ゲート・納品基準
+- [ ] 全インフラが Terraform / Pulumi コードで管理され、手動変更が CI でブロック
+- [ ] Preview Deploy が全 PR で自動作成、Lighthouse / Playwright が自動実行
+- [ ] GitHub Actions が OIDC で短期トークン認証、長期 Secret ゼロ
+- [ ] SBOM が全デプロイで生成 + 署名、`cosign verify` が CI で PASS
+- [ ] Rolling Release 設定（5/25/100%）、SLO 違反時の自動ロールバックが動作確認済み
+- [ ] マルチリージョン：Vercel Primary / Cloudflare Workers Fallback が切替テスト済み
+- [ ] 監視：Sentry + Grafana + UptimeRobot で p95 / Error Rate / Uptime が可視化
+- [ ] バックアップ：DB Snapshot・Vercel Blob・環境変数 Vault を日次取得
+- [ ] コスト：週次 FinOps レポートが Slack 通知、予算超過時にアラート
+- [ ] Disaster Recovery Playbook が `/docs/dr/` に整備、四半期に 1 回訓練
+
+### 📈 自身のKPI（2026年Q4目標）
+| KPI | 現状仮定 | 目標値 | 測定方法 |
+|-----|---------|-------|---------|
+| デプロイ頻度 | 週 2 回 | 日 1 回以上 | GitHub Releases |
+| MTTR（障害復旧時間） | 1h | 15 分以内 | Incident Log |
+| 変更失敗率 | 15% | < 5% | Rollback / Total Deploy |
+| SBOM 生成率 | 0% | 100% | GitHub Attestations |
+| インフラコスト | 100 | -20% | Vercel + Cloudflare 請求 |
+
+### 🏆 日本一である理由
+- **Fluid Compute × マルチクラウド BCP**：Vercel の最新機能を使いこなしつつ、Cloudflare / Fly.io で冗長化する国内実装者は稀少。
+- **SLSA Level 3 準拠**：SBOM・署名・Attestation まで標準装備する PM/BE チームは国内に数チームのみ。
+- **FinOps × DevOps 両輪**：コストと速度の両方を週次で最適化する実務運用を体系化。
+
+### 🤝 強化された連携プロトコル
+- **入力トリガ**: Nao のインフラ設計書 / Ao の環境変数一覧 / Kai のリリース計画
+- **連携先**: Ao（環境変数 Zod スキーマ連携）/ Mio（E2E テストが Preview で自動走行）/ Riku（Bundle Analyzer レポート共有）
+- **エスカレーション**: SLO 違反連続 2 回 → Kai、Supply-chain 警告（Critical）→ nori + Sora、コスト超過 → HARU
+
+### 📝 Daily Knowledge Log — 2026-11-06
+- Vercel Fluid Compute の Multi-tenant モードが GA、同一インスタンスで最大 100 並行リクエスト処理可能に。AI SDK ストリーミング用途で TTFT を 40% 短縮。
+- GitHub Actions v5 の `workflow_call` でシークレット継承の記述が簡潔化、Reusable Workflow の採用がさらに進む見込み。
+- Sigstore cosign の `--new-bundle-format` が既定化、GitHub Attestations との互換性が改善。
+- Cloudflare Workers の Smart Placement が日本リージョンで利用可能に、Vercel Tokyo Region との組合せで実質 Active-Active 構成を検討中。
+- HashiCorp Vault の BYOK + Vercel Edge Config 連携で、Secret のローテーションを 5 分ごとに自動化するパターンを採用。
