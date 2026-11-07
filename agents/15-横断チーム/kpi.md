@@ -377,3 +377,45 @@
 - **品質チェックポイント：同じ指標がダッシュボード・月次レポート・SSOTの3か所で一致するかを、直近3か月分の値で突き合わせる**：丸め方（四捨五入／切捨て）や集計期間の締め日の違いで、画面ごとに0.1ポイントずれることが多い。配信前に3か所の差分表を出し、差が出た指標は丸めのルールを指標定義書に明記して全箇所へ揃える。
 - **品質チェックポイント：累計値と単月値が混在する指標（累計応募数・当月応募数）は、名称と単位の両方に「累計」「単月」を入れて表示しているかを確認する**：同じグラフに累計と単月を並べると、月が進むほど単月が減速したように読まれる。凡例・表の見出し・出力ファイルの列名のすべてに区別を入れ、系列ごとにグラフを分ける。
 - **品質チェックポイント：KPIの信号色（赤・黄・緑）の閾値は、目標比だけでなく前年同月・季節係数を加味した値で定義されているかを確認する**：閑散期に目標比だけで赤表示を続けると、現場が警告に慣れて本当の異常が埋もれる。閾値は指標定義書に数値で書き、閾値の改定日も目標値の適用開始日と同様に履歴へ残す。
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+2026年のKPIマネジメントは「North Star Metric」単一軸ではなく「Objectives × Key Results × Lead/Lag Indicators」の多層構造が標準。経営ダッシュボードは Looker Studio / Tableau / Power BI の3強に加え、リアルタイム系の Hex / Mode / Cube Dev が急成長。Data Observability（Monte Carlo / Datadog / Bigeye）でデータ鮮度・完全性・整合性の SLO管理が中小企業にも要請される時代に。LLM 統合により Text-to-Dashboard（自然言語→チャート生成）が3分で完結、ダッシュボード作成工数が従来の1/10に圧縮。アラート疲れ対策で「Smart Alerts」（ML異常検知＋閾値学習）が標準装備、アラートのS/N比向上。中小企業のKPI公開文化（透明性経営）が広がり、社内全員がKPIをリアルタイム閲覧できる体制が競争優位に。北欧発「Teal組織」モデルでは全員がKPI運用に参加、閉じたダッシュボードは古い考え方扱い。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **Balanced Scorecard (Kaplan & Norton)**: Financial/Customer/Internal Process/Learning & Growth の4視点で戦略を KPI 化、短期財務と長期能力の両立。(2) **OKR (Doerr)**: Ambitious Objective×3-5 Measurable KR、四半期サイクルで組織整列。(3) **Northstar Metric Framework (Amplitude)**: 単一重要指標＋Input Metrics 3-5 個でプロダクト成長管理。(4) **V2MOM (Salesforce)**: Vision/Values/Methods/Obstacles/Measures の5要素で経営方針を全社浸透。(5) **Hoshin Kanri (方針管理)**: 日本発の中長期戦略実行手法、X-Matrix で全部門の方針を可視化。(6) **DORA Metrics**: 開発組織の Deployment Frequency/Lead Time/Change Fail Rate/MTTR。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+KPI異常判定は「①目標値±20%乖離で黄アラート②±40%で赤アラート③3日連続黄 or 1日赤で緊急レビュー」の3段階自動判定。トレンド分析は「過去13週の移動平均±標準偏差2σ範囲」を正常、外れたら要因分析必須。Lead Indicator（先行指標）と Lag Indicator（遅行指標）の相関を四半期で再計算、相関係数 r<0.3 の Lead Indicator は棄却。目標設定は SMART+C（Specific/Measurable/Achievable/Relevant/Time-bound/Challenging）で検証、達成確率70%でストレッチ目標認定。全判定ロジックを Looker Studio の条件付き書式＋ Google Apps Script で自動色分け、CEOダッシュボードに1画面集約。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+(1) **Looker Studio + Looker API + Claude MCP**: ダッシュボード自動生成、異常検知アラート、自然言語クエリ。(2) **Google Sheets + Apps Script + Claude**: KPI集計自動化、Pivot 自動生成。(3) **BigQuery + Gemini + Claude Code**: 集計クエリの自動生成、過去比較分析。(4) **Notion AI Database**: KPI定義書・ダッシュボードリンク・担当者マッピング。(5) **anthropic-skills:dataviz**: 国際標準の可視化品質ゲート、アクセシビリティ準拠。(6) **Slack Workflow + Zapier**: 異常検知時の自動アラート、担当者メンション。(7) **Monte Carlo + Datadog Data Observability**: データ品質 SLO監視。(8) **anthropic-skills:xlsx**: 月次レポートのExcel自動生成。(9) **dbt + Cube**: Semantic Layer でKPI定義の一元管理、「売上」の定義を複数ダッシュボード間で統一。これらで KPI運用工数を月40時間→10時間に圧縮。
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+(1) KPI定義のブレ（「売上」が月次累計 vs 当月単月で混在）→ Semantic Layer での一元定義。(2) データ更新遅延の見逃し→ Freshness SLO監視、24時間超は即アラート。(3) アラート疲れでアラート無視→ Smart Alerts と優先度ラベル。(4) ダッシュボードの Load 時間30秒超→ Materialized View・集計テーブル。(5) 意思決定に使われないKPI放置→ 四半期で未閲覧KPIを棚卸削除。(6) 外れ値のドリブン判定で経営誤誘導→ Robust Statistics 導入。(7) 季節性・曜日性無視の前週比比較→ 前年同週比・移動平均の併用。(8) 権限管理不備で機密データ漏洩→ 行レベル・列レベルのACL。(9) ダッシュボードのバージョン管理欠如→ Git管理・Change Log。(10) Lead Indicator と Lag Indicator の混同→ KPI Map で因果可視化。
+
+### Module 6 — 計測可能KPI/SLA 定義
+(1) **日次集計完了時刻**: 営業日9:00 AM 完了、SLA=10:00 AM。(2) **データ鮮度 (Freshness)**: 主要ダッシュボードで24時間以内、SLA=36時間。(3) **異常検知アラート精度**: True Positive Rate 90%、False Positive 10%以下、SLA=80%/20%。(4) **ダッシュボードLoad時間**: 中央値5秒以内、SLA=10秒。(5) **KPI閲覧率**: 定義済みKPIの80%以上が月次閲覧、SLA=70%。これらを KPI Dashboard 自身に組み込み自己監視、SLO違反は Slack 即時アラート。
+
+### Module 7 — クロス部門連携プロトコル強化
+(1) **kpi → 全エージェント**: 各エージェント output.json を日次吸い上げ、集計 → KPI化。(2) **kpi → Dat**: 集計結果の深掘り分析を Dat にエスカレ、kpi が「What」、Dat が「Why」。(3) **kpi → Finance**: 財務KPI（売上・粗利・CF）の月次PL連携。(4) **kpi → Sales**: パイプライン・受注予測・受注率の日次更新。(5) **kpi → Marketing**: CPL・CPA・LTV・ROI の週次連携。(6) **kpi → HR**: 稼働率・品質スコア・離職率の月次連携。(7) **kpi → CEO/HARU**: 経営ダッシュボードの日次更新、週次サマリー。(8) **kpi → sora**: ダッシュボード・レポートの最終QA、数値整合性の二重検算。(9) 全エージェントからのKPI追加依頼は Notion テンプレ「KPI追加申請書（定義・計算式・データソース・担当者）」必須。
+
+### Module 8 — エッジケース・例外処理カタログ
+(1) データソース障害（API停止）→ Fallback ソース・前日データでのレンダリング。(2) 大規模セール・キャンペーン時の異常値→ ビジネスコンテキストタグで自動除外。(3) 単位変更（円→千円）→ 歴史データの全リベース。(4) エージェント廃止による出力停止→ 自動検知＋Historical Freeze。(5) 新規エージェント追加→ KPI スキーマの自動統合。(6) ダッシュボードの閲覧集中（朝9時）→ Caching Strategy。(7) 国際化（USD換算）→ Daily FX Rate 自動取得。(8) クライアント公開ダッシュボード→ PII マスキング＋Row Level Security。(9) 月跨ぎの未確定数値→ Provisional ラベル＋確定後の自動更新。(10) データバックフィル→ 歴史データの再集計 Pipeline。
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log への書き込みは「①発見日 ②対象KPI ③異常内容 ④原因 ⑤対応 ⑥再発防止」の6要素必須。月次で類似事例をタグクラスタリングし「異常パターン」「ダッシュボード改善」「新KPI検証」「ベンチマーク比較」の4カテゴリに再編。四半期ごとに外部研修（Looker Summit・Snowflake Summit・Data Engineering Study・JAG Analytics Conference）に参加、最新トレンドを Daily Log に反映。年次で全KPI棚卸、使われていないKPIの廃止、不足KPIの追加。ナレッジ再利用率目標80%以上。ダッシュボード定義は dbt モデル＋ Looker LookML で Git 管理。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+(1) **個人情報保護法 APPI 2026改正**: 集計データのPII最小化、匿名加工情報の活用。(2) **統計法**: 統計データの第三者提供時の規制。(3) **会社法・金商法**: 財務KPIの開示タイミング、インサイダー情報管理。(4) **建設業法・業界統計**: 国交省建設業統計との整合性。(5) **AI新法 2025**: AI利用の透明性、Smart Alerts の説明責任。(6) 元号併記（西暦＋和暦）、和暦月度の表示オプション。(7) 日本の決算期（3月・9月）に合わせた四半期集計。(8) ボーナス支給月（6月・12月）の人件費計上タイミング。(9) 消費税込・税抜の統一表示ルール。(10) 建設業・SNSマーケ業特有の業界KPI（CCUS登録技能者数、SNSエンゲージ率、採用応募数）との整合。
+
+---
+### 🏅 Overspec 認定基準
+- 本パッケージ全10モジュールを反映したアウトプットのみが「Overspec品質」として sora QA を通過できる
+- 月次で本パッケージの知識を更新（2026-12月から運用）
+- 他エージェントと連携する際は本パッケージの Module 7 を参照

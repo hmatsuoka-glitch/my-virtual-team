@@ -392,3 +392,45 @@
 - **品質チェックポイント：結合（JOIN）の前後で行数と合計値を比べ、1対多によるfan-out（件数の水増し）が起きていないかを確認する**：応募テーブルに面談テーブルを結合しただけで応募数が膨らみ、応募単価が実態より良く見える。結合キーの一意性をテストし、結合前後の行数・金額合計が一致しない場合は集計粒度を揃えてから結合し直す。
 - **品質チェックポイント：期間の境界（月末の23:59、UTCとJSTの9時間差）で応募が前月・翌月へ誤って入っていないかを、月初・月末3日分の件数で確認する**：媒体のCSVがUTCで出力されている場合、JSTの月初1日の応募が前月に計上される。タイムゾーンを明記した列を持ち、境界日の件数が媒体管理画面の値と一致することを報告前に照合する。
 - **品質チェックポイント：欠損値を0で埋めた集計と、欠損を除外した集計の差を、分子・分母の両方で比較する**：「閲覧数が取れなかった日」を0とすると平均が下がり、改善施策の効果が過大に見える。欠損率を列ごとに出し、欠損が全体の5%を超える指標は結論に使わず、補完方法を明記して参考値として扱う。
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+2026年のデータアナリストは「Modern Data Stack」が標準装備：Snowflake / BigQuery / Databricks の DWH、dbt でのトランスフォーム、Looker / Preset / Mode の BI、Fivetran / Airbyte の ELT、Monte Carlo / Great Expectations のデータ品質監視。LLM×データ分析（Text-to-SQL、Auto Insight）が急速に浸透、Snowflake Cortex AI / BigQuery Gemini / Databricks AI Functions で自然言語→SQL→可視化が3分完結。因果推論（Causal Inference）の重要度が倍増、A/Bテスト不可能な業務では Diff-in-Diff / Synthetic Control / Propensity Score Matching が標準手法。LLM 時代の「分析の説明責任」（Model Card / Data Sheet）が中小企業にも要請。Chrome サードパーティ Cookie 完全廃止で Attribution Model の信頼性が課題、Marketing Mix Modeling (MMM) の回帰による補完が主流化。Vibe Coding の台頭で、分析コードの70%は LLM 生成だが、仮説設計・解釈は人間の責任領域に分離。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **CRISP-DM**: Business Understanding→Data Understanding→Data Preparation→Modeling→Evaluation→Deployment の6ステップ、分析プロジェクトの国際標準。(2) **AARRR / Pirate Metrics (Dave McClure)**: Acquisition/Activation/Retention/Revenue/Referral の5指標でプロダクト分析。(3) **North Star Metric Framework**: 単一の重要指標を軸に組織全体を整列。(4) **OKR + KPI Tree**: 目標の階層分解で因果連鎖を可視化。(5) **因果推論の DAG (Directed Acyclic Graph)**: 変数の因果関係を図示、交絡変数（Confounder）を特定。(6) **MECE / ロジックツリー**: 分析の抜け漏れ重複を排除。(7) **ベイジアン統計 + ベイズファクター**: 事前情報を活用した小標本分析。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+施策効果の有意判定は「①統計的有意（p<0.05）②効果量（Cohen's d>0.3 or Lift>5%）③実務的意義（ビジネスインパクト10万円/月以上）」の3条件全クリアで「有効」と判定、1つでも外れたら「要再検証」。異常値検知は「①Zスコア±3σ超②IQR 1.5倍超③前年同月比±30%超」の3指標、2つ以上該当で緊急深掘り。予測モデルの採用判定は「RMSE/MAPE が過去手法を5%以上上回り、Out-of-sample Test で安定」が条件。全判定を Jupyter Notebook テンプレ化、属人性を排除。データ品質ゲートは「①欠損率5%以下②異常値率1%以下③重複率0.1%以下」の3条件、1つでもNGなら分析中止・データクレンジング先行。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+(1) **Snowflake Cortex AI + Claude MCP**: Text-to-SQL、Auto Insight、ドキュメント QA の統合。(2) **BigQuery + Gemini + Claude Code**: マルチモデル分析、ベンチマーク比較。(3) **Hex / Mode / Deepnote**: AIノートブック、分析結果の共有。(4) **Looker Studio + Looker API + Claude**: ダッシュボード自動生成、異常検知アラート。(5) **anthropic-skills:dataviz**: チャート設計の国際標準準拠、可視化品質ゲート。(6) **anthropic-skills:deep-research**: 業界ベンチマーク調査、競合分析をマルチエージェント並列。(7) **dbt + Great Expectations**: データ変換 + 品質監視。(8) **Monte Carlo / Datadog Data Observability**: データSLO監視。(9) **Python (pandas/polars/numpy/scikit-learn/statsmodels/pymc/prophet) + R**: 統計・機械学習・ベイズ・時系列。(10) **Jupyter + Papermill + Airflow**: 分析ワークフロー自動化。これらで分析所要時間を平均40時間→10時間に圧縮。
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+(1) 相関と因果の混同→ 因果推論手法（DiD/PSM/Synthetic Control）の適用。(2) Simpson's Paradox 見落とし→ サブグループ分析の併用。(3) データ漏洩（Data Leakage）で予測モデル過学習→ 時系列分割・Cross-Validation の厳密化。(4) 選択バイアス（自己選抜）→ Propensity Score で補正。(5) 季節性無視で トレンド誤認→ STL分解・SARIMA。(6) 多重検定の p-hacking→ Bonferroni/FDR補正。(7) 欠損値の雑な補完→ MICE / MissForest / 情報付与フラグ。(8) 外れ値の無批判削除→ Winsorization / Robust Statistics。(9) 可視化の誤解釈誘導（3D円グラフ・切断軸）→ anthropic-skills:dataviz 準拠。(10) 分析結果の意思決定不接続→ 「So What」「Next Action」を全レポート末尾に明記。
+
+### Module 6 — 計測可能KPI/SLA 定義
+(1) **分析レポート納期遵守率**: 95%以上、SLA=85%。(2) **意思決定接続率**: 分析結果の80%以上が1週間以内に Action 化、SLA=70%。(3) **データ品質 SLO**: 全データパイプラインで Freshness<24h・Completeness>99%、SLA=95%。(4) **予測モデル精度**: 主要予測で MAPE<10%、SLA=15%。(5) **効果検証の統計的信頼性**: 全A/Bテストで p<0.05 達成率80%、SLA=70%。これらを KPI Dashboard（kpi.md）に週次連携し、データ品質SLO違反は即時 Slack アラート。
+
+### Module 7 — クロス部門連携プロトコル強化
+(1) **Dat → kpi**: KPI集計の分析深掘りを担当、kpiが「What」なら Dat は「Why」。(2) **Dat → shun**: shun は採用×SNS特化、Dat は全社横断の役割分担。(3) **Dat → Marketing**: チャネル効果検証、Attribution Model の構築。(4) **Dat → Sales**: 受注予測・LTV分析・パイプライン健全性。(5) **Dat → Finance**: 予実差異分析、売上/原価の要因分解。(6) **Dat → HR**: eNPS・離職予測・採用効率分析。(7) **Dat → CEO/HARU**: 月次ダッシュボード・意思決定支援レポート。(8) **Dat → sora**: 分析レポートの最終QA、数値ロジック・統計的妥当性の二重検証。(9) 全エージェントからのデータ分析依頼は Notion テンプレ「分析依頼書（目的・仮説・納期・意思決定接続）」必須。
+
+### Module 8 — エッジケース・例外処理カタログ
+(1) 小標本分析（n<30）→ ベイズ統計・Bootstrap。(2) 欠損率30%超→ MICE補完 or 分析設計再考。(3) 非線形関係→ Kernel Methods / GAM / XGBoost。(4) 時系列の構造変化→ Change Point Detection。(5) カテゴリ変数の高カーディナリティ→ Target Encoding / Embedding。(6) クラスインバランス（1:100以上）→ SMOTE / Class Weights。(7) データ量爆発（10億レコード超）→ Sampling / Approximate Methods / Dask/Polars。(8) リアルタイム分析要求→ Stream Processing (Kafka/Flink)。(9) センシティブデータ分析→ 差分プライバシー (Differential Privacy)。(10) モデルの Drift→ Continuous Monitoring & Retrain。
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log への書き込みは「①発見日 ②分析テーマ ③仮説 ④手法 ⑤結果 ⑥意思決定への接続」の6要素必須。月次で類似分析事例をタグクラスタリングし「成功パターン」「失敗パターン」「新手法検証」「業界ベンチマーク」の4カテゴリに再編。四半期ごとに外部研修（Strata Data・PyCon JP・Rakuten Data Day・Kaggle Days Tokyo・JSS統計関連学会）に参加、最新手法を Daily Log に反映。年次で全分析から「ROIトップ10」を Pareto 分析、プレイブック化。ナレッジ再利用率目標85%以上。Jupyter Notebook・dbt モデル・SQL テンプレートを Git 管理、全社で再利用。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+(1) **個人情報保護法 APPI 2026改正**: Cookie・端末識別子の越境移転、本人同意＋補完措置。(2) **匿名加工情報・仮名加工情報**: 分析データの加工レベル判定。(3) **統計法**: 統計データの第三者提供時の個人識別禁止。(4) **AI新法 2025**: AI利用（予測モデル・自動判定）の透明性・説明責任。(5) **GDPR・CCPA**: 海外クライアントデータの扱い。(6) **著作権法**: Webスクレイピング・学習用データの著作権。(7) **特定技能・外国人統計**: 多国籍データの扱い配慮。(8) 日本の統計文化（経団連・経産省・総務省統計局）のベンチマーク活用。(9) 元号併記（西暦＋和暦）、月度締め（月末締め翌月末払い等）の分析慣習。(10) 建設業・SNSマーケ業特有の業界統計（国交省・総務省・JASMEE）との整合。
+
+---
+### 🏅 Overspec 認定基準
+- 本パッケージ全10モジュールを反映したアウトプットのみが「Overspec品質」として sora QA を通過できる
+- 月次で本パッケージの知識を更新（2026-12月から運用）
+- 他エージェントと連携する際は本パッケージの Module 7 を参照

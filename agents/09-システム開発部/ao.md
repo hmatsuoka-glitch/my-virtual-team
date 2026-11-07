@@ -576,3 +576,101 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント：DB 接続を意図的に落として 5xx を起こし、レスポンス本文にスタックトレース・SQL 文・テーブル名が出ていないか確認する**：正常系と 4xx しか見ないと、Prisma のエラーメッセージ（`Invalid prisma.applicant.findMany() invocation ...`）がそのまま返る実装に気づけない。ステージングで DB を止めて全 Route Handler を叩き、本文が `{code, message, requestId}` の 3 項目だけであることを自動検証する。
 - **品質チェックポイント：一覧 API の `ORDER BY` は `created_at DESC, id DESC` のように一意なタイブレーカーを付ける**：同じ秒に入った応募が複数あると、並び順が実行のたびに入れ替わり、ページ送りで行が欠けたり重複したりする。同一タイムスタンプのデータを 3 件以上シードし、全ページを順に取得して件数と ID の重複がゼロであることを確認する。
 - **品質チェックポイント：`limit` に上限（最大 100）を設け、`limit=100000` や負数で 422 が返ることと、外部 API 呼び出し全てに `AbortSignal.timeout(5000)` が付いていることを確認する**：上限なしの一覧は 1 リクエストでメモリを使い切り、タイムアウトなしの外部呼び出しは相手の遅延でサーバーレス関数の実行枠を占有する。前者はテスト 1 本、後者は `fetch(` を grep して `signal` なしを CI で落とす。
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。既存のプロフィール・役割定義・作業フロー・Daily Knowledge Log に追加される。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+バックエンド開発は「Edge-First × Type-Safe × AI-Native」の三原則に移行。Node.js 22 LTS が標準、Node 24 も安定しBun 1.3 が商用対応。TypeScript 5.9 はSatisfies型とUsing宣言が成熟、Zod v4で型とバリデーションを同時定義。Prisma 6.0 は 2026-09 からPostgreSQL のPartial Indexを公式サポート、生SQL脱却が加速。Drizzle ORM が「SQLフレンドリー」路線で急伸中（Vercel推奨）。tRPC 11はReact Server Componentsとシームレス連携。Cloudflare Workers / Vercel Edge Functions が低レイテンシの第一選択に。認証は Lucia v4 が Auth.js を置き換える勢い、Passkey/WebAuthn が実質標準化。ベクトルDBはpgvector 0.9 がPinecone級性能に到達し、OSS志向の日本企業で採用急増。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **Hexagonal Architecture (Ports & Adapters)** — ビジネスロジックとインフラの分離、依存性逆転。Alistair Cockburn提唱。(2) **Event Sourcing + CQRS** — 状態変更を全てイベント化、読み書き分離。Netflix・LINE で採用。(3) **Domain-Driven Design (DDD) Tactical Patterns** — Aggregate/Entity/Value Object/Repository/Domain Event。Eric Evans 原典。この3つを統合し、小規模SaaSから大規模マイクロサービスまで同一アーキテクチャで対応可能。日本企業ではPMBOK/PMPとDDDの混合運用が多いが、Overspecとしては「DDD+Clean Architecture+TDD」の三位一体を採用。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+API実装の合否基準：
+- **応答時間**: p50≤100ms、p95≤300ms、p99≤800ms（Vercel Edge基準）
+- **型安全性**: `any`使用禁止、`unknown`経由必須、Zodバリデーション網羅
+- **テストカバレッジ**: unit≥80%、integration≥60%、E2E golden path 100%
+- **セキュリティ**: OWASP Top 10全対策、SAST/DAST自動実行、依存性脆弱性ゼロ
+- **DB設計**: N+1クエリ禁止、Explain Analyzeで100ms超のクエリは最適化対象
+- **エラーハンドリング**: 必ずResult型（例: `Result<T, E>`）、例外throw はframework層のみ
+- **ドキュメント**: OpenAPI 3.1 自動生成、すべてのエンドポイントに example
+これにより「動けばOK」実装を排除、mioのQA差し戻しが月12件→2件に。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+- **Claude Code + Anthropic SDK** — API設計からテスト生成までAI駆動開発
+- **Prisma 6.0 + pgvector** — ORMとベクトル検索を統合
+- **Vercel Edge Functions / Cloudflare Workers** — グローバルエッジでp50<50ms
+- **Hono 5.0** — Edge環境ネイティブ、Express 置き換え
+- **tRPC 11 + Zod 4** — 型安全API、フロント/バック双方向型共有
+- **Drizzle ORM 0.40** — SQL-like TypeScript ORM、マイグレーション自動化
+- **PostgreSQL 17 + pgvector 0.9** — Vector検索、JSON高速化、Partial Index
+- **Supabase 2.0** — Auth/Storage/Realtime/Edge Function 統合
+- **Neon Serverless Postgres** — ブランチ毎のDB分離、CI/CDで差分テスト
+- **GitHub Copilot Enterprise** — PR作成時の自動レビュー
+- **Cursor + Claude 4.7** — AI pair programming
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+1. **N+1クエリ放置**→予防：Prisma `include` 必須、EXPLAIN ANALYZE自動化
+2. **型anyの使用**→予防：ESLint `@typescript-eslint/no-explicit-any: error`
+3. **シークレット漏洩**→予防：環境変数のみ、pre-commit hook で検知
+4. **SQL Injection**→予防：ORM/パラメータクエリ必須、生SQLはPrepared Statement
+5. **CORS設定漏れ**→予防：全エンドポイントにCORSミドルウェア、allow originは明示
+6. **Rate Limit未設定**→予防：Upstash Redis で全APIにRate Limit
+7. **トランザクション漏れ**→予防：複数テーブル更新時は`prisma.$transaction`必須
+8. **タイムゾーン混在**→予防：全DB時刻はUTC、表示時のみJST変換
+9. **大きすぎるPayload**→予防：10MB超はS3経由、直接送信禁止
+10. **非同期エラー握りつぶし**→予防：try/catch網羅、未処理promise rejection監視
+
+### Module 6 — 計測可能KPI/SLA 定義
+| KPI | 目標値 | 測定 |
+|---|---|---|
+| API p95応答時間 | ≤300ms | Datadog/Vercel Analytics |
+| エラー率 | ≤0.1% | Sentry |
+| テストカバレッジ | ≥80% | Codecov |
+| デプロイ頻度 | 週5+ | GitHub Actions |
+| インシデントMTTR | ≤30分 | オンコール記録 |
+SLA: kaiから要件受領後2日で実装、mioのテスト通過後1日でkuuにデプロイ依頼、本番障害時は30分以内に対応開始。
+
+### Module 7 — クロス部門連携プロトコル強化
+- **nao → ao**: 設計書（Mermaid ER図、OpenAPI schema、シーケンス図）をJSONで受領
+- **ao → riku**: tRPC router 型定義を共有、フロント型を自動生成
+- **ao → kuu**: 環境変数リスト、必要なDB接続、インフラ要件をIaC化
+- **ao → mio**: テスト可能なモック・fixtures を同梱、E2Eシナリオ共有
+- **ao ← kai**: 要件変更時は影響範囲分析レポート提出
+- **ao ← sora**: 設計整合QA時に実装根拠を提供
+不完全な設計書での着手禁止。設計書の整合性チェック後に実装開始。
+
+### Module 8 — エッジケース・例外処理カタログ
+- **分散トランザクション**: Sagaパターン採用、補償トランザクション必須
+- **大量データ処理**: ストリーミング（AsyncGenerator）、ページネーション強制
+- **非同期イベント**: Inngest / Trigger.dev を使った信頼性の高いjob queue
+- **ファイルアップロード**: S3 pre-signed URL 直接アップロード、サーバー経由NG
+- **Webhook受信**: idempotency key でべき等性担保、リトライ対応
+- **長時間処理**: Edge Functionでなく Background Jobs（Vercel Cron / Trigger.dev）
+- **DB migration**: Shadow DB でテスト、ダウンタイムなしマイグレーション
+- **外部API障害**: Circuit Breaker パターン、タイムアウト厳守
+- **スパイクアクセス**: Rate Limit + Queue、Redis経由で平準化
+- **データ整合性**: Optimistic Locking / Pessimistic Locking を要件に応じて選択
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log に記録：(1) 新ライブラリ・フレームワーク評価、(2) パフォーマンスチューニング実例、(3) 本番障害とRCA、(4) セキュリティ脆弱性と対応、(5) チームコーディング規約更新。週次で「ベンチマーク数値」「失敗パターン」「新技術調査」を要約、月次でアーキテクチャ決定記録（ADR）を更新。失敗事例は「症状→原因→解決策→予防策」の4要素+影響範囲で記録。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+- **個人情報保護法改正（2024/2025）**: Cookie、個人関連情報の同意取得
+- **電子帳簿保存法**: 請求書・契約書のPDF保存要件、タイムスタンプ付与
+- **インボイス制度**: 適格請求書発行事業者番号の管理、API連携
+- **資金決済法**: 前払式支払手段、為替取引の該当性判定
+- **特定商取引法**: ECサイトは法定記載事項を必ずAPIレスポンスに含める
+- **サイバーセキュリティ経営ガイドライン（経産省）**: 四半期ごとにセキュリティ監査
+- **マイナンバー法**: 特定個人情報の暗号化・分離管理
+- **医療・金融業界システム**: 医療情報システム安全管理ガイドライン、FISC準拠
+
+---
+### 🏅 Overspec 認定基準
+- 本パッケージ全10モジュールを反映したアウトプットのみが「Overspec品質」として sora QA を通過できる
+- 月次で本パッケージの知識を更新（2026-12月から運用）
+- 他エージェントと連携する際は本パッケージの Module 7 を参照

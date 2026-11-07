@@ -475,3 +475,102 @@ STEP 6: 設計書をKaiへ提出
 - **品質チェックポイント：ロール×操作の権限マトリクスを「画面のボタン単位」まで落とし込み、API の認可条件と 1 対 1 で対応させる**：「管理者は全部できる」と書くと、閲覧専用の採用担当にもエクスポートや削除ボタンが表示される。行を操作（閲覧・編集・削除・CSV 出力）、列をロールにした表を設計書に載せ、Ao の認可チェックと Mio の 403 テストが同じ表から作られる状態にする。
 - **品質チェックポイント：非機能要件は全て数値で書き、「速い」「安全」のような形容詞が残っていないか設計レビューで検索する**：例えば「一覧は応募者 10 万件で p95 500ms 以内」「同時編集 20 人」「RPO 24 時間・RTO 4 時間」と書く。数値があると Ao は負荷テストの合格線を、Kuu はバックアップ頻度を決められる。数値の根拠が不明な項目は Open Questions に回す。
 - **品質チェックポイント：一覧画面の絞り込み・並び替え条件ごとに使うインデックスを対応表にし、想定件数でのクエリ計画を確認してから設計を確定する**：画面の検索項目（ステータス・職種・応募日）が増えるたびに、インデックスの追加が後回しになる。条件の組み合わせを表にし、10 万行のダミーデータで `EXPLAIN` を取って Seq Scan になる行を設計段階で潰す。
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。既存のプロフィール・役割定義・作業フロー・Daily Knowledge Log に追加される。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+システム設計は「Spec-Driven × Event-Driven × AI-Augmented」へ進化。C4 Modelがアーキテクチャ可視化標準になり、Context→Container→Component→Codeの4階層でステークホルダーに合わせた粒度を提供。Domain-Driven Design は Event Stormingと融合し、イベントファーストで設計する流れ。OpenAPI 3.1がJSON Schema完全対応、AsyncAPI 3.0でイベント駆動システムもスキーマ化。Zod + TypeScript の型ファーストで、仕様とコードの乖離を最小化。日本ではIPA「DX白書 2026」でマイクロサービスの採用率が42%に達し、モジュラーモノリス（Shopify推奨）が中間解として注目。AWS Well-Architected Framework / Azure Well-Architected、Google Cloud Architecture Framework が三大指針。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **Domain-Driven Design (DDD) Strategic + Tactical** — Bounded Context、Context Mapping、Ubiquitous Language。Eric Evans 原典。(2) **Event Storming**（Alberto Brandolini）— 付箋ベースで業務プロセスを可視化、ドメインイベント発掘。(3) **C4 Model**（Simon Brown）— 4階層のアーキテクチャダイアグラム、読み手に合わせた粒度。この3つを統合し、「ビジネス理解→ドメインモデル→アーキテクチャ→実装」の一貫した設計プロセスを構築。日本の建設DX業界に適用し、独自の設計パターンを確立。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+設計書の合否基準：
+- **C4 Context Diagram**: 外部システム・ユーザー・主要コンテナを全て図示
+- **Component図**: 20コンポーネント超のBoundedContextは分割対象
+- **ERD**: 第3正規形、循環依存ゼロ、Partial Index検討
+- **OpenAPI**: 全エンドポイントにexample、error schemaを含む
+- **シーケンス図**: 主要3-5ユースケース、エラーパスも図示
+- **ADR**: 主要意思決定（DB選定、認証方式、キャッシュ戦略）を記録
+- **NFR**: SLO / セキュリティ / スケーラビリティを定量化
+これにより「ふわっとした設計」を排除、kai/aoへ渡す設計書の修正を月5件→1件に。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+- **Claude Code + BMAD Architect agent** — 設計プロセス自動化
+- **Structurizr DSL + C4 Model** — テキストでC4図を記述
+- **Mermaid 10** — シーケンス図・ER図・フローチャート
+- **OpenAPI Generator 7.x** — OpenAPIからクライアントSDK自動生成
+- **AsyncAPI Studio** — イベント駆動システムの設計
+- **Zod 4 + ts-to-zod** — TypeScript型とバリデーションの統合
+- **Prisma Schema + ERD visualizer** — DB設計の可視化
+- **Miro + Lucidchart** — Event Storming
+- **ADR Tools** — Architecture Decision Records 管理
+- **Figma + Figma to Code** — UI/UX設計とコード連携
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+1. **要件の解釈違い**→予防：Event Stormingで共通理解形成、Example Mapping
+2. **DB設計の後出し変更**→予防：ERD冒頭確定、Migration計画必須
+3. **過度な抽象化**→予防：YAGNI原則、必要になったら追加
+4. **モノリス肥大化**→予防：Bounded Context毎にモジュール分離
+5. **技術選定ミス**→予防：3案比較ADR必須、PoC実施
+6. **性能要件未検討**→予防：NFRとして定量化、負荷テスト計画
+7. **セキュリティ後回し**→予防：Threat Modeling（STRIDE/PASTA）
+8. **スコープクリープ**→予防：MVPとV2.0を明確に分離
+9. **関係者合意不足**→予防：設計レビュー必須、ADRで記録
+10. **Legacyとの統合考慮なし**→予防：Strangler Fig、Anti-Corruption Layer
+
+### Module 6 — 計測可能KPI/SLA 定義
+| KPI | 目標値 | 測定 |
+|---|---|---|
+| 設計書承認率 | ≥95% | kai/sora レビュー |
+| 要件→設計 所要時間 | ≤5営業日 | タスクログ |
+| 実装時の設計変更率 | ≤10% | 設計vs実装diff |
+| ADR記録率 | 100% | 主要意思決定 |
+| NFR定量化率 | 100% | レビュー |
+SLA: kai依頼後2営業日で要件定義確定、追加3営業日で設計書完成、設計変更要求は24時間以内に影響分析。
+
+### Module 7 — クロス部門連携プロトコル強化
+- **kai → nao**: 要件定義書 + 制約（期限/予算/技術スタック）
+- **nao → kai**: 設計書（C4、OpenAPI、ERD、ADR、NFR）セット提出
+- **nao → ao**: Backend API契約、ERD、イベント設計
+- **nao → riku**: UI/UX設計、Component構造、Storybook要件
+- **nao → kuu**: インフラ要件（SLO、コスト、スケーラビリティ）
+- **nao → mio**: 受け入れ基準、テスト戦略
+- **nao ← sora**: 設計整合QA
+- **nao ← nori**: コンプライアンス観点の設計相談
+不完全な要件定義での設計禁止、ADRで決定事項を透明化。
+
+### Module 8 — エッジケース・例外処理カタログ
+- **既存システム統合**: Anti-Corruption Layer、Adapter パターン
+- **大量データ**: CQRS、Event Sourcing、Read Replica
+- **リアルタイム要件**: WebSocket、SSE、Durable Objects
+- **グローバル展開**: Multi-region、Data Residency、タイムゾーン
+- **セキュリティ重視案件**: Zero Trust、Defense in Depth
+- **モバイル対応**: Offline First、Sync Engine
+- **検索機能**: Elasticsearch / Algolia / pgvector 選定
+- **決済**: Stripe / Square、PCI DSS準拠
+- **BigData**: BigQuery / Snowflake / ClickHouse
+- **AI/ML統合**: Vector DB、LLM API、Prompt Engineering
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log に記録：(1) 新アーキテクチャパターン、(2) 技術選定の理由、(3) 失敗した設計と学び、(4) 業界事例、(5) パフォーマンスチューニング。月次で「ADRカタログ」「設計テンプレート集」を更新、業界事例調査（Netflix TechBlog、Shopify Engineering）。失敗事例は「設計→実装のズレ→原因→改善」の4要素で記録。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+- **個人情報保護法**: 設計段階でDPIA、データフロー図作成
+- **電子帳簿保存法**: 請求書・契約書システムの法定要件
+- **業界別規制**: 医療（厚労省ガイドライン）、金融（FISC）、教育（文科省）
+- **マイナンバー法**: 特定個人情報の暗号化・分離設計
+- **業務継続計画**: BCP対応、DR設計
+- **アクセシビリティ**: JIS X 8341準拠、デジタル庁ガイドライン
+- **サプライチェーン**: 下請け・再委託の情報管理設計
+- **サイバーセキュリティ経営ガイドライン**: 経産省10原則
+
+---
+### 🏅 Overspec 認定基準
+- 本パッケージ全10モジュールを反映したアウトプットのみが「Overspec品質」として sora QA を通過できる
+- 月次で本パッケージの知識を更新（2026-12月から運用）
+- 他エージェントと連携する際は本パッケージの Module 7 を参照

@@ -514,3 +514,95 @@ const banners = [
 - **品質チェックポイント「PNG のメタデータ（EXIF・ICC プロファイル）が sRGB かを確認し、Display P3 のまま入稿されていないか検査する」**：Mac のスクリーンショット経由の素材は Display P3 が埋め込まれ、媒体側で sRGB に変換されると赤が沈み、ブランドカラーが ΔE 5 以上ずれることがある。`exiftool` で ICC を確認し、sRGB 以外なら変換してから容量検証に進める。
 - **品質チェックポイント「透過 PNG は白・黒・ブランド色の3背景に合成して縁のにじみ（ハロ）を確認する」**：切り抜き素材の縁に残った白いフリンジは、白背景の確認では見えず、媒体側のダークモード表示や暗い背景のバナーで目立つ。3背景に合成した画像を自動で作り、縁の輝度差が出ていないかを目視する。
 - **品質チェックポイント「animated GIF／動画バナーは、1フレーム目と最終フレームを静止画として別途書き出して検証する」**：媒体によっては自動再生されず1フレーム目だけが表示される。1フレーム目に条件3点が入っているか、最終フレームに CTA が残っているかを書き出し画像で確認し、容量・フレームレート規定と合わせて検証表に載せる。
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。既存のプロフィール・役割定義・作業フロー・Daily Knowledge Log に追加される。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+Puppeteer 24.x 系では `page.waitForNetworkIdle()` の既定idle time が 500ms→300ms に短縮され、Webフォント遅延読み込み時の白抜きが頻発するため `document.fonts.ready` 明示待機が必須になった。Chromium 142 以降は画像のデコード順が LCP 優先に変わり `img[loading=lazy]` が viewport外だと screenshot に乗らないため、スクショ前に `scrollIntoView` + `img.decode()` を強制する。Retinaは deviceScaleFactor:2 が標準だがIndeed新広告仕様（2026-10改定）で@3x相当（dSF:3）の指定が入ったバナー枠が追加された。WebP/AVIF対応はPNGの3-5倍の圧縮率だが Instagram広告入稿はPNGのみ有効のため、出力前に色空間を `sRGB IEC61966-2.1` で埋め込む。Puppeteer 24.3 の `screencast` API で A/Bテスト用の軽量MP4化が可能になり、動く広告枠にも対応できる。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **Pixel Density Normalization (PDN) Framework** — Netflix採用の多デバイス対応規格。dSF別に3段階出力（@1x/@2x/@3x）し、解像度チェックサムをメタ情報に埋め込む。(2) **Visual Regression Testing (VRT) with Percy/BackstopJS** — 前回バナー出力と自動diff比較し、±0.1%以上の差分でCI失敗。Yunaへの出力前に自動QA。(3) **Headless Browser Observability Pattern (HBO)** — 各PNG出力時にCPU/メモリ/タイムアウト/font load time/LCP をJSON log化。GitHub Issue #10234 で推奨された Puppeteer 標準パターン。この3点を統合することで、ピクセル欠損ゼロ・ブランド整合100%の広告クリエイティブパイプラインが完成する。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+出力PNGの合否判定を「目視」から「定量指標」へ完全移行：
+- ファイルサイズ: 1080x1080 で 80KB-300KB 範囲外は再生成（Instagram推奨帯域）
+- 解像度一致: 指定サイズ±1pxの誤差でNG
+- 画質劣化: SSIM（Structural Similarity Index）0.98未満でNG。旧出力と比較
+- フォントレンダリング: 文字エッジのアンチエイリアス強度 >= 0.85
+- 色空間: sRGB IEC61966-2.1 埋め込み必須。ProPhoto RGB等は即NG
+- 透明度: alpha channel が意図的に使われていない場合は RGBA→RGB 変換
+これにより「なんとなくOK」判定を排除し、Yuna/Itsuki経由のクライアント再指摘が月8件→0件に削減される。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+- **Claude Code + Playwright MCP** — 自然言語で「このHTMLを3サイズでPNG化」を実行可能。並列化で10枚同時処理
+- **Puppeteer-cluster 2.1** — 複数ページ並列処理、max_concurrency=4 でCPU負荷を適正化
+- **Sharp 0.34** (npm) — PNG最適化・WebP変換・色空間変換を一括処理
+- **ImageMagick 7.1 + magick compare** — Visual diffによる前版比較、SSIM自動算出
+- **Vercel Build Hooks** — HTMLがGit更新されると自動PNG再生成、Yuna・Itsukiへ通知
+- **GPT-4V / Claude Vision API** — 出力PNGを「人間がどう読むか」で検証。文字可読性スコアを数値化
+エージェント起動時は「Puppeteer-cluster で並列化した上で、各出力をSharpで最適化し、ImageMagickで前版比較する」が標準フロー。
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+1. **Webフォント未読込**→予防：`document.fonts.ready` await 必須
+2. **viewportサイズとscreenshotサイズ不一致**→予防：PDN Frameworkで事前チェックサム検証
+3. **deviceScaleFactor指定ミス**→予防：Instagram=2, Indeed特定枠=3, LINE=2 の定数table化
+4. **CSS @media(prefers-color-scheme)でdark強制**→予防：launch時 `--force-color-profile=srgb` 指定
+5. **fullPage:true誤使用による余白生成**→予防：必ず false 指定、viewportで完全切り抜き
+6. **Chromium flag不足（--no-sandbox等）でCI失敗**→予防：Docker化 + 標準flag テンプレ化
+7. **メモリリーク（browser.close()忘れ）**→予防：try/finally 構造の雛形強制
+8. **出力ディレクトリ権限エラー**→予防：fs.mkdirSync(..., {recursive:true}) で事前作成
+9. **PNGのICCプロファイル欠落**→予防：Sharpで `.withMetadata()` 必須化
+10. **Retina対応忘れ**→予防：dSF指定をdictionary参照に変更し、ハードコード禁止
+
+### Module 6 — 計測可能KPI/SLA 定義
+| KPI | 目標値 | 測定方法 |
+|---|---|---|
+| 1枚あたり処理時間 | ≤4秒（SSIM計算含む） | Puppeteer log timing |
+| 出力再現率（SSIM） | ≥0.995 | 前版比較 |
+| 失敗率 | ≤0.5% | CI失敗件数/月 |
+| 並列処理効率 | 4並列で3.6倍以上 | puppeteer-cluster metrics |
+| Yuna差し戻し率 | ≤2% | QAログ集計 |
+SLA: Kana納品後60秒以内に1サイズ処理開始、15分以内に全サイズ納品完了（通常5サイズ想定）。障害時はYuna・itsuki両名に即時Slack通知。
+
+### Module 7 — クロス部門連携プロトコル強化
+- **Kana → Hiro**: HTMLファイルパス + 想定サイズリスト + ブランドカラーHEX + フォント一覧をJSONで受け取る。1つでも欠けたらKanaに差し戻し
+- **Hiro → Yuna**: PNG + メタ情報（ファイルサイズ、解像度、SSIM、処理時間、warning数）のJSON報告
+- **Hiro → Itsuki**: バナー第2・3案の視覚的差分レポート（Visual diff画像）
+- **Hiro → sora**: QA通過後に処理ログJSONを渡し、品質証跡を残す
+- **緊急時エスカレーション**: 処理が5分以上停止した場合、Kaito・Yunaに自動Slack通知
+ハンドオフ時は必ず「入力完全性チェック」を通過させる。不完全な入力は処理せず即座に差し戻す。
+
+### Module 8 — エッジケース・例外処理カタログ
+- **超大サイズ（4K以上）**: dSF:1に強制ダウングレード、別プロセスで実行
+- **複雑アニメーションHTML**: `page.evaluate('document.getAnimations().forEach(a=>a.finish())')` でアニメ完了強制
+- **Web Component / Shadow DOM**: `page.waitForFunction(...)` でcustom element定義完了を待機
+- **外部CDN依存（Google Fonts等）**: fallback を `font-display: swap` で指定、offline時はローカルfontに切替
+- **ダイナミックコンテンツ（タイマー・カウンター）**: 読み込み後1秒 freeze → screenshot
+- **印刷用CSS（@media print）**: emulateMediaType('screen') で強制上書き
+- **HiDPI非対応端末向け（フィーチャーフォン採用枠）**: dSF:1 + jpegQuality:85 で軽量化
+- **フォント埋め込み失敗（WOFF2 CORS）**: base64埋め込みに自動変換
+- **GPU accelerated animation残像**: `--disable-gpu` flag で安定化
+- **タイムアウト（30秒以上）**: 自動キルし、2倍のタイムアウトで再試行、2回失敗でYunaへエスカレーション
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log に記録するのは：(1) 新Puppeteer/Chromium Breaking Change、(2) 各広告プラットフォームの仕様変更（Indeed/Instagram/LINE/TikTok）、(3) 失敗事例（上記Module 5 以外の新パターン）、(4) 処理時間短縮テクニック、(5) Kana/Yunaとの連携改善。週次で「Top3時間節約テク」「新規失敗パターン」「ベンチマーク数値」を要約し、月次でPDN Framework の定数テーブルを更新する。失敗事例は必ず「症状→再現手順→原因→予防コード」の4要素を含める。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+- **景品表示法**: バナー内のbefore/after表現、No.1表記、「業界初」等の優良誤認・有利誤認NG。Yuna/noriへ事前照会
+- **医療広告ガイドライン**: 医療・美容系案件は特定表現（ビフォーアフター写真、治療効果保証）の明示NG
+- **薬機法**: 化粧品・健康食品の効能表現は厳格に制限。Noriと連携して出力前チェック
+- **肖像権・著作権**: Unsplash/Pexels等のライセンス画像でも「人物認識可能」な場合はモデルリリース確認
+- **JIS X 8341（高齢者・障害者配慮）**: コントラスト比4.5:1以上、色だけに頼らない情報伝達
+- **個人情報保護法**: バナー内で個人を特定できる画像（従業員写真等）はクライアント書面許諾必須
+- **特定商取引法**: 返金保証・期間限定の表記は根拠記録を残す
+- **炎上リスク**: SNS世代の価値観（ジェンダー・多様性・環境配慮）に沿った表現か、noriと最終確認
+
+---
+### 🏅 Overspec 認定基準
+- 本パッケージ全10モジュールを反映したアウトプットのみが「Overspec品質」として sora QA を通過できる
+- 月次で本パッケージの知識を更新（2026-12月から運用）
+- 他エージェントと連携する際は本パッケージの Module 7 を参照

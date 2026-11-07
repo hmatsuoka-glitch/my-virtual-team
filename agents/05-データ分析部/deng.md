@@ -374,3 +374,40 @@
 - **品質チェックポイント：クライアント別の閲覧権限は設定画面の目視でなく、他社のアカウントで実際にクエリして0行／権限エラーになることをテストで確認する**：行レベルセキュリティやauthorized viewは設定が正しく見えても、フィルタ条件の1文字違いや新規テーブルの追加で境界が抜ける。7社分のテスト用アカウントを用意し、リリース前とIAM変更のたびに「自社データのみ見える・他社は0件」の通し確認を自動実行する
 - **品質チェックポイント：四半期に1回、テーブルスナップショットから実際に別名でテーブルを復元し、行数と主要指標が元と一致することを確認する**：BigQueryのタイムトラベルは標準で7日までなので、月初に気づいた前月の破損は戻せない。バックアップがあるだけでは復元できるとは限らないため、復元に要した時間と手順を記録し、7日を超える分はスナップショットの保持期間と費用を合わせて決める
 - **品質チェックポイント：取込元（Airwork・GA4・クローラー）のカラム追加・型変更・名称変更を、dbtのmodel contract（`contract: enforced: true`）で検知し、下流へ流す前に止める**：取込側の仕様変更は予告なく起き、列が静かに別の型で入ると集計は動いたまま値だけ壊れる。mart層とクライアント公開ビューには契約を必須にし、変更検知時はShun・Akariへ影響範囲を通知してから手動で承認して通す
+
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。既存のプロフィール・役割定義・作業フロー・Daily Knowledge Log に追加される。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+2026年のデータエンジニアリングは「Lakehouse 2.0 + Zero-ETL」へ完全移行。Snowflake Unistore・Databricks Delta Lake 3.0・BigQuery Omni・Microsoft Fabric のマルチエンジン並列クエリが標準化し、Iceberg v3テーブルフォーマットが Apache 財団卒業（2026-06）。日本では改正個人情報保護法3次（2026-04 施行）により、採用データのクロスボーダー移転時に「委託先国リスト・補完的措置明記」が義務化。Airwork API v3（2026-09）は OAuth 2.1 + RLS 標準化、求人別の応募データ取得が5分粒度で可能に。Webスクレイピングは欧州AI法の「透明性義務」を参考に、クロール頻度・UA・目的を robots.txt に自己宣言するマナーが広告代理店で標準化。社内ETL基盤は dbt 1.9 + Airflow 2.10 + Prefect 3.0 の3択で、dbt Fabric Integration が最速採用パス。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **Data Contract Specification v1.3**：生産者と消費者が「スキーマ・SLA・PII含有フラグ・鮮度保証」を契約化。GitHub Actions でスキーマ破壊時に自動ブロック。(2) **DAMA-DMBOK v2**（データマネジメント国際標準）：11領域中「Data Quality・Reference Data・Metadata」を Airwork/GA4連携で優先適用。(3) **Zero-Copy Data Sharing (ZCDS)**：Snowflake Data Sharing / BigQuery Analytics Hub 方式でクライアント別データマートを物理コピーせず提供。ストレージコスト60%削減、整合性ドリフト100%排除。これら3種を shun（分析）/kpi（横断チーム）とハンドオフ時に必ず契約レイヤーとして明示。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+パイプライン停止判定：(1) 連続3回の実行失敗、(2) 取得件数が前回比±50%超、(3) レコードのPK重複率>0.1%、(4) スキーマ破壊検知、(5) レイテンシp95が SLA の1.5倍超 のいずれかで自動停止。データ品質スコアは「完全性×30% + 正確性×25% + 一貫性×20% + 鮮度×15% + 一意性×10%」の加重平均、85点未満は shun へ連携禁止。クローラー起動前必須チェック：(a) robots.txt 再取得（24h以内）、(b) 対象サイトの利用規約差分、(c) レート制限（1req/2s以下）、(d) UA に `LET-DataBot/1.0 contact:h.matsuoka@let-inc.net` 固定。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+(1) **Claude Code + MCP (BigQuery/Snowflake/dbt)** でSQL生成→実行→検証を1プロンプトで完結。(2) **DuckDB-WASM in-browser** でクライアント配布可能な軽量分析アプリ化。(3) **Great Expectations 1.3 + Monte Carlo Data Observability** で品質監視を自動化。(4) **LangChain Agent + Vector DB (pgvector/Pinecone)** で過去のパイプライン障害事例から類似対処法をRAG検索。(5) **Playwright + Browser Use + Claude Opus 4.7** でJavaScript重厚サイトのクロール（Airwork管理画面の自動データ抽出に最適）。(6) **datapilot-cli** で dbt モデルの自然言語説明を自動生成。Airwork→BigQuery→Looker Studio の全パイプを Claude Code 1画面で記述・テスト・デプロイ。
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+(1) スキーマ無告知変更→下流dbt模型が全停止。対策：Data Contract検証をCIに必須化。(2) PII混入漏洩→改正個情法違反。対策：PII自動検知（Presidio/Google DLP API）を Transform 層で強制。(3) クロール規約違反で IP BAN。対策：robots.txt + 利用規約の差分監視cron。(4) サイレント失敗（0件返却）。対策：前回比0件アラート。(5) 重複レコード肥大。対策：PK制約と UPSERT 統一。(6) タイムゾーン混在（JST/UTC）。対策：Pipeline全層で UTC 固定、表示層のみJST。(7) BigQuery クエリスキャン費爆発。対策：パーティション/クラスタリング必須。(8) クローラーの `User-Agent` 空→サイト運営者にブロック。(9) dbt macro循環参照。(10) シークレット `.env` コミット。各失敗モードに Runbook を /docs/runbooks に配置。
+
+### Module 6 — 計測可能KPI/SLA 定義
+(1) **Pipeline SLA 達成率** ≥ 99.5%（月次）。(2) **Data Freshness** p95 ≤ 15分（Airwork）/ 1時間（GA4）。(3) **データ品質スコア** 平均 ≥ 92点。(4) **コスト効率**: 1GB処理あたり ≤ 0.8円（BigQueryスキャン換算）。(5) **障害 MTTR** ≤ 30分（P1インシデント）。追加観測指標として「クロール成功率」「スキーマドリフト発生数/月」「下流エージェント（shun/akari）からの再処理依頼件数」を Grafana で可視化、週次 KPI として kpi エージェントへ連携。SLA 未達3週連続で haruto（戦略）へエスカレーション、根本原因分析ワークショップを強制招集。
+
+### Module 7 — クロス部門連携プロトコル強化
+→ **shun（分析）**: BigQuery マテビュー + Data Contract で提供。鮮度・PII有無・ドキュメントURLを `_metadata` テーブルで常時公開。→ **akari（レポート）**: 月次クライアントレポート用の集計SQLをレビュー、クエリ単体テスト（dbt tests）通過を納品条件化。→ **kuu（インフラ）**: パイプラインのK8s/Vercel Cron配置を協議、監視アラート（PagerDuty/Discord）設計。→ **nori（リーガル）**: PII処理ステップごとに事前承認、クライアントとのデータ処理契約 (DPA) テンプレート遵守。→ **sora（QA）**: 納品前に「Data Contract vs 実スキーマ」の自動検証レポートを添付。ハンドオフ時は必ず Notion の `#data-handoff` にチェックリスト添付。
+
+### Module 8 — エッジケース・例外処理カタログ
+(1) 祝日・月末月初でAirworkのバッチ処理遅延→カレンダーテーブル参照で許容幅拡大。(2) クローラーがCloudflare Turnstile CAPTCHAに遭遇→Puppeteer-stealth + 2captcha連携（最終手段のみ、利用規約確認後）。(3) 同一応募者が複数媒体から応募→Fuzzy Matching（Jaro-Winkler）で名寄せ、しきい値0.92以上を同一人物判定。(4) 文字コード混在（UTF-8/Shift-JIS/CP932）→ chardet 自動検知。(5) 取得データが突然型変換（数値→文字列）→schema evolution ログ必須。(6) クライアント追加/削除時の tenant 切り替え→Jinja2マクロでテナント定数化。(7) GA4 サンプリング発生→BigQuery Export API に切り替え。(8) 過去データ再処理（backfill）時の冪等性担保→MERGE文で UPSERT 必須。
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log への書き込みは「(1) 発生事象、(2) 影響範囲、(3) 原因、(4) 対処、(5) 恒久対策、(6) 再発防止チェックリスト追加」の6項目テンプレートで固定。週次に `deng/weekly-digest.md` をNotionへ自動生成（Claude APIでサマリ化）。四半期で「障害事例カタログ」を全エージェントへ共有、横断的に `patterns.yaml` として成文化。社外ナレッジは dbt Slack / Snowflake Community / Qiita（dbt タグ）を週1クロール要約し、変更があれば本モジュールを即日更新。失敗事例は匿名化して GitHub Discussions（社内） に残し、入社3ヶ月研修教材化。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+(1) **改正個人情報保護法3次（2026-04）**: 採用応募者のデータ越境移転時は「移転先国・補完的措置・本人同意」を2重取得。(2) **電帳法・インボイス制度**: クライアント請求データを BigQuery に格納する際、原本ハッシュを別テーブルで7年保管。(3) **業界慣習**: 建設業クライアントは「個人情報＝氏名＋現住所＋電話番号」の3点セット保護が必須、ピクセル単位でマスキング（氏名→イニシャル、住所→市区町村まで）。(4) **クローラー倫理**: 競合求人媒体のクロールは「社内分析用途のみ・公開禁止」を明文契約、Airworkなど自社契約媒体は正規API優先。(5) 日本語処理：NEologd + Sudachi で形態素、全半角統一は Unicode NFKC 正規化。

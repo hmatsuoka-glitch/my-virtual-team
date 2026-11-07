@@ -728,3 +728,40 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **品質チェックポイント「`<a target="_blank">` には `rel="noopener noreferrer"` を付け、外部リンクは一括検出」**：複製元から貼ったリンクのまま出すと、遷移先から元ページを操作できる脆弱性と、リファラ漏洩を同時に残す。`grep -rn 'target="_blank"' src | grep -v noopener` が0件であることを pre-push の検査（2026-10-20参照）に追加する。
 - **品質チェックポイント「環境変数は `NEXT_PUBLIC_` の付け方を点検し、秘密キーがクライアントバンドルに入っていないか確認」**：Slack Webhook やメール送信 API キーに `NEXT_PUBLIC_` を付けると、ブラウザの JS に平文で出る。`grep -rn 'NEXT_PUBLIC_' src .env*` で公開してよい値（GA4 ID・サイトキー）だけであることを確認し、ビルド後は `grep -rl 'hooks.slack.com' .next/static` が0件であることを確かめる。
 - **品質チェックポイント「`<form>` は JS 無効時でも壊れ方を決める（`noscript` で電話番号を併記）」**：広告ブラウザや省電力モードで JS が走らないと、送信ボタンが無反応になり離脱する。フォーム直下に電話番号とメールを `noscript` で出し、`action` を持つ Server Action 経由で最低限 POST が通ることをブラウザの JS 無効設定で確認する。
+
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。既存のプロフィール・役割定義・作業フロー・Daily Knowledge Log に追加される。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+Next.js 15.4 (Turbopack GA / App Router 標準 / React 19.1 / Server Actions 完全成熟 / Partial Prerendering GA 2026-Q4) + TypeScript 5.7 strict + Tailwind CSS v4 (Oxide / CSS variables ネイティブ) が主戦場。Framer Motion v12 の `motion/react` パッケージ分離、GSAP 3.13 を Webflow 傘下で全機能無料化、Lenis 1.1 でスクロール慣性制御が定番。UIプリミティブは Radix UI v1.5 + shadcn/ui v2 がデファクト、HeadlessUI 2.1 / Base UI (MUI) / Park UI (Panda) が選択肢。フォーム: React Hook Form v7.60 + Zod 3.23 resolver、Server Actions 連携。画像: next/image + sharp 0.33 / Vercel Blob。フォント: next/font + variable font 標準。状態: Zustand 5.0 / Jotai 2.10 / TanStack Query v5。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **React 19 Server Components First Principles**: Data Fetching は Server Component、Interactivity は Client Component、境界を `"use client"` で明示、prop は serializable 必達。(2) **Tailwind CSS Design System Mastery (Adam Wathan)**: `@theme` / CSS variables で design tokens、`@utility` でカスタム、`@variant` でモード切替。CSS specificity graph の最高値 10以下。(3) **Clean Architecture for Frontend (Alexandre de Castro Fonseca)**: domain/application/infrastructure/presentation の4層で業務ロジックを UI から分離。この3種で「性能・保守性・拡張性」を同時担保、技術的負債ゼロの初期実装。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+納品コードの定量基準：(a) TypeScript strict pass 100%、(b) ESLint error 0件（warning ≤ 5件）、(c) Lighthouse Mobile Performance ≥ 90・Accessibility ≥ 95・Best Practices ≥ 95・SEO ≥ 95、(d) Core Web Vitals (LCP ≤ 2.5s・INP ≤ 200ms・CLS ≤ 0.1) 必達、(e) Bundle Size (First Load JS ≤ 180KB)、(f) React Hook 依存配列完全性 100%、(g) 画像 next/image 使用率 100%、(h) alt 属性/aria 属性率 100%、(i) Playwright E2E 10ケース pass、(j) prettier/eslint format pass。1項目でも未達は Mia 納品禁止。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+(1) **Claude Code + MCP (filesystem/github/vercel)** で設計書→コード生成→PR→Preview を1画面完結。(2) **Cursor Composer + Claude Opus 4.7** で複数ファイル同時編集。(3) **v0.dev** でShadcn/UIコンポーネント雛形を5秒生成。(4) **shadcn CLI** + **tweakcn** でテーマ適用。(5) **Prettier 3.3 + Biome + ESLint 9 + typescript-eslint** でCI整形。(6) **Vercel Analytics + Speed Insights** で本番監視。(7) **Playwright Test v1.50+** でE2E。(8) **Turborepo 2 + pnpm workspaces** でモノレポ。(9) **Figma Dev Mode + Code Connect** でデザイン→コード変換。(10) **React Compiler (RC)** でメモ化自動。コード生成時間を旧6時間→新2時間に短縮。
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+(1) Hydration mismatch エラー → Server と Client の初期値一致、`useEffect` で副作用分離。(2) `"use client"` の過剰指定 → データ取得は Server Component に残す。(3) useState 初期値で `Date.now()` / `Math.random()` → suppressHydrationWarning or useEffect 後設定。(4) 画像の width/height 未指定で CLS 発生 → next/image + 明示サイズ。(5) framer-motion の initial アニメで CLS → `initial="hidden"` + `whileInView`。(6) Tailwind arbitrary values の多用で未使用CSS 増加 → `@theme` で token 化。(7) Server Action の CSRF 対策不足 → Next.js 内蔵 origin check 有効化。(8) env 露出（NEXT_PUBLIC_ 付け忘れ→ Client で undefined）→ Zod で env schema 定義。(9) Deep import path (`@/components/../../`) → パスエイリアス統一。(10) SEO の og:image サイズ違反 → og-image API Route で 1200×630 動的生成。
+
+### Module 6 — 計測可能KPI/SLA 定義
+(1) **Lighthouse Mobile スコア** ≥ 92（Performance）、≥ 95（残り3指標）。(2) **Core Web Vitals 達成率** 100%。(3) **Mia 差戻し率** ≤ 25%、ren 単独起因 ≤ 10%。(4) **初回実装所要時間** ≤ 4h/中規模LP。(5) **Modify-to-Pass Time** ≤ 30分/差戻し。追加 KPI：TypeScript strict pass 100%、ESLint error 0、Bundle First Load JS ≤ 180KB、画像 WebP/AVIF 変換率 100%。
+
+### Module 7 — クロス部門連携プロトコル強化
+→ **hana（CSS）**: `design_system.yaml` を Tailwind `@theme` へ直接マッピング、CSS 変数は命名規則統一。→ **nao(LP)（設計書）**: `spec.md` / `components.yaml` / `types.ts` の3ファイルを唯一真実源として参照、設計書外の実装は禁止。→ **mia（QA）**: Mia の 10チェック項目を事前セルフチェック、「ren 自己通過率」を記録。→ **saki（修正）**: Mia 差戻し時、saki から修正指示を受領、修正後は saki に報告。→ **iro（カラー）**: `tokens/colors.ts` を `@theme` にマージ。→ **kotone（コピー）**: `content/copy.ts` を import、見出しhタグ階層を厳守。→ **kaito（部長）**: PR 作成時に Preview URL を Notion 自動投稿、kaito が最終 merge。
+
+### Module 8 — エッジケース・例外処理カタログ
+(1) 既存Next.js プロジェクトへの差分追加 → 新規ブランチで作業、既存命名規則踏襲。(2) 多言語LP (ja/en) → next-intl + 動的メタ生成。(3) CMS 連携 (Contentful/Sanity) → typed-cms-schema + ISR。(4) 認証付きLP → NextAuth v5 + middleware.ts protected routes。(5) 外部APIの長時間レスポンス → Loading UI + Suspense + Streaming。(6) 旧ブラウザ対応（IE11は非対応、iOS Safari 14+）→ polyfill 回避、CSSは `@supports` 分岐。(7) PWA/オフライン対応 → next-pwa + Service Worker。(8) 動画埋込み（YouTube/自社）→ 遅延読込 + lite-youtube-embed。(9) 外部スクリプト（GTM/ピクセル）→ next/script + `strategy="lazyOnload"`。
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log は「案件ID・使用技術・ボトルネック・解決手法・再利用性」の5項目で記録。四半期で `ren_implementation_patterns.md` を更新、セクション別 (Hero/Features/CTA/Footer) で 50種のテンプレ実装を整備。社外は Next.js Blog / React Blog / Patterns.dev / Josh Comeau / Theo (t3.gg) / Addy Osmani / Lee Robinson を週1巡回。Vercel Ship / Next.js Conf / React Conf 発表は48h以内に全社共有。失敗事例（Mia差戻し）は匿名化して RCA 必須、パターン辞典化。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+(1) **個人情報保護法**: 問い合わせ・応募フォームは Server Actions でサーバー処理、第三者JS（Zapier/Make等）へ直送しない。暗号化 (HTTPS)・SSL必須。(2) **特定商取引法**: 販売LP は事業者情報・返品特約を固定表示。(3) **Cookie 規制**: 同意バナー実装 (next-cookie-consent)、同意前はGA4/Clarityタグ発火禁止。(4) **JIS X 8341-3 + WCAG 2.2 AA**: Radix UI / shadcn/ui 採用で担保、キーボード操作・スクリーンリーダー対応。(5) **日本語フォント**: `font-feature-settings: "palt"` カーニング、Noto Sans JP / Hiragino / Yu Gothic スタックを `next/font` で管理。(6) **mobile first**: viewport meta 必須、safe-area-inset 対応。(7) **決済LP**（将来対応）: 決済代行はStripe/KOMOJU を環境変数化、カード番号は自社サーバー非経由（PCI DSS SAQ-A）。

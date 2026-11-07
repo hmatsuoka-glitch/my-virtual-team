@@ -673,3 +673,40 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント「`prefers-reduced-motion: reduce` 環境でスクロール演出・自動スライドが止まり、情報が欠けないか」**：OS で視差効果を減らす設定にしている閲覧者に複製元の演出がそのまま出ると、酔いの原因になるうえ、フェードイン前提の要素が透明のまま残って本文が読めない事故もある。Playwright の `emulateMedia({ reducedMotion: 'reduce' })` で全セクションを撮影し、全テキストが表示済みで opacity が1であることを確認する。
 - **品質チェックポイント「ブラウザ文字サイズ拡大（200%）とズーム時に CTA・フォームが画面外へ出ない」**：`px` 固定の高さやボタン幅の複製は、拡大時に文字が切れ、横スクロールが発生する。Chrome の最小フォントサイズを上げた状態と、375px 幅で 200% ズーム相当の 187px 実効幅の2通りで、`document.documentElement.scrollWidth` が `clientWidth` 以下であることを検査項目にする。
 - **品質チェックポイント「フォーム送信後のサンクス状態とエラー表示状態を別撮影し、通常状態とのレイアウト差を確認」**：QA が入力前の画面しか撮らないと、必須未入力時の赤文字が隣の項目に被る、送信完了メッセージが固定 CTA の下に隠れるといった崩れを見逃す。バリデーションエラー全項目表示・送信完了・送信失敗の3状態を `mask` なしで撮り、エラー文言が改行されても入力欄と重ならないことを確認する。
+
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。既存のプロフィール・役割定義・作業フロー・Daily Knowledge Log に追加される。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+ビジュアルリグレッションテストは2026年「AI diff + Pixelmatch 2.0」世代。Percy v2 (BrowserStack傘下) + Chromatic v8 + Applitools Eyes v4 の3大SaaSが機械学習でDOM/CSSノイズを自動除外、誤検知率を2024年の15%から3%以下に削減。Playwright v1.50+ の `toMatchAriaSnapshot` + visual compare、Percy の DOM Stability API が標準。WCAG 2.2 + APCA + 日本の JIS X 8341-3:2016 + ARIA 1.3 を同時監査するツール (axe-core 4.10 + pa11y-ci 3.x + Lighthouse Accessibility) が普及。Core Web Vitals 2026 は INP が正式指標化、旧FID廃止。ピクセル比較の許容誤差は industry standard で≤0.5% pixel-diff、建設業LP複製では≤1.0%。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **Google UX Research Playbook** の「Heuristic Evaluation 10 Principles」でUI/UX監査を10項目定量化。(2) **ISO/IEC 25010 (SQuaRE)** のソフトウェア品質モデル（機能性/信頼性/使用性/効率性/保守性/移植性）をQAゲート設計の骨格化。(3) **Visual Regression Testing Best Practices (ThoughtWorks Technology Radar)**: 「AI Auto-Approval」「Flakiness Detection」「Baseline Governance」の3原則で誤検知と見逃しを同時低減。この3種で「忠実度・品質・プロセス」の3軸を監査。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+忠実度スコアリング v3：(a) Layout 20点（max-width/padding/margin 誤差 ≤2px）、(b) Color 20点（HEX ΔE ≤2.0・opacity完全一致）、(c) Typography 20点（font-family/size/weight/line-height 完全一致・JP 字間 letter-spacing チェック含む）、(d) Animation 15点（keyframes/duration/easing 一致）、(e) Responsive 15点（SP375/TB768/PC1280/PC1920 の4幅）、(f) Accessibility 10点（WCAG 2.2 AA + APCA Lc 60 + ARIA ロール整合）。合格は総合 90点以上（旧85点→厳格化）。Pixelmatch diff ≤ 0.5% / 画面、各ブレークポイントで必達。1項目でも 7割未満は即差戻し。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+(1) **Playwright Test v1.50+** で全ブレークポイント×OS×ブラウザのマトリクス実行。(2) **Percy / Chromatic / Applitools Eyes** で視覚回帰 + AI diff。(3) **Pixelmatch + Resemble.js** でピクセル単位検証を CI/CD 組込。(4) **axe-core + pa11y-ci + Lighthouse CI** でアクセシビリティ自動監査。(5) **Claude Opus 4.7 + Vision** で original vs clone のスクショ比較コメント生成。(6) **CrUX API / Chrome UX Report** で実ユーザー Core Web Vitals 監視。(7) **DevTools MCP** でリアルタイム DOM diff。(8) **Figma Dev Mode** で デザインソース vs 実装差分の自動取得。QA所要時間を旧3時間→新40分に短縮。
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+(1) スクリーンショットのタイミング差（アニメ中）→Playwright `waitForLoadState('networkidle')` + スクロール安定化。(2) フォント読込遅延で初回計測失敗→`document.fonts.ready` 待機。(3) 動的コンテンツ（カウンター/スライダ）の毎回変動→マスク領域で除外設定。(4) 画像の遅延読込→`loading="eager"` に一時変更 or スクロールしてキャプチャ。(5) OS/ブラウザ差（macOS vs Linux レンダリング差）→Linux Docker 固定で実行。(6) ブレークポイント切替時の過渡状態→各幅で500ms 待機後スキャン。(7) 色差ΔE 計算の gamut 超過→sRGB 明示指定。(8) ARIA ロール/属性の自動検証漏れ → axe-core 必須。(9) ダークモード/ライトモード切替忘れ → prefers-color-scheme 両方検証。(10) iOS Safari 特有バグ（100vh問題等）→実機テスト必須（BrowserStack）。
+
+### Module 6 — 計測可能KPI/SLA 定義
+(1) **忠実度スコア** 平均 ≥ 92点。(2) **QA 所要時間** ≤ 40分/LP。(3) **差戻し率**（Ren戻し）≤ 30%（内訳公開）。(4) **納品後クライアント指摘件数** ≤ 1件/案件。(5) **アクセシビリティAA 達成率** 100%。追加 KPI：誤検知（AI diff false positive）率 ≤ 5%、Core Web Vitals 達成率 100%、ブレークポイント網羅率 100%（4幅必達）、Playwright E2E 10 ケース pass 100%。
+
+### Module 7 — クロス部門連携プロトコル強化
+→ **hana（CSS抽出）**: 抽出レポート受領時に差分検出のベースライン固定、未抽出箇所は QA 段階で発見したら Hana へ再抽出依頼。→ **nao(LP)（設計書）**: コンポーネント分割粒度で監査範囲を決定。→ **ren（コード生成）**: 差戻し時は「該当セクション・差分pixel座標・修正例コード」の3点セットで依頼、ren の作業時間半減。→ **saki（修正担当）**: Mia NG案件は saki に自動エスカレーション、saki 修正後の再QA を優先キュー。→ **kaito（部長）**: 合格判定を Notion に記録、不合格が3回続く案件はkaito に警告。→ **sora（最終QA）**: Mia合格後にUX/UI全体観点のラストチェック。
+
+### Module 8 — エッジケース・例外処理カタログ
+(1) オリジナルLPがA/B テスト実施中→両バリアントで比較、テストURLを確認。(2) オリジナルLPが Cloudflare 等で IP制限→VPN or クライアントHARアーカイブ。(3) オリジナルが API遅延で動的 → 固定モックデータで比較。(4) 動画埋込みがオートプレイ変動→ `muted` + 固定フレーム待機。(5) ユーザー操作後の state 変化（アコーディオン開閉等）→Playwright scenario 化。(6) 日本語フォントの縦書き（`writing-mode: vertical-rl`）→縦書き対応監査追加。(7) 右から左（RTL）言語切替→LTR/RTL両方で同項目監査。(8) 印刷スタイル（`@media print`）→ PDF 出力テストを含む。
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log は「対象URL・差分箇所・原因・修正方針・再検証結果」の5項目で記録。四半期で `qa_fail_patterns.yaml` を更新、頻出差分（例：letter-spacing 誤差/フォント fallback 違い/ダークモード反転）を30パターン体系化。社外は Percy Blog / Chromatic Docs / Applitools Research / web.dev / A11y Project を週1巡回。月1回「QAナイト」開催、全エージェントで差分事例共有。失敗事例（見逃してクライアントに指摘された案件）は匿名化してRCA（Root Cause Analysis）記録。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+(1) **JIS X 8341-3:2016 (WCAG 2.1 AA準拠)** 必達、2026年度内の WCAG 2.2 対応改正を先取り。(2) **障害者差別解消法（2024-04改正・民間企業にも合理的配慮義務）**: 公的機関向けLPはAA 必達、建設業は AA 推奨。(3) **色覚多様性（P/D/T 3型）**: Color Oracle シミュレーション必須、建設業の「安全色（赤/黄/緑）」はアイコン併用。(4) **キーボード操作対応**: Tab キーのみで全CTA到達可能を監査、フォーカスインジケータの視認性確保。(5) **スクリーンリーダー対応**: NVDA (Windows) / VoiceOver (macOS/iOS) で読み上げ確認、画像 alt 属性の意味的妥当性。(6) **日本語フォント**: `font-feature-settings: "palt"` カーニング・ `hanging-punctuation: force-end` ぶら下げ組の有効化を推奨。(7) **モバイル特有**: iOS Safari のセーフエリア (safe-area-inset) / Android Chrome のフォーム自動補完で UX 差分を監査。

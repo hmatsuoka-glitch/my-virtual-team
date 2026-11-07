@@ -493,3 +493,40 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **品質チェックポイント「本番の環境変数を Preview と突合し、未設定キーを昇格前に0件にする」**：フォーム送信先・GA4 測定 ID・reCAPTCHA キーが Production にだけ未登録だと、Preview では動くのに本番で送信が無言で失敗する。`vercel env ls production` と `vercel env ls preview` のキー名を `diff` し、差分が意図したものだけ（例：測定 ID の本番専用値）であることを preflight.sh（2026-10-20参照）の項目に加え、本番のダミー送信で通知メールの到達まで確認する。
 - **品質チェックポイント「`robots.txt` の本番側 Disallow が Preview 用設定のまま残っていないか」**：Preview 用に `Disallow: /` を返す分岐を入れた案件で、環境判定の変数が本番に渡っておらず本番も全拒否になる事故がある。昇格後に `curl -s https://本番ドメイン/robots.txt` で `Disallow: /` が含まれず `Sitemap:` 行が本番ドメインであることを確認し、200 応答の `x-robots-tag` ヘッダに noindex が付いていないこともあわせて `curl -sI` で見る。
 - **品質チェックポイント「独自ドメイン切替時は www あり・なし両方の 308 リダイレクトと証明書発行を `curl -sI` で確認」**：片方のみ登録すると、名刺や媒体に載った別表記の URL が証明書エラーか 404 になる。`vercel domains inspect` で両表記が Valid Configuration であり、非正規側が正規側へ 308 で飛ぶこと、TLS の有効期限が30日以上あることを納品チェックシートに記録する。
+
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。既存のプロフィール・役割定義・作業フロー・Daily Knowledge Log に追加される。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+LP複製・制作統括は「Next.js 15.4 + React 19.1 + Tailwind CSS v4 + Vercel」が2026年の標準スタック。Vercel は2026-10に Fluid Compute 完全切替、Cold Start実質ゼロ、グローバルエッジ展開のレイテンシ p95 ≤ 80ms。Vercel Analytics v3 + Speed Insights + Web Vitals 2026 (INP正式化) でCWVを継続監視。Lighthouse 12.0 + PageSpeed Insights で LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 を全ページで必達。Figma Dev Mode + Code Connect で Figma→Next.js 直結、v0.dev + Cursor + Claude Code が3大コード生成パートナー。CI/CD は Vercel Preview Deployment + Percy / Chromatic での視覚回帰テスト。LP複製案件の2026年単価レンジは中小規模12-30万円、大規模50-200万円。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **GitHub Flow + Trunk Based Development**: 1 LP = 1 PR、main直接マージ、Preview Deploy をクライアントレビュー用URLとして活用。(2) **Google HEART Framework (Happiness/Engagement/Adoption/Retention/Task Success)**: 複製LPのクオリティを5軸で定量化。(3) **DORA 4 Metrics** (Deployment Frequency/Lead Time for Changes/Change Failure Rate/MTTR) をLP複製部署全体の生産性指標化。この3種で「速度×品質」を可視化。さらに **Shape Up (Basecamp)**のBetting Table的な週次優先順位決定を kaito が主導。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+複製案件の受入判定：(a) 対象URLがHTTPS/robots.txt遵守可能、(b) 対象サイトの技術スタック解析済み、(c) 用途・再公開範囲がnoriのリーガル承認済み、(d) クライアント所有権 or 許諾の文書あり、の4条件で GO 判定。進行中の各STEP完了判定は全項目チェックリスト100%通過、1項目でも未達は差戻し。Vercelデプロイ前の必須チェック：ビルド成功、TypeScript strict通過、Lighthouse Mobile スコア ≥ 90、Core Web Vitals 3指標必達、Playwright E2E 10テストケース pass、画像 LCP≤2.5s、CLS≤0.1。1項目でも未達はデプロイ保留。Mia QA の差戻しが2回以上続いたら kaito が直接原因分析し saki を介入。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+(1) **Claude Code + MCP (github/vercel/filesystem)** で PR作成・Preview確認・Production デプロイを1画面完結。(2) **v0.dev** でコンポーネント雛形を5秒生成。(3) **Cursor + Composer** でマルチファイル編集。(4) **Figma Make** でデザイン→コード変換。(5) **Vercel AI SDK** で LLM 機能付きLPを量産可能。(6) **Percy / Chromatic** で視覚回帰テスト自動化。(7) **Playwright Test + Playwright Trace** でE2E + リプレイ。(8) **WebPageTest API + Calibre** でパフォーマンス CI/CD 統合。(9) **Vercel Monitoring + Observability** でProd監視。LP複製の平均リードタイムを旧5営業日→新2営業日に短縮。
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+(1) 対象サイトがJavaScript heavy SPA でHana抽出が完全でない → Playwright レンダリング済み HTML から再抽出指示。(2) クライアント所有権未確認で複製→nori 承認証跡をPRに添付。(3) Vercel 無料枠超過でデプロイ失敗→事前にチームプランへアップグレード、環境変数で `VERCEL_PROJECT` 指定。(4) 画像が元サイト直リンクで著作権リスク→必ず差替え。(5) フォント差分でレイアウト崩れ→subset処理 + font-display: swap。(6) iOS Safari のスクロールバウンス差→実機テスト必須。(7) GTM/GA4 タグの誤移植→クライアント側から新規払い出し。(8) 独自ドメイン移管時のDNS伝播待ち→72h許容を事前合意。(9) 多言語切替の hreflang 漏れ → next-intl / next-i18next で対応。(10) PR上のビルドログに secret 露出 → `vercel env pull` + GitHub Secrets 徹底。
+
+### Module 6 — 計測可能KPI/SLA 定義
+(1) **複製忠実度スコア**（Mia 評価平均）≥ 95点。(2) **納期遵守率** 100%（新規は2営業日・修正は半営業日）。(3) **Core Web Vitals 達成率** 100%（LCP/INP/CLS 3指標）。(4) **Change Failure Rate** ≤ 5%（デプロイ後 24h以内の緊急修正発生率）。(5) **MTTR** ≤ 30分（本番障害の平均復旧時間）。追加 KPI：Lighthouse Mobile スコア ≥ 92、Playwright E2E通過率 100%、クライアント承認までの修正往復 ≤ 2回、デプロイ頻度 ≥ 3件/週（部署単位）。
+
+### Module 7 — クロス部門連携プロトコル強化
+→ **HARU（CEO）**: 案件受付時に要件・クライアント・公開範囲・納期をチェックリスト化、noriへ即連携。→ **nori（リーガル）**: 複製案件受付時に必ず事前関所、文字改変レベル・画像/文章権利・競合類似性の3観点でGO/NO-GO。→ **hana/nao/ren/mia/saki**: STEP単位で進捗 Notion 板更新、ボトルネック可視化。→ **sota（独自デザイン）**: 複製と並行して独自デザイン提案が必要な場合に協働。→ **shun（分析）**: デプロイ後の CV・CWV 継続モニタリングを週次連携。→ **sora（最終QA）**: 完成LP + デプロイURL + Vercel Preview + CWV レポートを Notion に添付。
+
+### Module 8 — エッジケース・例外処理カタログ
+(1) 対象サイトがCDN経由で Bot ブロック → VPN/固定IP経由 or クライアントから HAR アーカイブ受領。(2) Vercel以外のホスティング（Cloudflare Pages/Netlify）指定 → 対応、ただし kuu（インフラ）に相談。(3) 対象サイトの構造が WordPress/Elementor → 専用パーサで抽出、Next.js 変換テンプレを使用。(4) 大規模LP（10+ セクション × 複数言語）→ 工程を Hana→Nao→Ren→Mia の並列バッチ処理化、kaito の直接進捗管理。(5) 対象サイトのJS動的コンテンツ（カウンター/カウントダウン）→ 動作仕様を Playwright で記録して再現。(6) クライアント側で Framer/Studio 等のノーコードから Next.js 移行希望→新規制作フローに切替。
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log は「案件ID・対象URL・課題・解決策・所要時間・満足度」の6項目で記録。四半期で `lp_duplication_patterns.md` を更新、技術スタック別（Next.js/Astro/Framer/WordPress）に20種のベストプラクティスを文書化。社外は Next.js Blog / Vercel Changelog / React RFC / Chrome Status / Web.dev を週1巡回。月1回「失敗事例共有会」を LP部全員で開催、他案件への類似リスク予防。年1回「Vercel Ship / Next.js Conf」のキーノート社内解説会。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+(1) **著作権法**: 複製元サイトのテキスト/画像/動画/フォント全ての許諾を文書化、クライアント所有物以外は必ず差替え。(2) **不正競争防止法**: 形態模倣（商品形態3年）に該当しないよう、Mia QA で「文字・ロゴ・固有識別子」の3点差替えを必達。(3) **景表法/薬機法**: 複製LPに含まれる訴求文言（「No.1」「業界最速」など）は nori 事前チェック、医療系は薬機法審査。(4) **特定商取引法**: 販売LPの場合、販売事業者・住所・連絡先・返品特約の表記義務。(5) **個人情報保護法**: 問い合わせフォームは SSL・暗号化・プライバシーポリシー・同意チェックボックス必須。(6) **Cookie規制**: Cookie 同意バナー（GDPR風）を全LPに実装、GA4/Clarityタグは同意後発火。(7) **アクセシビリティ**: JIS X 8341-3:2016 準拠、建設業は2025-06改正障害者差別解消法で合理的配慮義務化、公的機関向けLPは AA 必達。

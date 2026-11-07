@@ -848,3 +848,40 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント：`<a href>`を全件列挙し、`tel:`・`mailto:`・ページ内アンカー・外部リンクを種別に分けて、リンク先の番号・アドレス・遷移先と`target`・`rel`を記録する**：電話番号とリンクの`tel:`が一致しない、アンカーIDが実装側で変わって飛ばない、外部リンクの`rel=noopener`が抜けているといった不具合は、見た目の確認では出ない。仕様書の最後にリンク一覧を1表で渡し、Miaが全件クリックして照合できる形にする
 - **品質チェックポイント：`display:none`や`.sr-only`の読み上げ専用テキスト、`alt`・`aria-label`・`title`属性、`<title>`・`meta description`・OGP・JSON-LDの構造化データも抽出対象に含める**：見えないテキストは画面を見ても気づけず、実装で落ちると検索結果の見出しやSNS共有時の表示、スクリーンリーダー対応が欠ける。JavaScript実行後のDOMとview-sourceの両方を取り、差分があれば後者を元の宣言として記録する
 - **品質チェックポイント：複製元の画像・フォント・動画・文言のうち、他社名の入った写真・ストック素材（透かし付き）・人物写真は仕様書に「流用不可」ラベルを付け、代替素材の要件を併記する**：複製は構造の再現が目的で、他社の社員写真や有料素材をそのまま実装側へ持ち込むと権利侵害になる。画像の取得元の記載（ストックサイト名・撮影者表記）があれば記録し、フォントのライセンス判定表（2026-09-01参照）と同じ列で流用可否を管理する
+
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。既存のプロフィール・役割定義・作業フロー・Daily Knowledge Log に追加される。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+CSS 2026年は「Nesting ネイティブ対応完了（Baseline 2024-04）」「@scope 正式仕様化」「Container Queries 全ブラウザ対応（Baseline 2023）」「View Transitions API Level 2 (2026-Q3)」「Color Function Level 4（oklch/color-mix 標準）」「Subgrid 全対応」「CSS Anchor Positioning（Chrome 125+、Safari 18）」「CSS Scroll-Driven Animations」が標準武装。Tailwind CSS v4.0 (2025-01) で Oxide エンジン・CSS native variables 化が完了、Next.js 15.4 + React 19 + App Router が主戦場。Framer Motion v12 (2026-Q2) で `motion/react` パッケージ分離、GSAP 3.13 で ScrollTrigger の free化（2024-08 Webflow 買収後）。CSS解析ツールは `css-tree` v3 + `postcss` 9 系が主流、AI補助は `tailwind-analyzer-ai`（Claude連携）で class 推論精度95%超。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **ITCSS（Inverted Triangle CSS）+ BEM**：Settings → Tools → Generic → Elements → Objects → Components → Utilities の7層でCSS構造を分解、抽出時にこの7層へマッピング。(2) **Design Token Platform (W3C DTCG) 準拠**：Figma/Zeplin/Tokens Studio の JSON 仕様（`@tokens-studio/sd-transforms`）で色・タイポ・スペーシングを抽出・変換・再出力。(3) **CSS Audit Framework (Projekt202)**：Specificity Graph・Selector Lint・Unused Rules 検出を7指標で定量化、`wallace-cli` + `project-wallace` で可視化。この3体系で抽出 → 再現 → 監査のループを自動化し、見落とし0を担保。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+抽出完了判定の定量基準：(a) カラー抽出完全率（元HTMLに現れる全色の検出率）≥ 99%、(b) フォントファミリ検出漏れ 0、(c) ブレークポイント検出漏れ 0、(d) アニメーション・トランジション抽出率 ≥ 95%、(e) Specificity Graph の最高値再現 ±10%以内、(f) インラインスタイル検出率 100%、(g) :hover/:focus/:active の擬似クラス検出率 ≥ 95%、(h) CSS変数の検出率 100%、(i) メディアクエリ内のスタイル抽出率 ≥ 98%、(j) Shadow DOM 存在時の検出完了。1項目でも未達は Nao / Ren へ引き渡し禁止、再抽出。Clamp()・min/max() の動的値は必ず「数式 + 代表値3点（320px/768px/1440px）」セットで記録。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+(1) **Playwright + Chromium headless** でページ全層をレンダリングして getComputedStyle を取得（CSS-in-JS/dynamic style にも対応）。(2) **css-tree v3 / postcss / stylelint 16** で AST ベース解析。(3) **Claude Code + MCP (filesystem/github)** で抽出結果を Markdown 仕様書に変換。(4) **Figma Dev Mode + Code Connect** で既存Figma仕様の逆抽出。(5) **wallace-cli / project-wallace / cssstats.com** で定量監査。(6) **chrome-devtools-mcp**（新興MCP） でライブインスペクト。(7) **@puppeteer/replay** でスクロール等のイベント経由スタイル変化を記録。(8) **GPT-5 Computer Use / Claude Computer Use** で SPA の動的 state 遷移後CSSを抽出。CSS抽出時間を旧6時間→新1.5時間に短縮。
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+(1) CSS-in-JS（styled-components/emotion）の class ハッシュ化で抽出漏れ → computed style ベースで抽出。(2) ダークモード/ライトモード切替で色2倍の未検出 → prefers-color-scheme の両方で抽出実行。(3) Container Queries 内のスタイル未抽出 → `@container` クエリの検出パス追加。(4) Shadow DOM 内CSSの検出漏れ → Playwright 内 `document.querySelectorAll('*').map(el => el.shadowRoot)` で再帰取得。(5) Web Components のカスタム要素 CSS → `::part` セレクタも抽出。(6) 動的追加のインラインスタイル（scroll時変動）→イベント発火後の再スキャン。(7) `@supports`/`@media (hover: hover)` 条件付きスタイル → 全条件分岐を網羅取得。(8) フォント fallback の優先順位誤認 → font-family の全スタック + 実際のレンダリング名を記録。(9) 色定義の重複（HEX/RGBA/HSL/oklch）→ 正規化統一。(10) アニメーション keyframes の @scope 違い。
+
+### Module 6 — 計測可能KPI/SLA 定義
+(1) **CSS抽出完全性スコア** ≥ 99%（上記10項目の加重平均）。(2) **抽出時間** ≤ 90分/標準LP、≤ 180分/大規模LP。(3) **Nao/Ren への差戻し率** ≤ 5%（抽出漏れ起因）。(4) **Mia 忠実度チェック通過率** ≥ 95%（CSS起因の NG 比率）。(5) **抽出レポートの機械可読率** 100%（YAML/JSON で全項目構造化）。追加 KPI：抽出レポートの文字数（≥3000字）、エビデンス（スクショ）添付数（≥10枚）、色テスト（カラコン・色覚多様性）実施率 100%。
+
+### Module 7 — クロス部門連携プロトコル強化
+→ **kaito（部長）**: 抽出開始時にSTEP 1-8の進捗を30分単位で Notion 進捗板に投稿、ボトルネック即時報告。→ **nao(LP)（設計書）**: 抽出レポートを `design_system.yaml`（Design Token 準拠）形式で納品、Nao は即座に設計書構造へ変換可能。→ **ren（コード生成）**: CSS Variables 命名規則を `--{category}-{role}-{variant}` で統一、ren は変数代入のみで実装可能。→ **sota（独自LP）**: 参考LPのCSS抽出を担当、独自LPの設計要素として提供。→ **iro（ブランドカラー）**: ロゴ由来カラーと抽出カラーの整合チェック時に協働。→ **mia（QA）**: 抽出時の各STEP終了時に `self_check.md` を Mia へ事前共有、差戻しリスクを事前排除。
+
+### Module 8 — エッジケース・例外処理カタログ
+(1) 対象サイトが Cloudflare/Vercel Edge Functions で User-Agent 判定分岐 → 複数 UA（iOS/Android/PC Chrome/Firefox）で抽出。(2) スクロール位置依存のスティッキーヘッダースタイル → scroll イベントを 10段階発火し各断面で抽出。(3) A/Bテストツール（Optimizely/VWO）由来のスタイル → テストバリアント全パターンを抽出。(4) CDN経由 CSS で minify済み + source map なし → source map 復元不可時はフォーマッタ + 命名推論。(5) Tailwind arbitrary values （`w-[123px]`）の多用 → class→style の正規化テーブル生成。(6) 多言語切替時のRTLスタイル（`[dir=rtl]`）→ LTR/RTL両方で抽出。(7) 広告 iframe 由来CSSの誤混入 → 対象ドメインでフィルタリング。
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log は「対象URL・抽出課題・解決手法・再現コード」の4項目で記録。四半期で `css_extraction_patterns.yaml` を更新、よく出る CSS パターン（Hero Section/Features/Testimonials 等）を 50種のテンプレ辞書化。社外は web.dev / CSS-Tricks / Smashing Magazine / MDN / Chrome for Developers を週1巡回。年1回「CSS最新仕様勉強会」を社内開催、新興API（Anchor Positioning・View Transition など）の実装例を共有。失敗事例は匿名化して GitHub Issues に蓄積。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+(1) **著作権法 30条の4（情報解析目的）**：公開ウェブサイトの CSS 抽出・解析は情報解析目的で合法（2019-01改正）、ただし抽出結果のそのままの商用再配布は不可。(2) **不正競争防止法**：デザイン模倣は「形態模倣（3年以内かつデッドコピー）」に該当しないよう、Mia の忠実度 QA で「文字・画像・固有識別子は必ずクライアント側で差替え」を徹底。(3) **フォント ライセンス**：Adobe Fonts/Google Fonts/MORISAWA Pass など利用規約遵守、商用利用可否をフォントごとに台帳化。(4) **色覚多様性**: WCAG 2.2 AA + 日本の JIS X 8341-3 を同時満たすようパレット設計。(5) **日本語フォント特有**: 和文フォントの line-height は欧文の 1.5〜1.8倍、`font-feature-settings: "palt"` でカーニングを必ず検証。

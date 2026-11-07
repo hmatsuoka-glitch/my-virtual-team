@@ -314,3 +314,45 @@
 - **品質チェックポイント：レビュー済みの成果物は、提出時のファイル名・版・ハッシュ（または更新日時）を review.json に記録し、承認後に内容が変わっていないかを納品直前に照合する**：承認後にクライアント対応で1文字だけ直した修正が、QAを通らないまま本番へ出る事故がある。照合で不一致が出たら差分限定モードで再確認し、確認範囲を判定に明記する。
 - **品質チェックポイント：求人原稿の給与・休日・勤務時間の数値は、求人票・LP・SNS投稿・媒体掲載の4か所で一致しているかを横並びの表で確認する**：同じクライアントでも、媒体ごとに更新時期が異なり、月給の下限が数千円ずれたまま公開されていることが多い。ずれが見つかった場合は、正とする情報源をクライアントに確認し、確認が取れるまで公開を保留とする。
 - **品質チェックポイント：画像・動画に含まれる文字（バナーの訴求文、テロップ内の電話番号・URL）は、テキストの校正対象から漏れやすいため、画像内の文字だけを別に書き起こして照合する**：本文の校正が済んでいても、画像内の電話番号の1桁違いや旧社名が残ることがある。書き起こしを原稿と並べ、QRコードは実機で読み取って遷移先まで確認する。
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+2026年のQAは「Shift-Left Testing」（開発初期段階からの品質作り込み）＋「Shift-Right Testing」（本番運用後のフィードバックループ）の両輪が標準。生成AIコードアシスタント（Claude Code / Copilot）時代は「AI生成コードの品質監査」が新たなQA領域となり、Prompt Engineering 品質・Hallucination 検知・コード重複率が新指標に。Contract Testing（Pact/Spring Cloud Contract）でマイクロサービス間のインタフェース品質を自動担保、Integration Test の脆弱性を解消。Property-Based Testing（Hypothesis/fast-check/QuickCheck）の採用で Edge Case の発見率が5倍に。Observability Driven Development（ODD）でテスト困難な分散システムの品質を本番で監視。横断QAの対象はコード・ドキュメント・デザイン・プロセス全てに広がり、「Content Quality Score」「Consistency Score」「Accessibility Score」の多指標評価が主流化。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **ISO/IEC 25010:2023 (SQuaRE)**: Functional Suitability/Performance Efficiency/Compatibility/Usability/Reliability/Security/Maintainability/Portability の8品質特性で網羅評価。(2) **ISTQB Testing Pyramid**: Unit/Integration/E2E の3層ピラミッド、70/20/10 の比率目安。(3) **Test Automation Pyramid (Cohn)**: UI/API/Unit の自動化レイヤー戦略。(4) **Risk-Based Testing (RBT)**: ビジネスリスク×技術リスクの2軸で重点テスト決定。(5) **Behavior-Driven Development (BDD) with Gherkin**: Given-When-Then の自然言語テストで業務との認識統一。(6) **Quality Gates (SonarQube/CodeClimate)**: 自動品質ゲートで Pull Request 時点で合格基準。(7) **DORA DevOps Metrics**: Deployment Frequency/Lead Time/MTTR/Change Fail Rate。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+Approval 判定は「①Completeness（完全性）≥90%②Accuracy（正確性）≥95%③Consistency（整合性）≥90%④Feasibility（実現可能性）≥85%⑤Format Compliance（形式準拠）=100%」の5指標、全てパスで approved=true。品質スコアは「①基礎品質50点＋②特定品質30点＋③説明品質20点」の100点制、excellent≥85/good≥70/needs_work≥50/critical<50。重大度判定は「①影響範囲（単一案件/複数案件/全社）②金銭インパクト③法的リスク④クライアント信頼リスク」の4軸で high/medium/low。差し戻し条件は「critical 1件以上 or high 3件以上 or 必須項目欠落」で即差戻し。全判定ロジックを Notion テンプレ化・formula化、属人性排除。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+(1) **SonarQube + Claude MCP**: コード品質・セキュリティ・テストカバレッジの自動QA。(2) **CodeClimate / DeepSource**: PR単位の品質ゲート。(3) **Playwright + Claude Code**: E2Eテスト自動生成、Visual Regression Test。(4) **Pact + Postman**: Contract Testing、API品質保証。(5) **Hypothesis / fast-check**: Property-Based Testing。(6) **Great Expectations / dbt tests**: データ品質テスト。(7) **Lighthouse + Pa11y**: Web Accessibility・Performance 自動チェック。(8) **anthropic-skills:code-review**: 静的解析＋AIレビュー。(9) **Grammarly + Claude**: 日本語テキスト品質（表記ゆれ・敬語・冗長性）。(10) **Notion AI Database**: QA レビュー履歴・類似事例の一元管理。これらで QA所要時間を平均5時間→1時間に短縮しつつ、品質スコアを向上。
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+(1) スキーマ検証不備（JSON Schema 未定義）→ 全エージェント output.json に Schema 定義必須。(2) クロスエージェント矛盾見落とし→ Semantic Diff＋相互参照チェック。(3) 回帰テスト不足→ 過去NG事例を回帰テストスイート化。(4) Edge Case 未検証→ Property-Based Testing／Boundary Value Analysis。(5) 偽陽性（False Positive）でアラート疲れ→ ML異常検知＋閾値学習。(6) QA担当の属人判定ブレ→ 全判定ルールの明文化・テンプレ化。(7) 本番データでのテスト（事故リスク）→ 環境分離（dev/stg/prd）必須。(8) テスト時間長大化→ 並列実行・Impact Analysis による選択実行。(9) QAゲート透明性不足（なぜ差戻か不明）→ Feedback Rich な差戻レポート。(10) 修正後の再発（Root Cause 未解決）→ Post-Mortem と Fishbone Diagram。
+
+### Module 6 — 計測可能KPI/SLA 定義
+(1) **QAレビュー所要時間**: SLA=通常60分以内、複雑案件180分以内。(2) **差戻後の再発率**: 5%以下、SLA=10%。(3) **QA見逃し率**: sora QA後の修正発生率1%以下、SLA=3%。(4) **スキーマ準拠率**: 全エージェント output.json の100%、SLA=98%。(5) **品質スコア向上率**: 四半期で平均+5点、SLA=+3点。これらを KPI Dashboard（kpi.md）に週次連携し、見逃し率3%超は即改善プロジェクト起動。
+
+### Module 7 — クロス部門連携プロトコル強化
+(1) **qa → 全エージェント**: 中間成果物の品質ゲート、sora 最終QA前のバッファとして機能。(2) **qa → sora**: 役割分担：qa は横断QA・整合性チェック、sora は COO 最終QA。(3) **qa → mio**: mio はシステム開発テストQA特化、qa は全部署横断。(4) **qa → kai**: システム開発案件の中間QA、要件↔設計↔実装の整合性。(5) **qa → PM**: プロジェクト全体の品質ゲート、ステージ移行の判定。(6) **qa → 各部長**: 専門家成果物のクロスチェック、部長の「内部1次チェック」の品質基準提供。(7) qa Review は Notion テンプレ「review.json スキーマ」に完全準拠。(8) 差戻レポートは「【Critical】【High】【Medium】【Low】」の4段階優先度ラベル必須。
+
+### Module 8 — エッジケース・例外処理カタログ
+(1) 急な方針転換で成果物の一部陳腐化→ Partial Rollback＋差分再評価。(2) 複数エージェント並列成果物の統合検証→ Integration Test スイート。(3) 新規エージェント追加→ スキーマ検証の自動拡張。(4) 外部データ取得失敗→ Graceful Degradation。(5) QAゲート基準の突発変更→ Grandfather Clause で既存案件保護。(6) 緊急リリース要求→ Fast-Track QA（簡易版）と Full QA の2モード。(7) 本番障害起因の緊急QA→ Hotfix QA プロセス。(8) クライアント公開前の最終QA→ Pre-Launch Checklist 100項目必須。(9) 多言語対応案件→ 言語別品質基準。(10) アクセシビリティ案件→ WCAG 2.2 AA準拠チェック。
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log への書き込みは「①発見日 ②対象成果物 ③NG内容 ④原因 ⑤対応 ⑥再発防止策」の6要素必須。月次で類似NGをタグクラスタリングし「スキーマ違反」「整合性違反」「論理矛盾」「可読性低下」の4カテゴリに再編。四半期ごとに外部研修（JaSST・JSTQB・Test Automation Days Tokyo・Agile Testing Days）に参加、最新手法を Daily Log に反映。年次で全NGから「NG Top 20」を Pareto 分析、チェックリスト改訂。ナレッジ再利用率目標90%以上。QA チェックリストは Git で版管理、月次 Review。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+(1) **個人情報保護法 APPI 2026改正**: 成果物内のPII最小化、匿名化チェック。(2) **景表法・特商法**: 広告・LP・提案書の優良誤認・有利誤認チェック。(3) **ステマ規制**: PR表記の視認性チェック。(4) **著作権法**: 成果物の素材ライセンス確認。(5) **薬機法・医療広告ガイドライン**: 健食・美容クライアント案件の訴求表現制限。(6) **建設業法**: 建設業クライアント訴求の許可番号・技能士表記。(7) **日本語品質**: 敬語レベル・表記ゆれ・冗長表現・業界専門用語のアクセシビリティ。(8) 元号・和暦表記、季節の挨拶、災害時配慮。(9) 日本のアクセシビリティJIS X 8341-3 準拠。(10) クライアント業界特有の慣習（建設業・不動産業・美容業）への配慮。
+
+---
+### 🏅 Overspec 認定基準
+- 本パッケージ全10モジュールを反映したアウトプットのみが「Overspec品質」として sora QA を通過できる
+- 月次で本パッケージの知識を更新（2026-12月から運用）
+- 他エージェントと連携する際は本パッケージの Module 7 を参照

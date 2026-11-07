@@ -591,3 +591,103 @@ STEP 6: 差し戻し後の再チェック
 - **品質チェックポイント：通知メールは Mailpit などの受信箱でリンク先・件名・本文を実際に開いて確認し、リンクを踏んだ先が環境ごとに正しい URL か確かめる**：ステージングのメールに `localhost` や本番 URL が入っている不具合は、画面テストだけでは見つからない。件名の文字化け、HTML 版とテキスト版の両方、メール内リンクからのログイン後遷移までを 1 本のシナリオにする。
 - **品質チェックポイント：長いフォームの入力中にセッションを失効させて送信し、入力内容が保持されたまま再ログイン後に続けられるかを確認する**：応募者が 15 分かけて入力して送信した時点で 401 が返り、全入力が消える体験は離脱に直結する。Playwright で Cookie を削除してから送信ボタンを押し、入力が残るか、ログイン画面経由で元の画面に戻るか、二重登録にならないかを確認する。
 - **品質チェックポイント：axe-core を E2E に組み込み、`critical`／`serious` の違反が 0 件であることと、キーボード操作だけで応募が完了できることを確認する**：`@axe-core/playwright` を主要 5 画面で実行し、ラベルの無い入力欄やコントラスト不足を機械的に拾う。自動検査では見つからないフォーカス順序とフォーカスの見えなさは、Tab キーだけで最後まで進む手動テストで補う。
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。既存のプロフィール・役割定義・作業フロー・Daily Knowledge Log に追加される。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+品質保証は「Shift-Left + Shift-Right + AI-Driven」へ進化。Playwright 1.50 が公式AIジェネレーターを搭載、自然言語からE2Eテスト自動生成。Vitest 3.0 が Jest を完全に置換（起動時間1/10）。Testing Library + MSW 2 がフロント標準。Property-Based Testing（fast-check）がTS/JS生態で一般化、エッジケース発見率300%向上。Chaos Engineering（Gremlin / Litmus）がSRE必須スキルに。Visual Regression は Chromatic + Percy の二強。TDD Guardが Claude Code と連動、Red→Green→Refactor 違反を自動検知する運用がLETで確立。日本ではISO/IEC 25010品質モデルに加え、OWASP ASVS Level 2が実質セキュリティ基準に。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **Test Pyramid (Mike Cohn)** — Unit:Integration:E2E = 70:20:10、各層の目的と範囲明確化。(2) **Property-Based Testing** — fast-check/hypothesis、ランダム生成で網羅性担保、エッジケース発見。(3) **BDD (Behavior-Driven Development)** — Cucumber/Gherkin、Given-When-Then、ビジネス要件と直結。この3つを統合し、ステークホルダー理解可能な受け入れ基準から、高速ユニットテスト、網羅性プロパティテストまで全層をカバー。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+QAゲートの合否基準：
+- **Coverage**: Line≥80%, Branch≥70%, Function≥90%
+- **Mutation Testing Score**: Stryker Mutator で≥60%（本当にバグを検出できるテストか）
+- **E2E**: Golden Path 100%、主要3シナリオ以上
+- **Visual Regression**: Chromatic/Percyで±0.1%以内
+- **Security**: OWASP ZAP自動スキャン、High脆弱性ゼロ
+- **Performance**: Lighthouse Score≥90、Core Web Vitals クリア
+- **Accessibility**: axe-core でViolationsゼロ、WCAG AA準拠
+QAゲート通過条件：全7項目クリア、1項目でも未達ならmerge不可。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+- **Playwright 1.50 + AI codegen** — 自然言語からE2Eテスト生成
+- **Vitest 3.0** — ユニットテスト、HMR対応
+- **MSW 2 (Mock Service Worker)** — API mock、node/browser両対応
+- **fast-check 3.x** — Property-based testing
+- **Stryker Mutator 8** — Mutation testing
+- **Chromatic** — Visual regression, Storybook連動
+- **axe-core / Pa11y** — アクセシビリティ自動
+- **Lighthouse CI** — パフォーマンス自動計測
+- **OWASP ZAP + Snyk** — セキュリティスキャン
+- **Codecov + SonarQube** — カバレッジ、コード品質
+- **GitHub Copilot + Claude** — テストケース生成
+- **TDD Guard** — TDD順守チェック
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+1. **Happy Pathのみテスト**→予防：Property-based + Boundary Value Analysis
+2. **モック過多でintegration抜け**→予防：Test Pyramidの20%はintegration、MSWで現実API模倣
+3. **Flakyテスト放置**→予防：Flakyは即修正、retry禁止
+4. **CI時間肥大化**→予防：並列化、変更影響分析でselective test
+5. **UIスナップショット陳腐化**→予防：スナップショット更新のPR必須レビュー
+6. **E2E維持コスト高騰**→予防：Page Objectパターン、selectorを data-testid に統一
+7. **Mutation score低下**→予防：PR毎にMutation score監視、閾値下回ったらfail
+8. **Security Test欠落**→予防：OWASP ZAPをCIに組込
+9. **Accessibility忘れ**→予防：axe-coreをすべてのComponent Testで実行
+10. **Load Test未実施**→予防：k6/Artilleryでリリース前負荷テスト
+
+### Module 6 — 計測可能KPI/SLA 定義
+| KPI | 目標値 | 測定 |
+|---|---|---|
+| Coverage Line | ≥80% | Codecov |
+| Mutation Score | ≥60% | Stryker |
+| E2E成功率 | ≥99.5% | Playwright |
+| Flakyテスト数 | 0 | CI log |
+| CI時間 | ≤10分 | GitHub Actions |
+SLA: ao/rikuの実装完了後24時間でQA結果、本番前最終QAは4時間以内、Flakyテスト検知後24時間以内に修正。
+
+### Module 7 — クロス部門連携プロトコル強化
+- **nao → mio**: 受け入れ基準（Given-When-Then）、非機能要件（SLO）
+- **ao → mio**: APIのOpenAPI schema、テスト用fixtures
+- **riku → mio**: Storybook、component API
+- **mio → kuu**: 負荷テスト基盤要件、CI/CD設定
+- **mio → kai**: QAレポート（カバレッジ・バグ・リスク）
+- **mio ← sora**: 最終QA時に品質証跡提出
+- **mio → nori**: セキュリティ・コンプライアンス観点のQA
+QAゲート通過までmerge禁止、kai/sora連携で品質門番。
+
+### Module 8 — エッジケース・例外処理カタログ
+- **タイムゾーン**: UTC/JST境界ケース、夏時間なしだが国際拠点対応
+- **文字コード**: 絵文字、サロゲートペア、結合文字
+- **Decimal計算**: 0.1+0.2!=0.3 対策、Decimal.js等を使用
+- **非同期**: Race condition、Promise未処理rejection
+- **大量データ**: 10万件以上のページネーション、メモリ枯渇
+- **ネットワーク**: 遅延、タイムアウト、部分失敗
+- **ブラウザ固有**: Safari、Firefox、Edgeの差異
+- **モバイル**: タッチイベント、スクリーンサイズ、オリエンテーション
+- **同時実行**: 楽観的ロック、悲観的ロック、デッドロック
+- **DB制約違反**: Unique、Foreign Key、Check制約の挙動
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log に記録：(1) 新しいテストパターン、(2) バグ原因分析、(3) 性能問題、(4) セキュリティ脆弱性、(5) テスト自動化改善。月次で「QA Runbook」「バグカタログ」を更新、各PR後にRetrospective（何を見逃したか）。失敗事例は「バグ内容→根本原因→テストで検知できない理由→追加テスト設計」の4要素で記録。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+- **個人情報保護法**: テストデータは匿名化、実データ本番外使用禁止
+- **電子帳簿保存法**: 請求書・契約書システムは法定要件確認
+- **医療・金融業界**: 業界ガイドライン対応テスト
+- **アクセシビリティ**: JIS X 8341（高齢者・障害者）、デジタル庁推進のウェブアクセシビリティ要件
+- **セキュリティ**: OWASP Top 10対応、情報処理推進機構（IPA）の推奨事項
+- **国際化**: 日本語特有の全角半角、改行コード、濁点半濁点のテスト
+- **UX**: 日本独特のフォーム慣習（郵便番号自動補完、住所分割）
+- **業務継続**: 地震・停電時のテスト、DR計画の有効性確認
+
+---
+### 🏅 Overspec 認定基準
+- 本パッケージ全10モジュールを反映したアウトプットのみが「Overspec品質」として sora QA を通過できる
+- 月次で本パッケージの知識を更新（2026-12月から運用）
+- 他エージェントと連携する際は本パッケージの Module 7 を参照

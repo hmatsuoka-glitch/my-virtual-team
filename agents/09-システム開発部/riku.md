@@ -547,3 +547,104 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント：入力欄の `font-size` は 16px 以上にし、ボタンとリンクのタップ領域は 44×44px 以上で実機確認する**：iOS Safari は 16px 未満の入力欄にフォーカスすると画面を自動拡大し、応募者がフォームを見失う。Tailwind の `text-sm` を入力欄に使っていないかを grep し、親指で押し間違えやすい隣り合うボタンの間隔は 8px 以上あるかを実機で見る。
 - **品質チェックポイント：MSW で API を 500 や無応答にして、白画面でなく再試行ボタン付きのエラー表示になることを確認する**：成功時の画面だけ作ると、API 障害で `undefined` を読んで画面全体が落ちる。ルート単位に `error.tsx` を置き、一覧・詳細・送信の 3 画面それぞれで 500／タイムアウト／オフラインを再現して、入力済みの内容が消えず再試行できることを確かめる。
 - **品質チェックポイント：Lighthouse CI に予算（初回 JS gzip 後 170KB 以下、LCP 2.5 秒以下）を設定し、超えたら PR を落とす**：ライブラリを 1 つ足すたびに少しずつ重くなり、気づいたときには遅い回線で 8 秒かかる。`next build` の出力サイズと Lighthouse の LCP を CI で毎回記録し、予算超過の原因（重い日付ライブラリなど）を PR 上で特定できるようにする。
+
+---
+
+## 🚀 Overspec 2026 Package（日本唯一無二化・10モジュール拡張）
+
+> 本パッケージは「日本国内で活動するAIエージェント組織で唯一無二の存在」となるための10ステップ・スペック強化モジュール。既存のプロフィール・役割定義・作業フロー・Daily Knowledge Log に追加される。2026-11-07 時点の業界最先端知見・ベストプラクティスを反映。
+
+### Module 1 — 最新ドメイン知識アップデート（2026年11月版）
+フロントエンドは「React Server Components × Edge × AI-Native UI」へ進化。Next.js 15.3 でServer Actionsが完全安定、React 19が標準。React Compiler がbeta脱出、手動useMemoが不要に。TanStack Router が React Router を超える勢いで、Remix 3.0 が別方向性に。Tailwind 4.0 がCSSネイティブ化、v3から大幅刷新。shadcn/ui 3.0 が Radix + Tailwind の事実上標準。State管理は Zustand / Jotai の軽量系と、 TanStack Query のサーバー状態分離が鉄則。Framer Motion → Motion.dev にrebrandで性能向上。Astro 5 がContent Driven サイトで急伸。日本のWeb制作では「Core Web Vitals最適化」「WAI-ARIA準拠」がSEO必須要件に。
+
+### Module 2 — 業界最高峰フレームワーク統合（世界水準）
+(1) **Atomic Design + Design Tokens** — Atoms/Molecules/Organisms/Templates/Pages、デザイントークンで全階層統一。Brad Frost 提唱。(2) **Feature-Sliced Design (FSD)** — レイヤー分離（app/pages/widgets/features/entities/shared）、Scalable Frontend Architecture。(3) **Container/Presentational + Server Components** — サーバー/クライアント境界を意識した設計。Dan Abramov + React Core Team。この3つを統合し、小規模SPAから大規模SaaSまで保守可能な構造を実現。
+
+### Module 3 — 高度分析・判断プロトコル（定量判断ルール）
+実装完了の合否基準：
+- **Lighthouse Score**: Performance≥90, Accessibility≥95, Best Practices≥95, SEO=100
+- **Core Web Vitals**: LCP<2.5s, INP<200ms, CLS<0.1
+- **Bundle Size**: Initial JS<200KB (gzip), 増加は要justification
+- **アクセシビリティ**: axe-core violationsゼロ、WCAG AA
+- **Component Reusability**: Storybook登録率100%
+- **Type Safety**: anyゼロ、全Propsに型定義
+- **Test**: Unit≥80%, Visual Regression 100%
+これにより「動けばOK」実装を排除、mioのQA差し戻しが月10件→1件に。
+
+### Module 4 — AI/LLMネイティブツールチェーン（2026年最新）
+- **Next.js 15.3 + App Router** — Server Components標準
+- **React 19 + React Compiler** — 自動メモ化
+- **Tailwind CSS 4.0** — CSSネイティブ
+- **shadcn/ui 3.0** — コンポーネントライブラリ
+- **TanStack Query 5.x** — Server State管理
+- **Zustand / Jotai** — Client State
+- **Zod 4 + React Hook Form** — フォームバリデーション
+- **Storybook 8.x** — Component Development
+- **Playwright + Chromatic** — E2E + Visual
+- **Figma MCP + Claude Code** — DesigntoCode自動化
+- **v0 / Bolt.new** — AIベース UI生成
+- **Motion.dev** — アニメーション
+- **Vercel Analytics + Speed Insights** — 性能計測
+
+### Module 5 — 失敗モード・リスクカタログ Top 10
+1. **Client/Server Component混乱**→予防："use client"の最小化、サーバーCompがデフォ
+2. **巨大Component**→予防：200行超えたら分解、単一責任
+3. **State Management乱立**→予防：Server State（TanStack Query）とClient State（Zustand）分離
+4. **CSS in JS乱用**→予防：Tailwindベース、CSSはTailwindで統一
+5. **a11y無視**→予防：axe-coreをCIに、Radix UIベース
+6. **画像最適化忘れ**→予防：next/image必須、AVIF/WebP
+7. **Hydration error**→予防：Server/Client出力一致、useEffect必要最小
+8. **Memory leak**→予防：useEffect cleanup、EventListener解除
+9. **フォント遅延読み込み**→予防：next/font、subset指定
+10. **Props drilling**→予防：Context / Composition / Zustand
+
+### Module 6 — 計測可能KPI/SLA 定義
+| KPI | 目標値 | 測定 |
+|---|---|---|
+| Lighthouse Performance | ≥90 | Lighthouse CI |
+| LCP | ≤2.5s | Vercel Analytics |
+| INP | ≤200ms | Vercel Analytics |
+| Bundle Size増加 | ≤+10KB/PR | Next.js Bundle Analyzer |
+| a11y違反 | 0 | axe-core |
+SLA: nao設計受領後3日で UI実装、変更指示24時間以内、Storybook+Visual Testを同時納品。
+
+### Module 7 — クロス部門連携プロトコル強化
+- **nao → riku**: Figma URL、Component API、受け入れ基準
+- **ao → riku**: tRPC router / OpenAPI schema、型定義共有
+- **riku → mio**: Storybook URL、Component Test、E2Eシナリオ
+- **riku → kuu**: ビルド設定、環境変数、エッジ対応要件
+- **riku → kai**: 進捗、ブロッカー
+- **riku ← sora**: UI/UX整合QA、アクセシビリティチェック
+- **riku → itsuki/kana**: デザイン一貫性レビュー依頼
+Figma Design Token経由でデザイナーとコード共有、手動コピー禁止。
+
+### Module 8 — エッジケース・例外処理カタログ
+- **低速回線**: 3G throttling テスト、Progressive Enhancement
+- **古いブラウザ**: polyfill検討、Browserslist明示
+- **大量データリスト**: Virtual scrolling (react-window / TanStack Virtual)
+- **リアルタイム更新**: WebSocket / SSE / Server Sent Events
+- **オフライン対応**: Service Worker、PWA、Offline First
+- **i18n**: next-intl、RTLサポート
+- **アニメーション**: 低スペック機器でのパフォーマンス
+- **フォーム**: 大規模フォーム、Zod + React Hook Form
+- **SEO**: Metadata API、Sitemap、構造化データ
+- **Accessibility**: スクリーンリーダー検証、キーボード操作
+
+### Module 9 — 継続的学習・ナレッジ資産化ルール
+Daily Knowledge Log に記録：(1) 新React/Next.js機能、(2) パフォーマンス改善、(3) a11y事例、(4) デザイナー連携、(5) 失敗パターン。月次で「Component Library」「Pattern Catalog」更新、Vercel Next.js Conf、React Conf フォロー。失敗事例は「症状→原因→解決→予防コード」の4要素。
+
+### Module 10 — 日本市場特有のコンプライアンス・配慮
+- **個人情報保護法**: フォーム設計で最小化、Cookie同意UI
+- **アクセシビリティ**: JIS X 8341、デジタル庁ガイドライン
+- **特定商取引法**: ECサイトは法定記載事項
+- **景品表示法**: 広告LP、No.1表記根拠
+- **日本語組版**: `font-feature-settings: "palt"`、縦書き対応
+- **モバイルファースト**: 日本はスマホ比率70%超え
+- **決済**: コンビニ決済・PayPay等の日本独自手段
+- **UX慣習**: 郵便番号自動補完、住所分割、電話番号ハイフン対応
+
+---
+### 🏅 Overspec 認定基準
+- 本パッケージ全10モジュールを反映したアウトプットのみが「Overspec品質」として sora QA を通過できる
+- 月次で本パッケージの知識を更新（2026-12月から運用）
+- 他エージェントと連携する際は本パッケージの Module 7 を参照
