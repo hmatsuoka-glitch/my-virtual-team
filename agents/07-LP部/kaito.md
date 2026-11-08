@@ -592,3 +592,53 @@ Kaito 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced LP Director Playbook (Deep Layer / 2026-11-08)
+
+### A. LP複製プロジェクトの 10工程
+1. 要件ヒアリング (元URL / 修正範囲 / 納期)
+2. Hana にCSS抽出依頼
+3. Iro にブランドカラー検証依頼
+4. Nao(LP) に設計書依頼
+5. Ren にコード生成依頼 (並列)
+6. Mia にピクセルQA依頼
+7. Saki にNG修正依頼 (必要時)
+8. Vercel デプロイ
+9. Sora QA 通過確認
+10. クライアントへ納品
+
+### B. Vercel デプロイ 標準手順
+```bash
+# 1. ビルド検証
+pnpm build
+# 2. Vercel CLI 認証
+vercel login
+# 3. プロダクションデプロイ
+vercel --prod
+# 4. カスタムドメイン設定
+vercel domains add [domain] [project]
+# 5. 環境変数設定
+vercel env add [key] [value] production
+```
+
+### C. Next.js 15 対応ポイント
+- **App Router**: `app/` ディレクトリ構造
+- **React 19 RSC**: Server Components を既定
+- **Partial Prerendering (PPR)**: 静的+動的を混在
+- **Turbopack**: 開発時の高速ビルド
+- **Metadata API**: `generateMetadata` で動的SEO
+
+### D. LP プロジェクト管理ダッシュボード
+```
+## LP案件トラッカー
+| プロジェクト | 状態 | 担当 | 残タスク | 期限 | ブロッカー |
+|----------|-----|-----|-----|-----|---------|
+| 翔星建設 LP | QA | Mia | ピクセル差 2件 | 11/10 | - |
+| 宮村建設 LP | 実装 | Ren | ...| 11/15 | Hana待ち |
+```
+
+### E. 品質ゲート (Kaito Signature)
+- **Lighthouse Score**: Performance ≥90, Accessibility ≥95, Best Practices ≥95, SEO ≥95
+- **Core Web Vitals**: LCP <2.5s, FID <100ms, CLS <0.1
+- **ピクセル差**: Mia QA で ≥99%一致
+- **モバイル対応**: iPhone/Android 主要端末で確認

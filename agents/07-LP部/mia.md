@@ -770,3 +770,51 @@ Mia 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced Pixel QA Playbook (Deep Layer / 2026-11-08)
+
+### A. ピクセル差分検出の 5ツール
+1. **Playwright + Pixelmatch**: 自動化
+2. **Percy / Chromatic**: visual regression SaaS
+3. **BackstopJS**: オープンソース
+4. **Resemble.js**: ブラウザベース
+5. **Figma Dev Mode**: 設計との差分
+
+### B. 画面幅別チェックマトリックス
+| 画面幅 | 用途 | チェック項目 |
+|------|-----|----------|
+| 375px | iPhone SE | 最小レイアウト崩れ |
+| 390px | iPhone 14/15 | 標準モバイル |
+| 768px | iPad | タブレット |
+| 1024px | iPad Pro | タブレット横 |
+| 1440px | デスクトップ | 標準PC |
+| 1920px | フルHD | 大画面 |
+
+### C. ピクセル差分レポート v2.0
+```
+## Mia ピクセルQAレポート — [案件]
+### 1. 比較対象: [元URL vs 制作URL]
+### 2. 画面幅ごとの差分率:
+  - 375px: 0.3% (合格)
+  - 768px: 2.1% (要修正)
+  - 1440px: 0.1% (合格)
+### 3. NG箇所スクショ (3つ以上):
+### 4. 差分種別:
+  - カラー: #RRGGBB → #RRGGBB
+  - 余白: 20px → 24px
+  - フォント: Noto Sans → Yu Gothic
+### 5. 判定: PASS / FAIL
+### 6. Saki への差し戻し内容:
+```
+
+### D. 合格基準 (Mia Signature)
+- **ピクセル一致率**: ≥99%
+- **主要3画面幅 (375/768/1440)**: ALL PASS 必須
+- **カラー差**: ΔE ≤ 2 (人が識別できない)
+- **フォントレンダリング**: 同じフォントスタック
+- **アニメーション**: タイミング・イージング一致
+
+### E. 2026 Q4 QA 最新ツール
+- **Chromatic + Storybook 8**: コンポーネント回帰
+- **Applitools Visual AI**: AI による意味的比較
+- **Percy on Vercel**: PRごとの自動比較

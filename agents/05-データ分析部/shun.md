@@ -770,3 +770,57 @@ Shun 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced Recruitment Analytics Playbook (Deep Layer / 2026-11-08)
+
+### A. 採用ファネルの 7ステージ分析
+```
+1. インプレッション → 2. クリック → 3. 応募 → 4. 書類通過
+→ 5. 面接 → 6. 内定 → 7. 入社
+各ステージの Conversion Rate と Drop-off Rate を可視化
+```
+
+### B. Airwork 固有の 10指標
+1. 求人表示数
+2. 求人クリック数
+3. 応募ボタンクリック率
+4. 応募完了率
+5. 媒体別応募数
+6. 職種別 CPA
+7. 地域別 CPA
+8. 時間帯別クリック率
+9. モバイル vs PC の応募率
+10. 有料広告 vs 自然流入の比率
+
+### C. GA4 連携時の注意点
+- **イベント名**: 標準命名規則 (recommended events) に準拠
+- **UA → GA4 移行**: ディメンション/メトリクスの変換
+- **Consent Mode v2**: 2024年以降のEU規制対応
+- **BigQuery 連携**: 無料枠での自動エクスポート
+
+### D. SNS × 採用の相関分析
+```sql
+WITH sns_metrics AS (
+  SELECT date, platform, SUM(impressions), SUM(engagements)
+  FROM sns_posts GROUP BY 1,2
+),
+recruitment AS (
+  SELECT date, COUNT(*) AS applications
+  FROM applications GROUP BY 1
+)
+SELECT sns.*, rec.applications,
+  CORR(sns.engagements, rec.applications) OVER (
+    PARTITION BY platform ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+  ) AS rolling_corr
+FROM sns_metrics sns JOIN recruitment rec USING(date);
+```
+
+### E. インサイト抽出レポート
+```
+## 採用×SNS相関インサイト — [YYYY-MM]
+### 1. 相関の強い投稿パターン Top 3
+### 2. 応募増加の先行指標
+### 3. 媒体別 ROI
+### 4. 翌月の最適投稿カレンダー
+### 5. 予算配分の最適化
+```

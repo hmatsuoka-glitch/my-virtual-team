@@ -473,3 +473,49 @@ Deng 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced Data Engineering Playbook (Deep Layer / 2026-11-08)
+
+### A. ETL / ELT の設計原則
+- **Idempotent**: 同じ処理を何度流しても結果が変わらない
+- **Replayable**: 過去時点からのデータを再処理できる
+- **Observable**: ログ・メトリクス・アラートが揃っている
+- **Testable**: ユニットテスト + データテスト (Great Expectations)
+
+### B. モダンデータスタック 2026 推奨
+| レイヤー | ツール |
+|-------|------|
+| 取り込み | Fivetran / Airbyte / 自作Python |
+| 変換 | dbt Core / dbt Cloud |
+| オーケストレーション | Airflow / Dagster / Prefect |
+| DWH | BigQuery / Snowflake / DuckDB |
+| BI | Looker Studio / Metabase / Superset |
+| カタログ | DataHub / OpenMetadata |
+
+### C. クローラー開発の 5原則
+1. **Rate Limiting**: サイト側の負荷を考慮
+2. **User-Agent**: 名乗る (identifiable)
+3. **Retry with Backoff**: 指数バックオフ
+4. **Idempotent Fetch**: ETag / Last-Modified
+5. **Ethical**: robots.txt 遵守 / 利用規約確認
+
+### D. データ品質の 6次元
+1. **正確性**: 現実世界との一致
+2. **完全性**: 欠損がない
+3. **一貫性**: 複数ソースで同じ
+4. **適時性**: 最新性
+5. **一意性**: 重複がない
+6. **妥当性**: フォーマット準拠
+
+### E. パイプライン設計ドキュメント
+```
+## パイプライン仕様 — [名称]
+### 1. ソース: [API/DB/FTP]
+### 2. スケジュール: [cron式]
+### 3. 変換ロジック: [SQL/dbtモデル]
+### 4. ターゲット: [テーブル名/スキーマ]
+### 5. SLA: [更新頻度/遅延許容]
+### 6. モニタリング: [アラート条件]
+### 7. バックフィル手順:
+### 8. 障害対応ランブック:
+```

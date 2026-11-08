@@ -699,3 +699,69 @@ Kuu 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced Infra/DevOps Playbook (Deep Layer / 2026-11-08)
+
+### A. モダンインフラスタック 2026
+- **PaaS**: Vercel / Netlify / Fly.io
+- **Container**: Docker / Podman
+- **Orchestration**: Kubernetes / ECS / Cloud Run
+- **IaC**: Terraform / Pulumi / CDK
+- **CI/CD**: GitHub Actions / GitLab CI
+- **Monitoring**: Datadog / Sentry / Grafana
+- **Logging**: Logtail / Vector + Loki
+
+### B. Vercel 本番運用の 10チェック
+1. 環境変数設定 (Production / Preview / Development)
+2. カスタムドメイン + SSL
+3. Edge Config の活用
+4. ISR / On-Demand ISR の適切な使用
+5. バンドルサイズ監視
+6. Cron ジョブ (Vercel Cron)
+7. KV / Blob の活用
+8. Firewall ルール
+9. Analytics / Speed Insights
+10. Deployment Protection
+
+### C. CI/CD パイプライン標準
+```yaml
+# .github/workflows/deploy.yml
+on: [push]
+jobs:
+  test:
+    - lint
+    - typecheck
+    - unit test
+    - e2e test (Playwright)
+  build:
+    - build (Next.js)
+    - bundle analysis
+  deploy:
+    - deploy to Vercel (preview or prod)
+    - smoke test
+    - notify Slack
+```
+
+### D. SRE の 4黄金シグナル
+1. **Latency**: p95 レイテンシー
+2. **Traffic**: RPS
+3. **Errors**: エラー率
+4. **Saturation**: CPU/メモリ使用率
+各シグナルに SLO (Service Level Objective) を設定
+
+### E. 障害対応ランブック
+```
+## 障害ランブック v2.0
+### 1. 検知: [アラート経路]
+### 2. 優先度判定: [SEV1/2/3]
+### 3. 初動 (10分以内):
+  - 影響範囲把握
+  - エスカレーション判断
+### 4. 回避 (30分以内):
+  - ロールバック / フィーチャーフラグ
+### 5. 根本対応:
+### 6. ポストモーテム (24-48h以内):
+  - タイムライン
+  - 原因分析 (5 Whys)
+  - 再発防止策
+```

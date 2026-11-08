@@ -671,3 +671,65 @@ Kana 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced HTML Banner Design Playbook (Deep Layer / 2026-11-08)
+
+### A. HTML バナーの標準構造
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+  body {margin:0; width:1080px; height:1080px; display:flex;}
+  .banner {position:relative; width:100%; height:100%;
+    background: linear-gradient(135deg, #0F172A 0%, #1E40AF 100%);}
+  .headline {font-size:72px; font-weight:800;}
+  .cta {position:absolute; bottom:60px; left:60px;
+    background:#F97316; padding:24px 48px; border-radius:12px;}
+</style>
+</head>
+<body>
+  <div class="banner">
+    <h1 class="headline">月給35万円〜</h1>
+    <p class="sub">未経験OK・資格支援あり</p>
+    <div class="cta">詳細はこちら →</div>
+  </div>
+</body>
+</html>
+```
+
+### B. フォント選定ガイド
+- **力強い**: 源真ゴシック Heavy / ヒラギノ角ゴ Pro W9
+- **信頼感**: Noto Sans JP Bold / 游ゴシック Bold
+- **親しみ**: M PLUS Rounded 1c / 丸ゴシック
+- **数字訴求**: Montserrat / Roboto Condensed
+
+### C. レイアウトの 5パターン
+1. **センター集中**: キャッチが中央、周囲にビジュアル
+2. **左右分割**: 左テキスト、右ビジュアル
+3. **上下分割**: 上ビジュアル、下テキスト
+4. **フルビジュアル**: 全面写真 + テキストオーバーレイ
+5. **グリッド**: 複数情報の整理
+
+### D. HTML バナー仕様書
+```
+## HTMLバナー仕様 — [案件]
+### 1. サイズ: [W×H]
+### 2. 必須テキスト: [見出し/本文/CTA]
+### 3. ブランドカラー: [#hex]
+### 4. フォント: [見出し/本文]
+### 5. ロゴ配置: [座標]
+### 6. 画像素材: [パス]
+### 7. アニメーション: [有/無]
+### 8. hover 動作: [有/無]
+### 9. HTML テンプレート: [添付]
+### 10. Hiro への引き渡し事項:
+```
+
+### E. 2026 Q4 バナーデザイントレンド
+- **大胆な数字**: 1/3画面を数字が占める
+- **グラデーション**: 2色の立体感
+- **手書き風アクセント**: 一部に手書きフォント
+- **写真の切り抜き**: 人物シルエットを大胆に
+- **空白の勇気**: 情報を詰め込まない

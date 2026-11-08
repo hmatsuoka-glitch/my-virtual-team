@@ -646,3 +646,58 @@ Riku 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced Frontend Playbook (Deep Layer / 2026-11-08)
+
+### A. Next.js 15 App Router 2026 ベストプラクティス
+- **Server Components by default**: `'use client'` は必要時のみ
+- **Server Actions**: form POST の標準
+- **Streaming**: Suspense boundaries で UX 向上
+- **PPR**: Partial Prerendering で静的+動的
+- **Metadata API**: `generateMetadata` で動的 SEO
+- **Route Handlers**: `app/api/*/route.ts` で API
+- **Parallel Routes**: `@folder` でレイアウト分割
+- **Intercepting Routes**: モーダル実装
+
+### B. React Server Components の設計原則
+- **Server Component**: データ取得・サーバー専用ロジック
+- **Client Component**: 状態・イベント・ブラウザAPI
+- **Composition**: Server → Client への props は serializable
+- **データ取得**: Server Component で async/await
+
+### C. Tailwind CSS 4 の新機能
+- **@theme**: CSS variable ベース
+- **@config**: 旧 tailwind.config.js を分離
+- **カラー空間**: P3 / OKLCH 対応
+- **CSS Nesting**: ネスト構文
+- **Container Queries**: `@container` ネイティブ対応
+
+### D. フロントエンド TDD 標準
+```tsx
+import {render, screen, userEvent} from '@testing-library/react';
+import {FormField} from './FormField';
+
+test('ラベルとinputが表示される', () => {
+  render(<FormField label="氏名" name="name" />);
+  expect(screen.getByLabelText('氏名')).toBeInTheDocument();
+});
+
+test('入力値が反映される', async () => {
+  const user = userEvent.setup();
+  render(<FormField label="氏名" name="name" />);
+  await user.type(screen.getByLabelText('氏名'), '田中太郎');
+  expect(screen.getByLabelText('氏名')).toHaveValue('田中太郎');
+});
+```
+
+### E. パフォーマンス改善 10 Tips
+1. 画像の next/image + priority
+2. フォントの next/font
+3. dynamic import for モーダル等
+4. useDeferredValue / useTransition
+5. React Compiler (自動 memoization)
+6. バンドル分割 (route-based)
+7. Suspense + Streaming
+8. ISR / PPR
+9. CDN cache (Vercel Edge)
+10. Bundle analyzer で定期監視

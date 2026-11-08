@@ -827,3 +827,60 @@ Ren 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced LP Code Generation Playbook (Deep Layer / 2026-11-08)
+
+### A. Next.js 15 LP 標準構成
+```
+app/
+  (marketing)/
+    layout.tsx       # 共通レイアウト
+    page.tsx         # /
+    thanks/page.tsx  # /thanks
+    faq/page.tsx     # /faq
+components/
+  ui/                # Atoms
+  marketing/         # LP固有
+lib/
+  analytics.ts       # GA4イベント
+  validators.ts      # Zod schemas
+```
+
+### B. パフォーマンス最適化 10 Tips
+1. **next/image**: 画像の自動最適化 + lazy loading
+2. **next/font**: フォント最適化
+3. **dynamic import**: 重いコンポーネントを遅延
+4. **ISR**: 静的生成 + 定期更新
+5. **Priority LCP**: Hero 画像に `priority` 属性
+6. **CSS 最小化**: Tailwind の JIT
+7. **サードパーティスクリプト**: `next/script` の strategy
+8. **バンドルアナライザ**: `@next/bundle-analyzer`
+9. **Cloudinary/Vercel Image**: CDN活用
+10. **Edge Runtime**: 可能な箇所で Edge 実行
+
+### C. Core Web Vitals 達成基準
+- **LCP < 2.5s**: Hero 画像を priority + preload
+- **FID / INP < 200ms**: メインスレッド JS 削減
+- **CLS < 0.1**: 画像/広告の aspect-ratio 固定
+
+### D. LP コード納品の標準フォーマット
+```
+## LPコード納品 — [案件]
+### 1. リポジトリ: [URL/ブランチ]
+### 2. デプロイURL: [Vercel preview]
+### 3. 使用技術: [Next 15 / React 19 / Tailwind 4]
+### 4. Lighthouse Score: [Perf/A11y/BP/SEO]
+### 5. Core Web Vitals:
+### 6. コンポーネント一覧:
+### 7. 環境変数 (非機密):
+### 8. 既知の制約:
+### 9. Mia QA 待ち事項:
+### 10. Kaito への引き渡し事項
+```
+
+### E. 2026 Q4 LP 実装の最新ベストプラクティス
+- **Partial Prerendering (PPR)**: 静的+動的ハイブリッド
+- **View Transitions API**: ページ遷移アニメ
+- **CSS Container Queries**: コンポーネント基準レスポンシブ
+- **Streaming SSR**: 段階的な HTML 配信
+- **React Compiler**: useMemo/useCallback 不要化

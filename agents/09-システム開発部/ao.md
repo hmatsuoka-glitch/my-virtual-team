@@ -677,3 +677,60 @@ Ao 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced Backend Playbook (Deep Layer / 2026-11-08)
+
+### A. バックエンドの技術選定 2026 標準
+- **言語**: TypeScript (Node.js 22+) / Go / Rust
+- **フレームワーク**: Hono / Fastify / NestJS
+- **ORM**: Prisma / Drizzle
+- **DB**: PostgreSQL 16 / MySQL 8 / Supabase
+- **キャッシュ**: Redis / Upstash
+- **検索**: Meilisearch / Elasticsearch
+- **バリデーション**: Zod / Valibot
+- **認証**: Clerk / Auth.js / Supabase Auth
+
+### B. API 設計の 10原則 (REST / RPC どちらでも)
+1. **リソース指向** (REST) または **アクション指向** (RPC)
+2. **冪等性**: GET/PUT/DELETE は冪等
+3. **バージョニング**: `/v1/` or `Accept-Version` header
+4. **エラーレスポンス標準**: RFC 7807 Problem Details
+5. **ページネーション**: cursor-based 推奨
+6. **フィルタリング**: `?filter[status]=active`
+7. **ソート**: `?sort=-created_at`
+8. **レート制限**: 429 Too Many Requests + Retry-After
+9. **認証**: Bearer Token (JWT) or セッション Cookie
+10. **ドキュメント**: OpenAPI 3.1
+
+### C. DB 設計の原則
+- **第3正規形**: 原則
+- **非正規化**: パフォーマンス理由で意図的に
+- **タイムスタンプ**: created_at / updated_at / deleted_at (論理削除)
+- **ID**: UUID v7 (時系列ソート可能) or ULID
+- **インデックス**: EXPLAIN で検証
+- **マイグレーション**: 可逆性を保証
+
+### D. TDD の 3A パターン
+```typescript
+test('createUser should return user with id', async () => {
+  // Arrange
+  const input = {name: 'Taro', email: 'taro@example.com'};
+  // Act
+  const user = await createUser(input);
+  // Assert
+  expect(user.id).toBeDefined();
+  expect(user.name).toBe('Taro');
+});
+```
+
+### E. セキュリティチェックリスト (OWASP Top 10 2024)
+- [ ] A01 Broken Access Control
+- [ ] A02 Cryptographic Failures
+- [ ] A03 Injection (SQL/NoSQL/OS/LDAP)
+- [ ] A04 Insecure Design
+- [ ] A05 Security Misconfiguration
+- [ ] A06 Vulnerable Components
+- [ ] A07 Identification & Authentication Failures
+- [ ] A08 Software & Data Integrity Failures
+- [ ] A09 Logging & Monitoring Failures
+- [ ] A10 Server-Side Request Forgery

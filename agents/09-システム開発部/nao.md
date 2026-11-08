@@ -576,3 +576,76 @@ Nao(System) 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced System Architecture Playbook (Deep Layer / 2026-11-08)
+
+### A. DDD の 4戦略設計
+1. **Bounded Context**: 言語の境界を明確化
+2. **Context Mapping**: コンテキスト間の関係性
+3. **Ubiquitous Language**: 業務用語と技術用語の統一
+4. **Event Storming**: ドメインイベントの可視化
+
+### B. ERD 設計の 10チェック
+- [ ] 正規化レベルが適切 (第3正規形が原則)
+- [ ] 主キーが設定されている
+- [ ] 外部キー制約
+- [ ] NOT NULL 制約
+- [ ] UNIQUE 制約
+- [ ] CHECK 制約 (業務ルール)
+- [ ] インデックス設計
+- [ ] パーティショニング戦略
+- [ ] 論理削除 / 物理削除の方針
+- [ ] 監査ログの設計
+
+### C. API 設計ドキュメント (OpenAPI 3.1)
+```yaml
+openapi: 3.1.0
+info:
+  title: 案件管理API
+  version: 1.0.0
+paths:
+  /projects:
+    get:
+      summary: プロジェクト一覧
+      parameters:
+        - name: status
+          in: query
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectList'
+```
+
+### D. アーキテクチャ決定記録 (ADR)
+```
+## ADR-001: PostgreSQL vs MySQL
+### Status: Accepted
+### Context: 業務データのRDBを選定する
+### Options:
+  - PostgreSQL 16
+  - MySQL 8
+### Decision: PostgreSQL 16
+### Rationale:
+  - JSON型のサポートが強力
+  - Row-Level Security
+  - Supabase で簡単運用
+### Consequences:
+  - 既存の MySQL エンジニアには学習コスト
+```
+
+### E. 設計書ドキュメント v2.0
+```
+## システム設計書 — [案件]
+### 1. プロジェクト概要
+### 2. ドメインモデル (DDD)
+### 3. ERD
+### 4. API 仕様 (OpenAPI)
+### 5. アーキテクチャ図 (C4 Model)
+### 6. 技術スタック + 理由 (ADR)
+### 7. 非機能要件 (パフォーマンス / セキュリティ)
+### 8. 運用設計
+### 9. リスク & 対策
+### 10. 見積: 工数 / コスト
+```

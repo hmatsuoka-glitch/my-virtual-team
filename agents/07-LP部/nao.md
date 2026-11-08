@@ -793,3 +793,63 @@ Nao(LP) 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced LP Design Spec Playbook (Deep Layer / 2026-11-08)
+
+### A. LP 設計書の 10セクション
+1. プロジェクト概要
+2. ターゲットペルソナ
+3. KPI (CVR, 滞在時間, 離脱率)
+4. 情報アーキテクチャ (IA)
+5. ワイヤーフレーム (Figma)
+6. コンポーネント分解
+7. ルーティング設計
+8. フォーム設計 (バリデーション込み)
+9. SEO メタ情報
+10. アナリティクス設計 (GA4イベント)
+
+### B. コンポーネント設計の原則 (atomic design)
+- **Atoms**: Button / Input / Label / Icon
+- **Molecules**: FormField / Card / NavItem
+- **Organisms**: Header / Hero / FeatureGrid / FAQ / Footer
+- **Templates**: LPLayout
+- **Pages**: /, /thanks, /faq
+
+### C. IA (情報アーキテクチャ) 標準
+```
+## LP IA v2.0
+### Above the fold (0-600px):
+  - Hero: キャッチ + CTA
+### Fold 1 (600-1200px):
+  - Problem: 課題提示
+### Fold 2-4:
+  - Solution / Features / Testimonials
+### Fold 5-7:
+  - Case / Pricing / FAQ
+### Below the fold:
+  - CTA再 / Footer
+```
+
+### D. フォーム設計 (採用LP用)
+- **必須項目**: 名前・電話・メール・応募職種・経験の有無
+- **バリデーション**: リアルタイム + submit時
+- **プライバシー**: 個人情報取扱いの明示
+- **CVR 向上 Tips**:
+  - フィールドを最少にする (5項目以内)
+  - プレースホルダーに例を表示
+  - 送信ボタン文言「応募する」>「送信する」
+
+### E. 設計書ドキュメント v2.0
+```
+## LP設計書 — [クライアント]
+### 1. プロジェクト: [URL/納期/担当]
+### 2. ターゲット: [ペルソナ3人]
+### 3. KPI: [CVR目標/応募数目標]
+### 4. IA: [ワイヤーフレーム]
+### 5. コンポーネントツリー
+### 6. ルーティング
+### 7. フォーム: [項目/バリデーション/送信先]
+### 8. SEO: [title/description/OGP]
+### 9. GA4 イベント定義
+### 10. Ren への引き渡し事項
+```

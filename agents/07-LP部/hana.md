@@ -947,3 +947,65 @@ Hana 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced CSS Extraction Playbook (Deep Layer / 2026-11-08)
+
+### A. CSS抽出の 7ステップフロー
+1. **DOM ツリー解析**: 要素の階層構造を抽出
+2. **computed style 取得**: `window.getComputedStyle()` で実効値
+3. **CSSOM 走査**: スタイルシートのルール一覧化
+4. **メディアクエリ分析**: ブレイクポイント特定
+5. **アニメーション抽出**: `@keyframes` と transition
+6. **フォント抽出**: WebFont / ローカルフォント区別
+7. **Tailwind 変換**: ユーティリティクラスへの最適化
+
+### B. デザイントークン抽出テンプレート
+```json
+{
+  "colors": {
+    "primary": "#...",
+    "secondary": "#...",
+    "accent": "#..."
+  },
+  "spacing": {
+    "xs": "4px", "sm": "8px", "md": "16px", "lg": "32px", "xl": "64px"
+  },
+  "typography": {
+    "heading": {"family": "...", "size": "...", "weight": "..."},
+    "body": {...}
+  },
+  "breakpoints": {"sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px"},
+  "shadows": {"sm": "...", "md": "...", "lg": "..."},
+  "radii": {"sm": "...", "md": "...", "lg": "..."}
+}
+```
+
+### C. CSS抽出レポート v2.0
+```
+## CSS抽出仕様書 — [URL]
+### 1. メタ情報: [取得日時/ブラウザ/画面幅]
+### 2. デザイントークン (JSON)
+### 3. 主要セクションのスタイル仕様:
+  - Hero: width/height/padding/bg/typography
+  - Features: grid/gap/card設計
+  - CTA: button設計
+### 4. レスポンシブブレイクポイント
+### 5. アニメーション/transition
+### 6. ダークモード対応有無
+### 7. アクセシビリティ (WCAG 2.2) チェック
+### 8. Tailwind 変換マップ
+### 9. 未対応ブラウザ:
+### 10. Nao(LP)/Ren への引き継ぎメモ
+```
+
+### D. 2026 Q4 CSS抽出の難所
+- **CSS-in-JS**: styled-components / emotion は runtime 解析必要
+- **Tailwind v4**: 新構文 @config / @theme
+- **CSS Container Queries**: `@container` 構文
+- **View Transitions API**: ページ遷移アニメ
+
+### E. 抽出精度ベンチマーク
+- **ピクセル一致率**: ≥99%
+- **カラーコード精度**: ±0 (完全一致)
+- **フォント検出率**: 100%
+- **レスポンシブ再現**: 3 ブレイクポイント以上

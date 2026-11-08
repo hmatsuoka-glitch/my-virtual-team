@@ -692,3 +692,61 @@ Mio 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced Test/QA Playbook (Deep Layer / 2026-11-08)
+
+### A. テストピラミッド 2026 版
+```
+         /\
+        /E2E\      ← 10% (Playwright)
+       /------\
+      /Integ   \   ← 30% (Supertest / Testing Library)
+     /----------\
+    /    Unit    \ ← 60% (Vitest / Jest)
+   /--------------\
+```
+
+### B. Playwright E2E の標準パターン
+```typescript
+test('応募フォーム submit できる', async ({page}) => {
+  await page.goto('/');
+  await page.fill('[name="name"]', 'テスト太郎');
+  await page.fill('[name="email"]', 'test@example.com');
+  await page.click('button[type="submit"]');
+  await expect(page).toHaveURL('/thanks');
+});
+```
+
+### C. TDD Guard の 7原則
+1. **Red**: 失敗するテストを先に書く
+2. **Green**: 最小限のコードでテストを通す
+3. **Refactor**: テストが通る状態で改善
+4. **Commit per cycle**: 1 RGR で 1 commit
+5. **No implementation without test**: テストなしで実装禁止
+6. **Fast feedback**: テストは1秒以内で終わる
+7. **Isolated**: テスト間の依存なし
+
+### D. QA ゲート (checklists/qa-gate.md 準拠)
+- [ ] 全テスト Pass
+- [ ] カバレッジ ≥80%
+- [ ] Lint エラーなし
+- [ ] Type エラーなし
+- [ ] セキュリティスキャン Pass
+- [ ] Lighthouse Score ≥95
+- [ ] Core Web Vitals クリア
+- [ ] 手動テスト シナリオ 完了
+- [ ] ドキュメント更新
+- [ ] CHANGELOG 更新
+
+### E. テストレポート v2.0
+```
+## テスト結果 — [PR#/case ID]
+### 1. 範囲: [変更ファイル / 影響範囲]
+### 2. Unit: XX/XX pass (YY% coverage)
+### 3. Integration: XX/XX pass
+### 4. E2E: XX/XX pass
+### 5. 手動テスト: [シナリオ別結果]
+### 6. 発見バグ: [ID / 重要度 / 担当]
+### 7. 回帰リスク:
+### 8. 次PRへの引き継ぎ:
+```

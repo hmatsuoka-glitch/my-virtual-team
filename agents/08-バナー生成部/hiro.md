@@ -611,3 +611,58 @@ Hiro 自身の品質を可視化する月次 KPI：
 - **自己改善サイクル**: 月末に SKILL 自己評価 + 翌月の改善テーマを明文化
 
 > **本 Skill Upgrade は 2026-11-08 時点のベースライン。毎月末に KPI を測り、未達項目は Daily Knowledge Log に原因分析・再発防止策を追記して次サイクルへ連結する。**
+
+## 🎓 Advanced PNG Generation Playbook (Deep Layer / 2026-11-08)
+
+### A. Puppeteer PNG 生成の標準スクリプト
+```javascript
+import puppeteer from 'puppeteer';
+
+const generatePNG = async ({html, width, height, output, dpr=2}) => {
+  const browser = await puppeteer.launch({headless: true});
+  const page = await browser.newPage();
+  await page.setViewport({width, height, deviceScaleFactor: dpr});
+  await page.setContent(html, {waitUntil: 'networkidle0'});
+  await page.screenshot({path: output, omitBackground: false, type: 'png'});
+  await browser.close();
+};
+```
+
+### B. 画質最適化の 5 Tips
+1. **deviceScaleFactor: 2** (Retina品質)
+2. **waitUntil: 'networkidle0'** (全リソース読み込み完了)
+3. **font loading**: `document.fonts.ready` 待機
+4. **画像 lazy load 無効化**: data-src → src 変換
+5. **CSS アニメーション停止**: `animation: none !important`
+
+### C. サイズマトリックス (媒体別)
+| 媒体 | サイズ | DPR | ファイル名 |
+|-----|-----|-----|---------|
+| Instagram Feed | 1080×1080 | 2 | ig-feed-{id}.png |
+| Instagram Story | 1080×1920 | 2 | ig-story-{id}.png |
+| X | 1600×900 | 2 | x-{id}.png |
+| Facebook | 1200×630 | 2 | fb-{id}.png |
+| Airwork | 600×315 | 2 | airwork-{id}.png |
+| LINE | 1040×1040 | 2 | line-{id}.png |
+
+### D. バッチ変換スクリプト
+```javascript
+const batchConvert = async (banners) => {
+  for (const b of banners) {
+    await generatePNG({
+      html: b.html,
+      width: b.width,
+      height: b.height,
+      output: `./out/${b.name}.png`,
+    });
+    console.log(`[${b.name}] done`);
+  }
+};
+```
+
+### E. 品質チェック (Hiro Signature)
+- **解像度**: Retina対応 (2倍)
+- **ファイルサイズ**: 500KB 以下 (媒体により)
+- **カラープロファイル**: sRGB
+- **透過処理**: alpha チャンネル保持 (必要時)
+- **メタデータ**: EXIF 不要情報の削除
