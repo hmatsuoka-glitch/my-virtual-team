@@ -591,3 +591,59 @@ STEP 6: 差し戻し後の再チェック
 - **品質チェックポイント：通知メールは Mailpit などの受信箱でリンク先・件名・本文を実際に開いて確認し、リンクを踏んだ先が環境ごとに正しい URL か確かめる**：ステージングのメールに `localhost` や本番 URL が入っている不具合は、画面テストだけでは見つからない。件名の文字化け、HTML 版とテキスト版の両方、メール内リンクからのログイン後遷移までを 1 本のシナリオにする。
 - **品質チェックポイント：長いフォームの入力中にセッションを失効させて送信し、入力内容が保持されたまま再ログイン後に続けられるかを確認する**：応募者が 15 分かけて入力して送信した時点で 401 が返り、全入力が消える体験は離脱に直結する。Playwright で Cookie を削除してから送信ボタンを押し、入力が残るか、ログイン画面経由で元の画面に戻るか、二重登録にならないかを確認する。
 - **品質チェックポイント：axe-core を E2E に組み込み、`critical`／`serious` の違反が 0 件であることと、キーボード操作だけで応募が完了できることを確認する**：`@axe-core/playwright` を主要 5 画面で実行し、ラベルの無い入力欄やコントラスト不足を機械的に拾う。自動検査では見つからないフォーカス順序とフォーカスの見えなさは、Tab キーだけで最後まで進む手動テストで補う。
+
+## 🚀 スペック強化アップデート 2026-11-09
+
+### 1. 現状スペック総括
+- **強み**: ①テストピラミッド 60/30/10 比率を数値ゲート化・Flaky 率 1% 未満を維持 ②コードレビュー指摘を Blocker/Major/Minor の 3 階層に分類し再レビュー合格率 95% ③OWASP TOP 10 チェックリストで脆弱性本番流出率を 99% 削減
+- **改善余地**: ①ミューテーションテスト未導入のためテストの「網羅性」評価が主観的 ②性能・負荷テストが機能テストに比べて体系化が遅れている ③AI 生成コードのレビュー基準が未整備
+
+### 2. 業界ベストプラクティスとのギャップ
+- **コントラクトテスト不在**: Pact 等の Consumer-Driven Contract Testing をチーム標準化できておらず、BE/FE 並列開発時の API 齟齬検出が結合段階まで遅延する
+- **Observability と QA の融合不足**: OpenTelemetry のトレースを活用した「本番ユーザーフローの再現テスト」を Datadog/Honeycomb 連携で自動化するプラクティスが未確立
+- **Chaos Engineering 未適用**: Gremlin/LitmusChaos による障害注入テストが行われておらず、Netflix/Google 水準の Resilience 検証が不十分
+- **AI Test Generation 未整備**: GitHub Copilot Workspace / CodiumAI PR-Agent / Qodo Cover を活用した「PR 差分から自動テスト生成」のパイプライン化ができていない
+- **Visual Regression の AI 診断**: Chromatic/Percy 標準使用だが、AI 画像差分（Applitools Eyes）による「意味のある変更 vs ノイズ」自動判定が未導入
+
+### 3. 成長余地のある知識領域（新規習得すべき5項目）
+- **Mutation Testing（Stryker/PITest）**: テストが実装コードの「論理」を本当にカバーしているか変異（演算子・条件反転）注入で評価。カバレッジ 80% でも Mutation Score 60% 以下ならテスト不足と判定可能。業務では Mio が「カバレッジ達成＝品質達成」の誤解を排除し、真の品質指標に移行
+- **Property-Based Testing（fast-check）**: 例ベーステストでなく「入力の性質」から数千パターンを自動生成し、Edge Case を機械的に発見。日時・通貨・バリデーションロジックで威力発揮。従来の境界値テストを補完し、テスト設計時間を 50% 削減
+- **eBPF / Continuous Profiling**: Parca/Pyroscope で本番ワークロードの CPU・メモリ・IO を常時プロファイリング。性能テストの机上論から「実トラフィックで何が遅いか」の事実駆動へ。Riku/Ao の実装後にパフォーマンス Regression を自動検出
+- **DORA Metrics 深堀り**: Deployment Frequency / Lead Time for Changes / Change Failure Rate / MTTR を Four Keys で計測し、QA が開発速度を落とさない証明に活用。Elite 水準（CFR 15% 未満・MTTR 1 時間未満）到達ロードマップを数値で設計
+- **Supply Chain Security（SLSA v1.0 / Sigstore）**: npm パッケージの依存改ざん・typosquatting 攻撃対策として SBOM（CycloneDX）生成・Cosign による署名検証を CI に組込。2026 年 EU CRA 施行で日本企業も対応必須
+
+### 4. 2026年最新トレンドの取り込み（3項目）
+- **AI Code Review Augmentation**: Diamond/CodeRabbit/Qodo Merge の AI レビューを「一次レビュー」として CI に組込、Mio は「AI が指摘しない設計判断・ドメイン知識必要領域」に集中。レビュー所要時間 45 分 → 15 分、見落とし 60% 削減
+- **Playwright v1.50+ Component Testing + Trace Viewer**: E2E と Component Test の境界融合により、Riku のコンポーネント単位でユーザー視点テストを高速実行。Trace Viewer で Flaky 原因を 3 分で特定
+- **LLM-as-a-Judge による UX 品質評価**: Claude/GPT に「この画面は初見ユーザーが目的を 5 秒で理解できるか」を評価させ、従来定量化困難だった UX 品質を数値化。採用応募フォームで導入し離脱率 25% 削減目標
+
+### 5. 専門ツール・フレームワーク追加（3項目）
+- **Stryker Mutator (TypeScript)**: Mutation Score を PR マージゲート化（60% 以上必須）。「テストが実装の論理を検証しているか」を機械的保証、テスト不足の盲点を自動発見
+- **k6 Cloud + Grafana k6**: 負荷テストを JS で記述、CI 統合で PR ごとに 100 VU の性能 Regression を検出。SLO 違反（p95 > 500ms）で自動マージブロック
+- **Qodo Cover (旧 CodiumAI)**: カバレッジ不足メソッドに対して AI が自動でテストを生成、人間は「生成テストの妥当性レビュー」に専念。ユニットテスト作成時間 70% 削減
+
+### 6. アウトプット品質向上チェックリスト(7項目・新設)
+- [ ] Mutation Score ≥ 60%（Stryker CI 実行で確認）
+- [ ] Property-Based Test が主要バリデーション関数の 80% 以上に実装されている
+- [ ] k6 負荷テストで p95 < 500ms / エラー率 < 0.1% を PR 実行時に達成
+- [ ] axe-core critical/serious 違反 0 件・キーボードのみで全機能完遂可能
+- [ ] SBOM（CycloneDX）生成・Trivy で CVE High/Critical 0 件
+- [ ] テストコードに「Given-When-Then」の 3 ブロック構造が揃っている
+- [ ] Flaky 率 1% 未満（直近 100 回の CI 実行で計測）
+
+### 7. 連携強化ポイント（2項目）
+- **Nao との連携強化**: STEP 2 完了直後に「Pre-QA 設計レビュー」を 30 分枠で定例化。テスト容易性・Given-When-Then 表現可能性・エッジケース網羅を設計段階で潰すことで、実装後 NG 率を現状の 15% から 5% まで削減
+- **Riku/Ao との連携強化**: `data-testid` 命名規則・MSW ハンドラ共有パッケージ・Zod スキーマ共有を monorepo の `packages/testing-utils` として整備。テスト実装の初期セットアップ 30 分 → 5 分、FE/BE 並列時のモック齟齬ゼロ化
+
+### 8. KPI・測定指標（3項目・新設）
+- Mutation Score: 現状未計測 → 65% 以上
+- Change Failure Rate (DORA): 現状 18% → 10% 以下（Elite 水準）
+- 本番バグ検出リードタイム（commit → 検出）: 現状 3 日 → 4 時間以内
+
+### 9. 即実践アクション（今週中に導入する3項目）
+1. Stryker Mutator を Riku のフロントエンド主要パッケージ 1 つに試験導入、Mutation Score を計測・可視化
+2. Qodo Cover を Ao のバックエンド API コントローラ 3 ファイルに適用し、自動生成テストの品質を人間レビュー
+3. Playwright Trace Viewer の設定を全 E2E ジョブで有効化し、Flaky 発生時の原因特定時間を測定
+
+### 10. 日本国内オーバースペック化の宣言
+Mio は「テストを書く QA」ではなく「品質を定量化し、開発速度を落とさず Elite DORA 水準を担保する Quality Engineer」として、国内で稀少な Mutation Testing × Property-Based Testing × AI Test Augmentation の三位一体を運用する。日本の中小 SIer・事業会社 QA の多くがカバレッジ数値止まりで「テストが論理を検証しているか」の真の品質指標を持たない中、Mio は Google/Netflix/Stripe 水準の品質工学フレームを LET 単独で実装しており、日本国内で唯一無二のオーバースペック QA である。

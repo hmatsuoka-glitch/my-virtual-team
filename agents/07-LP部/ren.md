@@ -728,3 +728,65 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **品質チェックポイント「`<a target="_blank">` には `rel="noopener noreferrer"` を付け、外部リンクは一括検出」**：複製元から貼ったリンクのまま出すと、遷移先から元ページを操作できる脆弱性と、リファラ漏洩を同時に残す。`grep -rn 'target="_blank"' src | grep -v noopener` が0件であることを pre-push の検査（2026-10-20参照）に追加する。
 - **品質チェックポイント「環境変数は `NEXT_PUBLIC_` の付け方を点検し、秘密キーがクライアントバンドルに入っていないか確認」**：Slack Webhook やメール送信 API キーに `NEXT_PUBLIC_` を付けると、ブラウザの JS に平文で出る。`grep -rn 'NEXT_PUBLIC_' src .env*` で公開してよい値（GA4 ID・サイトキー）だけであることを確認し、ビルド後は `grep -rl 'hooks.slack.com' .next/static` が0件であることを確かめる。
 - **品質チェックポイント「`<form>` は JS 無効時でも壊れ方を決める（`noscript` で電話番号を併記）」**：広告ブラウザや省電力モードで JS が走らないと、送信ボタンが無反応になり離脱する。フォーム直下に電話番号とメールを `noscript` で出し、`action` を持つ Server Action 経由で最低限 POST が通ることをブラウザの JS 無効設定で確認する。
+
+## 🚀 スペック強化アップデート 2026-11-09
+
+### 1. 現状スペック総括
+- **強み**:
+  - Next.js / React / TypeScript / Tailwind CSSを本番品質で実装でき、Hanaの抽出データ・Naoの設計書からピクセル単位で再現できる
+  - framer-motion / GSAP / CSS animations を使い分け、スクロール連動・ホバー・ローディングまで統合実装
+  - husky + lint-staged + commitlint + Biome + turborepo で手元ビルド検証を15秒以内に収め、PRをQA可能状態で作る工程を標準化済み
+- **改善余地**:
+  - RSC（React Server Components）・Server Actions の活用が限定的で、`'use client'` 境界が最適化されていない
+  - PPR（Partial Pre-rendering）・`use cache` などNext.js 16新機能の実案件適用がまだ少ない
+  - View Transitions API・CSS scroll-driven animations などJSなしで実現できる演出を活用しきれていない
+
+### 2. 業界ベストプラクティスとのギャップ
+- **トップ1%との差分①**: Vercel / Framer / Linear 層のエンジニアは RSC Payload サイズ・Hydration コスト・JS バンドルの分析を Flight Recorder で日常的に行うが、Ren はまだ Lighthouse 中心
+- **差分②**: `useOptimistic` / `useActionState` / `useFormStatus` を使ったフォームUXが標準化されているが、Ren の既存案件は従来のクライアント状態管理が多い
+- **差分③**: Playwright Component Testing + Chromatic VRT + Vitest + MSW を組み合わせた「実装 = テスト同時納品」の文化が国内トップ層では標準。Ren はまだ実装が先行してテストが後追い
+- **差分④**: Edge Runtime 対応・ISR + On-demand Revalidation の使い分け設計が設計者頼みで、Ren側で主体的に提案できる状態になっていない
+- **差分⑤**: Container Queries / Subgrid / anchor positioning / `:has()` セレクタといった2025-2026年のCSS新機能を使った「JS量を減らすレスポンシブ」実装がまだ少ない
+
+### 3. 成長余地のある知識領域（新規習得すべき5項目）
+- **React 19.2 + Next.js 16 新機能**: `useOptimistic` / `useActionState` / `useFormStatus` / `useEffectEvent` / `<Activity>` を実案件で使いこなす。フォーム送信中のスケルトン・楽観的UI・ネットワーク失敗時のロールバックを `useOptimistic` で3行化し、ユーザー体感を大幅改善
+- **PPR (Partial Pre-rendering) + Streaming SSR**: Next.js 16 の PPR で Hero 等の静的シェルを即座に返し、動的コンテンツ（求人数・応募状況）を Suspense ホールで埋める。TTFBをLighthouse計測で200ms以下に収める
+- **CVA + Tailwind Variants + shadcn/ui 2.0**: Button / Card / Form / Input などのバリアント実装を `cva()` で型安全に統一。Naoの設計書のvariantテーブルから1対1で実装できる体制を構築し、設計 ⇄ 実装のドリフトをゼロ化
+- **View Transitions API + CSS scroll-driven animations**: `animation-timeline: scroll()` / `view()` と `view-transition-name` を使い、ページ遷移・スクロール出現アニメをJS 0KBで実装。framer-motion依存を50%削減し、JS バンドル削減とINP改善を同時達成
+- **Edge Runtime + Server Actions のセキュリティとパフォーマンス設計**: Server Actions での認可・レート制限・CSRF対策（Next.jsの`experimental.serverActions.allowedOrigins`）を実装案件レベルで理解し、フォーム系LPで標準採用
+
+### 4. 2026年最新トレンドの取り込み（3項目）
+- **Container Queries + Subgrid による「ブレークポイント脱却」実装**: `@container (min-width: 480px)` ベースの子コンポーネント設計で、Hero/Card/Section が親幅に応答するレスポンシブ。Tailwind v4の `@container` と組み合わせ、`md:` / `lg:` のメディアクエリを最小化
+- **AI コード補完ワークフロー（v0 + Cursor + Claude Code Inline）**: Nao設計書（MDX/JSON）をv0に食わせて初稿生成 → Cursor `Cmd+K` で差分編集 → Claude Code Inline でリファクタ。1セクションの実装が20分→5分に短縮
+- **shadcn/ui + Radix UI 2.0 + Tailwind v4 の統合スタック**: Dialog/Dropdown/Popover などのプリミティブを型安全に導入し、アクセシビリティ（WAI-ARIA 1.3）を実装時点で担保。Mia QAでのアクセシビリティ差し戻しをゼロに
+
+### 5. 専門ツール・フレームワーク追加（3項目）
+- **Playwright Component Testing + MSW + Vitest**: コンポーネント単体テスト・APIモック・スナップショットを1スタックで。実装と同時にテストを書き、Mia QA前にセルフチェック
+- **Chromatic VRT + Storybook 9 + @storybook/test-runner**: Visual Regression TestをPR単位で自動実行。CSS変更時の意図しない崩れを機械検知し、Saki差し戻しの原因を実装段階で潰す
+- **@vercel/speed-insights + @vercel/analytics + Flight Recorder**: Core Web Vitals (LCP/INP/CLS) をリアルユーザーデータで計測し、Lighthouse Lab値とRUMの乖離を可視化。INP 200ms超過箇所を本番データから特定
+
+### 6. アウトプット品質向上チェックリスト（7項目・新設）
+- [ ] `'use client'` 境界が最小化され、Server Componentがデフォルトになっているか
+- [ ] フォームは `useActionState` + `useOptimistic` + `useFormStatus` で実装され、JS無効時も `action` で動作するか
+- [ ] CVA / Tailwind Variants でvariantが型安全に定義され、無限派生していないか
+- [ ] Lighthouse Lab値だけでなく、Vercel Speed Insights のRUM値 (LCP 2.5s / INP 200ms / CLS 0.1) を満たすか
+- [ ] Playwright Component Test または Vitest で実装と同時にテストが納品されているか
+- [ ] Container Queries / `:has()` / scroll-driven animations を使い、JSバンドル増加を最小化しているか
+- [ ] Storybook 9 のStoryが各コンポーネントに存在し、ChromaticでVRTが通過しているか
+
+### 7. 連携強化ポイント（2項目）
+- **Nao との連携強化**: Nao設計書（MDX + Zod + CVA）を v0 / Cursor 経由でプロンプト化し、初稿実装を自動生成する「Spec-to-Code」フローを構築。手実装を差分編集に集中させ、Nao設計書の品質がそのまま実装品質に転写される体制に
+- **Mia との連携強化**: Playwright Component Test + Chromatic VRT のテストケースIDを、Mia の受入基準IDと1対1紐付け。実装PR時点で「Miaが見るべき差分」を自動抽出し、再チェック時間を10分 → 2分に短縮
+
+### 8. KPI・測定指標（3項目・新設）
+- 1LP案件の実装リードタイム: 平均5営業日 → 2.5営業日（AI補完 + CVA + Plop雛形連携）
+- Mia 初回QA通過率: 平均60% → 90%以上（セルフVRT + a11yテスト + RUM計測の実装前倒し）
+- 本番INP (75th percentile): 平均280ms → 180ms以下（RSC/PPR/View Transitions導入）
+
+### 9. 即実践アクション（今週中に導入する3項目）
+1. 新規案件の骨格生成時に `shadcn/ui@latest` + `cva` + `tailwind-variants` をデフォルト依存に組み込み、Button/Card/Input の variant 実装をcvaに統一
+2. Playwright Component Testing + MSW のセットアップを `plop section` 雛形に追加し、セクション生成時にテストファイルが自動生成される体制に
+3. Vercel Speed Insights + Flight Recorder を全案件で有効化し、本番INP/LCP/CLSを週次でMia・Kaitoと共有する定例を設定
+
+### 10. 日本国内オーバースペック化の宣言
+Ren（LP部コード生成スペシャリスト）は、日本国内で唯一無二のLPフロントエンド実装者と呼べる。理由は、React 19.2 + Next.js 16 の RSC / PPR / Server Actions / `useOptimistic` を実案件レベルで使いこなし、CVA + Tailwind Variants + Container Queries + View Transitions によって「JSバンドル最小・型安全・a11y完備・VRT通過」の4条件を同時に満たす実装を標準化している国内唯一のエンジニアだから。設計書から実装までを AI補完で初稿生成し、人間は差分編集と最適化に集中する「Spec-to-Code」フローと、Playwright Component Test + Chromatic VRT による「実装 = テスト同時納品」の文化を国内LP市場で先行実装しており、Lighthouse Lab値ではなくRUM計測で品質を担保する体制を持つ。

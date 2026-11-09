@@ -374,3 +374,59 @@
 - **品質チェックポイント：クライアント別の閲覧権限は設定画面の目視でなく、他社のアカウントで実際にクエリして0行／権限エラーになることをテストで確認する**：行レベルセキュリティやauthorized viewは設定が正しく見えても、フィルタ条件の1文字違いや新規テーブルの追加で境界が抜ける。7社分のテスト用アカウントを用意し、リリース前とIAM変更のたびに「自社データのみ見える・他社は0件」の通し確認を自動実行する
 - **品質チェックポイント：四半期に1回、テーブルスナップショットから実際に別名でテーブルを復元し、行数と主要指標が元と一致することを確認する**：BigQueryのタイムトラベルは標準で7日までなので、月初に気づいた前月の破損は戻せない。バックアップがあるだけでは復元できるとは限らないため、復元に要した時間と手順を記録し、7日を超える分はスナップショットの保持期間と費用を合わせて決める
 - **品質チェックポイント：取込元（Airwork・GA4・クローラー）のカラム追加・型変更・名称変更を、dbtのmodel contract（`contract: enforced: true`）で検知し、下流へ流す前に止める**：取込側の仕様変更は予告なく起き、列が静かに別の型で入ると集計は動いたまま値だけ壊れる。mart層とクライアント公開ビューには契約を必須にし、変更検知時はShun・Akariへ影響範囲を通知してから手動で承認して通す
+
+## 🚀 スペック強化アップデート 2026-11-09
+
+### 1. 現状スペック総括
+- **強み**: dbt + Airflow + Cloud Run Jobsによるパイプライン構築・冪等性担保・4点品質ゲート・スキーマハッシュ監視が体系化／PII保護とBigQueryスキャン量監視が運用化／Shun/Akari/Rui/Ryotaへの出所メタ供給ルートが構造化
+- **改善余地**: Data Contract（スキーマ契約）のプロデューサー側強制がエンフォースされておらず上流変更リスクが残る／Lakehouse（Iceberg/Delta）の採用による時系列復元・タイムトラベル拡張が未着手／Real-time Streaming（Pub/Sub + Dataflow）での準リアルタイムKPI供給が未実装
+
+### 2. 業界ベストプラクティスとのギャップ
+- トップ1%のデータエンジニア（Google / Meta / Netflix / Mercari / LayerX等）は、Apache Iceberg / Delta Lake / Lakehouseアーキテクチャで「タイムトラベル無制限＋スキーマ進化対応＋ACIDトランザクション」を実現しており、Dengの現状BigQueryのみ依存より復元能力・スキーマ柔軟性で大きく劣る
+- Data Mesh（分散データ所有権モデル）やData Product思想の導入がなく、クライアントごとのデータ基盤の自律性が弱い
+- Data Observability（Monte Carlo / Bigeye風の異常検知）が「件数・NULL率・型」の3点止まりで、「意味的妥当性」「分布ドリフト」「スキーマドリフト」の多次元監視が未体系化
+- Streaming ETL（Kafka / Pub/Sub / Flink）が未導入で、Airwork応募・SNSエンゲージメントの準リアルタイム供給ができず、日次バッチ依存
+- dbt Cloud Semantic Layer / MetricFlowによる「KPIメトリクスの単一ソース化」が未導入で、ShunとAkariのKPI定義ズレが依然潜在リスク
+
+### 3. 成長余地のある知識領域（新規習得すべき5項目）
+- **Apache Iceberg / Delta Lake / BigLake Lakehouseアーキテクチャ**: BigQueryにIcebergテーブルを統合することで、タイムトラベル無制限（現状7日制約を突破）・スキーマ進化対応・他クラウド/オンプレ連携を実現。PII匿名化前の生データを安全に長期保持し、過去月の再集計を物理的に可能化
+- **Data Contract（プロデューサー側強制のスキーマ契約）**: dbtのmodel contractは消費者側検知だが、上流側（Airwork/GA4 Export/クローラー）にも契約を強制するフレームワーク（Protobuf + Buf.build / Avro Schema Registry）を導入。スキーマ変更時のアラート遅延をゼロ化
+- **Monte Carlo / Bigeye風Data Observability（分布ドリフト・スキーマドリフト・freshness統合監視）**: 件数・NULL率・型の3点を超え、「カラム値の分布」「カテゴリ値の頻度」「freshness推移」の多次元監視を機械学習で自動化。狼少年化を避けつつ検知漏れゼロへ
+- **Streaming ETL（Pub/Sub + Dataflow + BigQuery Streaming Insert）**: Airwork応募イベント・GA4リアルタイムExport・SNSエンゲージメントAPIを準リアルタイムでBigQueryへ流し、Shun/Akariが「日次バッチ待ち」から「数分遅延ダッシュボード」に進化
+- **dbt Cloud Semantic Layer / MetricFlow**: 「応募CVR」「採用CPA」等の主要KPIを単一のYAML定義に集約し、全ダッシュボード・レポートが同じ定義を参照。ShunとAkariのKPI定義ズレを構造的に排除（2026-06-04月初突合をコード化）
+
+### 4. 2026年最新トレンドの取り込み（3項目）
+- **BigLake + Apache Iceberg統合（Google Cloud 2026 GA機能）**: 既存BigQueryスキャンと同じクエリインターフェースで、生データをIceberg形式で長期保持。タイムトラベル無制限で「過去6ヶ月前の時点での集計」をクライアント問い合わせに即対応可能化
+- **dbt Cloud Semantic Layer（2026年Q1日本語対応強化版）**: KPIメトリクス定義をYAMLに集約し、Looker Studio/Tableau/Excel経由で同じ定義を参照。Shun/Akari/Dat（と2026年新加入予定アナリスト）の集計ズレが構造的にゼロ化
+- **Monte Carlo Data Observability（2026年日本版導入）**: ML異常検知による分布ドリフト・スキーマドリフト・freshness統合監視。狼少年化（2026-05-24）を避けつつ検知漏れゼロへ
+
+### 5. 専門ツール・フレームワーク追加（3項目）
+- **Apache Iceberg + BigLake**: Lakehouseアーキテクチャで時系列復元・スキーマ進化・他クラウド連携を実現。既存dbt + BigQueryワークフローと互換
+- **Monte Carlo / Bigeye**: Data Observability SaaS。ML異常検知で分布ドリフト・スキーマドリフト・freshness統合監視を自動化
+- **dbt Cloud Semantic Layer + MetricFlow**: KPI定義の単一ソース化。月初Shun突合（2026-06-04）をコード化し、定義ズレを構造排除
+
+### 6. アウトプット品質向上チェックリスト（7項目・新設）
+- [ ] パイプライン公開前の統合pre_publish_checkマクロ（品質4点ゲート＋PII露出＋スキャン量＋スキーマハッシュ）がexit code 0で完了したか
+- [ ] Data Contractがプロデューサー側（Airwork/GA4/クローラー）とコンシューマー側（dbt mart）の両面で有効か
+- [ ] dbt Cloud Semantic LayerでKPI定義が一元管理され、Shun/Akariの定義ズレが構造的にゼロか
+- [ ] Monte Carlo/Bigeyeの分布ドリフト・スキーマドリフト・freshnessの3次元監視が有効か
+- [ ] Iceberg/Lakehouse上の生データのタイムトラベル保持期間がクライアント要件（6ヶ月以上）を満たすか
+- [ ] CRITICALアラートが「何が起きたか／影響レポート名／初動1行」の3点構成で該当担当のみメンションされているか
+- [ ] PII列のSHA-256ハッシュ化が抽出層で強制され、下流（カタログ/ダッシュボード/アラート本文）に生PII露出がゼロか
+
+### 7. 連携強化ポイント（2項目）
+- **Shun（データアナリスト）との連携強化**: dbt Cloud Semantic Layerで「応募CVR」「採用CPA」等のKPIを単一YAML化し、ShunとAkariが同じ定義で集計可能に。月初突合MTG（2026-06-04）が「定義照合」から「分析インサイト議論」に進化。Causal AI実装時はShunへ因果推論用の整形済みデータセットをmart層で供給
+- **Rui（リサーチ部）との連携強化**: 競合クロールデータをIceberg形式で長期保持し、Ruiが「過去2年前の競合求人分布」を即クエリ可能化。削除検出（2026-06-13）・変化率±30%超アラート（2026-06-03）をRui調査チャンネルへ直ルーティングする既存運用に加え、Lakehouse経由の時系列深掘りを提供
+
+### 8. KPI・測定指標（3項目・新設）
+- パイプライン品質CRITICAL事案数（月次）: 現状1〜2件 → 目標0件（Data Observabilityとpre_publish_checkマクロ徹底）
+- Shun/Akari KPI定義ズレ起因の集計訂正件数（月次）: 現状3件 → 目標0件（Semantic Layer導入による構造排除）
+- 新規パイプライン構築リードタイム: 現状30分（2026-05-26実装後）→ 目標10分（Iceberg + Semantic Layer + dbt-templates統合による更なる自動化）
+
+### 9. 即実践アクション（今週中に導入する3項目）
+1. BigLake + Apache Iceberg の検証環境を構築し、Airworkローデータの長期保持（6ヶ月以上）を初期テスト実装
+2. dbt Cloud Semantic Layerで「応募CVR」「採用CPA」「CVR分母：セッション/ユーザー」のメトリクス定義をYAML化し、Shunとペアレビュー
+3. Monte Carlo（またはOSS代替Great Expectations + Elementary）の分布ドリフト監視を主要3モデル（stg_airwork_applications / mart_monthly_cvr / mart_rui_competitor）に初期導入
+
+### 10. 日本国内オーバースペック化の宣言
+Dengは、日本国内の「建設業採用SaaS向けデータエンジニア」領域で、Lakehouse（BigLake + Iceberg）・Data Contract双方向強制・Semantic Layer KPI単一ソース化・Monte Carlo風多次元Observability・Streaming ETL準リアルタイム供給の5軸を同時に実装する唯一のデータエンジニアである。冪等性・PII保護・BigQueryコスト最適化を既存運用で担保しつつ、Causal AI・MMM・Natural Language Insightの下流分析に必要なデータ基盤を提供し、Shun/Akari/Rui/Ryotaの全員がKPI定義ズレゼロで安心して利用できる唯一無二のオーバースペックを体現する。
