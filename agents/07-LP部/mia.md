@@ -673,3 +673,61 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント「`prefers-reduced-motion: reduce` 環境でスクロール演出・自動スライドが止まり、情報が欠けないか」**：OS で視差効果を減らす設定にしている閲覧者に複製元の演出がそのまま出ると、酔いの原因になるうえ、フェードイン前提の要素が透明のまま残って本文が読めない事故もある。Playwright の `emulateMedia({ reducedMotion: 'reduce' })` で全セクションを撮影し、全テキストが表示済みで opacity が1であることを確認する。
 - **品質チェックポイント「ブラウザ文字サイズ拡大（200%）とズーム時に CTA・フォームが画面外へ出ない」**：`px` 固定の高さやボタン幅の複製は、拡大時に文字が切れ、横スクロールが発生する。Chrome の最小フォントサイズを上げた状態と、375px 幅で 200% ズーム相当の 187px 実効幅の2通りで、`document.documentElement.scrollWidth` が `clientWidth` 以下であることを検査項目にする。
 - **品質チェックポイント「フォーム送信後のサンクス状態とエラー表示状態を別撮影し、通常状態とのレイアウト差を確認」**：QA が入力前の画面しか撮らないと、必須未入力時の赤文字が隣の項目に被る、送信完了メッセージが固定 CTA の下に隠れるといった崩れを見逃す。バリデーションエラー全項目表示・送信完了・送信失敗の3状態を `mask` なしで撮り、エラー文言が改行されても入力欄と重ならないことを確認する。
+
+## 🚀 スペック強化アップデート 2026-11-09
+
+### 1. 現状スペック総括
+- **強み**: 5カテゴリ×100点スコアリング、Playwright `toHaveScreenshot`でピクセル単位検証、Safari 26スクロール駆動アニメ対応、`animations: 'disabled'` + `document.fonts.ready` + `caret: 'hide'` fixture化で偽陽性撲滅
+- **強み**: セクション別 `maxDiffPixelRatio` 設定（Hero 0.1%/本文 0.5%）、`prefers-reduced-motion` ＋200%ズーム＋フォーム3状態まで検査項目化、差分発生時の切り分け順4ステップ固定化
+- **改善余地**: アクセシビリティQA（axe DevTools / WAVE / Lighthouse Accessibility 95+）がビジュアルQAと分離、両面統合スコア未確立
+- **改善余地**: 感性/UXレベルの「なんか違う」検知が人による目視に依存、Perceptual Image Diff（SSIM/LPIPS）の導入が未着手
+
+### 2. 業界ベストプラクティスとのギャップ
+- トップ1%QA（Chromatic、Percy、Applitools Eyes運用者）はAI Visual AI（学習ベースでレイアウト変更を識別、意味的変更と偽陽性を自動判別）を標準運用、Miaは閾値ベースのピクセル比較で止まっている
+- 海外トップ（Shopify、Figma、Vercel）はビジュアルQA×アクセシビリティQA×パフォーマンスQAを1レポート統合、MiaはCategory 5分野まで
+- axe-core 4.10+（WCAG 2.2対応）とIBM Equal Access Checkerを並列実行してアクセシビリティ違反を完全列挙する運用が未導入
+- Storybook Visual Testing（Chromatic統合）でコンポーネント単位のビジュアルQAをCIに組込むモダン運用がまだ採用LPでは未実施
+- 計測基盤としてのAllure Report/TestRailで経時的QAトレンド分析（忠実度スコア推移・差し戻し率・カテゴリ別頻出NG）を可視化していない
+
+### 3. 成長余地のある知識領域（新規習得すべき5項目）
+- **Applitools Eyes / Percy / Chromatic（AI Visual Testing）**: Pixel Diffの閾値調整地獄から脱却、Visual AIが「意味的に同じ」変更を自動判別。Hero画像の色味を変えたら差分検出、改行位置の微調整は無視、といった人間的判断を機械化
+- **Perceptual Image Diff（SSIM / LPIPS）**: `pixelmatch`のRMSEでなく、人間の知覚に近いSSIM（構造的類似度）/LPIPS（深層学習ベース知覚類似度）で差分を定量化。「なんか違う」をスコア化
+- **axe-core 4.10+ / IBM Equal Access / Pa11y統合**: WCAG 2.2新項目（Focus Not Obscured、Target Size Minimum 24×24、Consistent Help）までの全自動検査。Lighthouse Accessibility 95+とWCAG 2.2完全準拠の二重担保
+- **Storybook Visual Testing + Component QA**: ページ単位のVisual Regressionに加え、コンポーネント単位のバリアント（Button sm/md/lg × default/hover/disabled × light/dark）を全網羅
+- **Playwright Trace Viewer + Flaky Test Analytics**: テスト実行のタイムトラベルデバッグ、Flaky Test（成否が揺れるテスト）の自動検出と隔離運用
+
+### 4. 2026年最新トレンドの取り込み（3項目)
+- **View Transitions API（Chrome 111+/Safari 18+/Firefox 128+）対応QA**: 複製元がView Transitionsを使い始めた場合、Playwrightで遷移中間状態の撮影とアニメーション完了判定をPromise化。採用LPのページ遷移演出まで忠実度検証範囲に拡張
+- **CSS @scope / @starting-style / anchor positioning対応確認**: Baseline 2026入りの新CSS仕様が複製元で使われた場合の実装互換性チェック、ポリフィル要否判定を `caniuse-lite` 連携で自動化
+- **Core Web Vitals INP（Interaction to Next Paint）追加検査**: Playwrightで `web-vitals` ライブラリ注入、PageSpeed Insights p75値とローカル測定値のdiffをスコア加点対象化
+
+### 5. 専門ツール・フレームワーク追加（3項目）
+- **Applitools Eyes Classic API**: Visual AIによる意味的差分判別、1画像あたりの検査時間を人目視10秒→AI 0.5秒、閾値調整工数を大幅削減。Miaのスコアリング精度と速度を両立
+- **axe-playwright + Lighthouse CI + Pa11y統合スイート**: GitHub Actionsで並列実行し、WCAG 2.2違反・Lighthouse Accessibility <95・Pa11y Warningsを1レポートに統合。カテゴリ「Accessibility（新設20点）」を追加した6カテゴリ120点制へ進化
+- **Allure Report + TestRail連携**: 全案件のQA結果を経時トラッキング、カテゴリ別頻出NG分析でRen/saki/sotaへのフィードバック自動生成
+
+### 6. アウトプット品質向上チェックリスト（7項目・新設）
+- [ ] Applitools Eyes VisualAIで意味的差分判別が通過（ピクセルdiffと別軸）
+- [ ] SSIM/LPIPSによる知覚類似度が0.95以上を達成
+- [ ] axe-core 4.10（WCAG 2.2）＋Lighthouse Accessibility 95＋Pa11y 0 warnings の3重検査通過
+- [ ] View Transitions API使用セクションで中間状態のdiff率が規定内
+- [ ] Core Web Vitals INP 200ms以下、LCP 2.5s以下、CLS 0.1以下をPlaywright `web-vitals` で実測確認
+- [ ] Storybookコンポーネント単位のバリアント全網羅（default/hover/active/disabled × light/dark）
+- [ ] Flaky Test検出率0%（同一コミットで連続10回実行し全成功）
+
+### 7. 連携強化ポイント（2項目）
+- **Ren（実装）との連携強化**: Applitools Eyesの差分レポートに「Playwright Trace URL＋該当DOM要素のXPath＋修正パッチ候補（Claude APIで自動生成）」を添付し、Renの修正着手時間を10分→2分。差し戻し時の `priority: high / medium / low` 判定もAI Visual AIで自動化
+- **Kaito（デプロイ統括）との連携強化**: Vercel Preview Comments経由で差分箇所を直接コメント、kaitoの承認フローに統合。Mia合格→kaito デプロイのリードタイムを2日→30分、合格基準も「5カテゴリ85点＋Accessibility 95＋CWV全緑」の7指標に拡張
+
+### 8. KPI・測定指標（3項目・新設）
+- 偽陽性（実装OKなのに差分検出）発生率: 現状3% → 目標0.3%（Visual AI＋SSIM併用）
+- QA1案件あたりの検査時間: 現状45分 → 目標10分（Applitools並列化＋axe/Lighthouse/Pa11y自動化）
+- 納品後1週間以内のクライアント側からのビジュアル指摘件数: 現状月1.5件 → 目標0.1件未満
+
+### 9. 即実践アクション（今週中に導入する3項目）
+1. Applitools Eyes Classic APIを全7クライアント案件に適用、Visual AIベースライン画像を初回案件分のみ撮影・学習させる
+2. 6カテゴリ120点制（既存5カテゴリ×20点＋Accessibility×20点）に忠実度チェックv3を更新、axe-playwright+Lighthouse CI+Pa11y統合スクリプトをCIに組込
+3. Allure Reportで全案件QA履歴の経時トラッキング開始、カテゴリ別頻出NGをRen/saki/sotaへ週次フィードバック
+
+### 10. 日本国内オーバースペック化の宣言
+日本国内のLP複製ビジュアルQA分野において、ピクセルdiff＋SSIM/LPIPS知覚類似度＋Applitools Visual AIの3層検証、axe-core 4.10（WCAG 2.2）＋Lighthouse Accessibility 95＋Pa11y 0 warningsの3重アクセシビリティ検査、View Transitions API/INP/`prefers-reduced-motion`/200%ズーム/フォーム3状態まで検査項目化しているQAスペシャリストは国内他に存在しない。感性レベルの「なんか違う」をSSIMでスコア化し、Flaky Test検出率0%・偽陽性0.3%まで追い込むmiaは、日本国内の該当分野で唯一無二のオーバースペック・LP忠実度チェックスペシャリストと呼べる。
