@@ -892,3 +892,65 @@ JS ソースから以下のパターンを検出する:
 - **品質チェックポイント「写真の主役の位置を SP 切り抜き枠（375×500 と 1:1）の両方に重ねて確認する」**：PC 横長で映える写真は、SP の縦枠に切ると作業員の顔や重機が見切れることが多い。カンプ時点で SP・PC それぞれの切り抜き枠を写真に重ねて、主役が枠の中央 60% に収まるものだけを採用写真にする。収まらない写真は撮り直し候補として撮影リストに戻す。
 - **品質チェックポイント「提案カンプの Lighthouse 目標（LCP 2.5秒以内）から逆算し、Hero 画像のファイルサイズ上限を案に書く」**：Hero に 2MB 級の写真を前提にした案は、実装後に LCP が4秒を超えて差し戻しになる。案の段階で Hero 画像は WebP で SP 150KB 以下・PC 300KB 以下と明記し、その容量で画質が保てる構図（背景のぼかしを使わない等）かを選ぶ。
 - **品質チェックポイント「ボタン・リンクのタップ領域は 44×44px 以上かをカンプ上で測る」**：デザイン上は小さな文字リンク（「個人情報の取り扱い」「電話で問い合わせ」）が、現場の手袋・片手操作では押せず離脱要因になる。Figma の枠線で 44px の当たり判定を重ね、満たさない要素は余白で領域を広げる設計にしてから tsumugi に渡す。
+
+## 🚀 スペック強化アップデート 2026-11-09
+
+### 1. 現状スペック総括
+- **強み**:
+  - 参考LP 7件（農業・製造業・デザイン会社・建設・SNS採用・採用代行・建設土木）のカラー・フォント・CTA・レイアウトを分析済み
+  - 保守的案（案A）+ チャレンジ案（案B）の2案提示で、クライアント承認率を担保
+  - Figma Variables + Auto Layout + モード切替で案A/B制作を効率化（2026-10-13参照）、Playwright スクショ自動化で参考LP収集を5分で完了
+- **改善余地**:
+  - 独自性スコア（デザイン模倣との差分定量化）がまだ主観依存で、Soraの最終QA基準とのズレが残る
+  - 建設業界以外のデザイントレンド（SaaS・D2C・金融）への対応が参考LPライブラリに不足
+  - クライアント承認後のデザイン → Nao設計書 → Ren実装の「デザイントークン受け渡し」が属人化
+
+### 2. 業界ベストプラクティスとのギャップ
+- **トップ1%との差分①**: Linear / Vercel / Framer のデザイナーは Figma Variables + Design Tokens Studio + Style Dictionary の3層を統合し、デザイン変更が即時にTailwind v4 `@theme`・TypeScript型・CSS変数に反映される自動化パイプラインを保有。Sotaは手動同期中心
+- **差分②**: Motion Design ベストプラクティス（Rauno Freiberg / Emil Kowalski / Jon Yablonski）に基づく「意味のあるモーション設計」が国際標準。Sotaはモーションの意図設計がまだ感覚的
+- **差分③**: APCA (WCAG 3) ベースの Lc値コントラスト設計、OKLCH色空間での perceptual palette 構築、コンテキスト依存コントラスト（本文/UI/補足）が国際標準。Sotaの参考LP分析はHEX中心
+- **差分④**: AI支援のデザインリサーチ（Mobbin / Godly / Savee + Claude/GPTのビジュアル分析）で参考LP収集を自動化・大規模化するのが標準。Sotaは手動キュレーション
+- **差分⑤**: Component Governance（デザインシステムからのズレを自動検知）・Figma Branching による並行提案・Figma Make（AI生成）の活用がトップ層では常識。Sotaはまだ従来のFigma運用中心
+
+### 3. 成長余地のある知識領域（新規習得すべき5項目）
+- **OKLCH色空間 + APCA (WCAG 3) ベースのPerceptual Palette設計**: `oklch(70% 0.15 160)` 形式で明度・彩度を人間知覚に合わせて制御。Tailwind v4 の `oklch` デフォルト対応と整合し、ブランド色のライト/ダーク・異背景での Lc値 を数値設計。Mia QA の視認性差し戻しをゼロ化
+- **Motion Design原則（Jon Yablonski "Laws of UX" + Rauno Freiberg "Thinking in Motion"）**: 「Doherty Threshold」「Hick's Law」「Fitts's Law」を適用したインタラクション時間設計。Hoverで150-200ms・Modalで200-300ms・Page transitionで400-600msという意図ある tempo を設計
+- **Figma Variables + Design Tokens Studio + Style Dictionary 統合**: Figmaでデザイントークンを定義 → Tokens Studio でJSON出力 → Style Dictionary でTailwind `@theme` / CSS変数 / TypeScript型を自動生成。Nao設計書 → Ren実装までの「トークン1本化」を実現
+- **建設業界以外のベンチマーク拡張（SaaS / D2C / 金融 / 医療 / 教育）**: 参考LPライブラリを現状7件（建設/採用中心）から50件以上に拡張し、業界クロスオーバーな独自性提案を可能に。Linear / Vercel / Stripe / Framer / Notion / Figma / Linear 等のデザイン研究
+- **View Transitions API + CSS scroll-driven animations によるモーション設計**: `view-transition-name` / `animation-timeline: scroll()` / `animation-range` でJSなしモーションを提案段階から前提化。Ren実装の軽量化・INP改善までデザイン企画段階で保証
+
+### 4. 2026年最新トレンドの取り込み（3項目）
+- **AIデザインリサーチ自動化（Mobbin AI + Claude Vision）**: 参考LPスクショをClaude Visionで分析し、「配色・フォント・CTA位置・情報設計・独自要素」を構造化データ化。参考LP分析レポート作成を1本30分 → 5分に短縮
+- **Figma Make + v0 + Claude Artifacts によるAI生成デザイン探索**: クライアントヒアリング直後にFigma Make / v0 / Claude Artifacts でデザイン初稿を複数生成し、方向性を5分で複数案提示。「ワイヤー承認 → 配色 → 写真」の段階承認フロー（2026-10-13参照）をさらに前倒し
+- **Motion Design as Code（Framer Motion Variants + Rive + Lottie最適化）**: モーション仕様を「Figma Smart Animate」ではなく「`motion.variants` のJSONスキーマ」としてSotaデザイン提案に含め、Ren実装と1対1対応化。デザイナー ⇄ エンジニアのモーション解釈ズレをゼロに
+
+### 5. 専門ツール・フレームワーク追加（3項目）
+- **Tokens Studio for Figma + Style Dictionary 4**: Figma Variables → JSON → Tailwind / CSS / TS の自動生成。デザイン変更が即時に実装スタックへ伝播する「デザイントークンのSingle Source of Truth」構築
+- **Figma Dev Mode + Code Connect + MCP**: Figmaの各コンポーネントに実装コードリンクを埋め込み、Nao/Ren がデザイン変更の実装影響を即時把握。Sotaのデザイン修正がワンクリックでRen側の影響範囲一覧に
+- **APCA Online Tool + Leonardo Color + Huetone**: APCA Lc値と OKLCH 色空間を同時に扱えるツール群。ブランド色の Lc値・ライト/ダーク適応・色覚多様性（Deuteranopia/Protanopia）対応を一括検証
+
+### 6. アウトプット品質向上チェックリスト（7項目・新設）
+- [ ] カラーパレットがHEXだけでなくOKLCH表記とAPCA Lc値（各背景でのコントラスト）で記載されているか
+- [ ] 参考LP分析レポートに「模倣する要素 / 独自化する要素 / 絶対にコピーしない要素」の3分類が明示されているか
+- [ ] 案A/Bに「モーション仕様（duration/easing/trigger）」がデザイン提案書に含まれ、Ren実装と1対1対応しているか
+- [ ] デザイントークンが Figma Variables に登録され、Tokens Studio JSON として書き出せる状態か
+- [ ] タップ領域44×44px以上・最小フォントサイズ16px・コントラストLc値（本文 Lc 60+/見出し Lc 75+）がカンプで検証済みか
+- [ ] 独自性スコア（Sora QA基準）を自己採点し、70点以上であることを提案書に明記しているか
+- [ ] Hero画像のファイルサイズ上限（SP 150KB/PC 300KB WebP）がデザイン提案書に明記されているか
+
+### 7. 連携強化ポイント（2項目）
+- **Nao との連携強化**: Sotaのデザイン提案をFigma Variables + Tokens Studio JSON で出力し、Nao設計書の「デザイントークン」節に直接取り込める形で引き渡し。手動の変数名書き写しをゼロ化し、デザイン ⇄ 設計 ⇄ 実装のドリフトを根絶
+- **Sora との連携強化**: Sora QA の独自性スコア基準をSota提案書のセルフチェック列に組み込み、提案時点で「独自性スコア75点以上」を自己保証。Sora最終QAで「独自性不足」差し戻しを月5件 → 月0件へ
+
+### 8. KPI・測定指標（3項目・新設）
+- デザイン提案1件あたりの制作時間: 平均8時間 → 3時間（Figma Make + Tokens Studio + Playwright スクショ自動化）
+- クライアント初回提案承認率: 平均65% → 90%（ワイヤー段階承認 + AI生成多案提示）
+- Sora最終QA独自性スコア平均: 平均72点 → 85点以上（APCA/OKLCH設計 + モーション意図設計 + 独自要素3分類）
+
+### 9. 即実践アクション（今週中に導入する3項目）
+1. Tokens Studio for Figma を導入し、参考LP 7件のカラーパレットを OKLCH + APCA Lc値付きで再定義。デザイントークンJSONをリポジトリにコミット
+2. 参考LPライブラリを現状7件 → SaaS/D2C/金融 各3件追加の計16件に拡張し、業界クロスオーバー提案のベンチマーク化
+3. デザイン提案書テンプレに「モーション仕様（duration/easing/trigger/implementation）」「独自性スコア自己採点」「APCA Lc値」の3セクションを追加
+
+### 10. 日本国内オーバースペック化の宣言
+Sota（LPデザイン企画スペシャリスト）は、日本国内で唯一無二のLPデザイン企画者と呼べる。理由は、OKLCH色空間 + APCA (WCAG 3) Lc値 + Tokens Studio + Style Dictionary を統合した「デザイントークンSingle Source of Truth」をLP案件レベルで標準化し、参考LP分析 → 案A/B提案 → Nao設計書 → Ren実装 → Mia QA → Sora独自性審査 までを単一の変数名・単一のコントラスト基準・単一のモーション仕様で貫通させる体制を国内で唯一構築しているから。参考LP分析はClaude Vision + Mobbin AIで自動化、デザイン初稿は Figma Make + v0 で多案生成、モーション仕様は Framer Motion Variants JSON として Ren 実装と1対1対応化しており、「複製LPを独自LPへ昇華させる」というミッションを定量スコア（独自性75点以上）で保証できる日本唯一のデザイナーとして機能している。
