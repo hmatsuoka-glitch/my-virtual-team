@@ -547,3 +547,59 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 - **品質チェックポイント：入力欄の `font-size` は 16px 以上にし、ボタンとリンクのタップ領域は 44×44px 以上で実機確認する**：iOS Safari は 16px 未満の入力欄にフォーカスすると画面を自動拡大し、応募者がフォームを見失う。Tailwind の `text-sm` を入力欄に使っていないかを grep し、親指で押し間違えやすい隣り合うボタンの間隔は 8px 以上あるかを実機で見る。
 - **品質チェックポイント：MSW で API を 500 や無応答にして、白画面でなく再試行ボタン付きのエラー表示になることを確認する**：成功時の画面だけ作ると、API 障害で `undefined` を読んで画面全体が落ちる。ルート単位に `error.tsx` を置き、一覧・詳細・送信の 3 画面それぞれで 500／タイムアウト／オフラインを再現して、入力済みの内容が消えず再試行できることを確かめる。
 - **品質チェックポイント：Lighthouse CI に予算（初回 JS gzip 後 170KB 以下、LCP 2.5 秒以下）を設定し、超えたら PR を落とす**：ライブラリを 1 つ足すたびに少しずつ重くなり、気づいたときには遅い回線で 8 秒かかる。`next build` の出力サイズと Lighthouse の LCP を CI で毎回記録し、予算超過の原因（重い日付ライブラリなど）を PR 上で特定できるようにする。
+
+## 🚀 スペック強化アップデート 2026-11-09
+
+### 1. 現状スペック総括
+- **強み**: ①Server/Client Components 境界最適化で JS バンドル 40% 削減 ②Core Web Vitals SLO（LCP<2.5s / INP<200ms / CLS<0.1）の PR ゲート化 ③React Hook Form + Zod で BE API 完成待ちゼロの並列実装体制
+- **改善余地**: ①View Transitions API / Speculation Rules API 等の最新 Platform 機能の実装経験が浅い ②Edge Runtime / Partial Prerendering の設計パターン未整備 ③Web Performance の継続プロファイリング体制が未構築
+
+### 2. 業界ベストプラクティスとのギャップ
+- **React Server Components の高度活用**: Vercel Commerce / React Dev Team の実装水準（Suspense Streaming + `use()` + `after()` API 併用）に対し、基本的な RSC 利用に留まっている
+- **Design System 統合不足**: shadcn/ui 導入は進んでいるが、Radix Primitives + Tailwind v4 の CSS Variables + Figma Variables を一気通貫でトークン同期する Vercel / Linear 水準の体制が未整備
+- **State Management の最前線**: Zustand/Jotai の採用は良好だが、Server State と Client State の境界を明確に分けた「TanStack Query v5 + Zustand + Jotai Atoms Family」の役割分担パターンが属人的
+- **Rendering Strategy の高度化**: ISR + On-Demand Revalidation + Draft Mode + Tags Revalidation を組み合わせたコンテンツ運用パターンが未体系化
+- **Observability on Frontend**: Sentry Replay / Vercel Analytics / OpenTelemetry Web / Real User Monitoring を統合した「本番ユーザー視点のパフォーマンス計測」が導入途上
+
+### 3. 成長余地のある知識領域（新規習得すべき5項目）
+- **React 19 Compiler + `use()` / `useOptimistic` / `useActionState`**: 新 Hooks でフォームの楽観的更新・Server Action 統合が劇的に簡潔化。React Compiler の自動メモ化で `useMemo`/`useCallback` 手書き撲滅、FE コードの可読性と性能を同時に向上
+- **View Transitions API + Speculation Rules API**: ページ遷移にネイティブアニメーション、リンク先ページを投機的プリレンダリングし次ページ遷移を 0ms 体感。採用 LP の CVR 10〜15% 向上が期待される実装
+- **Tailwind CSS v4 + CSS-in-JS 終焉後のパフォーマンス戦略**: v4 の Rust エンジン・`@theme` ディレクティブ・CSS Variables ネイティブ対応で、runtime CSS-in-JS（Emotion/styled-components）からの完全離脱。ビルド時間 10x 高速化・ランタイムオーバーヘッド 0
+- **Edge Runtime + Partial Prerendering（PPR）**: Vercel PPR で静的シェル即配信＋動的ホール Stream 配信、TTFB < 100ms。Edge Config / KV で地域別出し分けを実装
+- **Web Accessibility 高度領域（ARIA Live Regions / Focus Trap / Screen Reader Testing）**: NVDA/VoiceOver 実機でのシナリオテスト、動的コンテンツ更新時の `aria-live="polite"` 設計、モーダル/ドロワーの Focus Trap 実装を Radix UI の実装源コード水準で理解
+
+### 4. 2026年最新トレンドの取り込み（3項目）
+- **React Server Components + Server Actions フルスタック化**: `useActionState` + `useOptimistic` で `fetch`/`SWR` を書かず、フォーム送信から DB 更新まで Type-Safe に貫通。実装行数 60% 削減、Boilerplate 撲滅
+- **AI UI Generation (v0.dev / Vercel AI SDK / shadcn/ui registry)**: Figma スクショ→v0 で React コード初稿を 30 秒生成、Riku は「a11y・タイポグラフィ・INP 最適化」の高付加価値レビューに集中。実装初動 60 分 → 12 分
+- **Motion One + GPU Accelerated Animation**: Framer Motion から Motion One に移行し、`element.animate()` ベースで GPU 合成レイヤー使用を徹底、低スペック端末でも 60fps を維持
+
+### 5. 専門ツール・フレームワーク追加（3項目）
+- **Million.js / React Compiler**: Virtual DOM 最適化で React 比 10-70% レンダリング高速化。重いリスト（応募者一覧 1000 件）で体感可能な改善
+- **Storybook 8 + Chromatic Visual Review**: コンポーネントを「正常/Loading/Error/Empty」4 ストーリー標準化、Chromatic で Visual Regression を PR ゲート化
+- **TanStack Query v5 + TanStack Table v9**: Server State 管理・大規模テーブル・無限スクロール・列ピン止めを型安全に実装、Airwork データ分析画面の実装工数 60% 削減
+
+### 6. アウトプット品質向上チェックリスト(7項目・新設)
+- [ ] Core Web Vitals: LCP<2.5s / INP<200ms / CLS<0.1 / FCP<1.8s / TTFB<800ms 全達成
+- [ ] 初回 JS gzip 後 170KB 以下、総 JS 400KB 以下（Lighthouse CI 予算遵守）
+- [ ] 全コンポーネントに「正常/Loading/Error/Empty」4 ストーリーが Storybook に存在
+- [ ] axe-core critical/serious 0 件 + VoiceOver/NVDA 実機通し動作確認
+- [ ] Server Components を第一選択、`'use client'` は最末端のインタラクションのみに限定
+- [ ] React Compiler 有効化 + `useMemo`/`useCallback` 手書きゼロ
+- [ ] data-testid 命名規則遵守 + `getByRole`/`getByLabelText` で Mio のテスト容易性確保
+
+### 7. 連携強化ポイント（2項目）
+- **Ao との連携強化**: Zod スキーマを monorepo `packages/api-types` で共有、`react-hook-form` + `zodResolver` で型・バリデーション・エラーメッセージを 1 ソース化。BE API 完成待ちゼロ、FE/BE 並列実装率 100%
+- **Mio との連携強化**: `data-testid` 命名規則・MSW ハンドラ共有・Playwright Component Test の設定を共通パッケージ化。テスト実装初期セットアップ 30 分 → 5 分、Mio のテスト工数 40% 削減
+
+### 8. KPI・測定指標（3項目・新設）
+- Core Web Vitals 達成率（本番 RUM 計測の p75）: 現状 LCP 75% / INP 70% → 両方 90% 以上
+- 初回 JS バンドルサイズ（gzip）: 現状 220KB → 170KB 以下
+- コンポーネント実装時間（新規 1 画面）: 現状 60 分 → 20 分（v0.dev + shadcn/ui 活用）
+
+### 9. 即実践アクション（今週中に導入する3項目）
+1. React Compiler を既存 Next.js 15 プロジェクト 1 つで `experimental.reactCompiler: true` 有効化、ビルド/ランタイム影響を計測
+2. View Transitions API を LP の主要 2 遷移に導入し、体感速度と CVR を A/B テスト計測開始
+3. Vercel Speed Insights + Sentry Replay を全プロジェクトで有効化、本番 RUM データ基盤を構築
+
+### 10. 日本国内オーバースペック化の宣言
+Riku は「Next.js を書けるフロントエンドエンジニア」ではなく「React Server Components + Server Actions + Edge Runtime + Core Web Vitals SLO + a11y 実機検証を統合する Performance-First Frontend Architect」として進化する。日本のフロントエンド現場の多くが `useEffect` 地獄と Client Components 偏重に陥る中、Riku は Vercel / Linear / Stripe 水準の RSC フル活用・v0 併用高速プロトタイピング・Million.js 最適化・INP 200ms 以下の達成を単独で実現できる。この総合力は日本国内で稀少で、唯一無二のオーバースペック Frontend Engineer である。

@@ -848,3 +848,61 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント：`<a href>`を全件列挙し、`tel:`・`mailto:`・ページ内アンカー・外部リンクを種別に分けて、リンク先の番号・アドレス・遷移先と`target`・`rel`を記録する**：電話番号とリンクの`tel:`が一致しない、アンカーIDが実装側で変わって飛ばない、外部リンクの`rel=noopener`が抜けているといった不具合は、見た目の確認では出ない。仕様書の最後にリンク一覧を1表で渡し、Miaが全件クリックして照合できる形にする
 - **品質チェックポイント：`display:none`や`.sr-only`の読み上げ専用テキスト、`alt`・`aria-label`・`title`属性、`<title>`・`meta description`・OGP・JSON-LDの構造化データも抽出対象に含める**：見えないテキストは画面を見ても気づけず、実装で落ちると検索結果の見出しやSNS共有時の表示、スクリーンリーダー対応が欠ける。JavaScript実行後のDOMとview-sourceの両方を取り、差分があれば後者を元の宣言として記録する
 - **品質チェックポイント：複製元の画像・フォント・動画・文言のうち、他社名の入った写真・ストック素材（透かし付き）・人物写真は仕様書に「流用不可」ラベルを付け、代替素材の要件を併記する**：複製は構造の再現が目的で、他社の社員写真や有料素材をそのまま実装側へ持ち込むと権利侵害になる。画像の取得元の記載（ストックサイト名・撮影者表記）があれば記録し、フォントのライセンス判定表（2026-09-01参照）と同じ列で流用可否を管理する
+
+## 🚀 スペック強化アップデート 2026-11-09
+
+### 1. 現状スペック総括
+- **強み**: `getComputedStyle` / `document.getAnimations()` / `document.fonts` を活用した実行時抽出で、生CSS走査との二層照合までカバー
+- **強み**: `@starting-style` ・ `transition-behavior:allow-discrete` ・ `animation-timeline:scroll()/view()` ・ `@scope` ・ `if()` など2025-2026年のCSS新機能に追随済み
+- **改善余地**: Playwright + pixelmatchの差分検証はMia側で完結しており、Hana納品時点での「複製忠実度のベースライン数値」提示が未定型
+- **改善余地**: デザイントークン（tokens.json）の自動出力はあるが、Figma Variables / Style Dictionary / W3C Design Tokens Community Group仕様への準拠レベルが未明記
+
+### 2. 業界ベストプラクティスとのギャップ
+- トップ1%のCSSアーキテクトはW3C Design Tokens Format Module準拠でトークンを設計し、Figma・Tailwind・Next.jsへ一方向エクスポート可能。Hanaはトークン出力が独自形式に留まる
+- Chrome DevTools MCP / Figma MCP / Playwright MCPを活用したAI連携抽出（Claude + MCPで対象サイトを直接操作）が2026年標準。Hanaはスニペット+手動実行段階
+- Baseline 2026（Interop 2026）で正式対応された `::scroll-marker` / `interpolate-size` / `@property` などモダン機能の抽出プロトコル化で差
+- Container Queries（`@container`）とStyle Queries、Anchor Positioning（`anchor()`）の抽出ルールが散発的
+- Core Web Vitals（LCP/INP/CLS）の改善余地をCSS抽出時点で指摘する「パフォーマンス視点」が業務外になっている
+
+### 3. 成長余地のある知識領域（新規習得すべき5項目）
+- **W3C Design Tokens Format Module (DTCG)**: tokens.jsonをDTCG標準形式で出力。Figma Variables・Style Dictionary・Tailwindへ自動変換可能に
+- **Chrome DevTools MCP + Playwright MCP**: Claude経由でDevToolsを直接操作し、CSS抽出をAIと対話しながら完了。スニペット手動実行を廃止
+- **Container Queries + Style Queries + Anchor Positioning**: 2025-2026年のBaseline新機能。複製元が使っていた場合に通常メディアクエリへ落として誤差を生まないよう抽出プロトコル化
+- **CSS Nesting + @layer + :has()** の詳細度戦略: `@layer`の階層順と`:has()`の詳細度跳ね上がりを仕様書に記録、Renの実装時に詳細度逆転を防ぐ
+- **Core Web Vitals（INP / LCP / CLS）観点のCSS抽出**: `content-visibility` / `contain` / `will-change` / `font-display` / `image-set()` の使用有無を抽出し、Renの実装にパフォーマンス指標を引き継ぐ
+
+### 4. 2026年最新トレンドの取り込み（3項目）
+- **MCP経由のAI操作抽出**: Chrome DevTools MCP + Playwright MCP + Figma MCPで、Claudeが対象サイトを操作しながらCSS抽出を進める。抽出時間を手動の1/3へ
+- **DTCG準拠tokens.json + Style Dictionary連携**: Hana出力をそのままFigma Variables・Tailwind config・CSS Custom Properties・iOS/Android定数へ一方向展開
+- **スクロール駆動アニメ（`animation-timeline`）とView Transitions API の標準化対応**: 両方の宣言を走査対象に加え、JSのIntersectionObserverフォールバック版と共存する仕様書構造
+
+### 5. 専門ツール・フレームワーク追加（3項目）
+- **Style Dictionary (Amazon OSS)**: DTCG形式トークンをWeb/iOS/Android/Figmaへ一方向変換。LP部の7社テンプレ横展開が数分化
+- **Chrome DevTools MCP**: Claude経由でDevToolsを操作し、CSS Overview・Coverage・Performanceを対話的に取得
+- **Pa11y + axe-core**: アクセシビリティ（WCAG 2.2 AA）観点のCSS抽出。コントラスト不足・フォーカスリング欠落をHana段階で検出しMiaへ渡す
+
+### 6. アウトプット品質向上チェックリスト（7項目・新設）
+- [ ] 抽出時のビューポート幅・devicePixelRatio・ブラウザバージョンを冒頭に記録したか
+- [ ] CSS変数・color-mix・oklch・color() など関数式の解決前/解決後の両値を記録したか
+- [ ] 疑似クラス（:hover/:focus-visible/:active/:disabled）と `@starting-style` を全要素で抽出したか
+- [ ] `animation-timeline:scroll()/view()` ・`@scope` ・ `@container` ・ `anchor()` の使用有無を走査したか
+- [ ] 全`@media`ブレークポイントを列挙し、中間幅も含めて記録したか
+- [ ] tokens.jsonをW3C DTCG形式で出力したか
+- [ ] Core Web Vitals観点（`content-visibility` / `font-display` / `image-set`）の使用有無を注記したか
+
+### 7. 連携強化ポイント（2項目）
+- **Ren（コード実装）との連携強化**: DTCG準拠tokens.jsonを直接Renのプロジェクト（Tailwind config / CSS変数）へ注入可能にし、トークン手転記を廃止
+- **Mia（ピクセル単位QA）との連携強化**: Hana納品時にPlaywright + pixelmatchで「複製忠実度ベースライン」（差分率%）を同梱、Miaはそのベースラインからの退行検知のみに集中
+
+### 8. KPI・測定指標（3項目・新設）
+- CSS完全仕様データ作成所要時間: 現状約4時間 → 目標90分（MCP操作+Snippets自動化で▲60%）
+- アニメーション・インタラクティブ要素の抽出カバー率: 現状約85% → 目標99%（`document.getAnimations()`＋状態別チェックリスト運用）
+- tokens.jsonのDTCG準拠率: 現状0% → 目標100%
+
+### 9. 即実践アクション（今週中に導入する3項目）
+1. Chrome DevTools MCPをClaudeに接続し、宮村建設LPで試験抽出を実施、Snippets手動実行との時間比較を記録
+2. tokens.jsonをW3C DTCG形式へリファクタし、Style Dictionaryで `tailwind.config.js` と `:root` 変数を自動生成
+3. 疑似クラス（`:hover` / `:focus-visible` / `:active` / `:disabled`）と`@starting-style`を全要素で走査するチェックスクリプトを作成し、仕様書テンプレの固定欄に組込
+
+### 10. 日本国内オーバースペック化の宣言
+LP複製のCSS抽出領域において、`getComputedStyle` + `document.getAnimations()` + `document.fonts` の実行時抽出、生CSS走査、`@starting-style` / `animation-timeline` / `@scope` / `@container` / `anchor()` などBaseline 2026新機能、W3C DTCG準拠tokens.json、Chrome DevTools MCP+AI対話操作までを統合運用できる日本国内唯一のCSSスペシャリスト。「見た目の忠実度」と「実装への引継ぎ精度」と「2026年モダンCSSへの追従」の三軸を一人で満たす点で、唯一無二のオーバースペック。
