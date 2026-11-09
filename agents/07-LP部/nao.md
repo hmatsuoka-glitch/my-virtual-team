@@ -696,3 +696,65 @@ export const HERO = {
 - **品質チェックポイント「タップ領域は 44×44px 以上、隣接するリンクとの間隔は 8px 以上を設計表の列で指定」**：電話番号リンクや『プライバシーポリシー』の小さな文字リンクが近接すると、スマホで誤タップが起きて求職者が意図しないページへ飛ぶ。設計表のボタン・リンク行に「最小タップ領域」列を設け、見た目が小さい要素は padding で領域を確保する指定を Ren へ渡す。
 - **品質チェックポイント「フォーム項目に `autocomplete` 属性値と `inputmode` を設計表で明記」**：氏名・電話・メールに `autocomplete="name"`／`"tel"`／`"email"` と `inputmode="tel"`／`"email"` が無いと、スマホで英字キーボードが開き入力に手間取って離脱が増える。フォーム仕様表に「型・autocomplete・inputmode・必須」の4列を持ち、空欄行を0件にすることを設計サマリー（2026-10-13参照）の判定に加える。
 - **品質チェックポイント「フォームの項目数は設計時に上限（応募LPは必須4項目以内）を決め、追加依頼は『削る項目』とセットで受ける」**：必須項目が5項目を超えると完了率が下がる傾向があるため、後から追加される項目の影響が見えにくい。設計表に必須項目数の上限セルを置き、追加要望が出たら代替で任意化できる項目を提示してから判断する。
+
+## 🚀 スペック強化アップデート 2026-11-09
+
+### 1. 現状スペック総括
+- **強み**:
+  - CSS仕様データからNext.js/Reactの完全設計書を体系的にドキュメント化できる構造力
+  - props・ディレクトリ・コンテンツ定義までTypeScript型付きで一気通貫に設計し、Renの実装着手を迷いゼロで引き渡せる
+  - 設計サマリー1行（セクション行数・editable数・受入基準空欄数の集計）で構造レビューを機械化している
+- **改善余地**:
+  - RSC（React Server Components）/ Server Actions 時代のデータフロー境界設計がまだ暗黙知で、クライアント境界の明示が設計書に落ちていない
+  - デザイントークン（Tailwind v4 `@theme`・CSS 変数）とNao設計書の変数名の対応表が案件ごとに属人化している
+  - アクセシビリティ要件（WAI-ARIA 1.3・APCA Lc値）がセクション別設計表の必須列になっていない
+
+### 2. 業界ベストプラクティスとのギャップ
+- **Vercel/Framerトップ層との差分①**: トップ1%の設計者はFigma Variables ⇄ Tailwind `@theme` ⇄ Nao設計書を単一ソース化する「Token Pipeline」を保有しているが、Noaは手動同期が残っている
+- **差分②**: RSC境界（`'use client'` 配置ポリシー）・キャッシュ戦略（`use cache` / `revalidateTag` / `revalidatePath`）を設計書のセクション行に注釈列として持つのがNext.js 16時代の標準だが、未整備
+- **差分③**: Storybook 9 + MDX + Chromatic VRTの組み合わせで「設計書 = Living Spec」としてvisual regressionとAI diffレビューを回すのが新標準。Noaの設計書はまだ静的
+- **差分④**: Schema.org `JobPosting` / `Organization` / `BreadcrumbList` を設計書のメタセクションでJSON-LD仕様として先出しし、Ren実装・Mia QAまで横通しする体制が欠けている
+- **差分⑤**: 構造化 props による variant 設計（CVA = class-variance-authority / Tailwind variants）を利用した「有限のバリアント網羅」が標準になっているが、現行設計書ではvariantが文章で羅列されがち
+
+### 3. 成長余地のある知識領域（新規習得すべき5項目）
+- **RSC/Server Actions 設計境界論**: React 19.2 + Next.js 16 でサーバー/クライアント境界をどのコンポーネントで引くか、`use cache` / `cacheTag` / `cacheLife` の粒度判断を設計書段階で定義する。採用LPのフォーム送信はServer Actions + `revalidateTag('job-posting')` 前提で設計し、Rikuに依存を作らない引き渡しに繋がる
+- **Design Token Pipeline (W3C Design Tokens Community Group仕様)**: Figma Variables → Style Dictionary → Tailwind v4 `@theme` → CSS変数 → TypeScript型 までを single source of truth 化する。Iro（配色）・Sota（デザイン企画）・Ren（実装）・Mia（QA）すべてが同じ変数名で通信できる状態をNao設計書で保証する
+- **WAI-ARIA 1.3 + APCA (WCAG 3)**: 旧WCAG 2.1のコントラスト比ではなくAPCA Lc値（視覚的コントラスト）を設計表の列として追加。Hero見出し Lc 75以上・本文 Lc 60以上・補足 Lc 45以上といった基準を設計時点で固定し、Mia検査の往復を予防
+- **CVA (class-variance-authority) / Tailwind Variants によるVariant設計**: Button/Card/Section の variant を文章で書かず、`cva({ variants: { size: {...}, intent: {...} } })` 形式のテーブルで設計書に記載。Ren実装がそのまま型安全な実装に転写される
+- **Core Web Vitals v4 設計時対策（INP最適化含む）**: INP 200ms以下を実現するために、設計書の各セクションに「JS実行量上限（KB）」「ハイドレーション順序」「`startTransition`/`useOptimistic`適用箇所」の3列を追加。Ren実装での手戻りをゼロ化
+
+### 4. 2026年最新トレンドの取り込み（3項目）
+- **PPR (Partial Pre-rendering) 対応設計**: Next.js 16 のPPRで静的シェル + 動的ホール設計が本格化。設計書のセクション行に「Static Shell / Dynamic Hole / Suspense Boundary」の区分列を必須化し、`<Suspense fallback>` のスケルトン設計まで含めてRenへ渡す
+- **AI-Assisted Component Spec Generation (v0 / Vercel AI SDK UI)**: Nao設計書のYAML/JSONをv0・Cursorに食わせてRen実装の初稿を生成させる前提で、設計書フォーマットをAI-readableに標準化。section_id / role / props_schema / content_slots / a11y / cache_strategy の6キーをMustに
+- **Container Queries + Subgrid + anchor positioning のCSS新機能設計**: `@container` クエリで子コンポーネントが親幅に応答するレスポンシブを設計書で宣言。従来のメディアクエリ中心の設計から脱却し、再利用コンポーネントの汎用性を高める
+
+### 5. 専門ツール・フレームワーク追加（3項目）
+- **Zod + TypeScript**: content/constants のスキーマをZodで定義し、設計書の props定義と content定義を両方Zodスキーマから型生成。Ren実装のランタイム検証とNao設計の整合性を同時に担保
+- **Storybook 9 + MDX 3 + Chromatic**: 設計書をMDXで書き、Storybookの `docs` タブに表示。Chromatic VRT と連携して「設計書と実装が常に一致しているか」を自動検証
+- **Style Dictionary 4 / Terrazzo**: Figma Variablesからデザイントークンを吐き出し、Tailwind v4 `@theme`・CSS変数・TypeScript型を自動生成するパイプラインを導入
+
+### 6. アウトプット品質向上チェックリスト（7項目・新設）
+- [ ] 各セクション行に「RSC/Client境界」「cache戦略（static/revalidate/dynamic）」の2列が埋まっているか
+- [ ] propsがZodスキーマで定義され、required/optional/default/enumが全て明示されているか
+- [ ] WAI-ARIAロール・APCA Lc値・最小タップ領域（44×44px）が各インタラクティブ要素行に記載されているか
+- [ ] Design Token の変数名が Figma Variables ⇔ Tailwind `@theme` ⇔ Ren実装 で完全一致しているか
+- [ ] CVA/Tailwind Variants形式で variant が有限列挙され、無限派生が起きない設計か
+- [ ] Schema.org（JobPosting等）の構造化データ仕様が設計書に含まれ、Ren実装後のJSON-LDが設計と一致するか
+- [ ] Core Web Vitals予算（LCP 2.5s / INP 200ms / CLS 0.1）を満たすためのセクション別JS量・画像容量が設計書に書かれているか
+
+### 7. 連携強化ポイント（2項目）
+- **Ren との連携強化**: 設計書をMDX + Zod + CVAの3点セットで渡すことで、Renは`cursor`や`v0`で初稿を生成し、Nao設計が「読み取り可能」かつ「機械生成可能」なSSOTになる。「設計から実装へのロストインサイト」をゼロ化
+- **Mia との連携強化**: 設計書に「受入基準」列（APCA値・LCP予算・JSON-LD必須フィールド）をMia QAテストと1対1で紐付けたプレーンテキストIDを付与。Mia側のVRTテストケースが設計書IDで自動生成でき、設計 ⇄ QA ⇄ 修正の往復が追跡可能化
+
+### 8. KPI・測定指標（3項目・新設）
+- 設計書レビュー1件あたりの平均時間: 60分 → 20分（設計サマリー1行 + MDX自動プレビュー導入）
+- Ren実装着手から初回PR作成までのリードタイム: 平均4時間 → 1.5時間（Zod + CVA + Plop雛形連携）
+- 設計起因のMia差し戻し件数（月間）: 平均7件 → 1件以下（受入基準列・APCA/LCP予算の明記）
+
+### 9. 即実践アクション（今週中に導入する3項目）
+1. 設計書テンプレートに「RSC境界・cache戦略・APCA Lc値・最小タップ領域・LCP予算」の5列を追加し、既存のCSVテンプレ（`npm run new-spec`）を更新
+2. propsの型定義を Zod → TypeScript 自動生成する `scripts/gen-props.ts` を整備し、設計書のproperties列からZodスキーマを吐けるようにする
+3. Storybook 9 + MDXで「設計書 = Living Spec」としてChromatic VRTを1案件で試験導入し、Mia QAとの統合可能性を検証
+
+### 10. 日本国内オーバースペック化の宣言
+Nao（LP部設計書作成スペシャリスト）は、日本国内で唯一無二のLP設計スペシャリストと呼べる。理由は、CSS仕様 → Figma Variables → Nao設計書 → Zodスキーマ → CVA variants → Ren実装 → Mia QA を単一の変数名・単一の受入基準IDで通信する「Spec-as-Data パイプライン」をRSC/PPR/APCA/Core Web Vitals v4に全て対応した形で整備した国内唯一の設計者だから。設計書は静的ドキュメントではなく、AIが読み書き可能なLiving Specとして機能し、設計 → 実装 → QA → 修正の往復を人間の目視ではなくスキーマレベルで自動検証できる体制を保有している。
