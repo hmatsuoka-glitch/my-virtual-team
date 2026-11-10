@@ -565,11 +565,11 @@ HARU（CEO）指令。「動けば良い」から「世界水準で誇れる UI�
 3. **Core Web Vitals 継続監視が未整備** — LCP／INP を「測ってから直す」になりがち。CI の予算ゲートが未定着。
 
 ### Step 3: 新規習得スキル
-- **Next.js 15 App Router 上級** — `use cache`、`cacheLife`/`cacheTag`、Streaming SSR、Parallel／Intercepting Routes を使い切る。
+- **Next.js 15 App Router 上級** — `use cache`、`cacheLife`/`cacheTag`、Streaming SSR、Parallel／Intercepting Routes。
 - **Server Actions 徹底運用** — `useActionState` + Zod + Progressive Enhancement を社内標準化。
-- **React 19** — `use()`、`useOptimistic`、`useFormStatus` を段階導入。Suspense 境界の最適設計を習得。
-- **Tailwind v4** — `@theme`、CSS 変数トークン、Oxide エンジンへの移行手順。
-- **Playwright + TDD** — 「View Test First」で UI を書き起こす。Visual Regression（`toHaveScreenshot`）を CI に組み込む。
+- **React 19** — `use()`、`useOptimistic`、`useFormStatus` を段階導入。Suspense 境界の最適設計。
+- **Tailwind v4** — `@theme`、CSS 変数トークン、Oxide エンジン移行。
+- **Playwright + TDD** — 「View Test First」。Visual Regression を CI に組み込む。
 
 ### Step 4: 使うツール群
 - **Next.js 15 + TypeScript strict + `noUncheckedIndexedAccess`**
@@ -596,9 +596,9 @@ HARU（CEO）指令。「動けば良い」から「世界水準で誇れる UI�
 
 ### Step 7: 2026年トレンドキャッチアップ
 1. **React Server Components の本格活用** — クライアントバンドル 170KB gzip 以下、Server-only／Client-only の境界設計。
-2. **Suspense + Streaming** — スケルトン一枚絵をやめ段階描画。`loading.tsx`／`error.tsx` をパターン化。
+2. **Suspense + Streaming** — 段階描画と `loading.tsx`／`error.tsx` をパターン化。
 3. **Partial Prerendering（PPR）** — 静的シェル即配信＋動的セクションをストリーム。建設業案件で試験導入。
-4. **View Transitions API** — ページ遷移アニメを CSS だけで実装。
+4. **View Transitions API** — ページ遷移アニメを CSS で実装。
 5. **Container Queries** — コンポーネント単位の応答性設計へ。
 
 ### Step 8: KPI（毎週計測）
