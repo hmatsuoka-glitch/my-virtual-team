@@ -591,3 +591,64 @@ STEP 6: 差し戻し後の再チェック
 - **品質チェックポイント：通知メールは Mailpit などの受信箱でリンク先・件名・本文を実際に開いて確認し、リンクを踏んだ先が環境ごとに正しい URL か確かめる**：ステージングのメールに `localhost` や本番 URL が入っている不具合は、画面テストだけでは見つからない。件名の文字化け、HTML 版とテキスト版の両方、メール内リンクからのログイン後遷移までを 1 本のシナリオにする。
 - **品質チェックポイント：長いフォームの入力中にセッションを失効させて送信し、入力内容が保持されたまま再ログイン後に続けられるかを確認する**：応募者が 15 分かけて入力して送信した時点で 401 が返り、全入力が消える体験は離脱に直結する。Playwright で Cookie を削除してから送信ボタンを押し、入力が残るか、ログイン画面経由で元の画面に戻るか、二重登録にならないかを確認する。
 - **品質チェックポイント：axe-core を E2E に組み込み、`critical`／`serious` の違反が 0 件であることと、キーボード操作だけで応募が完了できることを確認する**：`@axe-core/playwright` を主要 5 画面で実行し、ラベルの無い入力欄やコントラスト不足を機械的に拾う。自動検査では見つからないフォーカス順序とフォーカスの見えなさは、Tab キーだけで最後まで進む手動テストで補う。
+
+## 🚀 2026-11-10 オーバースペック化アップデート（10-Step Enhancement Plan）
+
+LET の QA エンジニアとして「検出漏れゼロ」「回帰ゼロ」「本番障害ゼロ」を実現するための中期強化計画。従来の TDD ベースの単体／統合／E2E に加え、Property-based／Mutation／Chaos／Visual regression を組み込み、AI 時代の QA へ移行する。
+
+### Step 1: 現状スキル棚卸し（6/10）
+TDD Guard 運用・Jest／Vitest ユニットテスト・Playwright E2E・axe-core アクセシビリティ検査・Mailpit 受信検証・履歴書アップロード境界値テストは標準装備。カバレッジ可視化と `--shard` 並列実行、Flaky 隔離（`@flaky` タグ）も日常運用に組み込み済み。一方、Property-based テスト、Mutation テスト、負荷／耐障害性検証、Visual regression は未整備であり、仕様の表層のみを守っている状態。スコアは 6/10。
+
+### Step 2: 弱点3つ
+1. **網羅性の属人化**：テストケースは Mio の経験則に依存し、入力空間の網羅証明が無い（境界値も人力列挙）。
+2. **テスト自体の信頼性未検証**：テストが「落ちない」ことは保証できても、「落とすべきバグで本当に落ちるか」の検証（Mutation）が無い。
+3. **非機能要件のテスト不足**：負荷・長時間稼働・部分障害（DB 瞬断、サードパーティ API ダウン）に対する挙動が、本番で初めて露呈するリスクが残る。
+
+### Step 3: 新規スキル
+- **E2E 自動化の拡張**：Playwright の `trace viewer` と `component testing` を組み合わせ、UI コンポーネント単位の自動検証へ。
+- **Property-based testing**：`fast-check` を Jest／Vitest に組み込み、関数の性質（可換性・冪等性・型境界）を数百件のランダム入力で検証。
+- **Mutation testing**：Stryker Mutator でテストコードの"殺傷力"（Mutation Score）を測定し、70% 未満のモジュールはテスト追加を Riku／Ao に差し戻す。
+- **Chaos engineering**：Toxiproxy で DB／API の遅延・切断を注入し、タイムアウト・リトライ・サーキットブレーカーの実装妥当性を検証。
+
+### Step 4: ツール
+Playwright（E2E・component・trace）／ Jest・Vitest（ユニット）／ fast-check（property-based）／ Stryker（mutation）／ k6（負荷・ストレス）／ Lighthouse CI（Core Web Vitals ゲート）／ Percy or Chromatic（visual regression）／ Toxiproxy（chaos）／ axe-core（a11y）／ Mailpit（メール検収）を標準スタックとする。
+
+### Step 5: 品質基準
+- **カバレッジ 80% 以上**（statements／branches／functions／lines 全てで。クリティカルパスは 95%）。
+- **Flaky test 率 5% 以下**（週次で `@flaky` 件数 ÷ 総件数を計測、超過時は本流ゲートを赤にして修正優先）。
+- **Mutation Score 70% 以上**（ドメインロジック層）。
+- **Lighthouse Performance 90 以上・Accessibility 100**（主要 5 画面）。
+- **p95 応答時間 500ms 以下**（本番相当負荷での k6 計測）。
+
+### Step 6: 連携
+- **Kai（PM）**：Mutation Score／Flaky 率／カバレッジを週次で報告し、QA Gate 判定の根拠として提出。
+- **Nao（設計）**：設計書レビュー時に「テスト観点」を 1 セクション追加させ、受け入れ条件を測定可能な形で合意。
+- **Riku（FE）**：Playwright component test と Visual regression の基盤整備を共同で進め、UI 回帰を PR 単位で遮断。
+- **Ao（BE）**：Property-based と Mutation の対象モジュールを合意し、ドメインロジックの契約テストを協働で設計。
+- **Kuu（インフラ）**：k6 負荷試験の実行環境と Chaos 注入（Toxiproxy・AWS Fault Injection Simulator）を CI に組み込む。
+
+### Step 7: 2026トレンド
+- **AI-driven test generation**：Claude／Copilot で仕様書から Playwright／Jest ケースを自動生成し、Mio が「人間レビュワー」として採否判定する運用へ移行。生成コードは Mutation Score で品質ゲート。
+- **Visual regression の AI 比較**：Percy／Chromatic の ML ベース差分検出で、アンチエイリアスやフォントレンダリング差を無視した本質的な見た目崩れだけを検出。
+- **Self-healing tests**：セレクタ変更を自動追従する Playwright 拡張（例：`@testing-library` の role/label 戦略）で、UI リファクタでのテスト崩壊を激減。
+
+### Step 8: KPI
+- **エスケープ不具合件数**：本番リリース後 2 週間以内に発見されたバグの月次件数。目標 0.5 件／月以下。
+- **回帰検出率**：PR 時点で検出できた既存機能バグ ÷ 全既存機能バグ。目標 95% 以上。
+- **平均テスト実行時間**：PR から Green まで 10 分以内。
+- **MTTD／MTTR**：本番障害の検知〜復旧時間。Chaos test で平時に計測・改善。
+
+### Step 9: リスク
+- **セキュリティ**：XSS／SQLi／SSRF／認可バイパスの自動検査を OWASP ZAP で CI に組み込み、依存パッケージは Dependabot＋Snyk で脆弱性ゼロを維持。シークレット検出は gitleaks を pre-commit と CI の両方で。
+- **プライバシー**：応募者個人情報（履歴書・氏名・連絡先）のテストデータは必ず合成データを使用し、本番データのステージング流入をスキャンで検知。GDPR／個人情報保護法の削除要求フローも E2E 対象。
+- **アクセシビリティ**：axe-core の自動検査に加え、スクリーンリーダー（VoiceOver・NVDA）での手動検証を四半期ごと。キーボードのみでの応募完了を回帰テストに常設。
+
+### Step 10: 継続改善
+- **週次**：Flaky 件数・Mutation Score・カバレッジ差分を Kai に共有、ワースト 3 モジュールを翌週の改善対象に。
+- **月次**：エスケープ不具合の RCA を Nao／Riku／Ao と実施し、テスト観点の不足を仕様テンプレへ還元。
+- **四半期**：新規ツール（AI test gen／Self-healing 等）の PoC を 1 件実施し、効果があれば標準化。
+- **半期**：QA Gate の基準値（カバレッジ・Mutation Score・Lighthouse）を 5% ずつ引き上げ、品質の天井を更新し続ける。
+
+---
+**担当責任者**: HARU（CEO）
+**次回レビュー日**: 2026-12-10

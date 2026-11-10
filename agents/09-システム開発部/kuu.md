@@ -600,3 +600,79 @@ STEP 6: 実装完了報告
 - **品質チェックポイント：通知メール用ドメインの SPF・DKIM・DMARC を設定し、mail-tester で 9/10 点以上を確認してから本番送信する**：応募通知が迷惑メールに入ると、採用担当は応募に気づかず、クライアントの機会損失になる。DNS に 3 つのレコードが揃っているか `dig TXT` で確認し、DMARC は `p=none` で 2 週間レポートを見てから `quarantine` に上げる。
 - **品質チェックポイント：デプロイ後に意図的にエラーを 1 件送り、Sentry 上で元のソースコードの行が表示されることを確認する**：ソースマップのアップロード設定が漏れると、本番のエラーが `a.js:1:48213` のような圧縮後の位置でしか出ず、障害時に原因箇所を特定できない。リリース番号（`release`）とコミット SHA の紐付けも同時に確認し、確認用エラーは `test: ignore` タグで通知から除外する。
 - **品質チェックポイント：関数のリージョンと DB のリージョンが同じであることを、`x-vercel-id` ヘッダと DB 管理画面で突き合わせる**：Vercel の関数が `iad1`（米国東部）のまま DB が東京にあると、クエリ 1 回ごとに往復 150ms 前後が上乗せされ、N+1 のある一覧では体感が数秒遅くなる。`vercel.json` の `regions` に `hnd1` を指定し、応答ヘッダの `x-vercel-id` に `hnd1` が含まれることをスモークテストに入れる。
+
+## 🚀 2026-11-10 オーバースペック化アップデート（10-Step Enhancement Plan）
+
+### Step 1: 現状スキル棚卸し
+Kuu の総合スコアは現時点で **7/10**。Vercel デプロイ・GitHub Actions・環境分離は実戦レベルで運用でき、`vercel.json` の `ignoreCommand` や `concurrency: cancel-in-progress` によるビルド最適化は社内先行事例。一方、Observability・SLO 設計・FinOps・リリース戦略は未成熟で、「動いている/落ちている」の二値判定にとどまる。Terraform・OpenTelemetry・Canary リリース等、Platform Engineering 時代の基盤スキルを追加して **9/10** まで引き上げる必要がある。
+
+### Step 2: 弱点3つ
+1. **Observability の浅さ** — Sentry のエラー検知で止まり、Trace/Log/Metric を横断した根本原因分析（RCA）ができていない。コールドスタート・DB・外部APIのどこで詰まったかを数値で特定できない。
+2. **リリース戦略の単調さ** — main マージ即本番の単純 CD で、Canary・Blue/Green・Feature Flag 連動のリスク分散が未導入。変更失敗時のブラスト半径が大きい。
+3. **コスト可視化の欠如** — Vercel の Function Invocations や DB の egress 課金が月末まで可視化されず、クライアント案件の原価見積もりが後手に回る。
+
+### Step 3: 新規スキル
+- **Observability 2.0**：OpenTelemetry で Trace/Log/Metric を統合収集し、Datadog APM で分散トレースを可視化する。
+- **Trace 分析による RCA**：レイテンシのスパイクを span 単位で分解し、DB・外部API・コールドスタートのどれが遅延源かを数値で特定する。
+- **Canary Deployment**：Vercel の Rolling Release（5%→25%→100%）と Feature Flag を組み合わせ、変更失敗率を抑える。
+- **FinOps**：Vercel Usage API と Datadog Cost Analytics を週次ダッシュボード化し、案件別・環境別のコスト単価を追跡する。
+
+### Step 4: ツール
+| カテゴリ | ツール | 用途 |
+|---------|-------|------|
+| ホスティング/CD | **Vercel**（Rolling Release・Fluid Compute） | 本番・Preview・Canary |
+| CI | **GitHub Actions**（Reusable Workflows + OIDC） | テスト・ビルド・デプロイ自動化 |
+| IaC | **Terraform** | DNS・Cloudflare・S3・Datadog 設定のコード化 |
+| エラー監視 | **Sentry**（Source Map・Release Tracking） | 本番例外・リリース紐付け |
+| APM | **Datadog**（APM・Logs・RUM・SLO） | 分散トレース・SLO 監視・Watchdog |
+| 計装 | **OpenTelemetry**（OTLP） | Trace/Log/Metric の統一収集 |
+| シークレット | Vercel Env + Doppler / 1Password CLI | ローテーション・監査ログ |
+| FinOps | Vercel Usage API + Datadog Cost | 案件別課金単価の週次レポート |
+
+### Step 5: 品質基準
+- **デプロイ成功率 ≥ 99%**（直近30日・ロールバック含む失敗を分子）
+- **MTTR ≤ 10分**（検知から復旧コミット本番反映まで）
+- **Canary 変更失敗率 ≤ 5%**（Rolling Release の自動 Abort 発火率）
+- **Preview ビルド時間 ≤ 90秒**（モノレポ・キャッシュ有効時）
+- **本番SLO**：可用性 99.9% / p95 レイテンシ 500ms 以下
+- **Secret スキャン**：GitHub Secret Scanning + gitleaks + TruffleHog を CI 必須ゲート化
+
+### Step 6: 連携
+- **Nao**：インフラ設計書・SLO 目標を受領し、Terraform モジュール構成をレビューしてもらう。
+- **Kai**：リリース計画・Canary ステージ進行判断を Kai の進行管理と同期（デイリースタンドアップ）。
+- **Riku**：フロントのバンドルサイズ上限（250KB gzip）と Preview の RUM（Core Web Vitals）を共有。
+- **Ao**：バックエンドAPIの p95 レイテンシと DB コネクション数を OpenTelemetry で突き合わせ、N+1 を共同デバッグ。
+- **Mio**：E2E 結果を CI 必須ゲート化し、QAゲート失敗時の自動ロールバック基準を合意。
+
+### Step 7: 2026トレンド
+1. **Platform Engineering**：Internal Developer Platform（IDP）化で、Riku/Ao が自分でプレビュー環境・DB・Feature Flag を立ち上げられる状態を提供（Backstage 導入検討）。
+2. **FinOps 常態化**：クライアント別「1応募あたりのクラウドコスト」を KPI 化し、提案書・月次レポートに反映。
+3. **AIOps**：Datadog Watchdog・Sentry AI でアノマリ検知を自動化し、ノイズの多いアラートを LLM で要約してオンコール負荷を下げる。
+4. **Multi-Cloud / Edge**：Vercel 主軸は維持しつつ、重 batch は Cloudflare Workers・Fly.io に逃がしてコストと可用性を両立。
+
+### Step 8: KPI（DORA metrics）
+| 指標 | 現状 | 目標 | 計測方法 |
+|-----|-----|-----|---------|
+| **デプロイ頻度** | 週2回 | **1日1回以上**（Elite） | GitHub Actions の deploy job 完了数 |
+| **変更のリードタイム** | 2日 | **1時間以内** | PR作成→本番反映の中央値 |
+| **MTTR** | 30分 | **10分以内** | Incident 検知→復旧の実測 |
+| **変更失敗率** | 15% | **5%以下** | Canary Abort + Rollback の割合 |
+
+DORA Elite 水準を 90日以内に達成し、月次で sora に報告する。
+
+### Step 9: リスク
+- **サプライチェーン攻撃**：npm/pnpm 依存の typosquat・compromised パッケージ対策として、Renovate + Socket.dev + `npm audit signatures` を CI 必須化。GitHub Actions の third-party action は SHA ピン止めし、`permissions: contents: read` を既定とする。
+- **Secret 漏洩**：`.env` の誤コミット・ログへの平文出力を防ぐため、pre-commit で gitleaks を強制し、Vercel 環境変数は 90日ローテーション運用。GitHub Actions は OIDC で短期トークン化し、長期 PAT を廃止。
+- **コスト暴走**：Fluid Compute の暴走・外部APIループで月額が10倍化するリスクに、Vercel Spend Management の上限アラート（$500/日）と Function タイムアウト 10秒上限を敷く。異常課金は PagerDuty に即通知。
+- **DNS/証明書失効**：Terraform 管理下で有効期限を監視、Let's Encrypt の自動更新失敗時は 72時間前に警告を発報する。
+
+### Step 10: 継続改善
+- **週次**：DORA metrics ダッシュボードを Kai と確認、改善テーマを1つ決めて翌週に実装する。
+- **月次**：Vercel Usage・Datadog Cost を集計し、案件別単価を ryota・akari へ共有。クライアント課金見直しの材料にする。
+- **四半期**：Postmortem を全件振り返り、同種障害の再発ゼロを確認。Terraform モジュール・テンプレリポジトリへフィードバックを反映。
+- **半期**：外部カンファレンス（Platform Engineering Day・DevOpsDays Tokyo）参加 or 登壇し、社外ベンチマークを更新。
+- **常時**：Daily Knowledge Log に「効率化テクニック」「品質チェックポイント」「トレンド小ネタ」を書き足し、暗黙知を形式知化する。
+
+---
+**担当責任者**: HARU（CEO）
+**次回レビュー日**: 2026-12-10

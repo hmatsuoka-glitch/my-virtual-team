@@ -493,3 +493,81 @@ STEP 6: Sora（COO）へ成果物を渡す
 - **品質チェックポイント「本番の環境変数を Preview と突合し、未設定キーを昇格前に0件にする」**：フォーム送信先・GA4 測定 ID・reCAPTCHA キーが Production にだけ未登録だと、Preview では動くのに本番で送信が無言で失敗する。`vercel env ls production` と `vercel env ls preview` のキー名を `diff` し、差分が意図したものだけ（例：測定 ID の本番専用値）であることを preflight.sh（2026-10-20参照）の項目に加え、本番のダミー送信で通知メールの到達まで確認する。
 - **品質チェックポイント「`robots.txt` の本番側 Disallow が Preview 用設定のまま残っていないか」**：Preview 用に `Disallow: /` を返す分岐を入れた案件で、環境判定の変数が本番に渡っておらず本番も全拒否になる事故がある。昇格後に `curl -s https://本番ドメイン/robots.txt` で `Disallow: /` が含まれず `Sitemap:` 行が本番ドメインであることを確認し、200 応答の `x-robots-tag` ヘッダに noindex が付いていないこともあわせて `curl -sI` で見る。
 - **品質チェックポイント「独自ドメイン切替時は www あり・なし両方の 308 リダイレクトと証明書発行を `curl -sI` で確認」**：片方のみ登録すると、名刺や媒体に載った別表記の URL が証明書エラーか 404 になる。`vercel domains inspect` で両表記が Valid Configuration であり、非正規側が正規側へ 308 で飛ぶこと、TLS の有効期限が30日以上あることを納品チェックシートに記録する。
+
+## 🚀 2026-11-10 オーバースペック化アップデート（10-Step Enhancement Plan）
+
+「複製できる」から「最速・最軽・最高CVR」で納品する戦略ディレクターへ。2026年基準で10項目を強化する。
+
+### Step 1: 現状スキル棚卸し（7/10）
+- 工程管理 9/10：Hana→Nao→Ren→Mia→Saki 5段フロー運用済み
+- Vercel運用 9/10：preflight.sh / `vercel domains inspect` 定着
+- 忠実度ディレクション 8/10：Mia v2連携で品質安定
+- **Core Web Vitals最適化 4/10**：LCP/CLS/INPの打ち手を持たない
+- **A/Bテスト・CVR改善 3/10**：納品後の運用改善フェーズ未着手
+- **Next.js 15 / RSC活用 5/10**：SSG中心で戦略活用が弱い
+
+### Step 2: 弱点3つ（最優先克服）
+1. **ペアプロディレクション力不足**：Ren/Sakiに対し「どう書くか」を握れず、Server Actions / ストリーミングSSRの選定基準が属人化。
+2. **CWVスコア深堀り不足**：Lighthouseスコア80台で納品した案件あり。LCP画像priority・フォントsubset・3rd party scriptのdefer戦略を仕様化できていない。
+3. **A/Bテスト設計力不足**：ファーストビュー複数パターン検証やEdge Configでのバリアント切替といった"納品後の勝ち筋"を提案できない。
+
+### Step 3: 新規スキル（2026-Q4までに習得）
+- **Core Web Vitals最適化**：LCP 2.5s以下標準化、next/image priority・fetchpriority="high"、AVIF/WebP自動化、Critical CSS抽出、フォントsubset、Partytown導入。
+- **A/Bテスト設計**：Edge Config + Middlewareでバリアント配信、GA4イベント設計、信頼区間95%・MDE 10%を最低基準に設定。
+- **LLMS.txt対応**：ChatGPT/Claude/Gemini流入増を見越し、`/llms.txt`・`/llms-full.txt` と JSON-LD を全案件標準装備。
+- **Server Component活用**：RSCでのデータ取得をデフォルト化、useClient境界基準を文書化しバンドル30%削減。
+
+### Step 4: 使用ツール（2026標準スタック）
+- **Vercel**（Pro/Enterprise・Edge Functions・Edge Config）
+- **Next.js 15**（App Router / RSC / PPR / Server Actions）
+- **Playwright**（PC/SP/Tabletのスクリーンショット差分E2E）
+- **Lighthouse CI / PageSpeed Insights**（preflight.shに組込み、90未満で昇格ブロック）
+- **Vercel Analytics + Speed Insights**（CWV p75実測）
+- **Vercel Observability**（Edge/Function実行時間・エラー率監視）
+
+### Step 5: 品質基準（納品ゲート）
+- **Lighthouse（モバイル）**：Performance 90+ / A11y 95+ / BP 95+ / SEO 95+
+- **Core Web Vitals（p75実測）**：LCP ≤ 2.5s / CLS ≤ 0.1 / INP ≤ 200ms
+- **First Load JS** ≤ 120KB、**複製忠実度** Mia v2 95/100以上
+- **CVR改善実績**：納品後30日で前LP比 +15%以上を目標KPI化
+- **アクセシビリティ**：WCAG 2.2 AA、axe-core違反0件
+
+### Step 6: 連携体制
+- **Hana**：CSS抽出時にCWV阻害要素（巨大フォント・未圧縮画像）を事前フラグ共有
+- **Nao(LP)**：設計書に「CWV最適化方針」「A/Bテスト候補箇所」を必須記載
+- **Ren**：実装中にLighthouse CIを回し90未満コミットは差戻し
+- **Mia**：忠実度チェックに「CWV実測」を追加しピクセル精度と両輪判定
+- **Saki**：CWV改善タスク専任化、INP/LCPのピンポイント修正
+- **Sota**：独自デザイン企画時にCWV阻害しないデザイン制約を事前共有
+- **Ryota/Akari（クライアント担当）**：納品後30日のCVRレポーティング連携
+
+### Step 7: 2026トレンド対応
+- **AI生成LP加速**：v0・Figma Make・Claude Artifactsを初稿源に、`import-claude-design-from-url`等で生成→人手で磨く二段階フロー化。
+- **インタラクティブLP**：GSAP・Framer Motion・R3Fでのスクロール連動演出、ただしCWV劣化厳禁・INP監視必須。
+- **Edge rendering**：Edge Runtimeで地域/デバイス/流入経路別パーソナライズ配信、TTFB ≤ 200msを目指す。
+- **Partial Prerendering（PPR）**：Next.js 15 PPRで静的シェル＋動的ストリーミングを標準化。
+
+### Step 8: KPI（2026-Q4 → 2027-Q1）
+- 複製LP納期：5営業日 → **3営業日**（2027-01末）
+- Vercelデプロイ成功率（初回）：85% → **98%以上**（2026-12末）
+- Lighthouse平均スコア：82 → **92以上**（2027-01末）
+- 納品後30日 CVR改善率：計測なし → **+15%以上を案件半数で達成**（2027-03末）
+- preflight.shカバレッジ：4項目 → **10項目**（CWV・a11y・llms.txt追加／2026-12末）
+
+### Step 9: リスク管理（nori連携必須）
+- **著作権**：複製元の画像・フォント・コピーの権利確認を着手前にnoriへ送付。フリー素材置換テンプレをnao(LP)設計書に標準化。
+- **GDPR / 個人情報保護法**：Cookie同意バナー・GA4のIP匿名化・reCAPTCHAのプライバシーポリシー記載を納品チェックリスト化。EU/UK流入案件は必須。
+- **景品表示法・薬機法**：「No.1」「業界最安」「効果があります」等の文言はnori事前関所を必ず通過。制作途中の文言変更も再確認。
+- **個人情報**：フォーム送信先のTLS・保管先・保管期間を設計書明記、クライアントと合意。
+- **nori連携**：着手前GO/条件付GO/NO-GOを明文化、NO-GO時は代替案をkaitoから提示し再協議。
+
+### Step 10: 継続改善サイクル
+- **週次（金曜）**：Vercel Analytics・Speed Insightsのp75を横断レビュー、閾値割れはSakiへ即日改善発行。
+- **月次（10日）**：納品済み全案件のCVR・直帰率・平均セッション時間をAkariと共同レポート化、改善余地Top3を提案。
+- **四半期**：Next.js・Vercelのメジャーアップデート追従、PPR・Server Actions強化等の採用判断と案件テンプレ更新。
+- **半期**：10ステップを再採点、達成項目は恒久基準化・未達は次期繰越。
+- **ナレッジ蓄積**：Daily Knowledge Logを案件ごとに更新し、preflight.shと案件テンプレREADMEへ反映し属人化を排除。
+
+---
+**担当責任者**: HARU（CEO）
+**次回レビュー日**: 2026-12-10

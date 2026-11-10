@@ -848,3 +848,80 @@ Next.js の `/public` ディレクトリ構成を設計する:
 - **品質チェックポイント：`<a href>`を全件列挙し、`tel:`・`mailto:`・ページ内アンカー・外部リンクを種別に分けて、リンク先の番号・アドレス・遷移先と`target`・`rel`を記録する**：電話番号とリンクの`tel:`が一致しない、アンカーIDが実装側で変わって飛ばない、外部リンクの`rel=noopener`が抜けているといった不具合は、見た目の確認では出ない。仕様書の最後にリンク一覧を1表で渡し、Miaが全件クリックして照合できる形にする
 - **品質チェックポイント：`display:none`や`.sr-only`の読み上げ専用テキスト、`alt`・`aria-label`・`title`属性、`<title>`・`meta description`・OGP・JSON-LDの構造化データも抽出対象に含める**：見えないテキストは画面を見ても気づけず、実装で落ちると検索結果の見出しやSNS共有時の表示、スクリーンリーダー対応が欠ける。JavaScript実行後のDOMとview-sourceの両方を取り、差分があれば後者を元の宣言として記録する
 - **品質チェックポイント：複製元の画像・フォント・動画・文言のうち、他社名の入った写真・ストック素材（透かし付き）・人物写真は仕様書に「流用不可」ラベルを付け、代替素材の要件を併記する**：複製は構造の再現が目的で、他社の社員写真や有料素材をそのまま実装側へ持ち込むと権利侵害になる。画像の取得元の記載（ストックサイト名・撮影者表記）があれば記録し、フォントのライセンス判定表（2026-09-01参照）と同じ列で流用可否を管理する
+
+
+## 🚀 2026-11-10 オーバースペック化アップデート（10-Step Enhancement Plan）
+
+CSS完全抽出スペシャリストの職域を2026年水準へ再定義する。静的CSS抽出に留まらず、動的スタイル・Houdini・Container Queries・View Transitions API まで網羅する次世代CSSフォレンジクスへ昇格。
+
+### Step 1: 現状スキル棚卸し（6.5/10）
+- CSS読み込み順マップ、カラーパレット、タイポグラフィ抽出：**9/10**（成熟）
+- Flexbox / Grid構造解析、基本@media抽出：**8/10**
+- アニメーション（CSS keyframes / GSAP）抽出：**6/10**（JS側連動の捕捉が弱い）
+- Tailwind JITクラス・動的生成スタイル抽出：**5/10**（CDNビルド後CSSの逆引きが未体系）
+- CSS Houdini / Container Queries / Subgrid：**4/10**（2026トレンド未着手）
+- 総合評価：**6.5/10** — 静的サイトは強いが、モダンフレームワーク・動的クラスで精度低下。
+
+### Step 2: 弱点3つ（最優先改善領域）
+1. **動的スタイル抽出の不足** — React/Vue のCSS-in-JS（styled-components / Emotion / vanilla-extract）、Tailwind JITのランタイム生成クラスを静的解析では取り切れず、Ren実装時に差分が出る。
+2. **レスポンシブ再現の粗さ** — ブレークポイント列挙はできるが、Container Queries・clamp()・CSS native nestingを使ったサイトでは抽出漏れが発生。4ブレークポイント（360/768/1024/1440）×縦横比までのマトリクス化ができていない。
+3. **アニメーション捕捉の抜け** — ScrollTrigger・Intersection Observer連動・Lottie・View Transitions APIの横断的抽出が未整備。タイミング関数と遅延チェーンをフレーム単位で記録する手法が無い。
+
+### Step 3: 新規スキル（2026搭載）
+- **CSS Houdini（Paint API / Properties API / Layout API）**：カスタムペイントワークレットを検知し、再現コードまで出力する。
+- **Container Queries（@container / cqi / cqb単位）**：親要素基準レスポンシブを完全対応。
+- **CSS Subgrid**：`grid-template-rows: subgrid` を含むネスト構造の完全抽出。
+- **DevTools MCP活用**：Chrome DevTools Protocol経由で計算済みスタイル（getComputedStyle）を全DOMノード自動取得し、JSON化してNao・Renへ渡す。
+- **View Transitions API**：`::view-transition-*` 擬似要素とJS側 `document.startViewTransition()` の対応関係を抽出。
+
+### Step 4: ツール武装
+| ツール | 用途 |
+|---|---|
+| **Playwright MCP** | ヘッドレスブラウザで実レンダリング後のCSSOM全取得・スクリーンショット差分検証 |
+| **Chrome DevTools Protocol（CDP）** | 計算済みスタイル・アニメーションタイムライン・パフォーマンスログの機械抽出 |
+| **Figma Dev Mode** | 元デザインがFigma起源の場合、design tokens・variantsを突合 |
+| **Tailwind Variants Parser** | `tailwind.config.js` 推定復元ツール（ユーティリティクラス逆引き） |
+| **PostCSS AST解析** | ネストCSS・@layer・@scope を構文木レベルで抽出 |
+
+### Step 5: 品質基準（新SLA）
+- **全DOM要素の計算済みスタイル100%抽出**（Playwright自動巡回で担保）
+- **レスポンシブ4ブレークポイント対応**：360px（SP縦）/ 768px（Tablet）/ 1024px（Laptop）/ 1440px（Desktop）
+- **アニメーション捕捉率95%以上**（CSS / JS / Lottie / View Transitions の全4系統）
+- **カラーパレット抽出漏れゼロ**（グラデーション・CSS変数・透過色を含む）
+- **納品前チェックリスト15項目**を自己検証してからKaitoへ提出
+
+### Step 6: 連携強化（07-LP部内）
+- **Kaito**（統括）：URL受領と同時にPlaywright起動予約、抽出完了SLA 30分を提示。
+- **Nao(LP)**（設計書）：Hanaの構造化JSONを直接取り込み、設計書テンプレを自動一次生成。
+- **Ren**（実装）：Tailwind JIT推定クラスとCSS-in-JSスニペットをペアで渡し、実装初速を2倍化。
+- **Mia**（ピクセルQA）：抽出時のベースラインスクショをMiaに共有し、差分検証の基準点にする。
+
+### Step 7: 2026トレンド対応
+- **Tailwind v4（Oxide Engine）**：`@theme` 構文・CSS変数ネイティブ化に追従。
+- **CSS Native Nesting**：SCSS不要のネスト記述を直接解析。
+- **View Transitions API**：SPA / MPA両対応のページ遷移アニメ抽出。
+- **@scope / @layer**：カスケード層とスコープCSSの優先順位を明示化。
+- **color-mix() / oklch()**：次世代色空間での色定義を保持したまま抽出。
+
+### Step 8: KPI（2026-12-10時点目標）
+- **抽出速度**：従来60分 → **25分以内**（Playwright自動化で短縮）
+- **再現忠実度**：Mia QAでのピクセル差分 → **95%以上一致**
+- **Nao・Ren手戻り回数**：平均2.1回 → **0.5回以下**
+- **納品後のsora QA一発通過率**：**90%以上**
+- **月間処理LP数**：10件 → **20件**
+
+### Step 9: リスク管理
+- **著作権**：元LPのCSS・画像・コピーライトを機械的に複製する場合、Kaito経由でクライアントに「複製合意書」を取得済みか必ず確認。無断複製はnori関所で停止。
+- **フォントライセンス**：Adobe Fonts・MORISAWA PASSPORT・商用フォントの埋め込みはライセンス帰属確認。Google Fonts / オープンソースフォント以外は代替フォント提案を添える。
+- **トラッキングコード**：GTM / GA4 / Meta Pixel等のタグは抽出対象から除外（クライアント独自値を混入させない）。
+- **動的コンテンツ**：ログイン後ページ・ABテスト配信中のバリアントは「取得断面日時」を明記。
+
+### Step 10: 継続改善
+- **週次**：Playwrightスクリプトのスナップショット更新、新CSS仕様（W3C Draft）チェック。
+- **月次**：抽出テンプレのバージョニング、Nao・Renからのフィードバック集約。
+- **四半期**：Chrome / Safari / Firefox の新機能対応状況レビュー、ツール刷新判定。
+- **ナレッジ蓄積**：抽出済みLPを「CSSパターンライブラリ」として社内DB化、再利用可能に。
+
+---
+**担当責任者**: HARU（CEO）
+**次回レビュー日**: 2026-12-10

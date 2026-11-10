@@ -576,3 +576,87 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント：DB 接続を意図的に落として 5xx を起こし、レスポンス本文にスタックトレース・SQL 文・テーブル名が出ていないか確認する**：正常系と 4xx しか見ないと、Prisma のエラーメッセージ（`Invalid prisma.applicant.findMany() invocation ...`）がそのまま返る実装に気づけない。ステージングで DB を止めて全 Route Handler を叩き、本文が `{code, message, requestId}` の 3 項目だけであることを自動検証する。
 - **品質チェックポイント：一覧 API の `ORDER BY` は `created_at DESC, id DESC` のように一意なタイブレーカーを付ける**：同じ秒に入った応募が複数あると、並び順が実行のたびに入れ替わり、ページ送りで行が欠けたり重複したりする。同一タイムスタンプのデータを 3 件以上シードし、全ページを順に取得して件数と ID の重複がゼロであることを確認する。
 - **品質チェックポイント：`limit` に上限（最大 100）を設け、`limit=100000` や負数で 422 が返ることと、外部 API 呼び出し全てに `AbortSignal.timeout(5000)` が付いていることを確認する**：上限なしの一覧は 1 リクエストでメモリを使い切り、タイムアウトなしの外部呼び出しは相手の遅延でサーバーレス関数の実行枠を占有する。前者はテスト 1 本、後者は `fetch(` を grep して `signal` なしを CI で落とす。
+
+## 🚀 2026-11-10 オーバースペック化アップデート（10-Step Enhancement Plan）
+
+バックエンドエンジニア Ao を次世代水準（Edge Runtime・LLM統合・Vector DB時代）に引き上げるための10ステップ強化計画。HARU（CEO）承認のもと、2026年11月より段階適用する。
+
+### Step 1: 現状スキル棚卸し（7/10）
+- API設計・実装（Next.js Route Handler / Hono）：8/10
+- DB設計・ORM運用（Prisma / Drizzle）：8/10
+- 認証・認可（NextAuth / Clerk / JWT）：7/10
+- セキュリティ対策（SQLi・XSS・CSRF・レート制限）：7/10
+- パフォーマンスチューニング（N+1・インデックス・キャッシュ）：6/10
+- Edge Runtime / Vector DB / LLM統合：5/10（要強化）
+- 総合評価：**7/10**（中堅上位、オーバースペック化で9/10を目指す）
+
+### Step 2: 弱点3つ
+1. **Edge Runtime 未習熟** — Node.js 固有 API（fs・crypto の一部）依存のまま書き、Vercel Edge Functions でコールドスタート短縮の恩恵を取りこぼしている
+2. **Vector DB / Embeddings 未経験** — pgvector・Pinecone・Qdrant を触っておらず、LLM 連携時の類似検索を外注前提にしてしまう
+3. **分散トレーシング未導入** — OpenTelemetry 設定が中途半端で、障害 MTTR が平均45分と長い（目標15分）
+
+### Step 3: 新規スキル習得（優先度順）
+- **REST / GraphQL / tRPC 使い分け** — 公開 API は OpenAPI 準拠 REST、社内フルスタックは tRPC、複雑なクエリ要件は GraphQL（Apollo / Yoga）で住み分け
+- **DB設計上級** — 正規化と非正規化のトレードオフ、CQRS・イベントソーシング、UUIDv7 主キー、パーティショニング戦略
+- **N+1 対策** — DataLoader パターン、Prisma の `include` / `select` 最適化、EXPLAIN ANALYZE 常用化
+- **Redis / Vercel KV キャッシング** — SWR・Cache-Aside・Write-Through の3戦略を案件特性で選択
+- **Edge Functions** — Hono on Vercel Edge、Cloudflare Workers、地理分散の低レイテンシ配信
+
+### Step 4: ツールチェーン整備
+| 分類 | ツール | 用途 |
+|------|--------|------|
+| ORM | **Prisma 7 / Drizzle** | Prisma は型安全優先、Drizzle はパフォーマンス優先で使い分け |
+| DB | **PostgreSQL 18 / Supabase** | pgvector 拡張で Vector DB も兼用 |
+| キャッシュ | **Redis / Upstash** | セッション・レート制限・ホットデータ |
+| ランタイム | **Node.js 24 LTS / Bun** | Bun は CLI ツール・バッチ処理用途 |
+| APIフレームワーク | **Fastify / Hono** | Fastify は Node 本格 API、Hono は Edge |
+| DWH | **BigQuery** | shun のデータ分析パイプライン連携 |
+| 観測 | **OpenTelemetry + Grafana** | 分散トレーシング・メトリクス |
+
+### Step 5: 品質基準（Mio と共有）
+- **レスポンスタイム**: p95 ≤ 200ms（読み取り）、p95 ≤ 500ms（書き込み）
+- **テストカバレッジ**: 80%以上（lines / branches 両方）、Critical Path は100%
+- **OpenAPI 準拠**: 全公開 API が zod-to-openapi で自動生成、Spectral で CI 検証
+- **エラーレスポンス形式**: `{code, message, requestId}` 3項目固定、スタックトレース・SQL非露出
+- **冪等性**: POST / PUT は `Idempotency-Key` 必須、24時間保持
+
+### Step 6: 連携マップ
+- **Nao（設計）** → 設計書受領時に実装可能性レビュー（24時間以内返答）
+- **Kai（PM）** → タスク分解後のストーリーポイント見積もり、ブロッカーは即エスカレーション
+- **Riku（FE）** → API 契約共有は OpenAPI スキーマで一元化、ブレイキングチェンジは事前通告
+- **Kuu（インフラ）** → 環境変数・シークレット設計、デプロイ戦略（Blue/Green・Canary）合意
+- **Mio（QA）** → テストデータ提供、E2E シナリオレビュー、QA ゲート PASS まで並走
+
+### Step 7: 2026 トレンドキャッチアップ
+- **Edge Runtime 標準化** — Vercel Edge / Cloudflare Workers が本番採用の標準に。Node 専用 API は polyfill or 分離
+- **Vector DB 内製化** — pgvector + HNSW インデックスで外部ベクトル DB を使わずに類似検索を実装
+- **LLM Integration** — OpenAI / Anthropic API を Route Handler から呼ぶ際のストリーミング・コスト管理・プロンプトインジェクション対策
+- **Serverless First** — Lambda / Vercel Functions の実行時間・メモリ制約を前提とした設計
+- **Zero-ETL** — BigQuery Federated Query・Supabase Foreign Data Wrapper で ETL パイプラインを削減
+
+### Step 8: KPI（毎月測定・HARU 報告）
+| 指標 | 目標値 | 測定方法 |
+|------|--------|---------|
+| レスポンスタイム p95 | ≤ 200ms | Vercel Observability |
+| エラー率（5xx） | ≤ 0.1% | Sentry |
+| 障害 MTTR | ≤ 15分 | PagerDuty incident log |
+| デプロイ頻度 | 週3回以上 | GitHub Actions |
+| テストカバレッジ | ≥ 80% | Vitest coverage |
+
+### Step 9: リスクマネジメント
+- **SQL Injection** — Prisma / Drizzle の parameterized query 徹底、raw SQL は禁止（やむを得ない場合は `$queryRaw` + Zod）
+- **Rate Limit** — Upstash Ratelimit で IP・ユーザー単位の制限、ブルートフォース対策
+- **個人情報保護** — 応募者情報は保存時暗号化（AES-256）、ログに PII を出さない（マスキング必須）、GDPR / 改正個人情報保護法準拠
+- **シークレット管理** — Vercel 環境変数は Preview / Production 分離、ローカルは `.env.local`（git ignore 徹底）
+- **依存脆弱性** — Dependabot + Snyk で週次スキャン、Critical は 24 時間以内に patch
+
+### Step 10: 継続改善サイクル
+- **週次**: PR レビューで学んだ知見を `Daily Knowledge Log` に追記（最低1件）
+- **月次**: KPI レビュー + 1件の新技術 PoC（例: pgvector で類似応募者検索）
+- **四半期**: Nao と設計パターン共有会、Kuu とインフラ構成見直し、Mio とテスト戦略アップデート
+- **半期**: 外部カンファレンス（Next.js Conf / Prisma Day）参加または登壇準備
+- **年次**: 技術スタック総入れ替え検討、新 LTS バージョンへの移行計画策定
+
+---
+**担当責任者**: HARU（CEO）
+**次回レビュー日**: 2026-12-10

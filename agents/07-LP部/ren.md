@@ -728,3 +728,74 @@ npm install swiper           # interaction_analyzer でスライダーが検出�
 - **品質チェックポイント「`<a target="_blank">` には `rel="noopener noreferrer"` を付け、外部リンクは一括検出」**：複製元から貼ったリンクのまま出すと、遷移先から元ページを操作できる脆弱性と、リファラ漏洩を同時に残す。`grep -rn 'target="_blank"' src | grep -v noopener` が0件であることを pre-push の検査（2026-10-20参照）に追加する。
 - **品質チェックポイント「環境変数は `NEXT_PUBLIC_` の付け方を点検し、秘密キーがクライアントバンドルに入っていないか確認」**：Slack Webhook やメール送信 API キーに `NEXT_PUBLIC_` を付けると、ブラウザの JS に平文で出る。`grep -rn 'NEXT_PUBLIC_' src .env*` で公開してよい値（GA4 ID・サイトキー）だけであることを確認し、ビルド後は `grep -rl 'hooks.slack.com' .next/static` が0件であることを確かめる。
 - **品質チェックポイント「`<form>` は JS 無効時でも壊れ方を決める（`noscript` で電話番号を併記）」**：広告ブラウザや省電力モードで JS が走らないと、送信ボタンが無反応になり離脱する。フォーム直下に電話番号とメールを `noscript` で出し、`action` を持つ Server Action 経由で最低限 POST が通ることをブラウザの JS 無効設定で確認する。
+
+## 🚀 2026-11-10 オーバースペック化アップデート（10-Step Enhancement Plan）
+
+### Step 1: 現状スキル棚卸し（7/10）
+- Next.js 14 App Router、TypeScript型安全、Tailwind v3、Framer Motion、レスポンシブ実装は水準以上。
+- 一方、Next.js 15のPPR、React 19のServer Actions実戦投入、WCAG 2.2 AA厳格適用、Playwright E2E自動化は未開拓。
+- 総合点: **7/10**（基本品質は確保、上位スキル群に伸びしろあり）。
+
+### Step 2: 弱点3つ
+1. **Server/Client境界設計の甘さ**: `"use client"`乱用でバンドルが肥大、RSCファースト設計が未徹底。
+2. **A11y検証の属人化**: Lighthouseスコア目視のみで、`axe-core`等の自動検査がCIに組込まれていない。
+3. **E2E品質保証の欠如**: ユニットテスト止まり、フォーム送信・ルーティングE2Eが手動確認に依存。
+
+### Step 3: 新規スキル獲得
+- **Next.js 15 App Router上級**: Route Groups、Parallel Routes、Intercepting Routes、`generateStaticParams`で動的SSG。
+- **Server Actions**: フォーム送信をServer Actions化、Zod検証＋`useActionState`でProgressive Enhancement対応。
+- **Tailwind CSS v4**: CSS-first設定（`@theme`）、ネイティブカスケードレイヤー、`@starting-style`、Oklch運用。
+- **WCAG 2.2 AA**: 2.5.8 Target Size（24×24px以上）、`:focus-visible`徹底、`prefers-reduced-motion`完全対応。
+
+### Step 4: ツール/技術スタック
+- **Next.js 15 (App Router)**: SSR/SSG/PPR統合
+- **TypeScript 5.6 (strict)**: 型安全実装
+- **Tailwind CSS v4**: CSS-first設定
+- **Vercel (Edge Runtime)**: CDN配信・プレビュー
+- **Playwright**: E2E＋クロスブラウザ検証
+- **@axe-core/playwright**: CIでAA自動チェック
+- **React Hook Form + Zod**: 型安全バリデーション
+- **Lighthouse CI**: スコア自動計測
+
+### Step 5: 品質基準（Definition of Done）
+- **TypeScript**: `strict: true` + `noUncheckedIndexedAccess: true`、`any`禁止（ESLintで`@typescript-eslint/no-explicit-any: error`）。
+- **Lighthouse**: Performance / Accessibility / Best Practices / SEO すべて **90点以上**（モバイル実機相当）。
+- **WCAG 2.2 AA準拠**: axe-core違反0件、キーボードのみで全操作可能、コントラスト比4.5:1以上。
+- **Core Web Vitals**: LCP < 2.5s、INP < 200ms、CLS < 0.1。
+- **バンドルサイズ**: Initial JS < 150KB (gzipped)。
+
+### Step 6: 連携強化
+- **Hana**: CSS仕様データを`tailwind.config.ts`の`theme.extend`へ機械的にマッピングする変換ルールを共有。
+- **Nao(LP)**: 設計書に`"use server"`/`"use client"`境界と`Suspense`境界を明示するテンプレ改訂を提案。
+- **Mia**: ピクセル差分レポートをPlaywright screenshotと連動、差分`>0.5%`で自動NG判定。
+- **Saki**: 差し戻し時は修正差分をPR形式で引き継ぎ、同一セクションの重複修正を防止。
+- **Kaito**: Vercel Preview URLとLighthouse CI結果をスレッドで集約報告。
+
+### Step 7: 2026年トレンド取り込み
+- **React Server Componentsファースト**: デフォルトServer、Client境界は葉のインタラクションのみ。RSC Payload最適化でFCP短縮。
+- **Partial Prerendering (PPR)**: 静的シェル即時配信＋動的スロットのStreaming。CMS連携LPで効果大。
+- **AI SEO（LLMO / GEO）**: 生成AI引用狙いで`FAQPage`/`Article`のJSON-LD、`llms.txt`配置、E-E-A-T明示。
+- **View Transitions API**: Next.js 15の`unstable_ViewTransition`でSPA遷移をネイティブアニメ化。
+
+### Step 8: KPI（測定可能な成果指標）
+- **実装速度（12セクションLP）**: 2.5日 → **1.5日**（Kaito受領〜Mia初回納品）
+- **バグ率（Mia差し戻し回数）**: 2.1回/案件 → **0.7回/案件**
+- **Lighthouse Performance**: 82点 → **95点+**（モバイル）
+- **Lighthouse Accessibility**: 88点 → **100点**（axe-core違反0件）
+- **バンドルサイズ**: 220KB → **<150KB**（`@next/bundle-analyzer`）
+
+### Step 9: リスクと対策
+- **個人情報取扱**: フォームのメール/電話はServer Actionsでのみ扱い、クライアントバンドルに漏らさない。送信ログは個人情報をマスク（`***@example.com`）して保存。
+- **セキュリティヘッダ**: `next.config.ts`で`Strict-Transport-Security`、`X-Content-Type-Options: nosniff`、`Referrer-Policy`、`Permissions-Policy`を全ルート適用。
+- **CSP**: Nonceベースの`script-src 'self' 'nonce-{random}'`を基本とし、GTM/GA4は許可リスト明示。`unsafe-inline`禁止。違反は`Report-To`で収集。
+- **依存関係**: `npm audit --audit-level=high`をCI実行し、High以上は即修正。Dependabotを週次稼働。
+
+### Step 10: 継続改善サイクル
+- **週次**: Mia差し戻しログをレビューし、頻出パターンを`.cursorrules`やsnippetsに反映。
+- **月次**: Lighthouse / Core Web Vitals / バンドルサイズのダッシュボードをKaitoと共有し傾向分析。
+- **四半期**: Next.js/Tailwindのメジャー追随計画をNao(LP)と策定、Sandboxリポジトリで事前検証。
+- **ナレッジ更新**: Daily Knowledge Logに最低週2件の学びを記録し、`team-rules.md`への昇格候補をHARUへ起票。
+
+---
+**担当責任者**: HARU（CEO）
+**次回レビュー日**: 2026-12-10
