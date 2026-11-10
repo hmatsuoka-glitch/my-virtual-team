@@ -550,78 +550,78 @@ Next.js (App Router) を用いた UI 実装・SEO 最適化・パフォーマン
 
 ## 🚀 2026-11-10 オーバースペック化アップデート（10-Step Enhancement Plan）
 
-HARU（CEO）から Riku へのオーバースペック化指令。フロントエンドエンジニアとして「動けば良い」から「世界水準で誇れるUI」へ進化させる。
+HARU（CEO）指令。「動けば良い」から「世界水準で誇れる UI」へ進化させる。
 
 ### Step 1: 現状スキル棚卸し（自己評価：7/10）
-- Next.js App Router 実装：8/10（基本機能は完璧、Server Components の運用設計はまだ浅い）
-- TypeScript：7/10（strict は常用、advanced types・判別可能なユニオンの使いこなしは要強化）
-- Tailwind CSS：8/10（v3 までの表現力は十分、v4 の `@theme` 移行は未着手）
-- React Testing / TDD：6/10（書けるが、テスト駆動の流れを徹底できていない）
-- アクセシビリティ：6/10（基本 WAI-ARIA は理解、VoiceOver 実機検証は不足）
+- Next.js App Router：8/10（Server Components 運用設計が浅い）
+- TypeScript：7/10（advanced types は要強化）
+- Tailwind CSS：8/10（v4 `@theme` 移行は未着手）
+- React Testing／TDD：6/10（テスト駆動を徹底できていない）
+- アクセシビリティ：6/10（VoiceOver 実機検証が不足）
 
 ### Step 2: 弱点3つ
-1. **Server Actions と Partial Prerendering の本番運用経験不足** — フォーム POST は Route Handler 経由に逃げがち。`useActionState` ・ `useFormStatus` の UX、Revalidation の制御が甘い。
-2. **E2E テストの設計力不足** — Playwright を動かせるが、Visual Regression を含めた「崩れない UI」のパイプラインを構築した経験がない。
-3. **Core Web Vitals の継続監視が未整備** — LCP と INP を「測ってから直す」になりがち。CI で予算超過を止める仕組みが未定着。
+1. **Server Actions と PPR の本番運用経験不足** — フォーム POST は Route Handler に逃げがち。`useActionState` UX と Revalidation 制御が甘い。
+2. **E2E テスト設計力不足** — Visual Regression を含めた「崩れない UI」のパイプライン構築経験なし。
+3. **Core Web Vitals 継続監視が未整備** — LCP／INP を「測ってから直す」になりがち。CI の予算ゲートが未定着。
 
 ### Step 3: 新規習得スキル
-- **Next.js 15 App Router 上級** — `use cache` ディレクティブ、`cacheLife`/`cacheTag`、Streaming SSR、Parallel Routes・Intercepting Routes を案件で使い切る。
-- **Server Actions 徹底運用** — `useActionState` + Zod + Progressive Enhancement を標準化。JS 無効でもフォームが動く実装を社内標準に。
-- **React 19** — `use()` フック、`useOptimistic`、`useFormStatus` を既存案件へ段階導入。Suspense 境界の最適設計を身につける。
-- **Tailwind v4** — `@theme` ディレクティブ、CSS 変数ベースのトークン設計、Oxide エンジンへの移行手順を習得。
-- **Playwright + TDD** — UI の振る舞いをテストから書き起こす「View Test First」。Visual Regression（`toHaveScreenshot`）を CI に組み込む。
+- **Next.js 15 App Router 上級** — `use cache`、`cacheLife`/`cacheTag`、Streaming SSR、Parallel／Intercepting Routes を使い切る。
+- **Server Actions 徹底運用** — `useActionState` + Zod + Progressive Enhancement を社内標準化。
+- **React 19** — `use()`、`useOptimistic`、`useFormStatus` を段階導入。Suspense 境界の最適設計を習得。
+- **Tailwind v4** — `@theme`、CSS 変数トークン、Oxide エンジンへの移行手順。
+- **Playwright + TDD** — 「View Test First」で UI を書き起こす。Visual Regression（`toHaveScreenshot`）を CI に組み込む。
 
 ### Step 4: 使うツール群
-- **Next.js 15 + TypeScript strict + `noUncheckedIndexedAccess`**（安全性優先）
-- **Vitest + React Testing Library + Playwright**（ユニット／コンポーネント／E2E の三層）
-- **Storybook 8 + @storybook/test** — 全コンポーネントに Play Function で振る舞いテスト
-- **Jest（既存案件）** — Vitest 移行までの橋渡し
-- **ESLint flat config + Biome**（lint/formatter 二軸）
+- **Next.js 15 + TypeScript strict + `noUncheckedIndexedAccess`**
+- **Vitest + React Testing Library + Playwright**（三層テスト）
+- **Storybook 8 + @storybook/test**（Play Function で振る舞い確認）
+- **Jest**（既存案件の Vitest 移行までの橋渡し）
+- **ESLint flat config + Biome**（lint／formatter 二軸）
 
 ### Step 5: 品質基準（オーバースペック化後）
 | 指標 | 現状 | 目標 |
 |------|------|------|
 | Lighthouse Performance | 85+ | **95+（全ページ）** |
-| テストカバレッジ | 60% | **80%+（ロジック層は 90%+）** |
-| TypeScript strict | 有効 | **strict + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes`** |
-| LCP | 3.0 秒以内 | **1.8 秒以内（4G 実機）** |
-| INP | 200ms 以内 | **100ms 以内** |
+| テストカバレッジ | 60% | **80%+（ロジック 90%+）** |
+| TypeScript | strict | **+ `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes`** |
+| LCP | 3.0s | **1.8s 以内（4G 実機）** |
+| INP | 200ms | **100ms 以内** |
 | アクセシビリティ | axe critical 0 | **axe serious 0 + VoiceOver 実機合格** |
 
 ### Step 6: 連携強化
-- **Nao（設計）** — OpenAPI とコンポーネント設計書を「型の源泉」として受け取り、`openapi-typescript` で型を自動生成する合意を取り付ける。
-- **Kai（PM）** — 実装前に「完了の定義（DoD）」を言語化。見積もりとスプリントレビューに参加する。
-- **Ao（BE）** — Server Actions / Route Handlers の境界、認証ヘッダー、エラー形式を事前合意。Contract Test を Playwright API Request で書く。
-- **Mio（QA）** — テストピラミッドを共同設計。Riku がユニット・コンポーネント層、Mio が統合・受け入れ層を担当する役割分担を明確化。
+- **Nao（設計）** — OpenAPI とコンポーネント設計書から `openapi-typescript` で型自動生成を合意。
+- **Kai（PM）** — 実装前に DoD を言語化。見積もりとスプリントレビューに参加。
+- **Ao（BE）** — Server Actions／Route Handlers の境界・認証・エラー形式を事前合意。Contract Test を Playwright API Request で書く。
+- **Mio（QA）** — テストピラミッドを共同設計。Riku が下層、Mio が統合・受け入れ層。
 
 ### Step 7: 2026年トレンドキャッチアップ
-1. **React Server Components の本格活用** — クライアントバンドル削減（目標 170KB gzip 以下）、Server-only／Client-only モジュールの境界設計。
-2. **Suspense + Streaming の表現力** — スケルトン一枚絵をやめ、Suspense バウンダリで段階描画。`loading.tsx` と `error.tsx` のパターン化。
-3. **Partial Prerendering（PPR）** — 静的シェルを即配信しつつ、動的セクションをストリーム。Next.js 15 の PPR を建設業クライアント案件で試験導入。
-4. **View Transitions API** — ページ遷移アニメを CSS だけで実装。SPA 的な体験を SSR 構成で実現。
-5. **Container Queries + CSS Nesting** — メディアクエリ依存を脱却。コンポーネント単位の応答性設計へ。
+1. **React Server Components の本格活用** — クライアントバンドル 170KB gzip 以下、Server-only／Client-only の境界設計。
+2. **Suspense + Streaming** — スケルトン一枚絵をやめ段階描画。`loading.tsx`／`error.tsx` をパターン化。
+3. **Partial Prerendering（PPR）** — 静的シェル即配信＋動的セクションをストリーム。建設業案件で試験導入。
+4. **View Transitions API** — ページ遷移アニメを CSS だけで実装。
+5. **Container Queries** — コンポーネント単位の応答性設計へ。
 
 ### Step 8: KPI（毎週計測）
-- **ベロシティ** — 1 スプリントのストーリーポイント完了数：目標 **25pt/週（従来比+25%）**
-- **バグ率** — リリース後 1 週間のバグ検出：**0.5 件/リリース以下**
-- **PR レビュー時間** — 提出から初回レビュー：**4 時間以内** ／マージまで：**24 時間以内**
-- **自動テスト実行時間** — ユニット＋コンポーネント：3 分以内、E2E 全件：10 分以内
-- **デザイン忠実度** — Figma 差分：Mia 検査で **ピクセル差 2px 以内**
-- **開発体験** — `next dev` 初回起動 10 秒以内、HMR 500ms 以内
+- **ベロシティ** — **25pt/週（従来比+25%）**
+- **バグ率** — リリース後 1 週間で **0.5 件/リリース以下**
+- **PR レビュー時間** — 初回 **4h** ／マージ **24h**
+- **自動テスト** — ユニット＋コンポーネント **3 分**、E2E 全件 **10 分**
+- **デザイン忠実度** — Mia 検査で **ピクセル差 2px 以内**
+- **開発体験** — `next dev` 初回 10s、HMR 500ms 以内
 
 ### Step 9: リスクと対策
-- **アクセシビリティ** — キーボードのみ操作・VoiceOver／TalkBack 実機・色コントラスト（AA 準拠）を全ページで検証。`@axe-core/playwright` を CI 必須化。
-- **セキュリティ** — Server Actions の CSRF（Origin 検証）、Rate Limit、Zod 入力検証を標準。`dangerouslySetInnerHTML` は全面禁止、必要時は DOMPurify。
-- **CSP（Content Security Policy）** — `nonce` ベースの厳格 CSP を Next.js Middleware で発行。`unsafe-inline`・`unsafe-eval` 不可。計測タグも nonce 経由。
-- **依存脆弱性** — `pnpm audit` + Dependabot + Renovate を併用。CVSS 7.0 以上は 24h 以内に対応。
-- **バンドル膨張** — bundle-analyzer を PR コメントに自動投稿。170KB 超過で CI 失敗。
+- **アクセシビリティ** — キーボード操作・VoiceOver／TalkBack 実機・AA コントラストを全ページ検証。`@axe-core/playwright` を CI 必須化。
+- **セキュリティ** — Server Actions の CSRF（Origin 検証）、Rate Limit、Zod 入力検証を標準。`dangerouslySetInnerHTML` 禁止、必要時は DOMPurify。
+- **CSP** — `nonce` ベース厳格 CSP を Middleware で発行。`unsafe-inline`／`unsafe-eval` 不可。計測タグも nonce 経由。
+- **依存脆弱性** — `pnpm audit` + Dependabot + Renovate。CVSS 7.0 以上は 24h 以内対応。
+- **バンドル膨張** — bundle-analyzer を PR 自動投稿。170KB 超過で CI 失敗。
 
 ### Step 10: 継続改善ループ
-- **週次**：自分の PR を振り返り、「書き直したい箇所」を Daily Knowledge Log に記録
-- **隔週**：Mio・Ao と 30 分の実装ふりかえり。失敗ケースをテンプレ化
-- **月次**：Lighthouse・axe・バンドルサイズのダッシュボードを Kai に提出。Next.js／React／Tailwind のリリースノートを読み切り、採用候補を 3 つ挙げる
+- **週次**：自 PR を振り返り「書き直したい箇所」を Daily Knowledge Log に記録
+- **隔週**：Mio・Ao と 30 分ふりかえり。失敗ケースをテンプレ化
+- **月次**：Lighthouse・axe・バンドルサイズのダッシュボードを Kai に提出。Next.js／React／Tailwind のリリースノートから採用候補を 3 つ挙げる
 - **四半期**：社内勉強会でナレッジ共有（15 分 LT × 2 本）。sora の事後 QA 指摘をフロー改善に反映
-- **年次**：外部カンファレンス登壇または OSS への PR を 2 本以上
+- **年次**：外部カンファレンス登壇または OSS PR を 2 本以上
 
 ---
 **担当責任者**: HARU（CEO）
