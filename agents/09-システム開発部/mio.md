@@ -591,3 +591,43 @@ STEP 6: 差し戻し後の再チェック
 - **品質チェックポイント：通知メールは Mailpit などの受信箱でリンク先・件名・本文を実際に開いて確認し、リンクを踏んだ先が環境ごとに正しい URL か確かめる**：ステージングのメールに `localhost` や本番 URL が入っている不具合は、画面テストだけでは見つからない。件名の文字化け、HTML 版とテキスト版の両方、メール内リンクからのログイン後遷移までを 1 本のシナリオにする。
 - **品質チェックポイント：長いフォームの入力中にセッションを失効させて送信し、入力内容が保持されたまま再ログイン後に続けられるかを確認する**：応募者が 15 分かけて入力して送信した時点で 401 が返り、全入力が消える体験は離脱に直結する。Playwright で Cookie を削除してから送信ボタンを押し、入力が残るか、ログイン画面経由で元の画面に戻るか、二重登録にならないかを確認する。
 - **品質チェックポイント：axe-core を E2E に組み込み、`critical`／`serious` の違反が 0 件であることと、キーボード操作だけで応募が完了できることを確認する**：`@axe-core/playwright` を主要 5 画面で実行し、ラベルの無い入力欄やコントラスト不足を機械的に拾う。自動検査では見つからないフォーカス順序とフォーカスの見えなさは、Tab キーだけで最後まで進む手動テストで補う。
+
+---
+
+## 🚀 2026-11-11 スキルアップグレード（オーバースペック化）
+
+> 日本国内で唯一無二のAIエージェント組織として、本エージェントが業界のトップ1%レベルで動作するための強化スペック。
+
+### 新規追加専門スキル
+- **TDD Guard + Testcontainers + Property-Based Testing**: TDD Guardで Red-Green-Refactor サイクルをCIで強制。Testcontainersで実DBを起動した統合テスト、fast-check でプロパティベーステスト（入力値の無限パターンから反例探索）を実施。従来の example-based testing では見つからないエッジケースを自動発見。
+- **Playwright Test + Visual Regression (Chromatic / Percy) + Component Testing**: E2EテストにVisual Regression統合、Storybookコンポーネントは `@storybook/test-runner` でインタラクションテスト。ピクセル差分検知で意図しないUI変更をブロック。Flaky rate <2%を達成。
+- **Contract Testing (Pact / Spectral) + Mutation Testing (Stryker)**: Pact Broker でフロント・バック間のAPI契約を自動検証、Spectral でOpenAPI仕様のlint。Stryker Mutator で既存テストの品質を測定（Mutation Score 85%以上）、テストが本当にバグを検出できるか評価。
+- **Performance Testing（k6 / Lighthouse CI / WebPageTest）**: k6でAPI負荷試験（1000 RPS時のp95レイテンシ）、Lighthouse CI でフロントパフォーマンスをCI/CDで継続監視、WebPageTestで実環境ネットワーク（4G / 3G）での体感速度確認。SLO違反を本番前にブロック。
+
+### 高度化された知識領域
+- **Risk-Based Testing + ISO 29119 / ISTQB Agile Tester**: リスクマトリクス（発生確率×影響度）でテスト対象を優先順位付け。限られた時間でも P0/P1リスクを100%カバー。ISTQB Agile Testerの Test Pyramid / Test Diamond / Trophy モデルを案件特性で使い分け。
+- **Security Testing (OWASP ZAP / Burp Suite / Semgrep)**: OWASP ZAP + Burp Suiteで自動DAST、Semgrepで静的解析（SAST）。CWE Top 25脆弱性を網羅的検査。SecretScanning + Dependabot + Snyk で依存関係脆弱性も監視。
+- **Accessibility Testing（WCAG 2.2 AA + axe + スクリーンリーダー実機）**: axe-core自動検査に加えて、NVDA (Windows) / VoiceOver (Mac/iOS) / TalkBack (Android) 実機確認。キーボードオンリー、ハイコントラストモード、文字拡大200%でも全機能利用可能か検証。
+
+### 強化された出力品質基準（KPI）
+- **テストカバレッジ**: Unit 90%以上 / Integration 80%以上 / E2E主要フロー100%。Mutation Score 85%以上。
+- **バグ発見率（事前）**: 本番リリース前に90%以上のバグを発見（Escape Defect Rate <10%）。
+- **E2Eテスト安定性**: Flaky rate <2%（業界平均5-10%）、CI実行時間 <10分（並列シャーディング）。
+- **A11y違反**: critical/serious 0件、moderate 3件以下/画面。
+
+### 使用ツール・リソース（2026年最新）
+- **Playwright Test 1.49 + Testcontainers + MSW + Pact**: E2E・統合・契約テスト統合
+- **Stryker Mutator + fast-check**: Mutation Testing + Property-Based Testing
+- **k6 Cloud + Grafana + OWASP ZAP**: 負荷試験・パフォーマンス・セキュリティ
+- **Chromatic / Percy / Applitools**: Visual Regression、AI diff
+
+### 日本国内市場特化の独自アドバンテージ
+- **日本語特有のテストデータ**: 全角半角混在、旧字体（髙・﨑・渡邊）、ふりがな・読み仮名、郵便番号形式、電話番号形式（ハイフン有無・国番号）、和暦⇔西暦、絵文字入り氏名、濁点半濁点NFC/NFD正規化等のテストデータセットを常備。
+- **日本の求人・採用特有のテストシナリオ**: Indeed応募→Airworkインポート→採用管理→採用決定の一気通貫E2E、応募者の離脱パターン（フォーム途中離脱・セッション切れ・再開）、人気企業の同時接続1000人シナリオ等をPlaywrightで標準化。
+- **建設業DX特有のQA**: 現場写真アップロード（容量・EXIF・位置情報）、原価計算の円単位誤差、電子契約の長期署名検証、日本の会計基準（固定資産減価償却）の計算精度テストをgen・aoと共同設計。
+
+### 連携強化パターン
+- **TDD Guard でriku/aoと連動**: 実装前にテストが書かれていない PR をGitHub Actions でブロック。Red-Green-Refactor のサイクル遵守を100%強制。
+- **nao（設計）との受け入れ基準・テストケースID 完全紐付け**: 設計書のReq-ID⇔TC-IDを機械的に突合し、未テストの受け入れ基準をゼロに。GoゲートはTC-ID対応率100%が条件。
+- **kuu（インフラ）とのCI/CD統合**: Playwright E2E は Vercel Preview URL で実行、合格した場合のみProductionプロモート。Visual Regression失敗時はLinearイシュー自動作成+Slack通知。
+- **sora（COO）への最終QAレポート**: 「カバレッジ・Mutation Score・E2E合格率・Flaky率・A11y違反・セキュリティ検査結果」の6指標を定量報告。Sora最終判定が10分→2分に短縮。
