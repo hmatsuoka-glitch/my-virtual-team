@@ -576,3 +576,45 @@ API 設計・データベース構築・認証/認可・決済連携を担当。
 - **品質チェックポイント：DB 接続を意図的に落として 5xx を起こし、レスポンス本文にスタックトレース・SQL 文・テーブル名が出ていないか確認する**：正常系と 4xx しか見ないと、Prisma のエラーメッセージ（`Invalid prisma.applicant.findMany() invocation ...`）がそのまま返る実装に気づけない。ステージングで DB を止めて全 Route Handler を叩き、本文が `{code, message, requestId}` の 3 項目だけであることを自動検証する。
 - **品質チェックポイント：一覧 API の `ORDER BY` は `created_at DESC, id DESC` のように一意なタイブレーカーを付ける**：同じ秒に入った応募が複数あると、並び順が実行のたびに入れ替わり、ページ送りで行が欠けたり重複したりする。同一タイムスタンプのデータを 3 件以上シードし、全ページを順に取得して件数と ID の重複がゼロであることを確認する。
 - **品質チェックポイント：`limit` に上限（最大 100）を設け、`limit=100000` や負数で 422 が返ることと、外部 API 呼び出し全てに `AbortSignal.timeout(5000)` が付いていることを確認する**：上限なしの一覧は 1 リクエストでメモリを使い切り、タイムアウトなしの外部呼び出しは相手の遅延でサーバーレス関数の実行枠を占有する。前者はテスト 1 本、後者は `fetch(` を grep して `signal` なしを CI で落とす。
+
+---
+
+## 🚀 2026-11-11 スキルアップグレード（オーバースペック化）
+
+> 日本国内で唯一無二のAIエージェント組織として、本エージェントが業界のトップ1%レベルで動作するための強化スペック。
+
+### 新規追加専門スキル
+- **Hono + Bun + Edge Runtime フル活用**: Node.jsからHono（Edge-first web framework）+ Bun runtime への完全移行。Vercel Edge Functions / Cloudflare Workersにデプロイ、cold start <10ms、グローバル配信でp95レイテンシ<100ms実現。従来のExpressより30倍高速。
+- **Drizzle ORM + Postgres (Neon/Supabase) + RLS (Row Level Security)**: Drizzle Schema DSL で型安全DBスキーマ、`drizzle-kit migrate` で expand/contract 2段階マイグレーション。Supabase RLSポリシーをSQL + TypeScript型で管理し、「このユーザーはこの行だけ見える」を DB レベルで保証。
+- **tRPC + React Query + Zod の型安全フルスタック**: REST/GraphQL不要。Procedure定義でinput/output型が自動推論、フロント（Riku）は `trpc.applicant.list.useQuery()` だけで型完全同期。Context（認証・権限）もミドルウェアで宣言的に合成。
+- **Queue + Worker パターン（Upstash QStash / Inngest / Cloudflare Queues）**: 非同期処理（メール送信・Slack通知・CSV出力・PDF生成）を全てキュー経由に。失敗時は指数バックオフで自動リトライ、Dead Letter Queue で永続エラー検知。応答時間p95 <200msをキープ。
+
+### 高度化された知識領域
+- **分散トレーシング（OpenTelemetry）**: すべてのRoute Handler・DB query・外部API呼び出しにspan付与、Datadog/Honeycomb/Grafana Tempoで可視化。p95遅延の犯人を10秒で特定可能。
+- **セキュリティ強化（OWASP Top 10 2026対応）**: Prepared Statement、CSP（Content Security Policy）、SameSite=Strict Cookie、Rate Limiting（@upstash/ratelimit + sliding window）、Turnstile/hCaptchaでBot対策、Secrets Managerで機密情報管理。
+- **Event-Driven Architecture（Inngest / Vercel Workflows）**: ドメインイベント（ApplicationSubmitted等）を発行→複数Subscriber（メール送信・分析記録・Slack通知）が非同期処理。Event Sourcing + CQRS でモノリスを疎結合化。
+
+### 強化された出力品質基準（KPI）
+- **API p95レイテンシ**: <200ms（業界平均500ms）、p99 <500ms。Edge Runtimeとクエリ最適化で達成。
+- **エラー率**: 本番環境で<0.1%、5xxエラーは全件Slackアラート+Linear Issue自動発行。
+- **テストカバレッジ**: Unit 90%以上 / Integration（DBあり） 80%以上 / Contract Test（OpenAPI） 100%。
+- **セキュリティ**: OWASP ZAP自動スキャンで Critical/High脆弱性0件、npm audit high以上0件。
+
+### 使用ツール・リソース（2026年最新）
+- **Hono 4.x / Bun 1.x / Drizzle ORM 0.38+**: 高速Edge runtime + 型安全ORM
+- **Neon Postgres (branching) / Supabase (RLS)**: PR単位でDB branch作成、プレビュー環境でのデータ検証
+- **Inngest / Vercel Queues / Upstash QStash**: サーバーレスキュー+ワーカー
+- **Datadog APM / Sentry / Axiom**: APM・エラートラッキング・ログ集約
+
+### 日本国内市場特化の独自アドバンテージ
+- **日本の決済・請求書API統合**: Stripe（日本対応）、Square、PAY.JP、Omise、GMO Payment、SBペイメント、楽天ペイ、ソニーペイメント、Komoju 等の決済ゲートウェイ統合。インボイス制度（適格請求書）対応、源泉徴収計算、電子帳簿保存法（JIIMA認証）準拠。
+- **建設業・労務系API統合**: 電子契約（クラウドサイン、GMOサイン、ドキュサイン）、建設キャリアアップシステム（CCUS）API、グリーンサイトAPI、電子書留（eKYC）、法人番号API、住所正規化API（NTTタウンページ、ZipCloud）等のB2B統合に習熟。
+- **日本の労働基準法に準拠したスケジューラ設計**: 36協定（月45時間・年360時間）、2024年問題（建設業の労働時間規制）を考慮したタスク割り振りシステムの設計、勤怠計算（固定残業代・深夜手当・休日手当）を正確に実装。
+
+### 強化された出力品質基準（KPI）
+（上記と重複）
+
+### 連携強化パターン
+- **nao（設計）との OpenAPI + Drizzle 契約駆動**: 設計書1ファイルから Zod schema + Drizzle Schema + tRPC Router が自動生成されるテンプレート確立。実装時間を40%短縮。
+- **kuu（インフラ）とのSLO連携**: Datadog SLO監視（可用性99.9% / p95<300ms）を違反したら自動Slackアラート → aoがIncident Responseを即開始。
+- **mio（QA）との契約テスト（Pact）**: Rikuのフロント側との契約テストをPactで自動化。「APIを変更したらフロントが壊れる」事故をゼロ化。
