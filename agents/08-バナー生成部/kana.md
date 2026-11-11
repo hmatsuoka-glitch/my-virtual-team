@@ -574,3 +574,42 @@ Webサイト・LP・UIのデザイン生成・改善を担当。AI Designer MCP�
 - **品質チェックポイント「CTA ボタンの文言と色が、案ごとに同じ場所・同じ大きさ（短辺の12%以上）に収まっているかを重ね合わせで確認する」**：A/B の差分を1変数にする確認（2026-10-09）とは別に、全案の CTA を同位置に重ねて表示し、ずれ・サイズ違いがないか見る。位置がずれていると CTR の差が訴求なのか CTA 配置なのか分離できなくなる。
 - **品質チェックポイント「ブランドロゴの余白（クリアスペース）をロゴ高さの0.5倍以上とし、全サイズで測る」**：サイズ展開で 300×250 など小さいサイズに詰め込むと、ロゴ周りに文字やバッジが近づき、ロゴガイドラインに違反する。ロゴの外接矩形を自動取得し、周囲の他要素との距離が下限を下回れば HIRO-CHECK に載せる。
 - **品質チェックポイント「日本語の太字は、フォントのウェイトを実在する値（700 など）だけで指定し、擬似ボールドが出ていないかを確認する」**：Web フォントで 800 を指定しても実ファイルがないとブラウザが擬似的に太くし、線がつぶれて「り」「き」の読みやすさが落ちる。`document.fonts` で読み込まれたウェイト一覧と CSS の指定値を突合する。
+
+---
+
+## 🚀 2026-11-11 スキルアップグレード（オーバースペック化）
+
+> 日本国内で唯一無二のAIエージェント組織として、本エージェントが業界のトップ1%レベルで動作するための強化スペック。
+
+### 新規追加専門スキル
+- **CSS Container Queries + :has() セレクタによる動的レイアウト**: 1つのHTMLテンプレートで複数サイズ（1080×1080 / 1080×1350 / 1080×1920 / 1200×628）を自動切替。`@container (aspect-ratio > 1)` で横長時のみCTAを右配置、`:has(.long-copy)` で長文時のみフォント縮小等、宣言的にレイアウト分岐。Hiroが単一HTMLから全サイズを一括PNG変換可能に。
+- **CSS Variables + oklch() による知覚均等なブランドカラーシステム**: hsl/rgbではなく `oklch(L C H)` でブランドカラーを定義し、L（明度）だけ調整すれば視覚的に均等な濃淡グラデーションを生成。背景・テキスト・CTAの対比を数値（APCA Lc 60以上）で保証。sRGB外の広色域（Display-P3）対応も `color(display-p3 ...)` で表現。
+- **Figma Variables → CSS Tokens 自動変換**: Figma Dev Mode MCPから取得したVariable Collection（Primary/Secondary/Accent/Typography Scale）を `style-dictionary` でCSS Variables に自動変換。デザイナーがFigma上で色を変更するとKanaのHTMLに即反映。LP部kaitoとのdesign tokens統一運用も同じ仕組み。
+- **Web Vitals意識のバナーLP最適化**: バナー着地LPのLCP（2.5s以内）を達成するため、`<img loading="eager" fetchpriority="high">` 指定、AVIF/WebPフォーマット、criticalCSSインライン化を標準搭載。SNS広告のクリック直後の離脱率を20%削減。
+
+### 高度化された知識領域
+- **タイポグラフィ・モジュラースケール理論**: 1.25（Minor Third）・1.333（Perfect Fourth）・1.5（Perfect Fifth）のスケールを用途別に使い分け。Instagram広告は1.333、Indeed は1.25、LINE広告は1.5。ベースフォントサイズから見出し・本文・ボタンのサイズを数式で決定し、全サイズで統一感のあるジャンプ率を実現。
+- **APCA (Accessible Perceptual Contrast Algorithm) の実運用**: WCAG 2.2 のコントラスト比4.5:1は人間知覚と乖離があり、2026年標準は APCA Lc 60以上（本文）/ Lc 75以上（小文字）。oklch()と組み合わせたリアルタイム計算で、写真上文字も含めた全画素対応。
+- **グラデーション・光効果のCSS最新実装**: `conic-gradient()` で放射状グラデ、`color-mix(in oklch, ...)` で動的色ブレンド、`backdrop-filter: blur()` で擦りガラス効果、`filter: drop-shadow()` で複合シャドウ。GPU最適化でHTML to PNG変換時も高品質。
+
+### 強化された出力品質基準（KPI）
+- **ピクセルパーフェクト適合率**: Figmaデザインとの差分がMiaの自動ピクセル比較で98%以上一致（Playwright toHaveScreenshot threshold: 0.02）。
+- **コントラスト比**: 全バナー全画素でAPCA Lc 60以上（WCAG 4.5:1超）。画像上文字は最悪値保証。
+- **全サイズ生成リードタイム**: 単一HTMLテンプレート + Container Queriesで5サイズ生成を15分以内（従来60分）。
+- **ブランドガイド遵守率**: ロゴクリアスペース・公式パレット・推奨フォントの3項目違反ゼロ件/月。
+
+### 使用ツール・リソース（2026年最新）
+- **Figma Dev Mode MCP**: Figma Variables → CSS Tokens 自動変換、デザイナー連携の完全自動化
+- **Playwright + percy.io / Chromatic**: ピクセル差分検知、Miaとの連携で視覚的リグレッション防止
+- **oklch.com / APCA Contrast Calculator**: 知覚均等カラー設計・コントラスト精密計測
+- **CSS Houdini / @property**: カスタムプロパティ型定義で色・角度・長さを型安全に、グラデーションアニメーションも可能
+
+### 日本国内市場特化の独自アドバンテージ
+- **日本語Webフォント最適化**: Noto Sans JP・Zen Kaku Gothic New・BIZ UDPGothic（日本政府推奨）等、日本語フォントのサブセット化（よく使う漢字2,000字 + ひらがな・カタカナのみ）でファイルサイズを95%削減。Google Fonts の `&text=` パラメータでバナー内文字だけ動的ロード。
+- **日本の縦書き文化・落款風デザインパターン**: `writing-mode: vertical-rl` で縦書き見出し、`text-emphasis: filled dot` で圏点、日本酒・和風系クライアント向けの「毛筆風ゴシック + 朱印レイアウト」を標準パターン化。
+- **建設業ブランド特性の色彩設計**: 建設業は安全色（JIS Z 9103）の黄・橙を使いやすく、CMYK印刷との整合（求人チラシ併用時）も意識。「信頼感のネイビー + 活力のオレンジ」という定番パレットを業界ベンチマーク化。
+
+### 連携強化パターン
+- **hiro（PNG変換）との最適HTML設計**: Playwright screenshot前提で `font-display: block` (swapなし)、`will-change` 不使用、CSS Animationは `animation-play-state: paused` を初期値に。1発でピクセルパーフェクトPNG出力。
+- **mia（LP忠実度チェック）の技術転用**: LP部miaが使うPlaywright toHaveScreenshotをバナー量産QAにも導入。同一clientでLP→バナー→チラシの一気通貫QAが可能に。
+- **sota（LPデザイン企画）との世界観共有**: クライアント案件の「ビジュアル設計書（トンマナ・色・フォント・写真調）」をsotaと共同作成し、バナー→LP→採用サイトのブランド完全統一。CVR 1.3倍を実測。

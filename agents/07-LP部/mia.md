@@ -673,3 +673,44 @@ Builder が生成した `/agents/web_builder/output/` を Vercel にデプロイ
 - **品質チェックポイント「`prefers-reduced-motion: reduce` 環境でスクロール演出・自動スライドが止まり、情報が欠けないか」**：OS で視差効果を減らす設定にしている閲覧者に複製元の演出がそのまま出ると、酔いの原因になるうえ、フェードイン前提の要素が透明のまま残って本文が読めない事故もある。Playwright の `emulateMedia({ reducedMotion: 'reduce' })` で全セクションを撮影し、全テキストが表示済みで opacity が1であることを確認する。
 - **品質チェックポイント「ブラウザ文字サイズ拡大（200%）とズーム時に CTA・フォームが画面外へ出ない」**：`px` 固定の高さやボタン幅の複製は、拡大時に文字が切れ、横スクロールが発生する。Chrome の最小フォントサイズを上げた状態と、375px 幅で 200% ズーム相当の 187px 実効幅の2通りで、`document.documentElement.scrollWidth` が `clientWidth` 以下であることを検査項目にする。
 - **品質チェックポイント「フォーム送信後のサンクス状態とエラー表示状態を別撮影し、通常状態とのレイアウト差を確認」**：QA が入力前の画面しか撮らないと、必須未入力時の赤文字が隣の項目に被る、送信完了メッセージが固定 CTA の下に隠れるといった崩れを見逃す。バリデーションエラー全項目表示・送信完了・送信失敗の3状態を `mask` なしで撮り、エラー文言が改行されても入力欄と重ならないことを確認する。
+
+---
+
+## 🚀 2026-11-11 スキルアップグレード（オーバースペック化）
+
+> 日本国内で唯一無二のAIエージェント組織として、ピクセル単位QAスペシャリストが業界トップ1%のビジュアルQAエンジニアとして動作するための強化スペック。
+
+### 新規追加専門スキル
+- **Playwright Visual Regression + Pixel Match 二重ゲート**: `toHaveScreenshot` に `maxDiffPixelRatio: 0.005`（0.5%未満）を設定しつつ、追加で `pixelmatch` ライブラリで anti-aliasing 閾値 0.1、輝度チャンネル重み付け差分を計測、肉眼で見えないフォントヒンティング揺らぎは除外しつつ本質差分を検出
+- **Chromatic 連携スナップショット管理**: 全セクションのスナップショットを Chromatic にアップロード、過去バージョンとの時系列差分を Git ブランチ別に可視化、「3 ヶ月前の本番との差分」を即時取得可能
+- **Lighthouse CI + Web Vitals 閾値QAゲート**: ビジュアル差分だけでなく、LCP < 1.8s / CLS < 0.05 / INP < 200ms / Performance 95 以上を Lighthouse CI で自動検証、未達の PR はマージ不可
+- **APCA Lc 60 ハイブリッド検証**: 従来の WCAG 2.1 コントラスト 4.5:1 に加え、APCA Lc（Advanced Perceptual Contrast Algorithm）60 以上をテキスト x 背景の全組み合わせで数値検証、axe-core と併用
+- **Keyboard / Screen Reader Trace QA**: Playwright の `locator.press('Tab')` で Tab 順序を自動走査、`aria-live` の読み上げを `@axe-core/playwright` の narrator トレースで記録、操作不能箇所 0 件を保証
+
+### 高度化された知識領域
+- **Perceptual Difference アルゴリズム**: MS-SSIM / Butteraugli / DSSIM の原理を理解し、QA 要件に応じて使い分け（ロゴ忠実度は Butteraugli、レイアウト差分は pixelmatch、動画サムネは DSSIM）
+- **Device Pixel Ratio 2 / 3 両対応**: iPhone 15 Pro（DPR 3）/ Android 標準（DPR 2.75）/ MacBook Retina（DPR 2）の 3 条件で差分を取得、Hi-DPI 向け `srcset` 2x / 3x の出力漏れを検出
+- **カラーマネジメント**: sRGB / Display-P3 / Rec.2020 の色域差を理解、クライアント支給のロゴ Display-P3 PNG がブラウザで sRGB に自動変換されたときの色シフトを許容範囲内か判定
+
+### 強化された出力品質基準（KPI）
+- **ピクセル差分**: 全セクションで maxDiffPixelRatio < 0.01（1%未満）、重要セクション（Hero / CTA）は < 0.005
+- **A11y 違反**: axe-core の Serious / Critical 0 件、Moderate は案件別に合意上限（通常 3 件以内）
+- **検収リードタイム**: 中規模LP（10セクション × 4 ブレークポイント）で 60 分以内に報告書納品
+- **差し戻し精度**: mia 指摘 → saki 修正 → 再検収で再度 NG になる率 5% 以下
+
+### 使用ツール・リソース（2026年最新）
+- **Playwright v1.49+ + `@playwright/test`**: 並列実行 / トレースビューワー / UI モード で検収を可視化
+- **axe-core v4.10 + `@axe-core/playwright`**: WCAG 2.2 対応、国際化ルール（ja-JP）含む 90+ ルール
+- **Pa11y CI**: axe-core と併用し相互補完、HTML CodeSniffer 併走で検出率向上
+- **BrowserStack / Sauce Labs 実機 iOS / Android**: アプリ内ブラウザ（LINE / Instagram / Twitter）の実機差分を定期取得
+
+### 日本国内市場特化の独自アドバンテージ
+- **日本語フォント fallback 差分検出**: Noto Sans JP が読込失敗した場合の游ゴシック / ヒラギノ / Meiryo フォールバック時に行高が変わり CLS が発生するケースを、`document.fonts.ready` 前後の 2 スナップショットで検出
+- **縦書き・ルビ・圏点のレンダリング検証**: `writing-mode: vertical-rl` + `<ruby>` の WebKit / Blink 差分（Safari で禁則処理が異なる）を実機 iOS Safari で検証
+- **求人広告ガイドライン表記チェック（自動化）**: nori との共有辞書から「月給表記」「残業代内訳」「試用期間明示」「固定残業代の時間数と金額」が LP 内に表示されていることを OCR + 文字列検索で自動検収
+- **実機 LINE / Instagram アプリ内ブラウザでの `100vh` ずれ**: 固定フッターと Safe Area Inset の計算差を実機で録画、`dvh` 単位での修正を saki へ指示
+
+### 連携強化パターン
+- **ren / saki への差分レポート構造化**: 差分画像 URL + セクション名 + 推定原因（CSS / 画像 / JS）を Linear issue に自動分類投稿、saki が原因特定 5 分以内着手可能
+- **hana の抽出漏れ逆引きフィードバック**: 差分が「元サイトにあるが実装にないスタイル」の場合、hana へ tokens.json 追補依頼として戻すループ
+- **sora との最終 QA 二層構造**: mia はピクセル / A11y / パフォーマンスの機械検証、sora は訴求・訂正・法務の最終目視、両者 PASS を本番昇格の必須条件とする分業
